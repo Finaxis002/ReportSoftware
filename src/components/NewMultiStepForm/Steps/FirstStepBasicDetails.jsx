@@ -437,7 +437,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
           </div>
 
           {/* Add Partners Section */}
-          <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[2rem]">
+          <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[1rem]">
             <h5>Add Partners</h5>
             {localData.allPartners.map((partner, index) => (
               <div
