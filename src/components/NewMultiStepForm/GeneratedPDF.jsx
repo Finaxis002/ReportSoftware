@@ -121,7 +121,7 @@ const GeneratedPDF = () => {
         <hr />
         <h5>Index</h5>
         <hr />
-        <Page style={styles.page}>
+        <div style={styles.page}>
           {/* step 1 basic details */}
           <BasicDetailsTable fileURL={fileURL} />
           <hr />
@@ -152,7 +152,7 @@ const GeneratedPDF = () => {
             <hr />
             <Doughnut data={tempGraphData} />
           </div>
-        </Page>
+        </div>
       </div>
     </section>
   );
