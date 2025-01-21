@@ -28,7 +28,6 @@ const DepreciationTable = () => {
     return depreciation;
   };
 
-  const [th, setTh] = useState(7); // This can be dynamic
   const columnCount = 11; // Total number of columns (th elements)
 
   // Function to return class name based on the number of columns (>= 10)
