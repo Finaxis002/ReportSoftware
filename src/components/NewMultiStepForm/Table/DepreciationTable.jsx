@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { useLocation } from "react-router-dom";
 import { Document, Page, Text, StyleSheet, View } from "@react-pdf/renderer";
 
@@ -28,17 +28,36 @@ const DepreciationTable = () => {
     return depreciation;
   };
 
+  const [th, setTh] = useState(7); // This can be dynamic
+  const columnCount = 11; // Total number of columns (th elements)
+
+  // Function to return class name based on the number of columns (>= 10)
+  const turnery = (columnCount) => {
+    console.log('Number of columns:', columnCount); // Debugging
+    return columnCount >= 11 ? 'transform-table' : ''; // Apply transform-table class if columns >= 10
+  };
+
+  // Function to return styles based on column count (>= 10)
+  const dynamicStyle = (columnCount) => {
+    console.log('Number of columns for style:', columnCount); // Debugging
+    return columnCount >= 11
+      ? { transform: 'scale(0.5)', marginLeft: '-41%' }
+      : {}; // Apply styles if columns >= 10
+  };
+
+
   return (
-    <div className="container container-width mt-4 bg-light px-4">
+    <div className="mt-4 bg-light px-4">
       <h2 className="py-4 text-center text-xl font-bold">
         Calculation of Depreciation
       </h2>
       {/* Gross Fixed Asset Table */}
-      <div className="table-responsive">
+      <div >
         <h3>Gross Fixed Asset</h3>
-        <table className="table table-striped table-bordered table-hover">
+        <table className={turnery(columnCount)} style={dynamicStyle(columnCount)}>
           <thead>
             <tr>
+             
               <th className="bg-headPurple">Name</th>
               <th className="bg-headPurple">Amount</th>
               <th className="bg-headPurple">Rate (%)</th>
@@ -47,6 +66,21 @@ const DepreciationTable = () => {
               <th className="bg-headPurple">Year 3</th>
               <th className="bg-headPurple">Year 4</th>
               <th className="bg-headPurple">Year 5</th>
+              <th className="bg-headPurple">Year 6</th>
+              <th className="bg-headPurple">Year 7</th>
+              <th className="bg-headPurple">Year 8</th>
+              <th className="bg-headPurple">Year 9</th>
+              <th className="bg-headPurple">Year 10</th>
+              <th className="bg-headPurple">Year 11</th>
+              <th className="bg-headPurple">Year 12</th>
+              <th className="bg-headPurple">Year 13</th>
+              <th className="bg-headPurple">Year 14</th>
+              <th className="bg-headPurple">Year 15</th>
+              <th className="bg-headPurple">Year 16</th>
+              <th className="bg-headPurple">Year 17</th>
+              <th className="bg-headPurple">Year 18</th>
+              <th className="bg-headPurple">Year 19</th>
+              <th className="bg-headPurple">Year 20</th>
             </tr>
           </thead>
           <tbody>
@@ -95,9 +129,9 @@ const DepreciationTable = () => {
         </table>
       </div>
       {/* depreciation table */}
-      <div className="table-responsive">
+      <div >
         <h3>Depreciation</h3>
-        <table className="table table-striped table-bordered table-hover">
+        <table>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>
@@ -158,7 +192,7 @@ const DepreciationTable = () => {
       {/* Cummulative Depriciation */}
       <div className="table-responsive">
         <h3>Cummulative Depriciation</h3>
-        <table className="table table-striped table-bordered table-hover">
+        <table className={formData.CostOfProject && Object.entries(formData.CostOfProject)[0][1].years >= 8 ? "transform-table" : ""}>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>
@@ -218,7 +252,7 @@ const DepreciationTable = () => {
       {/* Net Fixed Asset Table */}
       <div className="table-responsive">
         <h3>Net Fixed Asset</h3>
-        <table className="table table-striped table-bordered table-hover">
+        <table className={formData.CostOfProject && Object.entries(formData.CostOfProject)[0][1].years >= 8 ? "transform-table" : ""}>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>

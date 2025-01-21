@@ -40,6 +40,7 @@
     "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1",
     "react-table": "^7.8.0",
+    "react-to-pdf": "^1.0.1",
     "tailwind-react-native-classnames": "^3.0.1",
     "web-vitals": "^2.1.4"
   },

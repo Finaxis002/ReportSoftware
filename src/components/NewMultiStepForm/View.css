@@ -23,3 +23,43 @@ strong{
 
 
 
+#report-content {
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  padding: 20px;
+}
+
+#report-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#report-content th, #report-content td {
+  border: 1px solid #000;
+  padding: 8px;
+  text-align: left;
+}
+
+.pageBreak {
+  page-break-before: always;
+  margin-top: 20px;
+}
+
+.avoidBreak {
+  break-inside: avoid;
+}
+.transform-table {
+  transform: scale(0.5);
+  margin-left: -41%;
+}
+
+
+@media print {
+    #report-content {
+        page-break-before: always;
+    }
+    .pageBreak {
+        page-break-before: always;
+    }
+}
+

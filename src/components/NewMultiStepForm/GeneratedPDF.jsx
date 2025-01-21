@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState , useRef} from "react";
 import { useLocation } from "react-router-dom";
 import { StyleSheet } from "@react-pdf/renderer";
-import html2pdf from "html2pdf.js";  // Import html2pdf.js
 import { Bar } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -14,6 +13,8 @@ import PrSetting from "./Table/PrSetting";
 import RevenueTable from "./Table/RevenueTable";
 import MoreDetailsTable from "./Table/MoreDetailsTable";
 import DepreciationTable from "./Table/DepreciationTable";
+import html2canvas from "html2canvas";
+import jsPDF from 'jspdf'
 
 // Register chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -87,73 +88,113 @@ const GeneratedPDF = ({ chartRef }) => {
 
   const location = useLocation();
   const [fileURL, setFileURL] = useState(null);
+  const pdfRef = useRef(null);
 
-  const downloadPDF = () => {
-    const element = document.getElementById("report-content"); // Get the section to be downloaded
-    const opt = {
-      margin: 1,
-      filename: "report-review.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true, // Ensure images are rendered correctly
-        logging: true,
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    };
-
-    html2pdf().from(element).set(opt).save(); // Download the PDF
+  const generatePDF = () => {
+    if (!pdfRef.current) {
+      console.error("Reference to report content is null");
+      return;
+    }
+  
+    // Get all the page sections by their ids
+    const pageElements = [
+      document.getElementById("page1"),
+      document.getElementById("page2"),
+      document.getElementById("page3"),
+      document.getElementById("page4"),
+      document.getElementById("page5"),
+      document.getElementById("page6"),
+      document.getElementById("page7"),
+      document.getElementById("page8"),
+      document.getElementById("page9"),
+    ];
+  
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    pageElements.forEach((pageElement, index) => {
+      if (pageElement) {
+        html2canvas(pageElement, { scale: 2 }).then((canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+          const imgWidth = 210; // A4 width in mm
+          const pageHeight = 297; // A4 height in mm
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+          // Add the first page or add pages after the first
+          if (index > 0) pdf.addPage();
+          
+          pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+          
+          // If content exceeds one page, add more pages
+          let heightLeft = imgHeight - pageHeight;
+          let position = 0;
+  
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+  
+          // Save the PDF after processing all pages
+          if (index === pageElements.length - 1) {
+            pdf.save("report.pdf");
+          }
+        });
+      }
+    });
   };
+  
+
   return (
     <section>
       <h1 className="text-center py-5 bg-headPurple">Report Review</h1>
-      <div className="w-75 mx-auto">
+       <div className="w-75 mx-auto">
         <hr />
         <h5>Index</h5>
         <hr />
 
-        <div id="report-content" style={styles.page}>
+        <div ref={pdfRef} id="report-content" style={styles.page}>
           {/* Step 1 Basic Details */}
-          <div style={styles.pageBreak}>
+          <div id="page1" style={styles.pageBreak}>
             <BasicDetailsTable fileURL={fileURL} />
           </div>
           {/* Step 2 Means Of Finance */}
-          <div style={styles.pageBreak}>
+          <div id="page2" style={styles.pageBreak}>
             <MeansOfFinanceTable />
           </div>
 
           {/* Step 3 Cost of Project */}
-          <div style={styles.pageBreak}>
+          <div id="page3" style={styles.pageBreak}>
             <CostOfProjectTable />
           </div>
 
           {/* Step 4 Project Report Setting */}
-          <div style={styles.pageBreak}>
+          <div id="page4" style={styles.pageBreak}>
             <PrSetting />
           </div>
 
           {/* Step 5 Expenses */}
-          <div style={styles.pageBreak}>
+          <div id="page5" style={styles.pageBreak}>
             <ExpensesTable />
           </div>
 
           {/* Step 6 Revenue */}
-          <div style={styles.pageBreak}>
+          <div id="page6" style={styles.pageBreak}>
             <RevenueTable />
           </div>
 
           {/* Step 7 More Details */}
-          <div style={styles.pageBreak}>
+          <div id="page7" style={styles.pageBreak}>
             <MoreDetailsTable />
           </div>
 
           {/* Step 8 Depreciation */}
-          <div style={styles.pageBreak}>
+          <div id="page8" style={styles.pageBreak}>
             <DepreciationTable />
           </div>
 
           {/* Pie Chart */}
-          <div style={styles.pageBreak}>
+          <div id="page9" style={styles.pageBreak}>
             <div className="w-50 mx-auto">
               <Bar options={options} data={tempGraphData} />
               <hr />
@@ -164,7 +205,7 @@ const GeneratedPDF = ({ chartRef }) => {
       </div>
 
       {/* Button to Trigger PDF Download */}
-      <button onClick={downloadPDF}>Download PDF</button>
+      <button onClick={generatePDF}>Download PDF</button>
     </section>
   );
 };
