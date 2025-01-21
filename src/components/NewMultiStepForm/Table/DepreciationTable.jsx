@@ -40,7 +40,11 @@ const DepreciationTable = () => {
   const dynamicStyle = (columnCount) => {
     console.log('Number of columns for style:', columnCount); // Debugging
     return columnCount >= 11
+<<<<<<< HEAD
       ? { transform: 'scale(0.5)' }
+=======
+      ? { transform: 'scale(0.5)', marginLeft: '-40%' }
+>>>>>>> 52b489df970b08b47276005a157e4648dd9a8704
       : {}; // Apply styles if columns >= 10
   };
 
