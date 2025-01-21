@@ -40,7 +40,7 @@ const DepreciationTable = () => {
   const dynamicStyle = (columnCount) => {
     console.log('Number of columns for style:', columnCount); // Debugging
     return columnCount >= 11
-      ? { transform: 'scale(0.5)', marginLeft: '-41%' }
+      ? { transform: 'scale(0.5)' }
       : {}; // Apply styles if columns >= 10
   };
 
@@ -51,7 +51,7 @@ const DepreciationTable = () => {
         Calculation of Depreciation
       </h2>
       {/* Gross Fixed Asset Table */}
-      <div >
+      <div className="table-div">
         <h3>Gross Fixed Asset</h3>
         <table className={turnery(columnCount)} style={dynamicStyle(columnCount)}>
           <thead>
