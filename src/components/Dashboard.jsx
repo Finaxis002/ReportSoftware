@@ -82,8 +82,8 @@ const Dashboard = () => {
 
                     <div className="row mt-5">
                         <div className="col-12">
-                            <div class="card border-primary">
-                                <div class="card-header text-center text-primary">
+                            <div className="card border-primary">
+                                <div className="card-header text-center text-primary">
                                     <h4>User Details</h4>
                                 </div>
                                 <div class="card-body">
@@ -135,8 +135,8 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer text-end">
-                                    <small class="text-muted">Date of Joining: {userDetails?.DateOfJoining}</small>
+                                <div className="card-footer text-end">
+                                    <small className="text-muted">Date of Joining: {userDetails?.DateOfJoining}</small>
                                 </div>
                             </div>
 

@@ -352,6 +352,19 @@ const SixthRevenue = ({ onFormDataChange, years }) => {
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+
+                  <div className="d-flex">
+                    <label className="form-label w-25 fs-10">Total Amount</label>
+                    <table className="table">
+                      <tbody>
+                        <tr>
+                          {totalRevenue.map((v, i) => (
+                            <td key={i}>{v}</td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
                     
                   </div>
 

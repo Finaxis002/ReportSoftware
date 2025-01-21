@@ -1,5 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import { Document, Page, Text, StyleSheet, View } from "@react-pdf/renderer";
+
 
 const DepreciationTable = () => {
   const location = useLocation();
@@ -17,7 +19,7 @@ const DepreciationTable = () => {
   const calculateDepreciation = (amount, rate) => {
     let depreciation = [];
     let cumulativeDepreciation = 0;
-    for (let year = 1; year <= 5; year++) {
+    for (let year = 1; year <= 20; year++) {
       const depreciationThisYear = amount * (rate / 100);
       cumulativeDepreciation += depreciationThisYear;
       depreciation.push(cumulativeDepreciation.toFixed(2)); // Store cumulative depreciation
