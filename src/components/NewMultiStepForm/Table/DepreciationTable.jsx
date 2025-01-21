@@ -130,7 +130,7 @@ const DepreciationTable = () => {
       </div>
       {/* depreciation table */}
       <div >
-        <h3>Depreciation</h3>
+        <h3>Depreciationn</h3>
         <table>
           <thead>
             <tr>
