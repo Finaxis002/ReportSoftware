@@ -1,52 +1,102 @@
+
 import React, { useState, useEffect } from "react";
+import axios from "axios"; // Import Axios
 import deleteImg from "../delete.png";
 
 const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
-  // Initialize form data with props if available
-  const [localData, setLocalData] = useState(() => {
-    const savedData = localStorage.getItem("FirstStepBasicDetails");
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          clientName: formData?.ClientInformation?.clientName || "",
-          clientEmail: formData?.ClientInformation?.clientEmail || "",
-          clientPhone: formData?.ClientInformation?.clientPhone || "",
-          businessDescription:
-            formData?.BusinessDetails?.businessDescription || "",
-          businessOwner: formData?.BusinessDetails?.businessOwner || "",
-          businessEmail: formData?.BusinessDetails?.businessEmail || "",
-          businessContactNumber:
-            formData?.BusinessDetails?.businessContactNumber || "",
-          clientDob: formData?.ClientInformation?.clientDob || "",
-          adhaarNumber: formData?.ClientInformation?.adhaarNumber || "",
-          educationQualification:
-            formData?.ClientInformation?.educationQualification || "",
-          businessName: formData?.BusinessDetails?.businessName || "",
-          businessAddress: formData?.BusinessDetails?.businessAddress || "",
-          pincode: formData?.BusinessDetails?.pincode || "",
-          location: formData?.BusinessDetails?.location || "",
-          industryType: formData?.BusinessDetails?.industryType || "",
-          registrationType: formData?.BusinessDetails?.registrationType || "",
-          PANNumber: formData?.BusinessDetails?.PANNumber || "",
-          TANNumber: formData?.BusinessDetails?.TANNumber || "",
-          UDYAMNumber: formData?.BusinessDetails?.UDYAMNumber || "",
-          GSTIN: formData?.BusinessDetails?.GSTIN || "",
-          CIN: formData?.BusinessDetails?.CIN || "",
-          logoOfBusiness: formData?.BusinessDetails?.logoOfBusiness || "",
-          allPartners: formData?.BusinessDetails?.allPartners || [],
-          PIN: formData?.BusinessDetails?.PIN || "",
-          numberOfEmployees: formData?.BusinessDetails?.numberOfEmployees || "",
-          nameofDirectors: formData?.BusinessDetails?.nameofDirectors || "",
-          DIN: formData?.BusinessDetails?.DIN || "",
+  // const [localData, setLocalData] = useState(() => {
+  //   const savedData = localStorage.getItem("FirstStepBasicDetails");
+  //   return savedData
+  //     ? JSON.parse(savedData)
+  //     : {
+  //         clientName: "",
+  //         clientEmail: "",
+  //         clientPhone: "",
+  //         // businessDescription: "",
+  //         // businessOwner: "",
+  //         // businessEmail: "",
+  //         // businessContactNumber: "",
+  //         // clientDob: "",
+  //         // adhaarNumber: "",
+  //         // educationQualification: "",
+  //         // businessName: "",
+  //         // businessAddress: "",
+  //         // pincode: "",
+  //         // location: "",
+  //         // industryType: "",
+  //         // registrationType: "",
+  //         // PANNumber: "",
+  //         // TANNumber: "",
+  //         // UDYAMNumber: "",
+  //         // GSTIN: "",
+  //         // CIN: "",
+  //         // logoOfBusiness: "",
+  //         // allPartners: [],
+  //         // PIN: "",
+  //         // numberOfEmployees: "",
+  //         // nameofDirectors: "",
+  //         // DIN: "",
+  //       };
+  // });
+
+  const [localData, setLocalData] = useState({
+    clientName: "",
+    clientEmail: "",
+    clientPhone: "",
+    businessDescription: "",
+          businessOwner: "",
+          businessEmail: "",
+          businessContactNumber: "",
+          clientDob: "",
+          adhaarNumber: "",
+          educationQualification: "",
+          businessName: "",
+          businessAddress: "",
+          pincode: "",
+          location: "",
+          industryType: "",
+          registrationType: "",
+          PANNumber: "",
+          TANNumber: "",
+          UDYAMNumber: "",
+          GSTIN: "",
+          CIN: "",
+          logoOfBusiness: "",
           allPartners: [],
-        };
+          PIN: "",
+          numberOfEmployees: "",
+          nameofDirectors: "",
+          DIN: "",
+          allPartners: [],
   });
-  // Save data to localStorage whenever it changes
+  
+
+  const fetchClientData = async (clientName) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/user/by-name/${clientName}`);
+      const userData = response.data;
+      // Update the localData state with the fetched data
+      setLocalData((prevData) => ({
+        ...prevData,
+        ...userData,
+      }));
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      alert("Client not found!");
+    }
+  };
+
+  const handleClientNameBlur = (e) => {
+    const clientName = e.target.value.trim();
+    if (clientName) {
+      fetchClientData(clientName); // Fetch data when the clientName field loses focus
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem("FirstStepBasicDetails", JSON.stringify(localData));
   }, [localData]);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLocalData((prevData) => ({
@@ -54,6 +104,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
       [name]: value,
     }));
   };
+
   const addPartner = () => {
     setLocalData((prevData) => ({
       ...prevData,
@@ -64,8 +115,6 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
     }));
   };
 
-  // console.log(addPartner);
-
   const handlePartnerChange = (e, index) => {
     const { name, value } = e.target;
     setLocalData((prevData) => {
@@ -75,47 +124,101 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
     });
   };
 
-  // Effect to automatically save the data when the form is updated
-  useEffect(() => {
-    // Make sure to update AccountInformation instead of CostOfProject
-    onFormDataChange({ AccountInformation: localData });
-  }, [localData, onFormDataChange]);
-
   const handleDeletePartner = (index) => {
-    // Filter out the partner at the given index
     const updatedPartners = localData.allPartners.filter((_, idx) => idx !== index);
-    
-    // Update the state with the new partners list
     setLocalData((prevData) => ({
       ...prevData,
       allPartners: updatedPartners,
     }));
   };
 
+  // ** New Submission Handler **
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log("Submitting Data:", localData); 
+  //   try {
+  //     // Send data to the backend API
+  //     const response = await axios.post("http://localhost:5000/api/user", localData);
+  //     alert("Data submitted successfully!");
+  //     console.log("Response:", response.data);
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //     alert("Failed to submit data. Check console for details.");
+  //   }
+  // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Filter only the required fields
+    const filteredData = {
+      clientName: localData.clientName,
+      clientEmail: localData.clientEmail,
+      clientPhone: localData.clientPhone,
+      businessDescription: localData.businessDescription,
+      businessOwner:localData.businessOwner,
+      businessEmail:localData.businessEmail,
+      businessContactNumber:localData.businessContactNumber,
+      clientDob:localData.clientDob,
+      adhaarNumber:localData.adhaarNumber,
+      educationQualification:localData.educationQualification,
+      businessName:localData.businessName,
+      businessAddress:localData.businessAddress,
+      pincode:localData.pincode,
+      location:localData.location,
+      industryType:localData.industryType,
+      registrationType:localData.registrationType,
+      PANNumber:localData.PANNumber,
+      TANNumber:localData.TANNumber,
+      UDYAMNumber:localData.UDYAMNumber,
+      GSTIN:localData.GSTIN,
+      CIN:localData.CIN,
+      logoOfBusiness:localData.logoOfBusiness,
+      PIN:localData.PIN,
+      numberOfEmployees:localData.numberOfEmployees,
+      nameofDirectors:localData.nameofDirectors,
+      DIN:localData.DIN,
+      allPartners: localData.allPartners,
+    };
+  
+    console.log("Submitting Data:", filteredData); // Log the filtered data being sent
+  
+    try {
+      const response = await axios.post("http://localhost:5000/api/user", filteredData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      alert("Data submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting data:", error.response?.data || error.message);
+      alert("Failed to submit data. Check console for details.");
+    }
+  };
   
   return (
-    <div className="">
-      <div className="form-scroll">
+    <div className="form-scroll">
+      <form onSubmit={handleSubmit}> {/* Form wrapper with submit */}
         <div>
-          {/* Client Information */}
+          
           <div className="input">
-            <input
-              id="clientName"
-              name="clientName"
-              type="text"
-              placeholder="e.g., John Doe"
-              value={localData.clientName}
-              onChange={handleChange}
-              required
-            />
-            <label htmlFor="clientName">Client Name</label>
+          <input
+            id="clientName"
+            name="clientName"
+            type="text"
+            placeholder="Enter Client Name"
+            value={localData.clientName}
+            onChange={handleChange}
+            onBlur={handleClientNameBlur} // Fetch data on blur
+            required
+          />
+          <label htmlFor="clientName">Client Name</label>
           </div>
-
+          {/* Repeat similar input fields for other data */}
           <div className="input">
             <input
               id="clientEmail"
               name="clientEmail"
-              type="email"
+              type="text"
               placeholder="e.g., john@example.com"
               value={localData.clientEmail}
               onChange={handleChange}
@@ -124,59 +227,66 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
             <label htmlFor="clientEmail">Client Email</label>
           </div>
 
+
+
           <div className="input">
             <input
               id="clientPhone"
               name="clientPhone"
-              type="tel"
-              placeholder="e.g., 123-456-7890"
+              type="text"
+              placeholder="e.g., 92245666777"
               value={localData.clientPhone}
               onChange={handleChange}
               required
             />
-            <label htmlFor="clientPhone">Client Phone</label>
+            <label htmlFor="clientPhone">client Phone</label>
           </div>
+
           <div className="input">
             <input
               id="businessDescription"
               name="businessDescription"
-              type="tel"
-              placeholder="e.g., Description"
+              type="text"
+              placeholder="description..............."
               value={localData.businessDescription}
               onChange={handleChange}
               required
             />
-            <label htmlFor="businessOwner">Business Description</label>
+            <label htmlFor="businessDescription">businessDescription</label>
           </div>
+
           <div className="input">
             <input
               id="businessOwner"
               name="businessOwner"
-              type="tel"
-              placeholder="e.g., John Doe"
+              type="text"
+              placeholder="business Owner "
               value={localData.businessOwner}
               onChange={handleChange}
               required
             />
-            <label htmlFor="businessOwner">Business Owner</label>
+            <label htmlFor="businessOwner">business Owner</label>
           </div>
+
           <div className="input">
             <input
               id="businessEmail"
               name="businessEmail"
-              type="tel"
+              type="text"
               placeholder="e.g., john@example.com"
               value={localData.businessEmail}
               onChange={handleChange}
               required
             />
-            <label htmlFor="businessEmail">Business Email</label>
+            <label htmlFor="businessEmail">business Email</label>
           </div>
+
+          {/* Add more fields as needed */}
           <div className="input">
             <input
               id="businessContactNumber"
               name="businessContactNumber"
-              type="tel"
+              type="text"
               placeholder="e.g., 123-456-789"
               value={localData.businessContactNumber}
               onChange={handleChange}
@@ -191,7 +301,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
             <input
               id="clientDob"
               name="clientDob"
-              type="date"
+              type="text"
               value={localData.clientDob}
               onChange={handleChange}
               required
@@ -241,7 +351,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
             <label htmlFor="businessName">Business Name</label>
           </div>
 
-          <div className="input">
+           <div className="input">
             <input
               id="businessAddress"
               name="businessAddress"
@@ -375,7 +485,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
             <input
               id="logoOfBusiness"
               name="logoOfBusiness"
-              type="file"
+              type="text"
               accept="image/png, image/jpeg"
               onChange={(e) => handleChange(e)}
               style={{ paddingTop: "1.5%" }}
@@ -434,10 +544,42 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
               required
             />
             <label htmlFor="DIN">DIN</label>
-          </div>
+          </div> 
 
-          {/* Add Partners Section */}
-          <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[1rem]">
+          
+          {/* Partners Section */}
+          {/* <div>
+            <h5>Add Partners</h5>
+            {localData.allPartners.map((partner, index) => (
+              <div key={index}>
+                <input
+                  name="partnerName"
+                  placeholder="Partner Name"
+                  value={partner.partnerName}
+                  onChange={(e) => handlePartnerChange(e, index)}
+                />
+                <input
+                  name="partnerAadhar"
+                  placeholder="Partner Aadhaar"
+                  value={partner.partnerAadhar}
+                  onChange={(e) => handlePartnerChange(e, index)}
+                />
+                <input
+                  name="partnerDin"
+                  placeholder="Partner DIN"
+                  value={partner.partnerDin}
+                  onChange={(e) => handlePartnerChange(e, index)}
+                />
+                <button type="button" onClick={() => handleDeletePartner(index)}>
+                  Delete Partner
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={addPartner}>
+              Add Partner
+            </button>
+          </div> */}
+                 <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[1rem]">
             <h5>Add Partners</h5>
             {localData.allPartners.map((partner, index) => (
               <div
@@ -500,9 +642,15 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
             >
               Add Partner
             </button>
-          </div>
+
+            {/* <button className="btn btn-primary mt-3" onClick={handleSubmit}>
+  Submit
+</button> */}
+                  </div>
+
         </div>
-      </div>
+        <button type="submit">Submit</button> 
+      </form>
     </div>
   );
 };

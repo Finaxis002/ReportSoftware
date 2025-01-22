@@ -6,9 +6,25 @@ import { Document, Page, Text, StyleSheet, View } from "@react-pdf/renderer";
 const DepreciationTable = () => {
   const location = useLocation();
   const formData = location.state;
+  const [localData, setLocalData] = useState(() => {
+    const savedData = localStorage.getItem("FourthStepPRS");
+  
+    // Parse and return saved data if it exists, otherwise use the default structure
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          ProjectionYears: {
+            name: "Projection Years",
+            id: "ProjectionYears",
+            value: "",
+            isCustom: false,
+          },
+        };
+  });
 
-  // Debug: Log data to check if CostOfProject is present
-  console.log("formData in DepreciationTable:", formData);
+  const [projectionYears, setProjectionYears] = useState(localData.ProjectionYears || 5); // Default to 5 years
+
+
 
   // Ensure formData is valid
   if (!formData || !formData.CostOfProject) {
@@ -16,34 +32,40 @@ const DepreciationTable = () => {
   }
 
   // Helper function to calculate depreciation for a given amount and rate over 5 years
-  const calculateDepreciation = (amount, rate) => {
+  const calculateDepreciation = (amount, rate, years) => {
     let depreciation = [];
     let cumulativeDepreciation = 0;
-    for (let year = 1; year <= 20; year++) {
+  
+    for (let year = 1; year <= years; year++) {
       const depreciationThisYear = amount * (rate / 100);
       cumulativeDepreciation += depreciationThisYear;
-      depreciation.push(cumulativeDepreciation.toFixed(2)); // Store cumulative depreciation
-      amount -= depreciationThisYear; // Subtract the depreciation for the next year
+      depreciation.push({
+        year: year,
+        depreciationAmount: depreciationThisYear.toFixed(2),
+        cumulativeDepreciation: cumulativeDepreciation.toFixed(2),
+        remainingValue: amount.toFixed(2),
+      });
+      amount -= depreciationThisYear; // Subtract depreciation from the amount for next year
     }
+  
     return depreciation;
   };
+  
+  const columnCount = projectionYears + 3; // Assuming base columns + projection years
 
-  const columnCount = 11; // Total number of columns (th elements)
-
-  // Function to return class name based on the number of columns (>= 10)
-  const turnery = (columnCount) => {
-    console.log('Number of columns:', columnCount); // Debugging
-    return columnCount >= 11 ? 'transform-table' : ''; // Apply transform-table class if columns >= 10
+  // Function to return class name based on the number of projection years
+  const turnery = (projectionYears) => {
+    console.log('Projection years:', projectionYears); // Debugging
+    return projectionYears >= 8 ? 'transform-table' : ''; 
   };
-
-  // Function to return styles based on column count (>= 10)
-  const dynamicStyle = (columnCount) => {
-    console.log('Number of columns for style:', columnCount); // Debugging
-    return columnCount >= 11
-      ? { transform: 'scale(0.5)' }
-      : {}; // Apply styles if columns >= 10
+  
+  // Function to return styles based on projection years
+  const dynamicStyle = (projectionYears) => {
+    console.log('Projection years for style:', projectionYears); // Debugging
+    return projectionYears >= 8
+      ? { transform: 'scale(0.48)' }
+      : {}; 
   };
-
 
   return (
     <div className="mt-4 bg-light px-4">
@@ -53,65 +75,44 @@ const DepreciationTable = () => {
       {/* Gross Fixed Asset Table */}
       <div className="table-div">
         <h3>Gross Fixed Asset</h3>
-        <table className={turnery(columnCount)} style={dynamicStyle(columnCount)}>
+        <table className={`table-container ${turnery(projectionYears)}`} style={dynamicStyle(projectionYears)}>
           <thead>
             <tr>
-             
               <th className="bg-headPurple">Name</th>
               <th className="bg-headPurple">Amount</th>
               <th className="bg-headPurple">Rate (%)</th>
-              <th className="bg-headPurple">Year 1</th>
-              <th className="bg-headPurple">Year 2</th>
-              <th className="bg-headPurple">Year 3</th>
-              <th className="bg-headPurple">Year 4</th>
-              <th className="bg-headPurple">Year 5</th>
-              <th className="bg-headPurple">Year 6</th>
-              <th className="bg-headPurple">Year 7</th>
-              <th className="bg-headPurple">Year 8</th>
-              <th className="bg-headPurple">Year 9</th>
-              <th className="bg-headPurple">Year 10</th>
-              <th className="bg-headPurple">Year 11</th>
-              <th className="bg-headPurple">Year 12</th>
-              <th className="bg-headPurple">Year 13</th>
-              <th className="bg-headPurple">Year 14</th>
-              <th className="bg-headPurple">Year 15</th>
-              <th className="bg-headPurple">Year 16</th>
-              <th className="bg-headPurple">Year 17</th>
-              <th className="bg-headPurple">Year 18</th>
-              <th className="bg-headPurple">Year 19</th>
-              <th className="bg-headPurple">Year 20</th>
+              {[...Array(parseInt(projectionYears))].map((_, index) => (
+                <th key={index} className="bg-headPurple">
+                  Year {index + 1}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {formData.CostOfProject &&
-              Object.entries(formData.CostOfProject).map(
-                ([key, field], index) => {
-                  const depreciationRate = field.rate / 100; // Depreciation rate
-                  let grossYear1 =
-                    field.amount - field.amount * depreciationRate;
-                  let grossYear2 = grossYear1 - grossYear1 * depreciationRate;
-                  let grossYear3 = grossYear2 - grossYear2 * depreciationRate;
-                  let grossYear4 = grossYear3 - grossYear3 * depreciationRate;
-                  let grossYear5 = grossYear4 - grossYear4 * depreciationRate;
+          {formData.CostOfProject &&
+              Object.entries(formData.CostOfProject).map(([key, field]) => {
+                const depreciationData = calculateDepreciation(
+                  field.amount,
+                  field.rate,
+                  projectionYears
+                );
 
-                  return (
-                    <tr key={key}>
-                      <td>{field.name}</td>
-                      <td>{field.amount}</td>
-                      <td>{field.rate}%</td>
-                      <td>{grossYear1.toFixed(2)}</td>
-                      <td>{grossYear2.toFixed(2)}</td>
-                      <td>{grossYear3.toFixed(2)}</td>
-                      <td>{grossYear4.toFixed(2)}</td>
-                      <td>{grossYear5.toFixed(2)}</td>
-                    </tr>
-                  );
-                }
-              )}
+                return (
+                  <tr key={key}>
+                    <td>{field.name}</td>
+                    <td>{field.amount}</td>
+                    <td>{field.rate}%</td>
+                    {depreciationData.map((data, idx) => (
+                      <td key={idx}>{data.cumulativeDepreciation}</td>
+                    ))}
+                  </tr>
+                );
+              })}
             {/* Total Row */}
             <tr>
               <td className="bg-totalRed">Total</td>
               <td className="bg-totalRed">
+                {/* Calculate total amount of the project */}
                 {Object.values(formData.CostOfProject).reduce(
                   (sum, field) => sum + field.amount,
                   0
@@ -128,46 +129,41 @@ const DepreciationTable = () => {
         </table>
       </div>
       {/* depreciation table */}
-      <div >
+      <div className="table-div" >
         <h3>Depreciationn</h3>
-        <table>
+        <table className={`table-container ${turnery(projectionYears)}`} style={dynamicStyle(projectionYears)}>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>
               <th className="bg-headPurple">Amount</th>
               <th className="bg-headPurple">Rate (%)</th>
-              <th className="bg-headPurple">Year 1</th>
-              <th className="bg-headPurple">Year 2</th>
-              <th className="bg-headPurple">Year 3</th>
-              <th className="bg-headPurple">Year 4</th>
-              <th className="bg-headPurple">Year 5</th>
+              {[...Array(parseInt(projectionYears))].map((_, index) => (
+                <th key={index} className="bg-headPurple">
+                  Year {index + 1}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {formData.CostOfProject &&
-              Object.entries(formData.CostOfProject).map(
-                ([key, field], index) => {
-                  const depreciationRate = field.rate / 100; // Depreciation rate (e.g., 10% -> 0.1)
-                  let year1 = field.amount - field.amount * depreciationRate; // Depreciation for Year 1
-                  let year2 = year1 - year1 * depreciationRate; // Depreciation for Year 2
-                  let year3 = year2 - year2 * depreciationRate; // Depreciation for Year 3
-                  let year4 = year3 - year3 * depreciationRate; // Depreciation for Year 4
-                  let year5 = year4 - year4 * depreciationRate; // Depreciation for Year 5
+          {formData.CostOfProject &&
+              Object.entries(formData.CostOfProject).map(([key, field]) => {
+                const depreciationData = calculateDepreciation(
+                  field.amount,
+                  field.rate,
+                  projectionYears
+                );
 
-                  return (
-                    <tr key={key}>
-                      <td>{field.name}</td>
-                      <td>{field.amount}</td>
-                      <td>{field.rate}%</td>
-                      <td>{year1.toFixed(2)}</td>
-                      <td>{year2.toFixed(2)}</td>
-                      <td>{year3.toFixed(2)}</td>
-                      <td>{year4.toFixed(2)}</td>
-                      <td>{year5.toFixed(2)}</td>
-                    </tr>
-                  );
-                }
-              )}
+                return (
+                  <tr key={key}>
+                    <td>{field.name}</td>
+                    <td>{field.amount}</td>
+                    <td>{field.rate}%</td>
+                    {depreciationData.map((data, idx) => (
+                      <td key={idx}>{data.cumulativeDepreciation}</td>
+                    ))}
+                  </tr>
+                );
+              })}
             {/* Total Row */}
             <tr>
               <td className="bg-totalRed">Total</td>
@@ -189,45 +185,41 @@ const DepreciationTable = () => {
         </table>
       </div>
       {/* Cummulative Depriciation */}
-      <div className="table-responsive">
+      <div  className="table-div">
         <h3>Cummulative Depriciation</h3>
-        <table className={formData.CostOfProject && Object.entries(formData.CostOfProject)[0][1].years >= 8 ? "transform-table" : ""}>
+        <table className={`table-container ${turnery(projectionYears)}`} style={dynamicStyle(projectionYears)}>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>
               <th className="bg-headPurple">Amount</th>
               <th className="bg-headPurple">Rate (%)</th>
-              <th className="bg-headPurple">Year 1</th>
-              <th className="bg-headPurple">Year 2</th>
-              <th className="bg-headPurple">Year 3</th>
-              <th className="bg-headPurple">Year 4</th>
-              <th className="bg-headPurple">Year 5</th>
+              {[...Array(parseInt(projectionYears))].map((_, index) => (
+                <th key={index} className="bg-headPurple">
+                  Year {index + 1}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {formData.CostOfProject &&
-              Object.entries(formData.CostOfProject).map(
-                ([key, field], index) => {
-                  const depreciationRate = field.rate; // Depreciation rate in percentage
-                  const depreciationValues = calculateDepreciation(
-                    field.amount,
-                    depreciationRate
-                  );
+          {formData.CostOfProject &&
+              Object.entries(formData.CostOfProject).map(([key, field]) => {
+                const depreciationData = calculateDepreciation(
+                  field.amount,
+                  field.rate,
+                  projectionYears
+                );
 
-                  return (
-                    <tr key={key}>
-                      <td>{field.name}</td>
-                      <td>{field.amount}</td>
-                      <td>{field.rate}%</td>
-                      <td>{depreciationValues[0]}</td>
-                      <td>{depreciationValues[1]}</td>
-                      <td>{depreciationValues[2]}</td>
-                      <td>{depreciationValues[3]}</td>
-                      <td>{depreciationValues[4]}</td>
-                    </tr>
-                  );
-                }
-              )}
+                return (
+                  <tr key={key}>
+                    <td>{field.name}</td>
+                    <td>{field.amount}</td>
+                    <td>{field.rate}%</td>
+                    {depreciationData.map((data, idx) => (
+                      <td key={idx}>{data.cumulativeDepreciation}</td>
+                    ))}
+                  </tr>
+                );
+              })}
             {/* Total Row */}
             <tr>
               <td className="bg-totalRed">Total</td>
@@ -249,61 +241,46 @@ const DepreciationTable = () => {
         </table>
       </div>
       {/* Net Fixed Asset Table */}
-      <div className="table-responsive">
+      <div  className="table-div">
         <h3>Net Fixed Asset</h3>
-        <table className={formData.CostOfProject && Object.entries(formData.CostOfProject)[0][1].years >= 8 ? "transform-table" : ""}>
+        <table className={`table-container ${turnery(projectionYears)}`} style={dynamicStyle(projectionYears)}>
           <thead>
             <tr>
               <th className="bg-headPurple">Name</th>
               <th className="bg-headPurple">Amount</th>
               <th className="bg-headPurple">Rate (%)</th>
-              <th className="bg-headPurple">Year 1</th>
-              <th className="bg-headPurple">Year 2</th>
-              <th className="bg-headPurple">Year 3</th>
-              <th className="bg-headPurple">Year 4</th>
-              <th className="bg-headPurple">Year 5</th>
+              {[...Array(parseInt(projectionYears))].map((_, index) => (
+                <th key={index} className="bg-headPurple">
+                  Year {index + 1}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {formData.CostOfProject &&
-              Object.entries(formData.CostOfProject).map(
-                ([key, field], index) => {
-                  const depreciationRate = field.rate / 100;
-                  let grossYear1 =
-                    field.amount - field.amount * depreciationRate;
-                  let grossYear2 = grossYear1 - grossYear1 * depreciationRate;
-                  let grossYear3 = grossYear2 - grossYear2 * depreciationRate;
-                  let grossYear4 = grossYear3 - grossYear3 * depreciationRate;
-                  let grossYear5 = grossYear4 - grossYear4 * depreciationRate;
+          {formData.CostOfProject &&
+              Object.entries(formData.CostOfProject).map(([key, field]) => {
+                const depreciationData = calculateDepreciation(
+                  field.amount,
+                  field.rate,
+                  projectionYears
+                );
 
-                  const depreciationValues = calculateDepreciation(
-                    field.amount,
-                    field.rate
-                  );
-                  let netYear1 = grossYear1 - depreciationValues[0];
-                  let netYear2 = grossYear2 - depreciationValues[1];
-                  let netYear3 = grossYear3 - depreciationValues[2];
-                  let netYear4 = grossYear4 - depreciationValues[3];
-                  let netYear5 = grossYear5 - depreciationValues[4];
-
-                  return (
-                    <tr key={key}>
-                      <td>{field.name}</td>
-                      <td>{field.amount}</td>
-                      <td>{field.rate}%</td>
-                      <td>{netYear1.toFixed(2)}</td>
-                      <td>{netYear2.toFixed(2)}</td>
-                      <td>{netYear3.toFixed(2)}</td>
-                      <td>{netYear4.toFixed(2)}</td>
-                      <td>{netYear5.toFixed(2)}</td>
-                    </tr>
-                  );
-                }
-              )}
+                return (
+                  <tr key={key}>
+                    <td>{field.name}</td>
+                    <td>{field.amount}</td>
+                    <td>{field.rate}%</td>
+                    {depreciationData.map((data, idx) => (
+                      <td key={idx}>{data.cumulativeDepreciation}</td>
+                    ))}
+                  </tr>
+                );
+              })}
             {/* Total Row */}
             <tr>
               <td className="bg-totalRed">Total</td>
               <td className="bg-totalRed">
+                {/* Calculate total amount of the project */}
                 {Object.values(formData.CostOfProject).reduce(
                   (sum, field) => sum + field.amount,
                   0

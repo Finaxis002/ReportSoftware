@@ -1,10 +1,13 @@
 import React from "react";
 
 const StepperControl = ({ handleNext, handleBack, currentStep, totalSteps }) => {
+
+  
   return (
     <div style={{position:"relative"}} className="container flex justify-end gap-4 mt-2 mb-2">
       {/* Back Button */}
       <button
+      type="submit"
         onClick={handleBack}
         className={`bg-white text-slate-400 uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 border-slate-300 hover:bg-slate-700 transition duration-200 ease-in-out ${
           currentStep === 1 ? "opacity-50 cursor-not-allowed" : ""

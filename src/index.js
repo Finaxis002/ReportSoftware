@@ -18,6 +18,7 @@ import ReportReview from "./components/ReportReview.jsx";
 import MultiStepForm from "./components/NewMultiStepForm/MultiStepForm.jsx";
 import FinalReport from "./components/FinalReport.jsx";
 import GeneratedPDF from "./components/NewMultiStepForm/GeneratedPDF.jsx";
+import ClientData from "./components/NewMultiStepForm/ClientData.jsx";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,9 @@ root.render(
           <Route path="/MultestepForm" element={<MultiStepForm />} />
 
           <Route path="/generated-pdf" element={<GeneratedPDF />} />
+
+
+          <Route path="/clientData" element={<ClientData />} />
 
         </Routes>
       </BrowserRouter>

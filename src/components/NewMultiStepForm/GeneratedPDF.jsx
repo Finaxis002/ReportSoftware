@@ -91,56 +91,32 @@ const GeneratedPDF = ({ chartRef }) => {
   const pdfRef = useRef(null);
 
   const generatePDF = () => {
-    if (!pdfRef.current) {
-      console.error("Reference to report content is null");
-      return;
-    }
+    const content = document.getElementById('report-content');
   
-    // Get all the page sections by their ids
-    const pageElements = [
-      document.getElementById("page1"),
-      document.getElementById("page2"),
-      document.getElementById("page3"),
-      document.getElementById("page4"),
-      document.getElementById("page5"),
-      document.getElementById("page6"),
-      document.getElementById("page7"),
-      document.getElementById("page8"),
-      document.getElementById("page9"),
-    ];
+    html2canvas(content, {
+      scale: 2,  // Improves quality
+      useCORS: true,  // Handles cross-origin issues if external assets exist
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;  // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
   
-    const pdf = new jsPDF("p", "mm", "a4");
+      let heightLeft = imgHeight;
+      let position = 0;
   
-    pageElements.forEach((pageElement, index) => {
-      if (pageElement) {
-        html2canvas(pageElement, { scale: 2 }).then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 297; // A4 height in mm
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
   
-          // Add the first page or add pages after the first
-          if (index > 0) pdf.addPage();
-          
-          pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-          
-          // If content exceeds one page, add more pages
-          let heightLeft = imgHeight - pageHeight;
-          let position = 0;
-  
-          while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-  
-          // Save the PDF after processing all pages
-          if (index === pageElements.length - 1) {
-            pdf.save("report.pdf");
-          }
-        });
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
+  
+      pdf.save('Project_Report.pdf');
     });
   };
   
