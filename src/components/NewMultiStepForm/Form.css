@@ -150,4 +150,8 @@ body {
   background-color: #45a049;
 }
 
+.normalRow td{
+  background-color: #fff !important;
+}
+
 

@@ -42,6 +42,8 @@ const MultiStepForm = () => {
     }));
   }, []);
 
+  const [projectionYears, setProjectionYears] = useState(5);
+
   // Memoized step rendering to prevent re-rendering
   const stepContent = useMemo(() => {
     switch (currentStep) {

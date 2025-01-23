@@ -71,20 +71,46 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
   });
   
 
-  const fetchClientData = async (clientName) => {
+  const fetchClientData = async (clientName, clientEmail) => {
     try {
+      // Fetch the list of clients by name
       const response = await axios.get(`http://localhost:5000/api/user/by-name/${clientName}`);
       const userData = response.data;
-      // Update the localData state with the fetched data
-      setLocalData((prevData) => ({
-        ...prevData,
-        ...userData,
-      }));
+  
+      if (userData.length <= 1) {
+        // If there is one or fewer clients, use the data directly
+        setLocalData((prevData) => ({
+          ...prevData,
+          ...userData[0], // Assuming the first item in the array is the client data
+        }));
+      } else {
+        // If there are multiple clients with the same name, ask for the email ID
+        if (!clientEmail) {
+          alert("There are multiple clients with the same name. Please provide your email ID.");
+          return;
+        }
+  
+        // Fetch the data using the clientName and clientEmail
+        const emailResponse = await axios.get(`http://localhost:5000/api/user/by-name-and-email`, {
+          params: { clientName, clientEmail },
+        });
+        const emailUserData = emailResponse.data;
+  
+        if (emailUserData) {
+          setLocalData((prevData) => ({
+            ...prevData,
+            ...emailUserData,
+          }));
+        } else {
+          alert("No client found with the provided email ID.");
+        }
+      }
     } catch (error) {
       console.error("Error fetching client data:", error);
-      alert("Client not found!");
+      alert("Error fetching client data.");
     }
   };
+  
 
   const handleClientNameBlur = (e) => {
     const clientName = e.target.value.trim();
@@ -222,6 +248,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
               placeholder="e.g., john@example.com"
               value={localData.clientEmail}
               onChange={handleChange}
+              onBlur={handleClientNameBlur}
               required
             />
             <label htmlFor="clientEmail">Client Email</label>
@@ -649,7 +676,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                   </div>
 
         </div>
-        <button type="submit">Submit</button> 
+        <button className="btn btn-sm btn-primary mt-3" type="submit">Submit</button> 
       </form>
     </div>
   );

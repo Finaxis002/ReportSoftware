@@ -2,63 +2,66 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const ClientData = () => {
-  const [clients, setClients] = useState([]); // State for storing the client names
-  const [selectedClientName, setSelectedClientName] = useState(''); // State for selected client name
-  const [clientData, setClientData] = useState(null); // State for storing client data
+  const [clientNames, setClientNames] = useState([]); // State to store client names
+  const [selectedClient, setSelectedClient] = useState(''); // State to store selected client name
+  const [localData, setLocalData] = useState({}); // State to store client data
 
-  // Fetch client names when the component mounts
+  // Function to fetch all client names
+  const fetchClientNames = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/user/all-names');
+      setClientNames(response.data); // Assuming response.data is an array of client names
+    } catch (error) {
+      console.error('Error fetching client names:', error);
+      alert('Failed to load client names');
+    }
+  };
+
+  // Function to fetch selected client details
+  const fetchClientData = async (clientName) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/user/by-name/${clientName}`);
+      setLocalData(response.data); // Update localData with fetched client details
+    } catch (error) {
+      console.error('Error fetching client data:', error);
+      alert('Client not found!');
+    }
+  };
+
+  // Fetch client names when component mounts
   useEffect(() => {
-    const fetchClientNames = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/user'); // Fetch all clients' names
-        setClients(response.data); // Update state with client names
-      } catch (error) {
-        console.error('Error fetching client names:', error);
-      }
-    };
     fetchClientNames();
   }, []);
-
-  // Handle client selection from the dropdown
-  const handleClientChange = async (e) => {
+  
+  // Handle client selection
+  const handleClientChange = (e) => {
     const clientName = e.target.value;
-    setSelectedClientName(clientName); // Set the selected client name
-
+    setSelectedClient(clientName);
     if (clientName) {
-      // Fetch data for the selected client
-      try {
-        const response = await axios.get(`http://localhost:5000/api/user/by-name/${clientName}`);
-        setClientData(response.data); // Set client data in state
-      } catch (err) {
-        console.error('Error fetching client data:', err);
-        setClientData(null); // Clear data if client is not found
-      }
+      fetchClientData(clientName); // Fetch data for selected client
     } else {
-      setClientData(null); // Clear client data if no selection
+      setLocalData({}); // Clear data if no client is selected
     }
   };
 
   return (
     <div>
-      <select value={selectedClientName} onChange={handleClientChange}>
-        <option value="">Select Client Name</option>
-        {clients.map((client) => (
-          <option key={client._id} value={client.clientName}>
-            {client.clientName}
+      <label>Select Client Name:</label>
+      <select value={selectedClient} onChange={handleClientChange}>
+        <option value="">Select Client</option>
+        {clientNames.map((name, index) => (
+          <option key={index} value={name}>
+            {name}
           </option>
         ))}
       </select>
 
-      <div>
-        {clientData ? (
-          <div>
-            <h3>Client Data</h3>
-            <pre>{JSON.stringify(clientData, null, 2)}</pre>
-          </div>
-        ) : (
-          <p>No client data available.</p>
-        )}
-      </div>
+      {Object.keys(localData).length > 0 && ( // Only render if there's data
+        <div>
+          <h3>Client Details:</h3>
+          <pre>{JSON.stringify(localData, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };

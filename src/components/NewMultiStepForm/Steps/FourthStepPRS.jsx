@@ -92,6 +92,7 @@ const FourthStepPRS = ({ formData, onFormDataChange }) => {
     },
   }
   });
+  const [projectionYears, setProjectionYears] = useState(0);
 
   useEffect(() => {
         localStorage.setItem("FourthStepPRS", JSON.stringify(localData));
@@ -110,10 +111,7 @@ const FourthStepPRS = ({ formData, onFormDataChange }) => {
     onFormDataChange({ ProjestReportSetting: localData });
   }, [localData, onFormDataChange]);
 
-  const submitDetails = () => {
-    // Logic to handle the submit, if necessary
-    // console.log("Form submitted with data: ", localData);
-  };
+
 
   return (
     <div>

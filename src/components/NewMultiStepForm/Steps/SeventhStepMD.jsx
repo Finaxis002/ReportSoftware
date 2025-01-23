@@ -91,6 +91,30 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
     // console.log("Form submitted with data:", localData);
   };
 
+
+   const [localDataa, setLocalDataa] = useState(() => {
+      const savedData = localStorage.getItem("FourthStepPRS");
+    
+      // Parse and return saved data if it exists, otherwise use the default structure
+      return savedData
+        ? JSON.parse(savedData)
+        : {
+            ProjectionYears: {
+              name: "Projection Years",
+              id: "ProjectionYears",
+              value: "",
+              isCustom: false,
+            },
+          };
+    });
+
+
+  const [projectionYears, setProjectionYears] = useState(
+      localDataa.ProjectionYears || 0
+    );
+
+
+
   return (
     <div>
       <form onSubmit={submit}>
@@ -104,11 +128,11 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                 <tr>
                   <th className="header-label">Index</th>
                   <th className="header-label">Particulars</th>
-                  {Array.from({ length: years }).map((_, b) => (
-                    <th key={b} className="header-label">
-                      Year {b + 1}
-                    </th>
-                  ))}
+                   {[...Array(parseInt(projectionYears))].map((_, index) => (
+                      <th key={index} className="header-label">
+                        Year {index + 1}
+                      </th>
+                    ))}
                   <th className="header-label"></th>
                 </tr>
               </thead>
@@ -139,6 +163,22 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                         />
                       </td>
                     ))}
+                    {[...Array(parseInt(projectionYears))].map((_, y) => {
+                          return (
+                            <td key={y}>
+                              <input
+                                name={`year-${y}`}
+                                placeholder={`0`}
+                                onChange={(event) =>
+                                  handleFormChange(event, i, y)
+                                }
+                                value={entry.years[y]}
+                                className="form-control text-end noBorder"
+                                type="number"
+                              />
+                            </td>
+                          );
+                        })}
                     <td>
                       {entry.isCustom ? (
                         <button
@@ -170,11 +210,11 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                 <tr>
                   <th className="header-label">Index</th>
                   <th className="header-label">Particulars</th>
-                  {Array.from({ length: years }).map((_, b) => (
-                    <th key={b} className="header-label">
-                      Year {b + 1}
-                    </th>
-                  ))}
+                  {[...Array(parseInt(projectionYears))].map((_, index) => (
+                      <th key={index} className="header-label">
+                        Year {index + 1}
+                      </th>
+                    ))}
                   <th className="header-label"></th>
                 </tr>
               </thead>
@@ -193,18 +233,23 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                         disabled={!entry.isCustom}
                       />
                     </td>
-                    {entry.years.map((yr, y) => (
-                      <td key={y}>
-                        <input
-                          name="value"
-                          placeholder="value"
-                          onChange={(event) => handleFormChange(event, i, y, "assets")}
-                          value={yr}
-                          className="form-control text-end noBorder"
-                          type="number"
-                        />
-                      </td>
-                    ))}
+                    {[...Array(parseInt(projectionYears))].map((_, y) => {
+                          return (
+                            <td key={y}>
+                              <input
+                                name={`year-${y}`}
+                                placeholder={`0`}
+                                onChange={(event) =>
+                                  handleFormChange(event, i, y)
+                                }
+                                value={entry.years[y]}
+                                className="form-control text-end noBorder"
+                                type="number"
+                              />
+                            </td>
+                          );
+                        })}
+                    
                     <td>
                       {entry.isCustom ? (
                         <button
