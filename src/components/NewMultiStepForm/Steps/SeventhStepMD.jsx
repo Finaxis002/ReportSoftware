@@ -5,27 +5,83 @@ import checkImg from "../check.png";
 const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
   const [localData, setLocalData] = useState({
     currentLiabilities: [
-      { particular: "Uses", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Other Current Liabilities", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Outstanding Expenses", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Sundry Creditors / Trade Payables", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Short term loans", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Quasi Equity (Important to set Current Ratio)", years: Array.from({ length: years }).fill(0), isCustom: false },
+      {
+        particular: "Uses",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Other Current Liabilities",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Outstanding Expenses",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Sundry Creditors / Trade Payables",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Short term loans",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Quasi Equity (Important to set Current Ratio)",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
     ],
     currentAssets: [
-      { particular: "Sources", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Other Current Assets", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Prepaid Expenses", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Investments", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Trade Receivables / Sundry Debtors", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Advances to employees & Suppliers", years: Array.from({ length: years }).fill(0), isCustom: false },
-      { particular: "Inventory", years: Array.from({ length: years }).fill(0), isCustom: false },
+      {
+        particular: "Sources",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Other Current Assets",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Prepaid Expenses",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Investments",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Trade Receivables / Sundry Debtors",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Advances to employees & Suppliers",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
+      {
+        particular: "Inventory",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: false,
+      },
     ],
   });
 
   // Handle adding new fields to liabilities
   const addFields = (type) => {
-    const newData = { particular: "", years: Array.from({ length: years }).fill(0), isCustom: true };
+    const newData = {
+      particular: "",
+      years: Array.from({ length: years }).fill(0),
+      isCustom: true,
+    };
     if (type === "liabilities") {
       setLocalData((prevData) => ({
         ...prevData,
@@ -62,7 +118,10 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
     const { name, value } = event.target;
     setLocalData((prevData) => {
       const updatedData = { ...prevData };
-      const dataArray = type === "liabilities" ? updatedData.currentLiabilities : updatedData.currentAssets;
+      const dataArray =
+        type === "liabilities"
+          ? updatedData.currentLiabilities
+          : updatedData.currentAssets;
 
       if (name === "particular") {
         dataArray[childIndex]["particular"] = value;
@@ -91,48 +150,190 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
     // console.log("Form submitted with data:", localData);
   };
 
+  const [localDataa, setLocalDataa] = useState(() => {
+    const savedData = localStorage.getItem("FourthStepPRS");
 
-   const [localDataa, setLocalDataa] = useState(() => {
-      const savedData = localStorage.getItem("FourthStepPRS");
-    
-      // Parse and return saved data if it exists, otherwise use the default structure
-      return savedData
-        ? JSON.parse(savedData)
-        : {
-            ProjectionYears: {
-              name: "Projection Years",
-              id: "ProjectionYears",
-              value: "",
-              isCustom: false,
-            },
-          };
-    });
-
+    // Parse and return saved data if it exists, otherwise use the default structure
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          ProjectionYears: {
+            name: "Projection Years",
+            id: "ProjectionYears",
+            value: "",
+            isCustom: false,
+          },
+        };
+  });
 
   const [projectionYears, setProjectionYears] = useState(
-      localDataa.ProjectionYears || 0
-    );
+    localDataa.ProjectionYears || 0
+  );
 
+  function getEmptyArray() {
+    return Array.from({ length: years }).fill(0);
+  }
 
+  const [withdrawls, setWithdrawls] = useState(getEmptyArray());
+  const [openingStock, setOpeningStock] = useState(getEmptyArray());
+  const [closingStock, setClosingStock] = useState(getEmptyArray());
+
+  const handleStockChanges = (name, index, value) => {
+    if (name === "withdrawls") {
+      let temp = withdrawls;
+      temp[index] = value;
+      setWithdrawls([...temp]);
+    } else if (name === "openingStock") {
+      let temp = openingStock;
+      temp[index] = value;
+      setOpeningStock([...temp]);
+    } else if (name === "closingStock") {
+      let temp = closingStock;
+      temp[index] = value;
+      setClosingStock([...temp]);
+
+      if (index < years - 1) {
+        let openingTemp = openingStock;
+        openingTemp[index + 1] = value;
+        setOpeningStock(openingTemp);
+      }
+    }
+  };
 
   return (
     <div>
       <form onSubmit={submit}>
         <div className="position-relative w-100">
           <div className="form-scroll" style={{ paddingBottom: "12%" }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th className="header-label">Particulars</th>
+                  {/* Dynamically generate the year columns */}
+                  {[...Array(parseInt(projectionYears))].map((_, index) => (
+                    <th key={index} className="header-label">
+                      Year {index + 1}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Opening Stock row */}
+                <tr>
+                  <td>
+                    <input
+                      name="openingStock"
+                      placeholder="Opening Stock"
+                      value="Opening Stock"
+                      className="form-control text-center noBorder"
+                      type="text"
+                      disabled
+                    />
+                  </td>
+                  {/* Dynamically creating <td>s for each year */}
+                  {[...Array(parseInt(projectionYears))].map((_, y) => (
+                    <td key={y}>
+                      <input
+                        name="value"
+                        placeholder="Value"
+                        onChange={(event) =>
+                          handleStockChanges(
+                            "openingStock",
+                            y,
+                            event.target.value
+                          )
+                        }
+                        value={openingStock[y] || 0} // Default to 0 if undefined
+                        className="form-control text-end noBorder"
+                        type="number"
+                        disabled={y > 0} // Disable input for all years except the first one
+                      />
+                    </td>
+                  ))}
+                </tr>
+
+                {/* Closing Stock row */}
+                <tr>
+                  <td>
+                    <input
+                      name="closingStock"
+                      placeholder="Closing Stock"
+                      value="Closing Stock"
+                      className="form-control text-center noBorder"
+                      type="text"
+                      disabled
+                    />
+                  </td>
+                  {[...Array(parseInt(projectionYears))].map((_, y) => (
+                    <td key={y}>
+                      <input
+                        name="value"
+                        placeholder="Value"
+                        onChange={(event) =>
+                          handleStockChanges(
+                            "closingStock",
+                            y,
+                            event.target.value
+                          )
+                        }
+                        value={closingStock[y] || 0} // Default to 0 if undefined
+                        className="form-control text-end noBorder"
+                        type="number"
+                      />
+                    </td>
+                  ))}
+                </tr>
+
+                {/* Withdrawals row */}
+                <tr>
+                  <td>
+                    <input
+                      name="withdrawls"
+                      placeholder="Withdrawals"
+                      value="Withdrawals"
+                      className="form-control text-center noBorder"
+                      type="text"
+                      disabled
+                    />
+                  </td>
+                  {/* Dynamically creating <td>s for each year */}
+                  {[...Array(parseInt(projectionYears))].map((_, y) => (
+                    <td key={y}>
+                      <input
+                        name="value"
+                        placeholder="Value"
+                        onChange={(event) =>
+                          handleStockChanges(
+                            "withdrawls",
+                            y,
+                            event.target.value
+                          )
+                        }
+                        value={withdrawls[y] || 0} // Default to 0 if undefined
+                        className="form-control text-end noBorder"
+                        type="number"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+
             {/* Current Liabilities Table */}
-            <h5 className="text-start text-primary mt-4 mb-0">Current Liabilities</h5>
+            <h5 className="text-start text-primary mt-4 mb-0">
+              Current Liabilities
+            </h5>
             <hr className="mt-0 mb-1" />
             <table className="table">
               <thead>
                 <tr>
                   <th className="header-label">Index</th>
                   <th className="header-label">Particulars</th>
-                   {[...Array(parseInt(projectionYears))].map((_, index) => (
-                      <th key={index} className="header-label">
-                        Year {index + 1}
-                      </th>
-                    ))}
+                  {[...Array(parseInt(projectionYears))].map((_, index) => (
+                    <th key={index} className="header-label">
+                      Year {index + 1}
+                    </th>
+                  ))}
                   <th className="header-label"></th>
                 </tr>
               </thead>
@@ -144,7 +345,9 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                       <input
                         name="particular"
                         placeholder="Particular"
-                        onChange={(event) => handleFormChange(event, i, null, "liabilities")}
+                        onChange={(event) =>
+                          handleFormChange(event, i, null, "liabilities")
+                        }
                         value={entry.particular}
                         className="form-control text-center noBorder"
                         type="text"
@@ -156,7 +359,9 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                         <input
                           name="value"
                           placeholder="value"
-                          onChange={(event) => handleFormChange(event, i, y, "liabilities")}
+                          onChange={(event) =>
+                            handleFormChange(event, i, y, "liabilities")
+                          }
                           value={yr}
                           className="form-control text-end noBorder"
                           type="number"
@@ -164,33 +369,50 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                       </td>
                     ))}
                     {[...Array(parseInt(projectionYears))].map((_, y) => {
-                          return (
-                            <td key={y}>
-                              <input
-                                name={`year-${y}`}
-                                placeholder={`0`}
-                                onChange={(event) =>
-                                  handleFormChange(event, i, y)
-                                }
-                                value={entry.years[y]}
-                                className="form-control text-end noBorder"
-                                type="number"
-                              />
-                            </td>
-                          );
-                        })}
+                      return (
+                        <td key={y}>
+                          <input
+                            name={`year-${y}`}
+                            placeholder={`0`}
+                            onChange={(event) => handleFormChange(event, i, y)}
+                            value={entry.years[y]}
+                            className="form-control text-end noBorder"
+                            type="number"
+                          />
+                        </td>
+                      );
+                    })}
                     <td>
                       {entry.isCustom ? (
                         <button
                           className="btn h-100 mt-auto"
-                          style={{ width: "50px", padding: "0", border: "none" }}
+                          style={{
+                            width: "50px",
+                            padding: "0",
+                            border: "none",
+                          }}
                           onClick={(e) => removeFields(e, i, "liabilities")}
                         >
-                          <img src={deleteImg} alt="Remove" style={{ width: "30px", marginTop: "5%" }} />
+                          <img
+                            src={deleteImg}
+                            alt="Remove"
+                            style={{ width: "30px", marginTop: "5%" }}
+                          />
                         </button>
                       ) : (
-                        <span className="h-100 mt-auto mx-2" style={{ width: "43px", padding: "0", border: "none" }}>
-                          <img src={checkImg} alt="add" style={{ width: "25px", marginTop: "10%" }} />
+                        <span
+                          className="h-100 mt-auto mx-2"
+                          style={{
+                            width: "43px",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <img
+                            src={checkImg}
+                            alt="add"
+                            style={{ width: "25px", marginTop: "10%" }}
+                          />
                         </span>
                       )}
                     </td>
@@ -198,12 +420,18 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                 ))}
               </tbody>
             </table>
-            <button className="btn btn-sm btn-primary px-4 me-auto" type="button" onClick={() => addFields("liabilities")}>
+            <button
+              className="btn btn-sm btn-primary px-4 me-auto"
+              type="button"
+              onClick={() => addFields("liabilities")}
+            >
               Add Liability +
             </button>
 
             {/* Current Assets Table */}
-            <h5 className="text-start text-primary mt-4 mb-0">Current Assets</h5>
+            <h5 className="text-start text-primary mt-4 mb-0">
+              Current Assets
+            </h5>
             <hr className="mt-0 mb-1" />
             <table className="table">
               <thead>
@@ -211,10 +439,10 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                   <th className="header-label">Index</th>
                   <th className="header-label">Particulars</th>
                   {[...Array(parseInt(projectionYears))].map((_, index) => (
-                      <th key={index} className="header-label">
-                        Year {index + 1}
-                      </th>
-                    ))}
+                    <th key={index} className="header-label">
+                      Year {index + 1}
+                    </th>
+                  ))}
                   <th className="header-label"></th>
                 </tr>
               </thead>
@@ -226,7 +454,9 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                       <input
                         name="particular"
                         placeholder="Particular"
-                        onChange={(event) => handleFormChange(event, i, null, "assets")}
+                        onChange={(event) =>
+                          handleFormChange(event, i, null, "assets")
+                        }
                         value={entry.particular}
                         className="form-control text-center noBorder"
                         type="text"
@@ -234,34 +464,51 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                       />
                     </td>
                     {[...Array(parseInt(projectionYears))].map((_, y) => {
-                          return (
-                            <td key={y}>
-                              <input
-                                name={`year-${y}`}
-                                placeholder={`0`}
-                                onChange={(event) =>
-                                  handleFormChange(event, i, y)
-                                }
-                                value={entry.years[y]}
-                                className="form-control text-end noBorder"
-                                type="number"
-                              />
-                            </td>
-                          );
-                        })}
-                    
+                      return (
+                        <td key={y}>
+                          <input
+                            name={`year-${y}`}
+                            placeholder={`0`}
+                            onChange={(event) => handleFormChange(event, i, y)}
+                            value={entry.years[y]}
+                            className="form-control text-end noBorder"
+                            type="number"
+                          />
+                        </td>
+                      );
+                    })}
+
                     <td>
                       {entry.isCustom ? (
                         <button
                           className="btn h-100 mt-auto"
-                          style={{ width: "50px", padding: "0", border: "none" }}
+                          style={{
+                            width: "50px",
+                            padding: "0",
+                            border: "none",
+                          }}
                           onClick={(e) => removeFields(e, i, "assets")}
                         >
-                          <img src={deleteImg} alt="Remove" style={{ width: "30px", marginTop: "5%" }} />
+                          <img
+                            src={deleteImg}
+                            alt="Remove"
+                            style={{ width: "30px", marginTop: "5%" }}
+                          />
                         </button>
                       ) : (
-                        <span className="h-100 mt-auto mx-2" style={{ width: "43px", padding: "0", border: "none" }}>
-                          <img src={checkImg} alt="add" style={{ width: "25px", marginTop: "10%" }} />
+                        <span
+                          className="h-100 mt-auto mx-2"
+                          style={{
+                            width: "43px",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <img
+                            src={checkImg}
+                            alt="add"
+                            style={{ width: "25px", marginTop: "10%" }}
+                          />
                         </span>
                       )}
                     </td>
@@ -269,7 +516,11 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
                 ))}
               </tbody>
             </table>
-            <button className="btn btn-sm btn-success px-4 me-auto" type="button" onClick={() => addFields("assets")}>
+            <button
+              className="btn btn-sm btn-success px-4 me-auto"
+              type="button"
+              onClick={() => addFields("assets")}
+            >
               Add Asset +
             </button>
           </div>

@@ -59,7 +59,9 @@ strong{
 .table-div td{
   border: 1px solid #673AB7;
 }
-
+th, td{
+  font-size: 14px;
+}
 
 @media print {
     #report-content {

@@ -40,6 +40,7 @@
     "react-responsive-modal": "^6.4.2",
     "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1",
+    "react-select": "^5.9.0",
     "react-table": "^7.8.0",
     "react-to-pdf": "^1.0.1",
     "tailwind-react-native-classnames": "^3.0.1",

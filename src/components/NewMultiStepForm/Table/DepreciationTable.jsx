@@ -25,12 +25,6 @@ const DepreciationTable = () => {
   const [projectionYears, setProjectionYears] = useState(localData.ProjectionYears || 5); // Default to 5 years
 
 
-
-  // Ensure formData is valid
-  if (!formData || !formData.CostOfProject) {
-    return <div>No cost of project information available</div>; // Fallback UI
-  }
-
   // Helper function to calculate depreciation for a given amount and rate over 5 years
   const calculateDepreciation = (amount, rate, years) => {
     let depreciation = [];
@@ -51,17 +45,16 @@ const DepreciationTable = () => {
     return depreciation;
   };
   
-  const columnCount = projectionYears + 3; // Assuming base columns + projection years
 
   // Function to return class name based on the number of projection years
   const turnery = (projectionYears) => {
-    console.log('Projection years:', projectionYears); // Debugging
+    // console.log('Projection years:', projectionYears); // Debugging
     return projectionYears >= 8 ? 'transform-table' : ''; 
   };
   
   // Function to return styles based on projection years
   const dynamicStyle = (projectionYears) => {
-    console.log('Projection years for style:', projectionYears); // Debugging
+    // console.log('Projection years for style:', projectionYears); // Debugging
     return projectionYears >= 8
       ? { transform: 'scale(0.48)' }
       : {}; 
@@ -118,12 +111,7 @@ const DepreciationTable = () => {
                   0
                 )}
               </td>
-              <td className="bg-totalRed"></td>
-              <td className="bg-totalRed"></td>
-              <td className="bg-totalRed"></td>
-              <td className="bg-totalRed"></td>
-              <td className="bg-totalRed"></td>
-              <td className="bg-totalRed"></td>
+             
             </tr>
           </tbody>
         </table>

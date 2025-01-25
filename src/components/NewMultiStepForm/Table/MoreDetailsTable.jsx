@@ -5,9 +5,6 @@ const MoreDetailsTable = () => {
   const location = useLocation();
   const formData = location.state;
 
-  if (!formData || !formData.AccountInformation) {
-    return <div>No account information available</div>;
-  }
 
   return (
     <div className="container-width">
@@ -68,6 +65,9 @@ const MoreDetailsTable = () => {
             </tbody>
           </table>
         </div>
+
+
+        
       </div>
     </div>
   );

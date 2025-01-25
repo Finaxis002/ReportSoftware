@@ -92,7 +92,6 @@ const FourthStepPRS = ({ formData, onFormDataChange }) => {
     },
   }
   });
-  const [projectionYears, setProjectionYears] = useState(0);
 
   useEffect(() => {
         localStorage.setItem("FourthStepPRS", JSON.stringify(localData));
