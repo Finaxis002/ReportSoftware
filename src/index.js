@@ -78,13 +78,12 @@ root.render(
               </Authentication>
             }
           />
+
           <Route path="/MultestepForm" element={<MultiStepForm />} />
 
           <Route path="/generated-pdf" element={<GeneratedPDF />} />
 
-
           <Route path="/clientData" element={<ClientData />} />
-
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

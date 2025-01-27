@@ -67,20 +67,31 @@ const BasicDetails = ({ handleSave, reportInput }) => {
     };
 
     const submit = () => {
-        const dynamicData = {
-            personalDetails: {
-                ...formInput, 
-                allPartners: formInput.allPartners.map(partner => ({
-                    partnerName: partner.partnerName,
-                    partnerAadhar: partner.partnerAadhar,
-                    partnerDin: partner.partnerDin,
-                }))
+        const formData = new FormData();
+    
+        // Append all form inputs to the FormData object
+        for (const key in formInput) {
+            if (key === "allPartners") {
+                formInput[key].forEach((partner, idx) => {
+                    formData.append(`personalDetails[allPartners][${idx}][partnerName]`, partner.partnerName);
+                    formData.append(`personalDetails[allPartners][${idx}][partnerAadhar]`, partner.partnerAadhar);
+                    formData.append(`personalDetails[allPartners][${idx}][partnerDin]`, partner.partnerDin);
+                });
+            } else {
+                formData.append(`personalDetails[${key}]`, formInput[key]);
             }
-        };
-
-        console.log("Sending data", dynamicData);
-        handleSave(dynamicData);  // Send this dynamic data
+        }
+    
+        // Append file (logoOfBusiness)
+        const logoFile = document.getElementById("logoOfBusiness").files[0];
+        if (logoFile) {
+            formData.append("logoOfBusiness", logoFile);
+        }
+    
+        // Now send the formData to the server
+        handleSave(formData); // Send this formData with the file to the server
     };
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target;

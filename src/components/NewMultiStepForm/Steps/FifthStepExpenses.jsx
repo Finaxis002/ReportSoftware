@@ -60,9 +60,20 @@ const FifthStepExpenses = ({ onFormDataChange }) => {
 
     // Update parent component and calculate totals
     useEffect(() => {
-        calculateTotalExpense();
-        onFormDataChange({ Expenses: localData });
-    }, [localData]);
+        // Calculate total expenses without modifying localData
+        const totalNormal = localData.normalExpense.reduce((total, expense) => {
+            return total + (parseFloat(expense.amount) || 0) * (parseFloat(expense.quantity) || 0);
+        }, 0);
+    
+        const totalDirect = localData.directExpense.reduce((total, expense) => {
+            return total + (parseFloat(expense.value) || 0);
+        }, 0);
+    
+        const totalExpense = totalNormal + totalDirect;
+    
+        // Pass the updated data to the parent component
+        onFormDataChange({ Expenses: { ...localData, totalExpense } });
+    }, [localData, onFormDataChange]);
 
     const handleFormChange = (event, index, form, type) => {
         const { name, value } = event.target;

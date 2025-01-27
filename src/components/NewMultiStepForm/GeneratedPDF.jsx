@@ -27,7 +27,7 @@ import {
 // Register chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = ({ chartRef }) => {
+const GeneratedPDF = ({ years }) => {
   const options = {
     responsive: true,
     plugins: {
@@ -440,14 +440,42 @@ const GeneratedPDF = ({ chartRef }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-  const [openingStock, setOpeningStock] = useState([]);
-  console.log("opening Stock : ", openingStock);
-  const [closingStock, setClosingStock] = useState([]);
-  console.log('closing stock', closingStock)
+  const [localDataaa, setLocalDataaa] = useState({
+    StockValues: [
+      {
+        particular: "Opening Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Closing Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Withdrawals",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+    ],
+  });
+
+  useEffect(() => {
+    // Loop through the StockValues array and log each stock
+    localDataaa.StockValues.forEach((item) => {
+      if (item.particular === "Opening Stock") {
+        console.log(`Opening Stock values: (${item.years.join(", ")})`);
+      } else if (item.particular === "Closing Stock") {
+        console.log(`Closing Stock values: (${item.years.join(", ")})`);
+      }
+    });
+  }, [localDataaa]);
+
+  const { MoreDetails } = location.state || {}; // Ensure state exists
 
   return (
     <>
-      <PDFViewer width="100%" height="1000" style={{ overflow: "hidden" }}>
+      <PDFViewer width="100%" height="1500" style={{ overflow: "hidden" }}>
         <Document>
           {/* basic details table */}
           <Page size="A4" style={styles.page}>
@@ -463,11 +491,21 @@ const GeneratedPDF = ({ chartRef }) => {
                 </View>
 
                 {Object.entries(formData.AccountInformation).map(
-                  ([key, value], index) =>
-                    key !== "allPartners" ? (
+                  ([key, value], index) => {
+                    // Skip _id, __v, and allPartners fields
+                    if (
+                      key === "allPartners" ||
+                      key === "_id" ||
+                      key === "__v"
+                    ) {
+                      return null;
+                    }
+
+                    // Track the visible index for the fields
+                    return (
                       <View style={styles.tableRow} key={index}>
                         <Text style={styles.serialNoCellDetail}>
-                          {index + 1}
+                          {index + 0}
                         </Text>
                         <Text style={styles.particularsCellsDetail}>{key}</Text>
                         <Text style={styles.separatorCellDetail}>:</Text>
@@ -477,7 +515,8 @@ const GeneratedPDF = ({ chartRef }) => {
                             : String(value)}
                         </Text>
                       </View>
-                    ) : null
+                    );
+                  }
                 )}
               </View>
 
@@ -944,13 +983,14 @@ const GeneratedPDF = ({ chartRef }) => {
                     {[...Array(parseInt(projectionYears) || 0)].map(
                       (_, yearIndex) => {
                         const Annual = Number(totalAnnualWages) || 0;
-                        const initialValue = Annual * 12; // Year 1 value calculation
+                        const initialValue = Annual; // Base annual value calculation
 
+                        // For the first year (first column), show totalAnnualWages
                         const calculatedValue =
                           yearIndex === 0
-                            ? initialValue // For Year 1, use the base value
+                            ? initialValue // For Year 1, just show the base value
                             : initialValue *
-                              Math.pow(1 + rateOfExpense / 100, yearIndex); // Apply rate of expense for subsequent years
+                              Math.pow(1 + rateOfExpense / 100, yearIndex); // Apply growth for subsequent years
 
                         return (
                           <Text
@@ -960,9 +1000,12 @@ const GeneratedPDF = ({ chartRef }) => {
                               styleExpenses.fontSmall,
                             ]}
                           >
-                            {formatAmountInIndianStyle(
-                              calculatedValue.toFixed(2)
-                            )}
+                            {yearIndex === 0
+                              ? formatAmountInIndianStyle(Annual.toFixed(2)) // For Year 1, show the original totalAnnualWages
+                              : formatAmountInIndianStyle(
+                                  calculatedValue.toFixed(2)
+                                )}{" "}
+                  
                           </Text>
                         );
                       }
@@ -1273,7 +1316,7 @@ const GeneratedPDF = ({ chartRef }) => {
                 </View>
               </View>
 
-              {/* closing opening stock */}
+              {/* Closing Stock / Inventory */}
               <View style={[stylesMOF.row, styles.tableRow]}>
                 <Text
                   style={[
@@ -1294,15 +1337,58 @@ const GeneratedPDF = ({ chartRef }) => {
                   Add: Closing Stock / Inventory
                 </Text>
 
+                {/* Display only the 'Closing Stock' values for each year */}
                 {[...Array(parseInt(projectionYears) || 0)].map((_, y) => (
                   <Text
-                    key={y} // Make sure to add a key for the map loop
+                    key={y}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {closingStock[y] || 0}
+                    {MoreDetails.StockValues &&
+                    MoreDetails.StockValues[1] &&
+                    MoreDetails.StockValues[1].years &&
+                    MoreDetails.StockValues[1].years[y] !== undefined
+                      ? MoreDetails.StockValues[1].years[y]
+                      : 0}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Opening Stock / Inventory */}
+              <View style={[stylesMOF.row, styles.tableRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Less: Opening Stock / Inventory
+                </Text>
+
+                {[...Array(parseInt(projectionYears) || 0)].map((_, y) => (
+                  <Text
+                    key={y}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {MoreDetails.StockValues &&
+                    MoreDetails.StockValues[0] &&
+                    MoreDetails.StockValues[0].years &&
+                    MoreDetails.StockValues[0].years[y] !== undefined
+                      ? MoreDetails.StockValues[0].years[y]
+                      : 0}
                   </Text>
                 ))}
               </View>
@@ -1341,13 +1427,14 @@ const GeneratedPDF = ({ chartRef }) => {
                     {[...Array(parseInt(projectionYears) || 0)].map(
                       (_, yearIndex) => {
                         const Annual = Number(totalAnnualWages) || 0;
-                        const initialValue = Annual * 12; // Year 1 value calculation
+                        const initialValue = Annual; // Base annual value calculation
 
+                        // For the first year (first column), show totalAnnualWages
                         const calculatedValue =
                           yearIndex === 0
-                            ? initialValue // For Year 1, use the base value
+                            ? initialValue // For Year 1, just show the base value
                             : initialValue *
-                              Math.pow(1 + rateOfExpense / 100, yearIndex); // Apply rate of expense for subsequent years
+                              Math.pow(1 + rateOfExpense / 100, yearIndex); // Apply growth for subsequent years
 
                         return (
                           <Text
@@ -1357,9 +1444,12 @@ const GeneratedPDF = ({ chartRef }) => {
                               styleExpenses.fontSmall,
                             ]}
                           >
-                            {formatAmountInIndianStyle(
-                              calculatedValue.toFixed(2)
-                            )}
+                            {yearIndex === 0
+                              ? formatAmountInIndianStyle(Annual.toFixed(2)) // For Year 1, show the original totalAnnualWages
+                              : formatAmountInIndianStyle(
+                                  calculatedValue.toFixed(2)
+                                )}{" "}
+                  
                           </Text>
                         );
                       }
@@ -1465,7 +1555,7 @@ const GeneratedPDF = ({ chartRef }) => {
               {/* indirect expense */}
               <View style={[stylesMOF.row, styleExpenses.headerRow]}>
                 <Text style={[styleExpenses.sno]}>E</Text>
-                ---------
+
                 <Text style={stylesMOF.cell}>Less:Indirect Expenses</Text>
               </View>
 

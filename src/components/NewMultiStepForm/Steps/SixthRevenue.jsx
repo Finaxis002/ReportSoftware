@@ -26,6 +26,7 @@ const SixthRevenue = ({ handleSave, years }) => {
   const [projectionYears, setProjectionYears] = useState(
     localData.ProjectionYears || 0
   );
+
   const [formFields, setFormFields] = useState([
     {
       particular: "p1",
@@ -196,25 +197,25 @@ const SixthRevenue = ({ handleSave, years }) => {
           onChange={(e) => toggleType(e.target.checked)}
           checked={formType}
         />
-        <label for="toggle-btn"></label>
+        <label htmlFor="toggle-btn"></label>
         Others
       </div>
       {formType ? (
         <form onSubmit={submit} className="">
           <div className="position-relative w-100">
             <div className="form-scroll" style={{ paddingBottom: "12%" }}>
-              <table class="table">
+              <table className="table">
                 <thead>
                   <tr>
-                    <th class="header-label">Index</th>
-                    <th class="header-label">Particulars</th>
+                    <th className="header-label">Index</th>
+                    <th className="header-label">Particulars</th>
                     {[...Array(parseInt(projectionYears))].map((_, index) => (
                       <th key={index} className="header-label">
                         Year {index + 1}
                       </th>
                     ))}
-                    <th class="header-label">Type</th>
-                    <th class="header-label"></th>
+                    <th className="header-label">Type</th>
+                    <th className="header-label"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -299,7 +300,7 @@ const SixthRevenue = ({ handleSave, years }) => {
                   <label htmlFor="" className="form-label w-25 fs-10">
                     Total Revenue
                   </label>
-                  <table class="table">
+                  <table className="table">
                     <tbody>
                       <tr>
                         {[...Array(parseInt(projectionYears))].map((_, i) => (
@@ -326,17 +327,17 @@ const SixthRevenue = ({ handleSave, years }) => {
         <form onSubmit={submit} className="">
           <div className="position-relative w-100">
             <div className="form-scroll" style={{ paddingBottom: "12%" }}>
-              <table class="table">
+              <table className="table">
                 <thead>
                   <tr>
-                    <th class="header-label">Index</th>
-                    <th class="header-label">Particulars</th>
+                    <th className="header-label">Index</th>
+                    <th className="header-label">Particulars</th>
                     {[...Array(parseInt(projectionYears))].map((_, index) => (
                       <th key={index} className="header-label">
                         Year {index + 1}
                       </th>
                     ))}
-                    <th class="header-label"></th>
+                    <th className="header-label"></th>
                   </tr>
                 </thead>
                 <tbody>
