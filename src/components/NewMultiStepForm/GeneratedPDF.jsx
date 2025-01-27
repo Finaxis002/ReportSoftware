@@ -87,6 +87,18 @@ const GeneratedPDF = ({ years }) => {
     }
   }, []); // Empty dependency array to run only once when the component mounts
 
+  useEffect(() => {
+    // Loop through the StockValues array and log each stock
+    localDataaa.StockValues.forEach((item) => {
+      if (item.particular === "Opening Stock") {
+        console.log(`Opening Stock values: (${item.years.join(", ")})`);
+      } else if (item.particular === "Closing Stock") {
+        console.log(`Closing Stock values: (${item.years.join(", ")})`);
+      }
+    });
+  }, [localDataaa]);
+
+  const { MoreDetails } = location.state || {}; // Ensure state exists
 
   const options = {
     responsive: true,
@@ -473,18 +485,7 @@ const GeneratedPDF = ({ years }) => {
 
  
 
-  useEffect(() => {
-    // Loop through the StockValues array and log each stock
-    localDataaa.StockValues.forEach((item) => {
-      if (item.particular === "Opening Stock") {
-        console.log(`Opening Stock values: (${item.years.join(", ")})`);
-      } else if (item.particular === "Closing Stock") {
-        console.log(`Closing Stock values: (${item.years.join(", ")})`);
-      }
-    });
-  }, [localDataaa]);
-
-  const { MoreDetails } = location.state || {}; // Ensure state exists
+ 
 
   return (
     <>
