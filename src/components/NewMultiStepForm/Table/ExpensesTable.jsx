@@ -2,6 +2,25 @@ import React, {useState} from "react";
 import { useLocation } from "react-router-dom";
 
 const ExpensesTable = () => {
+  const [localData, setLocalData] = useState(() => {
+    const savedData = localStorage.getItem("FourthStepPRS");
+  
+    // Parse and return saved data if it exists, otherwise use the default structure
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          ProjectionYears: {
+            name: "Projection Years",
+            id: "ProjectionYears",
+            value: "",
+            isCustom: false,
+          },
+        };
+  });
+
+  const [projectionYears, setProjectionYears] = useState(localData.ProjectionYears || 5); // Default to 5 years
+  
+  
   const location = useLocation();
   const formData = location.state || {}; // If location.state is undefined, set it as an empty object
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
@@ -12,24 +31,7 @@ const ExpensesTable = () => {
     return <div>No expenses data available.</div>;
   }
 
-   const [localData, setLocalData] = useState(() => {
-      const savedData = localStorage.getItem("FourthStepPRS");
-    
-      // Parse and return saved data if it exists, otherwise use the default structure
-      return savedData
-        ? JSON.parse(savedData)
-        : {
-            ProjectionYears: {
-              name: "Projection Years",
-              id: "ProjectionYears",
-              value: "",
-              isCustom: false,
-            },
-          };
-    });
-
-    const [projectionYears, setProjectionYears] = useState(localData.ProjectionYears || 5); // Default to 5 years
-    
+  
     console.log("projection year from expense table", projectionYears);
 
   return (

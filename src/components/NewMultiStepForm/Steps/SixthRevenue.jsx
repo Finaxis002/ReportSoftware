@@ -82,24 +82,27 @@ const SixthRevenue = ({ handleSave, years }) => {
 
   const submit = (e) => {
     e.preventDefault();
+  
+    // Ensure `totalRevenue` and other variables are properly defined
     const final = {
       revenue: formType
         ? {
             type: "others",
             entries: formFields,
-            totalRevenue: totalRevenueForOthers,
+            totalRevenue: totalRevenueForOthers, // This should be defined elsewhere in the component
           }
         : {
             type: "monthly",
             entries: formFields2,
-            totalMonthlyRevenue,
-            noOfMonths,
-            totalRevenue,
+            totalMonthlyRevenue, // Ensure this is defined
+            noOfMonths, // Ensure this is defined
+            totalRevenue, // Ensure this is defined
           },
     };
-
+  
     handleSave({ ...final });
   };
+  
 
   const addFields2 = (e) => {
     e.preventDefault();
@@ -197,7 +200,7 @@ const SixthRevenue = ({ handleSave, years }) => {
           onChange={(e) => toggleType(e.target.checked)}
           checked={formType}
         />
-        <label htmlFor="toggle-btn"></label>
+        <label className="toggle-btn"></label>
         Others
       </div>
       {formType ? (

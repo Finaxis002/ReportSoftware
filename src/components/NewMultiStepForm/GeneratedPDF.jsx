@@ -28,23 +28,25 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = ({ years }) => {
-
-
-   // Declare your state unconditionally
-   const [localData, setLocalData] = useState({
-    ProjectionYears: {
-      name: "Projection Years",
-      id: "ProjectionYears",
-      value: "", // Default value
-      isCustom: false,
-    },
-    rateOfExpense: {
-      name: "Rate of Expense",
-      id: "rateOfExpense",
-      value: "",
-      isCustom: false,
-    },
-    clientName: "", // Default value from formData
+  const [localData, setLocalData] = useState(() => {
+    const savedData = localStorage.getItem("FourthStepPRS");
+    return savedData
+      ? JSON.parse(savedData) // If saved data exists, parse and return it
+      : {
+          ProjectionYears: {
+            name: "Projection Years",
+            id: "ProjectionYears",
+            value: "", // Default value
+            isCustom: false,
+          },
+          rateOfExpense: {
+            name: "Rate of Expense",
+            id: "rateOfExpense",
+            value: "",
+            isCustom: false,
+          },
+          clientName: "", // Default value from formData
+        };
   });
 
   const [projectionYears, setProjectionYears] = useState(
@@ -54,11 +56,10 @@ const GeneratedPDF = ({ years }) => {
   const [rateOfExpense, setRetOfExpense] = useState(
     localData.rateOfExpense || 2
   );
-  
- 
-  
+
   const [activeRowIndex, setActiveRowIndex] = useState(0);
- const [localDataaa, setLocalDataaa] = useState({
+
+  const [localDataaa, setLocalDataaa] = useState({
     StockValues: [
       {
         particular: "Opening Stock",
@@ -77,16 +78,7 @@ const GeneratedPDF = ({ years }) => {
       },
     ],
   });
-
-
-   // Now, check for the saved data and update the state after initial render
-   useEffect(() => {
-    const savedData = localStorage.getItem("FourthStepPRS");
-    if (savedData) {
-      setLocalData(JSON.parse(savedData));
-    }
-  }, []); // Empty dependency array to run only once when the component mounts
-
+  
   useEffect(() => {
     // Loop through the StockValues array and log each stock
     localDataaa.StockValues.forEach((item) => {
@@ -97,8 +89,6 @@ const GeneratedPDF = ({ years }) => {
       }
     });
   }, [localDataaa]);
-
-  const { MoreDetails } = location.state || {}; // Ensure state exists
 
   const options = {
     responsive: true,
@@ -454,6 +444,7 @@ const GeneratedPDF = ({ years }) => {
     },
   });
   
+  
 
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -483,13 +474,13 @@ const GeneratedPDF = ({ years }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
- 
+  
 
- 
+  const { MoreDetails } = location.state || {}; // Ensure state exists
 
   return (
     <>
-      <PDFViewer width="100%" height="600" style={{ overflow: "hidden" }}>
+      <PDFViewer width="100%" height="800" style={{ overflow: "hidden" }}>
         <Document>
           {/* basic details table */}
           <Page size="A4" style={styles.page}>
