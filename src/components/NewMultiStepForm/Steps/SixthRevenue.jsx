@@ -26,7 +26,6 @@ const SixthRevenue = ({ handleSave, years }) => {
   const [projectionYears, setProjectionYears] = useState(
     localData.ProjectionYears || 0
   );
-
   const [formFields, setFormFields] = useState([
     {
       particular: "p1",
@@ -82,27 +81,24 @@ const SixthRevenue = ({ handleSave, years }) => {
 
   const submit = (e) => {
     e.preventDefault();
-  
-    // Ensure `totalRevenue` and other variables are properly defined
     const final = {
       revenue: formType
         ? {
             type: "others",
             entries: formFields,
-            totalRevenue: totalRevenueForOthers, // This should be defined elsewhere in the component
+            totalRevenue: totalRevenueForOthers,
           }
         : {
             type: "monthly",
             entries: formFields2,
-            totalMonthlyRevenue, // Ensure this is defined
-            noOfMonths, // Ensure this is defined
-            totalRevenue, // Ensure this is defined
+            totalMonthlyRevenue,
+            noOfMonths,
+  
           },
     };
-  
+
     handleSave({ ...final });
   };
-  
 
   const addFields2 = (e) => {
     e.preventDefault();
@@ -200,25 +196,25 @@ const SixthRevenue = ({ handleSave, years }) => {
           onChange={(e) => toggleType(e.target.checked)}
           checked={formType}
         />
-        <label className="toggle-btn"></label>
+        <label for="toggle-btn"></label>
         Others
       </div>
       {formType ? (
         <form onSubmit={submit} className="">
           <div className="position-relative w-100">
             <div className="form-scroll" style={{ paddingBottom: "12%" }}>
-              <table className="table">
+              <table class="table">
                 <thead>
                   <tr>
-                    <th className="header-label">Index</th>
-                    <th className="header-label">Particulars</th>
+                    <th class="header-label">Index</th>
+                    <th class="header-label">Particulars</th>
                     {[...Array(parseInt(projectionYears))].map((_, index) => (
                       <th key={index} className="header-label">
                         Year {index + 1}
                       </th>
                     ))}
-                    <th className="header-label">Type</th>
-                    <th className="header-label"></th>
+                    <th class="header-label">Type</th>
+                    <th class="header-label"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -303,7 +299,7 @@ const SixthRevenue = ({ handleSave, years }) => {
                   <label htmlFor="" className="form-label w-25 fs-10">
                     Total Revenue
                   </label>
-                  <table className="table">
+                  <table class="table">
                     <tbody>
                       <tr>
                         {[...Array(parseInt(projectionYears))].map((_, i) => (
@@ -330,17 +326,17 @@ const SixthRevenue = ({ handleSave, years }) => {
         <form onSubmit={submit} className="">
           <div className="position-relative w-100">
             <div className="form-scroll" style={{ paddingBottom: "12%" }}>
-              <table className="table">
+              <table class="table">
                 <thead>
                   <tr>
-                    <th className="header-label">Index</th>
-                    <th className="header-label">Particulars</th>
+                    <th class="header-label">Index</th>
+                    <th class="header-label">Particulars</th>
                     {[...Array(parseInt(projectionYears))].map((_, index) => (
                       <th key={index} className="header-label">
                         Year {index + 1}
                       </th>
                     ))}
-                    <th className="header-label"></th>
+                    <th class="header-label"></th>
                   </tr>
                 </thead>
                 <tbody>
