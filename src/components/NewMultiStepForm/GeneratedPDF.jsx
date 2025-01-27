@@ -47,6 +47,11 @@ const GeneratedPDF = ({ years }) => {
     clientName: "", // Default value from formData
   });
 
+  const [projectionYears, setProjectionYears] = useState(
+    localData.ProjectionYears || 5
+  ); // Default to 5 years
+
+
    // Now, check for the saved data and update the state after initial render
    useEffect(() => {
     const savedData = localStorage.getItem("FourthStepPRS");
@@ -411,10 +416,7 @@ const GeneratedPDF = ({ years }) => {
   });
   
 
-  const [projectionYears, setProjectionYears] = useState(
-    localData.ProjectionYears || 5
-  ); // Default to 5 years
-
+ 
   const [rateOfExpense, setRetOfExpense] = useState(
     localData.rateOfExpense || 2
   );
