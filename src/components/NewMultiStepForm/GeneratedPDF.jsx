@@ -51,6 +51,33 @@ const GeneratedPDF = ({ years }) => {
     localData.ProjectionYears || 5
   ); // Default to 5 years
 
+  const [rateOfExpense, setRetOfExpense] = useState(
+    localData.rateOfExpense || 2
+  );
+  
+ 
+  
+  const [activeRowIndex, setActiveRowIndex] = useState(0);
+ const [localDataaa, setLocalDataaa] = useState({
+    StockValues: [
+      {
+        particular: "Opening Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Closing Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Withdrawals",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+    ],
+  });
+
 
    // Now, check for the saved data and update the state after initial render
    useEffect(() => {
@@ -416,31 +443,6 @@ const GeneratedPDF = ({ years }) => {
   });
   
 
- 
-  const [rateOfExpense, setRetOfExpense] = useState(
-    localData.rateOfExpense || 2
-  );
-
-  const [activeRowIndex, setActiveRowIndex] = useState(0);
- const [localDataaa, setLocalDataaa] = useState({
-    StockValues: [
-      {
-        particular: "Opening Stock",
-        years: Array.from({ length: years }).fill(0),
-        isCustom: true,
-      },
-      {
-        particular: "Closing Stock",
-        years: Array.from({ length: years }).fill(0),
-        isCustom: true,
-      },
-      {
-        particular: "Withdrawals",
-        years: Array.from({ length: years }).fill(0),
-        isCustom: true,
-      },
-    ],
-  });
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
 
