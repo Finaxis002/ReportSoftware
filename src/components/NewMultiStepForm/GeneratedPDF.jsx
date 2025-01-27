@@ -28,6 +28,34 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = ({ years }) => {
+
+
+   // Declare your state unconditionally
+   const [localData, setLocalData] = useState({
+    ProjectionYears: {
+      name: "Projection Years",
+      id: "ProjectionYears",
+      value: "", // Default value
+      isCustom: false,
+    },
+    rateOfExpense: {
+      name: "Rate of Expense",
+      id: "rateOfExpense",
+      value: "",
+      isCustom: false,
+    },
+    clientName: "", // Default value from formData
+  });
+
+   // Now, check for the saved data and update the state after initial render
+   useEffect(() => {
+    const savedData = localStorage.getItem("FourthStepPRS");
+    if (savedData) {
+      setLocalData(JSON.parse(savedData));
+    }
+  }, []); // Empty dependency array to run only once when the component mounts
+
+
   const options = {
     responsive: true,
     plugins: {
@@ -381,41 +409,36 @@ const GeneratedPDF = ({ years }) => {
       paddingHorizontal: 6,
     },
   });
-  // Using useEffect to update projectionYears and rateOfExpense after localData is initialized
-const [projectionYears, setProjectionYears] = useState(5); // Default to 5 years
-const [rateOfExpense, setRateOfExpense] = useState(2);
+  
 
-useEffect(() => {
-  if (localData.ProjectionYears) {
-    setProjectionYears(localData.ProjectionYears.value || 5);
-  }
-  if (localData.rateOfExpense) {
-    setRateOfExpense(localData.rateOfExpense.value || 2);
-  }
-}, [localData]);
+  const [projectionYears, setProjectionYears] = useState(
+    localData.ProjectionYears || 5
+  ); // Default to 5 years
 
-const [activeRowIndex, setActiveRowIndex] = useState(0);
+  const [rateOfExpense, setRetOfExpense] = useState(
+    localData.rateOfExpense || 2
+  );
 
-const [localDataaa, setLocalDataaa] = useState({
-  StockValues: [
-    {
-      particular: "Opening Stock",
-      years: Array.from({ length: projectionYears }).fill(0),
-      isCustom: true,
-    },
-    {
-      particular: "Closing Stock",
-      years: Array.from({ length: projectionYears }).fill(0),
-      isCustom: true,
-    },
-    {
-      particular: "Withdrawals",
-      years: Array.from({ length: projectionYears }).fill(0),
-      isCustom: true,
-    },
-  ],
-});
-
+  const [activeRowIndex, setActiveRowIndex] = useState(0);
+ const [localDataaa, setLocalDataaa] = useState({
+    StockValues: [
+      {
+        particular: "Opening Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Closing Stock",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+      {
+        particular: "Withdrawals",
+        years: Array.from({ length: years }).fill(0),
+        isCustom: true,
+      },
+    ],
+  });
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
 
@@ -444,6 +467,8 @@ const [localDataaa, setLocalDataaa] = useState({
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
+ 
+
   useEffect(() => {
     // Loop through the StockValues array and log each stock
     localDataaa.StockValues.forEach((item) => {
@@ -459,7 +484,7 @@ const [localDataaa, setLocalDataaa] = useState({
 
   return (
     <>
-      <PDFViewer width="100%" height="1500" style={{ overflow: "hidden" }}>
+      <PDFViewer width="100%" height="600" style={{ overflow: "hidden" }}>
         <Document>
           {/* basic details table */}
           <Page size="A4" style={styles.page}>
