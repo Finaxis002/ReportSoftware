@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 const MultiStepForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     AccountInformation: {},
     MeansOfFinance: {},
@@ -116,7 +117,7 @@ const MultiStepForm = () => {
   };
 
   const renderMenuBar = () => {
-    const navigate = useNavigate();
+  
     const authRole = localStorage.getItem('userRole'); // Get the role from localStorage or state
   
     // Check if authRole exists, and if it's a valid role

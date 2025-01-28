@@ -9,6 +9,7 @@ const Dashboard = ({userRole}) => {
   let data = JSON.parse(localStorage.getItem("userData"));
   const userDetails = userData?.fields;
   const nav = useNavigate();
+  const navigate = useNavigate();
 
   console.log(userData);
 
@@ -61,7 +62,6 @@ const Dashboard = ({userRole}) => {
 
 
   const renderMenuBar = () => {
-    const navigate = useNavigate();
     const authRole = localStorage.getItem('userRole'); // Get the role from localStorage or state
   
     // Check if authRole exists, and if it's a valid role
@@ -82,6 +82,7 @@ const Dashboard = ({userRole}) => {
         return null;
     }
   };
+
   return (
     <div className="app-container">
       {renderMenuBar()}

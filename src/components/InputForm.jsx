@@ -23,6 +23,7 @@ import { data as dummyData } from '../dummyData'
 
 const InputForm = () => {
     const nav = useNavigate();
+    const navigate = useNavigate();
 
     const [reportInput, setReportInput] = useState({});
 
@@ -87,7 +88,7 @@ const InputForm = () => {
     }
 
     const renderMenuBar = () => {
-        const navigate = useNavigate();
+       
         const authRole = localStorage.getItem('userRole'); // Get the role from localStorage or state
       
         // Check if authRole exists, and if it's a valid role
