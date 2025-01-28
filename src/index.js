@@ -5,8 +5,7 @@ import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
 import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 import Dashboard from "./components/Dashboard";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
+import { BrowserRouter, Route, Routes , Navigate} from "react-router-dom";
 import ReportForm from "./components/ReportForm";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import ReportDashboard from "./components/ReportDashboard";
@@ -21,6 +20,7 @@ import GeneratedPDF from "./components/NewMultiStepForm/GeneratedPDF.jsx";
 import ClientData from "./components/NewMultiStepForm/ClientData.jsx";
 import MongoDB from "./components/NewMultiStepForm/MongoDB.jsx";
 import DatabaseLogin from "./components/NewMultiStepForm/DatabaseLogin.jsx";
+import MainLogin from "./components/NewMultiStepForm/MainLogin.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -39,20 +39,31 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
-            <Route
+            {/* <Route
               path="/"
               element={
                 <Authentication>
                   <Dashboard />
                 </Authentication>
               }
+            /> */}
+
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? (
+                  <Dashboard />
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
+              }
             />
             <Route
               path="/form"
               element={
-                <Authentication>
+               
                   <InputForm />
-                </Authentication>
+              
               }
             />
             <Route
@@ -71,7 +82,17 @@ const App = () => {
                 </Authentication>
               }
             />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
+              }
+            />
+
             <Route
               path="/report/:id"
               element={
@@ -91,7 +112,7 @@ const App = () => {
             <Route path="/MultestepForm" element={<MultiStepForm />} />
             <Route path="/generated-pdf" element={<GeneratedPDF />} />
             <Route path="/clientData" element={<ClientData />} />
-            
+
             {/* Protect MongoDB route */}
             <Route
               path="/database"

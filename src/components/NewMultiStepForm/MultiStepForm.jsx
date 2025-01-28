@@ -10,6 +10,7 @@ import FifthStepExpenses from "./Steps/FifthStepExpenses";
 import SixthRevenue from "./Steps/SixthRevenue";
 import SeventhStepMD from "./Steps/SeventhStepMD";
 import MenuBar from "./MenuBar";
+import { useNavigate } from "react-router-dom";
 
 const MultiStepForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -114,9 +115,32 @@ const MultiStepForm = () => {
     }
   };
 
+  const renderMenuBar = () => {
+    const navigate = useNavigate();
+    const authRole = localStorage.getItem('userRole'); // Get the role from localStorage or state
+  
+    // Check if authRole exists, and if it's a valid role
+    if (!authRole) {
+      navigate('/login'); // If there's no role, redirect to login
+      return null; // Optionally render nothing while redirecting
+    }
+  
+    switch (authRole) {
+      case 'admin':
+        return <MenuBar userRole="admin" />;
+      case 'employee':
+        return <MenuBar userRole="employee" />;
+      case 'client':
+        return <MenuBar userRole="client" />;
+      default:
+        navigate('/login'); // If role doesn't match, redirect to login
+        return null;
+    }
+  };
+
   return (
     <div className="flex">
-      <MenuBar />
+      {renderMenuBar()}
       <div className="App md:w-[80%] mx-auto shadow-xl rounded-2xl pb-2 bg-white">
         {/* Stepper Component */}
         <div className="container horizontal mt-5">
