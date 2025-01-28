@@ -43,6 +43,7 @@
     "react-select": "^5.9.0",
     "react-table": "^7.8.0",
     "react-to-pdf": "^1.0.1",
+    "socket.io-client": "^4.8.1",
     "tailwind-react-native-classnames": "^3.0.1",
     "web-vitals": "^2.1.4"
   },
