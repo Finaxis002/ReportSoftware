@@ -11,6 +11,7 @@ const MainLogin = ({ onLogin }) => {
   const [inputUsername, setInputUsername] = useState("");
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // New state for toggling password visibility
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -98,15 +99,26 @@ const MainLogin = ({ onLogin }) => {
             placeholder={`Enter ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Username`}
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-sm font-medium text-gray-700">Password</label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"} // Conditionally render the password input type
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
             value={inputPassword}
             onChange={(e) => setInputPassword(e.target.value)}
             placeholder={`Enter ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Password`}
           />
+          <button
+            type="button"
+            className="absolute right-3 top-7 text-teal-600"
+            onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+          >
+            {showPassword ? (
+              <i className="fas fa-eye-slash text-teal-600 w-6 h-6"></i> // Eye-slash icon when password is hidden
+            ) : (
+              <i className="fas fa-eye text-teal-600 w-6 h-6"></i> // Eye icon when password is visible
+            )}
+          </button>
         </div>
         <button
           className="w-full py-3 px-1 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
