@@ -49,6 +49,13 @@ const GeneratedPDF = ({ years }) => {
         };
   });
 
+  const [userRole, setUserRole] = useState("");
+  
+    useEffect(() => {
+      const role = localStorage.getItem("userRole");
+      setUserRole(role);
+    }, []);
+
   const [projectionYears, setProjectionYears] = useState(
     localData.ProjectionYears || 5
   ); // Default to 5 years
@@ -89,6 +96,7 @@ const GeneratedPDF = ({ years }) => {
       }
     });
   }, [localDataaa]);
+  
 
   const options = {
     responsive: true,
@@ -480,7 +488,7 @@ const GeneratedPDF = ({ years }) => {
 
   return (
     <>
-      <PDFViewer width="100%" height="800" style={{ overflow: "hidden" }}>
+      <PDFViewer width="100%" height="800" style={{ overflow: "hidden" }} showToolbar={userRole !== "client"}>
         <Document>
           {/* basic details table */}
           <Page size="A4" style={styles.page}>
@@ -1663,6 +1671,8 @@ const GeneratedPDF = ({ years }) => {
           </Page>
         </Document>
       </PDFViewer>
+
+
 
       <section>
         <h1 className="text-center py-5 bg-headPurple">Report Review</h1>

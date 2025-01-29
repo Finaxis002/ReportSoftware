@@ -25,6 +25,8 @@ const MultiStepForm = () => {
     MoreDetails: {},
   });
 
+  
+
   const steps = [
     "Account Information",
     "Means Of Finance",

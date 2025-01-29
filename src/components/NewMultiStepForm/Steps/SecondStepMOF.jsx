@@ -23,6 +23,37 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     total: 0,
   });
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Filter only the required fields
+    const filteredData = {
+      promoterContribution: localData. promoterContribution,
+      termLoan: localData.termLoan,
+    };
+
+    console.log("Submitting Data:", filteredData); // Log the filtered data being sent
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/mof",
+        filteredData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      alert("Data submitted successfully!");
+    } catch (error) {
+      console.error(
+        "Error submitting data:",
+        error.response?.data || error.message
+      );
+      alert("Failed to submit data. Check console for details.");
+    }
+  };
+
   // Calculate totals and percentages
   useEffect(() => {
     const {
