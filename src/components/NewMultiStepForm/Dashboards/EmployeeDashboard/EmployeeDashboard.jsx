@@ -98,13 +98,13 @@ const EmployeeDashboard = ({ userRole }) => {
         <div>
           {/* ✅ Display Logged-In Employee Details */}
         {employeeData ? (
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-full max-w-md mx-auto">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Employee Details</h2>
-            <div className="flex flex-col gap-2 text-lg">
-              <p><strong>Employee ID:</strong> {employeeData.id}</p>
-              <p><strong>Name:</strong> {employeeData.name}</p>
-              <p><strong>Email:</strong> {employeeData.email}</p>
-              <p><strong>Designation:</strong> {employeeData.designation}</p>
+          <div  className="hover:bg-gray-50 transition duration-200 mt-4">
+
+            <div className="flex gap-2 text-lg">
+              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Employee ID:</strong> {employeeData.id}</p>
+              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Name:</strong> {employeeData.name}</p>
+              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Email:</strong> {employeeData.email}</p>
+              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Designation:</strong> {employeeData.designation}</p>
             </div>
           </div>
         ) : (
