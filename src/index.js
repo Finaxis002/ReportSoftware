@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import ReactDOM from "react-dom/client";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
 import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
-import Dashboard from "./components/Dashboard";
-import { BrowserRouter, Route, Routes , Navigate} from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ReportForm from "./components/ReportForm";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import ReportDashboard from "./components/ReportDashboard";
@@ -22,6 +21,9 @@ import MongoDB from "./components/NewMultiStepForm/MongoDB.jsx";
 import DatabaseLogin from "./components/NewMultiStepForm/DatabaseLogin.jsx";
 import MainLogin from "./components/NewMultiStepForm/MainLogin.jsx";
 import CreateReport from "./components/NewMultiStepForm/CreateReport.jsx";
+import Dashboard from "./components/Dashboard";
+import AdminDashboard from "./components/NewMultiStepForm/Dashboards/AdminDashboard/AdminDashboard.jsx";
+import EmployeeDashboard from "./components/NewMultiStepForm/Dashboards/EmployeeDashboard/EmployeeDashboard.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -29,10 +31,21 @@ const queryClient = new QueryClient();
 const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const role = localStorage.getItem("userRole");
+    if (isLoggedIn && role) {
+      setIsAuthenticated(true);
+      setUserRole(role);
+    }
+  }, []);
 
   // Handle login to set authentication status
-  const handleLogin = (status) => {
+  const handleLogin = (status, role) => {
     setIsAuthenticated(status);
+    setUserRole(role);
   };
 
   return (
@@ -43,9 +56,11 @@ const App = () => {
             {/* <Route
               path="/"
               element={
-                <Authentication>
+                isAuthenticated ? (
                   <Dashboard />
-                </Authentication>
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
               }
             /> */}
 
@@ -53,20 +68,19 @@ const App = () => {
               path="/"
               element={
                 isAuthenticated ? (
-                  <Dashboard />
+                  userRole === "admin" ? (
+                    <AdminDashboard />
+                  ) : userRole === "employee" ? (
+                    <EmployeeDashboard />
+                  ) : (
+                    <Dashboard />
+                  )
                 ) : (
                   <MainLogin onLogin={handleLogin} />
                 )
               }
             />
-            <Route
-              path="/form"
-              element={
-               
-                  <InputForm />
-              
-              }
-            />
+            <Route path="/form" element={<InputForm />} />
             <Route
               path="/form2"
               element={
@@ -125,14 +139,7 @@ const App = () => {
                 )
               }
             />
-            <Route
-              path="/createreport"
-              element={
-               
-                  <CreateReport />
-              
-              }
-            />
+            <Route path="/createreport" element={<CreateReport />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
