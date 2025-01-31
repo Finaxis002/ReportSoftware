@@ -167,6 +167,29 @@ const MenuBar = ({ userRole }) => {
         </svg>
       ),
     },
+    {
+      path: "/createreport",
+      label: "Create Report",
+      roles: ["admin", "employee", "client"],
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="feather feather-shopping-bag"
+        >
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        </svg>
+      ),
+    },
   ];
 
   // Filter menu items based on the user's role
@@ -176,35 +199,43 @@ const MenuBar = ({ userRole }) => {
 
   return (
     <div className="sidebar">
-      <div className="sidebar-header">
-        <div className="app-icon" onClick={() => nav("/")}>
-          <h6>Sharda Associates</h6>
-        </div>
-      </div>
-      <ul className="sidebar-list">
-        {visibleMenuItems.map((item) => (
-          <li
-            key={item.path}
-            className={`sidebar-list-item ${getLocation(item.path)}`}
-            onClick={() => nav(item.path)}
-          >
-            <div>
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className="account-info">
-                   <div className="account-info-picture">
-                       <img src="https://static.vecteezy.com/system/resources/previews/006/309/616/original/initial-ca-logo-design-logo-design-free-vector.jpg" alt="Account" />
-                   </div>
-                   <div className="account-info-name">Anugraha</div>
-                   <button className="account-info-more">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-more-horizontal"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
-                   </button>
-               </div>
+  <div className="sidebar-header">
+    <div className="app-icon" onClick={() => nav("/")}>
+      <h6>Sharda Associates</h6>
     </div>
+  </div>
+  <ul className="sidebar-list">
+    {visibleMenuItems.map((item) => (
+      <li
+        key={item.path} // Ensure path is unique or consider using item.id or another unique identifier
+        className={`sidebar-list-item ${getLocation(item.path)}`} 
+        onClick={() => nav(item.path)}
+      >
+        <div>
+          {item.icon} {/* Ensure item.icon is a valid JSX element */}
+          <span>{item.label}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+  <div className="account-info">
+    <div className="account-info-picture">
+      <img 
+        src="https://static.vecteezy.com/system/resources/previews/006/309/616/original/initial-ca-logo-design-logo-design-free-vector.jpg" 
+        alt="Account"
+      />
+    </div>
+    <div className="account-info-name">Anugraha</div>
+    <button className="account-info-more">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-more-horizontal">
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+        <circle cx="5" cy="12" r="1" />
+      </svg>
+    </button>
+  </div>
+</div>
+
    
   );
 };

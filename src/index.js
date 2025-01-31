@@ -21,6 +21,7 @@ import ClientData from "./components/NewMultiStepForm/ClientData.jsx";
 import MongoDB from "./components/NewMultiStepForm/MongoDB.jsx";
 import DatabaseLogin from "./components/NewMultiStepForm/DatabaseLogin.jsx";
 import MainLogin from "./components/NewMultiStepForm/MainLogin.jsx";
+import CreateReport from "./components/NewMultiStepForm/CreateReport.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -122,6 +123,14 @@ const App = () => {
                 ) : (
                   <DatabaseLogin onLogin={handleLogin} />
                 )
+              }
+            />
+            <Route
+              path="/createreport"
+              element={
+               
+                  <CreateReport />
+              
               }
             />
           </Routes>

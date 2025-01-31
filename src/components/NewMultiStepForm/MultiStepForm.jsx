@@ -25,8 +25,6 @@ const MultiStepForm = () => {
     MoreDetails: {},
   });
 
-  
-
   const steps = [
     "Account Information",
     "Means Of Finance",
@@ -45,7 +43,6 @@ const MultiStepForm = () => {
       ...stepData,
     }));
   }, []);
-
 
   // Memoized step rendering to prevent re-rendering
   const stepContent = useMemo(() => {
@@ -119,24 +116,23 @@ const MultiStepForm = () => {
   };
 
   const renderMenuBar = () => {
-  
-    const authRole = localStorage.getItem('userRole'); // Get the role from localStorage or state
-  
+    const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state
+
     // Check if authRole exists, and if it's a valid role
     if (!authRole) {
-      navigate('/login'); // If there's no role, redirect to login
+      navigate("/login"); // If there's no role, redirect to login
       return null; // Optionally render nothing while redirecting
     }
-  
+
     switch (authRole) {
-      case 'admin':
+      case "admin":
         return <MenuBar userRole="admin" />;
-      case 'employee':
+      case "employee":
         return <MenuBar userRole="employee" />;
-      case 'client':
+      case "client":
         return <MenuBar userRole="client" />;
       default:
-        navigate('/login'); // If role doesn't match, redirect to login
+        navigate("/login"); // If role doesn't match, redirect to login
         return null;
     }
   };

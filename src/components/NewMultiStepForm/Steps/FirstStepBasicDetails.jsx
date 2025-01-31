@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import deleteImg from "../delete.png";
-import ClientNameDropdown from "./clientNameDropdown";
+import ClientNameDropdown from "../Dropdown/clientNameDropdown";
+import ReportDropdown from "../Dropdown/ReportDropdown";
 import axios from "axios";
 
 const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
@@ -41,10 +43,11 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
           nameofDirectors: formData?.BusinessDetails?.nameofDirectors || "",
           DIN: formData?.BusinessDetails?.DIN || "",
           allPartners: [],
-          
         };
   });
   const [userRole, setUserRole] = useState("");
+  const location = useLocation();
+  const isCreateReportClicked = location.state?.isCreateReportClicked || false;
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -152,12 +155,6 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
     }
   };
 
-  // Save data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("FirstStepBasicDetails", JSON.stringify(localData));
-  }, [localData]);
-
-  
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -210,8 +207,11 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
     <div className="">
       <div className="form-scroll">
         {/* Conditionally render the dropdown only if the user is NOT a client */}
-        {userRole !== "client" && (
-          <ClientNameDropdown onClientSelect={handleClientSelect} />
+        {!isCreateReportClicked && userRole !== "client" && (
+          <div className="flex gap-4 pb-5">
+            <ClientNameDropdown onClientSelect={handleClientSelect} />
+            <ReportDropdown onClientSelect={handleClientSelect} />
+          </div>
         )}
         <form onSubmit={handleSubmit}>
           {" "}

@@ -80,7 +80,7 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "/",
+      path: "#1",
       label: "Clients",
       roles: ["admin", "employee"],
       icon: (
@@ -102,7 +102,7 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "",
+      path: "#2",
       label: "Employees",
       roles: ["admin", "employee"],
       icon: (
@@ -124,7 +124,7 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "#",
+      path: "#3",
       label: "Notifications",
       roles: ["admin", "employee"],
       icon: (
@@ -151,20 +151,43 @@ const MenuBar = ({ userRole }) => {
       roles: ["admin"],
       icon: (
         <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="feather feather-pie-chart"
-      >
-        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
-        <path d="M22 12A10 10 0 0 0 12 2v10z" />
-      </svg>
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="feather feather-pie-chart"
+        >
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+          <path d="M22 12A10 10 0 0 0 12 2v10z" />
+        </svg>
+      ),
+    },
+    {
+      path: "/CreateReport",
+      label: "Create Report",
+      roles: ["admin", "employee", "client"],
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="feather feather-shopping-bag"
+        >
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        </svg>
       ),
     },
   ];
@@ -174,6 +197,13 @@ const MenuBar = ({ userRole }) => {
     item.roles.includes(userRole)
   );
 
+  const paths = visibleMenuItems.map((item) => item.path);
+  const uniquePaths = new Set(paths);
+
+  if (paths.length !== uniquePaths.size) {
+    console.warn("Duplicate paths detected:", paths);
+  }
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -182,9 +212,9 @@ const MenuBar = ({ userRole }) => {
         </div>
       </div>
       <ul className="sidebar-list">
-        {visibleMenuItems.map((item) => (
+        {visibleMenuItems.map((item, index) => (
           <li
-            key={item.path}
+            key={item.path || index} // Ensure unique keys
             className={`sidebar-list-item ${getLocation(item.path)}`}
             onClick={() => nav(item.path)}
           >
@@ -195,18 +225,38 @@ const MenuBar = ({ userRole }) => {
           </li>
         ))}
       </ul>
+      <div className="account-info">
+        <div className="account-info-picture">
+          <img
+            src="https://static.vecteezy.com/system/resources/previews/006/309/616/original/initial-ca-logo-design-logo-design-free-vector.jpg"
+            alt="Account"
+          />
+        </div>
+        <div className="account-info-name">Anugraha</div>
+        <button className="account-info-more">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="feather feather-more-horizontal"
+          >
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="19" cy="12" r="1" />
+            <circle cx="5" cy="12" r="1" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 };
 
 export default MenuBar;
-
-
-
-
-
-
-
 
 // import React from 'react'
 // import { useLocation, useNavigate } from 'react-router-dom'
@@ -286,4 +336,4 @@ export default MenuBar;
 //     )
 // }
 
-// export default MenuBar   
+// export default MenuBar

@@ -31,13 +31,14 @@ const ClientNameDropdown = ({ onClientSelect }) => {
   };
 
   return (
-    <div className="m-5">
+    <div className="m-1">
       <label>Select Client</label>
       <Select
+      className="w-[15rem]"
         options={clientOptions} // Dropdown options
         value={selectedClient} // Selected value
         onChange={handleSelect} // Handle selection
-        placeholder="Search and select a client..."
+        placeholder="select a client..."
         isClearable // Allows clearing the selection
       />
     </div>
