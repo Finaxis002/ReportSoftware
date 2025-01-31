@@ -18,6 +18,7 @@ const AdminDashboard = () => {
     name: "",
     email: "",
     designation: "",
+    password: "" // New field for Employee Password
   });
   useEffect(() => {
     const storedEmployees = localStorage.getItem("employees");
@@ -53,7 +54,7 @@ const AdminDashboard = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setEmployees([...employees, formData]);
-    setFormData({ id: "", name: "", email: "", designation: "" });
+    setFormData({ id: "", name: "", email: "", designation: "", password: "" });
     setShowForm(false);
   };
 
@@ -199,26 +200,26 @@ const AdminDashboard = () => {
             <hr />
           </div>
         </div>
-        <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+        <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-100">
           <table className="min-w-full bg-white border border-gray-300 rounded-lg">
             <thead className="bg-gray-100 sticky top-0">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
                   Employee ID
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
                   Employee Name
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
                   Designation
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
                   Password
                 </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 border-b">
+                <th className="px-6 py-3 text-center text-sm font-semibold text-gray-800 border-b">
                   Actions
                 </th>
               </tr>

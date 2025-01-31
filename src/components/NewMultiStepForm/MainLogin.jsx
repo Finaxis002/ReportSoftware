@@ -3,50 +3,73 @@ import { useNavigate } from "react-router-dom";
 
 const MainLogin = ({ onLogin }) => {
   const [activeTab, setActiveTab] = useState("admin");
-  const [adminCredentials] = useState({ username: "admin", password: "admin123" });
-  const [employeeCredentials] = useState({ username: "employee", password: "employee123" });
-  const [clientCredentials] = useState({ username: "client", password: "client123" });
+   // State for user input
+   const [inputUsername, setInputUsername] = useState("");
+   const [inputPassword, setInputPassword] = useState("");
+   const [error, setError] = useState("");
+   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const [inputUsername, setInputUsername] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // New state for toggling password visibility
+  // Fixed credentials for Admin & Client
+  const adminCredentials = { username: "admin", password: "admin123" };
+  const clientCredentials = { username: "client", password: "client123" };
 
+ 
+
+  // Check if already logged in
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (isLoggedIn) {
       const userRole = localStorage.getItem("userRole");
-      onLogin(true, userRole); // Pass the role to the parent component
-      navigate("/"); // Navigate to the homepage
+      onLogin(true, userRole);
+      navigate("/");
     }
   }, [navigate, onLogin]);
 
+  // Handle Login
   const handleSubmit = (e) => {
     e.preventDefault();
-    let correctUsername = "";
-    let correctPassword = "";
-
+    setError("");
+  
     if (activeTab === "admin") {
-      correctUsername = adminCredentials.username;
-      correctPassword = adminCredentials.password;
-    } else if (activeTab === "employee") {
-      correctUsername = employeeCredentials.username;
-      correctPassword = employeeCredentials.password;
+      if (inputUsername === adminCredentials.username && inputPassword === adminCredentials.password) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "admin");
+        onLogin(true, "admin");
+        navigate("/");
+      } else {
+        setError("Invalid Admin Credentials!");
+      }
     } else if (activeTab === "client") {
-      correctUsername = clientCredentials.username;
-      correctPassword = clientCredentials.password;
-    }
-
-    if (inputUsername === correctUsername && inputPassword === correctPassword) {
-      localStorage.setItem("isLoggedIn", true);
-      localStorage.setItem("userRole", activeTab); // Store role in localStorage if needed
-      onLogin(true, activeTab); // Pass role to parent
-      navigate("/");
-    } else {
-      setError("Invalid username or password.");
+      if (inputUsername === clientCredentials.username && inputPassword === clientCredentials.password) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "client");
+        onLogin(true, "client");
+        navigate("/");
+      } else {
+        setError("Invalid Client Credentials!");
+      }
+    } else if (activeTab === "employee") {
+      const storedEmployees = JSON.parse(localStorage.getItem("employees")) || [];
+  
+      const employee = storedEmployees.find(
+        (emp) => String(emp.id).trim() === String(inputUsername).trim() &&
+                 String(emp.password).trim() === String(inputPassword).trim()
+      );
+  
+      if (employee) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "employee");
+        localStorage.setItem("userId", employee.id); // 🔥 Ensure Employee ID is stored here!
+        onLogin(true, "employee");
+        navigate("/");
+      } else {
+        setError("Invalid Employee ID or Password!");
+      }
     }
   };
+  
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -55,7 +78,9 @@ const MainLogin = ({ onLogin }) => {
         <li className="nav-item flex-1">
           <a
             className={`nav-link py-3 px-1 text-sm text-center cursor-pointer text-lg font-medium ${
-              activeTab === "admin" ? "bg-teal-500 text-white" : "text-teal-600 hover:bg-teal-100"
+              activeTab === "admin"
+                ? "bg-teal-500 text-white"
+                : "text-teal-600 hover:bg-teal-100"
             } rounded-t-lg transition-all duration-300`}
             onClick={() => setActiveTab("admin")}
           >
@@ -65,7 +90,9 @@ const MainLogin = ({ onLogin }) => {
         <li className="nav-item flex-1">
           <a
             className={`nav-link py-3 px-1 text-sm text-center cursor-pointer text-lg font-medium ${
-              activeTab === "employee" ? "bg-teal-500 text-white" : "text-teal-600 hover:bg-teal-100"
+              activeTab === "employee"
+                ? "bg-teal-500 text-white"
+                : "text-teal-600 hover:bg-teal-100"
             } transition-all duration-300`}
             onClick={() => setActiveTab("employee")}
           >
@@ -75,7 +102,9 @@ const MainLogin = ({ onLogin }) => {
         <li className="nav-item flex-1">
           <a
             className={`nav-link py-3 px-1 text-sm text-center cursor-pointer text-lg font-medium ${
-              activeTab === "client" ? "bg-teal-500 text-white" : "text-teal-600 hover:bg-teal-100"
+              activeTab === "client"
+                ? "bg-teal-500 text-white"
+                : "text-teal-600 hover:bg-teal-100"
             } transition-all duration-300`}
             onClick={() => setActiveTab("client")}
           >
@@ -90,33 +119,39 @@ const MainLogin = ({ onLogin }) => {
           {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Login
         </h4>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700">Username</label>
+          <label className="block text-sm font-medium text-gray-700">
+            {activeTab === "employee" ? "Employee ID" : "Username"}
+          </label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
             value={inputUsername}
             onChange={(e) => setInputUsername(e.target.value)}
-            placeholder={`Enter ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Username`}
+            placeholder={`Enter ${
+              activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+            } Username`}
           />
         </div>
         <div className="mb-6 relative">
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
           <input
-            type={showPassword ? "text" : "password"} // Conditionally render the password input type
+            type={showPassword ? "text" : "password"}
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
             value={inputPassword}
             onChange={(e) => setInputPassword(e.target.value)}
-            placeholder={`Enter ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Password`}
+            placeholder="Enter Password"
           />
           <button
             type="button"
             className="absolute right-3 top-7 text-teal-600"
-            onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+            onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <i className="fas fa-eye-slash text-teal-600 w-6 h-6"></i> // Eye-slash icon when password is hidden
+              <i className="fas fa-eye-slash text-teal-600 w-6 h-6"></i>
             ) : (
-              <i className="fas fa-eye text-teal-600 w-6 h-6"></i> // Eye icon when password is visible
+              <i className="fas fa-eye text-teal-600 w-6 h-6"></i>
             )}
           </button>
         </div>
