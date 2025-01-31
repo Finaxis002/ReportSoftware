@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select"; // Install using `npm install react-select`
 
-const businessNameDropdown = ({clientName , onbusinessSelect }) => {
+const BusinessNameDropdown = ({ clientName, onbusinessSelect }) => {
   const [businessOptions, setbusinessOptions] = useState([]); // Dropdown options
   const [selectedbusiness, setSelectedbusiness] = useState(null); // Selected business
   const [businesss, setbusinesss] = useState([]);
@@ -11,7 +11,9 @@ const businessNameDropdown = ({clientName , onbusinessSelect }) => {
   useEffect(() => {
     const fetchbusinesss = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/business?clientName=${clientName}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/business?clientName=${clientName}`
+        );
         const options = response.data.map((business) => ({
           value: business.businessName,
           label: business.businessName,
@@ -25,19 +27,19 @@ const businessNameDropdown = ({clientName , onbusinessSelect }) => {
     fetchbusinesss();
   }, []);
 
-//   useEffect(() => {
-//     // Fetch the list of businesss
-//     const fetchbusinesss = async () => {
-//       try {
-//         const response = await axios.get("http://localhost:5000/api/business");
-//         setbusinesss(response.data); // Set business data
-//       } catch (error) {
-//         console.error("Error fetching businesss:", error.message);
-//       }
-//     };
+  //   useEffect(() => {
+  //     // Fetch the list of businesss
+  //     const fetchbusinesss = async () => {
+  //       try {
+  //         const response = await axios.get("http://localhost:5000/api/business");
+  //         setbusinesss(response.data); // Set business data
+  //       } catch (error) {
+  //         console.error("Error fetching businesss:", error.message);
+  //       }
+  //     };
 
-//     fetchbusinesss();
-//   }, []);
+  //     fetchbusinesss();
+  //   }, []);
 
   // Handle business selection
   const handleSelect = (selectedOption) => {
@@ -49,16 +51,15 @@ const businessNameDropdown = ({clientName , onbusinessSelect }) => {
     <div className="m-1 ">
       <label>Select business</label>
       <Select
-      className="w-[20rem]"
+        className="w-[20rem]"
         options={businessOptions} // Dropdown options
         value={selectedbusiness} // Selected value
         onChange={handleSelect} // Handle selection
         placeholder="select a business..."
         isClearable // Allows clearing the selection
-         
-      /> 
+      />
     </div>
   );
 };
 
-export default businessNameDropdown;
+export default BusinessNameDropdown;
