@@ -104,7 +104,7 @@ const MenuBar = ({ userRole }) => {
     {
       path: "#2",
       label: "Employees",
-      roles: ["admin", "employee"],
+      roles: ["admin"],
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"

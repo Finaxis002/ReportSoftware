@@ -1,36 +1,37 @@
 import React, { useEffect, useState } from "react";
 import MenuBar from "../../MenuBar";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import EmployeeEditModal from "../AdminDashboard/EmployeeEditModal";
 
 const EmployeeDashboard = ({ userRole }) => {
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
 
+
   useEffect(() => {
     const authRole = localStorage.getItem("userRole");
-    const employeeId = localStorage.getItem("userId"); // 🔥 Get logged-in Employee ID
-
-    console.log("Stored User ID:", employeeId);
-    console.log("Stored Role:", authRole);
+    const employeeId = localStorage.getItem("userId");
 
     if (!authRole || authRole !== "employee") {
-        navigate("/login"); // Redirect if not an employee
-      } else {
-        // Fetch all employees from localStorage
-        const employees = JSON.parse(localStorage.getItem("employees")) || [];
-       
-        // 🔥 Ensure Correct Employee ID Matching
-        const loggedInEmployee = employees.find((emp) => String(emp.id).trim() === String(employeeId).trim());
-  
-        console.log("Matched Employee Data:", loggedInEmployee);
-  
-        if (loggedInEmployee) {
-          setEmployeeData(loggedInEmployee);
-        } else {
-          setEmployeeData(null);
+      navigate("/login");
+    } else {
+      const fetchEmployeeData = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch employee details");
+          }
+          const data = await response.json();
+          setEmployeeData(data);
+        } catch (err) {
+          console.error("Error fetching employee details:", err);
         }
-      }
-    }, [navigate]);
+      };
+      fetchEmployeeData();
+    }
+  }, [navigate]);
 
 
 
@@ -97,20 +98,58 @@ const EmployeeDashboard = ({ userRole }) => {
 
         <div>
           {/* ✅ Display Logged-In Employee Details */}
-        {employeeData ? (
-          <div  className="hover:bg-gray-50 transition duration-200 mt-4">
+          {employeeData ? (
+            <div className="flex justify-center my-10">
+              <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+                <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white text-center py-2">
+                  <h2 className="text-xl font-semibold ">Employee Details</h2>
+                </div>
+                <div className="p-6 flex gap-20 text-gray-700">
+                  {/* Employee ID */}
+                  <div className="flex flex-col items-center md:items-start w-1/4">
+                    <p className="text-sm text-gray-500 uppercase font-semibold">
+                      Employee ID
+                    </p>
+                    <p className="text-lg font-medium">
+                      {employeeData.employeeId}
+                    </p>
+                  </div>
 
-            <div className="flex gap-2 text-lg">
-              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Employee ID:</strong> {employeeData.id}</p>
-              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Name:</strong> {employeeData.name}</p>
-              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Email:</strong> {employeeData.email}</p>
-              <p className="px-6 py-4 text-gray-800 flex flex-col text-center gap-4"><strong>Designation:</strong> {employeeData.designation}</p>
+                  {/* Name */}
+                  <div className="flex flex-col items-center md:items-start w-1/4">
+                    <p className="text-sm text-gray-500 uppercase font-semibold">
+                      Name
+                    </p>
+                    <p className="text-lg font-medium">{employeeData.name}</p>
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex flex-col items-center md:items-start w-1/4">
+                    <p className="text-sm text-gray-500 uppercase font-semibold">
+                      Email
+                    </p>
+                    <p className="text-lg font-medium">{employeeData.email}</p>
+                  </div>
+
+                  {/* Designation */}
+                  <div className="flex flex-col items-center md:items-start w-1/4">
+                    <p className="text-sm text-gray-500 uppercase font-semibold">
+                      Designation
+                    </p>
+                    <p className="text-lg font-medium">
+                      {employeeData.designation}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">No employee details found.</p>
-        )}
+          ) : (
+            <p className="text-center text-gray-500">
+              No employee details found.
+            </p>
+          )}
         </div>
+        
         <div className="container">
           <div className="row mt-4">
             <div className="col-12">

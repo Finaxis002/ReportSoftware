@@ -27,48 +27,66 @@ const MainLogin = ({ onLogin }) => {
   }, [navigate, onLogin]);
 
   // Handle Login
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-  
-    if (activeTab === "admin") {
-      if (inputUsername === adminCredentials.username && inputPassword === adminCredentials.password) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        onLogin(true, "admin");
-        navigate("/");
-      } else {
-        setError("Invalid Admin Credentials!");
-      }
-    } else if (activeTab === "client") {
-      if (inputUsername === clientCredentials.username && inputPassword === clientCredentials.password) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "client");
-        onLogin(true, "client");
-        navigate("/");
-      } else {
-        setError("Invalid Client Credentials!");
-      }
-    } else if (activeTab === "employee") {
-      const storedEmployees = JSON.parse(localStorage.getItem("employees")) || [];
-  
-      const employee = storedEmployees.find(
-        (emp) => String(emp.id).trim() === String(inputUsername).trim() &&
-                 String(emp.password).trim() === String(inputPassword).trim()
-      );
-  
-      if (employee) {
+ // Handle Login (made async to allow API call)
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  if (activeTab === "admin") {
+    if (
+      inputUsername === adminCredentials.username &&
+      inputPassword === adminCredentials.password
+    ) {
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "admin");
+      onLogin(true, "admin");
+      navigate("/");
+    } else {
+      setError("Invalid Admin Credentials!");
+    }
+  } else if (activeTab === "client") {
+    if (
+      inputUsername === clientCredentials.username &&
+      inputPassword === clientCredentials.password
+    ) {
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "client");
+      onLogin(true, "client");
+      navigate("/");
+    } else {
+      setError("Invalid Client Credentials!");
+    }
+  } else if (activeTab === "employee") {
+    // Call the API endpoint to login the employee
+    try {
+      const response = await fetch("http://localhost:5000/api/employees/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employeeId: inputUsername, // make sure this matches your API field name
+          password: inputPassword,
+        }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Store login details in localStorage
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "employee");
-        localStorage.setItem("userId", employee.id); // 🔥 Ensure Employee ID is stored here!
+        localStorage.setItem("userId", data.employee.employeeId);
         onLogin(true, "employee");
         navigate("/");
       } else {
-        setError("Invalid Employee ID or Password!");
+        setError(data.error || "Invalid Employee ID or Password!");
       }
+    } catch (err) {
+      console.error("Error logging in employee:", err);
+      setError("Server error. Please try again later.");
     }
-  };
-  
+  }
+};
   
 
   return (
