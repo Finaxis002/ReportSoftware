@@ -9,13 +9,21 @@ import EmployeeList from "./EmployeeList";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const nav = useNavigate();
-  const authRole = localStorage.getItem("userRole");
 
+  const [formData, setFormData] = useState({
+    // initialize with default values if needed, e.g.:
+    id: "",
+    name: "",
+    email: "",
+    designation: "",
+    password: ""
+  });
   const [showForm, setShowForm] = useState(false);
   const [employees, setEmployees] = useState([]);
 
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const authRole = localStorage.getItem("userRole");
 
   useEffect(() => {
     localStorage.setItem("employees", JSON.stringify(employees));

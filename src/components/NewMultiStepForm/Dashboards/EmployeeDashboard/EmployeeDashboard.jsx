@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MenuBar from "../../MenuBar";
+
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -33,7 +34,13 @@ const EmployeeDashboard = ({ userRole }) => {
     }
   }, [navigate]);
 
-
+  const convertToFriendlyDateTime = (dateString) => {
+    const dateObj = new Date(dateString);
+    const date = dateObj.toLocaleDateString();
+    const time = dateObj.toLocaleTimeString();
+    return { date, time };
+  };
+  
 
   let data = JSON.parse(localStorage.getItem("userData"));
 
