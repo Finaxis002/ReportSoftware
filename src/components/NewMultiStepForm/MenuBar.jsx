@@ -6,7 +6,7 @@ const MenuBar = ({ userRole }) => {
   const location = useLocation();
 
   const getLocation = (loc) => {
-    return location.pathname === loc ? "active" : "";
+    return location.pathname === loc ? "active" : "yes";
   };
 
   // Define menu items with roles
