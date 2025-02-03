@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import MenuBar from "../MenuBar";
 import EmployeeNotifications from "./EmployeeNotifications";
 import Header from '../Header'
+import { useNavigate } from "react-router-dom";
 
 const Notification = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate;
 
    // Assume userRole is stored in localStorage after login.
    const userRole = localStorage.getItem("userRole") || "admin";
