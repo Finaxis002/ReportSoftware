@@ -188,7 +188,13 @@ const SeventhStepMD = ({ formData, onFormDataChange, years }) => {
         };
   });
 
-  const [projectionYears, setProjectionYears] = useState(localDataa.ProjectionYears || 0);
+ const [projectionYears, setProjectionYears] = useState(Number(localData.ProjectionYears?.value || 1));
+   const yearsValid = typeof years === "number" && years > 0 ? years : 1;
+
+   const revenueData = Array.isArray(localData.currentLiabilities) ? localData.currentLiabilities : [];
+
+  
+
 
   const getEmptyArray = () => {
     return Array.from({ length: years }).fill(0);

@@ -102,7 +102,7 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "#",
+      path: "/employees",
       label: "Employees",
       roles: ["admin"],
       icon: (
@@ -124,7 +124,7 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "#",
+      path: "/notifications",
       label: "Notifications",
       roles: ["admin", "employee"],
       icon: (

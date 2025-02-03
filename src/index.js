@@ -24,6 +24,10 @@ import CreateReport from "./components/NewMultiStepForm/CreateReport.jsx";
 import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/NewMultiStepForm/Dashboards/AdminDashboard/AdminDashboard.jsx";
 import EmployeeDashboard from "./components/NewMultiStepForm/Dashboards/EmployeeDashboard/EmployeeDashboard.jsx";
+import Employees from "./components/NewMultiStepForm/Employees/Employees.jsx";
+import Notification from "./components/NewMultiStepForm/Notifications/Notification.jsx";
+import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
+
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -125,8 +129,11 @@ const App = () => {
               }
             />
             <Route path="/MultestepForm" element={<MultiStepForm />} />
+            <Route path="/employees" element={<Employees />} />
+            <Route path="/notifications" element={<Notification />} />
             <Route path="/generated-pdf" element={<GeneratedPDF />} />
             <Route path="/clientData" element={<ClientData />} />
+            <Route path="/tasks/:taskId" element={<Tasks />} />
 
             {/* Protect MongoDB route */}
             <Route

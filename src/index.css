@@ -32,3 +32,13 @@ code {
   background-color: rgb(143, 255, 192) !important;
   font-weight: 600;
 }
+
+
+.animate-ping {
+  animation: ping 1s infinite;
+}
+@keyframes ping {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}

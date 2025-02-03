@@ -50,11 +50,11 @@ const GeneratedPDF = ({ years }) => {
   });
 
   const [userRole, setUserRole] = useState("");
-  
-    useEffect(() => {
-      const role = localStorage.getItem("userRole");
-      setUserRole(role);
-    }, []);
+
+  useEffect(() => {
+    const role = localStorage.getItem("userRole");
+    setUserRole(role);
+  }, []);
 
   const [projectionYears, setProjectionYears] = useState(
     localData.ProjectionYears || 5
@@ -85,7 +85,7 @@ const GeneratedPDF = ({ years }) => {
       },
     ],
   });
-  
+
   useEffect(() => {
     // Loop through the StockValues array and log each stock
     localDataaa.StockValues.forEach((item) => {
@@ -96,7 +96,6 @@ const GeneratedPDF = ({ years }) => {
       }
     });
   }, [localDataaa]);
-  
 
   const options = {
     responsive: true,
@@ -451,8 +450,6 @@ const GeneratedPDF = ({ years }) => {
       paddingHorizontal: 6,
     },
   });
-  
-  
 
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -482,13 +479,16 @@ const GeneratedPDF = ({ years }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-  
-
   const { MoreDetails } = location.state || {}; // Ensure state exists
 
   return (
     <>
-      <PDFViewer width="100%" height="800" style={{ overflow: "hidden" }} showToolbar={userRole !== "client"}>
+      <PDFViewer
+        width="100%"
+        height="800"
+        style={{ overflow: "hidden" }}
+        showToolbar={userRole !== "client" && userRole !== "employee"}
+      >
         <Document>
           {/* basic details table */}
           <Page size="A4" style={styles.page}>
@@ -1018,7 +1018,6 @@ const GeneratedPDF = ({ years }) => {
                               : formatAmountInIndianStyle(
                                   calculatedValue.toFixed(2)
                                 )}{" "}
-                  
                           </Text>
                         );
                       }
@@ -1462,7 +1461,6 @@ const GeneratedPDF = ({ years }) => {
                               : formatAmountInIndianStyle(
                                   calculatedValue.toFixed(2)
                                 )}{" "}
-                  
                           </Text>
                         );
                       }
@@ -1671,8 +1669,6 @@ const GeneratedPDF = ({ years }) => {
           </Page>
         </Document>
       </PDFViewer>
-
-
 
       <section>
         <h1 className="text-center py-5 bg-headPurple">Report Review</h1>

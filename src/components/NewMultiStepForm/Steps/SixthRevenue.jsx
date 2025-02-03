@@ -23,9 +23,9 @@ const SixthRevenue = ({ handleSave, years }) => {
     setFormType(value);
   };
 
-  const [projectionYears, setProjectionYears] = useState(
-    localData.ProjectionYears || 0
-  );
+  const [projectionYears, setProjectionYears] = useState(Number(localData.ProjectionYears?.value || 1));
+  const yearsValid = typeof years === "number" && years > 0 ? years : 1;
+
   const [formFields, setFormFields] = useState([
     {
       particular: "p1",
@@ -35,12 +35,17 @@ const SixthRevenue = ({ handleSave, years }) => {
   ]);
   //totalRevenue for others type
   const [totalRevenueForOthers, setTotalRevenueForOthers] = useState(
-    Array.from({ length: years }).fill(0)
+    Array.from({ length: yearsValid }).fill(0)
+
   );
 
   const [formFields2, setFormFields2] = useState([
     { particular: "p1", years: Array.from({ length: years }).fill(0) },
   ]);
+  const revenueData = Array.isArray(formFields) ? formFields : [];
+  
+
+
 
   const addFields = (e) => {
     e.preventDefault();
