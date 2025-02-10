@@ -4,6 +4,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [status, setStatus] = useState("")
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -23,6 +24,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
           taskTitle,
           taskDescription,
           dueDate,
+          status,
         }),
       });
 
@@ -33,6 +35,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
         setTaskTitle("");
         setTaskDescription("");
         setDueDate("");
+        setStatus("");
         // Let the parent component know a task was assigned (if needed)
         if (onTaskAssigned) onTaskAssigned(data.task);
         // Close the modal after a short delay
@@ -87,6 +90,17 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
               onChange={(e) => setDueDate(e.target.value)}
               required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <textarea
+              className="w-full p-2 border rounded"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              required
+            ></textarea>
           </div>
           <div className="flex justify-end">
             <button

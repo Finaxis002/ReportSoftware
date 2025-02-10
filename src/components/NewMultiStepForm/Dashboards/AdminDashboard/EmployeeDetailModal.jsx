@@ -128,6 +128,10 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
                       <span className="font-medium">Due Date:</span>{" "}
                       {new Date(task.dueDate).toLocaleDateString()}
                     </p>
+                    <p className="mt-2 text-gray-700">
+                    <span className="font-medium">Status:</span>{" "}
+                    {task.status}
+                    </p>
                   </div>
                 ))}
               </div>

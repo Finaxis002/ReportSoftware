@@ -250,7 +250,7 @@
 .normalRow td,
 .normalRow td input,
 .normalRow td select {
-  background: rgb(191, 224, 214) !important;
+  background: rgb(255, 255, 255) !important;
 }
 
 .headingRow td,

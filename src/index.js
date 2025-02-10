@@ -29,6 +29,7 @@ import Notification from "./components/NewMultiStepForm/Notifications/Notificati
 import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
 
 
+
 // Initialize query client
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -51,6 +53,7 @@ const App = () => {
     setIsAuthenticated(status);
     setUserRole(role);
   };
+  
 
   return (
     <Provider store={store}>

@@ -7,7 +7,7 @@ const PrSetting=()=>{
         const formData = location.state;
       
         // Debug: Log data to check if AccountInformation is present
-        // console.log("accountInfo in BasicDetailsView:");
+        console.log("accountInfo in BasicDetailsView:");
       
         // Ensure formData is valid
         if (!formData || !formData.AccountInformation) {

@@ -2,167 +2,130 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import deleteImg from "../delete.png";
 import ClientNameDropdown from "../Dropdown/clientNameDropdown";
-import ReportDropdown from "../Dropdown/ReportDropdown";
 import axios from "axios";
 
-const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
-  // Initialize form data with props if available
-  const [localData, setLocalData] = useState(() => {
-    const savedData = localStorage.getItem("FirstStepBasicDetails");
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          clientName: formData?.ClientInformation?.clientName || "",
-          clientEmail: formData?.ClientInformation?.clientEmail || "",
-          clientPhone: formData?.ClientInformation?.clientPhone || "",
-          businessDescription:
-            formData?.BusinessDetails?.businessDescription || "",
-          businessOwner: formData?.BusinessDetails?.businessOwner || "",
-          businessEmail: formData?.BusinessDetails?.businessEmail || "",
-          businessContactNumber:
-            formData?.BusinessDetails?.businessContactNumber || "",
-          clientDob: formData?.ClientInformation?.clientDob || "",
-          adhaarNumber: formData?.ClientInformation?.adhaarNumber || "",
-          educationQualification:
-            formData?.ClientInformation?.educationQualification || "",
-          businessName: formData?.BusinessDetails?.businessName || "",
-          businessAddress: formData?.BusinessDetails?.businessAddress || "",
-          pincode: formData?.BusinessDetails?.pincode || "",
-          location: formData?.BusinessDetails?.location || "",
-          industryType: formData?.BusinessDetails?.industryType || "",
-          registrationType: formData?.BusinessDetails?.registrationType || "",
-          PANNumber: formData?.BusinessDetails?.PANNumber || "",
-          TANNumber: formData?.BusinessDetails?.TANNumber || "",
-          UDYAMNumber: formData?.BusinessDetails?.UDYAMNumber || "",
-          GSTIN: formData?.BusinessDetails?.GSTIN || "",
-          CIN: formData?.BusinessDetails?.CIN || "",
-          logoOfBusiness: formData?.BusinessDetails?.logoOfBusiness || "",
-          allPartners: formData?.BusinessDetails?.allPartners || [],
-          PIN: formData?.BusinessDetails?.PIN || "",
-          numberOfEmployees: formData?.BusinessDetails?.numberOfEmployees || "",
-          nameofDirectors: formData?.BusinessDetails?.nameofDirectors || "",
-          DIN: formData?.BusinessDetails?.DIN || "",
-          allPartners: [],
-        };
+const FirstStepBasicDetails = ({
+  formData,
+  onFormDataChange,
+  sessionId,
+  setSessionId,
+}) => {
+  const [localData, setLocalData] = useState({
+    clientName: formData?.AccountInformation?.clientName || "",
+    clientEmail: formData?.AccountInformation?.clientEmail || "",
+    clientPhone: formData?.AccountInformation?.clientPhone || "",
+    businessDescription:
+      formData?.AccountInformation?.businessDescription || "",
+    businessOwner: formData?.AccountInformation?.businessOwner || "",
+    businessEmail: formData?.AccountInformation?.businessEmail || "",
+    businessContactNumber:
+      formData?.AccountInformation?.businessContactNumber || "",
+    clientDob: formData?.AccountInformation?.clientDob || "",
+    adhaarNumber: formData?.AccountInformation?.adhaarNumber || "",
+    educationQualification:
+      formData?.AccountInformation?.educationQualification || "",
+    businessName: formData?.AccountInformation?.businessName || "",
+    businessAddress: formData?.AccountInformation?.businessAddress || "",
+    pincode: formData?.AccountInformation?.pincode || "",
+    location: formData?.AccountInformation?.location || "",
+    industryType: formData?.AccountInformation?.industryType || "",
+    registrationType: formData?.AccountInformation?.registrationType || "",
+    PANNumber: formData?.AccountInformation?.PANNumber || "",
+    TANNumber: formData?.AccountInformation?.TANNumber || "",
+    UDYAMNumber: formData?.AccountInformation?.UDYAMNumber || "",
+    GSTIN: formData?.AccountInformation?.GSTIN || "",
+    CIN: formData?.AccountInformation?.CIN || "",
+    logoOfBusiness: formData?.AccountInformation?.logoOfBusiness || "",
+    allPartners: formData?.AccountInformation?.allPartners || [],
+    PIN: formData?.AccountInformation?.PIN || "",
+    numberOfEmployees: formData?.AccountInformation?.numberOfEmployees || "",
+    nameofDirectors: formData?.AccountInformation?.nameofDirectors || "",
+    DIN: formData?.AccountInformation?.DIN || "",
   });
-  const [userRole, setUserRole] = useState("");
-  const location = useLocation();
-  const isCreateReportClicked = location.state?.isCreateReportClicked || false;
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    setUserRole(role);
-  }, []);
-
-  const handleClientSelect = async (clientName) => {
-    if (!clientName) {
-      // If no client is selected, reset the form
-      setLocalData({
-        clientName: "",
-        clientEmail: "",
-        clientPhone: "",
-        businessDescription: "",
-        businessOwner: "",
-        businessEmail: "",
-        businessContactNumber: "",
-        clientDob: "",
-        adhaarNumber: "",
-        educationQualification: "",
-        businessName: "",
-        businessAddress: "",
-        pincode: "",
-        location: "",
-        industryType: "",
-        registrationType: "",
-        PANNumber: "",
-        TANNumber: "",
-        UDYAMNumber: "",
-        GSTIN: "",
-        CIN: "",
-        logoOfBusiness: "",
-        allPartners: [],
-        PIN: "",
-        numberOfEmployees: "",
-        nameofDirectors: "",
-        DIN: "",
-      });
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/by-name/${clientName}`
-      );
-      setLocalData(response.data); // Populate form fields with client data
-    } catch (error) {
-      console.error("Error fetching client details:", error.message);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Filter only the required fields
-    const filteredData = {
-      clientName: localData.clientName,
-      clientEmail: localData.clientEmail,
-      clientPhone: localData.clientPhone,
-      businessDescription: localData.businessDescription,
-      businessOwner: localData.businessOwner,
-      businessEmail: localData.businessEmail,
-      businessContactNumber: localData.businessContactNumber,
-      clientDob: localData.clientDob,
-      adhaarNumber: localData.adhaarNumber,
-      educationQualification: localData.educationQualification,
-      businessName: localData.businessName,
-      businessAddress: localData.businessAddress,
-      pincode: localData.pincode,
-      location: localData.location,
-      industryType: localData.industryType,
-      registrationType: localData.registrationType,
-      PANNumber: localData.PANNumber,
-      TANNumber: localData.TANNumber,
-      UDYAMNumber: localData.UDYAMNumber,
-      GSTIN: localData.GSTIN,
-      CIN: localData.CIN,
-      logoOfBusiness: localData.logoOfBusiness,
-      PIN: localData.PIN,
-      numberOfEmployees: localData.numberOfEmployees,
-      nameofDirectors: localData.nameofDirectors,
-      DIN: localData.DIN,
-      allPartners: localData.allPartners,
-    };
-
-    console.log("Submitting Data:", filteredData); // Log the filtered data being sent
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/user",
-        filteredData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+    if (formData?.AccountInformation) {
+      setLocalData((prevData) => {
+        // ✅ Prevent unnecessary state updates to avoid infinite loops
+        if (
+          JSON.stringify(prevData) !==
+          JSON.stringify(formData.AccountInformation)
+        ) {
+          return {
+            ...prevData,
+            ...formData.AccountInformation,
+            allPartners: Array.isArray(formData.AccountInformation.allPartners)
+              ? formData.AccountInformation.allPartners
+              : [], // ✅ Ensures allPartners is always an array
+          };
         }
-      );
-      alert("Data submitted successfully!");
-    } catch (error) {
-      console.error(
-        "Error submitting data:",
-        error.response?.data || error.message
-      );
-      alert("Failed to submit data. Check console for details.");
+        return prevData; // ✅ Return existing state if no changes
+      });
     }
-  };
+  }, [formData?.AccountInformation]); // ✅ Runs only when `formData.AccountInformation` changes
 
-  // Handle input change
+  /** ✅ Handle input changes and update both localData & formData */
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Update local state
     setLocalData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+
+    // Update parent state (MultiStepForm)
+    onFormDataChange({
+      AccountInformation: {
+        ...formData.AccountInformation, // Preserve existing data
+        [name]: value, // Update only the changed field
+      },
+    });
   };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", file);
+
+    // ✅ Only send sessionId if it exists
+    if (sessionId) {
+      uploadFormData.append("sessionId", sessionId);
+    }
+
+    uploadFormData.append("step", "Account Information");
+    uploadFormData.append("data", JSON.stringify({ AccountInformation: {} })); // ✅ Ensure `data` is sent
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/save-step",
+        uploadFormData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      console.log("File uploaded successfully:", response.data);
+
+      // ✅ Update formData with correct filePath
+      onFormDataChange({
+        AccountInformation: {
+          ...formData.AccountInformation,
+          logoOfBusiness: response.data.filePath, // ✅ Save returned filePath
+        },
+      });
+
+      // ✅ Update session ID if needed
+      if (!sessionId && response.data.sessionId) {
+        setSessionId(response.data.sessionId);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("File upload failed. Please try again.");
+    }
+  };
+
   const addPartner = () => {
     setLocalData((prevData) => ({
       ...prevData,
@@ -206,14 +169,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
   return (
     <div className="">
       <div className="form-scroll">
-        {/* Conditionally render the dropdown only if the user is NOT a client */}
-        {!isCreateReportClicked && userRole !== "client" && (
-          <div className="flex gap-4 pb-5">
-            <ClientNameDropdown onClientSelect={handleClientSelect} />
-            <ReportDropdown onClientSelect={handleClientSelect} />
-          </div>
-        )}
-        <form onSubmit={handleSubmit}>
+        <form>
           {" "}
           {/* Form wrapper with submit */}
           <div>
@@ -224,7 +180,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="clientName"
                 type="text"
                 placeholder="e.g., John Doe"
-                value={localData.clientName}
+                value={localData.clientName || ""}
                 onChange={handleChange}
                 required
               />
@@ -237,7 +193,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="clientEmail"
                 type="email"
                 placeholder="e.g., john@example.com"
-                value={localData.clientEmail}
+                value={localData.clientEmail || ""}
                 onChange={handleChange}
                 required
               />
@@ -250,7 +206,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="clientPhone"
                 type="tel"
                 placeholder="e.g., 123-456-7890"
-                value={localData.clientPhone}
+                value={localData.clientPhone || ""}
                 onChange={handleChange}
                 required
               />
@@ -262,7 +218,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessDescription"
                 type="tel"
                 placeholder="e.g., Description"
-                value={localData.businessDescription}
+                value={localData.businessDescription || ""}
                 onChange={handleChange}
                 required
               />
@@ -274,7 +230,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessOwner"
                 type="tel"
                 placeholder="e.g., John Doe"
-                value={localData.businessOwner}
+                value={localData.businessOwner || ""}
                 onChange={handleChange}
                 required
               />
@@ -286,7 +242,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessEmail"
                 type="tel"
                 placeholder="e.g., john@example.com"
-                value={localData.businessEmail}
+                value={localData.businessEmail || ""}
                 onChange={handleChange}
                 required
               />
@@ -298,7 +254,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessContactNumber"
                 type="tel"
                 placeholder="e.g., 123-456-789"
-                value={localData.businessContactNumber}
+                value={localData.businessContactNumber || ""}
                 onChange={handleChange}
                 required
               />
@@ -312,7 +268,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 id="clientDob"
                 name="clientDob"
                 type="date"
-                value={localData.clientDob}
+                value={localData.clientDob || ""}
                 onChange={handleChange}
                 required
               />
@@ -325,7 +281,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="adhaarNumber"
                 type="text"
                 placeholder="Aadhaar Number"
-                value={localData.adhaarNumber}
+                value={localData.adhaarNumber || ""}
                 onChange={handleChange}
                 required
               />
@@ -338,7 +294,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="educationQualification"
                 type="text"
                 placeholder="Education Qualification"
-                value={localData.educationQualification}
+                value={localData.educationQualification || ""}
                 onChange={handleChange}
                 required
               />
@@ -354,7 +310,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessName"
                 type="text"
                 placeholder="Business Name"
-                value={localData.businessName}
+                value={localData.businessName || ""}
                 onChange={handleChange}
                 required
               />
@@ -367,7 +323,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="businessAddress"
                 type="text"
                 placeholder="Business Address"
-                value={localData.businessAddress}
+                value={localData.businessAddress || ""}
                 onChange={handleChange}
                 required
               />
@@ -380,7 +336,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="pincode"
                 type="text"
                 placeholder="Pincode"
-                value={localData.pincode}
+                value={localData.pincode || ""}
                 onChange={handleChange}
                 required
               />
@@ -393,7 +349,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="location"
                 type="text"
                 placeholder="Location"
-                value={localData.location}
+                value={localData.location || ""}
                 onChange={handleChange}
                 required
               />
@@ -406,7 +362,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="industryType"
                 type="text"
                 placeholder="Industry Type"
-                value={localData.industryType}
+                value={localData.industryType || ""}
                 onChange={handleChange}
                 required
               />
@@ -419,7 +375,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="registrationType"
                 type="text"
                 placeholder="Registration Type"
-                value={localData.registrationType}
+                value={localData.registrationType || ""}
                 onChange={handleChange}
                 required
               />
@@ -432,7 +388,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="PANNumber"
                 type="text"
                 placeholder="PAN Number"
-                value={localData.PANNumber}
+                value={localData.PANNumber || ""}
                 onChange={handleChange}
                 required
               />
@@ -445,7 +401,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="TANNumber"
                 type="text"
                 placeholder="TAN Number"
-                value={localData.TANNumber}
+                value={localData.TANNumber || ""}
                 onChange={handleChange}
                 required
               />
@@ -458,7 +414,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="UDYAMNumber"
                 type="text"
                 placeholder="UDYAM Number"
-                value={localData.UDYAMNumber}
+                value={localData.UDYAMNumber || ""}
                 onChange={handleChange}
                 required
               />
@@ -471,7 +427,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="GSTIN"
                 type="text"
                 placeholder="GSTIN"
-                value={localData.GSTIN}
+                value={localData.GSTIN || ""}
                 onChange={handleChange}
                 required
               />
@@ -484,7 +440,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="CIN"
                 type="text"
                 placeholder="CIN"
-                value={localData.CIN}
+                value={localData.CIN || ""}
                 onChange={handleChange}
                 required
               />
@@ -497,11 +453,25 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="logoOfBusiness"
                 type="file"
                 accept="image/png, image/jpeg"
-                onChange={(e) => handleChange(e)}
+                onChange={(e) => handleFileUpload(e.target.files[0])}
                 style={{ paddingTop: "1.5%" }}
                 required
               />
               <label htmlFor="logoOfBusiness">Logo of Business</label>
+
+              {/* ✅ Show Uploaded File Path */}
+              {formData.AccountInformation.logoOfBusiness && (
+                <p>
+                  Uploaded File:
+                  <a
+                    href={`http://localhost:5000${formData.AccountInformation.logoOfBusiness}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {formData.AccountInformation.logoOfBusiness}
+                  </a>
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -510,7 +480,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="PIN"
                 type="text"
                 placeholder="PIN"
-                value={localData.PIN}
+                value={localData.PIN || ""}
                 onChange={handleChange}
                 required
               />
@@ -523,7 +493,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="numberOfEmployees"
                 type="number"
                 placeholder="Number of Employees"
-                value={localData.numberOfEmployees}
+                value={localData.numberOfEmployees || ""}
                 onChange={handleChange}
                 required
               />
@@ -536,7 +506,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="nameofDirectors"
                 type="text"
                 placeholder="Name of Directors"
-                value={localData.nameofDirectors}
+                value={localData.nameofDirectors || ""}
                 onChange={handleChange}
                 required
               />
@@ -549,7 +519,7 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
                 name="DIN"
                 type="text"
                 placeholder="DIN"
-                value={localData.DIN}
+                value={localData.DIN || ""}
                 onChange={handleChange}
                 required
               />
@@ -622,13 +592,6 @@ const FirstStepBasicDetails = ({ formData, onFormDataChange }) => {
               >
                 Add Partner
               </button>
-
-              {/* Conditionally render the submit button only if the user is NOT a client */}
-              {userRole !== "client" && (
-                <button className="btn btn-primary mt-3" onClick={handleSubmit}>
-                  Submit
-                </button>
-              )}
             </div>
           </div>
         </form>

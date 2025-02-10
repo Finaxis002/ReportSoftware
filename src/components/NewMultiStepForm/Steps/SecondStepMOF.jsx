@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 
+
+import React, { useState, useEffect } from "react";
 
 const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
   const [localData, setLocalData] = useState({
     termLoan: {
-      promoterContribution: formData?.MeansOfFinance?.termLoan?.promoterContribution || 0,
+      promoterContribution:
+        formData?.MeansOfFinance?.termLoan?.promoterContribution || 0,
       termLoan: formData?.MeansOfFinance?.termLoan?.termLoan || 0,
     },
     workingCapital: {
-      promoterContribution: formData?.MeansOfFinance?.workingCapital?.promoterContribution || 0,
+      promoterContribution:
+        formData?.MeansOfFinance?.workingCapital?.promoterContribution || 0,
       termLoan: formData?.MeansOfFinance?.workingCapital?.termLoan || 0,
     },
     TLPromoterContributionPercent: 0,
@@ -25,48 +27,22 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     total: 0,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Filter only the required fields
-    const filteredData = {
-      promoterContribution: localData. promoterContribution,
-      termLoan: localData.termLoan,
-    };
-
-    console.log("Submitting Data:", filteredData); // Log the filtered data being sent
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/mof",
-        filteredData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      alert("Data submitted successfully!");
-    } catch (error) {
-      console.error(
-        "Error submitting data:",
-        error.response?.data || error.message
-      );
-      alert("Failed to submit data. Check console for details.");
-    }
-  };
-
   // Calculate totals and percentages
   useEffect(() => {
-    const {
-      termLoan,
-      workingCapital,
-    } = localData;
+    const { termLoan, workingCapital } = localData;
 
-    const totalTermLoan = parseFloat(termLoan.promoterContribution || 0) + parseFloat(termLoan.termLoan || 0);
-    const totalWorkingCapital = parseFloat(workingCapital.promoterContribution || 0) + parseFloat(workingCapital.termLoan || 0);
-    const totalPC = parseFloat(termLoan.promoterContribution || 0) + parseFloat(workingCapital.promoterContribution || 0);
-    const totalTL = parseFloat(termLoan.termLoan || 0) + parseFloat(workingCapital.termLoan || 0);
+    const totalTermLoan =
+      parseFloat(termLoan.promoterContribution || 0) +
+      parseFloat(termLoan.termLoan || 0);
+    const totalWorkingCapital =
+      parseFloat(workingCapital.promoterContribution || 0) +
+      parseFloat(workingCapital.termLoan || 0);
+    const totalPC =
+      parseFloat(termLoan.promoterContribution || 0) +
+      parseFloat(workingCapital.promoterContribution || 0);
+    const totalTL =
+      parseFloat(termLoan.termLoan || 0) +
+      parseFloat(workingCapital.termLoan || 0);
     const total = totalPC + totalTL;
 
     setLocalData((prevData) => ({
@@ -76,11 +52,21 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
       totalPC,
       totalTL,
       total,
-      TLPromoterContributionPercent: ((termLoan.promoterContribution / totalTermLoan) * 100 || 0).toFixed(2),
-      TLTermLoanPercent: ((termLoan.termLoan / totalTermLoan) * 100 || 0).toFixed(2),
-      WCPromoterContributionPercent: ((workingCapital.promoterContribution / totalWorkingCapital) * 100 || 0).toFixed(2),
-      WCTermLoanPercent: ((workingCapital.termLoan / totalWorkingCapital) * 100 || 0).toFixed(2),
-      TotalPromoterContributionPercent: ((totalPC / total) * 100 || 0).toFixed(2),
+      TLPromoterContributionPercent: (
+        (termLoan.promoterContribution / totalTermLoan) * 100 || 0
+      ).toFixed(2),
+      TLTermLoanPercent: (
+        (termLoan.termLoan / totalTermLoan) * 100 || 0
+      ).toFixed(2),
+      WCPromoterContributionPercent: (
+        (workingCapital.promoterContribution / totalWorkingCapital) * 100 || 0
+      ).toFixed(2),
+      WCTermLoanPercent: (
+        (workingCapital.termLoan / totalWorkingCapital) * 100 || 0
+      ).toFixed(2),
+      TotalPromoterContributionPercent: ((totalPC / total) * 100 || 0).toFixed(
+        2
+      ),
       TotalTermLoanPercent: ((totalTL / total) * 100 || 0).toFixed(2),
     }));
   }, [localData.termLoan, localData.workingCapital]);
@@ -89,6 +75,14 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const [key, subKey] = name.split(".");
+
+    // Update data in MultiStepForm
+    onFormDataChange({
+      MeansOfFinance: {
+        ...formData.MeansOfFinance,
+        [name]: value, // Update only the changed field
+      },
+    });
 
     setLocalData((prevData) => {
       if (subKey) {
@@ -109,10 +103,24 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     });
   };
 
+  
+  useEffect(() => {
+    // console.log("Updated formData:", formData);
+  }, [formData]);
+  
   // Auto-update parent formData
   useEffect(() => {
     onFormDataChange({ MeansOfFinance: localData });
-  }, [localData, onFormDataChange, localData.totalTermLoan, localData.totalWorkingCapital]);
+  }, [
+    localData,
+    onFormDataChange,
+    localData.totalTermLoan,
+    localData.totalWorkingCapital,
+  ]);
+
+  const handleNextStep = () => {
+    onFormDataChange({ MeansOfFinance: mofDetails });
+  };
 
   return (
     <div>
@@ -134,7 +142,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   onChange={handleChange}
                   required
                 />
-                <label htmlFor="termLoan.promoterContribution">Promoter's Contribution</label>
+                <label htmlFor="termLoan.promoterContribution">
+                  Promoter's Contribution
+                </label>
               </div>
             </div>
             <div className="col-2">
@@ -147,7 +157,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.TLPromoterContributionPercent}
                   disabled
                 />
-                <label htmlFor="TLPromoterContributionPercent">Percentage %</label>
+                <label htmlFor="TLPromoterContributionPercent">
+                  Percentage %
+                </label>
               </div>
             </div>
             <div className="col-10">
@@ -208,7 +220,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   onChange={handleChange}
                   required
                 />
-                <label htmlFor="workingCapital.promoterContribution">Promoter's Contribution</label>
+                <label htmlFor="workingCapital.promoterContribution">
+                  Promoter's Contribution
+                </label>
               </div>
             </div>
             <div className="col-2">
@@ -221,7 +235,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.WCPromoterContributionPercent}
                   disabled
                 />
-                <label htmlFor="WCPromoterContributionPercent">Percentage %</label>
+                <label htmlFor="WCPromoterContributionPercent">
+                  Percentage %
+                </label>
               </div>
             </div>
             <div className="col-10">
@@ -261,7 +277,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.totalWorkingCapital}
                   disabled
                 />
-                <label htmlFor="totalWorkingCapital">Total Working Capital</label>
+                <label htmlFor="totalWorkingCapital">
+                  Total Working Capital
+                </label>
               </div>
             </div>
           </div>
@@ -294,7 +312,9 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.TotalPromoterContributionPercent}
                   disabled
                 />
-                <label htmlFor="TotalPromoterContributionPercent">Percentage %</label>
+                <label htmlFor="TotalPromoterContributionPercent">
+                  Percentage %
+                </label>
               </div>
             </div>
             <div className="col-10">
@@ -344,4 +364,3 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
 };
 
 export default SecondStepMOF;
-

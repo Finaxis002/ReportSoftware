@@ -4,6 +4,12 @@ import MenuBar from "./MenuBar";
 
 const CreateReport = () => {
   const [isCreateReportClicked, setIsCreateReportClicked] = useState(false);
+  const [
+    isCreateReportWithExistingClicked,
+    setIsCreateReportWithExistingClicked,
+  ] = useState(false);
+  const [isUpdateReportClicked, setIsUpdateReportClicked] = useState(false);
+
   const navigate = useNavigate();
 
   const renderMenuBar = () => {
@@ -31,11 +37,13 @@ const CreateReport = () => {
   const handleCreateReportClick = () => {
     // Clear the localStorage data when Create Report is clicked
     localStorage.removeItem("FirstStepBasicDetails");
-  
-    // Set isCreateReportClicked to true, if required
     setIsCreateReportClicked(true);
   };
-  
+
+  const handleCreateReportWithExistingClicked = () => {
+    localStorage.removeItem("FirstStepBasicDetails");
+    setIsCreateReportWithExistingClicked(true); // ✅ Fix here, was incorrectly setting `setIsUpdateReportClicked`
+  };
 
   return (
     <div className="flex h-[100vh]">
@@ -53,9 +61,10 @@ const CreateReport = () => {
             <p className="text-center mt-4">
               Create a fresh report from scratch.
             </p>
-            <Link to="/MultestepForm" 
-            onClick={handleCreateReportClick}
-            state={{isCreateReportClicked : true}}
+            <Link
+              to="/MultestepForm"
+              onClick={handleCreateReportClick}
+              state={{ isCreateReportClicked: true }}
             >
               <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg w-full">
                 Create Report
@@ -69,10 +78,10 @@ const CreateReport = () => {
             <p className="text-center mt-4">
               Edit or update an existing report.
             </p>
-            <Link to="/MultestepForm" >
-             <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
-              Update Report
-            </button>
+            <Link to="/MultestepForm" state={{ isUpdateReportClicked: true }}>
+              <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
+                Update Report
+              </button>
             </Link>
           </div>
 
@@ -84,10 +93,13 @@ const CreateReport = () => {
             <p className="text-center mt-4">
               Start a new report using an existing template.
             </p>
-            <Link to="/MultestepForm" >
-            <button className="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg w-full">
-              Create New with Existing
-            </button>
+            <Link
+              to="/MultestepForm"
+              state={{ isCreateReportWithExistingClicked: true }} // ✅ Pass state directly
+            >
+              <button className="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg w-full">
+                Create New with Existing
+              </button>
             </Link>
           </div>
         </div>
