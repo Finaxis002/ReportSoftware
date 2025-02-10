@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
+import { useLocation } from "react-router-dom";
 
 const ReportDropdown = ({ clientName, onBusinessSelect }) => {
   const [businessOptions, setBusinessOptions] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const isCreateReportWithExistingClicked =
-  location.state?.isCreateReportWithExistingClicked || false;
+
+  const location = useLocation(); // ✅ Get location from React Router
+
+  const isCreateReportWithExistingClicked = location.state?.isCreateReportWithExistingClicked || false;
 
   useEffect(() => {
     if (!clientName) return;

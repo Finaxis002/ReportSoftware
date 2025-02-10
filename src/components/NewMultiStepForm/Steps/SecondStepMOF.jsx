@@ -118,9 +118,6 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     localData.totalWorkingCapital,
   ]);
 
-  const handleNextStep = () => {
-    onFormDataChange({ MeansOfFinance: mofDetails });
-  };
 
   return (
     <div>
