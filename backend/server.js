@@ -24,26 +24,13 @@ app.use(cors({ origin: "http://localhost:3000" }));
 
 
 
-// mongoose
-//   .connect("mongodb+srv://finaxis-user-31:RK8%28ha7Haa7%23jU%25@cluster0.ykhfs.mongodb.net/test?retryWrites=true&w=majority", {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => console.log("MongoDB Atlas connected"))
-//   .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
-
-
-// ✅ MongoDB Connection
-const mongoURI = process.env.MONGODB_URI || "your_backup_mongo_uri";
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect("mongodb+srv://finaxis-user-31:RK8%28ha7Haa7%23jU%25@cluster0.ykhfs.mongodb.net/test?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB Atlas connected"))
   .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
-
-// ✅ Default Route (For Testing)
-app.get("/", (req, res) => {
-  res.send("Backend is running successfully!");
-});
 
 
 
