@@ -717,23 +717,23 @@ app.post("/api/employees/register", async (req, res) => {
 });
 
 // Endpoint to login an employee
-app.post("/api/employees/login", async (req, res) => {
-  try {
-    const { employeeId, password } = req.body;
+// app.post("/api/employees/login", async (req, res) => {
+//   try {
+//     const { employeeId, password } = req.body;
 
-    // Find the employee with matching credentials
-    const employee = await Employee.findOne({ employeeId, password });
+//     // Find the employee with matching credentials
+//     const employee = await Employee.findOne({ employeeId, password });
 
-    if (!employee) {
-      return res.status(401).json({ error: "Invalid employee credentials" });
-    }
+//     if (!employee) {
+//       return res.status(401).json({ error: "Invalid employee credentials" });
+//     }
 
-    // In a real application, you might generate and return a JWT token here
-    res.json({ success: true, employee });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//     // In a real application, you might generate and return a JWT token here
+//     res.json({ success: true, employee });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // Endpoint to get all employees
 // app.get("/api/employees", async (req, res) => {
@@ -744,6 +744,24 @@ app.post("/api/employees/login", async (req, res) => {
 //     res.status(500).json({ error: err.message });
 //   }
 // });
+
+app.post("/api/employees/login", async (req, res) => {
+  try {
+      const { employeeId, password } = req.body;
+      const employee = await Employee.findOne({ employeeId, password });
+
+      if (!employee) {
+          return res.status(401).json({ error: "Invalid employee credentials" });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign({ employeeId: employee.employeeId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+      res.json({ success: true, token }); // ✅ Send token to the client
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+});
 
 app.get("/api/employees", async (req, res) => {
   try {
