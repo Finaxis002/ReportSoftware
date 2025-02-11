@@ -20,8 +20,11 @@ const ProjectedProfitability = ({
   localData,
   normalExpense,
   directExpense,
+  totalDepreciationPerYear,
 }) => {
   // Ensure formData and Expenses exist before destructuring
+
+  // console.log("total depreciation per year : ", totalDepreciationPerYear);
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
@@ -98,25 +101,27 @@ const ProjectedProfitability = ({
     return salaryAndWages + directExpensesTotal; // ✅ Total Direct Expenses (Including Salary & Wages)
   });
 
-  // ✅ Precompute Total Indirect Expenses for Each Year Before Rendering
-  const totalIndirectExpenses = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    return directExpense
-      ?.filter((expense) => expense.type === "indirect")
-      ?.reduce((sum, expense) => {
-        const baseValue = Number(expense.value) || 0;
-        const annualizedValue = baseValue * 12; // Convert monthly to annual
-        return (
-          sum +
-          annualizedValue *
-            Math.pow(
-              1 + formData.ProjectReportSetting.rateOfExpense / 100,
-              yearIndex
-            )
-        );
-      }, 0);
-  });
+// ✅ Precompute Total Indirect Expenses for Each Year Before Rendering
+const totalIndirectExpenses = Array.from({
+  length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+}).map((_, yearIndex) => {
+  // Compute total indirect expenses from directExpense
+  let indirectExpenseTotal = directExpense
+    ?.filter((expense) => expense.type === "indirect")
+    ?.reduce((sum, expense) => {
+      const baseValue = Number(expense.value) || 0;
+      const annualizedValue = baseValue * 12; // Convert monthly to annual
+      return (
+        sum +
+        annualizedValue *
+          Math.pow(1 + formData.ProjectReportSetting.rateOfExpense / 100, yearIndex)
+      );
+    }, 0);
+
+  // ✅ Add Depreciation for this year
+  return indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
+});
+
 
   // ✅ Precompute Gross Profit for Each Year Before Rendering
   const grossProfitValues = Array.from({
@@ -269,8 +274,13 @@ const ProjectedProfitability = ({
               key={yearIndex}
               style={[
                 stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
                 styleExpenses.fontSmall,
-                { fontWeight: "bold", borderLeftWidth: "0px" }, // ✅ Use "bold" for proper styling
+                {
+                  fontFamily: "Roboto",
+                  fontWeight: "extrabold",
+                  borderLeftWidth: "0px",
+                },
               ]}
             >
               {new Intl.NumberFormat("en-IN").format(totalYearValue)}
@@ -284,7 +294,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:"1px"}
+              { borderLeftWidth: "1px" },
             ]}
           >
             B
@@ -323,7 +333,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:"1px"}
+              { borderLeftWidth: "1px" },
             ]}
           ></Text>
           <Text
@@ -362,7 +372,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:"1px"}
+              { borderLeftWidth: "1px" },
             ]}
           ></Text>
           <Text
@@ -381,8 +391,13 @@ const ProjectedProfitability = ({
               key={`finalValue-${yearIndex}`}
               style={[
                 stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
                 styleExpenses.fontSmall,
-                { borderWidth: "2px", borderLeftWidth: "0px" },
+                {
+                  fontFamily: "Roboto",
+                  fontWeight: "extrabold",
+                  borderLeftWidth: "0px",
+                },
               ]}
             >
               {new Intl.NumberFormat("en-IN").format(finalValue)}
@@ -391,9 +406,10 @@ const ProjectedProfitability = ({
         </View>
         {/* direct expenses */}
         <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-          <Text style={[styleExpenses.sno, {borderLeftWidth:"1px"}]}>C</Text>
+          <Text style={[styleExpenses.sno, { borderLeftWidth: "1px" }]}>C</Text>
           <Text style={stylesMOF.cell}>Less : Direct Expenses</Text>
         </View>
+
         {normalExpense.map((expense, index) => {
           if (index !== activeRowIndex) return null; // Only render the active row
 
@@ -404,7 +420,7 @@ const ProjectedProfitability = ({
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  {borderLeftWidth:"1px"}
+                  { borderLeftWidth: "1px" },
                 ]}
               >
                 1
@@ -470,7 +486,7 @@ const ProjectedProfitability = ({
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {borderLeftWidth:"1px"}
+                    { borderLeftWidth: "1px" },
                   ]}
                 >
                   {index + 2}
@@ -563,7 +579,11 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              { fontFamily: "Roboto", fontWeight: "extrabold" , borderLeftWidth:"1px"},
+              {
+                fontFamily: "Roboto",
+                fontWeight: "extrabold",
+                borderLeftWidth: "1px",
+              },
             ]}
           >
             D
@@ -603,10 +623,48 @@ const ProjectedProfitability = ({
         </View>
         {/* indirect expense */}
         <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-          <Text style={[styleExpenses.sno, {borderLeftWidth:"1px"}]}>E</Text>
+          <Text style={[styleExpenses.sno, { borderLeftWidth: "1px" }]}>E</Text>
 
           <Text style={stylesMOF.cell}>Less:Indirect Expenses</Text>
         </View>
+
+
+        {/* ✅ Render Depreciation Row */}
+      <View style={[stylesMOF.row, styles.tableRow]}>
+        <Text
+          style={[
+            stylesCOP.serialNoCellDetail,
+            styleExpenses.sno,
+            styleExpenses.bordernone,
+            { borderLeftWidth: "1px" },
+          ]}
+        >
+          3
+        </Text>
+        <Text
+          style={[
+            stylesCOP.detailsCellDetail,
+            styleExpenses.particularWidth,
+            styleExpenses.bordernone,
+          ]}
+        >
+          Depreciation
+        </Text>
+
+        {/* ✅ Display Depreciation Values for Each Year */}
+        {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
+          <Text
+            key={yearIndex}
+            style={[
+              stylesCOP.particularsCellsDetail,
+              styleExpenses.fontSmall,
+            ]}
+          >
+            {new Intl.NumberFormat("en-IN").format(depreciationValue)}
+          </Text>
+        ))}
+      </View>
+
         {directExpense
           .filter((expense) => expense.type === "indirect")
           .map((expense, index) => {
@@ -620,7 +678,7 @@ const ProjectedProfitability = ({
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {borderLeftWidth:"1px"}
+                    { borderLeftWidth: "1px" },
                   ]}
                 >
                   {index + 1}
@@ -669,7 +727,11 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              { fontFamily: "Roboto", fontWeight: "extrabold", borderLeftWidth:"1px" },
+              {
+                fontFamily: "Roboto",
+                fontWeight: "extrabold",
+                borderLeftWidth: "1px",
+              },
             ]}
           ></Text>
           <Text
@@ -714,7 +776,7 @@ const ProjectedProfitability = ({
               {
                 fontFamily: "Roboto", // ✅ Ensure using the registered font
                 fontWeight: "bold", // ✅ Apply bold
-                borderLeftWidth:"1px"
+                borderLeftWidth: "1px",
               },
             ]}
           >
@@ -757,15 +819,14 @@ const ProjectedProfitability = ({
         </View>
         {/* Income Tax @  % */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px"}]}
+          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
         >
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              { borderWidth: "0.1px" , borderLeftWidth:"1px"},
-              
+              { borderWidth: "0.1px", borderLeftWidth: "1px" },
             ]}
           >
             Less
@@ -809,7 +870,7 @@ const ProjectedProfitability = ({
               {
                 fontFamily: "Roboto", // ✅ Ensure using the registered font
                 fontWeight: "bold", // ✅ Apply bold
-                borderLeftWidth:'1px'
+                borderLeftWidth: "1px",
               },
             ]}
           >
@@ -858,7 +919,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:'1px'}
+              { borderLeftWidth: "1px" },
             ]}
           ></Text>
           <Text
@@ -896,7 +957,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:'1px'}
+              { borderLeftWidth: "1px" },
             ]}
           ></Text>
           <Text
@@ -942,7 +1003,7 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {borderLeftWidth:'1px'}
+              { borderLeftWidth: "1px" },
             ]}
           ></Text>
           <Text
@@ -987,7 +1048,11 @@ const ProjectedProfitability = ({
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {paddingVertical: "10px", borderBottomWidth:"1px",borderLeftWidth:'1px'}
+              {
+                paddingVertical: "10px",
+                borderBottomWidth: "1px",
+                borderLeftWidth: "1px",
+              },
             ]}
           ></Text>
           <Text
@@ -995,7 +1060,7 @@ const ProjectedProfitability = ({
               stylesCOP.detailsCellDetail,
               styleExpenses.particularWidth,
               styleExpenses.bordernone,
-              {paddingVertical: "10px", borderBottomWidth:"1px"}
+              { paddingVertical: "10px", borderBottomWidth: "1px" },
             ]}
           >
             Cash Profit (NPAT + Dep.)
@@ -1015,7 +1080,11 @@ const ProjectedProfitability = ({
                   stylesCOP.particularsCellsDetail,
                   stylesCOP.boldText,
                   styleExpenses.fontSmall,
-                  { borderWidth: 0 , paddingVertical: "10px" ,borderBottomWidth:"1px"},
+                  {
+                    borderWidth: 0,
+                    paddingVertical: "10px",
+                    borderBottomWidth: "1px",
+                  },
                 ]}
               >
                 {new Intl.NumberFormat("en-IN").format(roundedValue)}

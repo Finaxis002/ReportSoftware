@@ -20,8 +20,12 @@ const ProjectedExpenses = ({ formData }) => {
 
   return (
     <Page
-        size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
-        orientation={formData.ProjectReportSetting.ProjectionYears <= 7 ? "portrait" : "landscape"}
+      size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+      orientation={
+        formData.ProjectReportSetting.ProjectionYears <= 7
+          ? "portrait"
+          : "landscape"
+      }
     >
       <View style={styleExpenses.paddingx}>
         <Text style={styles.clientName}>

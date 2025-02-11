@@ -3,12 +3,14 @@ import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 
 const ProjectedRevenue = ({ formData }) => {
-
-  
   return (
-   <Page
-       size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
-       orientation={formData.ProjectReportSetting.ProjectionYears <= 7 ? "portrait" : "landscape"}
+    <Page
+      size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+      orientation={
+        formData.ProjectReportSetting.ProjectionYears <= 7
+          ? "portrait"
+          : "landscape"
+      }
     >
       <View style={styleExpenses.paddingx}>
         {/* Client Name */}
@@ -44,14 +46,19 @@ const ProjectedRevenue = ({ formData }) => {
         {/* Table Body - Looping through formFields */}
         {Array.isArray(formData?.Revenue?.formFields) &&
           formData.Revenue.formFields.map((item, index) => {
-            // Ensure years array matches the number of ProjectionYears
-            let updatedYears = [...item.years];
+            // Ensure only the required number of years is displayed
+            const projectionYears = parseInt(
+              formData.ProjectReportSetting.ProjectionYears
+            );
 
-            while (
-              updatedYears.length <
-              parseInt(formData.ProjectReportSetting.ProjectionYears)
-            ) {
-              updatedYears.push(0); // Add missing years with 0 value
+            let updatedYears = [...(item.years || [])];
+
+            // ✅ Trim extra years if projectionYears is smaller than actual data
+            updatedYears = updatedYears.slice(0, projectionYears);
+
+            // ✅ Ensure missing years are filled with 0 (only up to projectionYears)
+            while (updatedYears.length < projectionYears) {
+              updatedYears.push(0);
             }
 
             return (
@@ -72,7 +79,7 @@ const ProjectedRevenue = ({ formData }) => {
                   {item.particular}
                 </Text>
 
-                {/* Yearly Revenue Values */}
+                {/* Yearly Revenue Values - Only for projectionYears */}
                 {updatedYears.map((yearValue, yearIndex) => (
                   <Text
                     key={yearIndex}
@@ -136,15 +143,18 @@ const ProjectedRevenue = ({ formData }) => {
         )}
       </View>
 
-       {/* Add Another Line Here for Separation */}
-      <View style={{ borderBottomWidth: 1, borderBottomColor: "#000", marginVertical: "20px" }} />
-      
-       
-         
-       {/* second table  */}
-       
-       <View style={styleExpenses.paddingx}>
-       
+      {/* Add Another Line Here for Separation */}
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: "#000",
+          marginVertical: "20px",
+        }}
+      />
+
+      {/* second table  */}
+
+      <View style={styleExpenses.paddingx}>
         {/* Table Header */}
         <View style={[styles.table]}>
           <View style={styles.tableHeader}>

@@ -8,8 +8,9 @@ const SeventhStepMD = ({
   MoreDetailsData,
   formData,
 }) => {
-  const getEmptyArray = () => Array.from({ length: years }).fill(0);
-
+  const projectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
+    const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
   // Initialize local data with default values or from props
   const [localData, setLocalData] = useState(() =>
     MoreDetailsData && Object.keys(MoreDetailsData).length > 0
@@ -154,12 +155,7 @@ const SeventhStepMD = ({
               <thead>
                 <tr>
                   <th className="header-label">Particulars</th>
-                  {Array.from({
-                    length:
-                      parseInt(
-                        formData?.ProjectReportSetting?.ProjectionYears
-                      ) || 0,
-                  }).map((_, index) => (
+                  {Array.from({ length: projectionYears }).map((_, index) => (
                     <th key={index} className="header-label">
                       Year {index + 1}
                     </th>
@@ -176,28 +172,25 @@ const SeventhStepMD = ({
                       </td>
 
                       {/* ✅ Make all input fields editable */}
-                      {Array.from({
-                        length:
-                          parseInt(
-                            formData?.ProjectReportSetting?.ProjectionYears
-                          ) || 0,
-                      }).map((_, index) => (
-                        <td key={index}>
-                          <input
-                            name="value"
-                            onChange={(event) =>
-                              handleStockChanges(
-                                stockType,
-                                index,
-                                event.target.value
-                              )
-                            }
-                            value={localData?.[stockType]?.[index] ?? ""} // Ensure empty fields if missing
-                            className="form-control text-end noBorder"
-                            type="number"
-                          />
-                        </td>
-                      ))}
+                      {Array.from({ length: projectionYears }).map(
+                        (_, index) => (
+                          <td key={index}>
+                            <input
+                              name="value"
+                              onChange={(event) =>
+                                handleStockChanges(
+                                  stockType,
+                                  index,
+                                  event.target.value
+                                )
+                              }
+                              value={localData?.[stockType]?.[index] ?? ""}
+                              className="form-control text-end noBorder"
+                              type="number"
+                            />
+                          </td>
+                        )
+                      )}  
                     </tr>
                   )
                 )}
@@ -220,17 +213,13 @@ const SeventhStepMD = ({
                       <th className="header-label">Particulars</th>
 
                       {/* Determine the max number of years dynamically */}
-                      {Array.from({
-                        length: Math.max(
-                          years,
-                          localData?.[dataType]?.[0]?.years?.length || 0
-                        ),
-                      }).map((_, index) => (
-                        <th key={index} className="header-label">
-                          Year {index + 1}
-                        </th>
-                      ))}
-
+                      {Array.from({ length: projectionYears }).map(
+                        (_, index) => (
+                          <th key={index} className="header-label">
+                            Year {index + 1}
+                          </th>
+                        )
+                      )}
                       <th className="header-label"></th>
                     </tr>
                   </thead>
@@ -250,40 +239,21 @@ const SeventhStepMD = ({
                             disabled={!entry.isCustom}
                           />
                         </td>
-
-                        {/* Ensure all years have a corresponding <td> */}
-                        {Array.from({
-                          length: Math.max(years, entry?.years?.length || 0),
-                        }).map((_, index) => (
-                          <td key={index}>
-                            <input
-                              name="value"
-                              value={entry.years?.[index] ?? ""}
-                              onChange={(event) =>
-                                handleFormChange(event, i, index, dataType)
-                              }
-                              className="form-control text-end noBorder"
-                              type="number"
-                            />
-                          </td>
-                        ))}
-
-                        <td>
-                          {entry.isCustom ? (
-                            <button
-                              onClick={(e) => removeFields(e, i, dataType)}
-                              className="btn btn-danger btn-sm"
-                            >
-                              Remove
-                            </button>
-                          ) : (
-                            <img
-                              src={checkImg}
-                              alt="Check"
-                              style={{ width: "25px" }}
-                            />
-                          )}
-                        </td>
+                        {Array.from({ length: projectionYears }).map(
+                          (_, index) => (
+                            <td key={index}>
+                              <input
+                                name="value"
+                                value={entry.years?.[index] ?? ""}
+                                onChange={(event) =>
+                                  handleFormChange(event, i, index, dataType)
+                                }
+                                className="form-control text-end noBorder"
+                                type="number"
+                              />
+                            </td>
+                          )
+                        )}
                       </tr>
                     ))}
                   </tbody>

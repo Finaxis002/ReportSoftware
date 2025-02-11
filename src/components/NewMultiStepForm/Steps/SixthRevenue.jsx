@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 
 const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
+  const projectionYears =
+  parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
+
   const [localData, setLocalData] = useState(() => {
     return revenueData && Object.keys(revenueData).length > 0
       ? revenueData
@@ -8,16 +11,16 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           formFields: [
             {
               particular: "p1",
-              years: Array.from({ length: years }).fill(0),
+              years: Array.from({ length: projectionYears}).fill(0),
               amount: 0,
               rowType: "0",
             },
           ],
-          totalRevenueForOthers: Array.from({ length: years }).fill(0),
+          totalRevenueForOthers: Array.from({ length: projectionYears}).fill(0),
           formFields2: [
             {
               particular: "p1",
-              years: Array.from({ length: years }).fill(0),
+              years: Array.from({ length: projectionYears}).fill(0),
               amount: 0,
             },
           ],
@@ -25,17 +28,17 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   });
 
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
-    Array.from({ length: years }).fill(0)
+    Array.from({ length: projectionYears}).fill(0)
   );
   const [noOfMonths, setNoOfMonths] = useState(
-    Array.from({ length: years }).fill(12)
+    Array.from({ length: projectionYears}).fill(12)
   );
   const [totalRevenue, setTotalRevenue] = useState(
-    Array.from({ length: years }).fill(0)
+    Array.from({ length: projectionYears}).fill(0)
   );
 
   const [totalRevenueForOthers, setTotalRevenueForOthers] = useState(
-    Array.from({ length: years }).fill(0)
+    Array.from({ length: projectionYears}).fill(0)
   );
 
   useEffect(() => {
@@ -56,7 +59,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     e.preventDefault();
     let object = {
       particular: "",
-      years: Array.from({ length: years }).fill(0),
+      years: Array.from({ length: projectionYears}).fill(0),
       amount: 0,
       rowType: "0",
     };
@@ -98,7 +101,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     e.preventDefault();
     let object = {
       particular: "",
-      years: Array.from({ length: years }).fill(0),
+      years: Array.from({ length: projectionYears}).fill(0),
       amount: 0,
     };
     setLocalData({
@@ -140,7 +143,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   // Function to calculate total monthly revenue (sum of all year inputs)
   const calculateTotalMonthlyRevenue = () => {
-    const total = Array.from({ length: years }, (_, yearIndex) => {
+    const total = Array.from({ length: projectionYears}, (_, yearIndex) => {
       return localData.formFields2.reduce(
         (sum, field) => sum + Number(field.years[yearIndex] || 0),
         0

@@ -1,33 +1,125 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) => {
+const FourthStepPRS = ({
+  formData,
+  onFormDataChange,
+  onProjectionYearChange,
+}) => {
   const prevDataRef = useRef(null);
   const [projectionYears, setProjectionYears] = useState(0);
   const [rateOfExpense, setRateOfExpense] = useState(0);
-  // ✅ Default data structure
+  // ✅ Default data structure\
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   const [localData, setLocalData] = useState(() => ({
     ...{
-      RepaymentMonths: { name: "Repayment Months", id: "RepaymentMonths", value: "", isCustom: false },
-      ProjectionYears: { name: "Projection Years", id: "ProjectionYears", value: "", isCustom: false },
-      PurposeofReport: { name: "Purpose of Report", id: "PurposeofReport", value: "", isCustom: false },
-      MoratoriumPeriod: { name: "Moratorium Period", id: "MoratoriumPeriod", value: "", isCustom: false },
-      SelectRepaymentMethod: { name: "Select Repayment Method", id: "SelectRepaymentMethod", value: "", isCustom: false },
-      SelectStartingMonth: { name: "Select Starting Month", id: "SelectStartingMonth", value: "", isCustom: false },
-      FinancialYear: { name: "Financial Year", id: "FinancialYear", value: "", isCustom: false },
-      AmountIn: { name: "Amount In", id: "AmountIn", value: "", isCustom: false },
-      Currency: { name: "Currency", id: "Currency", value: "", isCustom: false },
+      RepaymentMonths: {
+        name: "Repayment Months",
+        id: "RepaymentMonths",
+        value: "",
+        isCustom: false,
+      },
+      ProjectionYears: {
+        name: "Projection Years",
+        id: "ProjectionYears",
+        value: "",
+        isCustom: false,
+      },
+      PurposeofReport: {
+        name: "Purpose of Report",
+        id: "PurposeofReport",
+        value: "",
+        isCustom: false,
+      },
+      MoratoriumPeriod: {
+        name: "Moratorium Period",
+        id: "MoratoriumPeriod",
+        value: "",
+        isCustom: false,
+      },
+      SelectRepaymentMethod: {
+        name: "Select Repayment Method",
+        id: "SelectRepaymentMethod",
+        value: "",
+        isCustom: false,
+      },
+      SelectStartingMonth: {
+        name: "Select Starting Month",
+        id: "SelectStartingMonth",
+        value: "",
+        isCustom: false,
+      },
+      FinancialYear: {
+        name: "Financial Year",
+        id: "FinancialYear",
+        value: "",
+        isCustom: false,
+      },
+      AmountIn: {
+        name: "Amount In",
+        id: "AmountIn",
+        value: "",
+        isCustom: false,
+      },
+      Currency: {
+        name: "Currency",
+        id: "Currency",
+        value: "",
+        isCustom: false,
+      },
       Format: { name: "Format", id: "Format", value: "", isCustom: false },
-      interestOnTL: { name: "Interest On Term Loan", id: "interestOnTL", value: "", isCustom: false },
-      interestOnWC: { name: "Interest On Working Capital", id: "interestOnWC", value: "", isCustom: false },
-      rateOfInterest: { name: "Rate of Interest", id: "rateOfInterest", value: "", isCustom: false },
-      rateOfWorkingCapital: { name: "Rate of Working Capital", id: "rateOfWorkingCapital", value: "", isCustom: false },
-      incomeTax: { name: "Income Tax", id: "incomeTax", value: 30, isCustom: false },
-      rateOfExpense: { name: "Rate of Expense", id: "rateOfExpense", value: "", isCustom: false },
+      interestOnTL: {
+        name: "Interest On Term Loan",
+        id: "interestOnTL",
+        value: "",
+        isCustom: false,
+      },
+      interestOnWC: {
+        name: "Interest On Working Capital",
+        id: "interestOnWC",
+        value: "",
+        isCustom: false,
+      },
+      rateOfInterest: {
+        name: "Rate of Interest",
+        id: "rateOfInterest",
+        value: "",
+        isCustom: false,
+      },
+      rateOfWorkingCapital: {
+        name: "Rate of Working Capital",
+        id: "rateOfWorkingCapital",
+        value: "",
+        isCustom: false,
+      },
+      incomeTax: {
+        name: "Income Tax",
+        id: "incomeTax",
+        value: 30,
+        isCustom: false,
+      },
+      rateOfExpense: {
+        name: "Rate of Expense",
+        id: "rateOfExpense",
+        value: "",
+        isCustom: false,
+      },
     },
     ...(formData?.ProjectReportSetting || {}), // Merging formData if available
   }));
-
-  
 
   // ✅ Populate `localData` from `formData.ProjectReportSetting` on mount
   useEffect(() => {
@@ -36,21 +128,27 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
         ...localData,
         ...formData.ProjectReportSetting,
       };
-  
+
       // Prevent unnecessary updates
-      if (!prevDataRef.current || JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)) {
+      if (
+        !prevDataRef.current ||
+        JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
+      ) {
         console.log("✅ Populating ProjectReportSetting data:", newData);
         setLocalData(newData);
         prevDataRef.current = newData;
-  
+
         // ✅ Log ProjectionYears immediately when populated
         if (newData.ProjectionYears?.value) {
-          console.log("🚀 Populated Projection Year:", newData.ProjectionYears.value);
+          console.log(
+            "🚀 Populated Projection Year:",
+            newData.ProjectionYears.value
+          );
         }
       }
     }
   }, [formData?.ProjectReportSetting]);
-  
+
   // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
   useEffect(() => {
     if (JSON.stringify(localData) !== JSON.stringify(prevDataRef.current)) {
@@ -61,17 +159,21 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
 
   useEffect(() => {
     if (formData?.ProjectReportSetting?.ProjectionYears?.value) {
-      setProjectionYears(Number(formData.ProjectReportSetting.ProjectionYears.value));
-      console.log("🚀 Parent Component Updated Projection Years:", Number(formData.ProjectReportSetting.ProjectionYears.value));
+      setProjectionYears(
+        Number(formData.ProjectReportSetting.ProjectionYears.value)
+      );
+      console.log(
+        "🚀 Parent Component Updated Projection Years:",
+        Number(formData.ProjectReportSetting.ProjectionYears.value)
+      );
     }
   }, [formData?.ProjectReportSetting?.ProjectionYears?.value]);
-  
-  
+
   // Handle change for any field including ProjectionYears
   const handleChange = (e) => {
     const { name, value } = e.target;
     const [key, subKey] = name.split(".");
-  
+
     // Update data in MultiStepForm
     onFormDataChange({
       ProjectReportSetting: {
@@ -79,7 +181,7 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
         [name]: value,
       },
     });
-  
+
     setLocalData((prevData) => {
       if (subKey) {
         return {
@@ -95,7 +197,7 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
         [name]: value,
       };
     });
-  
+
     // If it's the ProjectionYears field, we can propagate it further
     if (name === "ProjectionYears") {
       setProjectionYears(value);
@@ -104,9 +206,7 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
       setRateOfExpense(value);
     }
     onProjectionYearChange(value); // Call the parent handler if necessary
-
   };
-  
 
   return (
     <div>
@@ -180,25 +280,19 @@ const FourthStepPRS = ({ formData, onFormDataChange, onProjectionYearChange }) =
                   id="SelectStartingMonth"
                   name="SelectStartingMonth"
                   required
-                  value={localData.SelectStartingMonth}
+                  value={localData.SelectStartingMonth} // ✅ Stores month name
                   onChange={handleChange}
                 >
                   <option value="">Select Starting Month</option>
-                  <option value="10">January</option>
-                  <option value="11">February</option>
-                  <option value="12">March</option>
-                  <option value="1">April</option>
-                  <option value="2">May</option>
-                  <option value="3">June</option>
-                  <option value="4">July</option>
-                  <option value="5">August</option>
-                  <option value="6">September</option>
-                  <option value="7">October</option>
-                  <option value="8">November</option>
-                  <option value="9">December</option>
+                  {monthNames.map((month, index) => (
+                    <option key={index} value={month}>
+                      {month}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
+
             <div className="col-4">
               <div className="input">
                 <input

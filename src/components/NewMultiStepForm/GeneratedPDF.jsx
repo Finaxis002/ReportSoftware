@@ -26,6 +26,7 @@ import ProjectedRevenue from "./PDFComponents/ProjectedRevenue";
 import ProjectedProfitability from "./PDFComponents/ProjectedProfitability";
 import ProjectedSalaries from "./PDFComponents/ProjectedSalaries";
 import ProjectedDepreciation from "./PDFComponents/ProjectedDepreciation";
+import Repayment from "./PDFComponents/Repayment";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -52,6 +53,9 @@ const GeneratedPDF = ({ years }) => {
   });
 
   const [userRole, setUserRole] = useState("");
+
+  // ✅ Store totalDepreciationPerYear in state
+  const [totalDepreciation, setTotalDepreciation] = useState([]);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -99,82 +103,6 @@ const GeneratedPDF = ({ years }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-  console.log("form Data : ", formData);
-
-  // Compute Gross Profit for Each Year (Precomputed from previous step)
-  const grossProfits = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    // Get total revenue for this year
-    const totalRevenue = formData.Revenue.formFields.reduce(
-      (product, item) =>
-        item.years?.[yearIndex] !== undefined && item.years?.[yearIndex] !== ""
-          ? product * Number(item.years[yearIndex])
-          : 0, // If any value is missing, set product to 0
-      1 // Start with 1 for multiplication
-    );
-
-    // Get closing and opening stock for this year
-    const closingStock =
-      formData.MoreDetails.closingStock?.[yearIndex] !== undefined &&
-      formData.MoreDetails.closingStock?.[yearIndex] !== ""
-        ? Number(formData.MoreDetails.closingStock[yearIndex])
-        : 0;
-
-    const openingStock =
-      formData.MoreDetails.openingStock?.[yearIndex] !== undefined &&
-      formData.MoreDetails.openingStock?.[yearIndex] !== ""
-        ? Number(formData.MoreDetails.openingStock[yearIndex])
-        : 0;
-
-    // Get total direct expenses for this year
-    const totalDirectExpenses = formData.Expenses.directExpense
-      .filter((expense) => expense.type === "direct")
-      .reduce((sum, expense) => {
-        const baseValue = Number(expense.value) || 0;
-        const initialValue = baseValue * 12;
-        return (
-          sum +
-          initialValue *
-            Math.pow(
-              1 +
-                (parseFloat(formData.ProjectReportSetting.rateOfExpense) || 0) /
-                  100,
-              yearIndex
-            )
-        );
-      }, 0);
-
-    // Calculate Gross Profit
-    return totalRevenue + closingStock - openingStock - totalDirectExpenses;
-  });
-
-  // Compute Total Indirect Expenses for Each Year
-  const totalIndirectExpenses = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    return formData.Expenses.directExpense
-      .filter((expense) => expense.type === "indirect")
-      .reduce((sum, expense) => {
-        const baseValue = Number(expense.value) || 0;
-        const initialValue = baseValue * 12;
-        return (
-          sum +
-          initialValue *
-            Math.pow(
-              1 +
-                (parseFloat(formData.ProjectReportSetting.rateOfExpense) || 0) /
-                  100,
-              yearIndex
-            )
-        );
-      }, 0);
-  });
-
-  // Compute Net Profit Before Tax
-  const netProfitBeforeTax = grossProfits.map((grossProfit, yearIndex) => {
-    return totalIndirectExpenses[yearIndex] - grossProfit;
-  });
 
   return (
     <>
@@ -205,8 +133,12 @@ const GeneratedPDF = ({ years }) => {
             fringeCalculation={fringeCalculation}
           />
 
-          <ProjectedDepreciation formData={formData} localData={localData} />
-        
+          <ProjectedDepreciation
+            formData={formData}
+            localData={localData}
+            setTotalDepreciation={setTotalDepreciation}
+          />
+
           {/* Projected Expense Table Direct and Indirect*/}
 
           <ProjectedExpenses formData={formData} />
@@ -223,7 +155,11 @@ const GeneratedPDF = ({ years }) => {
             normalExpense={normalExpense}
             directExpense={directExpense}
             location={location}
+            totalDepreciationPerYear={totalDepreciation}
           />
+
+
+          <Repayment formData={formData} localData={localData}/>
         </Document>
       </PDFViewer>
 
