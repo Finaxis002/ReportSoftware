@@ -10,6 +10,7 @@ require("dotenv").config();
 const { v4: uuidv4 } = require("uuid"); // ✅ Correct import
 const multer = require("multer");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 
 
 
@@ -30,6 +31,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => console.log("✅ MongoDB Atlas connected successfully"))
 .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
+
+
+app.get("/", (req, res) => {
+  res.send("Backend is running! Use API endpoints like /api/employees");
+});
 
 
 // mongoose
@@ -748,16 +755,18 @@ app.post("/api/employees/register", async (req, res) => {
 app.post("/api/employees/login", async (req, res) => {
   try {
       const { employeeId, password } = req.body;
-      const employee = await Employee.findOne({ employeeId, password });
+      const employee = await Employee.findOne({ employeeId });
 
       if (!employee) {
-          return res.status(401).json({ error: "Invalid employee credentials" });
+          return res.status(401).json({ error: "Invalid Employee ID" });
       }
 
-      // Generate JWT token
-      const token = jwt.sign({ employeeId: employee.employeeId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const isMatch = await bcrypt.compare(password, employee.password);
+      if (!isMatch) {
+          return res.status(401).json({ error: "Invalid Password" });
+      }
 
-      res.json({ success: true, token }); // ✅ Send token to the client
+      res.json({ success: true, employee });
   } catch (err) {
       res.status(500).json({ error: err.message });
   }
@@ -772,6 +781,8 @@ app.get("/api/employees", async (req, res) => {
       res.status(500).json({ error: err.message });
   }
 });
+
+
 
 
 // DELETE endpoint to remove an employee by employeeId
