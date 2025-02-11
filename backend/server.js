@@ -24,14 +24,13 @@ app.use(cors({ origin: "http://localhost:3000" }));
 
 
 // Use environment variable for MongoDB connection
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB Atlas connected"))
-  .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
-  
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB Atlas connected successfully"))
+.catch(err => console.error("❌ MongoDB Connection Error:", err));
+
 
 // mongoose
 //   .connect("mongodb+srv://finaxis-user-31:RK8%28ha7Haa7%23jU%25@cluster0.ykhfs.mongodb.net/test?retryWrites=true&w=majority", {
@@ -737,14 +736,25 @@ app.post("/api/employees/login", async (req, res) => {
 });
 
 // Endpoint to get all employees
+// app.get("/api/employees", async (req, res) => {
+//   try {
+//     const employees = await Employee.find({});
+//     res.status(200).json(employees);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
 app.get("/api/employees", async (req, res) => {
   try {
-    const employees = await Employee.find({});
-    res.status(200).json(employees);
+      console.log("📢 Fetching employees...");
+      const employees = await Employee.find({});
+      res.status(200).json(employees);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
   }
 });
+
 
 // DELETE endpoint to remove an employee by employeeId
 app.delete("/api/employees/:employeeId", async (req, res) => {
