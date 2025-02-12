@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();  // ✅ Load environment variables at the start
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -10,7 +10,6 @@ require("dotenv").config();
 const { v4: uuidv4 } = require("uuid"); // ✅ Correct import
 const multer = require("multer");
 const path = require("path");
-const bcrypt = require("bcryptjs");
 
 
 
@@ -23,31 +22,40 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(cors({ origin: "http://localhost:3000" }));
 // (Note: express.json() is built-in so you don't need bodyParser.json())
 
+app.use(cors());
 
-app.use(cors({
-  // origin: "https://report-software-xhlu.vercel.app", // Your frontend URL
-  origin: "*", // Allow all origins
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// ✅ Debug: Print the environment variable
+console.log("🔍 MongoDB URI:", process.env.MONGODB_URI);
 
+if (!process.env.MONGODB_URI) {
+  console.error("❌ ERROR: MONGODB_URI is not defined. Check your .env file!");
+  process.exit(1);  // Stop the server if no DB URI is found
+}
 
-
-// Use environment variable for MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ MongoDB Atlas connected successfully"))
-.catch(err => console.error("❌ MongoDB Connection Error:", err));
-
-
-
-app.get("/", (req, res) => {
-  res.send("Backend is running! Use API endpoints like /api/employees");
-});
+// ✅ Connect to MongoDB with updated URI
+mongoose
+  .connect("mongodb+srv://finaxis-user-31:RK8%28ha7Haa7%23jU%25@cluster0.ykhfs.mongodb.net/test?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Atlas connected"))
+  .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
 
 
+
+
+  // Connect to MongoDB
+// mongoose
+//   .connect("mongodb://127.0.0.1:27017/test", {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.error("Error connecting to MongoDB:", err));
+
+/* ============================
+   User Schema & Endpoints
+   ============================ */
 
 // Define Schema
 const formSchema = new mongoose.Schema({
@@ -710,66 +718,33 @@ app.post("/api/employees/register", async (req, res) => {
 });
 
 // Endpoint to login an employee
-// app.post("/api/employees/login", async (req, res) => {
-//   try {
-//     const { employeeId, password } = req.body;
-
-//     // Find the employee with matching credentials
-//     const employee = await Employee.findOne({ employeeId, password });
-
-//     if (!employee) {
-//       return res.status(401).json({ error: "Invalid employee credentials" });
-//     }
-
-//     // In a real application, you might generate and return a JWT token here
-//     res.json({ success: true, employee });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// Endpoint to get all employees
-// app.get("/api/employees", async (req, res) => {
-//   try {
-//     const employees = await Employee.find({});
-//     res.status(200).json(employees);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
 app.post("/api/employees/login", async (req, res) => {
   try {
-      const { employeeId, password } = req.body;
-      const employee = await Employee.findOne({ employeeId });
+    const { employeeId, password } = req.body;
 
-      if (!employee) {
-          return res.status(401).json({ error: "Invalid Employee ID" });
-      }
+    // Find the employee with matching credentials
+    const employee = await Employee.findOne({ employeeId, password });
 
-      const isMatch = await bcrypt.compare(password, employee.password);
-      if (!isMatch) {
-          return res.status(401).json({ error: "Invalid Password" });
-      }
+    if (!employee) {
+      return res.status(401).json({ error: "Invalid employee credentials" });
+    }
 
-      res.json({ success: true, employee });
+    // In a real application, you might generate and return a JWT token here
+    res.json({ success: true, employee });
   } catch (err) {
-      res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
+// Endpoint to get all employees
 app.get("/api/employees", async (req, res) => {
   try {
-      console.log("Fetching employees...");
-      const employees = await Employee.find({});
-      res.status(200).json(employees);
+    const employees = await Employee.find({});
+    res.status(200).json(employees);
   } catch (err) {
-      res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
-
-
-
 
 // DELETE endpoint to remove an employee by employeeId
 app.delete("/api/employees/:employeeId", async (req, res) => {
@@ -934,7 +909,9 @@ app.post("/api/mark-notification-read", async (req, res) => {
    Start the Server
    ============================ */
 
-const PORT = 5000;
+// const PORT = 5000;
+const PORT = process.env.PORT || 5000;  // ✅ Use process.env.PORT
+
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );

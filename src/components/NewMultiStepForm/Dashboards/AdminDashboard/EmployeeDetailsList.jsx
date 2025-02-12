@@ -13,11 +13,13 @@ const EmployeeDetailsList = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [showCombinedModal, setShowCombinedModal] = useState(false);
 
+  const API_URL = process.env.REACT_APP_API_URL || "https://your-backend-name.vercel.app";
+
   // Fetch employee data when the component mounts
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/employees");
+        const response = await fetch(`${API_URL}/api/employees`);
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }
