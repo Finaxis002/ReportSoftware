@@ -41,6 +41,11 @@ const GeneratedPDF = ({ years }) => {
 
   const location = useLocation();
 
+  useEffect(() => {
+    console.log("Updated Yearly Interest Liabilities:", yearlyInterestLiabilities);
+  }, [yearlyInterestLiabilities]);
+
+
   // Safe localStorage retrieval function
   const getStoredData = () => {
     try {
@@ -95,9 +100,6 @@ const GeneratedPDF = ({ years }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-  useEffect(() => {
-    console.log("Updated Yearly Interest Liabilities:", yearlyInterestLiabilities);
-  }, [yearlyInterestLiabilities]);
 
   return (
     <>
