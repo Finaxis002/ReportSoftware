@@ -4,16 +4,18 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import { Font } from "@react-pdf/renderer";
 
 // ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
+useEffect(() => {
+  Font.register({
+    family: "Roboto",
+    fonts: [
+      { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" },
+      {
+        src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+        fontWeight: "bold",
+      },
+    ],
+  });
+}, []);
 
 const ProjectedProfitability = ({
   formData,
@@ -41,15 +43,16 @@ const ProjectedProfitability = ({
 
   // ✅ Precompute Multiplication for Each Year Before Rendering
   const totalRevenueReceipts = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    return formData.Revenue.formFields.reduce(
-      (product, item) => product * (item.years?.[yearIndex] || 1),
-      1 // Start with 1, because multiplying by 0 gives 0
+    return (formData?.Revenue?.formFields ?? []).reduce(
+      (product, item) => product * (item?.years?.[yearIndex] || 1),
+      1
     );
   });
 
-  // ✅ Precompute Total Adjusted Revenue for Each Year Before Rendering
+  const safeYearlyInterestLiabilities = yearlyInterestLiabilities || [];
+
   // total revenue receipt + Closing STock - Opening Stock
   const adjustedRevenueValues = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -210,7 +213,8 @@ const ProjectedProfitability = ({
         netProfitBeforeTax,
       }));
     }
-  }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
+  }, [netProfitBeforeTax.join(",")]); // ✅ Better Approach
+  
 
   return (
     <Page
@@ -671,7 +675,7 @@ const ProjectedProfitability = ({
 
           {/* Get total projection years */}
           {Array.from({
-            length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
+            length: formData?.ProjectReportSetting?.ProjectionYears || 0,
           }).map((_, index) => (
             <Text
               key={index}
@@ -681,7 +685,7 @@ const ProjectedProfitability = ({
               ]}
             >
               {new Intl.NumberFormat("en-IN").format(
-                yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
+                safeYearlyInterestLiabilities[index] ?? 0
               )}
             </Text>
           ))}
