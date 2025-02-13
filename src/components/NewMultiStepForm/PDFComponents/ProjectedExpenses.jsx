@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 
 const ProjectedExpenses = ({
   formData,
-  totalInterest,
   yearlyInterestLiabilities,
 }) => {
   // Ensure formData and Expenses exist before destructuring

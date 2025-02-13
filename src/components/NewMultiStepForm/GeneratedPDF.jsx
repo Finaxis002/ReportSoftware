@@ -62,49 +62,6 @@ const GeneratedPDF = ({ years }) => {
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
 
 
-  // for OTP
-
-
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-
-  // ✅ Send OTP Request
-  const sendOTP = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("https://backend-three-pink.vercel.app/send-otp");
-      if (response.data.success) {
-        setOtpSent(true);
-        setError(""); // Clear errors if any
-      }
-    } catch (err) {
-      setError("Failed to send OTP. Try again.");
-    }
-    setLoading(false);
-  };
-
-  // ✅ Verify OTP
-  const verifyOTP = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("https://backend-three-pink.vercel.app/verify-otp", {
-        otp,
-      });
-
-      if (response.data.success) {
-        setOtpVerified(true);
-        setError(""); // Clear errors
-      }
-    } catch (err) {
-      setError("Invalid OTP! Please try again.");
-    }
-    setLoading(false);
-  };
-
 
 
   useEffect(() => {
@@ -154,40 +111,11 @@ const GeneratedPDF = ({ years }) => {
 
   
     useEffect(() => {
-      // console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+      console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
     }, [yearlyInterestLiabilities]);
 
   return (
     <>
-     <div>
-      {/* ✅ If userRole is "employee", ask for OTP */}
-      {userRole === "employee" && !otpVerified ? (
-        <div className="otp-modal">
-          <h3>OTP Verification Required</h3>
-          {!otpSent ? (
-            <>
-              <button onClick={sendOTP} disabled={loading}>
-                {loading ? "Sending OTP..." : "Request OTP"}
-              </button>
-              {error && <p className="error">{error}</p>}
-            </>
-          ) : (
-            <>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-              <button onClick={verifyOTP} disabled={loading}>
-                {loading ? "Verifying..." : "Verify OTP"}
-              </button>
-              {error && <p className="error">{error}</p>}
-            </>
-          )}
-        </div>
-      ) : (
-        // ✅ Show PDF Viewer if OTP is verified or user is not an employee
       <PDFViewer
         width="100%"
         height="800"
@@ -241,7 +169,6 @@ const GeneratedPDF = ({ years }) => {
             totalDepreciationPerYear={totalDepreciation}
             onComputedData={setComputedData}
             netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-            yearlyInterestLiabilities={yearlyInterestLiabilities}
           />
 
           <Repayment formData={formData} localData={localData}  onInterestCalculated={setYearlyInterestLiabilities}/>
@@ -252,8 +179,6 @@ const GeneratedPDF = ({ years }) => {
           )}
         </Document>
       </PDFViewer>
-       )}
-    </div>
 
       {/* <section>
         <h1 className="text-center py-5 bg-headPurple">Report Review</h1>

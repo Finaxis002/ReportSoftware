@@ -108,7 +108,6 @@ const ProjectedProfitability = ({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     // Compute total indirect expenses from directExpense
-    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
     let indirectExpenseTotal = directExpense
       ?.filter((expense) => expense.type === "indirect")
       ?.reduce((sum, expense) => {
@@ -125,11 +124,7 @@ const ProjectedProfitability = ({
       }, 0);
 
     // ✅ Add Depreciation for this year
-    return (
-      interestOnTermLoan +
-      indirectExpenseTotal +
-      (totalDepreciationPerYear[yearIndex] || 0)
-    );
+    return indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
   });
 
   // ✅ Precompute Gross Profit for Each Year Before Rendering
@@ -217,13 +212,6 @@ const ProjectedProfitability = ({
     }
   }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
 
-  const MAX_PAGE_HEIGHT = 1000; // ✅ Adjust this based on your PDF page size
-  const estimatedRowHeight = 30; // ✅ Approximate height per row
-
-  // ✅ Prevents crash by ensuring formFields is always defined
-  const contentHeight =
-    (localData?.formFields?.length ?? 0) * estimatedRowHeight;
-
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -231,11 +219,13 @@ const ProjectedProfitability = ({
         formData.ProjectReportSetting.ProjectionYears > 7
           ? "landscape"
           : "portrait"
-          
       }
-      wrap={false} break
     >
-     <View style={[styleExpenses.paddingx, {paddingBottom:"30px"}]} >
+      <View
+        style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}
+        wrap={false}
+        break
+      >
         <Text style={[styles.clientName]}>{localData.clientName}</Text>
         <View
           style={[
@@ -681,7 +671,7 @@ const ProjectedProfitability = ({
 
           {/* Get total projection years */}
           {Array.from({
-            length: formData.ProjectReportSetting.ProjectionYears,
+            length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
           }).map((_, index) => (
             <Text
               key={index}
@@ -691,7 +681,7 @@ const ProjectedProfitability = ({
               ]}
             >
               {new Intl.NumberFormat("en-IN").format(
-                yearlyInterestLiabilities[index] || 0
+                yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
               )}
             </Text>
           ))}
@@ -749,7 +739,7 @@ const ProjectedProfitability = ({
                     { borderLeftWidth: "1px" },
                   ]}
                 >
-                  {index + 4}
+                  {index + 1}
                 </Text>
                 <Text
                   style={[
@@ -788,7 +778,6 @@ const ProjectedProfitability = ({
               </View>
             );
           })}
-
         {/* total of indirect expenses */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
