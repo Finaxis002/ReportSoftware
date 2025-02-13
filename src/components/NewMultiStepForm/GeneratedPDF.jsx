@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import {
@@ -11,12 +11,9 @@ import {
 import "./View.css";
 import {
   Document,
-  Page,
-  View,
-  Text,
-  StyleSheet,
   PDFViewer,
 } from "@react-pdf/renderer";
+
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
 import MeansOfFinance from "./PDFComponents/MeansOfFinance";
@@ -33,66 +30,55 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = ({ years }) => {
   const [computedData, setComputedData] = useState({ netProfitBeforeTax: [] });
-  const [computedData1, setComputedData1] = useState({ totalDepreciationPerYear: [] });
-  const [localData, setLocalData] = useState(() => {
-    const savedData = localStorage.getItem("FourthStepPRS");
-    return savedData
-      ? JSON.parse(savedData) // If saved data exists, parse and return it
-      : {
-          projectionYears: {
-            name: "Projection Years",
-            id: "projectionYears",
-            value: 0, // Default value for ProjectionYears
-            isCustom: false,
-          },
-          rateOfExpense: {
-            name: "Rate of Expense",
-            id: "rateOfExpense",
-            value: 0, // Default value for Rate of Expense
-            isCustom: false,
-          },
-          clientName: "", // Default value from formData
-        };
+  const [computedData1, setComputedData1] = useState({
+    totalDepreciationPerYear: [],
   });
-
-  const [userRole, setUserRole] = useState("");
-
-  // ✅ Store totalDepreciationPerYear in state
+  
   const [totalDepreciation, setTotalDepreciation] = useState([]);
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
-
-
-
-
-  useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    setUserRole(role);
-  }, []);
-
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
 
-  // Remove sessionId and _id while keeping other data intact
-  const { sessionId, _id, ...cleanFormData } = location.state || {};
-
-  const formData = cleanFormData;
-
-  if (!formData || !formData.AccountInformation) {
-    return <div>No account information available</div>; // Fallback UI
-  }
-
-  const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
-  const { normalExpense = [], directExpense = [] } = Expenses;
-
-  const formatAmountInIndianStyle = (amount) => {
-    return amount.toLocaleString("en-IN"); // Format as per Indian number system
+  // Safe localStorage retrieval function
+  const getStoredData = () => {
+    try {
+      const savedData = localStorage.getItem("FourthStepPRS");
+      return savedData ? JSON.parse(savedData) : {};
+    } catch (error) {
+      console.error("Error parsing localStorage data:", error);
+      return {};
+    }
   };
 
-  // salary  wages calculation
+  const [localData, setLocalData] = useState(getStoredData);
+
+  useEffect(() => {
+    const role = localStorage.getItem("userRole");
+    if (role) setUserRole(role);
+  }, []);
+
+  // Ensure `formData` is always an object and destructure safely
+  const formData = location.state ? { ...location.state } : {};
+  if (!formData?.AccountInformation) {
+    return <div>No account information available</div>;
+  }
+
+  // Extract expenses safely
+  const { Expenses = {} } = formData;
+  const { normalExpense = [], directExpense = [] } = Expenses;
+
+  // Format currency function
+  const formatAmountInIndianStyle = (amount) =>
+    amount.toLocaleString("en-IN");
+
+  // Salary & wages calculations
   const totalQuantity = normalExpense.reduce(
     (sum, expense) => sum + Number(expense.quantity || 0),
     0
   );
+
   const totalAnnualWages = normalExpense.reduce(
     (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
     0
@@ -101,18 +87,17 @@ const GeneratedPDF = ({ years }) => {
   const fringeCalculation = normalExpense.reduce(
     (sum, expense) =>
       sum + (Number(expense.amount) * Number(expense.quantity) * 12 * 0.5) / 10,
-    0 // Initial value to ensure sum starts from zero
+    0
   );
 
   const fringAndAnnualCalculation =
-    normalExpense.reduce((sum, expense) => sum, 0) +
+    normalExpense.reduce((sum, expense) => sum + Number(expense.amount || 0), 0) +
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-  
-    useEffect(() => {
-      console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-    }, [yearlyInterestLiabilities]);
+  useEffect(() => {
+    console.log("Updated Yearly Interest Liabilities:", yearlyInterestLiabilities);
+  }, [yearlyInterestLiabilities]);
 
   return (
     <>
@@ -152,7 +137,11 @@ const GeneratedPDF = ({ years }) => {
 
           {/* Projected Expense Table Direct and Indirect*/}
 
-          <ProjectedExpenses formData={formData} yearlyInterestLiabilities={yearlyInterestLiabilities}/>
+          {/* Projected Expense Table Direct and Indirect */}
+          <ProjectedExpenses
+            formData={formData}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          />
 
           {/* Projected Revenue/ Sales */}
 
@@ -160,7 +149,8 @@ const GeneratedPDF = ({ years }) => {
 
           {/* Projected Profitability Statement */}
 
-          <ProjectedProfitability
+           {/* Projected Profitability Statement */}
+           <ProjectedProfitability
             formData={formData}
             localData={localData}
             normalExpense={normalExpense}
@@ -169,8 +159,8 @@ const GeneratedPDF = ({ years }) => {
             totalDepreciationPerYear={totalDepreciation}
             onComputedData={setComputedData}
             netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
           />
-
           <Repayment formData={formData} localData={localData}  onInterestCalculated={setYearlyInterestLiabilities}/>
 
           {computedData.netProfitBeforeTax.length > 0 && (

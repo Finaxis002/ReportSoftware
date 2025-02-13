@@ -4,18 +4,16 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import { Font } from "@react-pdf/renderer";
 
 // ✅ Register a Font That Supports Bold
-useEffect(() => {
-  Font.register({
-    family: "Roboto",
-    fonts: [
-      { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" },
-      {
-        src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-        fontWeight: "bold",
-      },
-    ],
-  });
-}, []);
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      fontWeight: "bold",
+    }, // Bold
+  ],
+});
 
 const ProjectedProfitability = ({
   formData,
@@ -26,7 +24,12 @@ const ProjectedProfitability = ({
   onComputedData,
   yearlyInterestLiabilities,
 }) => {
-  // Ensure formData and Expenses exist before destructuring
+  
+
+    useEffect(() => {
+        console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+      }, [yearlyInterestLiabilities]);
+  
 
   // console.log("total depreciation per year : ", totalDepreciationPerYear);
 
@@ -50,8 +53,7 @@ const ProjectedProfitability = ({
       1
     );
   });
-
-  const safeYearlyInterestLiabilities = yearlyInterestLiabilities || [];
+  
 
   // total revenue receipt + Closing STock - Opening Stock
   const adjustedRevenueValues = Array.from({
@@ -111,6 +113,7 @@ const ProjectedProfitability = ({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     // Compute total indirect expenses from directExpense
+    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
     let indirectExpenseTotal = directExpense
       ?.filter((expense) => expense.type === "indirect")
       ?.reduce((sum, expense) => {
@@ -127,7 +130,7 @@ const ProjectedProfitability = ({
       }, 0);
 
     // ✅ Add Depreciation for this year
-    return indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
+    return interestOnTermLoan + indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
   });
 
   // ✅ Precompute Gross Profit for Each Year Before Rendering
@@ -213,8 +216,7 @@ const ProjectedProfitability = ({
         netProfitBeforeTax,
       }));
     }
-  }, [netProfitBeforeTax.join(",")]); // ✅ Better Approach
-  
+  }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
 
   return (
     <Page
@@ -224,6 +226,7 @@ const ProjectedProfitability = ({
           ? "landscape"
           : "portrait"
       }
+      wrap={false} break
     >
       <View
         style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}
@@ -675,7 +678,7 @@ const ProjectedProfitability = ({
 
           {/* Get total projection years */}
           {Array.from({
-            length: formData?.ProjectReportSetting?.ProjectionYears || 0,
+            length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
           }).map((_, index) => (
             <Text
               key={index}
@@ -685,7 +688,7 @@ const ProjectedProfitability = ({
               ]}
             >
               {new Intl.NumberFormat("en-IN").format(
-                safeYearlyInterestLiabilities[index] ?? 0
+                yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
               )}
             </Text>
           ))}
