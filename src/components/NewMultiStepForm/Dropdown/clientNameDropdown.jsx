@@ -121,7 +121,7 @@ const ClientNameDropdown = ({ onClientSelect, onBusinessSelect }) => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/clients");
+        const response = await axios.get("https://backend-three-pink.vercel.app/api/clients");
 
         if (response.data && Array.isArray(response.data.clientNames)) {
           const options = response.data.clientNames.map((name) => ({

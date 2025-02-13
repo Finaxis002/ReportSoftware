@@ -17,7 +17,7 @@ const EmployeeDetailsList = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/employees");
+        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }

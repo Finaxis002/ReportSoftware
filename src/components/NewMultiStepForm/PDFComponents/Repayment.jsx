@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
+import { styles, stylesCOP, stylesMOF, styleExpenses , columnWidths} from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
 
 // ✅ Register a Font That Supports Bold
@@ -15,7 +15,7 @@ Font.register({
   ],
 });
 
-const Repayment = ({ formData, localData }) => {
+const Repayment = ({ formData, localData, onInterestCalculated }) => {
   const termLoan = formData.MeansOfFinance.totalTermLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod;
@@ -48,7 +48,7 @@ const Repayment = ({ formData, localData }) => {
   );
 
   if (startMonthIndex === -1) {
-    console.error("Invalid SelectStartingMonth! Defaulting to April.");
+    // console.error("Invalid SelectStartingMonth! Defaulting to April.");
     startMonthIndex = 0; // Default to April if input is incorrect
   }
 
@@ -59,7 +59,7 @@ const Repayment = ({ formData, localData }) => {
   let repaymentStartIndex = startMonthIndex; // Start directly from selected month
 
   // ✅ Ensure correct year alignment
-  let currentYear = 2025;
+  let yearlyInterestLiabilities = []; // ✅ Store year-wise interest liability
   let data = [];
 
   for (let year = 0; year < numYears; year++) {
@@ -107,17 +107,39 @@ const Repayment = ({ formData, localData }) => {
     10
   );
 
-  console.log("Generated Repayment Schedule:", data);
+  // Initialize total interest liability for all years
+  data.forEach((yearData, yearIndex) => {
+    let totalInterestLiability = yearData.reduce(
+      (sum, entry) => sum + entry.interestLiability,
+      0
+    );
+    yearlyInterestLiabilities.push(totalInterestLiability); // ✅ Store per year
+  });
 
-  console.log("Form DAta From Repayment Component : ", formData);
+  // ✅ Fix: Only update state if the array has changed
+  useEffect(() => {
+    if (yearlyInterestLiabilities.length > 0) {
+      // console.log("Sending Yearly Interest Liabilities:", yearlyInterestLiabilities);
+      onInterestCalculated((prevState) => {
+        if (
+          JSON.stringify(prevState) !==
+          JSON.stringify(yearlyInterestLiabilities)
+        ) {
+          return yearlyInterestLiabilities;
+        }
+        return prevState; // Prevents unnecessary state updates
+      });
+    }
+  }, [JSON.stringify(yearlyInterestLiabilities), onInterestCalculated]);
+
   return (
     <>
       <Page
-        size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+        size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
         orientation={
-          formData.ProjectReportSetting.ProjectionYears <= 7
-            ? "portrait"
-            : "landscape"
+          formData.ProjectReportSetting.ProjectionYears > 7
+            ? "landscape"
+            : "portrait"
         }
       >
         <View style={styleExpenses.paddingx}>
@@ -201,7 +223,7 @@ const Repayment = ({ formData, localData }) => {
 
           <View style={[styles.table, { marginTop: "10px" }]}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.detailsCell, { textAlign: "center" }]}>
+              <Text style={[styles.serialNoCell, styles.serialNumberCellStyle]}>
                 S. No.
               </Text>
               <Text
@@ -281,20 +303,12 @@ const Repayment = ({ formData, localData }) => {
               <View key={yearIndex} wrap={false} style={{ marginBottom: 10 }}>
                 {/* Year Row */}
                 <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-                  <Text
-                    style={[
-                      stylesCOP.serialNoCellDetail,
-                      { textAlign: "center", width: "40px" },
-                    ]}
-                  >
-                    {yearIndex + 1}
-                  </Text>
+                <Text style={styles.serialNumberCellStyle}>{yearIndex + 1}</Text>
 
                   <Text
                     style={[
                       stylesMOF.cell,
                       {
-                        paddingLeft: "40px",
                         fontFamily: "Roboto",
                         fontWeight: "extrabold",
                         backgroundColor: "#D3D3D3",
@@ -314,14 +328,7 @@ const Repayment = ({ formData, localData }) => {
                     style={[stylesMOF.row, styles.tableRow]}
                   >
                     {/* Serial Number (Blank as per your structure) */}
-                    <Text
-                      style={[
-                        stylesCOP.serialNoCellDetail,
-                        styleExpenses.sno,
-                        styleExpenses.bordernone,
-                        { width: "80px" },
-                      ]}
-                    ></Text>
+                    <Text style={styles.serialNumberCellStyle}></Text>
 
                     {/* Months / Quarters */}
                     <Text
@@ -329,7 +336,7 @@ const Repayment = ({ formData, localData }) => {
                         stylesCOP.detailsCellDetail,
                         styleExpenses.particularWidth,
                         styleExpenses.bordernone,
-                        { textAlign: "center", width: "200px" },
+                        { textAlign: "center", width: "190px" },
                       ]}
                     >
                       {entry.month}
@@ -416,9 +423,8 @@ const Repayment = ({ formData, localData }) => {
                       styleExpenses.sno,
                       {
                         fontWeight: "bold",
-                        width: "280px",
+                        width: "230px",
                         textAlign: "center",
-                        paddingLeft: "40px",
                       },
                     ]}
                   >

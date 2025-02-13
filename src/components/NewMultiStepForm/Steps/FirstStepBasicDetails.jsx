@@ -99,7 +99,7 @@ const FirstStepBasicDetails = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/save-step",
+        "https://backend-three-pink.vercel.app/save-step",
         uploadFormData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -464,7 +464,7 @@ const FirstStepBasicDetails = ({
                 <p>
                   Uploaded File:
                   <a
-                    href={`http://localhost:5000${formData.AccountInformation.logoOfBusiness}`}
+                    href={`https://backend-three-pink.vercel.app${formData.AccountInformation.logoOfBusiness}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

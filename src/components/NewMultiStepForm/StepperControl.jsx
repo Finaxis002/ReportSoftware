@@ -8,14 +8,14 @@ const StepperControl = ({
   handleSave,
   currentStep,
   totalSteps,
-  handleCreateNewFromExisting,
+  handleNextStep,
+  stepData,
 }) => {
   const [userRole, setUserRole] = useState("");
   const location = useLocation();
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
-  const isCreateReportWithExistingClicked =
-    location.state?.isCreateReportWithExistingClicked || false;
+  const isCreateReportWithExistingClicked = location.state?.isCreateReportWithExistingClicked || false;
   const isUpdateReportClicked = location.state?.isUpdateReportClicked || false;
 
   useEffect(() => {
@@ -25,18 +25,7 @@ const StepperControl = ({
 
   return (
     <div className="container flex justify-end gap-4 mt-2 mb-2">
-      {/* ✅ Update Report Button */}
-      {!isCreateReportClicked &&
-        !isCreateReportWithExistingClicked &&
-        userRole !== "client" && (
-          <button
-            type="button"
-            onClick={handleUpdate}
-            className="bg-orange-500 py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out"
-          >
-            Update Report
-          </button>
-        )}
+     
       {/* Back Button */}
       <button
         type="button"
@@ -48,6 +37,20 @@ const StepperControl = ({
       >
         Previous
       </button>
+
+
+       {/* ✅ Update Report Button */}
+       {!isCreateReportClicked &&
+        !isCreateReportWithExistingClicked &&
+        userRole !== "client" && (
+          <button
+            type="button"
+            onClick={handleUpdate}
+            className="bg-orange-500 py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out"
+          >
+            Update Report
+          </button>
+        )}
 
       {/* Save Data Button */}
       {/* {!isUpdateReportClicked && (
@@ -79,27 +82,45 @@ const StepperControl = ({
           </button>
         )}
       {/* Next Button */}
-      <button
-        type="button"
-        onClick={handleNext}
-        className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
-          currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        disabled={currentStep === totalSteps}
-        style={{
-          display: currentStep === totalSteps ? "none" : "inline-block",
-        }}
-      >
-        Next
-      </button>
-      {!isCreateReportClicked && !isUpdateReportClicked && (
+      {isCreateReportWithExistingClicked ? (
+        // Show this button if "Create Report With Existing" is clicked
+        <button
+          onClick={() => handleNextStep(stepData)}
+          className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
+            currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={currentStep === totalSteps}
+          style={{
+            display: currentStep === totalSteps ? "none" : "inline-block",
+          }}
+        >
+          Save & Next
+        </button>
+      ) : (
+        // Hide this button if "Create Report With Existing" is clicked
+        <button
+          type="button"
+          onClick={handleNext}
+          className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
+            currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={currentStep === totalSteps}
+          style={{
+            display: currentStep === totalSteps ? "none" : "inline-block",
+          }}
+        >
+          Next
+        </button>
+      )}
+
+      {/* {!isCreateReportClicked && !isUpdateReportClicked && (
         <button
           onClick={handleCreateNewFromExisting}
           className="btn btn-primary"
         >
           Create New Report from Existing
         </button>
-      )}
+      )} */}
     </div>
   );
 };

@@ -5,11 +5,11 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 const ProjectedRevenue = ({ formData }) => {
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears <= 7
-          ? "portrait"
-          : "landscape"
+        formData.ProjectReportSetting.ProjectionYears > 7
+          ? "landscape"
+          : "portrait"
       }
     >
       <View style={styleExpenses.paddingx}>
@@ -65,7 +65,7 @@ const ProjectedRevenue = ({ formData }) => {
               <View key={index} style={[stylesMOF.row, styleExpenses.tableRow]}>
                 {/* Serial Number */}
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {index + 1}
+                  {formData.Revenue.formFields[index]?.serialNumber || ""}
                 </Text>
 
                 {/* Particular Name */}

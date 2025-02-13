@@ -18,7 +18,7 @@ const EmployeeDashboard = ({ userRole }) => {
       const fetchEmployeeData = async () => {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/employees/${employeeId}`
+            `https://backend-three-pink.vercel.app/api/employees/${employeeId}`
           );
           if (!response.ok) {
             throw new Error("Failed to fetch employee details");

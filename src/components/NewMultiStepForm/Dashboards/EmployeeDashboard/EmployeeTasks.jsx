@@ -80,7 +80,7 @@ const EmployeeTasks = ({ employeeId }) => {
       setError("");
       try {
         const response = await fetch(
-          `http://localhost:5000/api/tasks?employeeId=${employeeId}`
+          `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch tasks");
@@ -101,7 +101,7 @@ const EmployeeTasks = ({ employeeId }) => {
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+      const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

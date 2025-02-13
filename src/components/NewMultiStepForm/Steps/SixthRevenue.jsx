@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 
 const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
-  const projectionYears =
-  parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
+  const projectionYears = Math.max(
+    1,
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years || 1
+  );
 
   const [localData, setLocalData] = useState(() => {
     return revenueData && Object.keys(revenueData).length > 0
@@ -11,16 +13,22 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           formFields: [
             {
               particular: "p1",
-              years: Array.from({ length: projectionYears}).fill(0),
+              years: Array.from({ length: Math.max(1, projectionYears) }).fill(
+                0
+              ),
               amount: 0,
               rowType: "0",
             },
           ],
-          totalRevenueForOthers: Array.from({ length: projectionYears}).fill(0),
+          totalRevenueForOthers: Array.from({
+            length: Math.max(1, projectionYears),
+          }).fill(0),
           formFields2: [
             {
               particular: "p1",
-              years: Array.from({ length: projectionYears}).fill(0),
+              years: Array.from({ length: Math.max(1, projectionYears) }).fill(
+                0
+              ),
               amount: 0,
             },
           ],
@@ -28,17 +36,17 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   });
 
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
-    Array.from({ length: projectionYears}).fill(0)
+    Array.from({ length: Math.max(1, projectionYears) }).fill(0)
   );
   const [noOfMonths, setNoOfMonths] = useState(
-    Array.from({ length: projectionYears}).fill(12)
+    Array.from({ length: projectionYears || 1 }).fill(12)
   );
   const [totalRevenue, setTotalRevenue] = useState(
-    Array.from({ length: projectionYears}).fill(0)
+    Array.from({ length: Math.max(1, projectionYears) }).fill(0)
   );
 
   const [totalRevenueForOthers, setTotalRevenueForOthers] = useState(
-    Array.from({ length: projectionYears}).fill(0)
+    Array.from({ length: Math.max(1, projectionYears) }).fill(0)
   );
 
   useEffect(() => {
@@ -59,7 +67,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     e.preventDefault();
     let object = {
       particular: "",
-      years: Array.from({ length: projectionYears}).fill(0),
+      years: Array.from({ length: Math.max(1, projectionYears) }).fill(0),
       amount: 0,
       rowType: "0",
     };
@@ -79,18 +87,19 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     });
   };
 
-  const handleFormChange = (event, childIndex, year) => {
-    let data = [...localData.formFields];
-    if (event.target.name === "particular") {
-      data[childIndex]["particular"] = event.target.value;
-    } else if (event.target.name === "rowType") {
-      data[childIndex]["rowType"] = event.target.value;
-    } else if (event.target.name === "amount") {
-      data[childIndex]["amount"] = Number(event.target.value);
+  const handleFormChange = (event, index, field = null) => {
+    const { name, value } = event.target;
+    const updatedFormFields = [...localData.formFields];
+
+    if (field === "serialNumber") {
+      updatedFormFields[index][field] = value; // ✅ Store any alphanumeric value
+    } else if (field !== null) {
+      updatedFormFields[index].years[field] = value;
     } else {
-      data[childIndex]["years"][year] = Number(event.target.value);
+      updatedFormFields[index][name] = value;
     }
-    setLocalData({ ...localData, formFields: data });
+
+    setLocalData({ ...localData, formFields: updatedFormFields });
   };
 
   const toggleType = (value) => {
@@ -101,7 +110,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     e.preventDefault();
     let object = {
       particular: "",
-      years: Array.from({ length: projectionYears}).fill(0),
+      years: Array.from({ length: Math.max(1, projectionYears) }).fill(0),
       amount: 0,
     };
     setLocalData({
@@ -143,12 +152,15 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   // Function to calculate total monthly revenue (sum of all year inputs)
   const calculateTotalMonthlyRevenue = () => {
-    const total = Array.from({ length: projectionYears}, (_, yearIndex) => {
-      return localData.formFields2.reduce(
-        (sum, field) => sum + Number(field.years[yearIndex] || 0),
-        0
-      );
-    });
+    const total = Array.from(
+      { length: projectionYears || 1 },
+      (_, yearIndex) => {
+        return localData.formFields2.reduce(
+          (sum, field) => sum + Number(field.years[yearIndex] || 0),
+          0
+        );
+      }
+    );
     setTotalMonthlyRevenue(total);
   };
 
@@ -232,7 +244,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                         length:
                           parseInt(
                             formData?.ProjectReportSetting?.ProjectionYears
-                          ) || 0,
+                          ) || 1,
                       }).map((_, b) => (
                         <th key={b} className="header-label">
                           Year {b + 1}
@@ -247,18 +259,18 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                   <tbody>
                     {localData.formFields.map((entry, i) => {
                       // Adjust the number of years dynamically
+                      const validProjectionYears = Math.max(
+                        1,
+                        formData?.ProjectReportSetting?.ProjectionYears || 1
+                      );
                       const adjustedYears = [
-                        ...entry.years.slice(
-                          0,
-                          formData.ProjectReportSetting.ProjectionYears
-                        ), // Keep only required years
+                        ...entry.years.slice(0, validProjectionYears),
                         ...Array(
                           Math.max(
                             0,
-                            formData.ProjectReportSetting.ProjectionYears -
-                              entry.years.length
+                            validProjectionYears - (entry.years?.length || 0)
                           )
-                        ).fill(""), // Fill missing years
+                        ).fill(""),
                       ];
 
                       return (
@@ -276,7 +288,20 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               : ""
                           }`}
                         >
-                          <td>{i + 1}</td>
+                          {/* ✅ Editable Serial Number (Now Alphanumeric) */}
+                          <td>
+                            <input
+                              name="serialNumber"
+                              type="text" // ✅ Changed to text to allow alphanumeric values
+                              className="form-control text-center noBorder"
+                              value={entry.serialNumber || i + 1} // Default to `i + 1`
+                              onChange={(event) =>
+                                handleFormChange(event, i, "serialNumber")
+                              }
+                            />
+                          </td>
+
+                          {/* Particulars Input */}
                           <td>
                             <input
                               name="particular"
@@ -297,13 +322,14 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 onChange={(event) =>
                                   handleFormChange(event, i, y)
                                 }
-                                value={yr}
+                                value={yr || 0}
                                 className="form-control text-end noBorder"
                                 type="number"
                               />
                             </td>
                           ))}
 
+                          {/* Row Type Dropdown */}
                           <td>
                             <select
                               className="form-control"
@@ -319,6 +345,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <option value="3">B \ U</option>
                             </select>
                           </td>
+
+                          {/* Remove Button */}
                           <td>
                             <button
                               className="rmvBtn"
@@ -356,7 +384,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                       i
                                     )
                                   }
-                                  value={v}
+                                  value={v || 0}
                                   className="form-control text-end noBorder"
                                   type="number"
                                 />
@@ -386,7 +414,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                         length:
                           parseInt(
                             formData?.ProjectReportSetting?.ProjectionYears
-                          ) || 0,
+                          ) || 1,
                       }).map((_, b) => (
                         <th key={b} className="header-label">
                           Year {b + 1}
@@ -400,18 +428,18 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                   <tbody>
                     {localData.formFields2.map((entry, i) => {
                       // Adjust the number of years dynamically
+                      const validProjectionYears = Math.max(
+                        1,
+                        formData?.ProjectReportSetting?.ProjectionYears || 1
+                      );
                       const adjustedYears = [
-                        ...entry.years.slice(
-                          0,
-                          formData.ProjectReportSetting.ProjectionYears
-                        ), // Keep only required years
+                        ...entry.years.slice(0, validProjectionYears),
                         ...Array(
                           Math.max(
                             0,
-                            formData.ProjectReportSetting.ProjectionYears -
-                              entry.years.length
+                            validProjectionYears - (entry.years?.length || 0)
                           )
-                        ).fill(""), // Fill missing years
+                        ).fill(""),
                       ];
 
                       return (
@@ -437,7 +465,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 onChange={(event) =>
                                   handleFormChange2(event, i, y)
                                 }
-                                value={yr}
+                                value={yr || 1}
                                 className="form-control text-end noBorder"
                                 type="number"
                               />
@@ -489,7 +517,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <input
                                 className="form-control text-center w-100"
                                 type="number"
-                                value={v}
+                                value={v || 0}
                                 onChange={(e) => changeMonth(i, e.target.value)}
                               />
                             </td>

@@ -39,7 +39,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/employees/${employee.employeeId}`,
+        `https://backend-three-pink.vercel.app/api/employees/${employee.employeeId}`,
         {
           method: "PUT", // or "PATCH" if updating only certain fields
           headers: {

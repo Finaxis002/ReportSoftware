@@ -13,7 +13,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
         // Ensure your backend accepts query parameters:
         // GET /api/tasks?employeeId=XYZ
         const response = await fetch(
-          `http://localhost:5000/api/tasks?employeeId=${employee.employeeId}`
+          `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employee.employeeId}`
         );
         if (!response.ok) {
           throw new Error("No Task Assigned Yet");

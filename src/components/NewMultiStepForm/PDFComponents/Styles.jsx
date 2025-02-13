@@ -119,6 +119,17 @@ import { StyleSheet } from "@react-pdf/renderer";
       border: "none",
       backgroundColor: "white",
     },
+    serialNumberCellStyle : {
+      textAlign: "center",
+      maxWidth: "80px", // ✅ Adjust width for proper alignment
+      height: "25px", // ✅ Ensures uniform row height
+      paddingVertical: "5px", // ✅ Ensures proper padding
+      paddingHorizontal: "10px",
+      margin: "1px 0", // ✅ Space between rows
+      fontWeight: "bold", // ✅ Makes numbers more readable
+      fontSize: "10px", // ✅ Optimized for PDF readability
+      fontFamily: "Roboto",
+    },
   });
 
   const stylesMOF = StyleSheet.create({
@@ -310,4 +321,16 @@ import { StyleSheet } from "@react-pdf/renderer";
     },
   });
 
-export { styles, stylesMOF, stylesCOP, styleExpenses };
+
+  const columnWidths = {
+    serialNo: { width: "60px", textAlign: "center" }, // ✅ Fixed width for Serial No.
+    yearQuarter: { width: "120px", textAlign: "center" },
+    openingBalance: { width: "120px", textAlign: "center" },
+    principalRepayment: { width: "120px", textAlign: "center" },
+    closingBalance: { width: "120px", textAlign: "center" },
+    interestLiability: { width: "120px", textAlign: "center" },
+    totalRepayment: { width: "120px", textAlign: "center" },
+  };
+  
+
+export { styles, stylesMOF, stylesCOP, styleExpenses , columnWidths };

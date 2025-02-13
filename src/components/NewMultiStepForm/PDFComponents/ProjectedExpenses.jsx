@@ -2,9 +2,12 @@ import React from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 
-const ProjectedExpenses = ({ formData }) => {
+const ProjectedExpenses = ({
+  formData,
+  totalInterest,
+  yearlyInterestLiabilities,
+}) => {
   // Ensure formData and Expenses exist before destructuring
-  const expenses = formData?.Expenses || {};
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -14,17 +17,77 @@ const ProjectedExpenses = ({ formData }) => {
     0
   );
 
-  const formatAmountInIndianStyle = (amount) => {
-    return amount.toLocaleString("en-IN"); // Format as per Indian number system
-  };
+  // ✅ Calculate total direct expenses for each projection year
+  const totalDirectExpensesArray = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    const totalDirectExpenses = directExpense
+      .filter((expense) => expense.type === "direct")
+      .reduce((sum, expense) => {
+        const baseValue = Number(expense.value) || 0;
+        const initialValue = baseValue * 12; // Convert to annual
+        return (
+          sum +
+          initialValue *
+            Math.pow(
+              1 + formData.ProjectReportSetting.rateOfExpense / 100,
+              yearIndex
+            )
+        );
+      }, 0);
+
+    // ✅ Include Salary and Wages in the total
+    const initialSalaryWages = Number(totalAnnualWages) || 0;
+    const totalSalaryWages =
+      yearIndex === 0
+        ? initialSalaryWages
+        : initialSalaryWages *
+          Math.pow(
+            1 + formData.ProjectReportSetting.rateOfExpense / 100,
+            yearIndex
+          );
+
+    return totalDirectExpenses + totalSalaryWages; // ✅ Final Grand Total
+  });
+
+  // ✅ Compute total indirect expenses for each projection year
+  const totalIndirectExpensesArray = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    // ✅ Get Interest on Term Loan for the current year (or 0 if missing)
+    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+
+    // ✅ Compute indirect expenses with growth rate
+    const totalIndirectExpenses = directExpense
+      .filter((expense) => expense.type === "indirect")
+      .reduce((sum, expense) => {
+        const baseValue = Number(expense.value) || 0;
+        const initialValue = baseValue * 12; // Convert monthly to annual
+        return (
+          sum +
+          initialValue *
+            Math.pow(
+              1 + formData.ProjectReportSetting.rateOfExpense / 100,
+              yearIndex
+            )
+        );
+      }, 0);
+
+    return interestOnTermLoan + totalIndirectExpenses; // ✅ Final total
+  });
+
+  // ✅ Calculate Grand Total (A + B)
+  const grandTotalArray = totalDirectExpensesArray.map((directTotal, index) => {
+    return directTotal + (totalIndirectExpensesArray[index] || 0);
+  });
 
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears <= 7
-          ? "portrait"
-          : "landscape"
+        formData.ProjectReportSetting.ProjectionYears > 7
+          ? "landscape"
+          : "portrait"
       }
     >
       <View style={styleExpenses.paddingx}>
@@ -177,6 +240,7 @@ const ProjectedExpenses = ({ formData }) => {
             );
           })}
 
+        {/* Total Direct Expenses Row */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
@@ -194,44 +258,67 @@ const ProjectedExpenses = ({ formData }) => {
           >
             Total
           </Text>
-          {[
-            ...Array(
-              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
-            ),
-          ].map((_, yearIndex) => {
-            const totalValue = directExpense
-              .filter((expense) => expense.type === "direct")
-              .reduce((sum, expense) => {
-                const baseValue = Number(expense.value) || 0;
-                const initialValue = baseValue * 12;
-                return (
-                  sum +
-                  initialValue *
-                    Math.pow(
-                      1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                      yearIndex
-                    )
-                );
-              }, 0);
-            return (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {new Intl.NumberFormat("en-IN").format(totalValue.toFixed(2))}
-              </Text>
-            );
-          })}
+
+          {/* ✅ Use `totalDirectExpensesArray` here */}
+          {totalDirectExpensesArray.map((grandTotal, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(grandTotal.toFixed(2))}
+            </Text>
+          ))}
         </View>
 
         {/* indirect expense */}
         <View style={[stylesMOF.row, styleExpenses.headerRow]}>
           <Text style={[styleExpenses.sno]}>B</Text>
           <Text style={stylesMOF.cell}>Indirect Expenses</Text>
+        </View>
+
+        {/* Interest On Term Loan */}
+        <View style={[styles.tableRow, styles.totalRow]}>
+          {/* Serial Number */}
+          <Text
+            style={[
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
+            ]}
+          >
+            1
+          </Text>
+
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Interest On Term Loan
+          </Text>
+
+          {/* Get total projection years */}
+          {Array.from({
+            length: formData.ProjectReportSetting.ProjectionYears,
+          }).map((_, index) => (
+            <Text
+              key={index}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(
+                yearlyInterestLiabilities[index] || 0
+              )}
+            </Text>
+          ))}
         </View>
 
         {directExpense
@@ -249,7 +336,7 @@ const ProjectedExpenses = ({ formData }) => {
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {index + 1}
+                  {index + 2}
                 </Text>
                 <Text
                   style={[
@@ -289,6 +376,7 @@ const ProjectedExpenses = ({ formData }) => {
             );
           })}
 
+        {/* Total Indirect Expenses Row */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
@@ -306,38 +394,20 @@ const ProjectedExpenses = ({ formData }) => {
           >
             Total
           </Text>
-          {[
-            ...Array(
-              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
-            ),
-          ].map((_, yearIndex) => {
-            const totalValue = directExpense
-              .filter((expense) => expense.type === "indirect")
-              .reduce((sum, expense) => {
-                const baseValue = Number(expense.value) || 0;
-                const initialValue = baseValue * 12;
-                return (
-                  sum +
-                  initialValue *
-                    Math.pow(
-                      1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                      yearIndex
-                    )
-                );
-              }, 0);
-            return (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {new Intl.NumberFormat("en-IN").format(totalValue.toFixed(2))}
-              </Text>
-            );
-          })}
+
+          {/* ✅ Use corrected `totalIndirectExpensesArray` here */}
+          {totalIndirectExpensesArray.map((totalValue, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(totalValue.toFixed(2))}
+            </Text>
+          ))}
         </View>
 
         {/* total a and b  */}
@@ -347,6 +417,7 @@ const ProjectedExpenses = ({ formData }) => {
           <Text style={stylesMOF.cell}>Grand Total</Text>
         </View>
 
+        {/* Total Expenses (A + B) Row */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
@@ -365,59 +436,19 @@ const ProjectedExpenses = ({ formData }) => {
             Total (A + B)
           </Text>
 
-          {[
-            ...Array(
-              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
-            ),
-          ].map((_, yearIndex) => {
-            // Calculate total direct expenses for each year
-            const totalDirectValue = directExpense
-              .filter((expense) => expense.type === "direct")
-              .reduce((sum, expense) => {
-                const baseValue = Number(expense.value) || 0;
-                const initialValue = baseValue * 12;
-                return (
-                  sum +
-                  initialValue *
-                    Math.pow(
-                      1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                      yearIndex
-                    )
-                );
-              }, 0);
-
-            // Calculate total indirect expenses for each year
-            const totalIndirectValue = directExpense
-              .filter((expense) => expense.type === "indirect")
-              .reduce((sum, expense) => {
-                const baseValue = Number(expense.value) || 0;
-                const initialValue = baseValue * 12;
-                return (
-                  sum +
-                  initialValue *
-                    Math.pow(
-                      1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                      yearIndex
-                    )
-                );
-              }, 0);
-
-            // Sum of direct and indirect expenses for each year
-            const grandTotal = totalDirectValue + totalIndirectValue;
-
-            return (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {new Intl.NumberFormat("en-IN").format(grandTotal.toFixed(2))}
-              </Text>
-            );
-          })}
+          {/* ✅ Use the calculated `grandTotalArray` here */}
+          {grandTotalArray.map((grandTotal, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(grandTotal.toFixed(2))}
+            </Text>
+          ))}
         </View>
       </View>
     </Page>

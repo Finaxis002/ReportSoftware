@@ -19,6 +19,7 @@ const ProjectedDepreciation = ({
   formData,
   localData,
   setTotalDepreciation,
+  onComputedData1 
 }) => {
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
 
@@ -98,6 +99,16 @@ const ProjectedDepreciation = ({
     setTotalDepreciation(totalDepreciationPerYear);
   }, [setTotalDepreciation]);
 
+  useEffect(() => {
+    if (totalDepreciationPerYear.length > 0) {
+      onComputedData1((prev) => ({
+        ...prev,
+        totalDepreciationPerYear,
+      }));
+    }
+  }, [JSON.stringify(totalDepreciationPerYear)]); 
+
+
   // ✅ Compute Cumulative Depreciation Totals Per Year
   const cumulativeDepreciationTotals = Array.from({ length: years }).map(
     (_, yearIndex) => {
@@ -136,9 +147,15 @@ const ProjectedDepreciation = ({
       0 // Start sum at 0
     );
   });
+ 
 
   return (
-    <Page size="A4" style={stylesCOP.styleCOP}>
+     <Page
+        size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+        orientation={formData.ProjectReportSetting.ProjectionYears > 7 ? "landscape" : "portrait"}
+        wrap={false} break
+      >
+        <View style={[styleExpenses.paddingx, {paddingBottom:"30px"}]} >
       <Text style={styles.clientName}>{localData.clientName}</Text>
       {/* Heading */}
       <View style={stylesCOP.heading}>
@@ -377,6 +394,7 @@ const ProjectedDepreciation = ({
             </View>
           );
         })}
+      </View>
       </View>
     </Page>
   );

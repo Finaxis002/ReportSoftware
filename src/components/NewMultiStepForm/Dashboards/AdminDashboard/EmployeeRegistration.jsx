@@ -27,7 +27,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/employees/register",
+        "https://backend-three-pink.vercel.app/api/employees/register",
         {
           method: "POST",
           headers: {

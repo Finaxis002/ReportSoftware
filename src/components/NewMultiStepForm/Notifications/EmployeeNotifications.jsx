@@ -16,7 +16,7 @@ const EmployeeNotifications = () => {
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications?employeeId=${employeeId}`
+        `https://backend-three-pink.vercel.app/api/employees/register/api/notifications?employeeId=${employeeId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch notifications");
@@ -61,7 +61,7 @@ const EmployeeNotifications = () => {
         [notification._id]: true, // Mark as read immediately
       }));
 
-      fetch(`http://localhost:5000/api/mark-notification-read`, {
+      fetch(`https://backend-three-pink.vercel.app/api/mark-notification-read`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId: notification._id }),

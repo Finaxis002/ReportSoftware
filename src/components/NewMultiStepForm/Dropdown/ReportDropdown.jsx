@@ -17,7 +17,7 @@ const ReportDropdown = ({ clientName, onBusinessSelect }) => {
     const fetchBusinesses = async () => {
       try {
         const trimmedClientName = clientName.trim();
-        const response = await axios.get(`http://localhost:5000/api/businesses/${trimmedClientName}`);
+        const response = await axios.get(`https://backend-three-pink.vercel.app/api/businesses/${trimmedClientName}`);
 
         if (response.data && Array.isArray(response.data.businessNames)) {
           const options = response.data.businessNames.map((name) => ({
@@ -42,7 +42,7 @@ const ReportDropdown = ({ clientName, onBusinessSelect }) => {
     if (selectedOption && clientName) {
       try {
         const response = await axios.get(
-          `http://localhost:5000/fetch-business-data?clientName=${encodeURIComponent(clientName)}&businessName=${encodeURIComponent(selectedOption.value)}&isCreateReportWithExistingClicked=${isCreateReportWithExistingClicked}`
+          `https://backend-three-pink.vercel.app/fetch-business-data?clientName=${encodeURIComponent(clientName)}&businessName=${encodeURIComponent(selectedOption.value)}&isCreateReportWithExistingClicked=${isCreateReportWithExistingClicked}`
         );
   
         if (response.data && response.data.data.length > 0) {

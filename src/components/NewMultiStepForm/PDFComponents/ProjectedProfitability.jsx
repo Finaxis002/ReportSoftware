@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
@@ -21,6 +21,8 @@ const ProjectedProfitability = ({
   normalExpense,
   directExpense,
   totalDepreciationPerYear,
+  onComputedData,
+  yearlyInterestLiabilities,
 }) => {
   // Ensure formData and Expenses exist before destructuring
 
@@ -101,27 +103,34 @@ const ProjectedProfitability = ({
     return salaryAndWages + directExpensesTotal; // ✅ Total Direct Expenses (Including Salary & Wages)
   });
 
-// ✅ Precompute Total Indirect Expenses for Each Year Before Rendering
-const totalIndirectExpenses = Array.from({
-  length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-}).map((_, yearIndex) => {
-  // Compute total indirect expenses from directExpense
-  let indirectExpenseTotal = directExpense
-    ?.filter((expense) => expense.type === "indirect")
-    ?.reduce((sum, expense) => {
-      const baseValue = Number(expense.value) || 0;
-      const annualizedValue = baseValue * 12; // Convert monthly to annual
-      return (
-        sum +
-        annualizedValue *
-          Math.pow(1 + formData.ProjectReportSetting.rateOfExpense / 100, yearIndex)
-      );
-    }, 0);
+  // ✅ Precompute Total Indirect Expenses for Each Year Before Rendering
+  const totalIndirectExpenses = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    // Compute total indirect expenses from directExpense
+    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+    let indirectExpenseTotal = directExpense
+      ?.filter((expense) => expense.type === "indirect")
+      ?.reduce((sum, expense) => {
+        const baseValue = Number(expense.value) || 0;
+        const annualizedValue = baseValue * 12; // Convert monthly to annual
+        return (
+          sum +
+          annualizedValue *
+            Math.pow(
+              1 + formData.ProjectReportSetting.rateOfExpense / 100,
+              yearIndex
+            )
+        );
+      }, 0);
 
-  // ✅ Add Depreciation for this year
-  return indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
-});
-
+    // ✅ Add Depreciation for this year
+    return (
+      interestOnTermLoan +
+      indirectExpenseTotal +
+      (totalDepreciationPerYear[yearIndex] || 0)
+    );
+  });
 
   // ✅ Precompute Gross Profit for Each Year Before Rendering
   const grossProfitValues = Array.from({
@@ -198,16 +207,35 @@ const totalIndirectExpenses = Array.from({
     []
   );
 
+  // ✅ Ensure `onComputedData` updates only when required
+  useEffect(() => {
+    if (netProfitBeforeTax.length > 0) {
+      onComputedData((prev) => ({
+        ...prev,
+        netProfitBeforeTax,
+      }));
+    }
+  }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
+
+  const MAX_PAGE_HEIGHT = 1000; // ✅ Adjust this based on your PDF page size
+  const estimatedRowHeight = 30; // ✅ Approximate height per row
+
+  // ✅ Prevents crash by ensuring formFields is always defined
+  const contentHeight =
+    (localData?.formFields?.length ?? 0) * estimatedRowHeight;
+
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears <= 7 ? "A4" : "A3"}
+      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears <= 7
-          ? "portrait"
-          : "landscape"
+        formData.ProjectReportSetting.ProjectionYears > 7
+          ? "landscape"
+          : "portrait"
+          
       }
+      wrap={false} break
     >
-      <View style={styleExpenses.paddingx}>
+     <View style={[styleExpenses.paddingx, {paddingBottom:"30px"}]} >
         <Text style={[styles.clientName]}>{localData.clientName}</Text>
         <View
           style={[
@@ -628,42 +656,82 @@ const totalIndirectExpenses = Array.from({
           <Text style={stylesMOF.cell}>Less:Indirect Expenses</Text>
         </View>
 
-
-        {/* ✅ Render Depreciation Row */}
-      <View style={[stylesMOF.row, styles.tableRow]}>
-        <Text
-          style={[
-            stylesCOP.serialNoCellDetail,
-            styleExpenses.sno,
-            styleExpenses.bordernone,
-            { borderLeftWidth: "1px" },
-          ]}
-        >
-          3
-        </Text>
-        <Text
-          style={[
-            stylesCOP.detailsCellDetail,
-            styleExpenses.particularWidth,
-            styleExpenses.bordernone,
-          ]}
-        >
-          Depreciation
-        </Text>
-
-        {/* ✅ Display Depreciation Values for Each Year */}
-        {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
+        {/* Interest On Term Loan */}
+        <View style={[styles.tableRow, styles.totalRow]}>
+          {/* Serial Number */}
           <Text
-            key={yearIndex}
             style={[
-              stylesCOP.particularsCellsDetail,
-              styleExpenses.fontSmall,
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
             ]}
           >
-            {new Intl.NumberFormat("en-IN").format(depreciationValue)}
+            1
           </Text>
-        ))}
-      </View>
+
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Interest On Term Loan
+          </Text>
+
+          {/* Get total projection years */}
+          {Array.from({
+            length: formData.ProjectReportSetting.ProjectionYears,
+          }).map((_, index) => (
+            <Text
+              key={index}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(
+                yearlyInterestLiabilities[index] || 0
+              )}
+            </Text>
+          ))}
+        </View>
+
+        {/* ✅ Render Depreciation Row */}
+        <View style={[stylesMOF.row, styles.tableRow]}>
+          <Text
+            style={[
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
+              { borderLeftWidth: "1px" },
+            ]}
+          >
+            3
+          </Text>
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Depreciation
+          </Text>
+
+          {/* ✅ Display Depreciation Values for Each Year */}
+          {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {new Intl.NumberFormat("en-IN").format(depreciationValue)}
+            </Text>
+          ))}
+        </View>
 
         {directExpense
           .filter((expense) => expense.type === "indirect")
@@ -681,7 +749,7 @@ const totalIndirectExpenses = Array.from({
                     { borderLeftWidth: "1px" },
                   ]}
                 >
-                  {index + 1}
+                  {index + 4}
                 </Text>
                 <Text
                   style={[
@@ -720,6 +788,7 @@ const totalIndirectExpenses = Array.from({
               </View>
             );
           })}
+
         {/* total of indirect expenses */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
@@ -931,23 +1000,30 @@ const totalIndirectExpenses = Array.from({
           >
             Withdrawals during the year
           </Text>
-          {/*  Display Precomputed Withdrawals per year */}
-          {formData.MoreDetails.withdrawals.map((amount, yearIndex) => (
-            <Text
-              key={`withdrawals-${yearIndex}`}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                {
-                  borderWidth: 0,
-                },
-              ]}
-            >
-              {new Intl.NumberFormat("en-IN").format(amount.toFixed(2))}
-            </Text>
-          ))}
+
+          {/* Ensure exactly `projectionYears` columns */}
+          {Array.from({
+            length:
+              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+          }).map((_, yearIndex) => {
+            const amount = formData.MoreDetails.withdrawals?.[yearIndex] ?? 0; // If no data, default to 0
+
+            return (
+              <Text
+                key={`withdrawals-${yearIndex}`}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  stylesCOP.boldText,
+                  styleExpenses.fontSmall,
+                  { borderWidth: 0 },
+                ]}
+              >
+                {new Intl.NumberFormat("en-IN").format(amount.toFixed(2))}
+              </Text>
+            );
+          })}
         </View>
+
         {/* Balance Trf. To Balance Sheet */}
         <View
           style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
