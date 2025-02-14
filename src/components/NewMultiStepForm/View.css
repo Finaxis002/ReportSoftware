@@ -1,0 +1,25 @@
+/* view{
+    display: flex;
+}
+.bg-headPurple{
+    background-color: #8decff !important;
+}
+.bg-totalRed {
+    background-color: #007092 !important; 
+    color: #fff !important;
+  }
+  .table td {
+    border: 1px solid #00d5ff !important;
+  }
+strong{
+  background-color: transparent !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* .container-width{
+ width: 80%;
+} */
+
+
+
