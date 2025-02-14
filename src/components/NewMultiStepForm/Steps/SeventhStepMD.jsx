@@ -166,7 +166,12 @@ const SeventhStepMD = ({
                 {["openingStock", "closingStock", "withdrawals"].map(
                   (stockType) => (
                     <tr key={stockType}>
-                      <td  style={{width:"20rem"}}>
+                      <td 
+                       className="form-control border-r-0 border-none"
+                       style={{width:"20rem", borderRadius:"0"}}
+                       type="text"
+          
+                      >
                         {stockType.replace(/([A-Z])/g, " $1")}{" "}
                         {/* Convert camelCase to readable text */}
                       </td>
@@ -235,7 +240,7 @@ const SeventhStepMD = ({
                             onChange={(event) =>
                               handleFormChange(event, i, null, dataType)
                             }
-                            className="form-control text-center noBorder] bg-white"
+                            className="form-control text-center noBorder] bg-white p-0"
                             style={{width:"20rem"}}
                             type="text"
                             disabled={!entry.isCustom}
