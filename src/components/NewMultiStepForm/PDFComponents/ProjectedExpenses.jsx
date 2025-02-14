@@ -80,6 +80,27 @@ const ProjectedExpenses = ({
     return directTotal + (totalIndirectExpensesArray[index] || 0);
   });
 
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
+
+      case "3": // Generic Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
+
+
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -172,7 +193,7 @@ const ProjectedExpenses = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(
+                    {formatNumber(
                       yearIndex === 0
                         ? Annual.toFixed(2) // ✅ Only format once
                         : calculatedValue.toFixed(2) // ✅ Same for calculatedValue
@@ -229,7 +250,7 @@ const ProjectedExpenses = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         calculatedValue.toFixed(2)
                       )}
                     </Text>
@@ -268,7 +289,7 @@ const ProjectedExpenses = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(grandTotal.toFixed(2))}
+              {formatNumber(grandTotal.toFixed(2))}
             </Text>
           ))}
         </View>
@@ -313,7 +334,7 @@ const ProjectedExpenses = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 yearlyInterestLiabilities[index] || 0
               )}
             </Text>
@@ -365,7 +386,7 @@ const ProjectedExpenses = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         calculatedValue.toFixed(2)
                       )}
                     </Text>
@@ -404,7 +425,7 @@ const ProjectedExpenses = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(totalValue.toFixed(2))}
+              {formatNumber(totalValue.toFixed(2))}
             </Text>
           ))}
         </View>
@@ -445,7 +466,7 @@ const ProjectedExpenses = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(grandTotal.toFixed(2))}
+              {formatNumber(grandTotal.toFixed(2))}
             </Text>
           ))}
         </View>

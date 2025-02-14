@@ -117,6 +117,31 @@ const FourthStepPRS = ({
         value: "",
         isCustom: false,
       },
+      // ✅ Added Subsidy Fields
+    SubsidyName: {
+      name: "Subsidy Name",
+      id: "SubsidyName",
+      value: "Government Grant", // Default value
+      isCustom: false,
+    },
+    SubsidyPercentage: {
+      name: "Subsidy Percentage",
+      id: "SubsidyPercentage",
+      value: "15", // Default value (15%)
+      isCustom: false,
+    },
+    SubsidyAmount: {
+      name: "Subsidy Amount",
+      id: "SubsidyAmount",
+      value: "10", // Default value in Lakhs
+      isCustom: false,
+    },
+    SubsidyText: {
+      name: "Text for Subsidy",
+      id: "SubsidyText",
+      value: "Eligible for government subsidy under MSME scheme.", // Default text
+      isCustom: false,
+    },
     },
     ...(formData?.ProjectReportSetting || {}), // Merging formData if available
   }));
@@ -419,50 +444,74 @@ const FourthStepPRS = ({
             </div>
           </div>
           <div className="row">
+            {/* Name Field */}
             <div className="col-4">
               <div className="input">
                 <input
-                  id="rateOfInterest"
-                  name="rateOfInterest"
-                  type="number"
-                  placeholder="Rate of Interest"
+                  id="subsidyName"
+                  name="subsidyName"
+                  type="text"
+                  placeholder="Subsidy Name"
                   required
-                  value={localData.rateOfInterest}
+                  value={localData.subsidyName}
                   onChange={handleChange}
                 />
-                <label htmlFor="rateOfInterest">Rate Of Interest</label>
+                <label htmlFor="subsidyName">Subsidy Name</label>
               </div>
             </div>
+
+            {/* Percentage Field */}
             <div className="col-4">
               <div className="input">
                 <input
-                  id="rateOfExpense"
-                  name="rateOfExpense"
+                  id="subsidyPercentage"
+                  name="subsidyPercentage"
                   type="number"
-                  placeholder="Rate of Expense"
+                  placeholder="Subsidy Percentage"
                   required
-                  value={localData.rateOfExpense}
+                  value={localData.subsidyPercentage}
                   onChange={handleChange}
                 />
-                <label htmlFor="rateOfExpense">Rate Of Expense</label>
+                <label htmlFor="subsidyPercentage">Subsidy Percentage</label>
               </div>
             </div>
+
+            {/* Amount Field */}
             <div className="col-4">
               <div className="input">
                 <input
-                  id="incomeTax"
-                  name="incomeTax"
+                  id="subsidyAmount"
+                  name="subsidyAmount"
                   type="number"
-                  placeholder="Income Tax"
+                  placeholder="Subsidy Amount"
                   required
-                  value={localData.incomeTax}
+                  value={localData.subsidyAmount}
                   onChange={handleChange}
                 />
-                <label htmlFor="incomeTax">Income Tax</label>
+                <label htmlFor="subsidyAmount">Subsidy Amount</label>
               </div>
             </div>
           </div>
+
           <div className="row">
+            {/* Text for Subsidy */}
+            <div className="col-4">
+              <div className="input">
+                <input
+                  id="subsidyText"
+                  name="subsidyText"
+                  type="text"
+                  placeholder="Subsidy Details"
+                  required
+                  value={localData.subsidyText}
+                  onChange={handleChange}
+                />
+                <label htmlFor="subsidyText">Text for Subsidy</label>
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="row">
             <div className="col-4">
               <div className="input">
                 <input
@@ -479,7 +528,7 @@ const FourthStepPRS = ({
                 </label>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

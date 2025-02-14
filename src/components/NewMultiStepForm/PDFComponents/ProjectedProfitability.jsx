@@ -24,12 +24,11 @@ const ProjectedProfitability = ({
   onComputedData,
   yearlyInterestLiabilities,
 }) => {
-  
-
-    useEffect(() => {
-        console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-      }, [yearlyInterestLiabilities]);
-  
+  useEffect(() => {
+    if (yearlyInterestLiabilities.length > 0) {
+      //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+    }
+  }, [yearlyInterestLiabilities]); // ✅ Runs when state update
 
   // console.log("total depreciation per year : ", totalDepreciationPerYear);
 
@@ -44,35 +43,26 @@ const ProjectedProfitability = ({
     return amount.toLocaleString("en-IN"); // Format as per Indian number system
   };
 
-  // ✅ Precompute Multiplication for Each Year Before Rendering
+  // ✅ Precompute Multiplication for Each Year Before Rendering Based on Selected Form
   const totalRevenueReceipts = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    return (formData?.Revenue?.formFields ?? []).reduce(
-      (product, item) => product * (item?.years?.[yearIndex] || 1),
-      1
-    );
+    return (
+      formData?.Revenue?.selectedToggleType
+        ? formData?.Revenue?.formFields
+        : formData?.Revenue?.formFields2
+    )?.reduce((product, item) => product * (item?.years?.[yearIndex] || 1), 1);
   });
-  
 
-  // total revenue receipt + Closing STock - Opening Stock
+  // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
   const adjustedRevenueValues = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // Get total revenue for this year
-    const totalRevenue = formData.Revenue?.formFields?.reduce(
-      (product, item) => product * (item.years?.[yearIndex] || 1),
-      1 // Start with 1, because multiplying by 0 gives 0
-    );
+    const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
+    const closingStock = formData?.MoreDetails?.closingStock?.[yearIndex] || 0;
+    const openingStock = formData?.MoreDetails?.openingStock?.[yearIndex] || 0;
 
-    // Get closing and opening stock for this year
-    const closingStock =
-      Number(formData.MoreDetails?.closingStock?.[yearIndex]) || 0;
-    const openingStock =
-      Number(formData.MoreDetails?.openingStock?.[yearIndex]) || 0;
-
-    // Compute Adjusted Revenue
-    return totalRevenue + closingStock - openingStock;
+    return totalRevenue + closingStock - openingStock; // ✅ Final computation
   });
 
   // ✅ Precompute Total Direct Expenses (Including Salary & Wages) for Each Year Before Rendering
@@ -130,48 +120,21 @@ const ProjectedProfitability = ({
       }, 0);
 
     // ✅ Add Depreciation for this year
-    return interestOnTermLoan + indirectExpenseTotal + (totalDepreciationPerYear[yearIndex] || 0);
+    return (
+      interestOnTermLoan +
+      indirectExpenseTotal +
+      (totalDepreciationPerYear[yearIndex] || 0)
+    );
   });
 
-  // ✅ Precompute Gross Profit for Each Year Before Rendering
+  // ✅ Step 2: Compute Gross Profit Values for Each Year After `totalDirectExpenses` is Defined
   const grossProfitValues = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // Get Adjusted Revenue (Total Revenue + Closing Stock - Opening Stock)
-    const adjustedRevenue =
-      (formData.Revenue?.formFields?.reduce(
-        (product, item) => product * (item.years?.[yearIndex] || 1),
-        1 // Start with 1, because multiplying by 0 gives 0
-      ) || 0) +
-      (Number(formData.MoreDetails?.closingStock?.[yearIndex]) || 0) -
-      (Number(formData.MoreDetails?.openingStock?.[yearIndex]) || 0);
+    const netAdjustedRevenue = adjustedRevenueValues[yearIndex] || 0;
+    const totalExpenses = totalDirectExpenses[yearIndex] || 0; // ✅ Now correctly uses the computed direct expenses
 
-    // Get Total Direct Expenses (Including Salary & Wages)
-    const totalDirectExpenses =
-      (yearIndex === 0
-        ? Number(totalAnnualWages) || 0 // Year 1: Use base value
-        : (Number(totalAnnualWages) || 0) *
-          Math.pow(
-            1 + formData.ProjectReportSetting.rateOfExpense / 100,
-            yearIndex
-          )) +
-      (directExpense
-        ?.filter((expense) => expense.type === "direct")
-        ?.reduce((sum, expense) => {
-          const baseValue = Number(expense.value) || 0;
-          const annualizedValue = baseValue * 12; // Convert monthly to annual
-          return (
-            sum +
-            annualizedValue *
-              Math.pow(
-                1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                yearIndex
-              )
-          );
-        }, 0) || 0);
-
-    // Compute Gross Profit
-    return adjustedRevenue - totalDirectExpenses;
+    return netAdjustedRevenue - totalExpenses; // ✅ Correct subtraction for gross profit
   });
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
@@ -218,6 +181,29 @@ const ProjectedProfitability = ({
     }
   }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
 
+
+  // ✅ Helper Function to Format Numbers Based on Selected Format
+// ✅ Safe Helper Function to Format Numbers Based on Selected Format
+const formatNumber = (value) => {
+  const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+  if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+  switch (formatType) {
+    case "1": // Indian Format (1,23,456)
+      return new Intl.NumberFormat("en-IN").format(value);
+
+    case "2": // USD Format (1,123,456)
+      return new Intl.NumberFormat("en-US").format(value);
+
+    case "3": // Generic Format (Same as Indian for now)
+      return new Intl.NumberFormat("en-IN").format(value);
+
+    default:
+      return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+  }
+};
+
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -226,7 +212,8 @@ const ProjectedProfitability = ({
           ? "landscape"
           : "portrait"
       }
-      wrap={false} break
+      wrap={false}
+      break
     >
       <View
         style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}
@@ -308,7 +295,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(totalYearValue)}
+              {formatNumber(totalYearValue)}
             </Text>
           ))}
         </View>
@@ -345,7 +332,7 @@ const ProjectedProfitability = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 formData.MoreDetails.closingStock?.[index] ?? 0
               )}
             </Text>
@@ -382,12 +369,13 @@ const ProjectedProfitability = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 formData.MoreDetails.openingStock?.[index] ?? 0
               )}
             </Text>
           ))}
         </View>
+
         {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
         <View
           style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
@@ -409,8 +397,7 @@ const ProjectedProfitability = ({
             ]}
           ></Text>
 
-          {/* Compute Totals for Each Year */}
-          {/* ✅ Display Precomputed Adjusted Revenue Values */}
+          {/* ✅ Display Computed Adjusted Revenue Values */}
           {adjustedRevenueValues.map((finalValue, yearIndex) => (
             <Text
               key={`finalValue-${yearIndex}`}
@@ -425,10 +412,11 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(finalValue)}
+              {formatNumber(finalValue)}
             </Text>
           ))}
         </View>
+
         {/* direct expenses */}
         <View style={[stylesMOF.row, styleExpenses.headerRow]}>
           <Text style={[styleExpenses.sno, { borderLeftWidth: "1px" }]}>C</Text>
@@ -487,7 +475,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(
+                    {formatNumber(
                       yearIndex === 0
                         ? Annual.toFixed(2) // ✅ Use `Annual.toFixed(2)`, no need to format twice
                         : calculatedValue.toFixed(2) // ✅ Same for calculatedValue
@@ -544,7 +532,7 @@ const ProjectedProfitability = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         calculatedValue.toFixed(2)
                       )}
                     </Text>
@@ -589,7 +577,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 formatAmountInIndianStyle(totalValue.toFixed(2))
               )}
             </Text>
@@ -640,7 +628,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 formatAmountInIndianStyle(grossProfit.toFixed(2))
               )}
             </Text>
@@ -687,7 +675,7 @@ const ProjectedProfitability = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
               )}
             </Text>
@@ -725,7 +713,7 @@ const ProjectedProfitability = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(depreciationValue)}
+              {formatNumber(depreciationValue)}
             </Text>
           ))}
         </View>
@@ -776,7 +764,7 @@ const ProjectedProfitability = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         formatAmountInIndianStyle(calculatedValue.toFixed(2))
                       )}
                     </Text>
@@ -825,7 +813,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(
+              {formatNumber(
                 formatAmountInIndianStyle(totalValue.toFixed(2))
               )}
             </Text>
@@ -878,7 +866,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(npbt.toFixed(2))}
+              {formatNumber(npbt.toFixed(2))}
             </Text>
           ))}
         </View>
@@ -919,7 +907,7 @@ const ProjectedProfitability = ({
                 { borderWidth: "0.1px" },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(tax.toFixed(2))}
+              {formatNumber(tax.toFixed(2))}
             </Text>
           ))}
         </View>
@@ -971,7 +959,7 @@ const ProjectedProfitability = ({
                 },
               ]}
             >
-              {new Intl.NumberFormat("en-IN").format(tax.toFixed(2))}
+              {formatNumber(tax.toFixed(2))}
             </Text>
           ))}
         </View>
@@ -1014,7 +1002,7 @@ const ProjectedProfitability = ({
                   { borderWidth: 0 },
                 ]}
               >
-                {new Intl.NumberFormat("en-IN").format(amount.toFixed(2))}
+                {formatNumber(amount.toFixed(2))}
               </Text>
             );
           })}
@@ -1060,7 +1048,7 @@ const ProjectedProfitability = ({
                   { borderWidth: 0 },
                 ]}
               >
-                {new Intl.NumberFormat("en-IN").format(roundedValue)}
+                {formatNumber(roundedValue)}
               </Text>
             );
           })}
@@ -1105,7 +1093,7 @@ const ProjectedProfitability = ({
                   { borderWidth: 0 },
                 ]}
               >
-                {new Intl.NumberFormat("en-IN").format(roundedValue)}
+                {formatNumber(roundedValue)}
               </Text>
             );
           })}
@@ -1159,7 +1147,7 @@ const ProjectedProfitability = ({
                   },
                 ]}
               >
-                {new Intl.NumberFormat("en-IN").format(roundedValue)}
+                {formatNumber(roundedValue)}
               </Text>
             );
           })}

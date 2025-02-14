@@ -4,14 +4,34 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import { Font } from "@react-pdf/renderer";
 
 const ProjectedSalaries = ({
+  formData,
   localData,
   normalExpense,
-  formatAmountInIndianStyle,
   totalQuantity,
   totalAnnualWages,
   fringeCalculation,
   fringAndAnnualCalculation
 }) => {
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
+
+      case "3": // Generic Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
+
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
       <Text style={styles.clientName}>{localData.clientName}</Text>
@@ -54,13 +74,13 @@ const ProjectedSalaries = ({
             <Text
               style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
             >
-              {new Intl.NumberFormat("en-IN").format(expense.amount || 0)}
+              {formatNumber(expense.amount || 0)}
             </Text>
             <Text
               style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
             >
               {" "}
-              {formatAmountInIndianStyle(
+              {formatNumber(
                 expense.amount * expense.quantity * 12
               )}
             </Text>
@@ -94,7 +114,7 @@ const ProjectedSalaries = ({
               stylesCOP.boldText,
             ]}
           >
-            {formatAmountInIndianStyle(totalAnnualWages)}
+            {formatNumber(totalAnnualWages)}
           </Text>
         </View>
 
@@ -124,7 +144,7 @@ const ProjectedSalaries = ({
             ]}
           >
             {" "}
-            {formatAmountInIndianStyle(fringeCalculation)}
+            {formatNumber(fringeCalculation)}
           </Text>
         </View>
 
@@ -156,7 +176,7 @@ const ProjectedSalaries = ({
             ]}
           >
             {" "}
-            {formatAmountInIndianStyle(fringAndAnnualCalculation)}
+            {formatNumber(fringAndAnnualCalculation)}
           </Text>
         </View>
       </View>

@@ -36,14 +36,19 @@ const GeneratedPDF = ({ years }) => {
   
   const [totalDepreciation, setTotalDepreciation] = useState([]);
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("Updated Yearly Interest Liabilities:", yearlyInterestLiabilities);
-  }, [yearlyInterestLiabilities]);
+ // ✅ Function to receive data from Repayment component
+ const handleInterestCalculated = (liabilities) => {
+  // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
+  setYearlyInterestLiabilities(liabilities); // Update the state
+};
+
+// useEffect(() => {
+//   console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+// }, [yearlyInterestLiabilities]);
 
 
   // Safe localStorage retrieval function
@@ -100,7 +105,7 @@ const GeneratedPDF = ({ years }) => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-
+    console.log("form Data : ", formData)
   return (
     <>
       <PDFViewer
@@ -163,7 +168,7 @@ const GeneratedPDF = ({ years }) => {
             netProfitBeforeTax={computedData.netProfitBeforeTax || []}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
           />
-          <Repayment formData={formData} localData={localData}  onInterestCalculated={setYearlyInterestLiabilities}/>
+          <Repayment formData={formData} localData={localData}  onInterestCalculated={handleInterestCalculated}/>
 
           {computedData.netProfitBeforeTax.length > 0 && (
             <IncomeTaxCalculation formData={formData} netProfitBeforeTax={computedData.netProfitBeforeTax} 

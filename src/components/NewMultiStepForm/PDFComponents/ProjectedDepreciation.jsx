@@ -148,6 +148,27 @@ const ProjectedDepreciation = ({
     );
   });
  
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
+
+      case "3": // Generic Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
+
+
 
   return (
      <Page
@@ -155,7 +176,7 @@ const ProjectedDepreciation = ({
         orientation={formData.ProjectReportSetting.ProjectionYears > 7 ? "landscape" : "portrait"}
         wrap={false} break
       >
-        <View style={[styleExpenses.paddingx, {paddingBottom:"30px"}]} >
+      <View style={[styleExpenses.paddingx, {paddingBottom:"30px"}]} >
       <Text style={styles.clientName}>{localData.clientName}</Text>
       {/* Heading */}
       <View style={stylesCOP.heading}>
@@ -215,7 +236,7 @@ const ProjectedDepreciation = ({
                 key={yearIndex}
                 style={[styles.particularsCell, stylesCOP.boldText]}
               >
-                {new Intl.NumberFormat("en-IN").format(totalFixedAssets)}
+                {formatNumber(totalFixedAssets)}
               </Text>
             );
           })}
@@ -236,7 +257,7 @@ const ProjectedDepreciation = ({
             {/* Generate Yearly Gross Fixed Asset Values */}
             {Array.from({ length: years }).map((_, yearIndex) => (
               <Text key={yearIndex} style={[stylesCOP.particularsCellsDetail, {fontSize:"8px"}]}>
-                {new Intl.NumberFormat("en-IN").format(
+                {formatNumber(
                   yearIndex === 0
                     ? asset.amount
                     : netAssetValues[index].assetValues[yearIndex - 1] // ✅ Use Previous Year's Net Asset
@@ -260,7 +281,7 @@ const ProjectedDepreciation = ({
               key={yearIndex}
               style={[styles.particularsCell, stylesCOP.boldText]}
             >
-              {new Intl.NumberFormat("en-IN").format(total)}
+              {formatNumber(total)}
             </Text>
           ))}
         </View>
@@ -277,7 +298,7 @@ const ProjectedDepreciation = ({
 
             {Array.from({ length: years }).map((_, yearIndex) => (
               <Text key={yearIndex} style={[stylesCOP.particularsCellsDetail, {fontSize:"8px"}]}>
-                {new Intl.NumberFormat("en-IN").format(
+                {formatNumber(
                   depreciationValues[index].yearlyDepreciation[yearIndex]
                 )}
               </Text>
@@ -302,7 +323,7 @@ const ProjectedDepreciation = ({
               key={yearIndex}
               style={[styles.particularsCell, stylesCOP.boldText]}
             >
-              {new Intl.NumberFormat("en-IN").format(total)}
+              {formatNumber(total)}
             </Text>
           ))}
         </View>
@@ -322,7 +343,7 @@ const ProjectedDepreciation = ({
             {/* Display Cumulative Depreciation Yearly (THIS IS NOW FIXED) */}
             {Array.from({ length: years }).map((_, yearIndex) => (
               <Text key={yearIndex} style={[stylesCOP.particularsCellsDetail, {fontSize:"8px"}]}>
-                {new Intl.NumberFormat("en-IN").format(
+                {formatNumber(
                   depreciationValues[index].cumulativeDepreciation[yearIndex] // ✅ Now Correctly Computed
                 )}
               </Text>
@@ -347,7 +368,7 @@ const ProjectedDepreciation = ({
               key={yearIndex}
               style={[styles.particularsCell, stylesCOP.boldText]}
             >
-              {new Intl.NumberFormat("en-IN").format(total)}
+              {formatNumber(total)}
             </Text>
           ))}
         </View>
@@ -386,7 +407,7 @@ const ProjectedDepreciation = ({
                     key={yearIndex}
                     style={[stylesCOP.particularsCellsDetail, {fontSize:"8px"}]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(netAsset)}{" "}
+                    {formatNumber(netAsset)}{" "}
                     {/* ✅ Correctly Display Net Asset for Each Year */}
                   </Text>
                 );

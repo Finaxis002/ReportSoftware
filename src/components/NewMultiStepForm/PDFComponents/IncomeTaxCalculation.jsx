@@ -45,6 +45,25 @@ const IncomeTaxCalculation = ({
   // const incomeTax1 = Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
   // ? netProfitBeforeTax.map((npbt) => (npbt ? npbt * 0.30 : 0))
   // : [];
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
+
+      case "3": // Generic Format (Same as Indian for now)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
 
   return (
     <Page
@@ -127,7 +146,9 @@ const IncomeTaxCalculation = ({
                     },
                   ]}
                 >
-                  {npbt ? Math.round(npbt).toLocaleString("en-IN") : "N/A"}
+                  {npbt
+                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    : "N/A"}
                 </Text>
               ))
             ) : (
@@ -169,7 +190,9 @@ const IncomeTaxCalculation = ({
                     },
                   ]}
                 >
-                  {npbt ? npbt.toLocaleString("en-IN") : "N/A"}
+                  {npbt
+                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    : "N/A"}
                 </Text>
               ))
             ) : (
@@ -236,7 +259,7 @@ const IncomeTaxCalculation = ({
                   borderRight: "1px",
                   paddingHorizontal: "20px",
                   textAlign: "center",
-                  paddingVertical:"5px"
+                  paddingVertical: "5px",
                 },
               ]}
             >
@@ -246,7 +269,7 @@ const IncomeTaxCalculation = ({
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                {paddingVertical:"5px"}
+                { paddingVertical: "5px" },
               ]}
             >
               Depreciation(As per ITA , 1961)
@@ -257,10 +280,16 @@ const IncomeTaxCalculation = ({
                   key={index}
                   style={[
                     stylesCOP.particularsCellsDetail,
-                    { fontWeight: "bold", fontSize: "9px",paddingVertical:"5px"},
+                    {
+                      fontWeight: "bold",
+                      fontSize: "9px",
+                      paddingVertical: "5px",
+                    },
                   ]}
                 >
-                  {npbt ? npbt.toLocaleString("en-IN") : "N/A"}
+                  {npbt
+                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    : "N/A"}
                 </Text>
               ))
             ) : (
@@ -278,7 +307,7 @@ const IncomeTaxCalculation = ({
                   borderRight: "1px",
                   paddingHorizontal: "20px",
                   textAlign: "center",
-                  paddingVertical:"8px"
+                  paddingVertical: "8px",
                 },
               ]}
             ></Text>
@@ -286,7 +315,7 @@ const IncomeTaxCalculation = ({
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                {paddingVertical:"8px"}
+                { paddingVertical: "8px" },
               ]}
             >
               Net Profit (/loss)
@@ -298,10 +327,19 @@ const IncomeTaxCalculation = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styles.boldText,
-                    { fontSize: "9px" , borderTopWidth:"2px", borderBottomWidth:"2px",fontFamily:"Roboto", fontWeight:"extrabold", paddingVertical:"8px"},
+                    {
+                      fontSize: "9px",
+                      borderTopWidth: "2px",
+                      borderBottomWidth: "2px",
+                      fontFamily: "Roboto",
+                      fontWeight: "extrabold",
+                      paddingVertical: "8px",
+                    },
                   ]}
                 >
-                  {npbt ? npbt.toLocaleString("en-IN") : "N/A"}
+                  {npbt
+                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    : "N/A"}
                 </Text>
               ))
             ) : (
@@ -309,7 +347,6 @@ const IncomeTaxCalculation = ({
             )}
           </View>
 
-            
           {/* Taxable Profit */}
           <View style={[styles.tableRow]}>
             <Text
@@ -327,7 +364,7 @@ const IncomeTaxCalculation = ({
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                {paddingVertical:"8px"}
+                { paddingVertical: "8px" },
               ]}
             >
               Taxable Profit
@@ -339,14 +376,15 @@ const IncomeTaxCalculation = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     {
-                      
                       fontSize: "9px",
-                    
-                      paddingVertical:"8px"
+
+                      paddingVertical: "8px",
                     },
                   ]}
                 >
-                  {npbt ? npbt.toLocaleString("en-IN") : "N/A"}
+                  {npbt
+                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    : "N/A"}
                 </Text>
               ))
             ) : (
@@ -371,7 +409,7 @@ const IncomeTaxCalculation = ({
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                {paddingVertical:"8px"}
+                { paddingVertical: "8px" },
               ]}
             >
               Tax {rateOfInterest}%
@@ -383,10 +421,9 @@ const IncomeTaxCalculation = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     {
-                     
                       fontSize: "9px",
-                     
-                      paddingVertical:"8px"
+
+                      paddingVertical: "8px",
                     },
                   ]}
                 >

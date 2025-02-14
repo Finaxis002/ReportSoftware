@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect , useState} from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses , columnWidths} from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
@@ -18,28 +18,21 @@ Font.register({
 const Repayment = ({ formData, localData, onInterestCalculated }) => {
   const termLoan = formData.MeansOfFinance.totalTermLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
-  const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod;
-  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
-  const extraMonths = repaymentMonths % 12;
-  const principalRepayment = Math.round(
-    termLoan / (repaymentMonths - moratoriumPeriod)
-  );
+  const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
+  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths ;
+  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
+
+
+    // ✅ Correct the total repayment months (including moratorium)
+  let totalMonths = repaymentMonths + moratoriumPeriod;
+  let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
+  let fixedPrincipalRepayment =
+    effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
 
   // ✅ Month Mapping (April - March)
-
   const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
+    "April", "May", "June", "July", "August", "September",
+    "October", "November", "December", "January", "February", "March"
   ];
 
   // ✅ Convert Selected Month Name to Index (April-March Mapping)
@@ -48,89 +41,118 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
   );
 
   if (startMonthIndex === -1) {
-    // console.error("Invalid SelectStartingMonth! Defaulting to April.");
     startMonthIndex = 0; // Default to April if input is incorrect
   }
 
-  let numYears = Math.ceil(formData.ProjectReportSetting.RepaymentMonths / 12); // Total years of repayment
+  let numYears = Math.ceil(repaymentMonths / 12); // Total years of repayment
   let remainingBalance = termLoan; // Remaining loan balance
 
-  // ✅ Repayment starts exactly from the selected month (NOT after moratorium)
-  let repaymentStartIndex = startMonthIndex; // Start directly from selected month
+  let repaymentStartIndex = startMonthIndex; // Start from selected month
 
-  // ✅ Ensure correct year alignment
-  let yearlyInterestLiabilities = []; // ✅ Store year-wise interest liability
   let data = [];
 
-  for (let year = 0; year < numYears; year++) {
+  // ✅ Track the Total Elapsed Months Since Repayment Start
+  let elapsedMonths = 0;
+
+  for (let year = 0; year < totalMonths; year++) {
     let yearData = [];
-
-    // ✅ First Year Starts from Client’s Selected Month
+  
+    // ✅ First Year Starts from Selected Month
     let firstMonth = year === 0 ? repaymentStartIndex : 0;
-
+  
     for (let i = firstMonth; i < 12; i++) {
       if (remainingBalance <= 0) break; // Stop when balance is cleared
-
-      let principalOpeningBalance = remainingBalance; // ✅ Interest should be calculated on this
-
+  
+      let principalOpeningBalance = remainingBalance;
+  
+      // ✅ Ensure exactly 5 months of Moratorium
+      let principalRepayment =
+        elapsedMonths < moratoriumPeriod ? 0 : fixedPrincipalRepayment;
+  
       let principalClosingBalance = Math.max(
         0,
         principalOpeningBalance - principalRepayment
-      ); // ✅ Ensure no negative values
-      let interestLiability = Math.max(
-        0,
-        Math.round(principalClosingBalance * (interestRate / 12))
-      ); // ✅ Ensure no negative values
-      let totalRepayment = Math.max(0, principalRepayment + interestLiability); // ✅ Ensure no negative values
-
+      );
+  
+      // ✅ Ensure interest is calculated exactly for 5 months
+      let interestLiability =
+        elapsedMonths < moratoriumPeriod
+          ? Math.round(principalOpeningBalance * (interestRate / 12))
+          : Math.round(principalClosingBalance * (interestRate / 12));
+  
+      let totalRepayment = principalRepayment + interestLiability;
+  
       yearData.push({
-        month: months[i], // ✅ Corrected month selection
-        principalOpeningBalance, // ✅ Corrected
-        principalRepayment,
-        principalClosingBalance, // ✅ Corrected
-        interestLiability, // ✅ Corrected
-        totalRepayment, // ✅ Corrected
+        month: months[i],
+        principalOpeningBalance: Math.round(principalOpeningBalance), // ✅ Rounded
+        principalRepayment: Math.round(principalRepayment), // ✅ Rounded
+        principalClosingBalance: Math.round(principalClosingBalance), // ✅ Rounded
+        interestLiability, // ✅ Already rounded above
+        totalRepayment: Math.round(totalRepayment), // ✅ Rounded
       });
-
-      remainingBalance = principalClosingBalance; // ✅ Move to the next month's POB
+  
+      remainingBalance = principalClosingBalance;
+  
+      // ✅ Move the elapsed months counter forward
+      elapsedMonths++;
     }
-
+  
     if (yearData.length > 0) {
       data.push(yearData);
     }
   }
-  {
-    /* Extract the Financial Year from formData */
-  }
+  
+
   const financialYear = parseInt(
-    formData.ProjectReportSetting.FinancialYear,
-    10
+    formData.ProjectReportSetting.FinancialYear || 2025
   );
 
-  // Initialize total interest liability for all years
-  data.forEach((yearData, yearIndex) => {
+
+
+
+
+  // ✅ Store Year-Wise Interest Liability
+  data.forEach((yearData) => {
     let totalInterestLiability = yearData.reduce(
       (sum, entry) => sum + entry.interestLiability,
       0
     );
-    yearlyInterestLiabilities.push(totalInterestLiability); // ✅ Store per year
+    yearlyInterestLiabilities.push(totalInterestLiability);
   });
 
-  // ✅ Fix: Only update state if the array has changed
+
   useEffect(() => {
-    if (yearlyInterestLiabilities.length > 0) {
-      // console.log("Sending Yearly Interest Liabilities:", yearlyInterestLiabilities);
-      onInterestCalculated((prevState) => {
-        if (
-          JSON.stringify(prevState) !==
-          JSON.stringify(yearlyInterestLiabilities)
-        ) {
-          return yearlyInterestLiabilities;
-        }
-        return prevState; // Prevents unnecessary state updates
-      });
+    // ✅ Mock Data: Replace this with actual calculations
+    const computedLiabilities = [];
+
+    setYearlyInterestLiabilities(computedLiabilities);
+
+    // ✅ Send values to parent component
+    if (onInterestCalculated) {
+      onInterestCalculated(computedLiabilities);
     }
-  }, [JSON.stringify(yearlyInterestLiabilities), onInterestCalculated]);
+  }, []); // Runs once when component mounts
+
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
+
+      case "3": // Generic Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
+
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
+
 
   return (
     <>
@@ -172,7 +194,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                 },
               ]}
             >
-              Term Loan = {new Intl.NumberFormat("en-IN").format(termLoan)}
+              Term Loan = {formatNumber(termLoan)}
             </Text>
 
             <Text
@@ -350,7 +372,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         entry.principalOpeningBalance
                       )}
                     </Text>
@@ -363,7 +385,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         entry.principalRepayment
                       )}
                     </Text>
@@ -376,7 +398,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         entry.principalClosingBalance
                       )}
                     </Text>
@@ -389,7 +411,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         entry.interestLiability
                       )}
                     </Text>
@@ -402,7 +424,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {new Intl.NumberFormat("en-IN").format(
+                      {formatNumber(
                         entry.totalRepayment
                       )}
                     </Text>
@@ -453,7 +475,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                       },
                     ]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(
+                    {formatNumber(
                       totalPrincipalRepayment
                     )}
                   </Text>
@@ -480,7 +502,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                       },
                     ]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(
+                    {formatNumber(
                       totalInterestLiability
                     )}
                   </Text>
@@ -498,7 +520,7 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
                       },
                     ]}
                   >
-                    {new Intl.NumberFormat("en-IN").format(totalRepayment)}
+                    {formatNumber(totalRepayment)}
                   </Text>
                 </View>
               </View>

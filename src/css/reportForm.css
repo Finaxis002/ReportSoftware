@@ -141,8 +141,14 @@
   color: white;
 }
 
+.form-control{
+  border: none;
+}
 .table {
   font-family: Arial, Helvetica, sans-serif;
+}
+.table-revenue{
+  width: max-content;
 }
 
 .table thead th {
@@ -164,7 +170,7 @@
 }
 
 .table td {
-  padding: 0;
+  padding: 0 1rem 0 1rem;
   text-align: center;
 }
 
@@ -173,8 +179,9 @@
 }
 
 .table input {
-  width: 100%;
+  width: max-content;
   box-sizing: border-box;
+  padding: 0;
 }
 
 .toggleBtn {
@@ -223,14 +230,21 @@
 }
 
 .total-div {
+  /* position: absolute; */
+  bottom: 0vh;
+  width: 100%;
+  background-color: #c9e4f7;
+  overflow-x: scroll;
+}
+.total-div-revenue{
+  width: 100%;
   position: absolute;
   bottom: 0vh;
-  width: 78.5%;
-  background-color: #c9e4f7;
+  /* background-color: #c9e4f7; */
 }
 
 .total-div div {
-  width: 75%;
+  width:max-content;
 }
 
 .fs-10 {

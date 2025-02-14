@@ -125,7 +125,9 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       if (prevData.normalExpense.length <= 1) {
         return prevData; // Don't remove if it's the last field
       }
-      const updatedExpenseList = prevData.normalExpense.filter((_, i) => i !== index);
+      const updatedExpenseList = prevData.normalExpense.filter(
+        (_, i) => i !== index
+      );
       return {
         ...prevData,
         normalExpense: updatedExpenseList,
@@ -138,7 +140,9 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       if (prevData.directExpense.length <= 1) {
         return prevData; // Don't remove if it's the last field
       }
-      const updatedExpenseList = prevData.directExpense.filter((_, i) => i !== index);
+      const updatedExpenseList = prevData.directExpense.filter(
+        (_, i) => i !== index
+      );
       return {
         ...prevData,
         directExpense: updatedExpenseList,
@@ -177,11 +181,17 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           <div key={index}>
             <div className="d-flex gap-2 my-4 justify-content-around">
               <div className="w-100">
-                {index === 0 && <label htmlFor="name" className="form-label">Name</label>}
+                {index === 0 && (
+                  <label htmlFor="name" className="form-label">
+                    Name
+                  </label>
+                )}
                 <input
                   name="name"
                   placeholder={form.name}
-                  onChange={(event) => handleFormChange(event, index, form, "normalExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "normalExpense")
+                  }
                   value={form.name}
                   className="form-control"
                   type="text"
@@ -189,33 +199,52 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                 />
               </div>
               <div>
-                {index === 0 && <label htmlFor="amount" className="form-label">Monthly Salary</label>}
+                {index === 0 && (
+                  <label htmlFor="amount" className="form-label">
+                    Monthly Salary
+                  </label>
+                )}
                 <input
                   name="amount"
                   placeholder={form.amount}
-                  onChange={(event) => handleFormChange(event, index, form, "normalExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "normalExpense")
+                  }
                   value={form.amount}
                   className="form-control"
                   type="text"
                 />
               </div>
               <div>
-                {index === 0 && <label htmlFor="quantity" className="form-label">Quantity</label>}
+                {index === 0 && (
+                  <label htmlFor="quantity" className="form-label">
+                    Quantity
+                  </label>
+                )}
                 <input
                   name="quantity"
                   placeholder={form.quantity}
-                  onChange={(event) => handleFormChange(event, index, form, "normalExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "normalExpense")
+                  }
                   value={form.quantity}
                   className="form-control"
                   type="text"
                 />
               </div>
               <div>
-                {index === 0 && <label htmlFor="value" className="form-label">Total Value</label>}
+                {index === 0 && (
+                  <label htmlFor="value" className="form-label">
+                    Total Value
+                  </label>
+                )}
                 <input
                   name="value"
                   placeholder={form.value}
-                  value={parseFloat(form.amount) * parseFloat(form.quantity) || 0}
+                  value={
+                    parseFloat(form.amount) * parseFloat(form.quantity) * 12 ||
+                    0
+                  }
                   disabled
                   className="form-control"
                   type="text"
@@ -235,30 +264,43 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           </div>
         ))}
 
+        {/* ✅ Display Total Expected Salary */}
         {normalExpenses.length > 0 && (
           <div className="d-flex justify-content-end mt-4">
-            <strong className="text-sm font-bold text-gray-900">Total Expected Salary: </strong>
+            <strong className="text-sm font-bold text-gray-900">
+              Total Expected Salary:{" "}
+            </strong>
             <span className="ms-2">
-              {normalExpenses.reduce((total, form) => {
-                const amount = parseFloat(form.amount) || 0;
-                const quantity = parseFloat(form.quantity) || 0;
-                return total + amount * quantity;
-              }, 0).toFixed(2)}
+              {normalExpenses
+                .reduce((total, form) => {
+                  const amount = parseFloat(form.amount) || 0;
+                  const quantity = parseFloat(form.quantity) || 0;
+                  return total + amount * quantity * 12; // ✅ Corrected calculation
+                }, 0)
+                .toFixed(2)}
             </span>
           </div>
         )}
         <hr />
 
-        <h5 className="text-center text-light bg-secondary">Projected Expenses</h5>
+        <h5 className="text-center text-light bg-secondary">
+          Projected Expenses
+        </h5>
         {directExpenses.map((form, index) => (
           <div key={index}>
             <div className="d-flex gap-2 my-4 justify-content-around">
               <div className="w-100">
-                {index === 0 && <label htmlFor="name" className="form-label">Name</label>}
+                {index === 0 && (
+                  <label htmlFor="name" className="form-label">
+                    Name
+                  </label>
+                )}
                 <input
                   name="name"
                   placeholder={form.name}
-                  onChange={(event) => handleFormChange(event, index, form, "directExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "directExpense")
+                  }
                   value={form.name}
                   className="form-control"
                   type="text"
@@ -266,24 +308,51 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                 />
               </div>
               <div>
-                {index === 0 && <label htmlFor="value" className="form-label">Value</label>}
+                {index === 0 && (
+                  <label htmlFor="value" className="form-label">
+                    Value
+                  </label>
+                )}
                 <input
                   name="value"
                   placeholder={form.value}
                   value={form.value}
-                  onChange={(event) => handleFormChange(event, index, form, "directExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "directExpense")
+                  }
                   className="form-control"
                   type="text"
                 />
               </div>
               <div>
-                {index === 0 && <label htmlFor="type" className="form-label"></label>}
+                {index === 0 && (
+                  <label htmlFor="value" className="form-label">
+                    Total
+                  </label>
+                )}
+                <input
+                  name="value"
+                  placeholder={form.value}
+                  value={parseFloat(form.value) * 12 || 0}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "directExpense")
+                  }
+                  className="form-control"
+                  type="text"
+                />
+              </div>
+              <div>
+                {index === 0 && (
+                  <label htmlFor="type" className="form-label"></label>
+                )}
                 <select
                   className="form-select mt-auto"
                   style={{ width: "170px" }}
                   aria-label="Direct/Indirect"
                   name="type"
-                  onChange={(event) => handleFormChange(event, index, form, "directExpense")}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "directExpense")
+                  }
                 >
                   <option value="direct">Direct</option>
                   <option value="indirect">Indirect</option>
@@ -304,9 +373,11 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
         ))}
 
         <div className="mt-6 flex justify-end items-center gap-4">
-          <strong className="text-sm font-bold text-gray-900">Total Projected Expenses:</strong>
+          <strong className="text-sm font-bold text-gray-900">
+            Total Projected Expenses:
+          </strong>
           <span className="text-lg font-medium">
-            {totalSum.toFixed(2)}
+            {totalSum.toFixed(2) * 12}
           </span>
         </div>
       </form>
@@ -339,9 +410,6 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
 export default FifthStepExpenses;
 
-
-
-
 // import React, { useState, useEffect } from "react";
 // import deleteImg from "../delete.png";
 // import checkImg from "../check.png";
@@ -349,10 +417,10 @@ export default FifthStepExpenses;
 // const FifthStepExpenses = ({ onFormDataChange }) => {
 //     // const [localData, setLocalData] = useState(() => {
 //     //     const savedData = localStorage.getItem("FifthStepExpenses");
-        
+
 //     //     return savedData ? JSON.parse(savedData) : {
-//     //         normalExpense: parsedData.normalExpense.slice(0, 10) || [], 
-        
+//     //         normalExpense: parsedData.normalExpense.slice(0, 10) || [],
+
 //     //       normalExpense: [
 //     //         {
 //     //           name: "",
@@ -377,12 +445,12 @@ export default FifthStepExpenses;
 //     //       totalExpense: 0
 //     //     };
 //     //      // Default state
-        
+
 //     //   });
 
 //     const [localData, setLocalData] = useState(() => {
 //         const savedData = localStorage.getItem("FifthStepExpenses");
-    
+
 //         if (savedData) {
 //             // Parse and use data from localStorage
 //             const parsedData = JSON.parse(savedData);
@@ -393,7 +461,7 @@ export default FifthStepExpenses;
 //                     : [], // Default to empty array if not present
 //             };
 //         }
-    
+
 //         // Default state if no localStorage data exists
 //         return {
 //             normalExpense: [
@@ -420,13 +488,13 @@ export default FifthStepExpenses;
 //             totalExpense: 0,
 //         };
 //     });
-    
+
 //       const [message, setMessage] = useState("");
-      
+
 //       useEffect(() => {
 //         localStorage.setItem("FifthStepExpenses", JSON.stringify(localData)); // Correct method
 //       }, []);
-      
+
 //     useEffect(() => {
 //         // Recalculate totals whenever the expenses change
 //         calculateTotalExpense();
@@ -464,7 +532,7 @@ export default FifthStepExpenses;
 //     // };
 
 //     //to show error message when fields are more than 10
-  
+
 //     const addFields = () => {
 //         setLocalData((prevData) => {
 //             if (prevData.normalExpense.length >= 10) {
@@ -491,8 +559,6 @@ export default FifthStepExpenses;
 //             };
 //         });
 //     };
-    
-    
 
 //     const addDirectFields = () => {
 //         setLocalData((prevData) => {
@@ -522,7 +588,7 @@ export default FifthStepExpenses;
 //         const value = parseFloat(item.value) || 0;
 //         return sum + value;
 //       }, 0);
-      
+
 //     const removeFields = (index) => {
 //         setLocalData(prevData => {
 //             const updatedExpenseList = prevData.normalExpense.filter((_, i) => i !== index);
@@ -655,7 +721,6 @@ export default FifthStepExpenses;
 //                 )}
 //                 <hr />
 
-                
 //                 <h5 className="text-center text-light bg-secondary">Projected Expenses</h5>
 //                 {localData.directExpense.map((form, index) => {
 //                     return (
@@ -723,7 +788,6 @@ export default FifthStepExpenses;
 //                    </span>
 //                  </div>
 
-                
 //             </form>
 //             {/* <div className="position-fixed w-100">
 //                 <div className="total-div">
@@ -741,28 +805,26 @@ export default FifthStepExpenses;
 //                 </div>
 //             </div> */}
 
-          
 //             <div className="my-2 d-flex gap-5 justify-content-end position-fixed">
 //                 <div>
 //                      {message && <p className="text-danger">{message}</p>}
-//                      <button className='btn text-light btn-info px-4 text-red-400' onClick={addFields} 
+//                      <button className='btn text-light btn-info px-4 text-red-400' onClick={addFields}
 //                      disabled={localData.normalExpense.length >= 10} >
 //                          + Add Designation
 //                      </button>
 //                 </div>
-                
+
 //                 <div>
-//                 <button className='btn btn-secondary px-4 me-auto' 
+//                 <button className='btn btn-secondary px-4 me-auto'
 //                 onClick={addDirectFields}
 //                 disabled={localData.directExpense.length >= 15}
 //                 >+ Add Expense
 //                 </button>
 //                 </div>
-                
+
 //             </div>
 //         </div>
 //     );
 // };
 
 // export default FifthStepExpenses;
-

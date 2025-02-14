@@ -122,8 +122,7 @@ import { StyleSheet } from "@react-pdf/renderer";
     serialNumberCellStyle : {
       textAlign: "center",
       maxWidth: "80px", // ✅ Adjust width for proper alignment
-      height: "25px", // ✅ Ensures uniform row height
-      paddingVertical: "5px", // ✅ Ensures proper padding
+      paddingVertical: "2px", // ✅ Ensures proper padding
       paddingHorizontal: "10px",
       margin: "1px 0", // ✅ Space between rows
       fontWeight: "bold", // ✅ Makes numbers more readable
