@@ -210,7 +210,7 @@ const SeventhStepMD = ({
                   <thead>
                     <tr>
                       <th className="header-label">Index</th>
-                      <th className="header-label">Particulars</th>
+                      <th className="header-label">Particular</th>
 
                       {/* Determine the max number of years dynamically */}
                       {Array.from({ length: projectionYears }).map(
