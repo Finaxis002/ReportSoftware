@@ -230,7 +230,7 @@ const formatNumber = (value) => {
             },
           ]}
         >
-          <Text>Projected Profitability Statement</Text>
+          <Text>Projected Profitabilit Statement</Text>
         </View>
         <View style={[styles.table]}>
           <View style={styles.tableHeader}>
