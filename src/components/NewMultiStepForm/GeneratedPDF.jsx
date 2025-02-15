@@ -23,6 +23,7 @@ import ProjectedDepreciation from "./PDFComponents/ProjectedDepreciation";
 import Repayment from "./PDFComponents/Repayment";
 import IncomeTaxCalculation from "./PDFComponents/IncomeTaxCalculation";
 import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
+import DebtServiceCoverageRatio from "./PDFComponents/DebtServiceCoverageRatio";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -36,6 +37,8 @@ const GeneratedPDF = () => {
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
     []
   );
+  const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
+
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
@@ -185,6 +188,7 @@ const GeneratedPDF = () => {
             formData={formData}
             localData={localData}
             onInterestCalculated={handleInterestCalculated}
+            onPrincipalRepaymentCalculated={setYearlyPrincipalRepayment}
           />
 
           {computedData.netProfitBeforeTax.length > 0 && (
@@ -195,7 +199,16 @@ const GeneratedPDF = () => {
             />
           )}
 
-          <BreakEvenPoint formData={formData} />
+          <BreakEvenPoint formData={formData} 
+           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+           totalDepreciationPerYear={totalDepreciation}
+          />
+
+           <DebtServiceCoverageRatio formData={formData} 
+           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+           totalDepreciationPerYear={totalDepreciation}
+           yearlyPrincipalRepayment={yearlyPrincipalRepayment} // ✅ Pass computed data
+          />
         </Document>
       </PDFViewer>
 

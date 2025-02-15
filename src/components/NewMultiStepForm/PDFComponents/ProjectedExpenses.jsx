@@ -103,6 +103,7 @@ const ProjectedExpenses = ({
 
     // ✅ Depreciation
     const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+  
 
     // ✅ Other Indirect Expenses (with growth rate)
     const indirectExpenses = directExpense
@@ -195,6 +196,7 @@ const ProjectedExpenses = ({
           <Text style={stylesMOF.cell}>Direct Expenses</Text>
         </View>
 
+          {/* Salary and wages  */}
         {normalExpense.map((expense, index) => {
           if (index !== activeRowIndex) return null; // Only render the active row
 
@@ -410,7 +412,7 @@ const ProjectedExpenses = ({
               styleExpenses.bordernone,
             ]}
           >
-            Interest on Working Capital
+            Interest On Working Capital
           </Text>
 
           {/* ✅ Display Interest Values for Each Year */}

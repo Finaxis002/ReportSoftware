@@ -735,7 +735,7 @@ const ProjectedProfitability = ({
               styleExpenses.bordernone,
             ]}
           >
-            Interest on Working Capital
+            Interest On Working Capital
           </Text>
 
           {/* ✅ Display Interest Values for Each Year */}

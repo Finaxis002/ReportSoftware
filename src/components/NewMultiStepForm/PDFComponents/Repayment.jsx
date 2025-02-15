@@ -15,12 +15,14 @@ Font.register({
   ],
 });
 
-const Repayment = ({ formData, localData, onInterestCalculated }) => {
+const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepaymentCalculated}) => {
   const termLoan = formData.MeansOfFinance.totalTermLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
   const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths ;
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
+  const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
+
 
 
     // ✅ Correct the total repayment months (including moratorium)
@@ -107,7 +109,18 @@ const Repayment = ({ formData, localData, onInterestCalculated }) => {
     formData.ProjectReportSetting.FinancialYear || 2025
   );
 
+ // ✅ Compute Yearly Total Principal Repayment
+ const computedYearlyPrincipalRepayment = data.map((yearData) =>
+  yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
+);
 
+useEffect(() => {
+  setYearlyPrincipalRepayment(computedYearlyPrincipalRepayment);
+
+  if (onPrincipalRepaymentCalculated) {
+    onPrincipalRepaymentCalculated(computedYearlyPrincipalRepayment);
+  }
+}, []);
 
 
 
