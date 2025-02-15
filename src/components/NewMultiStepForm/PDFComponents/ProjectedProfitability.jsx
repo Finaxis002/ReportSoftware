@@ -43,6 +43,46 @@ const ProjectedProfitability = ({
     return amount.toLocaleString("en-IN"); // Format as per Indian number system
   };
 
+  const months = [
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
+  ];
+
+  // ✅ Extract required values from formData
+  const workingCapitalLoan = formData.MeansOfFinance.workingCapital.termLoan; // Loan amount
+  const interestRate = formData.ProjectReportSetting.rateOfInterest / 100; // Convert % to decimal
+  const projectionYears =
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
+  const startMonthIndex = months.indexOf(
+    formData.ProjectReportSetting.SelectStartingMonth
+  );
+
+  // ✅ Ensure a valid starting month
+  const repaymentStartMonth = startMonthIndex !== -1 ? startMonthIndex : 0;
+
+  // ✅ Compute Interest on Working Capital for Each Year
+  const interestOnWorkingCapital = Array.from({ length: projectionYears }).map(
+    (_, yearIndex) => {
+      // First year → Interest only for months from start month onwards
+      const monthsInYear = yearIndex === 0 ? 12 - repaymentStartMonth : 12;
+
+      // Apply the formula
+      return Math.round(
+        workingCapitalLoan * interestRate * (monthsInYear / 12)
+      );
+    }
+  );
+
   // ✅ Precompute Multiplication for Each Year Before Rendering Based on Selected Form
   const totalRevenueReceipts = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
@@ -98,20 +138,29 @@ const ProjectedProfitability = ({
     return salaryAndWages + directExpensesTotal; // ✅ Total Direct Expenses (Including Salary & Wages)
   });
 
-  // ✅ Precompute Total Indirect Expenses for Each Year Before Rendering
+  // ✅ Calculate Total Indirect Expenses for Each Year
   const totalIndirectExpenses = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // Compute total indirect expenses from directExpense
+    // ✅ Interest on Term Loan
     const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-    let indirectExpenseTotal = directExpense
-      ?.filter((expense) => expense.type === "indirect")
-      ?.reduce((sum, expense) => {
+
+    // ✅ Interest on Working Capital
+    const interestExpenseOnWorkingCapital =
+      interestOnWorkingCapital[yearIndex] || 0;
+
+    // ✅ Depreciation
+    const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+
+    // ✅ Other Indirect Expenses (with growth rate)
+    const indirectExpenses = directExpense
+      .filter((expense) => expense.type === "indirect")
+      .reduce((sum, expense) => {
         const baseValue = Number(expense.value) || 0;
-        const annualizedValue = baseValue * 12; // Convert monthly to annual
+        const initialValue = baseValue * 12; // Convert monthly to annual
         return (
           sum +
-          annualizedValue *
+          initialValue *
             Math.pow(
               1 + formData.ProjectReportSetting.rateOfExpense / 100,
               yearIndex
@@ -119,11 +168,12 @@ const ProjectedProfitability = ({
         );
       }, 0);
 
-    // ✅ Add Depreciation for this year
+    // ✅ Final Total Indirect Expenses Calculation
     return (
       interestOnTermLoan +
-      indirectExpenseTotal +
-      (totalDepreciationPerYear[yearIndex] || 0)
+      interestExpenseOnWorkingCapital +
+      depreciationExpense +
+      indirectExpenses
     );
   });
 
@@ -181,28 +231,26 @@ const ProjectedProfitability = ({
     }
   }, [JSON.stringify(netProfitBeforeTax)]); // ✅ Prevents unnecessary re-renders
 
+  // ✅ Safe Helper Function to Format Numbers Based on Selected Format
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
-  // ✅ Helper Function to Format Numbers Based on Selected Format
-// ✅ Safe Helper Function to Format Numbers Based on Selected Format
-const formatNumber = (value) => {
-  const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
 
-  if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(value);
 
-  switch (formatType) {
-    case "1": // Indian Format (1,23,456)
-      return new Intl.NumberFormat("en-IN").format(value);
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(value);
 
-    case "2": // USD Format (1,123,456)
-      return new Intl.NumberFormat("en-US").format(value);
+      case "3": // Generic Format (Same as Indian for now)
+        return new Intl.NumberFormat("en-IN").format(value);
 
-    case "3": // Generic Format (Same as Indian for now)
-      return new Intl.NumberFormat("en-IN").format(value);
-
-    default:
-      return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-  }
-};
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+    }
+  };
 
   return (
     <Page
@@ -215,11 +263,7 @@ const formatNumber = (value) => {
       wrap={false}
       break
     >
-      <View
-        style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}
-        wrap={false}
-        break
-      >
+      <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         <Text style={[styles.clientName]}>{localData.clientName}</Text>
         <View
           style={[
@@ -332,9 +376,7 @@ const formatNumber = (value) => {
                 styleExpenses.fontSmall,
               ]}
             >
-              {formatNumber(
-                formData.MoreDetails.closingStock?.[index] ?? 0
-              )}
+              {formatNumber(formData.MoreDetails.closingStock?.[index] ?? 0)}
             </Text>
           ))}
         </View>
@@ -369,9 +411,7 @@ const formatNumber = (value) => {
                 styleExpenses.fontSmall,
               ]}
             >
-              {formatNumber(
-                formData.MoreDetails.openingStock?.[index] ?? 0
-              )}
+              {formatNumber(formData.MoreDetails.openingStock?.[index] ?? 0)}
             </Text>
           ))}
         </View>
@@ -532,9 +572,7 @@ const formatNumber = (value) => {
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(
-                        calculatedValue.toFixed(2)
-                      )}
+                      {formatNumber(calculatedValue.toFixed(2))}
                     </Text>
                   );
                 })}
@@ -577,9 +615,7 @@ const formatNumber = (value) => {
                 },
               ]}
             >
-              {formatNumber(
-                formatAmountInIndianStyle(totalValue.toFixed(2))
-              )}
+              {formatNumber(formatAmountInIndianStyle(totalValue.toFixed(2)))}
             </Text>
           ))}
         </View>
@@ -628,9 +664,7 @@ const formatNumber = (value) => {
                 },
               ]}
             >
-              {formatNumber(
-                formatAmountInIndianStyle(grossProfit.toFixed(2))
-              )}
+              {formatNumber(formatAmountInIndianStyle(grossProfit.toFixed(2)))}
             </Text>
           ))}
         </View>
@@ -678,6 +712,42 @@ const formatNumber = (value) => {
               {formatNumber(
                 yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
               )}
+            </Text>
+          ))}
+        </View>
+
+        {/* Interest on Working Capital */}
+        <View style={[styles.tableRow, styles.totalRow]}>
+          <Text
+            style={[
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
+            ]}
+          >
+            2
+          </Text>
+
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Interest on Working Capital
+          </Text>
+
+          {/* ✅ Display Interest Values for Each Year */}
+          {interestOnWorkingCapital.map((interest, index) => (
+            <Text
+              key={index}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {formatNumber(interest)}
             </Text>
           ))}
         </View>
@@ -765,7 +835,7 @@ const formatNumber = (value) => {
                       ]}
                     >
                       {formatNumber(
-                        formatAmountInIndianStyle(calculatedValue.toFixed(2))
+                        Math.round(calculatedValue)
                       )}
                     </Text>
                   );
@@ -773,18 +843,14 @@ const formatNumber = (value) => {
               </View>
             );
           })}
-        {/* total of indirect expenses */}
+
+        {/* ✅ Total Indirect Expenses Row */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
               styleExpenses.bordernone,
-              {
-                fontFamily: "Roboto",
-                fontWeight: "extrabold",
-                borderLeftWidth: "1px",
-              },
             ]}
           ></Text>
           <Text
@@ -792,12 +858,12 @@ const formatNumber = (value) => {
               stylesCOP.detailsCellDetail,
               styleExpenses.particularWidth,
               styleExpenses.bordernone,
-              { fontFamily: "Roboto", fontWeight: "extrabold" },
             ]}
           >
-            Total
+            Total Indirect Expenses
           </Text>
-          {/* ✅ Display Precomputed Total Indirect Expenses */}
+
+          {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
           {totalIndirectExpenses.map((totalValue, yearIndex) => (
             <Text
               key={yearIndex}
@@ -805,20 +871,13 @@ const formatNumber = (value) => {
                 stylesCOP.particularsCellsDetail,
                 stylesCOP.boldText,
                 styleExpenses.fontSmall,
-                {
-                  borderWidth: "2px",
-                  borderLeftWidth: "0px",
-                  fontFamily: "Roboto",
-                  fontWeight: "extrabold",
-                },
               ]}
             >
-              {formatNumber(
-                formatAmountInIndianStyle(totalValue.toFixed(2))
-              )}
+              {formatNumber(Math.round(totalValue))} {/* ✅ Display with Round-Off */}
             </Text>
           ))}
         </View>
+
         {/* Net Profit Before Tax Calculation */}
         <View style={[stylesMOF.row, styles.tableRow, { marginTop: "12px" }]}>
           <Text
@@ -866,7 +925,7 @@ const formatNumber = (value) => {
                 },
               ]}
             >
-              {formatNumber(npbt.toFixed(2))}
+              {formatNumber(Math.round(npbt))}
             </Text>
           ))}
         </View>
@@ -907,7 +966,7 @@ const formatNumber = (value) => {
                 { borderWidth: "0.1px" },
               ]}
             >
-              {formatNumber(tax.toFixed(2))}
+              {formatNumber(Math.round(tax))}
             </Text>
           ))}
         </View>
@@ -959,7 +1018,7 @@ const formatNumber = (value) => {
                 },
               ]}
             >
-              {formatNumber(tax.toFixed(2))}
+              {formatNumber(Math.round(tax))}
             </Text>
           ))}
         </View>
@@ -1048,7 +1107,7 @@ const formatNumber = (value) => {
                   { borderWidth: 0 },
                 ]}
               >
-                {formatNumber(roundedValue)}
+                {formatNumber(Math.round(roundedValue))}
               </Text>
             );
           })}

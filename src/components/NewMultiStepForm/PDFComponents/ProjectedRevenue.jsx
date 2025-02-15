@@ -3,7 +3,6 @@ import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 
 const ProjectedRevenue = ({ formData }) => {
-
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
@@ -191,13 +190,12 @@ const ProjectedRevenue = ({ formData }) => {
           {/* Table Body - Looping through formFields2 */}
           {Array.isArray(formData?.Revenue?.formFields2) &&
             formData.Revenue.formFields2.map((item, index) => {
-              let updatedYears = [...item.years];
-              while (
-                updatedYears.length <
-                parseInt(formData.ProjectReportSetting.ProjectionYears)
-              ) {
-                updatedYears.push(1); // ✅ Prevent multiplication by zero
-              }
+              // Ensure `ProjectionYears` is a valid number
+              const projectionYears =
+                Number(formData?.ProjectReportSetting?.ProjectionYears) || 0;
+
+              // Ensure `updatedYears` only contains values up to ProjectionYears
+              let updatedYears = [...item.years].slice(0, projectionYears);
 
               return (
                 <View

@@ -9,10 +9,7 @@ import {
 } from "./PDFComponents/Styles";
 
 import "./View.css";
-import {
-  Document,
-  PDFViewer,
-} from "@react-pdf/renderer";
+import { Document, PDFViewer } from "@react-pdf/renderer";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -25,31 +22,33 @@ import ProjectedSalaries from "./PDFComponents/ProjectedSalaries";
 import ProjectedDepreciation from "./PDFComponents/ProjectedDepreciation";
 import Repayment from "./PDFComponents/Repayment";
 import IncomeTaxCalculation from "./PDFComponents/IncomeTaxCalculation";
+import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = ({ years }) => {
+const GeneratedPDF = () => {
   const [computedData, setComputedData] = useState({ netProfitBeforeTax: [] });
   const [computedData1, setComputedData1] = useState({
     totalDepreciationPerYear: [],
   });
-  
+
   const [totalDepreciation, setTotalDepreciation] = useState([]);
-  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
+  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
+    []
+  );
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
 
- // ✅ Function to receive data from Repayment component
- const handleInterestCalculated = (liabilities) => {
-  // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
-  setYearlyInterestLiabilities(liabilities); // Update the state
-};
+  // ✅ Function to receive data from Repayment component
+  const handleInterestCalculated = (liabilities) => {
+    // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
+    setYearlyInterestLiabilities(liabilities); // Update the state
+  };
 
-// useEffect(() => {
-//   console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-// }, [yearlyInterestLiabilities]);
-
+  // useEffect(() => {
+  //   console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+  // }, [yearlyInterestLiabilities]);
 
   // Safe localStorage retrieval function
   const getStoredData = () => {
@@ -64,6 +63,17 @@ const GeneratedPDF = ({ years }) => {
 
   const [localData, setLocalData] = useState(getStoredData);
 
+  const [years, setYears] = useState(5);
+
+  useEffect(() => {
+    // Example: Update years dynamically
+    const interval = setInterval(() => {
+      setYears((prev) => prev + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+  
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     if (role) setUserRole(role);
@@ -80,8 +90,7 @@ const GeneratedPDF = ({ years }) => {
   const { normalExpense = [], directExpense = [] } = Expenses;
 
   // Format currency function
-  const formatAmountInIndianStyle = (amount) =>
-    amount.toLocaleString("en-IN");
+  const formatAmountInIndianStyle = (amount) => amount.toLocaleString("en-IN");
 
   // Salary & wages calculations
   const totalQuantity = normalExpense.reduce(
@@ -101,11 +110,14 @@ const GeneratedPDF = ({ years }) => {
   );
 
   const fringAndAnnualCalculation =
-    normalExpense.reduce((sum, expense) => sum + Number(expense.amount || 0), 0) +
+    normalExpense.reduce(
+      (sum, expense) => sum + Number(expense.amount || 0),
+      0
+    ) +
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
-    console.log("form Data : ", formData)
+  console.log("form Data : ", formData);
   return (
     <>
       <PDFViewer
@@ -148,6 +160,7 @@ const GeneratedPDF = ({ years }) => {
           <ProjectedExpenses
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            totalDepreciationPerYear={totalDepreciation}
           />
 
           {/* Projected Revenue/ Sales */}
@@ -156,8 +169,8 @@ const GeneratedPDF = ({ years }) => {
 
           {/* Projected Profitability Statement */}
 
-           {/* Projected Profitability Statement */}
-           <ProjectedProfitability
+          {/* Projected Profitability Statement */}
+          <ProjectedProfitability
             formData={formData}
             localData={localData}
             normalExpense={normalExpense}
@@ -168,12 +181,21 @@ const GeneratedPDF = ({ years }) => {
             netProfitBeforeTax={computedData.netProfitBeforeTax || []}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
           />
-          <Repayment formData={formData} localData={localData}  onInterestCalculated={handleInterestCalculated}/>
+          <Repayment
+            formData={formData}
+            localData={localData}
+            onInterestCalculated={handleInterestCalculated}
+          />
 
           {computedData.netProfitBeforeTax.length > 0 && (
-            <IncomeTaxCalculation formData={formData} netProfitBeforeTax={computedData.netProfitBeforeTax} 
-            totalDepreciationPerYear={computedData1.totalDepreciationPerYear}/>
+            <IncomeTaxCalculation
+              formData={formData}
+              netProfitBeforeTax={computedData.netProfitBeforeTax}
+              totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+            />
           )}
+
+          <BreakEvenPoint formData={formData} />
         </Document>
       </PDFViewer>
 
