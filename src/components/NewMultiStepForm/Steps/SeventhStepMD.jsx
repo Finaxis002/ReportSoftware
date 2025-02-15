@@ -168,7 +168,7 @@ const SeventhStepMD = ({
                     <tr key={stockType}>
                       <td 
                        className="form-control border-r-0 border-none"
-                       style={{width:"20rem", borderRadius:"0"}}
+                       style={{width:"20rem", borderRadius:"0px"}}
                        type="text"
           
                       >

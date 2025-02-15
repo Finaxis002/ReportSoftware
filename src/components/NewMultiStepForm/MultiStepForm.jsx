@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
+import "../../css/reportForm.css"
 import Stepper from "./Stepper";
 import StepperControl from "./StepperControl";
 import FirstStepBasicDetails from "./Steps/FirstStepBasicDetails";

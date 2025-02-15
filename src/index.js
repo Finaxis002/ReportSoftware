@@ -5,16 +5,11 @@ import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
 import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import ReportForm from "./components/ReportForm";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import ReportDashboard from "./components/ReportDashboard";
 import { Provider } from "react-redux";
+import Authentication from "./components/Authentication.jsx";
 import store from "./redux/store";
-import Authentication from "./components/Authentication";
-import InputForm from "./components/InputForm.jsx";
-import ReportReview from "./components/ReportReview.jsx";
 import MultiStepForm from "./components/NewMultiStepForm/MultiStepForm.jsx";
-import FinalReport from "./components/FinalReport.jsx";
 import GeneratedPDF from "./components/NewMultiStepForm/GeneratedPDF.jsx";
 import ClientData from "./components/NewMultiStepForm/ClientData.jsx";
 import MongoDB from "./components/NewMultiStepForm/MongoDB.jsx";
@@ -87,23 +82,9 @@ const App = () => {
                 )
               }
             />
-            <Route path="/form" element={<InputForm />} />
-            <Route
-              path="/form2"
-              element={
-                <Authentication>
-                  <ReportForm />
-                </Authentication>
-              }
-            />
-            <Route
-              path="/report/review"
-              element={
-                <Authentication>
-                  <ReportReview />
-                </Authentication>
-              }
-            />
+            
+           
+            
             <Route
               path="/login"
               element={
@@ -115,22 +96,8 @@ const App = () => {
               }
             />
 
-            <Route
-              path="/report/:id"
-              element={
-                <Authentication>
-                  <ReportDashboard />
-                </Authentication>
-              }
-            />
-            <Route
-              path="/report/final"
-              element={
-                <Authentication>
-                  <FinalReport />
-                </Authentication>
-              }
-            />
+           
+           
             <Route path="/MultestepForm" element={<MultiStepForm />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/notifications" element={<Notification />} />
