@@ -24,14 +24,25 @@ import Repayment from "./PDFComponents/Repayment";
 import IncomeTaxCalculation from "./PDFComponents/IncomeTaxCalculation";
 import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
 import DebtServiceCoverageRatio from "./PDFComponents/DebtServiceCoverageRatio";
+import ProjectedCashflow from "./PDFComponents/ProjectedCashflow";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = () => {
-  const [computedData, setComputedData] = useState({ netProfitBeforeTax: [] });
+  // const [computedData, setComputedData] = useState({ netProfitBeforeTax: [] });
+  // const [computedData1, setComputedData1] = useState({
+  //   totalDepreciationPerYear: [],
+  // });
+
+  const [computedData, setComputedData] = useState({ 
+    netProfitBeforeTax: [],
+    grossProfitValues: [],
+    yearlyInterestLiabilities:[],
+   });
   const [computedData1, setComputedData1] = useState({
     totalDepreciationPerYear: [],
   });
+
 
   const [totalDepreciation, setTotalDepreciation] = useState([]);
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
@@ -120,6 +131,8 @@ const GeneratedPDF = () => {
     Number(totalAnnualWages) +
     Number(fringeCalculation);
 
+   
+
   console.log("form Data : ", formData);
   return (
     <>
@@ -198,6 +211,15 @@ const GeneratedPDF = () => {
               totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
             />
           )}
+          <ProjectedCashflow 
+          formData={formData} 
+          localData={localData}
+          totalDepreciationPerYear={totalDepreciation} 
+          netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+          grossProfitValues={computedData.grossProfitValues || []}
+          yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+          yearlyInterestLiabilities={computedData.yearlyInterestLiabilities || []}
+          />
 
           <BreakEvenPoint formData={formData} 
            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
