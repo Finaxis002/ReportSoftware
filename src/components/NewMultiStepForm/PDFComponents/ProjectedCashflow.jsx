@@ -1,35 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
-import { styles, stylesCOP, styleExpenses } from "./Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 
 Font.register({
-    family: "Roboto",
-    fonts: [
-      { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-      { src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf", fontWeight: "bold" }, // Bold
-    ],
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      fontWeight: "bold",
+    }, // Bold
+  ],
 });
 
-const ProjectedCashflow = ({ 
-    formData = {},
-    calculations = {},
-    totalDepreciationPerYear =[],
-    netProfitBeforeTax = [],
-    grossProfitValues = [],
-    yearlyInterestLiabilities= [],
-    yearlyPrincipalRepayment =[], 
+const ProjectedCashflow = ({
+  formData = {},
+  calculations = {},
+  totalDepreciationPerYear = [],
+  netProfitBeforeTax = [],
+  grossProfitValues = [],
+  yearlyPrincipalRepayment = [],
+  yearlyInterestLiabilities = [],
+  interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
+  firstYearGrossFixedAssets,
 }) => {
-    if (!formData || typeof formData !== "object" || !calculations || typeof calculations !== "object") {
-        console.error("❌ Invalid formData or calculations provided");
-        return null;
+  const [grossFixedAssets, setGrossFixedAssets] = useState(0);
+
+  // Update the state when the prop value changes
+  useEffect(() => {
+    if (firstYearGrossFixedAssets > 0) {
+      setGrossFixedAssets(firstYearGrossFixedAssets);
     }
+  }, [firstYearGrossFixedAssets]);
 
-    console.log("data for term loan",yearlyInterestLiabilities)
-    const startYear = Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
-    const projectionYears = Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
+  useEffect(() => {
+    if (yearlyInterestLiabilities.length > 0) {
+      //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+    }
+  }, [yearlyInterestLiabilities]); // ✅ Runs when state update
 
-      // ✅ Safe Helper Function to Format Numbers Based on Selected Format
+  if (
+    !formData ||
+    typeof formData !== "object" ||
+    !calculations ||
+    typeof calculations !== "object"
+  ) {
+    console.error("❌ Invalid formData or calculations provided");
+    return null;
+  }
+
+  // console.log("data for term loan", yearlyInterestLiabilities);
+  const startYear =
+    Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
+  const projectionYears =
+    Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
+
+  // ✅ Safe Helper Function to Format Numbers Based on Selected Format
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values

@@ -9,10 +9,7 @@ import {
 } from "./PDFComponents/Styles";
 
 import "./View.css";
-import {
-  Document,
-  PDFViewer,
-} from "@react-pdf/renderer";
+import { Document, PDFViewer } from "@react-pdf/renderer";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -25,33 +22,47 @@ import ProjectedSalaries from "./PDFComponents/ProjectedSalaries";
 import ProjectedDepreciation from "./PDFComponents/ProjectedDepreciation";
 import Repayment from "./PDFComponents/Repayment";
 import IncomeTaxCalculation from "./PDFComponents/IncomeTaxCalculation";
+import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
+import DebtServiceCoverageRatio from "./PDFComponents/DebtServiceCoverageRatio";
+import ProjectedCashflow from "./PDFComponents/ProjectedCashflow";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = ({ years }) => {
-  const [computedData, setComputedData] = useState({ netProfitBeforeTax: [] });
+const GeneratedPDF = () => {
+  const [computedData, setComputedData] = useState({
+    netProfitBeforeTax: [],
+    grossProfitValues: [],
+    yearlyInterestLiabilities: [],
+  });
   const [computedData1, setComputedData1] = useState({
     totalDepreciationPerYear: [],
   });
-  
+
   const [totalDepreciation, setTotalDepreciation] = useState([]);
-  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
+  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
+    []
+  );
+  const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
+
+  const [interestOnWorkingCapital, setInterestOnWorkingCapital] = useState([]);
+
+
+
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
 
- // ✅ Function to receive data from Repayment component
- const handleInterestCalculated = (liabilities) => {
-  // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
-  setYearlyInterestLiabilities(liabilities); // Update the state
-};
+  // ✅ Function to receive data from Repayment component
+  const handleInterestCalculated = (liabilities) => {
+    // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
+    setYearlyInterestLiabilities(liabilities); // Update the state
+  };
 
-// useEffect(() => {
-//   console.log("Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-// }, [yearlyInterestLiabilities]);
+   // ✅ Handler for Principal Repayment Calculation
+   const handlePrincipalRepaymentCalculated = (calculatedRepayment) => {
+    setYearlyPrincipalRepayment(calculatedRepayment);
+  };
 
-
-  // Safe localStorage retrieval function
   const getStoredData = () => {
     try {
       const savedData = localStorage.getItem("FourthStepPRS");
@@ -64,6 +75,18 @@ const GeneratedPDF = ({ years }) => {
 
   const [localData, setLocalData] = useState(getStoredData);
 
+  const [years, setYears] = useState(5);
+  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
+
+  useEffect(() => {
+    // Example: Update years dynamically
+    const interval = setInterval(() => {
+      setYears((prev) => prev + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     if (role) setUserRole(role);
@@ -75,13 +98,13 @@ const GeneratedPDF = ({ years }) => {
     return <div>No account information available</div>;
   }
 
+  console.log("form Data : ", formData);
   // Extract expenses safely
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
 
   // Format currency function
-  const formatAmountInIndianStyle = (amount) =>
-    amount.toLocaleString("en-IN");
+  const formatAmountInIndianStyle = (amount) => amount.toLocaleString("en-IN");
 
   // Salary & wages calculations
   const totalQuantity = normalExpense.reduce(
@@ -89,23 +112,26 @@ const GeneratedPDF = ({ years }) => {
     0
   );
 
+  // ✅ Compute Total Annual Wages
   const totalAnnualWages = normalExpense.reduce(
     (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
     0
   );
 
-  const fringeCalculation = normalExpense.reduce(
-    (sum, expense) =>
-      sum + (Number(expense.amount) * Number(expense.quantity) * 12 * 0.5) / 10,
-    0
-  );
+  // ✅ Compute Fringe Benefits at 5%
+  const fringeCalculation = totalAnnualWages * 0.05; // 5% of total wages
 
-  const fringAndAnnualCalculation =
-    normalExpense.reduce((sum, expense) => sum + Number(expense.amount || 0), 0) +
-    Number(totalAnnualWages) +
-    Number(fringeCalculation);
+  // ✅ Compute Total Wages including Fringe Benefits
+  const fringAndAnnualCalculation = totalAnnualWages + fringeCalculation;
 
-    console.log("form Data : ", formData)
+  // ✅ Compute Total Gross Fixed Assets for first year
+  const firstYearGrossFixedAssets = Object.values(
+    formData.CostOfProject
+  ).reduce((sum, asset) => {
+    let netAsset = asset.amount; // Initial asset value
+    return sum + netAsset;
+  }, 0);
+
   return (
     <>
       <PDFViewer
@@ -148,32 +174,77 @@ const GeneratedPDF = ({ years }) => {
           <ProjectedExpenses
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            totalDepreciationPerYear={totalDepreciation}
+            fringAndAnnualCalculation={fringAndAnnualCalculation}
+            fringeCalculation={fringeCalculation}
           />
 
           {/* Projected Revenue/ Sales */}
 
-          <ProjectedRevenue formData={formData} />
+          <ProjectedRevenue
+            formData={formData}
+            setTotalRevenueReceipts={setTotalRevenueReceipts}
+          />
 
           {/* Projected Profitability Statement */}
 
-           {/* Projected Profitability Statement */}
-           <ProjectedProfitability
+          {/* Projected Profitability Statement */}
+          <ProjectedProfitability
             formData={formData}
             localData={localData}
             normalExpense={normalExpense}
             directExpense={directExpense}
             location={location}
             totalDepreciationPerYear={totalDepreciation}
-            onComputedData={setComputedData}
+            onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
             netProfitBeforeTax={computedData.netProfitBeforeTax || []}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
+            totalRevenueReceipts={totalRevenueReceipts}
+            fringAndAnnualCalculation={fringAndAnnualCalculation}
           />
-          <Repayment formData={formData} localData={localData}  onInterestCalculated={handleInterestCalculated}/>
+          <Repayment
+            formData={formData}
+            localData={localData}
+            onInterestCalculated={handleInterestCalculated}
+            onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
+          />
 
           {computedData.netProfitBeforeTax.length > 0 && (
-            <IncomeTaxCalculation formData={formData} netProfitBeforeTax={computedData.netProfitBeforeTax} 
-            totalDepreciationPerYear={computedData1.totalDepreciationPerYear}/>
+            <IncomeTaxCalculation
+              formData={formData}
+              netProfitBeforeTax={computedData.netProfitBeforeTax}
+              totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+            />
           )}
+          <ProjectedCashflow
+            formData={formData}
+            localData={localData}
+            totalDepreciationPerYear={totalDepreciation}
+            netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+            grossProfitValues={computedData.grossProfitValues || []}
+            yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+            firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+            totalRevenueReceipts={totalRevenueReceipts}
+          />
+
+          <BreakEvenPoint
+            formData={formData}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            totalDepreciationPerYear={totalDepreciation}
+            totalRevenueReceipts={totalRevenueReceipts}
+            fringAndAnnualCalculation={fringAndAnnualCalculation}
+          />
+
+          <DebtServiceCoverageRatio
+            formData={formData}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
+            totalDepreciationPerYear={totalDepreciation}
+           netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
+          />
         </Document>
       </PDFViewer>
 

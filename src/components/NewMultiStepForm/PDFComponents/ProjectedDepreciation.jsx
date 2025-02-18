@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect , useState } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
@@ -21,6 +21,15 @@ const ProjectedDepreciation = ({
   setTotalDepreciation,
   onComputedData1 
 }) => {
+
+  // State for First Year Gross Fixed Assets
+const [firstYearGrossFixedAssets, setFirstYearGrossFixedAssets] = useState(0);
+// ✅ Send the First Year's Value to Another Component via useEffect
+useEffect(() => {
+  if (firstYearGrossFixedAssets > 0 && onFirstYearGrossAssetsCalculated) {
+    onFirstYearGrossAssetsCalculated(firstYearGrossFixedAssets);
+  }
+}, [firstYearGrossFixedAssets]);
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
 
   // ✅ Compute Net Asset (D) & Depreciation (B) for Each Year

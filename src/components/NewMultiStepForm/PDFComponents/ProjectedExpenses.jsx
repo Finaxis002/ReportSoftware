@@ -1,33 +1,52 @@
-import React from "react";
+import React, { memo, useEffect } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 
 const ProjectedExpenses = ({
   formData,
   yearlyInterestLiabilities,
+  totalDepreciationPerYear,
+  fringAndAnnualCalculation,
 }) => {
   // Ensure formData and Expenses exist before destructuring
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
   const { Expenses = {} } = formData; // Destructure Expenses safely with fallback to empty object
   const { normalExpense = [], directExpense = [] } = Expenses;
 
-  const totalAnnualWages = normalExpense.reduce(
-    (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
-    0
-  );
+  const startingYear =
+    parseInt(formData.ProjectReportSetting.StartingYear) || 0;
+  const moratoriumPeriodMonths =
+    parseInt(formData.ProjectReportSetting.MoratoriumPeriod) || 0;
+  const moratoriumPeriodYears = Math.ceil(moratoriumPeriodMonths / 12); // Convert months to years
 
-  // ✅ Calculate total direct expenses for each projection year
+  const repaymentStartYear = startingYear + moratoriumPeriodYears;
+  // console.log("Repayment Starts From Year: ", repaymentStartYear);
+
+  // ✅ Calculate Interest on Working Capital for each projection year
+  const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map(() => {
+    const workingCapitalLoan =
+      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+    const interestRate =
+      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+
+    // ✅ Annual Interest Calculation
+    return (workingCapitalLoan * interestRate) / 100;
+  });
+
+  // ✅ Properly calculate total direct expenses for each projection year
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
+    // Calculate total direct expenses
     const totalDirectExpenses = directExpense
       .filter((expense) => expense.type === "direct")
       .reduce((sum, expense) => {
-        const baseValue = Number(expense.value) || 0;
-        const initialValue = baseValue * 12; // Convert to annual
+        const baseValue = Number(expense.value) || 0; // Direct annual value
         return (
           sum +
-          initialValue *
+          baseValue *
             Math.pow(
               1 + formData.ProjectReportSetting.rateOfExpense / 100,
               yearIndex
@@ -35,33 +54,38 @@ const ProjectedExpenses = ({
         );
       }, 0);
 
-    // ✅ Include Salary and Wages in the total
-    const initialSalaryWages = Number(totalAnnualWages) || 0;
+    // Calculate salary & wages growth
+    const initialSalaryWages = Number(fringAndAnnualCalculation) || 0;
     const totalSalaryWages =
-      yearIndex === 0
-        ? initialSalaryWages
-        : initialSalaryWages *
-          Math.pow(
-            1 + formData.ProjectReportSetting.rateOfExpense / 100,
-            yearIndex
-          );
+      initialSalaryWages *
+      Math.pow(
+        1 + formData.ProjectReportSetting.rateOfExpense / 100,
+        yearIndex
+      );
 
     return totalDirectExpenses + totalSalaryWages; // ✅ Final Grand Total
   });
 
-  // ✅ Compute total indirect expenses for each projection year
+  // ✅ Calculate Total Indirect Expenses for Each Year
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // ✅ Get Interest on Term Loan for the current year (or 0 if missing)
+    // ✅ Interest on Term Loan
     const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
 
-    // ✅ Compute indirect expenses with growth rate
-    const totalIndirectExpenses = directExpense
+    // ✅ Interest on Working Capital
+    const interestExpenseOnWorkingCapital =
+      interestOnWorkingCapital[yearIndex] || 0;
+
+    // ✅ Depreciation
+    const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+
+    // ✅ Other Indirect Expenses (with growth rate)
+    const indirectExpenses = directExpense
       .filter((expense) => expense.type === "indirect")
       .reduce((sum, expense) => {
         const baseValue = Number(expense.value) || 0;
-        const initialValue = baseValue * 12; // Convert monthly to annual
+        const initialValue = baseValue; // Convert to annual
         return (
           sum +
           initialValue *
@@ -72,7 +96,13 @@ const ProjectedExpenses = ({
         );
       }, 0);
 
-    return interestOnTermLoan + totalIndirectExpenses; // ✅ Final total
+    // ✅ Final Total Indirect Expenses Calculation
+    return (
+      interestOnTermLoan +
+      interestExpenseOnWorkingCapital +
+      depreciationExpense +
+      indirectExpenses
+    );
   });
 
   // ✅ Calculate Grand Total (A + B)
@@ -99,7 +129,6 @@ const ProjectedExpenses = ({
         return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
     }
   };
-
 
   return (
     <Page
@@ -142,6 +171,7 @@ const ProjectedExpenses = ({
           <Text style={stylesMOF.cell}>Direct Expenses</Text>
         </View>
 
+        {/* Salary and wages  */}
         {normalExpense.map((expense, index) => {
           if (index !== activeRowIndex) return null; // Only render the active row
 
@@ -172,7 +202,7 @@ const ProjectedExpenses = ({
                   parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
                 ),
               ].map((_, yearIndex) => {
-                const Annual = Number(totalAnnualWages) || 0;
+                const Annual = Number(fringAndAnnualCalculation) || 0;
                 const initialValue = Annual; // Base annual value calculation
 
                 // For the first year (first column), show totalAnnualWages
@@ -205,11 +235,12 @@ const ProjectedExpenses = ({
           );
         })}
 
+        {/* Loop through direct expenses */}
         {directExpense
           .filter((expense) => expense.type === "direct")
           .map((expense, index) => {
             const baseValue = Number(expense.value) || 0;
-            const initialValue = baseValue * 12;
+            const initialValue = baseValue;
 
             return (
               <View key={index} style={[stylesMOF.row, styles.tableRow]}>
@@ -250,9 +281,7 @@ const ProjectedExpenses = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(
-                        calculatedValue.toFixed(2)
-                      )}
+                      {formatNumber(calculatedValue.toFixed(2))}
                     </Text>
                   );
                 })}
@@ -300,9 +329,62 @@ const ProjectedExpenses = ({
           <Text style={stylesMOF.cell}>Indirect Expenses</Text>
         </View>
 
-        {/* Interest On Term Loan */}
+        {/* ✅ Interest On Term Loan (Corrected Display) */}
+        {yearlyInterestLiabilities.length > 0 && (
+          <View style={[styles.tableRow, styles.totalRow]}>
+            {/* Serial Number */}
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            >
+              1
+            </Text>
+
+            {/* Interest On Term Loan Label */}
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Interest On Term Loan
+            </Text>
+
+            {Array.from({
+              length: formData?.ProjectReportSetting?.ProjectionYears || 0,
+            }).map((_, yearIndex) => {
+              const firstInterestYear =
+                yearlyInterestLiabilities?.findIndex((value) => value > 0) || 0;
+
+              // Shift the values so first non-zero interest starts from Year 1
+              const adjustedInterestValues = Array.from(
+                { length: formData?.ProjectReportSetting?.ProjectionYears },
+                (_, i) =>
+                  yearlyInterestLiabilities?.[firstInterestYear + i] || 0
+              );
+
+              return (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(adjustedInterestValues[yearIndex])}
+                </Text>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Interest on Working Capital */}
+
         <View style={[styles.tableRow, styles.totalRow]}>
-          {/* Serial Number */}
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
@@ -310,7 +392,7 @@ const ProjectedExpenses = ({
               styleExpenses.bordernone,
             ]}
           >
-            1
+            2
           </Text>
 
           <Text
@@ -320,13 +402,11 @@ const ProjectedExpenses = ({
               styleExpenses.bordernone,
             ]}
           >
-            Interest On Term Loan
+            Interest On Working Capital
           </Text>
 
-          {/* Get total projection years */}
-          {Array.from({
-            length: formData.ProjectReportSetting.ProjectionYears,
-          }).map((_, index) => (
+          {/* ✅ Display Interest Values for Each Year */}
+          {interestOnWorkingCapital.map((interest, index) => (
             <Text
               key={index}
               style={[
@@ -334,9 +414,42 @@ const ProjectedExpenses = ({
                 styleExpenses.fontSmall,
               ]}
             >
-              {formatNumber(
-                yearlyInterestLiabilities[index] || 0
-              )}
+              {formatNumber(interest)}
+            </Text>
+          ))}
+        </View>
+
+        {/* ✅ Render Depreciation Row */}
+        <View style={[stylesMOF.row, styles.tableRow]}>
+          <Text
+            style={[
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
+            ]}
+          >
+            3
+          </Text>
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Depreciation
+          </Text>
+
+          {/* ✅ Display Depreciation Values for Each Year */}
+          {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {formatNumber(depreciationValue)}
             </Text>
           ))}
         </View>
@@ -345,7 +458,7 @@ const ProjectedExpenses = ({
           .filter((expense) => expense.type === "indirect")
           .map((expense, index) => {
             const baseValue = Number(expense.value) || 0;
-            const initialValue = baseValue * 12;
+            const initialValue = baseValue;
 
             return (
               <View key={index} style={[stylesMOF.row, styles.tableRow]}>
@@ -356,7 +469,7 @@ const ProjectedExpenses = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {index + 2}
+                  {index + 4}
                 </Text>
                 <Text
                   style={[
@@ -386,9 +499,7 @@ const ProjectedExpenses = ({
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(
-                        calculatedValue.toFixed(2)
-                      )}
+                      {formatNumber(calculatedValue.toFixed(2))}
                     </Text>
                   );
                 })}
@@ -396,7 +507,7 @@ const ProjectedExpenses = ({
             );
           })}
 
-        {/* Total Indirect Expenses Row */}
+        {/* ✅ Total Indirect Expenses Row */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
@@ -412,10 +523,10 @@ const ProjectedExpenses = ({
               styleExpenses.bordernone,
             ]}
           >
-            Total
+            Total Indirect Expenses
           </Text>
 
-          {/* ✅ Use corrected `totalIndirectExpensesArray` here */}
+          {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
           {totalIndirectExpensesArray.map((totalValue, yearIndex) => (
             <Text
               key={yearIndex}

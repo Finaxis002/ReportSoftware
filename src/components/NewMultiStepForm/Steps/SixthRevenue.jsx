@@ -6,9 +6,34 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years || 1
   );
 
+  // ✅ Initialize formType from formData but ensure it updates
+  const [formType, setFormType] = useState(
+    formData?.ProjectReportSetting?.SelectRepaymentMethod === "Monthly"
+  );
+
+  // ✅ Update formType if formData changes
+  useEffect(() => {
+    if (formData?.ProjectReportSetting?.SelectRepaymentMethod) {
+      setFormType(
+        formData.ProjectReportSetting.SelectRepaymentMethod === "Monthly"
+      );
+    }
+  }, [formData]);
+
+  // ✅ Correct toggle function to update state
+  const toggleType = (isChecked) => {
+    setFormType(isChecked); // ✅ Toggle value between true (Monthly) and false (Others)
+
+    // ✅ Ensure localData also updates with the selected formType
+    setLocalData((prevData) => ({
+      ...prevData,
+      formType: isChecked ? "Monthly" : "Others",
+    }));
+  };
+
   const [localData, setLocalData] = useState(() => {
     return revenueData && Object.keys(revenueData).length > 0
-      ? revenueData
+      ? { ...revenueData, formType: revenueData?.formType || "Others" } // Ensure it exists
       : {
           formFields: [
             {
@@ -32,8 +57,25 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
               amount: 0,
             },
           ],
+          formType: "Others", // Ensure a default value if missing
         };
   });
+
+  // ✅ Ensure localData updates when revenueData changes
+  useEffect(() => {
+    if (revenueData && Object.keys(revenueData).length > 0) {
+      setLocalData({
+        ...revenueData,
+        formType: revenueData?.formType || "Others",
+      });
+    }
+  }, [revenueData]);
+
+  useEffect(() => {
+    onFormDataChange({ Revenue: localData });
+  }, [localData, onFormDataChange]);
+
+  console.log("form Data from Revenue : ", formData);
 
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }).fill(0)
@@ -44,22 +86,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   const [totalRevenue, setTotalRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }).fill(0)
   );
-
-
-
-  useEffect(() => {
-    if (revenueData && Object.keys(revenueData).length > 0) {
-      setLocalData(revenueData); // ✅ Update when new business is selected
-    }
-  }, [revenueData]);
-
-  useEffect(() => {
-    onFormDataChange({ Revenue: localData });
-  }, [localData, onFormDataChange]);
-
-  console.log("form Data from Revenue : ", formData);
-
-  const [formType, setFormType] = useState(false);
 
   const addFields = (e) => {
     e.preventDefault();
@@ -98,10 +124,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     }
 
     setLocalData({ ...localData, formFields: updatedFormFields });
-  };
-
-  const toggleType = (value) => {
-    setFormType(value);
   };
 
   const addFields2 = (e) => {
@@ -201,6 +223,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   return (
     <>
       <div className="form-scroll">
+        {/* ✅ Toggle Section */}
         <div className="toggleBtn">
           {formType ? (
             <button
@@ -233,7 +256,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         {formType ? (
           <form onSubmit={submit}>
             <div className="position-relative w-100">
-              <div className="form-scroll" style={{height:"30vh" }}>
+              <div className="form-scroll" style={{ height: "30vh" }}>
                 <table className="table table-revenue">
                   <thead>
                     <tr>
@@ -408,7 +431,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         ) : (
           <form onSubmit={submit}>
             <div className="position-relative w-100">
-              <div className="form-scroll" style={{height:"30vh" }}>
+              <div className="form-scroll" style={{ height: "30vh" }}>
                 <table className="table">
                   <thead>
                     <tr>
