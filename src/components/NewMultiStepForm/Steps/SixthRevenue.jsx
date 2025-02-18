@@ -25,9 +25,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     }
   });
 
-
-   // ✅ Initialize localData correctly
-   const [localData, setLocalData] = useState(() => {
+  // ✅ Initialize localData correctly
+  const [localData, setLocalData] = useState(() => {
     if (revenueData && Object.keys(revenueData).length > 0) {
       return { ...revenueData, formType: revenueData?.formType || "Others" };
     }
@@ -50,28 +49,28 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           amount: 0,
         },
       ],
+      totalMonthlyRevenue: Array(projectionYears).fill(0), // ✅ Ensure default value
+
       formType: "Others", // ✅ Ensure default value
       togglerType: false, // ✅ Ensure default value
     };
   });
 
-
-   // ✅ Sync `localData.togglerType` when `togglerType` changes
-   useEffect(() => {
+  // ✅ Sync `localData.togglerType` when `togglerType` changes
+  useEffect(() => {
     setLocalData((prevData) => ({
       ...prevData,
       togglerType,
     }));
   }, [togglerType]);
 
-    // ✅ Sync `localData.formType` when `formType` changes
-    useEffect(() => {
-      setLocalData((prevData) => ({
-        ...prevData,
-        formType: formType ? "Others" : "Monthly",
-      }));
-    }, [formType]);
-
+  // ✅ Sync `localData.formType` when `formType` changes
+  useEffect(() => {
+    setLocalData((prevData) => ({
+      ...prevData,
+      formType: formType ? "Others" : "Monthly",
+    }));
+  }, [formType]);
 
   // ✅ Ensure `onFormDataChange` updates only when `localData` changes
   useEffect(() => {
@@ -89,9 +88,27 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     setTogglerType(isChecked); // ✅ Ensure togglerType is updated
   };
 
+  // ✅ Initialize totalMonthlyRevenue state
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
-    Array.from({ length: Math.max(1, projectionYears) }).fill(0)
+    Array(projectionYears).fill(0)
   );
+
+  // ✅ Compute totalMonthlyRevenue dynamically
+  useEffect(() => {
+    const total = Array.from({ length: projectionYears }).map((_, yearIndex) =>
+      localData.formFields2.reduce(
+        (sum, field) => sum + Number(field.years[yearIndex] || 0),
+        0
+      )
+    );
+    setTotalMonthlyRevenue(total);
+    // ✅ Update localData with computed totalMonthlyRevenue
+    setLocalData((prevData) => ({
+      ...prevData,
+      totalMonthlyRevenue: total,
+    }));
+  }, [localData.formFields2, projectionYears]);
+
   const [noOfMonths, setNoOfMonths] = useState(
     Array.from({ length: projectionYears || 1 }).fill(12)
   );
@@ -531,6 +548,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
               <div className="position-relative w-100">
                 <div className="total-div pt-3 px-2">
+                  {/* Total Monthly Revenue */}
                   <div className="d-flex">
                     <label className="form-label w-[20rem] fs-10">
                       Total Monthly Revenue
@@ -539,13 +557,14 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       <tbody>
                         <tr>
                           {totalMonthlyRevenue.map((v, i) => (
-                            <td key={i}>{v}</td> // Display the exact sum of year columns
+                            <td key={i}>{v.toLocaleString("en-IN")}</td>
                           ))}
                         </tr>
                       </tbody>
                     </table>
                   </div>
 
+                  {/* Number of Months */}
                   <div className="d-flex">
                     <label className="form-label w-[20rem] fs-10">
                       No. of Months
@@ -569,6 +588,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                     </table>
                   </div>
 
+                  {/* Total Revenue */}
                   <div className="d-flex">
                     <label className="form-label w-[20rem] fs-10">
                       Total Revenue
@@ -577,7 +597,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       <tbody>
                         <tr>
                           {totalRevenue.map((v, i) => (
-                            <td key={i}>{v}</td>
+                            <td key={i}>{v.toLocaleString("en-IN")}</td>
                           ))}
                         </tr>
                       </tbody>

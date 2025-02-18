@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 
-const ProjectedRevenue = ({ formData }) => {
+const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
   // ✅ Function to format numbers based on the selected format type
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -35,6 +35,14 @@ const ProjectedRevenue = ({ formData }) => {
       selectedData.reduce((sum, item) => sum + (Number(item.years?.[yearIndex]) || 0), 0)
     );
   }, [selectedData, projectionYears]);
+
+
+  // ✅ Send computed total revenue to parent or another component
+  useEffect(() => {
+    if (onTotalRevenueUpdate) {
+      onTotalRevenueUpdate(totalRevenueReceipts);
+    }
+  }, [totalRevenueReceipts, onTotalRevenueUpdate]);
 
   // ✅ Console log only when `formType` or `selectedData` changes
   useEffect(() => {

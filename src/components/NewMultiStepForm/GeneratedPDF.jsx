@@ -183,7 +183,7 @@ const GeneratedPDF = () => {
 
           <ProjectedRevenue
             formData={formData}
-            setTotalRevenueReceipts={setTotalRevenueReceipts}
+            onTotalRevenueUpdate={setTotalRevenueReceipts}
           />
 
           {/* Projected Profitability Statement */}
