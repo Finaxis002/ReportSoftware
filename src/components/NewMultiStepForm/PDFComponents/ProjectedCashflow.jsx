@@ -71,40 +71,7 @@ const ProjectedCashflow = ({
     }
   };
 
-  const IncomeTaxCalculation = ({
-    formData = {},
-    netProfitBeforeTax = [],
-    totalDepreciationPerYear = [],
-  }) => {
-    if (!formData || typeof formData !== "object") {
-      console.error("❌ Invalid formData provided");
-      return null; // Prevent rendering if formData is invalid
-    }
 
-    // Get starting year (assuming 2025, adjust based on your data)
-    const startYear =
-      Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
-    const projectionYears =
-      Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
-    // Default to 5 years if not provided
-    const rateOfInterest =
-      Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
-
-    // ✅ Compute Tax at 30% on Net Profit Before Tax
-    const incomeTax =
-      Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
-        ? netProfitBeforeTax.map((npbt) =>
-            npbt ? Math.round(npbt * (rateOfInterest / 100)) : "0.00"
-          )
-        : [];
-  };
-
-  useEffect(() => {
-    // console.log(
-    //   "✅ Interest on Working Capital Received in Cashflow:",
-    //   interestOnWorkingCapital
-    // );
-  }, [interestOnWorkingCapital]);
 
   // ✅ Compute Net Profit Before Interest & Taxes for Each Year
   const netProfitBeforeInterestAndTaxes = Array.from({
@@ -119,17 +86,11 @@ const ProjectedCashflow = ({
     const calculatedValue =
       profitBeforeTax + interestOnTermLoan + interestOnWorkingCapitalValue;
 
-    // console.log(
-    //   `Year ${
-    //     yearIndex + 1
-    //   }: NPBIT Calculation -> Profit Before Tax: ${profitBeforeTax}, Interest on TL: ${interestOnTermLoan}, Interest on WC: ${interestOnWorkingCapitalValue}, NPBIT: ${calculatedValue}`
-    // );
 
     return calculatedValue;
   });
 
-  const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
+  const rateOfInterest = Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
 
   const incomeTax =
     Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
@@ -138,35 +99,32 @@ const ProjectedCashflow = ({
         )
       : [];
 
-  // ✅ Compute Total Sources for Each Year
-  const totalSourcesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      return (
-        Number(
-          calculations.sources?.NetProfitBeforeInterestAndTaxes?.[index] || 0
-        ) +
-        Number(
-          index === 0
-            ? formData.MeansOfFinance?.workingCapital?.promoterContribution || 0
-            : 0
-        ) +
-        Number(
-          index === 0 ? formData.MeansOfFinance?.termLoan?.termLoan || 0 : 0
-        ) +
-        Number(
-          index === 0
-            ? formData.MeansOfFinance?.workingCapital?.termLoan || 0
-            : 0
-        ) +
-        Number(
-          Array.isArray(totalDepreciationPerYear) &&
-            totalDepreciationPerYear[index] !== undefined
-            ? totalDepreciationPerYear[index]
-            : 0
-        )
-      );
-    }
+ // ✅ Compute Total Sources for Each Year
+const totalSourcesArray = Array.from({ length: projectionYears }).map((_, index) => {
+  const netProfitBeforeInterestAndTaxes = Number(
+    calculations?.sources?.NetProfitBeforeInterestAndTaxes?.[index] || 0
   );
+
+  const promoterContribution =
+    index === 0 ? Number(formData?.MeansOfFinance?.workingCapital?.promoterContribution || 0) : 0;
+
+  const termLoan =
+    index === 0 ? Number(formData?.MeansOfFinance?.termLoan?.termLoan || 0) : 0;
+
+  const workingCapitalLoan =
+    index === 0 ? Number(formData?.MeansOfFinance?.workingCapital?.termLoan || 0) : 0;
+
+  const depreciation = Number(totalDepreciationPerYear?.[index] || 0);
+
+  return (
+    netProfitBeforeInterestAndTaxes +
+    promoterContribution +
+    termLoan +
+    workingCapitalLoan +
+    depreciation
+  );
+});
+
 
   // ✅ Compute Total Uses for Each Year
   const totalUsesArray = Array.from({ length: projectionYears }).map(
