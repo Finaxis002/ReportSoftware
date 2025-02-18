@@ -1,39 +1,52 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 
-const ProjectedRevenue = ({ formData , setTotalRevenueReceipts}) => {
+const ProjectedRevenue = ({ formData }) => {
   // ✅ Function to format numbers based on the selected format type
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
 
     switch (formatType) {
-      case "1": return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-      case "2": return new Intl.NumberFormat("en-US").format(value); // USD Format
-      case "3": return new Intl.NumberFormat("en-IN").format(value); // Generic Format
-      default: return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+      case "1":
+        return new Intl.NumberFormat("en-IN").format(value); // Indian Format
+      case "2":
+        return new Intl.NumberFormat("en-US").format(value); // USD Format
+      case "3":
+        return new Intl.NumberFormat("en-IN").format(value); // Generic Format
+      default:
+        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
     }
   };
 
   // ✅ Extract projection years and formType safely
   const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
-  const formType = formData?.Revenue?.formType || "Others"; // Default to "Others" if missing
+  const formType = formData?.Revenue?.formType || "Others"; // ✅ Defaults to "Others" if missing
 
-  // ✅ Determine which dataset to use based on `formType`
-  const selectedData = formData?.Revenue?.[formType === "Others" ? "formFields" : "formFields2"] || [];
+  // ✅ Corrected selection of dataset for "Others"
+  const selectedData = useMemo(() => {
+    return formData?.Revenue?.[formType === "Others" ? "formFields" : "formFields2"] || [];
+  }, [formData?.Revenue, formType]);
 
-  // ✅ Get total values: If "Others", use `totalRevenueForOthers`; else compute sum
-  const totalRevenueReceipts = formType === "Others"
-    ? formData?.Revenue?.totalRevenueForOthers || []
-    : Array.from({ length: projectionYears }).map((_, yearIndex) => 
-        selectedData.reduce((sum, item) => sum + (Number(item.years?.[yearIndex]) || 0), 0)
-      );
+  // ✅ Compute total revenue for each year
+  const totalRevenueReceipts = useMemo(() => {
+    return Array.from({ length: projectionYears }).map((_, yearIndex) =>
+      selectedData.reduce((sum, item) => sum + (Number(item.years?.[yearIndex]) || 0), 0)
+    );
+  }, [selectedData, projectionYears]);
 
-  // ✅ Send the total revenue values to parent component
+  // ✅ Console log only when `formType` or `selectedData` changes
   useEffect(() => {
-    setTotalRevenueReceipts(totalRevenueReceipts); // Send data up
-  }, [totalRevenueReceipts, setTotalRevenueReceipts]);
+    console.log("🔍 Displaying Form Type:", formType);
+    console.table(
+      selectedData.map((item, index) => ({
+        "S. No.": index + 1,
+        "Particular": item.particular,
+        ...item.years.reduce((acc, val, i) => ({ ...acc, [`Year ${i + 1}`]: val }), {}),
+      }))
+    );
+  }, [formType, JSON.stringify(selectedData)]); // ✅ Use JSON.stringify to avoid infinite loops
 
   return (
     <Page
@@ -136,6 +149,8 @@ const ProjectedRevenue = ({ formData , setTotalRevenueReceipts}) => {
 };
 
 export default ProjectedRevenue;
+
+
 
 
 

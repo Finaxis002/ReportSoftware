@@ -6,76 +6,88 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years || 1
   );
 
-  // ✅ Initialize formType from formData but ensure it updates
-  const [formType, setFormType] = useState(
-    formData?.ProjectReportSetting?.SelectRepaymentMethod === "Monthly"
+  // ✅ Initialize togglerType (boolean) from revenueData, default to false
+  const [togglerType, setTogglerType] = useState(
+    revenueData?.togglerType ?? false
   );
 
-  // ✅ Update formType if formData changes
+  // ✅ Ensure togglerType updates when revenueData changes
   useEffect(() => {
-    if (formData?.ProjectReportSetting?.SelectRepaymentMethod) {
-      setFormType(
-        formData.ProjectReportSetting.SelectRepaymentMethod === "Monthly"
-      );
+    if (revenueData?.togglerType !== undefined) {
+      setTogglerType(revenueData.togglerType);
     }
-  }, [formData]);
+  }, [revenueData?.togglerType]);
 
-  // ✅ Correct toggle function to update state
-  const toggleType = (isChecked) => {
-    setFormType(isChecked); // ✅ Toggle value between true (Monthly) and false (Others)
-
-    // ✅ Ensure localData also updates with the selected formType
-    setLocalData((prevData) => ({
-      ...prevData,
-      formType: isChecked ? "Monthly" : "Others",
-    }));
-  };
-
-  const [localData, setLocalData] = useState(() => {
-    return revenueData && Object.keys(revenueData).length > 0
-      ? { ...revenueData, formType: revenueData?.formType || "Others" } // Ensure it exists
-      : {
-          formFields: [
-            {
-              particular: "p1",
-              years: Array.from({ length: Math.max(1, projectionYears) }).fill(
-                0
-              ),
-              amount: 0,
-              rowType: "0",
-            },
-          ],
-          totalRevenueForOthers: Array.from({
-            length: Math.max(1, projectionYears),
-          }).fill(0),
-          formFields2: [
-            {
-              particular: "p1",
-              years: Array.from({ length: Math.max(1, projectionYears) }).fill(
-                0
-              ),
-              amount: 0,
-            },
-          ],
-          formType: "Others", // Ensure a default value if missing
-        };
+  // ✅ Initialize formType based on revenueData first, fallback to formData
+  const [formType, setFormType] = useState(() => {
+    if (revenueData?.formType) {
+      return revenueData.formType === "Others";
+    }
   });
 
-  // ✅ Ensure localData updates when revenueData changes
-  useEffect(() => {
-    if (revenueData && Object.keys(revenueData).length > 0) {
-      setLocalData({
-        ...revenueData,
-        formType: revenueData?.formType || "Others",
-      });
-    }
-  }, [revenueData]);
 
+   // ✅ Initialize localData correctly
+   const [localData, setLocalData] = useState(() => {
+    if (revenueData && Object.keys(revenueData).length > 0) {
+      return { ...revenueData, formType: revenueData?.formType || "Others" };
+    }
+    return {
+      formFields: [
+        {
+          particular: "p1",
+          years: Array.from({ length: Math.max(1, projectionYears) }).fill(0),
+          amount: 0,
+          rowType: "0",
+        },
+      ],
+      totalRevenueForOthers: Array.from({
+        length: Math.max(1, projectionYears),
+      }).fill(0),
+      formFields2: [
+        {
+          particular: "p1",
+          years: Array.from({ length: Math.max(1, projectionYears) }).fill(0),
+          amount: 0,
+        },
+      ],
+      formType: "Others", // ✅ Ensure default value
+      togglerType: false, // ✅ Ensure default value
+    };
+  });
+
+
+   // ✅ Sync `localData.togglerType` when `togglerType` changes
+   useEffect(() => {
+    setLocalData((prevData) => ({
+      ...prevData,
+      togglerType,
+    }));
+  }, [togglerType]);
+
+    // ✅ Sync `localData.formType` when `formType` changes
+    useEffect(() => {
+      setLocalData((prevData) => ({
+        ...prevData,
+        formType: formType ? "Others" : "Monthly",
+      }));
+    }, [formType]);
+
+
+  // ✅ Ensure `onFormDataChange` updates only when `localData` changes
   useEffect(() => {
     onFormDataChange({ Revenue: localData });
-  }, [localData, onFormDataChange]);
+  }, [localData]);
 
-  console.log("form Data from Revenue : ", formData);
+  console.log("Updated formType: ", formType);
+  console.log("Updated localData formType: ", localData.formType);
+
+  console.log("form Data : ", formData);
+
+  // ✅ Toggle function to correctly update both `formType` and `togglerType`
+  const toggleType = (isChecked) => {
+    setFormType(isChecked);
+    setTogglerType(isChecked); // ✅ Ensure togglerType is updated
+  };
 
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }).fill(0)

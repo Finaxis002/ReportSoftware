@@ -22,7 +22,7 @@ const DebtServiceCoverageRatio = ({
   yearlyPrincipalRepayment, // ✅ Receiving total principal repayment
   netProfitAfterTax,
 }) => {
-  console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
+  // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
