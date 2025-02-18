@@ -345,11 +345,25 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                 {index === 0 && (
                   <label htmlFor="type" className="form-label"></label>
                 )}
+                {/* <select
+                  className="form-select mt-auto"
+                  style={{ width: "170px" }}
+                  aria-label="Direct/Indirect"
+                  name="type"
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "directExpense")
+                  }
+                >
+                  <option value="direct">Direct</option>
+                  <option value="indirect">Indirect</option>
+                </select> */}
+
                 <select
                   className="form-select mt-auto"
                   style={{ width: "170px" }}
                   aria-label="Direct/Indirect"
                   name="type"
+                  value={form.type} // ✅ Set the value dynamically from form data
                   onChange={(event) =>
                     handleFormChange(event, index, form, "directExpense")
                   }

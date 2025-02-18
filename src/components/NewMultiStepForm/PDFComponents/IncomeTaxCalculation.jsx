@@ -32,7 +32,7 @@ const IncomeTaxCalculation = ({
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
   // Default to 5 years if not provided
   const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
+    Number(formData?.ProjectReportSetting?.incomeTax) || 0;
 
   // ✅ Compute Tax at 30% on Net Profit Before Tax
   const incomeTax =
@@ -42,9 +42,7 @@ const IncomeTaxCalculation = ({
         )
       : [];
 
-  // const incomeTax1 = Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
-  // ? netProfitBeforeTax.map((npbt) => (npbt ? npbt * 0.30 : 0))
-  // : [];
+
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
@@ -412,7 +410,7 @@ const IncomeTaxCalculation = ({
                 { paddingVertical: "8px" },
               ]}
             >
-              Tax {rateOfInterest}%
+              Tax {formData.ProjectReportSetting.incomeTax}%
             </Text>
             {incomeTax.length > 0 ? (
               incomeTax.map((tax, index) => (
