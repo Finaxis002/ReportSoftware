@@ -246,7 +246,7 @@ const ProjectedExpensesWMoratorium = ({
           </View>
 
           {/* Salary and Wages */}
-          <View style={[stylesMOF.row, styles.tableRow]}>
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -286,7 +286,7 @@ const ProjectedExpensesWMoratorium = ({
           {directExpense
             .filter((expense) => expense.type === "direct")
             .map((expense, index) => (
-              <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+              <View key={index} style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[
                     stylesCOP.serialNoCellDetail,
@@ -464,7 +464,7 @@ const ProjectedExpensesWMoratorium = ({
           </View>
 
           {/* ✅ Render Depreciation Row */}
-          <View style={[stylesMOF.row, styles.tableRow]}>
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -504,7 +504,7 @@ const ProjectedExpensesWMoratorium = ({
               const baseValue = Number(expense.value) || 0;
 
               return (
-                <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+                <View key={index} style={[styles.tableRow, styles.totalRow]}>
                   {/* Serial Number */}
                   <Text
                     style={[
