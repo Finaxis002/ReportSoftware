@@ -19,7 +19,8 @@ const ProjectedDepreciation = ({
   formData,
   localData,
   setTotalDepreciation,
-  onComputedData1 
+  onComputedData1 ,
+ onFirstYearGrossAssetsCalculated
 }) => {
 
   // State for First Year Gross Fixed Assets

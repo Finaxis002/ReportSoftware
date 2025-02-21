@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 
-const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
+const ProjectedRevenue = ({ formData, onTotalRevenueUpdate }) => {
   // ✅ Function to format numbers based on the selected format type
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -21,21 +21,28 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
   };
 
   // ✅ Extract projection years and formType safely
-  const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
+  const projectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
   const formType = formData?.Revenue?.formType || "Others"; // ✅ Defaults to "Others" if missing
 
   // ✅ Corrected selection of dataset for "Others"
   const selectedData = useMemo(() => {
-    return formData?.Revenue?.[formType === "Others" ? "formFields" : "formFields2"] || [];
+    return (
+      formData?.Revenue?.[
+        formType === "Others" ? "formFields" : "formFields2"
+      ] || []
+    );
   }, [formData?.Revenue, formType]);
 
   // ✅ Compute total revenue for each year
   const totalRevenueReceipts = useMemo(() => {
     return Array.from({ length: projectionYears }).map((_, yearIndex) =>
-      selectedData.reduce((sum, item) => sum + (Number(item.years?.[yearIndex]) || 0), 0)
+      selectedData.reduce(
+        (sum, item) => sum + (Number(item.years?.[yearIndex]) || 0),
+        0
+      )
     );
   }, [selectedData, projectionYears]);
-
 
   // ✅ Send computed total revenue to parent or another component
   useEffect(() => {
@@ -44,17 +51,17 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
     }
   }, [totalRevenueReceipts, onTotalRevenueUpdate]);
 
-  // ✅ Console log only when `formType` or `selectedData` changes
-  useEffect(() => {
-    console.log("🔍 Displaying Form Type:", formType);
-    console.table(
-      selectedData.map((item, index) => ({
-        "S. No.": index + 1,
-        "Particular": item.particular,
-        ...item.years.reduce((acc, val, i) => ({ ...acc, [`Year ${i + 1}`]: val }), {}),
-      }))
-    );
-  }, [formType, JSON.stringify(selectedData)]); // ✅ Use JSON.stringify to avoid infinite loops
+  // // ✅ Console log only when `formType` or `selectedData` changes
+  // useEffect(() => {
+  //   // console.log("🔍 Displaying Form Type:", formType);
+  //   console.table(
+  //     selectedData.map((item, index) => ({
+  //       "S. No.": index + 1,
+  //       "Particular": item.particular,
+  //       ...item.years.reduce((acc, val, i) => ({ ...acc, [`Year ${i + 1}`]: val }), {}),
+  //     }))
+  //   );
+  // }, [formType, JSON.stringify(selectedData)]); // ✅ Use JSON.stringify to avoid infinite loops
 
   return (
     <Page
@@ -64,7 +71,9 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
       <View style={styleExpenses.paddingx}>
         {/* Client Name & Heading */}
         <View>
-          <Text style={styles.clientName}>{formData?.AccountInformation?.clientName}</Text>
+          <Text style={styles.clientName}>
+            {formData?.AccountInformation?.clientName}
+          </Text>
           <View style={stylesCOP.heading}>
             <Text>Projected Revenue/ Sales</Text>
           </View>
@@ -77,7 +86,9 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text style={[styles.serialNoCell, styleExpenses.sno]}>S. No.</Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>Particulars</Text>
+            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+              Particulars
+            </Text>
 
             {/* Dynamically Generate Year Columns */}
             {Array.from({ length: projectionYears }).map((_, yearIndex) => (
@@ -97,7 +108,9 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
 
           return (
             <View key={index} style={[stylesMOF.row, styleExpenses.tableRow]}>
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>{index + 1}</Text>
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                {index + 1}
+              </Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -125,7 +138,9 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
 
         {/* ✅ Compute & Display Total */}
         <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-          <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}></Text>
+          <Text
+            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+          ></Text>
 
           <Text
             style={[
@@ -157,11 +172,6 @@ const ProjectedRevenue = ({ formData , onTotalRevenueUpdate }) => {
 };
 
 export default ProjectedRevenue;
-
-
-
-
-
 
 // import React from "react";
 // import { Page, View, Text } from "@react-pdf/renderer";

@@ -14,7 +14,7 @@ Font.register({
   ],
 });
 
-const ProjectedCashflow = ({
+const ProjectedBalanceSheet = ({
   formData = {},
   calculations = {},
   totalDepreciationPerYear = [],
@@ -213,7 +213,7 @@ const ProjectedCashflow = ({
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
-          <Text>Projected Cashflow</Text>
+          <Text>Projected Balance Sheet </Text>
         </View>
 
         <View style={[styles.table]}>
@@ -244,14 +244,15 @@ const ProjectedCashflow = ({
             ))}
           </View>
 
-          {/* Sources Section */}
+          {/* Liabilities Section */}
+
           <View>
             <View style={[stylesMOF.row, styleExpenses.headerRow]}>
               <Text style={[styleExpenses.sno]}>A</Text>
-              <Text style={stylesMOF.cell}>Sources</Text>
+              <Text style={stylesMOF.cell}>Liabilities</Text>
             </View>
 
-            {/* ✅ Net Profit before Interest & Taxes */}
+            {/* ✅ Capital */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -270,11 +271,11 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Net Profit before Interest & Taxes
+                Capital
               </Text>
 
-              {/* ✅ Display NPBIT Values for Each Year */}
-              {netProfitBeforeInterestAndTaxes.map((npbit, index) => (
+              {/* ✅totalPC */}
+              {Array.from({ length: projectionYears }).map((_, index) => (
                 <Text
                   key={index}
                   style={[
@@ -282,13 +283,12 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(npbit.toFixed(2))}{" "}
-                  {/* ✅ Display with 2 Decimal Places */}
+                  {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
                 </Text>
               ))}
             </View>
 
-            {/* Promoters’ Capital */}
+            {/* Reserves & Surplus */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -307,7 +307,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Promoters’ Capital
+               Reserves & Surplus
               </Text>
               {Array.from({ length: projectionYears }).map((_, index) => (
                 <Text
@@ -473,11 +473,12 @@ const ProjectedCashflow = ({
             </View>
           </View>
 
-          {/* Uses Section */}
+          {/* Assets Section */}
+
           <View>
             <View style={[stylesMOF.row, styleExpenses.headerRow]}>
               <Text style={[styleExpenses.sno]}>B</Text>
-              <Text style={stylesMOF.cell}>Uses</Text>
+              <Text style={stylesMOF.cell}>Assets</Text>
             </View>
 
             {/* Fixed Assets */}
@@ -725,110 +726,108 @@ const ProjectedCashflow = ({
           {/* Cash Balance Section */}
 
           {/* Opening Cash Balance */}
-          <View>
-            <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                1
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Opening Cash Balance
-              </Text>
+          <View style={styles.tableRow}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            >
+              1
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Opening Cash Balance
+            </Text>
 
-              {/* ✅ Display Updated Opening Cash Balance for Each Year */}
-              {cashBalances.map((cb, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(Math.round(cb.opening))}{" "}
-                </Text>
-              ))}
-            </View>
-
-            {/* Surplus During the Year */}
-            <View style={styles.tableRow}>
+            {/* ✅ Display Updated Opening Cash Balance for Each Year */}
+            {cashBalances.map((cb, index) => (
               <Text
+                key={index}
                 style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
                 ]}
               >
-                2
+                {formatNumber(Math.round(cb.opening))}{" "}
               </Text>
+            ))}
+          </View>
+
+          {/* Surplus During the Year */}
+          <View style={styles.tableRow}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            >
+              2
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Surplus During the Year
+            </Text>
+
+            {/* ✅ Display Surplus for Each Year */}
+            {cashBalances.map((cb, index) => (
               <Text
+                key={index}
                 style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
                 ]}
               >
-                Surplus During the Year
+                {formatNumber(Math.round(cb.surplus))}
               </Text>
+            ))}
+          </View>
 
-              {/* ✅ Display Surplus for Each Year */}
-              {cashBalances.map((cb, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(Math.round(cb.surplus))}
-                </Text>
-              ))}
-            </View>
+          {/* Closing Cash Balance */}
+          <View style={styles.tableRow}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            >
+              3
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Closing Cash Balance
+            </Text>
 
-            {/* Closing Cash Balance */}
-            <View style={styles.tableRow}>
+            {/* ✅ Display Closing Cash Balance for Each Year */}
+            {cashBalances.map((cb, index) => (
               <Text
+                key={index}
                 style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
                 ]}
               >
-                3
+                {formatNumber(Math.round(cb.closing))}
               </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Closing Cash Balance
-              </Text>
-
-              {/* ✅ Display Closing Cash Balance for Each Year */}
-              {cashBalances.map((cb, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(Math.round(cb.closing))}
-                </Text>
-              ))}
-            </View>
+            ))}
           </View>
         </View>
       </View>
@@ -836,4 +835,4 @@ const ProjectedCashflow = ({
   );
 };
 
-export default ProjectedCashflow;
+export default ProjectedBalanceSheet;

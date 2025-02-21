@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import {
@@ -25,6 +25,8 @@ import IncomeTaxCalculation from "./PDFComponents/IncomeTaxCalculation";
 import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
 import DebtServiceCoverageRatio from "./PDFComponents/DebtServiceCoverageRatio";
 import ProjectedCashflow from "./PDFComponents/ProjectedCashflow";
+import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
+import ProjectedExpensesWMoratorium from "./PDFComponents/ProjectedExpensesWMoratorium";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -46,8 +48,6 @@ const GeneratedPDF = () => {
 
   const [interestOnWorkingCapital, setInterestOnWorkingCapital] = useState([]);
 
-
-
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
@@ -58,8 +58,8 @@ const GeneratedPDF = () => {
     setYearlyInterestLiabilities(liabilities); // Update the state
   };
 
-   // ✅ Handler for Principal Repayment Calculation
-   const handlePrincipalRepaymentCalculated = (calculatedRepayment) => {
+  // ✅ Handler for Principal Repayment Calculation
+  const handlePrincipalRepaymentCalculated = (calculatedRepayment) => {
     setYearlyPrincipalRepayment(calculatedRepayment);
   };
 
@@ -73,32 +73,38 @@ const GeneratedPDF = () => {
     }
   };
 
-  const [localData, setLocalData] = useState(getStoredData);
+  const [localData, setLocalData] = useState(() => getStoredData());
 
   const [years, setYears] = useState(5);
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   useEffect(() => {
-    // Example: Update years dynamically
     const interval = setInterval(() => {
-      setYears((prev) => prev + 1);
+      setYears((prev) => (prev < 10 ? prev + 1 : prev)); // Stop at 10
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     if (role) setUserRole(role);
-  }, []);
+  }, []); // Runs only on mount
 
   // Ensure `formData` is always an object and destructure safely
-  const formData = location.state ? { ...location.state } : {};
-  if (!formData?.AccountInformation) {
-    return <div>No account information available</div>;
-  }
+  // const formData = location.state ? { ...location.state } : {};
+  // if (!formData?.AccountInformation) {
+  //   return <div>No account information available</div>;
+  // }
 
-  console.log("form Data : ", formData);
+  const formData = useMemo(() => {
+    return location.state ? { ...location.state } : {};
+  }, [location.state]);
+
+  useEffect(() => {
+    console.log("form Data : ", formData);
+  }, [formData]); // Logs only when formData changes
+
   // Extract expenses safely
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -177,6 +183,17 @@ const GeneratedPDF = () => {
             totalDepreciationPerYear={totalDepreciation}
             fringAndAnnualCalculation={fringAndAnnualCalculation}
             fringeCalculation={fringeCalculation}
+            yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+          />
+
+          <ProjectedExpensesWMoratorium
+            formData={formData}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            totalDepreciationPerYear={totalDepreciation}
+            fringAndAnnualCalculation={fringAndAnnualCalculation}
+            fringeCalculation={fringeCalculation}
+            interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+          
           />
 
           {/* Projected Revenue/ Sales */}
@@ -230,6 +247,19 @@ const GeneratedPDF = () => {
             totalRevenueReceipts={totalRevenueReceipts}
           />
 
+          <ProjectedBalanceSheet
+            formData={formData}
+            localData={localData}
+            totalDepreciationPerYear={totalDepreciation}
+            netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+            grossProfitValues={computedData.grossProfitValues || []}
+            yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+            interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+            firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+            totalRevenueReceipts={totalRevenueReceipts}
+          />
+
           <BreakEvenPoint
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -243,7 +273,7 @@ const GeneratedPDF = () => {
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
             yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
             totalDepreciationPerYear={totalDepreciation}
-           netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
+            netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
           />
         </Document>
       </PDFViewer>
