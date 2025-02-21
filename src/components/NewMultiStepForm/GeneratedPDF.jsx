@@ -26,7 +26,6 @@ import BreakEvenPoint from "./PDFComponents/BreakEvenPoint";
 import DebtServiceCoverageRatio from "./PDFComponents/DebtServiceCoverageRatio";
 import ProjectedCashflow from "./PDFComponents/ProjectedCashflow";
 import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
-import ProjectedExpensesWMoratorium from "./PDFComponents/ProjectedExpensesWMoratorium";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -183,19 +182,10 @@ const GeneratedPDF = () => {
             totalDepreciationPerYear={totalDepreciation}
             fringAndAnnualCalculation={fringAndAnnualCalculation}
             fringeCalculation={fringeCalculation}
-            yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-          />
-
-          <ProjectedExpensesWMoratorium
-            formData={formData}
-            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-            totalDepreciationPerYear={totalDepreciation}
-            fringAndAnnualCalculation={fringAndAnnualCalculation}
-            fringeCalculation={fringeCalculation}
             interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-          
           />
 
+         
           {/* Projected Revenue/ Sales */}
 
           <ProjectedRevenue
