@@ -97,7 +97,6 @@ const ProjectedExpenses = ({
     return (incrementedExpense / 12) * monthsInYear;
   };
 
-
   // Function to calculate indirect expenses considering the increment rate
   const calculateIndirectExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
@@ -153,12 +152,12 @@ const ProjectedExpenses = ({
     return totalDirectExpenses + totalSalaryWages;
   });
 
-
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     const totalIndirectExpenses = indirectExpense.reduce(
-      (sum, expense) => sum + calculateIndirectExpense(Number(expense.value) || 0, yearIndex),
+      (sum, expense) =>
+        sum + calculateIndirectExpense(Number(expense.value) || 0, yearIndex),
       0
     );
 
@@ -175,12 +174,12 @@ const ProjectedExpenses = ({
       interestExpenseOnWorkingCapital +
       depreciationExpense;
 
-    console.log(`Year ${yearIndex + 1}:`);
-    console.log(`  Indirect Expenses: ${totalIndirectExpenses.toFixed(2)}`);
-    console.log(`  Interest on Term Loan: ${interestOnTermLoan.toFixed(2)}`);
-    console.log(`  Interest on Working Capital: ${interestExpenseOnWorkingCapital.toFixed(2)}`);
-    console.log(`  Depreciation: ${depreciationExpense.toFixed(2)}`);
-    console.log(`  TOTAL: ${total.toFixed(2)}`);
+    // console.log(`Year ${yearIndex + 1}:`);
+    // console.log(`  Indirect Expenses: ${totalIndirectExpenses.toFixed(2)}`);
+    // console.log(`  Interest on Term Loan: ${interestOnTermLoan.toFixed(2)}`);
+    // console.log(`  Interest on Working Capital: ${interestExpenseOnWorkingCapital.toFixed(2)}`);
+    // console.log(`  Depreciation: ${depreciationExpense.toFixed(2)}`);
+    // console.log(`  TOTAL: ${total.toFixed(2)}`);
 
     return total;
   });
@@ -208,6 +207,14 @@ const ProjectedExpenses = ({
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      orientation={
+        formData.ProjectReportSetting.ProjectionYears > 7
+          ? "landscape"
+          : "portrait"
+      }
+      wrap={false}
+      break
+      style={[{ paddingVertical: "30px" }]}
     >
       <View style={styleExpenses.paddingx}>
         <View>
@@ -215,12 +222,12 @@ const ProjectedExpenses = ({
             {formData.AccountInformation.clientName}
           </Text>
           <View style={stylesCOP.heading}>
-            <Text>Projected Expenses with Moratorium</Text>
+            <Text>Projected Expenses</Text>
           </View>
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.serialNoCell, styleExpenses.sno]}>
+              <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
                 S. No.
               </Text>
               <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
@@ -247,15 +254,7 @@ const ProjectedExpenses = ({
 
           {/* Salary and Wages */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              1
-            </Text>
+            <Text style={stylesCOP.serialNoCellDetail}>1</Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -287,15 +286,7 @@ const ProjectedExpenses = ({
             .filter((expense) => expense.type === "direct")
             .map((expense, index) => (
               <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                <Text
-                  style={[
-                    stylesCOP.serialNoCellDetail,
-                    styleExpenses.sno,
-                    styleExpenses.bordernone,
-                  ]}
-                >
-                  {index + 1}
-                </Text>
+                <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -326,13 +317,7 @@ const ProjectedExpenses = ({
 
           {/* Total Direct Expenses */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -368,15 +353,7 @@ const ProjectedExpenses = ({
           {yearlyInterestLiabilities.length > 0 && (
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                1
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
 
               {/* Interest On Term Loan Label */}
               <Text
@@ -420,15 +397,7 @@ const ProjectedExpenses = ({
 
           {/* Interest on Working Capital */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              2
-            </Text>
+            <Text style={stylesCOP.serialNoCellDetail}>2</Text>
 
             <Text
               style={[
@@ -465,15 +434,7 @@ const ProjectedExpenses = ({
 
           {/* ✅ Render Depreciation Row */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              3
-            </Text>
+            <Text style={stylesCOP.serialNoCellDetail}>3</Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -506,15 +467,7 @@ const ProjectedExpenses = ({
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
                   {/* Serial Number */}
-                  <Text
-                    style={[
-                      stylesCOP.serialNoCellDetail,
-                      styleExpenses.sno,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {index + 4}
-                  </Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
 
                   {/* Expense Name */}
                   <Text
@@ -556,13 +509,7 @@ const ProjectedExpenses = ({
 
           {/* ✅ Total Indirect Expenses Row */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,

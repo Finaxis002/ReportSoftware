@@ -387,7 +387,7 @@ const ProjectedProfitability = ({
         </View>
 
         {/* Closing Stock / Inventory */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
+        <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
@@ -424,7 +424,7 @@ const ProjectedProfitability = ({
           ))}
         </View>
         {/* Opening Stock / Inventory */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
+        <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
@@ -511,7 +511,7 @@ const ProjectedProfitability = ({
           if (index !== activeRowIndex) return null; // Only render the active row
 
           return (
-            <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+            <View key={index} style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -577,7 +577,7 @@ const ProjectedProfitability = ({
             const initialValue = baseValue;
 
             return (
-              <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+              <View key={index} style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[
                     stylesCOP.serialNoCellDetail,
@@ -798,7 +798,7 @@ const ProjectedProfitability = ({
           ))}
         </View>
         {/* ✅ Render Depreciation Row */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
+        <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
@@ -840,7 +840,7 @@ const ProjectedProfitability = ({
             const initialValue = baseValue * 12;
 
             return (
-              <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+              <View key={index} style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[
                     stylesCOP.serialNoCellDetail,
@@ -923,7 +923,7 @@ const ProjectedProfitability = ({
         </View>
 
         {/* Net Profit Before Tax Calculation */}
-        <View style={[stylesMOF.row, styles.tableRow, { marginTop: "12px" }]}>
+        <View style={[styles.tableRow, styles.totalRow, { marginTop: "12px" }]}>
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
@@ -975,7 +975,7 @@ const ProjectedProfitability = ({
         </View>
         {/* Income Tax @  % */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[
@@ -1016,7 +1016,7 @@ const ProjectedProfitability = ({
         </View>
         {/* Net Profit After Tax Calculation  */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[
@@ -1068,7 +1068,7 @@ const ProjectedProfitability = ({
         </View>
         {/* Withdrawals during the year  */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[
@@ -1113,7 +1113,7 @@ const ProjectedProfitability = ({
 
         {/* Balance Trf. To Balance Sheet */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[
@@ -1159,7 +1159,7 @@ const ProjectedProfitability = ({
 
         {/* ✅ Display Precomputed Cumulative Balance Transferred Values */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[
@@ -1204,7 +1204,7 @@ const ProjectedProfitability = ({
 
         {/* ✅ Cash Profit (NPAT + Dep.) */}
         <View
-          style={[stylesMOF.row, styles.tableRow, { borderWidth: "0.1px" }]}
+         style={[styles.tableRow, styles.totalRow]}
         >
           <Text
             style={[

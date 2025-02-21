@@ -39,7 +39,7 @@ const Repayment = ({
   // ✅ Correct the total repayment months (including moratorium)
   let totalMonths = repaymentMonths + moratoriumPeriod;
   const numYears = Math.ceil(totalMonths / 12); // Convert months to years
-  
+
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
   let fixedPrincipalRepayment =
     effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
@@ -137,29 +137,28 @@ const Repayment = ({
 
   useEffect(() => {
     if (!data || data.length === 0) return;
-   // ✅ Compute Yearly Principal Repayment
-  const computedYearlyPrincipalRepayment = data.map((yearData) =>
-    yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
-  );
+    // ✅ Compute Yearly Principal Repayment
+    const computedYearlyPrincipalRepayment = data.map((yearData) =>
+      yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
+    );
 
-  // ✅ Find First Year Where Repayment Actually Starts
-  const firstRepaymentYearIndex = computedYearlyPrincipalRepayment.findIndex(
-    (value) => value > 0
-  );
+    // ✅ Find First Year Where Repayment Actually Starts
+    const firstRepaymentYearIndex = computedYearlyPrincipalRepayment.findIndex(
+      (value) => value > 0
+    );
 
-  // ✅ Exclude the Moratorium Year (i.e., remove leading 0 values)
-  const filteredPrincipalRepayment = computedYearlyPrincipalRepayment.slice(
-    firstRepaymentYearIndex
-  );
-  
-     // ✅ Set State and Pass to Parent
-  setYearlyPrincipalRepayment(filteredPrincipalRepayment);
+    // ✅ Exclude the Moratorium Year (i.e., remove leading 0 values)
+    const filteredPrincipalRepayment = computedYearlyPrincipalRepayment.slice(
+      firstRepaymentYearIndex
+    );
 
-  if (onPrincipalRepaymentCalculated) {
-    onPrincipalRepaymentCalculated(filteredPrincipalRepayment);
-  }
+    // ✅ Set State and Pass to Parent
+    setYearlyPrincipalRepayment(filteredPrincipalRepayment);
+
+    if (onPrincipalRepaymentCalculated) {
+      onPrincipalRepaymentCalculated(filteredPrincipalRepayment);
+    }
   }, []);
-  
 
   // ✅ Compute Yearly Total Interest Liability (Ignoring Moratorium Period)
   const computedYearlyInterestLiabilities = data
@@ -197,33 +196,28 @@ const Repayment = ({
     }
   }, []); // Runs once when component mounts
 
-
   useEffect(() => {
     // ✅ Find the first year where repayment actually starts
     const firstRepaymentYearIndex = data.findIndex((yearData) =>
       yearData.some((entry) => entry.principalRepayment > 0)
     );
-  
+
     // ✅ Compute total interest liability per year, starting from first repayment year
     const computedYearlyInterestLiabilities = data
       .slice(firstRepaymentYearIndex) // ✅ Ignore pre-repayment years
       .map((yearData) =>
         yearData.reduce((sum, entry) => sum + entry.interestLiability, 0)
       );
-  
+
     // console.log("Corrected Yearly Interest Liabilities:", computedYearlyInterestLiabilities); // ✅ Log the correct array
-  
+
     setYearlyInterestLiabilities(computedYearlyInterestLiabilities);
-  
+
     if (onInterestCalculated) {
       onInterestCalculated(computedYearlyInterestLiabilities);
     }
   }, []); // ✅ Runs only once when component mounts
-  
 
-
-
-  
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
@@ -395,7 +389,6 @@ const Repayment = ({
             </View>
           </View>
 
-          {/* Table Body */}
           {/* ✅ Remove tables where principal repayment is 0 and re-index tables */}
           {data
             .map((yearData, yearIndex) => ({
