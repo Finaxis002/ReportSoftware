@@ -7,7 +7,8 @@ const ProjectedExpenses = ({
   yearlyInterestLiabilities,
   totalDepreciationPerYear,
   fringAndAnnualCalculation,
-  financialYearLabels
+  financialYearLabels,
+  transferCalculatedInterestOnWorkingCapital
 }) => {
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -137,6 +138,9 @@ const ProjectedExpenses = ({
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
 
+
+
+ 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {

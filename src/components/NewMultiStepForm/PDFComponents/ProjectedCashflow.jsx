@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
@@ -22,11 +22,13 @@ const ProjectedCashflow = ({
   grossProfitValues = [],
   yearlyPrincipalRepayment = [],
   yearlyInterestLiabilities = [],
-  interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
   firstYearGrossFixedAssets,
   financialYearLabels,
   handleWorkingCapitalValuesTransfer,
+  incomeTaxCalculation,
 }) => {
+  //  const [incomeTaxCalculation , setIncomeTaxCalculation] =  useState([]);
+
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
   // Update the state when the prop value changes
@@ -95,31 +97,108 @@ const ProjectedCashflow = ({
     }
   };
 
-  // ✅ Compute Net Profit Before Interest & Taxes for Each Year
+  const monthMap = {
+    April: 1,
+    May: 2,
+    June: 3,
+    July: 4,
+    August: 5,
+    September: 6,
+    October: 7,
+    November: 8,
+    December: 9,
+    January: 10,
+    February: 11,
+    March: 12,
+  };
+
+  const selectedMonth =
+    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
+  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
+
+  const moratoriumPeriodMonths =
+    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
+
+  const rateOfExpense =
+    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
+
+  // Function to handle moratorium period spillover across financial years
+  const calculateMonthsPerYear = () => {
+    let monthsArray = [];
+    let remainingMoratorium = moratoriumPeriodMonths;
+    for (let year = 1; year <= projectionYears; year++) {
+      let monthsInYear = 12;
+      if (year === 1) {
+        monthsInYear = 12 - x + 1; // Months left in the starting year
+      }
+
+      if (remainingMoratorium >= monthsInYear) {
+        monthsArray.push(0); // Entire year under moratorium
+        remainingMoratorium -= monthsInYear;
+      } else {
+        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
+        remainingMoratorium = 0;
+      }
+    }
+    return monthsArray;
+  };
+
+  const monthsPerYear = calculateMonthsPerYear();
+
+  // ✅ Calculate Interest on Working Capital for each projection year
+  const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map(() => {
+    const workingCapitalLoan =
+      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+    const interestRate =
+      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+
+    // ✅ Annual Interest Calculation
+    return (workingCapitalLoan * interestRate) / 100;
+  });
+
+  // Function to calculate interest on working capital considering moratorium period
+  const calculateInterestOnWorkingCapital = useMemo(() => {
+    return (interestAmount, yearIndex) => {
+      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
+      const monthsInYear = monthsPerYear[yearIndex];
+
+      if (monthsInYear === 0) {
+        return 0; // No interest during moratorium
+      } else {
+        if (yearIndex === repaymentStartYear) {
+          const monthsRemainingAfterMoratorium =
+            12 - (moratoriumPeriodMonths % 12);
+          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
+        } else if (yearIndex > repaymentStartYear) {
+          return interestAmount; // From second year onwards, apply full interest
+        } else {
+          return 0; // No interest during moratorium
+        }
+      }
+    };
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+
+  // Compute Net Profit Before Interest & Taxes for Each Year
   const netProfitBeforeInterestAndTaxes = Array.from({
     length: projectionYears,
   }).map((_, yearIndex) => {
     const profitBeforeTax = netProfitBeforeTax?.[yearIndex] || 0; // Profit Before Tax
     const interestOnTermLoan = yearlyInterestLiabilities?.[yearIndex] || 0; // Interest on Term Loan
-    const interestOnWorkingCapitalValue =
-      interestOnWorkingCapital?.[yearIndex] || 0; // Interest on Working Capital
+    const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
+      interestOnWorkingCapital?.[yearIndex] || 0,
+      yearIndex
+    ); // Call function to get Interest on Working Capital
 
-    // ✅ Compute Corrected Value
+    // Calculate NPBIT (Net Profit Before Interest & Taxes)
     const calculatedValue =
       profitBeforeTax + interestOnTermLoan + interestOnWorkingCapitalValue;
 
     return calculatedValue;
   });
 
-  const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
-
-  const incomeTax =
-    Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
-      ? netProfitBeforeTax.map((npbt) =>
-          npbt ? Math.round(npbt * (rateOfInterest / 100)) : "0.00"
-        )
-      : [];
+  const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || 0;
 
   // ✅ Compute Total Sources for Each Year
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
@@ -151,32 +230,51 @@ const ProjectedCashflow = ({
   // ✅ Compute Total Uses for Each Year
   const totalUsesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
+      // Fixed Assets for the first year, 0 for the rest
       const fixedAssets =
         index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
+
+      // Repayment of Term Loan
       const repaymentOfTermLoan = parseFloat(
         yearlyPrincipalRepayment[index] || 0
       );
+
+      // Interest on Term Loan
       const interestOnTermLoan = parseFloat(
         yearlyInterestLiabilities[index] || 0
       );
+
+      // 4. Interest on Working Capital (use the `calculateInterestOnWorkingCapital` function)
+      const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[index] || 0,
+        index
+      );
+
+      // Withdrawals
       const withdrawals = parseFloat(
         formData.MoreDetails?.withdrawals?.[index] || 0
       );
-      const incomeTaxValue = parseFloat(incomeTax[index] || 0);
 
-      // ✅ Ensure negative values are treated as zero
+      // Income Tax
+      const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
+
+      // ✅ Ensure negative values are treated as zero (sanitize function)
       const sanitize = (value) => (value < 0 ? 0 : value);
 
+      // Total Uses Calculation: Sum of all sanitized values
       const totalUses =
         sanitize(fixedAssets) +
         sanitize(repaymentOfTermLoan) +
         sanitize(interestOnTermLoan) +
+        sanitize(interestOnWorkingCapitalValue) +
         sanitize(withdrawals) +
         sanitize(incomeTaxValue);
 
       return totalUses;
     }
   );
+
+  console.log(totalUsesArray);
 
   // ✅ Initial Opening Cash Balance
   let openingCashBalance = 0;
@@ -323,7 +421,7 @@ const ProjectedCashflow = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(value.toFixed(2))}
+                    {formatNumber(value)}
                   </Text>
                 );
               })}
@@ -645,6 +743,52 @@ const ProjectedCashflow = ({
               ))}
             </View>
 
+            {/* Interest On Term Loan */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              {/* Serial Number */}
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                4
+              </Text>
+
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest On Working Capital
+              </Text>
+
+              {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, yearIndex) => {
+                const calculatedInterest = calculateInterestOnWorkingCapital(
+                  interestOnWorkingCapital[yearIndex] || 0,
+                  yearIndex
+                );
+
+                return (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(calculatedInterest)}
+                  </Text>
+                );
+              })}
+            </View>
+
             {/* Withdrawals */}
             <View style={styles.tableRow}>
               <Text
@@ -700,8 +844,10 @@ const ProjectedCashflow = ({
               >
                 Income Tax
               </Text>
-              {incomeTax.length > 0 ? (
-                incomeTax.map((tax, index) => (
+
+              {/* Render the incomeTaxCalculation values */}
+              {incomeTaxCalculation2 && incomeTaxCalculation2.length > 0 ? (
+                incomeTaxCalculation2.map((tax, index) => (
                   <Text
                     key={index}
                     style={[
@@ -709,7 +855,9 @@ const ProjectedCashflow = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {tax ? formatNumber(tax) : "N/A"}
+                    {tax !== undefined && tax !== null
+                      ? formatNumber(tax)
+                      : "N/A"}
                   </Text>
                 ))
               ) : (
@@ -766,8 +914,6 @@ const ProjectedCashflow = ({
               ))}
             </View>
           </View>
-
-          {/* Cash Balance Section */}
 
           {/* Opening Cash Balance */}
           <View>

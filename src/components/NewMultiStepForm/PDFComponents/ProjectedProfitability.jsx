@@ -27,7 +27,8 @@ const ProjectedProfitability = ({
   totalRevenueReceipts,
   fringAndAnnualCalculation,
   financialYearLabels,
-  handleDataSend
+  handleDataSend,
+  handleIncomeTaxDataSend,
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -291,35 +292,44 @@ const ProjectedProfitability = ({
     return npat - incomeTaxCalculation[yearIndex]; // ✅ Correct subtraction
   });
 
-// Precompute Balance Transferred to Balance Sheet
-const balanceTransferred = netProfitAfterTax.map(
-  (npbt, yearIndex) =>
-    npbt - (formData.MoreDetails.withdrawals?.[yearIndex] || 0)
-);
+  // Precompute Balance Transferred to Balance Sheet
+  const balanceTransferred = netProfitAfterTax.map(
+    (npbt, yearIndex) =>
+      npbt - (formData.MoreDetails.withdrawals?.[yearIndex] || 0)
+  );
 
-// Precompute Cumulative Balance Transferred to Balance Sheet
-const cumulativeBalanceTransferred = [];
-balanceTransferred.forEach((amount, index) => {
-  if (index === 0) {
-    cumulativeBalanceTransferred.push(Math.max(amount, 0)); // First year, just the amount itself
-  } else {
-    // For subsequent years, sum of Balance Trf. and previous year's Cumulative Balance
-    cumulativeBalanceTransferred.push(Math.max(amount + cumulativeBalanceTransferred[index - 1], 0));
-  }
-});
+  // Precompute Cumulative Balance Transferred to Balance Sheet
+  const cumulativeBalanceTransferred = [];
+  balanceTransferred.forEach((amount, index) => {
+    if (index === 0) {
+      cumulativeBalanceTransferred.push(Math.max(amount, 0)); // First year, just the amount itself
+    } else {
+      // For subsequent years, sum of Balance Trf. and previous year's Cumulative Balance
+      cumulativeBalanceTransferred.push(
+        Math.max(amount + cumulativeBalanceTransferred[index - 1], 0)
+      );
+    }
+  });
 
+  useEffect(() => {
+    if (cumulativeBalanceTransferred.length > 0) {
+      // Pass the data directly as an object
+      handleDataSend({
+        cumulativeBalanceTransferred,
+      });
+    }
+    // console.log("cummulative data", cumulativeBalanceTransferred);
+  }, [JSON.stringify(cumulativeBalanceTransferred)]);
 
-useEffect(() => {
-  if (cumulativeBalanceTransferred.length > 0) {
-    // Pass the data directly as an object
-    handleDataSend({
-      cumulativeBalanceTransferred,
-    });
-  }
-  // console.log("cummulative data", cumulativeBalanceTransferred);
-}, [JSON.stringify(cumulativeBalanceTransferred)]);
-
-
+  useEffect(() => {
+    if (incomeTaxCalculation.length > 0) {
+      // Pass the data directly as an object
+      handleIncomeTaxDataSend({
+        incomeTaxCalculation,
+      });
+    }
+    //  console.log("Income Tax data", incomeTaxCalculation);
+  }, [JSON.stringify(incomeTaxCalculation)]);
 
   // ✅ Ensure `onComputedData` updates only when required
   useEffect(() => {

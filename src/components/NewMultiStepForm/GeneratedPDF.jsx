@@ -42,31 +42,37 @@ const GeneratedPDF = () => {
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
   const [interestOnWorkingCapital, setInterestOnWorkingCapital] = useState([]);
-  
-  const [receivedData , setReceivedData] = useState({});
+
+  const [receivedData, setReceivedData] = useState({});
 
   const [marchClosingBalances, setMarchClosingBalances] = useState([]);
 
-  const [workingCapitalvalues , setWorkingCapitalValues] = useState({});
+  const [workingCapitalvalues, setWorkingCapitalValues] = useState({});
 
+  const [grossFixedAssetsPerYear, setGrossFixedAssetsPerYear] = useState([]);
+
+  const [incomeTaxCalculation , setIncomeTaxCalculation] =  useState([]);
 
   const [userRole, setUserRole] = useState("");
 
   const location = useLocation();
 
 
+ const handleIncomeTaxCalculation = (data) => {
+    // console.log("Income Tax Calculation Received :", data);
+  setIncomeTaxCalculation(data)
+ }
 
-  const workingCapitalHandler = (data) =>{
+  const workingCapitalHandler = (data) => {
     // console.log("Working Capital Values Received:", data);
     setWorkingCapitalValues(data);
-  }
+  };
 
   // Update the state when data is received from the child
   const handleDataSend = (data) => {
     // console.log("Data received in parent: ", data);
     setReceivedData(data);
   };
-
 
   // ✅ Function to receive data from Repayment component
   const handleInterestCalculated = (liabilities) => {
@@ -118,8 +124,6 @@ const GeneratedPDF = () => {
   // Extract expenses safely
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
-
-
 
   // Format currency function
   const formatAmountInIndianStyle = (amount) => amount.toLocaleString("en-IN");
@@ -207,6 +211,9 @@ const GeneratedPDF = () => {
             setTotalDepreciation={setTotalDepreciation}
             onComputedData1={setComputedData1}
             financialYearLabels={financialYearLabels}
+            onGrossFixedAssetsPerYearCalculated={(data) => {
+              setGrossFixedAssetsPerYear(data);
+            }}
           />
 
           {/* Projected Expense Table Direct and Indirect */}
@@ -246,7 +253,8 @@ const GeneratedPDF = () => {
             totalRevenueReceipts={totalRevenueReceipts}
             fringAndAnnualCalculation={fringAndAnnualCalculation}
             financialYearLabels={financialYearLabels}
-            handleDataSend={handleDataSend}  // Ensure this is passed correctly
+            handleDataSend={handleDataSend} // Ensure this is passed correctly
+            handleIncomeTaxDataSend = {handleIncomeTaxCalculation}
           />
           <Repayment
             formData={formData}
@@ -255,7 +263,7 @@ const GeneratedPDF = () => {
             onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
             financialYearLabels={financialYearLabels}
             onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
-
+           
           />
 
           {computedData.netProfitBeforeTax.length > 0 && (
@@ -279,6 +287,7 @@ const GeneratedPDF = () => {
             totalRevenueReceipts={totalRevenueReceipts}
             financialYearLabels={financialYearLabels}
             handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
+            incomeTaxCalculation = {incomeTaxCalculation}
           />
 
           <ProjectedBalanceSheet
@@ -291,11 +300,13 @@ const GeneratedPDF = () => {
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
             interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
             firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+            grossFixedAssetsPerYear={grossFixedAssetsPerYear}
+            onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
             totalRevenueReceipts={totalRevenueReceipts}
             financialYearLabels={financialYearLabels}
             receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
             receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-            receivedWorkingCapitalValues = {workingCapitalvalues}
+            receivedWorkingCapitalValues={workingCapitalvalues}
           />
 
           <BreakEvenPoint

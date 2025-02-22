@@ -20,6 +20,7 @@ const ProjectedBalanceSheet = ({
   totalDepreciationPerYear = [],
   netProfitBeforeTax = [],
   grossProfitValues = [],
+  grossFixedAssetsPerYear = [],
   yearlyPrincipalRepayment = [],
   yearlyInterestLiabilities = [],
   firstYearGrossFixedAssets,
@@ -28,8 +29,16 @@ const ProjectedBalanceSheet = ({
   receivedMarchClosingBalances,
   receivedWorkingCapitalValues,
 }) => {
-  console.log("receivedData:", receivedWorkingCapitalValues);
+  // console.log("receivedData:", receivedWorkingCapitalValues);
+
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
+
+  // Update the state when the prop value changes
+  useEffect(() => {
+    if (firstYearGrossFixedAssets > 0) {
+      setGrossFixedAssets(firstYearGrossFixedAssets);
+    }
+  }, [firstYearGrossFixedAssets]);
 
   // Update the state when the prop value changes
   useEffect(() => {
@@ -58,19 +67,42 @@ const ProjectedBalanceSheet = ({
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
   // ✅ Safe Helper Function to Format Numbers Based on Selected Format
+  // const formatNumber = (value) => {
+  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+  //   switch (formatType) {
+  //     case "1":
+  //       return new Intl.NumberFormat("en-IN").format(value); // Indian Format
+  //     case "2":
+  //       return new Intl.NumberFormat("en-US").format(value); // USD Format
+  //     default:
+  //       return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+  //   }
+  // };
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
 
+    // Check for negative values, return 0 if less than 0
+    const formattedValue = value < 0 ? 0 : value;
+
     switch (formatType) {
-      case "1":
-        return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-      case "2":
-        return new Intl.NumberFormat("en-US").format(value); // USD Format
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(formattedValue);
+
+      case "3": // Generic Format (Same as Indian for now)
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
+
       default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+        return new Intl.NumberFormat("en-IN").format(formattedValue); // ✅ Safe default
     }
   };
+
 
   const rateOfInterest =
     Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
@@ -166,39 +198,25 @@ const ProjectedBalanceSheet = ({
     }
   );
 
-  // Compute cumulative loan values:
-  // 1st Year: receivedWorkingCapitalValues[0]
-  // 2nd Year: receivedWorkingCapitalValues[0] + receivedWorkingCapitalValues[1]
-  // 3rd Year: receivedWorkingCapitalValues[0] + receivedWorkingCapitalValues[1] + receivedWorkingCapitalValues[2]
-  // And so on...
-  // Ensure it's an array; if not, default to an empty array
+  // Destructure termLoanValues from the object.
+  // If it's undefined, default to an empty array.
+  const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
 
+  // Convert string values to numbers, if needed:
+  const numericTermLoanValues = termLoanValues.map((val) => Number(val) || 0);
 
-  
-  console.log("receivedWorkingCapitalValues:", receivedWorkingCapitalValues);
-
-
-  // Destructure termLoanValues from the object. 
-// If it's undefined, default to an empty array.
-const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
-
-// Convert string values to numbers, if needed:
-const numericTermLoanValues = termLoanValues.map((val) => Number(val) || 0);
-
-// Now compute your cumulative array using numericTermLoanValues
-const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce((acc, currentValue, index) => {
-  if (index === 0) {
-    acc.push(currentValue);
-  } else {
-    acc.push(acc[index - 1] + currentValue);
-  }
-  return acc;
-}, []);
-
-
-
-
-  
+  // Now compute your cumulative array using numericTermLoanValues
+  const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce(
+    (acc, currentValue, index) => {
+      if (index === 0) {
+        acc.push(currentValue);
+      } else {
+        acc.push(acc[index - 1] + currentValue);
+      }
+      return acc;
+    },
+    []
+  );
 
   return (
     <Page
@@ -367,7 +385,7 @@ const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce((acc, curren
                   ))}
             </View>
 
-            {/*  Bank Loan Payable within next 12 months */}
+            {/* Bank Loan Payable within next 12 months */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -388,21 +406,29 @@ const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce((acc, curren
               >
                 Bank Loan Payable within next 12 months
               </Text>
+
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears || 0,
-              }).map((_, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(
-                    Math.round(yearlyPrincipalRepayment[index] || 0)
-                  )}
-                </Text>
-              ))}
+              }).map((_, index) => {
+                let value = Math.round(yearlyPrincipalRepayment[index] || 0); // Get the value for the current year
+
+                // Apply the carry forward logic: If the current value is 0, use the previous year's value
+                if (value === 0 && index > 0) {
+                  value = Math.round(yearlyPrincipalRepayment[index - 1] || 0); // Carry forward previous year's value
+                }
+
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value)} {/* Format and display the value */}
+                  </Text>
+                );
+              })}
             </View>
 
             {/* Bank Loan - Working Capital Loan */}
@@ -522,14 +548,15 @@ const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce((acc, curren
                   ]}
                 >
                   {index === 0
-                    ? firstYearGrossFixedAssets
-                      ? firstYearGrossFixedAssets.toLocaleString("en-IN") // Format as Indian Numbering
+                    ? grossFixedAssetsPerYear[0] // First-year value from the calculated array
+                      ? grossFixedAssetsPerYear[0].toLocaleString("en-IN")
                       : "-"
+                    : grossFixedAssetsPerYear[index] // Display subsequent years' values
+                    ? grossFixedAssetsPerYear[index].toLocaleString("en-IN")
                     : "0"}
                 </Text>
               ))}
             </View>
-
             {/* Repayment of Term Loan */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text

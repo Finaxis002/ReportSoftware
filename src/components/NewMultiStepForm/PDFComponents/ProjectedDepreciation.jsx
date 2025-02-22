@@ -163,8 +163,12 @@ const ProjectedDepreciation = ({
   setTotalDepreciation,
   onComputedData1,
   onFirstYearGrossAssetsCalculated,
+  onGrossFixedAssetsPerYearCalculated,
   financialYearLabels
 }) => {
+  const [grossFixedAssetsPerYear, setGrossFixedAssetsPerYear] = useState([]);
+  
+
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
   const moratoriumMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
@@ -188,6 +192,29 @@ const ProjectedDepreciation = ({
 
   // State for First Year Gross Fixed Assets
   const [firstYearGrossFixedAssets, setFirstYearGrossFixedAssets] = useState(0);
+  // ✅ Calculate Gross Fixed Assets using useEffect
+  
+  useEffect(() => {
+    if (formData && formData.CostOfProject) {
+      const calculatedAssets = Array.from({ length: years }).map((_, yearIndex) => {
+        return Object.values(formData.CostOfProject).reduce((sum, asset) => {
+          let netAsset = asset.amount;
+          for (let i = 0; i < yearIndex; i++) {
+            let depreciation = Math.round((netAsset * asset.rate) / 100);
+            netAsset -= depreciation;
+          }
+          return sum + netAsset;
+        }, 0);
+      });
+
+      setGrossFixedAssetsPerYear(calculatedAssets);
+
+      // ✅ Send data back to parent component
+      if (onGrossFixedAssetsPerYearCalculated) {
+        onGrossFixedAssetsPerYearCalculated(calculatedAssets);
+      }
+    }
+  }, [formData, years]);
   // ✅ Send the First Year's Value to Another Component via useEffect
   useEffect(() => {
     if (firstYearGrossFixedAssets > 0 && onFirstYearGrossAssetsCalculated) {
@@ -403,28 +430,25 @@ const ProjectedDepreciation = ({
           </View>
 
           {/* Total Gross Fixed Assets Calculation for Each Year */}
-          <View style={[styles.tableHeader, { marginTop: "20px" }]}>
+          {/* <View style={[styles.tableHeader, { marginTop: "20px" }]}>
             <Text style={[styles.serialNoCell, stylesCOP.boldText]}>A</Text>
             <Text style={[styles.detailsCell, stylesCOP.boldText]}>
               Gross Fixed Assets
             </Text>
             <Text style={[styles.particularsCell, stylesCOP.boldText]}></Text>
 
-            {/* Display Total Fixed Assets for Each Year */}
+            
             {Array.from({ length: years }).map((_, yearIndex) => {
-              // Compute Total Gross Fixed Assets for each year
               let totalFixedAssets = Object.values(
                 formData.CostOfProject
               ).reduce(
                 (sum, asset) => {
-                  let netAsset = asset.amount; // Initial asset value
-
-                  // Deduct depreciation for all previous years
+                  let netAsset = asset.amount; 
                   for (let i = 0; i < yearIndex; i++) {
                     let depreciation = Math.round(
                       (netAsset * asset.rate) / 100
                     );
-                    netAsset -= depreciation; // Reduce the net asset for the next year
+                    netAsset -= depreciation; 
                   }
 
                   return sum + netAsset;
@@ -441,7 +465,25 @@ const ProjectedDepreciation = ({
                 </Text>
               );
             })}
+          </View> */}
+          <View style={[styles.tableHeader, { marginTop: "20px" }]}>
+            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>A</Text>
+            <Text style={[styles.detailsCell, stylesCOP.boldText]}>
+              Gross Fixed Assets
+            </Text>
+            <Text style={[styles.particularsCell, stylesCOP.boldText]}></Text>
+
+            {/* ✅ Display Pre-calculated Gross Fixed Assets for Each Year */}
+            {grossFixedAssetsPerYear.map((totalFixedAssets, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {formatNumber(totalFixedAssets)}
+              </Text>
+            ))}
           </View>
+
 
           {/* Display Gross Fixed Assets (A) with updated values */}
           {Object.entries(formData.CostOfProject).map(([key, asset], index) => (
