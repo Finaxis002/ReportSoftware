@@ -1,6 +1,12 @@
-import React, { useEffect , useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses , columnWidths} from "./Styles"; // Import only necessary styles
+import {
+  styles,
+  stylesCOP,
+  stylesMOF,
+  styleExpenses,
+  columnWidths,
+} from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
 
 // ✅ Register a Font That Supports Bold
@@ -15,17 +21,23 @@ Font.register({
   ],
 });
 
-const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepaymentCalculated}) => {
+const Repayment = ({
+  formData,
+  localData,
+  onInterestCalculated,
+  onPrincipalRepaymentCalculated,
+  onMarchClosingBalanceCalculated, // New callback prop for March balances
+}) => {
   const termLoan = formData.MeansOfFinance.termLoan.termLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
-  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths ;
-  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState([]);
+  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
+  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
+    []
+  );
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
-
-
-    // ✅ Correct the total repayment months (including moratorium)
+  // ✅ Correct the total repayment months (including moratorium)
   let totalMonths = repaymentMonths + moratoriumPeriod;
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
   let fixedPrincipalRepayment =
@@ -33,8 +45,18 @@ const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepay
 
   // ✅ Month Mapping (April - March)
   const months = [
-    "April", "May", "June", "July", "August", "September",
-    "October", "November", "December", "January", "February", "March"
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
   ];
 
   // ✅ Convert Selected Month Name to Index (April-March Mapping)
@@ -46,7 +68,6 @@ const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepay
     startMonthIndex = 0; // Default to April if input is incorrect
   }
 
-  
   let remainingBalance = termLoan; // Remaining loan balance
 
   let repaymentStartIndex = startMonthIndex; // Start from selected month
@@ -58,32 +79,32 @@ const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepay
 
   for (let year = 0; year < totalMonths; year++) {
     let yearData = [];
-  
+
     // ✅ First Year Starts from Selected Month
     let firstMonth = year === 0 ? repaymentStartIndex : 0;
-  
+
     for (let i = firstMonth; i < 12; i++) {
       if (remainingBalance <= 0) break; // Stop when balance is cleared
-  
+
       let principalOpeningBalance = remainingBalance;
-  
+
       // ✅ Ensure exactly 5 months of Moratorium
       let principalRepayment =
         elapsedMonths < moratoriumPeriod ? 0 : fixedPrincipalRepayment;
-  
+
       let principalClosingBalance = Math.max(
         0,
         principalOpeningBalance - principalRepayment
       );
-  
+
       // ✅ Ensure interest is calculated exactly for 5 months
       let interestLiability =
         elapsedMonths < moratoriumPeriod
           ? Math.round(principalOpeningBalance * (interestRate / 12))
           : Math.round(principalClosingBalance * (interestRate / 12));
-  
+
       let totalRepayment = principalRepayment + interestLiability;
-  
+
       yearData.push({
         month: months[i],
         principalOpeningBalance: Math.round(principalOpeningBalance), // ✅ Rounded
@@ -92,37 +113,34 @@ const Repayment = ({ formData, localData, onInterestCalculated ,onPrincipalRepay
         interestLiability, // ✅ Already rounded above
         totalRepayment: Math.round(totalRepayment), // ✅ Rounded
       });
-  
+
       remainingBalance = principalClosingBalance;
-  
+
       // ✅ Move the elapsed months counter forward
       elapsedMonths++;
     }
-  
+
     if (yearData.length > 0) {
       data.push(yearData);
     }
   }
-  
 
   const financialYear = parseInt(
     formData.ProjectReportSetting.FinancialYear || 2025
   );
 
- // ✅ Compute Yearly Total Principal Repayment
- const computedYearlyPrincipalRepayment = data.map((yearData) =>
-  yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
-);
+  // ✅ Compute Yearly Total Principal Repayment
+  const computedYearlyPrincipalRepayment = data.map((yearData) =>
+    yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
+  );
 
-useEffect(() => {
-  setYearlyPrincipalRepayment(computedYearlyPrincipalRepayment);
+  useEffect(() => {
+    setYearlyPrincipalRepayment(computedYearlyPrincipalRepayment);
 
-  if (onPrincipalRepaymentCalculated) {
-    onPrincipalRepaymentCalculated(computedYearlyPrincipalRepayment);
-  }
-}, []);
-
-
+    if (onPrincipalRepaymentCalculated) {
+      onPrincipalRepaymentCalculated(computedYearlyPrincipalRepayment);
+    }
+  }, []);
 
   // ✅ Store Year-Wise Interest Liability
   data.forEach((yearData) => {
@@ -132,7 +150,6 @@ useEffect(() => {
     );
     yearlyInterestLiabilities.push(totalInterestLiability);
   });
-
 
   useEffect(() => {
     // ✅ Mock Data: Replace this with actual calculations
@@ -166,6 +183,25 @@ useEffect(() => {
     }
   };
 
+  // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
+  useEffect(() => {
+    const marchClosingBalances = data.reduce((acc, yearData) => {
+      const marchEntry = yearData.find((entry) => entry.month === "March");
+      // Only add if there's a March entry and its principal repayment is not 0
+      if (marchEntry && marchEntry.principalRepayment !== 0) {
+        acc.push(marchEntry.principalClosingBalance);
+      }
+      return acc;
+    }, []);
+    
+    // console.log("Filtered March Principal Closing Balances:", marchClosingBalances);
+    
+    if (onMarchClosingBalanceCalculated) {
+      onMarchClosingBalanceCalculated(marchClosingBalances);
+    }
+  }, [JSON.stringify(data), onMarchClosingBalanceCalculated]);
+  
+  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -338,7 +374,9 @@ useEffect(() => {
               <View key={yearIndex} wrap={false} style={{ marginBottom: 10 }}>
                 {/* Year Row */}
                 <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-                <Text style={styles.serialNumberCellStyle}>{yearIndex + 1}</Text>
+                  <Text style={styles.serialNumberCellStyle}>
+                    {yearIndex + 1}
+                  </Text>
 
                   <Text
                     style={[
@@ -385,9 +423,7 @@ useEffect(() => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {formatNumber(
-                        entry.principalOpeningBalance
-                      )}
+                      {formatNumber(entry.principalOpeningBalance)}
                     </Text>
 
                     {/* Principal Repayment */}
@@ -398,9 +434,7 @@ useEffect(() => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {formatNumber(
-                        entry.principalRepayment
-                      )}
+                      {formatNumber(entry.principalRepayment)}
                     </Text>
 
                     {/* Principal Closing Balance */}
@@ -411,9 +445,7 @@ useEffect(() => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {formatNumber(
-                        entry.principalClosingBalance
-                      )}
+                      {formatNumber(entry.principalClosingBalance)}
                     </Text>
 
                     {/* Interest Liability */}
@@ -424,9 +456,7 @@ useEffect(() => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {formatNumber(
-                        entry.interestLiability
-                      )}
+                      {formatNumber(entry.interestLiability)}
                     </Text>
 
                     {/* Total Repayment */}
@@ -437,9 +467,7 @@ useEffect(() => {
                         { textAlign: "center", fontSize: "9px" },
                       ]}
                     >
-                      {formatNumber(
-                        entry.totalRepayment
-                      )}
+                      {formatNumber(entry.totalRepayment)}
                     </Text>
                   </View>
                 ))}
@@ -488,9 +516,7 @@ useEffect(() => {
                       },
                     ]}
                   >
-                    {formatNumber(
-                      totalPrincipalRepayment
-                    )}
+                    {formatNumber(totalPrincipalRepayment)}
                   </Text>
 
                   {/* Empty Cell for Principal Closing Balance */}
@@ -515,9 +541,7 @@ useEffect(() => {
                       },
                     ]}
                   >
-                    {formatNumber(
-                      totalInterestLiability
-                    )}
+                    {formatNumber(totalInterestLiability)}
                   </Text>
 
                   {/* Total Repayment */}

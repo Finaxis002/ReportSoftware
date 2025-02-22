@@ -25,6 +25,7 @@ const ProjectedCashflow = ({
   interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
   firstYearGrossFixedAssets,
   financialYearLabels,
+  handleWorkingCapitalValuesTransfer,
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
@@ -123,40 +124,24 @@ const ProjectedCashflow = ({
   // ✅ Compute Total Sources for Each Year
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      // Fetching net profit before interest & taxes from the calculations object
-      const netProfitBeforeInterestAndTaxes = Number(
-        calculations?.sources?.NetProfitBeforeInterestAndTaxes?.[index] || 0
-      );
-
-      // Fetching promoter contribution for the first year
-      const promoterContribution =
+      const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
+      const promotersCapital =
+        index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
+      const bankTermLoan =
         index === 0
-          ? Number(
-              formData?.MeansOfFinance?.workingCapital?.promoterContribution ||
-                0
-            )
+          ? parseFloat(formData.MeansOfFinance.termLoan.termLoan || 0)
           : 0;
-
-      // Fetching term loan for the first year
-      const termLoan =
-        index === 0
-          ? Number(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
-          : 0;
-
-      // Fetching working capital loan for the first year
       const workingCapitalLoan =
         index === 0
-          ? Number(formData?.MeansOfFinance?.workingCapital?.termLoan || 0)
+          ? parseFloat(formData.MeansOfFinance?.workingCapital?.termLoan || 0)
           : 0;
+      const depreciation = totalDepreciationPerYear[index] || 0;
 
-      // Fetching depreciation for the current year
-      const depreciation = Number(totalDepreciationPerYear?.[index] || 0);
-
-      // Total sources is the sum of all the sources (NPBIT, promoter contribution, term loan, working capital loan, depreciation)
+      // ✅ Sum up all sources
       return (
-        netProfitBeforeInterestAndTaxes +
-        promoterContribution +
-        termLoan +
+        netProfitValue +
+        promotersCapital +
+        bankTermLoan +
         workingCapitalLoan +
         depreciation
       );
@@ -166,21 +151,30 @@ const ProjectedCashflow = ({
   // ✅ Compute Total Uses for Each Year
   const totalUsesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const fixedAssets = Number(grossProfitValues[index] || 0);
-      const repaymentOfLoan = Number(yearlyPrincipalRepayment[index] || 0);
-      const interestOnTermLoan = Number(yearlyInterestLiabilities[index] || 0);
-      const withdrawals = Number(
+      const fixedAssets =
+        index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
+      const repaymentOfTermLoan = parseFloat(
+        yearlyPrincipalRepayment[index] || 0
+      );
+      const interestOnTermLoan = parseFloat(
+        yearlyInterestLiabilities[index] || 0
+      );
+      const withdrawals = parseFloat(
         formData.MoreDetails?.withdrawals?.[index] || 0
       );
-      const incomeTaxValue = Number(incomeTax[index] || 0);
+      const incomeTaxValue = parseFloat(incomeTax[index] || 0);
 
-      return (
-        fixedAssets +
-        repaymentOfLoan +
-        interestOnTermLoan +
-        withdrawals +
-        incomeTaxValue
-      );
+      // ✅ Ensure negative values are treated as zero
+      const sanitize = (value) => (value < 0 ? 0 : value);
+
+      const totalUses =
+        sanitize(fixedAssets) +
+        sanitize(repaymentOfTermLoan) +
+        sanitize(interestOnTermLoan) +
+        sanitize(withdrawals) +
+        sanitize(incomeTaxValue);
+
+      return totalUses;
     }
   );
 
@@ -229,6 +223,24 @@ const ProjectedCashflow = ({
       return openingBalance + surplusDuringYear; // ✅ Correct Calculation
     }
   );
+
+  useEffect(() => {
+    const termLoanValues = Array.from({ length: projectionYears }).map(
+      (_, index) =>
+        index === 0
+          ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
+          : "0"
+    );
+
+    // console.log("term Loan Values:", termLoanValues);
+
+    handleWorkingCapitalValuesTransfer({
+      termLoanValues,
+    });
+  }, [
+    projectionYears,
+    JSON.stringify(formData.MeansOfFinance?.workingCapital?.termLoan),
+  ]);
 
   return (
     <Page
@@ -697,7 +709,7 @@ const ProjectedCashflow = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                   {tax ? formatNumber(tax) : "N/A"}
+                    {tax ? formatNumber(tax) : "N/A"}
                   </Text>
                 ))
               ) : (

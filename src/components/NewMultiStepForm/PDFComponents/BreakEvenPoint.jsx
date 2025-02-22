@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
@@ -21,14 +21,14 @@ const BreakEvenPoint = ({
   totalDepreciationPerYear = [], // ✅ Default Empty Array
   totalRevenueReceipts = [], // ✅ Default Empty Array
   fringAndAnnualCalculation,
-  financialYearLabels
+  financialYearLabels,
 }) => {
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
 
   // ✅ Months Array for Indexing
-  const months = [
+  const monthMap = [
     "April",
     "May",
     "June",
@@ -43,14 +43,55 @@ const BreakEvenPoint = ({
     "March",
   ];
 
-  // ✅ Extract required values from formData
-  const workingCapitalLoan =
-    formData?.MeansOfFinance?.workingCapital?.termLoan || 0; // Loan amount
-  const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
-  const startMonthIndex = months.indexOf(
-    formData?.ProjectReportSetting?.SelectStartingMonth
-  );
-  const repaymentStartMonth = startMonthIndex !== -1 ? startMonthIndex : 0;
+  const selectedMonth =
+    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
+  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
+
+  const moratoriumPeriodMonths =
+    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
+
+  const rateOfExpense =
+    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
+
+  // Function to handle moratorium period spillover across financial years
+  const calculateMonthsPerYear = () => {
+    let monthsArray = [];
+    let remainingMoratorium = moratoriumPeriodMonths;
+    for (let year = 1; year <= projectionYears; year++) {
+      let monthsInYear = 12;
+      if (year === 1) {
+        monthsInYear = 12 - x + 1; // Months left in the starting year
+      }
+
+      if (remainingMoratorium >= monthsInYear) {
+        monthsArray.push(0); // Entire year under moratorium
+        remainingMoratorium -= monthsInYear;
+      } else {
+        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
+        remainingMoratorium = 0;
+      }
+    }
+    return monthsArray;
+  };
+
+  const monthsPerYear = calculateMonthsPerYear();
+
+  const calculateExpense = (annualExpense, yearIndex) => {
+    const monthsInYear = monthsPerYear[yearIndex];
+    let incrementedExpense;
+    // Count years with actual repayment for applying increment correctly
+    const repaymentYear = monthsPerYear
+      .slice(0, yearIndex)
+      .filter((months) => months > 0).length;
+
+    if (monthsInYear === 0) {
+      incrementedExpense = 0; // No expense during moratorium
+    } else {
+      incrementedExpense =
+        annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+    }
+    return (incrementedExpense / 12) * monthsInYear;
+  };
 
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
@@ -65,6 +106,27 @@ const BreakEvenPoint = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
+  // Function to calculate interest on working capital considering moratorium period
+  const calculateInterestOnWorkingCapital = useMemo(() => {
+    return (interestAmount, yearIndex) => {
+      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
+      const monthsInYear = monthsPerYear[yearIndex];
+      if (monthsInYear === 0) {
+        return 0; // No interest during moratorium
+      } else {
+        if (yearIndex === repaymentStartYear) {
+          const monthsRemainingAfterMoratorium =
+            12 - (moratoriumPeriodMonths % 12);
+          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
+        } else if (yearIndex > repaymentStartYear) {
+          return interestAmount; // From second year onwards, apply full interest
+        } else {
+          return 0; // No interest during moratorium
+        }
+      }
+    };
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
   const adjustedRevenueValues = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
@@ -76,13 +138,8 @@ const BreakEvenPoint = ({
     return totalRevenue + closingStock - openingStock; // ✅ Final computation
   });
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
   const { Expenses = {} } = formData;
-  const {
-    normalExpense = [],
-    directExpense = [],
-    indirectExpense = [],
-  } = Expenses;
+  const { directExpense = [], indirectExpense = [] } = Expenses;
 
   // ✅ Ensure indirect expenses are correctly extracted (if stored in directExpense by mistake)
   const actualIndirectExpenses = indirectExpense.length
@@ -94,8 +151,6 @@ const BreakEvenPoint = ({
     ...directExpense.filter((expense) => expense.type === "direct"),
     ...actualIndirectExpenses,
   ];
-
-
 
   // ✅ Compute Total Variable Expense for Each Year (Direct + Indirect)
   const totalVariableExpense = Array.from({
@@ -233,15 +288,15 @@ const BreakEvenPoint = ({
             Particulars
           </Text>
 
-           {/* Generate Dynamic Year Headers using financialYearLabels */}
-           {financialYearLabels.map((yearLabel, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {yearLabel}
-                </Text>
-              ))}
+          {/* Generate Dynamic Year Headers using financialYearLabels */}
+          {financialYearLabels.map((yearLabel, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[styles.particularsCell, stylesCOP.boldText]}
+            >
+              {yearLabel}
+            </Text>
+          ))}
         </View>
 
         {/* ✅ Display Total Revenue Receipt Row */}
@@ -468,6 +523,20 @@ const BreakEvenPoint = ({
           const baseValue = Number(expense.value) || 0;
           const initialValue = baseValue;
 
+          // Calculate the values for each year based on expense growth rate
+          const expenseValuesForYears = Array.from({
+            length: projectionYears,
+          }).map((_, yearIndex) => {
+            return calculateExpense(Number(expense.value) || 0, yearIndex);
+          });
+
+          // Calculate the total for each year and format the values
+          const totalExpenseForEachYear = expenseValuesForYears.map(
+            (value, yearIndex) => {
+              return formatNumber(Math.round(value)); // Round and format the expense values
+            }
+          );
+
           return (
             <View key={index} style={[stylesMOF.row, styles.tableRow]}>
               {/* Serial Number */}
@@ -493,29 +562,17 @@ const BreakEvenPoint = ({
               </Text>
 
               {/* ✅ Display Projection Year Values */}
-              {Array.from({
-                length:
-                  parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-              }).map((_, yearIndex) => {
-                const calculatedValue =
-                  initialValue *
-                  Math.pow(
-                    1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                    yearIndex
-                  );
-
-                return (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(Math.round(calculatedValue))}
-                  </Text>
-                );
-              })}
+              {expenseValuesForYears.map((value, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(value.toFixed(2))}
+                </Text>
+              ))}
             </View>
           );
         })}
@@ -536,7 +593,7 @@ const BreakEvenPoint = ({
             Total
           </Text>
 
-          {/* ✅ Display Total for Each Year */}
+          {/* ✅ Calculate and Display Total for Each Year */}
           {totalVariableExpense.map((total, yearIndex) => (
             <Text
               key={yearIndex}
@@ -608,69 +665,43 @@ const BreakEvenPoint = ({
           <Text style={stylesMOF.cell}> Less: Fixed Expenses</Text>
         </View>
 
-        {/* Salary and wages  */}
-        {normalExpense.map((expense, index) => {
-          if (index !== activeRowIndex) return null; // Only render the active row
-
-          return (
-            <View key={index} style={[stylesMOF.row, styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                1
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Salary and Wages
-              </Text>
-
-              {/* Map through projection years to display calculations */}
-              {[
-                ...Array(
-                  parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
-                ),
-              ].map((_, yearIndex) => {
-                const Annual = Number(fringAndAnnualCalculation) || 0;
-                const initialValue = Annual; // Base annual value calculation
-
-                // For the first year (first column), show totalAnnualWages
-                const calculatedValue =
-                  yearIndex === 0
-                    ? initialValue // For Year 1, just show the base value
-                    : initialValue *
-                      Math.pow(
-                        1 + formData.ProjectReportSetting.rateOfExpense / 100,
-                        yearIndex
-                      ); // Apply growth for subsequent years
-
-                return (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(
-                      yearIndex === 0
-                        ? Annual.toFixed(2) // ✅ Only format once
-                        : calculatedValue.toFixed(2) // ✅ Same for calculatedValue
-                    )}
-                  </Text>
-                );
-              })}
-            </View>
-          );
-        })}
+        {/* Salary and Wages */}
+        <View style={[styles.tableRow, styles.totalRow]}>
+          <Text
+            style={[
+              stylesCOP.serialNoCellDetail,
+              styleExpenses.sno,
+              styleExpenses.bordernone,
+            ]}
+          >
+            1
+          </Text>
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+            ]}
+          >
+            Salary and Wages
+          </Text>
+          {Array.from({ length: projectionYears }).map((_, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {formatNumber(
+                calculateExpense(
+                  Number(fringAndAnnualCalculation) || 0,
+                  yearIndex
+                ).toFixed(2)
+              )}
+            </Text>
+          ))}
+        </View>
 
         {/* Interest On Term Loan */}
         <View style={[styles.tableRow, styles.totalRow]}>
@@ -733,18 +764,27 @@ const BreakEvenPoint = ({
             Interest On Working Capital
           </Text>
 
-          {/* ✅ Display Interest Values for Each Year */}
-          {interestOnWorkingCapital.map((interest, index) => (
-            <Text
-              key={index}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(interest)}
-            </Text>
-          ))}
+          {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
+          {Array.from({
+            length: formData.ProjectReportSetting.ProjectionYears,
+          }).map((_, yearIndex) => {
+            const calculatedInterest = calculateInterestOnWorkingCapital(
+              interestOnWorkingCapital[yearIndex] || 0,
+              yearIndex
+            );
+
+            return (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                ]}
+              >
+                {formatNumber(calculatedInterest)}
+              </Text>
+            );
+          })}
         </View>
 
         {/* ✅ Render Depreciation Row */}

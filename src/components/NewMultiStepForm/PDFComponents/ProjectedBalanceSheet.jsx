@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
@@ -22,10 +22,13 @@ const ProjectedBalanceSheet = ({
   grossProfitValues = [],
   yearlyPrincipalRepayment = [],
   yearlyInterestLiabilities = [],
-  interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
   firstYearGrossFixedAssets,
-  financialYearLabels
+  financialYearLabels,
+  receivedCummulativeTansferedData,
+  receivedMarchClosingBalances,
+  receivedWorkingCapitalValues,
 }) => {
+  console.log("receivedData:", receivedWorkingCapitalValues);
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
   // Update the state when the prop value changes
@@ -51,9 +54,6 @@ const ProjectedBalanceSheet = ({
     return null;
   }
 
-  // console.log("data for term loan", yearlyInterestLiabilities);
-  const startYear =
-    Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
@@ -71,22 +71,6 @@ const ProjectedBalanceSheet = ({
         return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
     }
   };
-
-  // ✅ Compute Net Profit Before Interest & Taxes for Each Year
-  const netProfitBeforeInterestAndTaxes = Array.from({
-    length: projectionYears,
-  }).map((_, yearIndex) => {
-    const profitBeforeTax = netProfitBeforeTax?.[yearIndex] || 0; // Profit Before Tax
-    const interestOnTermLoan = yearlyInterestLiabilities?.[yearIndex] || 0; // Interest on Term Loan
-    const interestOnWorkingCapitalValue =
-      interestOnWorkingCapital?.[yearIndex] || 0; // Interest on Working Capital
-
-    // ✅ Compute Corrected Value
-    const calculatedValue =
-      profitBeforeTax + interestOnTermLoan + interestOnWorkingCapitalValue;
-
-    return calculatedValue;
-  });
 
   const rateOfInterest =
     Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
@@ -182,25 +166,39 @@ const ProjectedBalanceSheet = ({
     }
   );
 
-  // ✅ Compute Surplus During the Year for Each Year
-  const surplusDuringYearArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const totalSources = totalSourcesArray[index] || 0;
-      const totalUses = totalUsesArray[index] || 0;
+  // Compute cumulative loan values:
+  // 1st Year: receivedWorkingCapitalValues[0]
+  // 2nd Year: receivedWorkingCapitalValues[0] + receivedWorkingCapitalValues[1]
+  // 3rd Year: receivedWorkingCapitalValues[0] + receivedWorkingCapitalValues[1] + receivedWorkingCapitalValues[2]
+  // And so on...
+  // Ensure it's an array; if not, default to an empty array
 
-      return totalSources - totalUses; // ✅ Correct Calculation
-    }
-  );
 
-  // ✅ Compute Closing Cash Balance for Each Year
-  const closingCashBalanceArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const openingBalance = cashBalances[index]?.opening || 0;
-      const surplusDuringYear = surplusDuringYearArray[index] || 0;
+  
+  console.log("receivedWorkingCapitalValues:", receivedWorkingCapitalValues);
 
-      return openingBalance + surplusDuringYear; // ✅ Correct Calculation
-    }
-  );
+
+  // Destructure termLoanValues from the object. 
+// If it's undefined, default to an empty array.
+const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
+
+// Convert string values to numbers, if needed:
+const numericTermLoanValues = termLoanValues.map((val) => Number(val) || 0);
+
+// Now compute your cumulative array using numericTermLoanValues
+const cumulativeLoanForPreviousYears = numericTermLoanValues.reduce((acc, currentValue, index) => {
+  if (index === 0) {
+    acc.push(currentValue);
+  } else {
+    acc.push(acc[index - 1] + currentValue);
+  }
+  return acc;
+}, []);
+
+
+
+
+  
 
   return (
     <Page
@@ -234,13 +232,13 @@ const ProjectedBalanceSheet = ({
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels.map((yearLabel, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {yearLabel}
-                </Text>
-              ))}
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
           </View>
 
           {/* Liabilities Section */}
@@ -306,22 +304,33 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-               Reserves & Surplus
+                Reserves & Surplus
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {index === 0 ? formData.MeansOfFinance.totalPC || "-" : "0"}
-                </Text>
-              ))}
+              {receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.map(
+                (amount, yearIndex) => {
+                  // Convert negative values to 0 and round appropriately
+                  const adjustedAmount = Math.max(amount, 0);
+                  const roundedValue =
+                    adjustedAmount - Math.floor(adjustedAmount) <= 0.5
+                      ? Math.floor(adjustedAmount) // Round down if decimal part is ≤ 0.5
+                      : Math.ceil(adjustedAmount); // Round up if decimal part is > 0.5
+
+                  return (
+                    <Text
+                      key={`cumulativeBalance-${yearIndex}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(roundedValue)}
+                    </Text>
+                  );
+                }
+              )}
             </View>
 
-            {/* Bank Term Loan */}
+            {/* Bank Loan - Term Loan */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -340,24 +349,25 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Bank Term Loan
+                Bank Loan - Term Loan
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(
-                    index === 0 ? formData.MeansOfFinance.totalTL || "-" : "0"
-                  )}
-                </Text>
-              ))}
+              {receivedMarchClosingBalances &&
+                receivedMarchClosingBalances
+                  .slice(0, projectionYears)
+                  .map((balance, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(balance)}
+                    </Text>
+                  ))}
             </View>
 
-            {/* Working Capital Loan */}
+            {/*  Bank Loan Payable within next 12 months */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -376,9 +386,11 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Working Capital Loan
+                Bank Loan Payable within next 12 months
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears || 0,
+              }).map((_, index) => (
                 <Text
                   key={index}
                   style={[
@@ -387,15 +399,13 @@ const ProjectedBalanceSheet = ({
                   ]}
                 >
                   {formatNumber(
-                    index === 0
-                      ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
-                      : "0"
+                    Math.round(yearlyPrincipalRepayment[index] || 0)
                   )}
                 </Text>
               ))}
             </View>
 
-            {/* Depreciation */}
+            {/* Bank Loan - Working Capital Loan */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -405,7 +415,7 @@ const ProjectedBalanceSheet = ({
                   { borderLeftWidth: "1px" },
                 ]}
               >
-                3
+                5
               </Text>
               <Text
                 style={[
@@ -414,9 +424,10 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Depreciation
+                Bank Loan - Working Capital Loan
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
+              {/* Display the cumulative working capital loan for each year */}
+              {cumulativeLoanForPreviousYears.map((loan, index) => (
                 <Text
                   key={index}
                   style={[
@@ -424,7 +435,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(totalDepreciationPerYear[index] || "-")}
+                  {formatNumber(loan)}
                 </Text>
               ))}
             </View>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
@@ -27,6 +27,7 @@ const ProjectedProfitability = ({
   totalRevenueReceipts,
   fringAndAnnualCalculation,
   financialYearLabels,
+  handleDataSend
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -215,13 +216,6 @@ const ProjectedProfitability = ({
       interestExpenseOnWorkingCapital +
       depreciationExpense;
 
-    // console.log(`Year ${yearIndex + 1}:`);
-    // console.log(`  Indirect Expenses: ${totalIndirectExpenses.toFixed(2)}`);
-    // console.log(`  Interest on Term Loan: ${interestOnTermLoan.toFixed(2)}`);
-    // console.log(`  Interest on Working Capital: ${interestExpenseOnWorkingCapital.toFixed(2)}`);
-    // console.log(`  Depreciation: ${depreciationExpense.toFixed(2)}`);
-    // console.log(`  TOTAL: ${total.toFixed(2)}`);
-
     return total;
   });
 
@@ -261,7 +255,6 @@ const ProjectedProfitability = ({
     }
   }, [workingCapitalLoan, interestRate, projectionYears, repaymentStartMonth]);
 
- 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
   const adjustedRevenueValues = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
@@ -273,13 +266,13 @@ const ProjectedProfitability = ({
     return totalRevenue + closingStock - openingStock; // ✅ Final computation
   });
 
-
   // ✅ Step 2: Compute Gross Profit Values for Each Year After `totalDirectExpenses` is Defined
-  const grossProfitValues = adjustedRevenueValues.map((adjustedRevenue, yearIndex) => {
-    const totalDirectExpenses = totalDirectExpensesArray[yearIndex] || 0; // Ensure the expenses for the specific year are used
-    return adjustedRevenue - totalDirectExpenses; // Subtract expenses from adjusted revenue to get gross profit
-  });
-  
+  const grossProfitValues = adjustedRevenueValues.map(
+    (adjustedRevenue, yearIndex) => {
+      const totalDirectExpenses = totalDirectExpensesArray[yearIndex] || 0; // Ensure the expenses for the specific year are used
+      return adjustedRevenue - totalDirectExpenses; // Subtract expenses from adjusted revenue to get gross profit
+    }
+  );
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
   const netProfitBeforeTax = grossProfitValues.map((grossProfit, yearIndex) => {
@@ -287,7 +280,7 @@ const ProjectedProfitability = ({
     const totalIndirectExpenses = totalIndirectExpensesArray[yearIndex] || 0; // Ensure indirect expenses are considered
     return grossProfit - totalIndirectExpenses; // Net Profit Before Tax (NPBT)
   });
-  
+
   // ✅ Precompute Income Tax Calculation for Each Year Before Rendering
   const incomeTaxCalculation = netProfitBeforeTax.map((npbt, yearIndex) => {
     return (npbt * formData.ProjectReportSetting.incomeTax) / 100;
@@ -298,24 +291,35 @@ const ProjectedProfitability = ({
     return npat - incomeTaxCalculation[yearIndex]; // ✅ Correct subtraction
   });
 
-  // ✅ Precompute Balance Transferred to Balance Sheet
-  const balanceTransferred = netProfitAfterTax.map(
-    (npbt, yearIndex) =>
-      npbt - (formData.MoreDetails.withdrawals?.[yearIndex] || 0)
-  );
+// Precompute Balance Transferred to Balance Sheet
+const balanceTransferred = netProfitAfterTax.map(
+  (npbt, yearIndex) =>
+    npbt - (formData.MoreDetails.withdrawals?.[yearIndex] || 0)
+);
 
-  // ✅ Precompute Cumulative Balance Transferred to Balance Sheet
-  const cumulativeBalanceTransferred = balanceTransferred.reduce(
-    (acc, value, index) => {
-      if (index === 0) {
-        acc.push(value); // First year, just push the value
-      } else {
-        acc.push(acc[index - 1] + value); // Add previous cumulative value
-      }
-      return acc;
-    },
-    []
-  );
+// Precompute Cumulative Balance Transferred to Balance Sheet
+const cumulativeBalanceTransferred = [];
+balanceTransferred.forEach((amount, index) => {
+  if (index === 0) {
+    cumulativeBalanceTransferred.push(Math.max(amount, 0)); // First year, just the amount itself
+  } else {
+    // For subsequent years, sum of Balance Trf. and previous year's Cumulative Balance
+    cumulativeBalanceTransferred.push(Math.max(amount + cumulativeBalanceTransferred[index - 1], 0));
+  }
+});
+
+
+useEffect(() => {
+  if (cumulativeBalanceTransferred.length > 0) {
+    // Pass the data directly as an object
+    handleDataSend({
+      cumulativeBalanceTransferred,
+    });
+  }
+  // console.log("cummulative data", cumulativeBalanceTransferred);
+}, [JSON.stringify(cumulativeBalanceTransferred)]);
+
+
 
   // ✅ Ensure `onComputedData` updates only when required
   useEffect(() => {
@@ -1207,9 +1211,8 @@ const ProjectedProfitability = ({
             Balance Trf. To Balance Sheet
           </Text>
 
-          {/* ✅ Display Precomputed Balance Transferred Values with Rounding */}
+          {/* Display Precomputed Balance Transferred Values with Rounding */}
           {balanceTransferred.map((amount, yearIndex) => {
-            // ✅ Convert to integer based on decimal condition
             const roundedValue =
               amount - Math.floor(amount) <= 0.5
                 ? Math.floor(amount) // Round down if decimal part is ≤ 0.5
@@ -1230,8 +1233,7 @@ const ProjectedProfitability = ({
             );
           })}
         </View>
-
-        {/* ✅ Display Precomputed Cumulative Balance Transferred Values */}
+        {/* Cumulative Balance Trf. To Balance Sheet */}
         <View style={[styles.tableRow, styles.totalRow]}>
           <Text
             style={[
@@ -1252,11 +1254,13 @@ const ProjectedProfitability = ({
           </Text>
 
           {cumulativeBalanceTransferred.map((amount, yearIndex) => {
-            // ✅ Convert to integer based on decimal condition
+            // Convert negative values to 0 and round appropriately
+            const adjustedAmount = Math.max(amount, 0);
+
             const roundedValue =
-              amount - Math.floor(amount) <= 0.5
-                ? Math.floor(amount) // Round down if decimal part is ≤ 0.5
-                : Math.ceil(amount); // Round up if decimal part is > 0.5
+              adjustedAmount - Math.floor(adjustedAmount) <= 0.5
+                ? Math.floor(adjustedAmount) // Round down if decimal part is ≤ 0.5
+                : Math.ceil(adjustedAmount); // Round up if decimal part is > 0.5
 
             return (
               <Text
