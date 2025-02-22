@@ -24,6 +24,7 @@ const ProjectedBalanceSheet = ({
   yearlyInterestLiabilities = [],
   interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
   firstYearGrossFixedAssets,
+  financialYearLabels
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
@@ -231,17 +232,15 @@ const ProjectedBalanceSheet = ({
             <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
               Particulars
             </Text>
-            {Array.from({ length: projectionYears }).map((_, index) => (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {`${startYear + index}-${(startYear + index + 1) % 100}`}
-              </Text>
-            ))}
+            {/* Generate Dynamic Year Headers using financialYearLabels */}
+            {financialYearLabels.map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
           </View>
 
           {/* Liabilities Section */}

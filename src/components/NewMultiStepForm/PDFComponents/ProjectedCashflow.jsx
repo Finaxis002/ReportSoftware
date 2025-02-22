@@ -24,6 +24,7 @@ const ProjectedCashflow = ({
   yearlyInterestLiabilities = [],
   interestOnWorkingCapital = [], // ✅ Now Receiving Correctly
   firstYearGrossFixedAssets,
+  financialYearLabels,
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
@@ -51,23 +52,45 @@ const ProjectedCashflow = ({
   }
 
   // console.log("data for term loan", yearlyInterestLiabilities);
-  const startYear =
-    Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
+
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
   // ✅ Safe Helper Function to Format Numbers Based on Selected Format
+  // const formatNumber = (value) => {
+  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+  //   switch (formatType) {
+  //     case "1":
+  //       return new Intl.NumberFormat("en-IN").format(value); // Indian Format
+  //     case "2":
+  //       return new Intl.NumberFormat("en-US").format(value); // USD Format
+  //     default:
+  //       return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+  //   }
+  // };
+
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+
     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
 
+    // Check for negative values, return 0 if less than 0
+    const formattedValue = value < 0 ? 0 : value;
+
     switch (formatType) {
-      case "1":
-        return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-      case "2":
-        return new Intl.NumberFormat("en-US").format(value); // USD Format
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(formattedValue);
+
+      case "3": // Generic Format (Same as Indian for now)
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
+
       default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+        return new Intl.NumberFormat("en-IN").format(formattedValue); // ✅ Safe default
     }
   };
 
@@ -100,10 +123,12 @@ const ProjectedCashflow = ({
   // ✅ Compute Total Sources for Each Year
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
+      // Fetching net profit before interest & taxes from the calculations object
       const netProfitBeforeInterestAndTaxes = Number(
         calculations?.sources?.NetProfitBeforeInterestAndTaxes?.[index] || 0
       );
 
+      // Fetching promoter contribution for the first year
       const promoterContribution =
         index === 0
           ? Number(
@@ -112,18 +137,22 @@ const ProjectedCashflow = ({
             )
           : 0;
 
+      // Fetching term loan for the first year
       const termLoan =
         index === 0
           ? Number(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
           : 0;
 
+      // Fetching working capital loan for the first year
       const workingCapitalLoan =
         index === 0
           ? Number(formData?.MeansOfFinance?.workingCapital?.termLoan || 0)
           : 0;
 
+      // Fetching depreciation for the current year
       const depreciation = Number(totalDepreciationPerYear?.[index] || 0);
 
+      // Total sources is the sum of all the sources (NPBIT, promoter contribution, term loan, working capital loan, depreciation)
       return (
         netProfitBeforeInterestAndTaxes +
         promoterContribution +
@@ -231,15 +260,13 @@ const ProjectedCashflow = ({
             <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
               Particulars
             </Text>
-            {Array.from({ length: projectionYears }).map((_, index) => (
+            {/* Generate Dynamic Year Headers using financialYearLabels */}
+            {financialYearLabels.map((yearLabel, yearIndex) => (
               <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
               >
-                {`${startYear + index}-${(startYear + index + 1) % 100}`}
+                {yearLabel}
               </Text>
             ))}
           </View>
@@ -273,19 +300,21 @@ const ProjectedCashflow = ({
                 Net Profit before Interest & Taxes
               </Text>
 
-              {/* ✅ Display NPBIT Values for Each Year */}
-              {netProfitBeforeInterestAndTaxes.map((npbit, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(npbit.toFixed(2))}{" "}
-                  {/* ✅ Display with 2 Decimal Places */}
-                </Text>
-              ))}
+              {/* Sync Net Profit Before Interest & Taxes */}
+              {financialYearLabels.map((_, index) => {
+                const value = netProfitBeforeInterestAndTaxes[index] || 0; // Use filtered index
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value.toFixed(2))}
+                  </Text>
+                );
+              })}
             </View>
 
             {/* Promoters’ Capital */}
@@ -317,7 +346,9 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {index === 0 ? formData.MeansOfFinance.totalPC || "-" : "0"}
+                  {formatNumber(
+                    index === 0 ? formData.MeansOfFinance.totalPC || "-" : "0"
+                  )}
                 </Text>
               ))}
             </View>
@@ -352,7 +383,9 @@ const ProjectedCashflow = ({
                   ]}
                 >
                   {formatNumber(
-                    index === 0 ? formData.MeansOfFinance.totalTL || "-" : "0"
+                    index === 0
+                      ? formData.MeansOfFinance.termLoan.termLoan || "-"
+                      : "0"
                   )}
                 </Text>
               ))}
@@ -512,7 +545,7 @@ const ProjectedCashflow = ({
                 >
                   {index === 0
                     ? firstYearGrossFixedAssets
-                      ? firstYearGrossFixedAssets.toLocaleString("en-IN") // Format as Indian Numbering
+                      ? formatNumber(firstYearGrossFixedAssets) // Use formatNumber instead of toLocaleString
                       : "-"
                     : "0"}
                 </Text>
@@ -664,7 +697,7 @@ const ProjectedCashflow = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {tax ? tax.toLocaleString("en-IN") : "N/A"}
+                   {tax ? formatNumber(tax) : "N/A"}
                   </Text>
                 ))
               ) : (

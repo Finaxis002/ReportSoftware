@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 
-const ProjectedRevenue = ({ formData, onTotalRevenueUpdate }) => {
+const ProjectedRevenue = ({ formData, onTotalRevenueUpdate , financialYearLabels }) => {
   // ✅ Function to format numbers based on the selected format type
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -34,15 +34,18 @@ const ProjectedRevenue = ({ formData, onTotalRevenueUpdate }) => {
     );
   }, [formData?.Revenue, formType]);
 
-  // ✅ Compute total revenue for each year
-  const totalRevenueReceipts = useMemo(() => {
-    return Array.from({ length: projectionYears }).map((_, yearIndex) =>
-      selectedData.reduce(
-        (sum, item) => sum + (Number(item.years?.[yearIndex]) || 0),
-        0
-      )
-    );
-  }, [selectedData, projectionYears]);
+// ✅ Determine the total revenue array based on formType
+const totalRevenueReceipts = useMemo(() => {
+  if (formType === "Others") {
+    return formData?.Revenue?.totalRevenueForOthers || [];
+  } else if (formType === "Monthly") {
+    return formData?.Revenue?.totalMonthlyRevenue || [];
+  }
+  return [];
+}, [formData?.Revenue, formType]);
+
+
+
 
   // ✅ Send computed total revenue to parent or another component
   useEffect(() => {
@@ -90,10 +93,14 @@ const ProjectedRevenue = ({ formData, onTotalRevenueUpdate }) => {
               Particulars
             </Text>
 
-            {/* Dynamically Generate Year Columns */}
-            {Array.from({ length: projectionYears }).map((_, yearIndex) => (
-              <Text key={yearIndex} style={styles.particularsCell}>
-                Year {yearIndex + 1}
+            
+            {/* Generate Dynamic Year Headers using financialYearLabels */}
+            {financialYearLabels.map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
               </Text>
             ))}
           </View>

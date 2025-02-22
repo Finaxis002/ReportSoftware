@@ -19,6 +19,7 @@ const IncomeTaxCalculation = ({
   formData = {},
   netProfitBeforeTax = [],
   totalDepreciationPerYear = [],
+  financialYearLabels
 }) => {
   if (!formData || typeof formData !== "object") {
     console.error("❌ Invalid formData provided");
@@ -31,8 +32,7 @@ const IncomeTaxCalculation = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
   // Default to 5 years if not provided
-  const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.incomeTax) || 0;
+  const rateOfInterest = Number(formData?.ProjectReportSetting?.incomeTax) || 0;
 
   // ✅ Compute Tax at 30% on Net Profit Before Tax
   const incomeTax =
@@ -42,24 +42,47 @@ const IncomeTaxCalculation = ({
         )
       : [];
 
+  // const formatNumber = (value) => {
+  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
-  const formatNumber = (value) => {
+  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+  //   switch (formatType) {
+  //     case "1": // Indian Format (1,23,456)
+  //       return new Intl.NumberFormat("en-IN").format(value);
+
+  //     case "2": // USD Format (1,123,456)
+  //       return new Intl.NumberFormat("en-US").format(value);
+
+  //     case "3": // Generic Format (Same as Indian for now)
+  //       return new Intl.NumberFormat("en-IN").format(value);
+
+  //     default:
+  //       return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+  //   }
+  // };
+
+   // ✅ Format number with check for negative values
+   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
 
+    // Check for negative values, return 0 if less than 0
+    const formattedValue = value < 0 ? 0 : value;
+
     switch (formatType) {
       case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(value);
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
 
       case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(value);
+        return new Intl.NumberFormat("en-US").format(formattedValue);
 
       case "3": // Generic Format (Same as Indian for now)
-        return new Intl.NumberFormat("en-IN").format(value);
+        return new Intl.NumberFormat("en-IN").format(formattedValue);
 
       default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
+        return new Intl.NumberFormat("en-IN").format(formattedValue); // ✅ Safe default
     }
   };
 
@@ -74,7 +97,7 @@ const IncomeTaxCalculation = ({
     >
       <View style={[styleExpenses.paddingx]}>
         <Text style={[styles.clientName]}>
-          {formData?.AccountInformation?.clientName || "N/A"}
+          {formData?.AccountInformation?.clientName || "0"}
         </Text>
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -98,10 +121,13 @@ const IncomeTaxCalculation = ({
               Particulars
             </Text>
 
-            {/* Dynamically generate years based on start year and projection years */}
-            {Array.from({ length: projectionYears }).map((_, index) => (
-              <Text key={index} style={styles.particularsCell}>
-                {`${startYear + index}-${(startYear + index + 1) % 100}`}
+            {/* Generate Dynamic Year Headers using financialYearLabels */}
+            {financialYearLabels.map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
               </Text>
             ))}
           </View>
@@ -146,11 +172,11 @@ const IncomeTaxCalculation = ({
                 >
                   {npbt
                     ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
-                    : "N/A"}
+                    : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -190,11 +216,11 @@ const IncomeTaxCalculation = ({
                 >
                   {npbt
                     ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
-                    : "N/A"}
+                    : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -237,13 +263,11 @@ const IncomeTaxCalculation = ({
                     },
                   ]}
                 >
-                  {(
-                    npbt + (totalDepreciationPerYear[index] || 0)
-                  ).toLocaleString("en-IN")}
+                 {formatNumber(npbt + (totalDepreciationPerYear[index] || 0))}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -287,11 +311,11 @@ const IncomeTaxCalculation = ({
                 >
                   {npbt
                     ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
-                    : "N/A"}
+                    : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -337,11 +361,11 @@ const IncomeTaxCalculation = ({
                 >
                   {npbt
                     ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
-                    : "N/A"}
+                    : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -382,11 +406,11 @@ const IncomeTaxCalculation = ({
                 >
                   {npbt
                     ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
-                    : "N/A"}
+                    : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
 
@@ -425,11 +449,11 @@ const IncomeTaxCalculation = ({
                     },
                   ]}
                 >
-                  {tax ? tax.toLocaleString("en-IN") : "N/A"}
+                  {tax ? formatNumber(tax) : "0"}
                 </Text>
               ))
             ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>N/A</Text>
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
         </View>

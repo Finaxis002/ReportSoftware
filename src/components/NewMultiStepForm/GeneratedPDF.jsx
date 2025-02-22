@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import {
-  styles,
-  stylesCOP,
-  stylesMOF,
-  styleExpenses,
-} from "./PDFComponents/Styles";
-
 import "./View.css";
 import { Document, PDFViewer } from "@react-pdf/renderer";
 
@@ -30,6 +23,9 @@ import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = () => {
+  const [directExpenses, setDirectExpenses] = useState([]);
+  const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
+
   const [computedData, setComputedData] = useState({
     netProfitBeforeTax: [],
     grossProfitValues: [],
@@ -90,12 +86,6 @@ const GeneratedPDF = () => {
     if (role) setUserRole(role);
   }, []); // Runs only on mount
 
-  // Ensure `formData` is always an object and destructure safely
-  // const formData = location.state ? { ...location.state } : {};
-  // if (!formData?.AccountInformation) {
-  //   return <div>No account information available</div>;
-  // }
-
   const formData = useMemo(() => {
     return location.state ? { ...location.state } : {};
   }, [location.state]);
@@ -107,6 +97,8 @@ const GeneratedPDF = () => {
   // Extract expenses safely
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
+
+
 
   // Format currency function
   const formatAmountInIndianStyle = (amount) => amount.toLocaleString("en-IN");
@@ -136,6 +128,28 @@ const GeneratedPDF = () => {
     let netAsset = asset.amount; // Initial asset value
     return sum + netAsset;
   }, 0);
+
+  // Function to generate correct financial year labels
+  const generateFinancialYearLabels = (startingFY, totalYears) => {
+    const yearLabels = [];
+    for (let i = 0; i < totalYears; i++) {
+      const fromYear = startingFY + i;
+      const toYear = (fromYear + 1) % 100; // Only last two digits for the second year
+      yearLabels.push(`${fromYear}-${toYear < 10 ? "0" + toYear : toYear}`);
+    }
+    return yearLabels;
+  };
+
+  // Example Usage
+  const financialYear =
+    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
+  const projectionYears =
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
+
+  const financialYearLabels = generateFinancialYearLabels(
+    financialYear,
+    projectionYears
+  );
 
   return (
     <>
@@ -171,9 +185,8 @@ const GeneratedPDF = () => {
             localData={localData}
             setTotalDepreciation={setTotalDepreciation}
             onComputedData1={setComputedData1}
+            financialYearLabels={financialYearLabels}
           />
-
-          {/* Projected Expense Table Direct and Indirect*/}
 
           {/* Projected Expense Table Direct and Indirect */}
           <ProjectedExpenses
@@ -183,17 +196,19 @@ const GeneratedPDF = () => {
             fringAndAnnualCalculation={fringAndAnnualCalculation}
             fringeCalculation={fringeCalculation}
             interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+            financialYearLabels={financialYearLabels}
+            directExpenses={directExpenses}
+            projectionYears={projectionYears}
+            totalDirectExpensesArray={totalDirectExpensesArray}
           />
 
-         
           {/* Projected Revenue/ Sales */}
 
           <ProjectedRevenue
             formData={formData}
             onTotalRevenueUpdate={setTotalRevenueReceipts}
+            financialYearLabels={financialYearLabels}
           />
-
-          {/* Projected Profitability Statement */}
 
           {/* Projected Profitability Statement */}
           <ProjectedProfitability
@@ -209,12 +224,14 @@ const GeneratedPDF = () => {
             setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
             totalRevenueReceipts={totalRevenueReceipts}
             fringAndAnnualCalculation={fringAndAnnualCalculation}
+            financialYearLabels={financialYearLabels}
           />
           <Repayment
             formData={formData}
             localData={localData}
             onInterestCalculated={handleInterestCalculated}
             onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
+            financialYearLabels={financialYearLabels}
           />
 
           {computedData.netProfitBeforeTax.length > 0 && (
@@ -222,6 +239,7 @@ const GeneratedPDF = () => {
               formData={formData}
               netProfitBeforeTax={computedData.netProfitBeforeTax}
               totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+              financialYearLabels={financialYearLabels}
             />
           )}
           <ProjectedCashflow
@@ -235,6 +253,7 @@ const GeneratedPDF = () => {
             interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
             firstYearGrossFixedAssets={firstYearGrossFixedAssets}
             totalRevenueReceipts={totalRevenueReceipts}
+            financialYearLabels={financialYearLabels}
           />
 
           <ProjectedBalanceSheet
@@ -248,6 +267,7 @@ const GeneratedPDF = () => {
             interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
             firstYearGrossFixedAssets={firstYearGrossFixedAssets}
             totalRevenueReceipts={totalRevenueReceipts}
+            financialYearLabels={financialYearLabels}
           />
 
           <BreakEvenPoint
@@ -256,6 +276,7 @@ const GeneratedPDF = () => {
             totalDepreciationPerYear={totalDepreciation}
             totalRevenueReceipts={totalRevenueReceipts}
             fringAndAnnualCalculation={fringAndAnnualCalculation}
+            financialYearLabels={financialYearLabels}
           />
 
           <DebtServiceCoverageRatio
@@ -264,53 +285,10 @@ const GeneratedPDF = () => {
             yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
             totalDepreciationPerYear={totalDepreciation}
             netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
+            financialYearLabels={financialYearLabels}
           />
         </Document>
       </PDFViewer>
-
-      {/* <section>
-        <h1 className="text-center py-5 bg-headPurple">Report Review</h1>
-        <div className="w-75 mx-auto">
-          <hr />
-          <h5>Index</h5>
-          <hr />
-
-          <div ref={pdfRef} id="report-content" style={styles.page}>
-           
-            <div id="page4" style={styles.pageBreak}>
-              <PrSetting />
-            </div>
-
-           
-            <div id="page5" style={styles.pageBreak}>
-              <ExpensesTable />
-            </div>
-
-            <div id="page6" style={styles.pageBreak}>
-              <RevenueTable />
-            </div>
-
-         
-            <div id="page7" style={styles.pageBreak}>
-              <MoreDetailsTable />
-            </div>
-
-         
-            <div id="page8" style={styles.pageBreak}>
-              <DepreciationTable />
-            </div>
-
-           
-            <div id="page9" style={styles.pageBreak}>
-              <div className="w-50 mx-auto">
-                <Bar options={options} data={tempGraphData} />
-                <hr />
-                <Doughnut data={tempGraphData} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> */}
 
       <section className="h-[100vh]"></section>
     </>

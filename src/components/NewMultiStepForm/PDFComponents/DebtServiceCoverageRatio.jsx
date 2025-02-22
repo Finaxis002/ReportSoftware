@@ -21,6 +21,7 @@ const DebtServiceCoverageRatio = ({
   totalDepreciationPerYear,
   yearlyPrincipalRepayment, // ✅ Receiving total principal repayment
   netProfitAfterTax,
+  financialYearLabels
 }) => {
   // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
@@ -149,15 +150,15 @@ const DebtServiceCoverageRatio = ({
             Particulars
           </Text>
 
-          {/* Generate Dynamic Year Headers */}
-          {Array.from({ length: years }).map((_, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {2025 + yearIndex}-{26 + yearIndex}
-            </Text>
-          ))}
+           {/* Generate Dynamic Year Headers using financialYearLabels */}
+           {financialYearLabels.map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
         </View>
       </View>
 

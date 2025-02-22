@@ -21,6 +21,7 @@ const BreakEvenPoint = ({
   totalDepreciationPerYear = [], // ✅ Default Empty Array
   totalRevenueReceipts = [], // ✅ Default Empty Array
   fringAndAnnualCalculation,
+  financialYearLabels
 }) => {
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
@@ -232,15 +233,15 @@ const BreakEvenPoint = ({
             Particulars
           </Text>
 
-          {/* Generate Dynamic Year Headers */}
-          {Array.from({ length: years }).map((_, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {2025 + yearIndex}-{26 + yearIndex}
-            </Text>
-          ))}
+           {/* Generate Dynamic Year Headers using financialYearLabels */}
+           {financialYearLabels.map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
         </View>
 
         {/* ✅ Display Total Revenue Receipt Row */}

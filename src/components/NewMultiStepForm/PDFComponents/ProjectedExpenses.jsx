@@ -7,13 +7,17 @@ const ProjectedExpenses = ({
   yearlyInterestLiabilities,
   totalDepreciationPerYear,
   fringAndAnnualCalculation,
+  financialYearLabels
 }) => {
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
   const indirectExpense = directExpense.filter(
     (expense) => expense.type === "indirect"
   );
+
+  const projectionYears =
+  parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
+
 
   // Month Mapping
   const monthMap = {
@@ -37,8 +41,6 @@ const ProjectedExpenses = ({
 
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-  const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
 
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
@@ -227,18 +229,20 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
+              <Text style={[styles.serialNoCell, styleExpenses.sno]}>
                 S. No.
               </Text>
               <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
                 Particulars
               </Text>
-              {Array.from({
-                length:
-                  parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-              }).map((_, index) => (
-                <Text key={index} style={styles.particularsCell}>
-                  Year {index + 1}
+
+              {/* Generate Dynamic Year Headers using financialYearLabels */}
+              {financialYearLabels.map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
                 </Text>
               ))}
             </View>
