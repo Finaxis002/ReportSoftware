@@ -350,7 +350,7 @@ const FourthStepPRS = ({
                   value={localData.FinancialYear}
                   onChange={handleChange}
                 />
-                <label htmlFor="FinancialYear">Financial Years</label>
+                <label htmlFor="FinancialYear">Financial Year</label>
               </div>
             </div>
           </div>
