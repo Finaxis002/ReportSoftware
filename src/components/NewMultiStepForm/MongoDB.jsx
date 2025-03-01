@@ -6,7 +6,7 @@ const MongoDB = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/getUsers")
+      .get("  ")
       .then((response) => setUsers(response.data))
       .catch((err) => console.error("Error fetching users:", err));
   }, []);

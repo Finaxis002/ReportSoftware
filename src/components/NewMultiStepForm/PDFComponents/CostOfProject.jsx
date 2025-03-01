@@ -2,31 +2,30 @@ import React from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
 
-const CostOfProject = ({ formData, localData }) => {
+const CostOfProject = ({ formData, localData, formatNumber }) => {
   // ✅ Helper Function to Format Numbers Based on Selected Format
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    switch (formatType) {
-      case "1": return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-      case "2": return new Intl.NumberFormat("en-US").format(value); // USD Format
-      case "3": return new Intl.NumberFormat("en-IN").format(value); // Generic Format
-      default:  return new Intl.NumberFormat("en-IN").format(value);
-    }
-  };
 
   // ✅ Compute Total Cost of Project including Working Capital
-  const totalCost = (formData?.CostOfProject
-    ? Object.values(formData.CostOfProject).reduce(
-        (sum, field) => sum + (field?.amount || 0), 
-        0
-      )
-    : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
+  const totalCost =
+    (formData?.CostOfProject
+      ? Object.values(formData.CostOfProject).reduce(
+          (sum, field) => sum + (field?.amount || 0),
+          0
+        )
+      : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
-      <Text style={styles.clientName}>{localData?.clientName || "Client Name"}</Text>
+      {/* businees name and financial year  */}
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Bame"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+        </Text>
+      </View>
       <View style={stylesCOP.heading}>
         <Text>Cost Of Project</Text>
       </View>
@@ -39,11 +38,14 @@ const CostOfProject = ({ formData, localData }) => {
         </View>
 
         {/* ✅ Show Cost of Project Items */}
-        {formData?.CostOfProject && Object.keys(formData.CostOfProject).length > 0 ? (
+        {formData?.CostOfProject &&
+        Object.keys(formData.CostOfProject).length > 0 ? (
           Object.entries(formData.CostOfProject).map(([key, field], index) => (
             <View key={key} style={styles.tableRow}>
               <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
-              <Text style={stylesCOP.detailsCellDetail}>{field?.name || "N/A"}</Text>
+              <Text style={stylesCOP.detailsCellDetail}>
+                {field?.name || "N/A"}
+              </Text>
               <Text style={stylesCOP.particularsCellsDetail}>
                 {formatNumber(field?.amount || 0)}
               </Text>
@@ -51,7 +53,12 @@ const CostOfProject = ({ formData, localData }) => {
           ))
         ) : (
           <View style={styles.tableRow}>
-            <Text style={[stylesCOP.detailsCellDetail, { textAlign: "center", width: "100%" }]}>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                { textAlign: "center", width: "100%" },
+              ]}
+            >
               No cost data available
             </Text>
           </View>
@@ -60,7 +67,9 @@ const CostOfProject = ({ formData, localData }) => {
         {/* ✅ Show Working Capital Row */}
         {formData?.MeansOfFinance?.totalWorkingCapital && (
           <View style={styles.tableRow}>
-            <Text style={stylesCOP.serialNoCellDetail}>{Object.keys(formData.CostOfProject).length + 1}</Text>
+            <Text style={stylesCOP.serialNoCellDetail}>
+              {Object.keys(formData.CostOfProject).length + 1}
+            </Text>
             <Text style={stylesCOP.detailsCellDetail}>Working Capital</Text>
             <Text style={stylesCOP.particularsCellsDetail}>
               {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
@@ -71,33 +80,54 @@ const CostOfProject = ({ formData, localData }) => {
         {/* ✅ Total Cost Row (Including Working Capital) */}
         <View style={stylesCOP.totalHeader}>
           <Text style={stylesCOP.serialNoCellDetail}></Text>
-          <Text style={[stylesCOP.detailsCellDetail, stylesCOP.boldText]}>
-            Total Cost of Project
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              stylesCOP.boldText,
+              styles.Total,
+              { borderTop: "1px solid #000", paddingVertical: "5px" },
+            ]}
+          >
+            Total
           </Text>
-          <Text style={[stylesCOP.particularsCellsDetail, stylesCOP.boldText]}>
+          <Text
+            style={[
+              stylesCOP.particularsCellsDetail,
+              stylesCOP.boldText,
+              styles.Total,
+              { borderTop: "1px solid #000", paddingVertical: "5px" },
+            ]}
+          >
             {formatNumber(totalCost)}
           </Text>
         </View>
+      </View>
+
+      {/* businees name and Client Name  */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop:"60px"
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          {formData?.AccountInformation?.clientName || "Client Name"}
+        </Text>
       </View>
     </Page>
   );
 };
 
 export default CostOfProject;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React from "react";
 // import { Page, View, Text } from "@react-pdf/renderer";

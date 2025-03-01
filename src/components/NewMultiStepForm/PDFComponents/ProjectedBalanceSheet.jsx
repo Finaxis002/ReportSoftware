@@ -18,8 +18,6 @@ const ProjectedBalanceSheet = ({
   formData = {},
   calculations = {},
   totalDepreciationPerYear = [],
-  netProfitBeforeTax = [],
-  grossProfitValues = [],
   grossFixedAssetsPerYear = [],
   yearlyPrincipalRepayment = [],
   yearlyInterestLiabilities = [],
@@ -28,6 +26,9 @@ const ProjectedBalanceSheet = ({
   receivedCummulativeTansferedData,
   receivedMarchClosingBalances,
   receivedWorkingCapitalValues,
+  closingCashBalanceArray = [],
+  onTotalLiabilitiesSend = [],
+  formatNumber,
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -53,152 +54,12 @@ const ProjectedBalanceSheet = ({
     }
   }, [yearlyInterestLiabilities]); // ✅ Runs when state update
 
-  if (
-    !formData ||
-    typeof formData !== "object" ||
-    !calculations ||
-    typeof calculations !== "object"
-  ) {
-    console.error("❌ Invalid formData or calculations provided");
-    return null;
-  }
-
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
-
-  // ✅ Safe Helper Function to Format Numbers Based on Selected Format
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-  //   switch (formatType) {
-  //     case "1":
-  //       return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-  //     case "2":
-  //       return new Intl.NumberFormat("en-US").format(value); // USD Format
-  //     default:
-  //       return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-  //   }
-  // };
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    // Check for negative values, return 0 if less than 0
-    const formattedValue = value < 0 ? 0 : value;
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(formattedValue);
-
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(formattedValue);
-
-      case "3": // Generic Format (Same as Indian for now)
-        return new Intl.NumberFormat("en-IN").format(formattedValue);
-
-      default:
-        return new Intl.NumberFormat("en-IN").format(formattedValue); // ✅ Safe default
-    }
-  };
-
 
   const rateOfInterest =
     Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
 
-  const incomeTax =
-    Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
-      ? netProfitBeforeTax.map((npbt) =>
-          npbt ? Math.round(npbt * (rateOfInterest / 100)) : "0.00"
-        )
-      : [];
-
-  // ✅ Compute Total Sources for Each Year
-  const totalSourcesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netProfitBeforeInterestAndTaxes = Number(
-        calculations?.sources?.NetProfitBeforeInterestAndTaxes?.[index] || 0
-      );
-
-      const promoterContribution =
-        index === 0
-          ? Number(
-              formData?.MeansOfFinance?.workingCapital?.promoterContribution ||
-                0
-            )
-          : 0;
-
-      const termLoan =
-        index === 0
-          ? Number(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
-          : 0;
-
-      const workingCapitalLoan =
-        index === 0
-          ? Number(formData?.MeansOfFinance?.workingCapital?.termLoan || 0)
-          : 0;
-
-      const depreciation = Number(totalDepreciationPerYear?.[index] || 0);
-
-      return (
-        netProfitBeforeInterestAndTaxes +
-        promoterContribution +
-        termLoan +
-        workingCapitalLoan +
-        depreciation
-      );
-    }
-  );
-
-  // ✅ Compute Total Uses for Each Year
-  const totalUsesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const fixedAssets = Number(grossProfitValues[index] || 0);
-      const repaymentOfLoan = Number(yearlyPrincipalRepayment[index] || 0);
-      const interestOnTermLoan = Number(yearlyInterestLiabilities[index] || 0);
-      const withdrawals = Number(
-        formData.MoreDetails?.withdrawals?.[index] || 0
-      );
-      const incomeTaxValue = Number(incomeTax[index] || 0);
-
-      return (
-        fixedAssets +
-        repaymentOfLoan +
-        interestOnTermLoan +
-        withdrawals +
-        incomeTaxValue
-      );
-    }
-  );
-
-  // ✅ Initial Opening Cash Balance
-  let openingCashBalance = 0;
-
-  // ✅ Compute Cash Flow Balances
-  const cashBalances = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const totalSources = totalSourcesArray[index] || 0;
-      const totalUses = totalUsesArray[index] || 0;
-      const surplusDuringYear = totalSources - totalUses;
-
-      // ✅ Compute Closing Balance
-      const closingCashBalance = openingCashBalance + surplusDuringYear;
-
-      const result = {
-        opening: openingCashBalance, // ✅ Carry forward previous year's closing balance
-        surplus: surplusDuringYear,
-        closing: closingCashBalance,
-      };
-
-      // ✅ Set next year's opening balance
-      openingCashBalance = closingCashBalance;
-
-      return result;
-    }
-  );
-
-  // Destructure termLoanValues from the object.
   // If it's undefined, default to an empty array.
   const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
 
@@ -218,15 +79,214 @@ const ProjectedBalanceSheet = ({
     []
   );
 
+  // ✅ Compute Corrected Total Liabilities for Each Year
+  let cumulativeAdditionalLiabilities = 0; // ✅ Initialize cumulative liabilities
+
+  const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
+
+      const reservesAndSurplus = Math.max(
+        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[
+          index
+        ] || 0,
+        0
+      );
+
+      const termLoan = Number(receivedMarchClosingBalances?.[index] || 0);
+
+      // ✅ Ensure correct bankLoanPayableWithinNext12Months mapping
+      const mappedIndex = index + 1; // Shift to next year's value
+      let bankLoanPayableWithinNext12Months =
+        mappedIndex < projectionYears
+          ? Math.round(yearlyPrincipalRepayment[mappedIndex] || 0)
+          : 0; // ✅ Set last year's value to 0
+
+      const workingCapitalLoan = Number(
+        cumulativeLoanForPreviousYears?.[index] || 0
+      );
+
+      // ✅ Calculate current liabilities for the year and accumulate
+      const currentYearLiabilities = (
+        formData?.MoreDetails?.currentLiabilities ?? []
+      ).reduce(
+        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
+        0
+      );
+
+      cumulativeAdditionalLiabilities += currentYearLiabilities; // ✅ Keep cumulative sum
+
+      // ✅ Compute the final total liabilities for the year
+      const totalForYear =
+        capital +
+        reservesAndSurplus +
+        termLoan +
+        bankLoanPayableWithinNext12Months +
+        workingCapitalLoan +
+        cumulativeAdditionalLiabilities;
+
+      // console.log(`Year ${index + 1}:`);
+      // console.log(`  - Capital: ${capital}`);
+      // console.log(`  - Reserves & Surplus: ${reservesAndSurplus}`);
+      // console.log(`  - Term Loan: ${termLoan}`);
+      // console.log(`  - Bank Loan Payable Next 12 Months: ${bankLoanPayableWithinNext12Months}`);
+      // console.log(`  - Working Capital Loan: ${workingCapitalLoan}`);
+      // console.log(`  - Current Year Liabilities: ${currentYearLiabilities}`);
+      // console.log(`  - Cumulative Liabilities: ${cumulativeAdditionalLiabilities}`);
+      // console.log(`  - Total Liabilities: ${totalForYear}`);
+
+      return totalForYear;
+    }
+  );
+
+  // console.log("Final Total Liabilities Array:", totalLiabilitiesArray);
+
+  // ✅ Calculate Current Liabilities for Each Year
+  const currentLiabilities = Array.from({
+    length: formData.ProjectReportSetting.ProjectionYears || 0,
+  }).map((_, index) => {
+    const bankLoanNext12Months = yearlyPrincipalRepayment[index + 1] || 0; // Shift repayment from next year
+    const workingCapitalLoan = cumulativeLoanForPreviousYears[index] || 0; // Fetch working capital loan
+
+    return bankLoanNext12Months + workingCapitalLoan; // Sum of both loans for that year
+  });
+
+  // First, compute the arrays for Fixed Assets and Net Fixed Assets
+  const computedFixedAssets = [];
+  const computedNetFixedAssets = [];
+
+  // For the first year, use the provided value
+  computedFixedAssets[0] = grossFixedAssetsPerYear[0] || 0;
+  computedNetFixedAssets[0] =
+    computedFixedAssets[0] - (totalDepreciationPerYear[0] || 0);
+
+  // For subsequent years, carry forward the net value as the new fixed asset value
+  for (let i = 1; i < projectionYears; i++) {
+    computedFixedAssets[i] = computedNetFixedAssets[i - 1];
+    computedNetFixedAssets[i] =
+      computedFixedAssets[i] - (totalDepreciationPerYear[i] || 0);
+  }
+
+  // ✅ Compute Corrected Total Assets for Each Year
+  let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
+
+  const totalAssetArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const netFixedAssetValue = computedNetFixedAssets[index] || 0; // Use computed values directly
+      const cashEquivalent = closingCashBalanceArray[index] || 0; // Use closing cash balance
+
+      // ✅ Include Current Assets from `MoreDetails.currentAssets` with cumulative rule
+      const currentYearAssets = formData?.MoreDetails?.currentAssets?.reduce(
+        (total, assets) => total + Number(assets.years[index] || 0),
+        0
+      );
+
+      cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
+
+      // ✅ Compute the Correct Total Assets
+      return netFixedAssetValue + cashEquivalent + cumulativeCurrentAssets; // Use cumulative total for assets
+    }
+  );
+
+  const repaymentValueswithin12months = Array.from({
+    length: formData.ProjectReportSetting.ProjectionYears || 0,
+  }).map((_, index) => {
+    let mappedIndex = index + 1; // ✅ Shift to next year
+
+    return mappedIndex < formData.ProjectReportSetting.ProjectionYears
+      ? Math.round(yearlyPrincipalRepayment[mappedIndex] || 0) // ✅ Fetch next year's value
+      : 0; // ✅ Ensure last year's value is explicitly set to 0
+  });
+
+  // ✅ Initialize cumulative liabilities
+  let cumulativeCurrentLiabilities = 0;
+
+  // ✅ Initialize array for storing total liabilities year-wise
+  const yearlyTotalLiabilities = Array.from({ length: projectionYears }).map(
+    (_, yearIndex) => {
+      // ✅ Get repayment values for the year
+      const repayment = Number(repaymentValueswithin12months?.[yearIndex]) || 0;
+
+      // ✅ Get working capital loan for the year
+      const workingCapitalLoan =
+        Number(cumulativeLoanForPreviousYears?.[yearIndex]) || 0;
+
+      // ✅ Compute current year liabilities and accumulate
+      const currentYearLiabilities = (
+        formData?.MoreDetails?.currentLiabilities ?? []
+      )
+        .filter(
+          (liabilitie) =>
+            liabilitie.particular !==
+            "Quasi Equity (Important to set Current Ratio)"
+        )
+        .reduce(
+          (total, liabilities) =>
+            total + Number(liabilities.years?.[yearIndex] || 0),
+          0
+        );
+
+      // ✅ Accumulate current liabilities over years
+      cumulativeCurrentLiabilities += currentYearLiabilities;
+
+      // ✅ Calculate total liabilities for the year
+      const totalForYear =
+        repayment + workingCapitalLoan + cumulativeCurrentLiabilities;
+
+      // console.log(`Year ${yearIndex + 1}:`);
+      // console.log(`  - Bank Loan Payable: ${repayment}`);
+      // console.log(`  - Working Capital Loan: ${workingCapitalLoan}`);
+      // console.log(`  - Current Year Liabilities: ${currentYearLiabilities}`);
+      // console.log(`  - Cumulative Current Liabilities: ${cumulativeCurrentLiabilities}`);
+      // console.log(`  - Total Liabilities: ${totalForYear}`);
+
+      return totalForYear;
+    }
+  );
+
+  // ✅ Log final yearly total liabilities array
+  // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);
+
+  // ✅ Send Total Liabilities Data to Parent Component Only When Final
+  useEffect(() => {
+    if (totalLiabilitiesArray.length > 0) {
+      onTotalLiabilitiesSend((prev) => ({
+        ...prev,
+        totalLiabilitiesArray,
+        closingCashBalanceArray,
+        currentLiabilities,
+        yearlyTotalLiabilities,
+        repaymentValueswithin12months,
+      }));
+    }
+  }, [
+    JSON.stringify(totalLiabilitiesArray),
+    JSON.stringify(closingCashBalanceArray),
+    JSON.stringify(currentLiabilities),
+    JSON.stringify(yearlyTotalLiabilities),
+    JSON.stringify(repaymentValueswithin12months),
+  ]);
+
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
       orientation={projectionYears > 7 ? "landscape" : "portrait"}
+      wrap={false}
+      break
+      style={[{ padding: "20px" }]}
     >
       <View style={[styleExpenses.paddingx]}>
-        <Text style={[styles.clientName]}>
-          {formData?.AccountInformation?.clientName || "N/A"}
-        </Text>
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Bame"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          </Text>
+        </View>
+
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
@@ -269,14 +329,7 @@ const ProjectedBalanceSheet = ({
 
             {/* ✅ Capital */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 1
               </Text>
               <Text
@@ -305,14 +358,7 @@ const ProjectedBalanceSheet = ({
 
             {/* Reserves & Surplus */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 2
               </Text>
               <Text
@@ -350,14 +396,7 @@ const ProjectedBalanceSheet = ({
 
             {/* Bank Loan - Term Loan */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 3
               </Text>
               <Text
@@ -369,32 +408,25 @@ const ProjectedBalanceSheet = ({
               >
                 Bank Loan - Term Loan
               </Text>
-              {receivedMarchClosingBalances &&
-                receivedMarchClosingBalances
-                  .slice(0, projectionYears)
-                  .map((balance, index) => (
-                    <Text
-                      key={index}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(balance)}
-                    </Text>
-                  ))}
+              {Array.from({ length: projectionYears }).map((_, index) => {
+                const balance = receivedMarchClosingBalances?.[index] || 0; // Use 0 if value is unavailable
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(balance)}
+                  </Text>
+                );
+              })}
             </View>
 
             {/* Bank Loan Payable within next 12 months */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 4
               </Text>
               <Text
@@ -407,40 +439,22 @@ const ProjectedBalanceSheet = ({
                 Bank Loan Payable within next 12 months
               </Text>
 
-              {Array.from({
-                length: formData.ProjectReportSetting.ProjectionYears || 0,
-              }).map((_, index) => {
-                let value = Math.round(yearlyPrincipalRepayment[index] || 0); // Get the value for the current year
-
-                // Apply the carry forward logic: If the current value is 0, use the previous year's value
-                if (value === 0 && index > 0) {
-                  value = Math.round(yearlyPrincipalRepayment[index - 1] || 0); // Carry forward previous year's value
-                }
-
-                return (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(value)} {/* Format and display the value */}
-                  </Text>
-                );
-              })}
+              {repaymentValueswithin12months.map((value, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(value)} {/* Format and display the value */}
+                </Text>
+              ))}
             </View>
 
             {/* Bank Loan - Working Capital Loan */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 5
               </Text>
               <Text
@@ -466,7 +480,52 @@ const ProjectedBalanceSheet = ({
               ))}
             </View>
 
-            {/* Total Sources Calculation */}
+            {/* Liabilities from More Details dynamically aligned with projectionYears */}
+            {formData?.MoreDetails?.currentLiabilities?.map(
+              (liabilities, idx) => {
+                let cumulativeSum = 0; // Initialize cumulative sum
+
+                return (
+                  <View style={styles.tableRow} key={idx}>
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {idx + 6}
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {liabilities.particular}
+                    </Text>
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        // Apply cumulative rule
+                        cumulativeSum +=
+                          Number(liabilities.years[yearIndex]) || 0;
+
+                        return (
+                          <Text
+                            key={yearIndex}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(cumulativeSum)}
+                          </Text>
+                        );
+                      }
+                    )}
+                  </View>
+                );
+              }
+            )}
+
+            {/* Total Liabilities Calculation */}
             <View
               style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
             >
@@ -486,7 +545,7 @@ const ProjectedBalanceSheet = ({
               >
                 Total
               </Text>
-              {totalSourcesArray.map((total, index) => (
+              {totalLiabilitiesArray.map((total, index) => (
                 <Text
                   key={index}
                   style={[
@@ -503,7 +562,7 @@ const ProjectedBalanceSheet = ({
                   ]}
                 >
                   {formatNumber(Math.round(total))}{" "}
-                  {/* ✅ Ensure Proper Formatting */}
+                  {/* ✅ Display Correct Total */}
                 </Text>
               ))}
             </View>
@@ -514,19 +573,12 @@ const ProjectedBalanceSheet = ({
           <View>
             <View style={[stylesMOF.row, styleExpenses.headerRow]}>
               <Text style={[styleExpenses.sno]}>B</Text>
-              <Text style={stylesMOF.cell}>Assets</Text>
+              <Text style={stylesMOF.cell}>Assests</Text>
             </View>
 
             {/* Fixed Assets */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 1
               </Text>
               <Text
@@ -539,7 +591,7 @@ const ProjectedBalanceSheet = ({
                 Fixed Assets
               </Text>
 
-              {Array.from({ length: projectionYears }).map((_, index) => (
+              {computedFixedAssets.map((value, index) => (
                 <Text
                   key={index}
                   style={[
@@ -547,25 +599,14 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {index === 0
-                    ? grossFixedAssetsPerYear[0] // First-year value from the calculated array
-                      ? grossFixedAssetsPerYear[0].toLocaleString("en-IN")
-                      : "-"
-                    : grossFixedAssetsPerYear[index] // Display subsequent years' values
-                    ? grossFixedAssetsPerYear[index].toLocaleString("en-IN")
-                    : "0"}
+                  {value.toLocaleString("en-IN")}
                 </Text>
               ))}
             </View>
-            {/* Repayment of Term Loan */}
+
+            {/* Less:Depreciation */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 2
               </Text>
 
@@ -576,13 +617,12 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Repayment of Term Loan
+                Less:Depreciation
               </Text>
 
               {/* ✅ Display Principal Repayment Only for Projection Years */}
-              {Array.from({
-                length: formData.ProjectReportSetting.ProjectionYears || 0,
-              }).map((_, index) => (
+
+              {Array.from({ length: projectionYears }).map((_, index) => (
                 <Text
                   key={index}
                   style={[
@@ -590,23 +630,15 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(
-                    Math.round(yearlyPrincipalRepayment[index] || 0)
-                  )}
+                  {formatNumber(totalDepreciationPerYear[index] || "-")}
                 </Text>
               ))}
             </View>
 
-            {/* Interest On Term Loan */}
+            {/*  Net fixed assets */}
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 3
               </Text>
 
@@ -617,13 +649,12 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Term Loan
+                Net fixed assets
               </Text>
 
               {/* Get total projection years */}
-              {Array.from({
-                length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
-              }).map((_, index) => (
+
+              {computedNetFixedAssets.map((value, index) => (
                 <Text
                   key={index}
                   style={[
@@ -631,22 +662,14 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(
-                    yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
-                  )}
+                  {value.toLocaleString("en-IN")}
                 </Text>
               ))}
             </View>
 
-            {/* Withdrawals */}
+            {/*  Cash & Cash Equivalents  */}
             <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 4
               </Text>
               <Text
@@ -656,9 +679,10 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Withdrawals
+                Cash & Cash Equivalents
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
+
+              {closingCashBalanceArray.map((balance, index) => (
                 <Text
                   key={index}
                   style={[
@@ -666,58 +690,59 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(
-                    formData.MoreDetails?.withdrawals?.[index] || "-"
-                  )}
+                  {balance ? balance.toLocaleString("en-IN") : "0"}
                 </Text>
               ))}
             </View>
 
-            {/* Income Tax */}
-            <View style={[styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                5
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Income Tax
-              </Text>
-              {incomeTax.length > 0 ? (
-                incomeTax.map((tax, index) => (
+            {/* Current Assets from More Details */}
+            {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
+              let cumulativeSum = 0; // Initialize cumulative sum
+
+              return (
+                <View style={styles.tableRow} key={index}>
+                  {/* Serial No */}
                   <Text
-                    key={index}
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {index + 6}
+                  </Text>
+
+                  {/* Particular Name */}
+                  <Text
                     style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
                     ]}
                   >
-                    {tax ? tax.toLocaleString("en-IN") : "N/A"}
+                    {assets.particular}
                   </Text>
-                ))
-              ) : (
-                <Text
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  N/A
-                </Text>
-              )}
-            </View>
 
-            {/* Total Uses Calculation */}
+                  {/* Ensure Projection Years Match */}
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => {
+                      // Apply cumulative rule
+                      cumulativeSum += Number(assets.years[yearIndex]) || 0;
+
+                      return (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(cumulativeSum)}
+                        </Text>
+                      );
+                    }
+                  )}
+                </View>
+              );
+            })}
+
+            {/* Total assets Calculation */}
             <View
               style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
             >
@@ -735,9 +760,9 @@ const ProjectedBalanceSheet = ({
                   },
                 ]}
               >
-                Total Uses
+                Total Assets
               </Text>
-              {totalUsesArray.map((total, index) => (
+              {totalAssetArray.map((total, index) => (
                 <Text
                   key={index}
                   style={[
@@ -753,123 +778,36 @@ const ProjectedBalanceSheet = ({
                     },
                   ]}
                 >
-                  {formatNumber(Math.round(total))}{" "}
-                  {/* ✅ Display Rounded Total */}
+                  {formatNumber(Math.round(total))}
                 </Text>
               ))}
             </View>
           </View>
+        </View>
 
-          {/* Cash Balance Section */}
-
-          {/* Opening Cash Balance */}
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              1
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Opening Cash Balance
-            </Text>
-
-            {/* ✅ Display Updated Opening Cash Balance for Each Year */}
-            {cashBalances.map((cb, index) => (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(Math.round(cb.opening))}{" "}
-              </Text>
-            ))}
-          </View>
-
-          {/* Surplus During the Year */}
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              2
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Surplus During the Year
-            </Text>
-
-            {/* ✅ Display Surplus for Each Year */}
-            {cashBalances.map((cb, index) => (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(Math.round(cb.surplus))}
-              </Text>
-            ))}
-          </View>
-
-          {/* Closing Cash Balance */}
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              3
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Closing Cash Balance
-            </Text>
-
-            {/* ✅ Display Closing Cash Balance for Each Year */}
-            {cashBalances.map((cb, index) => (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(Math.round(cb.closing))}
-              </Text>
-            ))}
-          </View>
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "30px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "14px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            {formData?.AccountInformation?.clientName || "Client Name"}
+          </Text>
         </View>
       </View>
     </Page>
   );
 };
 
-export default ProjectedBalanceSheet;
+export default React.memo(ProjectedBalanceSheet);

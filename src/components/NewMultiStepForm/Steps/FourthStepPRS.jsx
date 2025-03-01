@@ -344,10 +344,10 @@ const FourthStepPRS = ({
                 <input
                   id="FinancialYear"
                   name="FinancialYear"
-                  type="number"
+                  type="text"
                   placeholder="e.g. 2023-2024"
                   required
-                  value={localData.FinancialYear}
+                  value={localData.FinancialYear.value}
                   onChange={handleChange}
                 />
                 <label htmlFor="FinancialYear">Financial Year</label>

@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from "react";
+import React, { useState , useEffect , useMemo} from "react";
 import ReactDOM from "react-dom/client";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
@@ -49,6 +49,8 @@ const App = () => {
     setUserRole(role);
   };
   
+
+  const MemoizedPDF = useMemo(() => <GeneratedPDF />, []);
 
   return (
     <Provider store={store}>
@@ -101,7 +103,7 @@ const App = () => {
             <Route path="/MultestepForm" element={<MultiStepForm />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/notifications" element={<Notification />} />
-            <Route path="/generated-pdf" element={<GeneratedPDF />} />
+            <Route path="/generated-pdf" element={MemoizedPDF} />;
             <Route path="/clientData" element={<ClientData />} />
             <Route path="/tasks/:taskId" element={<Tasks />} />
 

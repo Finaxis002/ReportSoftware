@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
@@ -22,7 +22,11 @@ const BreakEvenPoint = ({
   totalRevenueReceipts = [], // ✅ Default Empty Array
   fringAndAnnualCalculation,
   financialYearLabels,
+  formatNumber,
+  sendBreakEvenPointPercentage,
+  receivedtotalRevenueReceipts,
 }) => {
+  // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
@@ -111,6 +115,7 @@ const BreakEvenPoint = ({
     return (interestAmount, yearIndex) => {
       const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
       const monthsInYear = monthsPerYear[yearIndex];
+
       if (monthsInYear === 0) {
         return 0; // No interest during moratorium
       } else {
@@ -153,86 +158,89 @@ const BreakEvenPoint = ({
   ];
 
   // ✅ Compute Total Variable Expense for Each Year (Direct + Indirect)
-  const totalVariableExpense = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    // ✅ Compute Direct Expenses Sum
-    const directExpenseTotal = directExpense.reduce((total, expense) => {
-      const baseValue = Number(expense.value) || 0;
-      const calculatedValue =
-        baseValue *
-        Math.pow(
-          1 + formData.ProjectReportSetting.rateOfExpense / 100,
-          yearIndex
-        );
-      return total + calculatedValue;
-    }, 0);
-    // ✅ Compute Indirect Expenses Sum
-    const indirectExpenseTotal = indirectExpense.reduce((total, expense) => {
-      const baseValue = Number(expense.value) || 0;
-      const calculatedValue =
-        baseValue *
-        Math.pow(
-          1 + formData.ProjectReportSetting.rateOfExpense / 100,
-          yearIndex
-        );
-      return total + calculatedValue;
-    }, 0);
 
-    // ✅ Return Sum of Direct + Indirect Expenses
-    return directExpenseTotal + indirectExpenseTotal;
-  });
+  // ✅ Initialize Total Expenses Array
+  const totalVariableExpenses = Array.from({ length: projectionYears }).map(
+    (_, yearIndex) => {
+      return allExpenses.reduce((total, expense) => {
+        const baseValue = Number(expense.value) || 0;
+        const isRawMaterial =
+          expense.name.trim() === "Raw Material Expenses / Purchases";
+        let expenseValue;
+
+        if (isRawMaterial && String(expense.value).trim().endsWith("%")) {
+          // ✅ If "Raw Material Expenses / Purchases" is a percentage, calculate based on revenue
+          expenseValue =
+            (parseFloat(expense.value) / 100) *
+            receivedtotalRevenueReceipts[yearIndex];
+        } else {
+          // ✅ Otherwise, apply normal numeric calculation
+          expenseValue = baseValue * 12 || 0;
+        }
+
+        // ✅ Apply growth calculation for normal expenses
+        return (
+          total +
+          (isRawMaterial
+            ? expenseValue // ✅ Directly add raw material expense
+            : calculateExpense(expenseValue, yearIndex))
+        ); // ✅ Apply calculation for others
+      }, 0);
+    }
+  );
+
+  // console.log("Total Expenses for Each Year:", totalVariableExpenses);
 
   // ✅ Compute Contribution for Each Year
   const contribution = adjustedRevenueValues.map(
-    (value, index) => value - totalVariableExpense[index]
+    (value, index) => value - totalVariableExpenses[index]
   );
 
-  // ✅ Safe Helper Function to Format Numbers Based on Selected Format
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    switch (formatType) {
-      case "1":
-        return new Intl.NumberFormat("en-IN").format(value); // Indian Format
-      case "2":
-        return new Intl.NumberFormat("en-US").format(value); // USD Format
-      default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-    }
-  };
-
-  // ✅ Compute Total Fixed Expenses for Each Year
+  // ✅ Compute Total Fixed Expenses for Each Year with Correct First-Year Handling
   const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     (_, yearIndex) => {
-      // ✅ Compute Salary & Wages with Growth Rate
-      const salaryAndWages =
-        yearIndex === 0
-          ? fringAndAnnualCalculation
-          : fringAndAnnualCalculation *
-            Math.pow(
-              1 + formData.ProjectReportSetting.rateOfExpense / 100,
-              yearIndex
-            );
+      if (yearIndex === 0) {
+        // ✅ Year 1 should display 0 for all fixed expenses
+        return 0;
+      }
+
+      // ✅ Compute Salary & Wages with Annual Growth from Year 2 onwards
+      const salaryAndWages = parseFloat(
+        (
+          fringAndAnnualCalculation *
+          Math.pow(
+            1 + formData.ProjectReportSetting.rateOfExpense / 100,
+            yearIndex - 1 // Subtract 1 since first year is zero
+          )
+        ).toFixed(2)
+      );
 
       // ✅ Extract Interest on Term Loan
-      const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+      const interestOnTermLoan = parseFloat(
+        (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
+      );
 
       // ✅ Extract Interest on Working Capital
-      const interestExpenseOnWorkingCapital =
-        interestOnWorkingCapital[yearIndex] || 0;
+      const interestExpenseOnWorkingCapital = parseFloat(
+        (interestOnWorkingCapital[yearIndex] || 0).toFixed(2)
+      );
 
       // ✅ Extract Depreciation
-      const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-
-      // ✅ Compute Total Fixed Expenses (Without Rounding)
-      return (
-        salaryAndWages +
-        interestOnTermLoan +
-        interestExpenseOnWorkingCapital +
-        depreciationExpense
+      const depreciationExpense = parseFloat(
+        (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
       );
+
+      // ✅ Sum Total Fixed Expenses for the Year
+      const totalExpense = parseFloat(
+        (
+          salaryAndWages +
+          interestOnTermLoan +
+          interestExpenseOnWorkingCapital +
+          depreciationExpense
+        ).toFixed(2)
+      );
+
+      return totalExpense;
     }
   );
 
@@ -246,6 +254,15 @@ const BreakEvenPoint = ({
     }
   );
 
+  useEffect(() => {
+    if (breakEvenPointPercentage.length > 0) {
+      sendBreakEvenPointPercentage((prev) => ({
+        ...prev,
+        breakEvenPointPercentage,
+      }));
+    }
+    // console.log("Sending Dscr : ", DSCR )
+  }, [JSON.stringify(breakEvenPointPercentage)]);
   return (
     <Page
       size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
@@ -256,7 +273,19 @@ const BreakEvenPoint = ({
       }
       wrap={false}
       break
+      style={[{ padding: "20px" }]}
     >
+      {/* businees name and financial year  */}
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Bame"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+        </Text>
+      </View>
+
       <View style={[styleExpenses?.paddingx, { paddingBottom: "30px" }]}>
         {/* Fix: Using formData.clientName instead of localData.clientName */}
         <Text style={[styles.clientName]}>{formData.clientName}</Text>
@@ -271,274 +300,408 @@ const BreakEvenPoint = ({
         >
           <Text>Break-Even Point</Text>
         </View>
-        {/* Table Header */}
-        <View style={styles.tableHeader}>
-          <Text
-            style={[styles.serialNoCell, stylesCOP.boldText, { width: "85px" }]}
-          >
-            Sr. No.
-          </Text>
-          <Text
-            style={[
-              styles.detailsCell,
-              stylesCOP.boldText,
-              styleExpenses.particularWidth,
-            ]}
-          >
-            Particulars
-          </Text>
-
-          {/* Generate Dynamic Year Headers using financialYearLabels */}
-          {financialYearLabels.map((yearLabel, yearIndex) => (
+       
+        <View style={[styles.table]}>
+           {/* Table Header */}
+          <View style={styles.tableHeader}>
             <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {yearLabel}
-            </Text>
-          ))}
-        </View>
-
-        {/* ✅ Display Total Revenue Receipt Row */}
-        <View
-          style={[
-            stylesMOF.row,
-            styles.tableRow,
-            {
-              fontWeight: "black",
-              marginVertical: "12px",
-              borderLeft: "2px solid #000",
-            },
-          ]}
-        >
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          >
-            A
-          </Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "extrabold" },
-            ]}
-          >
-            Gross Receipts
-          </Text>
-
-          {/* ✅ Display computed total revenue values received from ProjectedRevenue */}
-          {totalRevenueReceipts.map((totalYearValue, yearIndex) => (
-            <Text
-              key={yearIndex}
               style={[
-                stylesCOP.particularsCellsDetail,
+                styles.serialNoCell,
                 stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                { fontWeight: "extrabold", borderLeftWidth: "0px" },
+                { width: "85px" },
               ]}
             >
-              {formatNumber(totalYearValue)}
+              Sr. No.
             </Text>
-          ))}
-        </View>
-
-        {/* Closing Stock / Inventory */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-              { borderLeftWidth: "1px" },
-            ]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Add: Closing Stock / Inventory
-          </Text>
-
-          {Array.from({
-            length:
-              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-          }).map((_, index) => (
             <Text
-              key={`closingStock-${index}`}
               style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(formData.MoreDetails.closingStock?.[index] ?? 0)}
-            </Text>
-          ))}
-        </View>
-        {/* Opening Stock / Inventory */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-              { borderLeftWidth: "1px" },
-            ]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Less: Opening Stock / Inventory
-          </Text>
-
-          {Array.from({
-            length:
-              parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-          }).map((_, index) => (
-            <Text
-              key={`openingStock-${index}`}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(formData.MoreDetails.openingStock?.[index] ?? 0)}
-            </Text>
-          ))}
-        </View>
-
-        {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
-        <View
-          style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
-        >
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-              { borderLeftWidth: "1px" },
-            ]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "extrabold" },
-            ]}
-          ></Text>
-
-          {/* ✅ Display Computed Adjusted Revenue Values */}
-          {adjustedRevenueValues.map((finalValue, yearIndex) => (
-            <Text
-              key={`finalValue-${yearIndex}`}
-              style={[
-                stylesCOP.particularsCellsDetail,
+                styles.detailsCell,
                 stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                {
-                  fontFamily: "Roboto",
-                  fontWeight: "extrabold",
-                  borderLeftWidth: "0px",
-                },
+                styleExpenses.particularWidth,
               ]}
             >
-              {formatNumber(finalValue)}
+              Particulars
             </Text>
-          ))}
-        </View>
 
-        {/* Less: Variable Expense */}
-        <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-          <Text style={[styleExpenses.sno]}></Text>
-          <Text style={stylesMOF.cell}>Less: Variable Expense</Text>
-        </View>
-        {/* {directExpense
-          .filter((expense) => expense.type === "direct")
-          .map((expense, index) => {
-            const baseValue = Number(expense.value) || 0;
-            // const initialValue = baseValue * 12;
-            const initialValue = baseValue;
+            {/* Generate Dynamic Year Headers using financialYearLabels */}
+            {financialYearLabels.map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
+          </View>
 
-            return (
-              <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+          {/* ✅ Display Total Revenue Receipt Row */}
+          <View
+            style={[
+              stylesMOF.row,
+              styles.tableRow,
+              {
+                fontWeight: "black",
+                borderBottom:0
+              },
+            ]}
+          >
+            {/* ✅ Serial Number */}
+            <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno , {paddingVertical:"10px"}]}>
+              
+            </Text>
+
+            {/* ✅ Title */}
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { fontWeight: "extrabold" ,paddingVertical:"10px"},
+              ]}
+            >
+              Gross Receipts
+            </Text>
+
+            {/* ✅ Dynamically Display Cells Based on Projection Years */}
+            {Array.from({ length: projectionYears }).map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  stylesCOP.boldText,
+                  styleExpenses.fontSmall,
+                  {fontFamily:"Roboto", fontWeight: "extrabold", borderLeftWidth: "0px", paddingVertical:"10px" , borderTopWidth:0, paddingBottom:"10px"},
+                ]}
+              >
+                {/* ✅ Display revenue value if available, else 0 */}
+                {formatNumber(totalRevenueReceipts[yearIndex] || 0)}
+              </Text>
+            ))}
+          </View>
+
+          {/* Closing Stock / Inventory */}
+          <View  style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Add: Closing Stock / Inventory
+            </Text>
+
+            {Array.from({
+              length:
+                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+            }).map((_, index) => (
+              <Text
+                key={`closingStock-${index}`}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                ]}
+              >
+                {formatNumber(formData.MoreDetails.closingStock?.[index] ?? 0)}
+              </Text>
+            ))}
+          </View>
+          {/* Opening Stock / Inventory */}
+          <View  style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Less: Opening Stock / Inventory
+            </Text>
+
+            {Array.from({
+              length:
+                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+            }).map((_, index) => (
+              <Text
+                key={`openingStock-${index}`}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                ]}
+              >
+                {formatNumber(formData.MoreDetails.openingStock?.[index] ?? 0)}
+              </Text>
+            ))}
+          </View>
+
+          {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
+          <View
+            style={[
+              stylesMOF.row,
+              styles.tableRow,
+              { borderBottomWidth: "0px" },
+            ]}
+          >
+            <Text
+              style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { fontWeight: "extrabold" },
+              ]}
+            ></Text>
+
+            {/* ✅ Display Computed Adjusted Revenue Values */}
+            {adjustedRevenueValues.map((finalValue, yearIndex) => (
+              <Text
+                key={`finalValue-${yearIndex}`}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  stylesCOP.boldText,
+                  styleExpenses.fontSmall,
+                  {
+                    fontFamily: "Roboto",
+                    fontWeight: "extrabold",
+                    borderLeftWidth: "0px",
+                  },
+                ]}
+              >
+                {formatNumber(finalValue)}
+              </Text>
+            ))}
+          </View>
+
+          {/* Less: Variable Expense */}
+
+          <View>
+            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
+              <Text style={[styleExpenses.sno]}></Text>
+              <Text style={stylesMOF.cell}>Less: Variable Expense</Text>
+            </View>
+
+            {/* ✅ Render All Expenses (Direct + Indirect) in a Single Section */}
+            {allExpenses.map((expense, expenseIndex) => {
+              const baseValue = Number(expense.value) || 0;
+              const isRawMaterial =
+                expense.name.trim() === "Raw Material Expenses / Purchases";
+
+              return (
+                <View
+                  key={expenseIndex}
+                  style={[styles.tableRow, styles.totalRow]}
+                >
+                  {/* ✅ Serial No. */}
+                  <Text
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {expenseIndex + 1}
+                  </Text>
+
+                  {/* ✅ Expense Name */}
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {expense.name}
+                  </Text>
+
+                  {/* ✅ Calculate and Display Expense for Each Year */}
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => {
+                      let expenseValue;
+
+                      if (
+                        isRawMaterial &&
+                        String(expense.value).trim().endsWith("%")
+                      ) {
+                        // ✅ If it's "Raw Material Expenses / Purchases" with a percentage, calculate based on revenue
+                        expenseValue =
+                          (parseFloat(expense.value) / 100) *
+                          receivedtotalRevenueReceipts[yearIndex];
+                      } else {
+                        // ✅ Otherwise, apply normal numeric calculation
+                        expenseValue = baseValue * 12 || 0;
+                      }
+
+                      // ✅ Format the expense value correctly
+                      const formattedExpense = isRawMaterial
+                        ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expenses
+                        : formatNumber(
+                            calculateExpense(expenseValue, yearIndex).toFixed(2)
+                          );
+
+                      return (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formattedExpense}
+                        </Text>
+                      );
+                    }
+                  )}
+                </View>
+              );
+            })}
+
+            {/* ✅ Total Row for Variable Expense */}
+            <View
+              style={[
+                stylesMOF.row,
+                styles.tableRow,
+                styleExpenses.totalRow,
+                { borderBottom: 0 },
+              ]}
+            >
+              <Text
+                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    fontWeight: "bold",
+                    fontFamily: "Roboto",
+                    textAlign: "right",
+                    paddingBottom: "10px",
+                  },
+                ]}
+              >
+                Total
+              </Text>
+
+              {/* ✅ Display Properly Formatted Totals for Each Year */}
+              {totalVariableExpenses.map((total, yearIndex) => (
                 <Text
+                  key={yearIndex}
                   style={[
-                    stylesCOP.serialNoCellDetail,
-                    styleExpenses.sno,
-                    styleExpenses.bordernone,
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    {
+                      fontFamily: "Roboto",
+                      fontWeight: "extrabold",
+                      borderBottom: 0,
+                      paddingBottom: "10px",
+                      borderTopWidth:".5px"
+                    },
                   ]}
                 >
-                  {index + 1}
+                  {formatNumber(total)} {/* ✅ Correctly formatted total */}
                 </Text>
+              ))}
+            </View>
+          </View>
+
+          {/* Contribution  */}
+
+          <View
+            style={[
+              stylesMOF.row,
+              styles.tableRow,
+              {
+                fontWeight: "black",
+                borderBottomWidth: 0,
+              },
+            ]}
+          >
+            <Text
+              style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { fontWeight: "extrabold", fontFamily: "Roboto" },
+              ]}
+            >
+              Contribution
+            </Text>
+
+            {/* ✅ Display Contribution for Each Year */}
+            {contribution.map((total, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  {
+                    fontWeight: "extrabold",
+                    fontFamily: "Roboto",
+                    borderWidth: "1.2px",
+                    borderLeftWidth: "0px",
+                  },
+                ]}
+              >
+                {formatNumber(total)} {/* ✅ Round off Value */}
+              </Text>
+            ))}
+          </View>
+
+          {/* Less: Fixed Expenses */}
+          <View>
+            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
+              <Text style={[styleExpenses.sno]}></Text>
+              <Text style={stylesMOF.cell}> Less: Fixed Expenses</Text>
+            </View>
+
+            {/* Salary and Wages */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                1
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Salary and Wages
+              </Text>
+              {Array.from({ length: projectionYears }).map((_, yearIndex) => (
                 <Text
+                  key={yearIndex}
                   style={[
-                    stylesCOP.detailsCellDetail,
-                    styleExpenses.particularWidth,
-                    styleExpenses.bordernone,
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
                   ]}
                 >
-                  {expense.name}
-                </Text>
-                {[
-                  ...Array(
-                    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0
-                  ),
-                ].map((_, yearIndex) => {
-                  const calculatedValue =
-                    initialValue *
-                    Math.pow(
-                      1 + formData.ProjectReportSetting.rateOfExpense / 100,
+                  {formatNumber(
+                    calculateExpense(
+                      Number(fringAndAnnualCalculation) || 0,
                       yearIndex
-                    );
-                  return (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(Math.round(calculatedValue))}
-                    </Text>
-                  );
-                })}
-              </View>
-            );
-          })} */}
+                    ).toFixed(2)
+                  )}
+                </Text>
+              ))}
+            </View>
 
-        {/* ✅ Render All Expenses (Direct + Indirect) in a Single Section */}
-        {allExpenses.map((expense, index) => {
-          const baseValue = Number(expense.value) || 0;
-          const initialValue = baseValue;
-
-          // Calculate the values for each year based on expense growth rate
-          const expenseValuesForYears = Array.from({
-            length: projectionYears,
-          }).map((_, yearIndex) => {
-            return calculateExpense(Number(expense.value) || 0, yearIndex);
-          });
-
-          // Calculate the total for each year and format the values
-          const totalExpenseForEachYear = expenseValuesForYears.map(
-            (value, yearIndex) => {
-              return formatNumber(Math.round(value)); // Round and format the expense values
-            }
-          );
-
-          return (
-            <View key={index} style={[stylesMOF.row, styles.tableRow]}>
+            {/* Interest On Term Loan */}
+            <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
                 style={[
@@ -547,10 +710,9 @@ const BreakEvenPoint = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                {index + 1}
+                2
               </Text>
 
-              {/* Expense Name */}
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -558,11 +720,94 @@ const BreakEvenPoint = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                {expense.name}
+                Interest On Term Loan
               </Text>
 
-              {/* ✅ Display Projection Year Values */}
-              {expenseValuesForYears.map((value, yearIndex) => (
+              {/* Get total projection years */}
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(yearlyInterestLiabilities[index] || 0)}
+                </Text>
+              ))}
+            </View>
+
+            {/* Interest On Working Capital */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              {/* Serial Number */}
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                3
+              </Text>
+
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest On Working Capital
+              </Text>
+
+              {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, yearIndex) => {
+                const calculatedInterest = calculateInterestOnWorkingCapital(
+                  interestOnWorkingCapital[yearIndex] || 0,
+                  yearIndex
+                );
+
+                return (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(calculatedInterest)}
+                  </Text>
+                );
+              })}
+            </View>
+
+            {/* ✅ Render Depreciation Row */}
+            <View  style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                4
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Depreciation
+              </Text>
+
+              {/* ✅ Display Depreciation Values for Each Year */}
+              {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
                 <Text
                   key={yearIndex}
                   style={[
@@ -570,343 +815,135 @@ const BreakEvenPoint = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(value.toFixed(2))}
+                  {formatNumber(depreciationValue)}
                 </Text>
               ))}
             </View>
-          );
-        })}
 
-        {/* ✅ Total Row for Variable Expense */}
-        <View style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}>
-          <Text
-            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "right" },
-            ]}
-          >
-            Total
-          </Text>
-
-          {/* ✅ Calculate and Display Total for Each Year */}
-          {totalVariableExpense.map((total, yearIndex) => (
-            <Text
-              key={yearIndex}
+            {/* ✅ Total Row for Fixed Expenses */}
+            <View
               style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { fontFamily: "Roboto", fontWeight: "extrabold" },
+                stylesMOF.row,
+                styles.tableRow,
+                styleExpenses.totalRow,
+                { borderBottomWidth: 0 },
               ]}
             >
-              {formatNumber(Math.round(total))}
-            </Text>
-          ))}
-        </View>
+              <Text
+                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    fontWeight: "bold",
+                    fontFamily: "Roboto",
+                    textAlign: "right",
+                  },
+                ]}
+              >
+                Total
+              </Text>
 
-        {/* Contribution  */}
+              {/* ✅ Display the calculated `totalFixedExpenses` */}
+              {totalFixedExpenses.map((totalValue, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                  ]}
+                >
+                  {formatNumber(totalValue)}{" "}
+                  {/* ✅ Round off for display only */}
+                </Text>
+              ))}
+            </View>
+          </View>
 
-        <View
-          style={[
-            stylesMOF.row,
-            styles.tableRow,
-            {
-              fontWeight: "black",
-              borderLeft: "2px solid #000",
-              marginVertical: "8px",
-            },
-          ]}
-        >
-          <Text
+          {/* ✅ Break Even Point (in %) */}
+          <View
             style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "extrabold", fontFamily: "Roboto" },
+              stylesMOF.row,
+              styles.tableRow,
+              {
+                fontWeight: "black",
+                borderBottomWidth: 0,
+                borderTopWidth: 0,
+              },
             ]}
           >
-            Contribution
-          </Text>
-
-          {/* ✅ Display Contribution for Each Year */}
-          {contribution.map((total, yearIndex) => (
             <Text
-              key={yearIndex}
               style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                { paddingVertical: "10px" },
+              ]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
                 {
                   fontWeight: "extrabold",
                   fontFamily: "Roboto",
-                  borderWidth: "2px",
-                  borderLeftWidth: "0px",
+                  paddingVertical: "10px",
                 },
               ]}
             >
-              {formatNumber(Math.round(total))} {/* ✅ Round off Value */}
+              Break Even Point (in %)
             </Text>
-          ))}
-        </View>
 
-        {/* Less: Fixed Expenses */}
-        <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-          <Text style={[styleExpenses.sno]}></Text>
-          <Text style={stylesMOF.cell}> Less: Fixed Expenses</Text>
-        </View>
-
-        {/* Salary and Wages */}
-        <View style={[styles.tableRow, styles.totalRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          >
-            1
-          </Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Salary and Wages
-          </Text>
-          {Array.from({ length: projectionYears }).map((_, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(
-                calculateExpense(
-                  Number(fringAndAnnualCalculation) || 0,
-                  yearIndex
-                ).toFixed(2)
-              )}
-            </Text>
-          ))}
-        </View>
-
-        {/* Interest On Term Loan */}
-        <View style={[styles.tableRow, styles.totalRow]}>
-          {/* Serial Number */}
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          >
-            2
-          </Text>
-
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Interest On Term Loan
-          </Text>
-
-          {/* Get total projection years */}
-          {Array.from({
-            length: formData.ProjectReportSetting.ProjectionYears,
-          }).map((_, index) => (
-            <Text
-              key={index}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(yearlyInterestLiabilities[index] || 0)}
-            </Text>
-          ))}
-        </View>
-
-        {/* Interest on Working Capital */}
-        <View style={[styles.tableRow, styles.totalRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          >
-            2
-          </Text>
-
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Interest On Working Capital
-          </Text>
-
-          {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
-          {Array.from({
-            length: formData.ProjectReportSetting.ProjectionYears,
-          }).map((_, yearIndex) => {
-            const calculatedInterest = calculateInterestOnWorkingCapital(
-              interestOnWorkingCapital[yearIndex] || 0,
-              yearIndex
-            );
-
-            return (
+            {/* ✅ Display Break Even Point for Each Year with Two Decimal Places */}
+            {breakEvenPointPercentage.map((value, yearIndex) => (
               <Text
                 key={yearIndex}
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  {
+                    fontWeight: "extrabold",
+                    fontFamily: "Roboto",
+                    borderWidth: "0px",
+                    paddingVertical: "10px",
+                  },
                 ]}
               >
-                {formatNumber(calculatedInterest)}
+                {formatNumber(parseFloat(value.toFixed(2)))}%{" "}
+                {/* ✅ Display with 2 Decimal Places */}
               </Text>
-            );
-          })}
+            ))}
+          </View>
         </View>
+      </View>
 
-        {/* ✅ Render Depreciation Row */}
-        <View style={[stylesMOF.row, styles.tableRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          >
-            4
-          </Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-            ]}
-          >
-            Depreciation
-          </Text>
-
-          {/* ✅ Display Depreciation Values for Each Year */}
-          {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(depreciationValue)}
-            </Text>
-          ))}
-        </View>
-
-        {/* ✅ Total Row for Fixed Expenses */}
-        <View style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}>
-          <Text
-            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "right" },
-            ]}
-          >
-            Total
-          </Text>
-
-          {/* ✅ Display the calculated `totalFixedExpenses` */}
-          {totalFixedExpenses.map((totalValue, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                { fontFamily: "Roboto", fontWeight: "extrabold" },
-              ]}
-            >
-              {formatNumber(Math.round(totalValue))}{" "}
-              {/* ✅ Round off for display only */}
-            </Text>
-          ))}
-        </View>
-
-        {/* ✅ Break Even Point (in %) */}
-        <View
-          style={[
-            stylesMOF.row,
-            styles.tableRow,
-            {
-              fontWeight: "black",
-              borderLeft: "2px solid #000",
-              marginVertical: "8px",
-            },
-          ]}
-        >
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              styleExpenses.bordernone,
-            ]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "extrabold", fontFamily: "Roboto" },
-            ]}
-          >
-            Break Even Point (in %)
-          </Text>
-
-          {/* ✅ Display Break Even Point for Each Year with Two Decimal Places */}
-          {breakEvenPointPercentage.map((value, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                {
-                  fontWeight: "extrabold",
-                  fontFamily: "Roboto",
-                  borderWidth: "0px",
-                },
-              ]}
-            >
-              {formatNumber(parseFloat(value.toFixed(2)))}%{" "}
-              {/* ✅ Display with 2 Decimal Places */}
-            </Text>
-          ))}
-        </View>
+      {/* businees name and Client Name  */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop: "60px",
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          {formData?.AccountInformation?.clientName || "Client Name"}
+        </Text>
       </View>
     </Page>
   );
 };
 
-export default BreakEvenPoint;
+export default React.memo(BreakEvenPoint);

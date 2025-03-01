@@ -3,7 +3,7 @@ import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 
-// ✅ Register a Font That Supports Bold
+
 Font.register({
   family: "Roboto",
   fonts: [
@@ -11,7 +11,7 @@ Font.register({
     {
       src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
       fontWeight: "bold",
-    }, // Bold
+    }, 
   ],
 });
 
@@ -19,11 +19,12 @@ const IncomeTaxCalculation = ({
   formData = {},
   netProfitBeforeTax = [],
   totalDepreciationPerYear = [],
-  financialYearLabels
+  financialYearLabels,
+  formatNumber
 }) => {
   if (!formData || typeof formData !== "object") {
     console.error("❌ Invalid formData provided");
-    return null; // Prevent rendering if formData is invalid
+    return null;
   }
 
   // Get starting year (assuming 2025, adjust based on your data)
@@ -38,53 +39,11 @@ const IncomeTaxCalculation = ({
   const incomeTax =
     Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
       ? netProfitBeforeTax.map((npbt) =>
-          npbt ? Math.round(npbt * (rateOfInterest / 100)) : "0.00"
+          npbt ? (npbt * (rateOfInterest / 100)) : "0.00"
         )
       : [];
 
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-  //   switch (formatType) {
-  //     case "1": // Indian Format (1,23,456)
-  //       return new Intl.NumberFormat("en-IN").format(value);
-
-  //     case "2": // USD Format (1,123,456)
-  //       return new Intl.NumberFormat("en-US").format(value);
-
-  //     case "3": // Generic Format (Same as Indian for now)
-  //       return new Intl.NumberFormat("en-IN").format(value);
-
-  //     default:
-  //       return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-  //   }
-  // };
-
-   // ✅ Format number with check for negative values
-   const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    // Check for negative values, return 0 if less than 0
-    const formattedValue = value < 0 ? 0 : value;
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(formattedValue);
-
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(formattedValue);
-
-      case "3": // Generic Format (Same as Indian for now)
-        return new Intl.NumberFormat("en-IN").format(formattedValue);
-
-      default:
-        return new Intl.NumberFormat("en-IN").format(formattedValue); // ✅ Safe default
-    }
-  };
+      
 
   return (
     <Page
@@ -94,11 +53,20 @@ const IncomeTaxCalculation = ({
           ? "landscape"
           : "portrait"
       }
+      style={[{padding:"20px"}]}
     >
+      {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Bame"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+              </Text>
+            </View>
       <View style={[styleExpenses.paddingx]}>
-        <Text style={[styles.clientName]}>
-          {formData?.AccountInformation?.clientName || "0"}
-        </Text>
+        
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
@@ -171,7 +139,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -215,7 +183,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -310,7 +278,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -360,7 +328,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -405,7 +373,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber(Math.round(npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -458,8 +426,28 @@ const IncomeTaxCalculation = ({
           </View>
         </View>
       </View>
+      {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "30px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop:"60px"
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "14px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                {formData?.AccountInformation?.clientName || "Client Name"}
+              </Text>
+            </View>
     </Page>
   );
 };
 
-export default IncomeTaxCalculation;
+export default React.memo(IncomeTaxCalculation);

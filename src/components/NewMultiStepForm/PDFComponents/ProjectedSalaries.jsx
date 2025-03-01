@@ -10,31 +10,21 @@ const ProjectedSalaries = ({
   totalQuantity,
   totalAnnualWages,
   fringeCalculation,
-  fringAndAnnualCalculation
+  fringAndAnnualCalculation,
+  formatNumber,
 }) => {
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(value);
-
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(value);
-
-      case "3": // Generic Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(value);
-
-      default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-    }
-  };
-
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
-      <Text style={styles.clientName}>{localData.clientName}</Text>
+      {/* businees name and financial year  */}
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+        </Text>
+      </View>
       <View style={stylesCOP.heading}>
         <Text>Projected Salaries & Wages</Text>
       </View>
@@ -56,33 +46,47 @@ const ProjectedSalaries = ({
           </Text>
         </View>
         {normalExpense.map((expense, index) => (
-          <View key={index} style={styles.tableRow}>
+          <View key={index} style={[styles.tableRow]}>
             <Text style={[stylesCOP.serialNoCellDetail, stylesCOP.textCenter]}>
               {index + 1}
             </Text>
 
             <Text
-              style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.textCenter,
+                { paddingTop: "10px" },
+              ]}
             >
               {expense.name || "N/A"}
             </Text>
             <Text
-              style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.textCenter,
+                { paddingTop: "10px" },
+              ]}
             >
               {expense.quantity || "0"}
             </Text>
             <Text
-              style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.textCenter,
+                { paddingTop: "10px" },
+              ]}
             >
               {formatNumber(expense.amount || 0)}
             </Text>
             <Text
-              style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.textCenter,
+                { paddingTop: "10px" },
+              ]}
             >
               {" "}
-              {formatNumber(
-                expense.amount * expense.quantity * 12
-              )}
+              {formatNumber(expense.amount * expense.quantity * 12)}
             </Text>
           </View>
         ))}
@@ -91,7 +95,11 @@ const ProjectedSalaries = ({
           <Text style={stylesCOP.serialNoCellDetail}></Text>
 
           <Text
-            style={[stylesCOP.particularsCellsDetail, stylesCOP.textCenter]}
+            style={[
+              stylesCOP.particularsCellsDetail,
+              stylesCOP.textCenter,
+              styles.Total,
+            ]}
           >
             Total
           </Text>
@@ -100,6 +108,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.boldText,
+              { borderTop:"1px solid #000",borderBottom:"1px solid #000"},
             ]}
           >
             {totalQuantity}
@@ -112,6 +121,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.boldText,
+              { borderTop:"1px solid #000",borderBottom:"1px solid #000"},
             ]}
           >
             {formatNumber(totalAnnualWages)}
@@ -132,6 +142,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
+              {fontSize:"9px"}
             ]}
           >
             Add: Fringe Benefits @ 5 %
@@ -161,6 +172,8 @@ const ProjectedSalaries = ({
               stylesCOP.boldText,
               stylesCOP.extraWidth,
               stylesCOP.verticalPadding,
+              styles.Total,
+              {borderTopWidth:"1px", borderBottomWidth:"1px"}
             ]}
           >
             {" "}
@@ -173,6 +186,8 @@ const ProjectedSalaries = ({
               stylesCOP.textCenter,
               stylesCOP.boldText,
               stylesCOP.verticalPadding,
+              styles.Total,
+              {borderTopWidth:"1px", borderBottomWidth:"1px"}
             ]}
           >
             {" "}
@@ -180,8 +195,29 @@ const ProjectedSalaries = ({
           </Text>
         </View>
       </View>
+
+      {/* businees name and Client Name  */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop: "60px",
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          {formData?.AccountInformation?.clientName || "Client Name"}
+        </Text>
+      </View>
     </Page>
   );
 };
 
-export default ProjectedSalaries;
+export default React.memo(ProjectedSalaries);

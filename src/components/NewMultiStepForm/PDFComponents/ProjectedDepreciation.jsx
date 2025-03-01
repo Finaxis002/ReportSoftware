@@ -18,8 +18,7 @@ Font.register({
 const calculateMonthsPerYear = (
   moratoriumPeriodMonths,
   projectionYears,
-  startingMonth,
-
+  startingMonth
 ) => {
   let monthsArray = [];
   let remainingMoratorium = moratoriumPeriodMonths;
@@ -44,45 +43,6 @@ const calculateMonthsPerYear = (
 
 // ✅ Function to Calculate Depreciation Considering Moratorium Period
 
-// const calculateDepreciationWithMoratorium = (assetValue, depreciationRate, moratoriumPeriodMonths, startingMonth, projectionYears) => {
-//   const monthsPerYear = calculateMonthsPerYear(moratoriumPeriodMonths, projectionYears, startingMonth);
-//   let yearlyDepreciation = [];
-//   let cumulativeDepreciation = [];
-//   let netAssetValue = assetValue;
-
-//   let moratoriumEnded = false; // Track if the moratorium has ended
-
-//   for (let yearIndex = 0; yearIndex < projectionYears; yearIndex++) {
-//     const monthsInYear = monthsPerYear[yearIndex];
-//     let depreciation = 0;
-
-//     // ✅ If depreciation starts mid-year due to moratorium
-//     if (monthsInYear === 0) {
-//       depreciation = 0; // Entire year under moratorium
-//     } else if (!moratoriumEnded && monthsInYear < 12) {
-//       // Partial year depreciation post-moratorium
-//       depreciation = Math.round((netAssetValue / 12) * depreciationRate * (monthsInYear / 12));
-//       moratoriumEnded = true; // Moratorium fully ends after applying depreciation
-//     } else {
-//       // ✅ Full-year depreciation applied after moratorium ends
-//       depreciation = Math.round(netAssetValue * depreciationRate);
-//     }
-
-//     yearlyDepreciation.push(depreciation);
-
-//     // ✅ Update cumulative depreciation
-//     if (yearIndex === 0) {
-//       cumulativeDepreciation.push(depreciation);
-//     } else {
-//       cumulativeDepreciation.push(cumulativeDepreciation[yearIndex - 1] + depreciation);
-//     }
-
-//     // ✅ Update net asset value for the next year
-//     netAssetValue -= depreciation;
-//   }
-
-//   return { yearlyDepreciation, cumulativeDepreciation };
-// };
 const calculateDepreciationWithMoratorium = (
   assetValue,
   depreciationRate,
@@ -109,9 +69,7 @@ const calculateDepreciationWithMoratorium = (
       depreciation = 0; // Entire year under moratorium
     } else {
       // ✅ Correct depreciation formula
-      depreciation = Math.round(
-        (netAssetValue / 12) * depreciationRate * monthsInYear
-      );
+      depreciation = (netAssetValue / 12) * depreciationRate * monthsInYear;
     }
 
     yearlyDepreciation.push(depreciation);
@@ -164,10 +122,10 @@ const ProjectedDepreciation = ({
   onComputedData1,
   onFirstYearGrossAssetsCalculated,
   onGrossFixedAssetsPerYearCalculated,
-  financialYearLabels
+  financialYearLabels,
+  formatNumber,
 }) => {
   const [grossFixedAssetsPerYear, setGrossFixedAssetsPerYear] = useState([]);
-  
 
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
   const moratoriumMonths =
@@ -193,19 +151,21 @@ const ProjectedDepreciation = ({
   // State for First Year Gross Fixed Assets
   const [firstYearGrossFixedAssets, setFirstYearGrossFixedAssets] = useState(0);
   // ✅ Calculate Gross Fixed Assets using useEffect
-  
+
   useEffect(() => {
     if (formData && formData.CostOfProject) {
-      const calculatedAssets = Array.from({ length: years }).map((_, yearIndex) => {
-        return Object.values(formData.CostOfProject).reduce((sum, asset) => {
-          let netAsset = asset.amount;
-          for (let i = 0; i < yearIndex; i++) {
-            let depreciation = Math.round((netAsset * asset.rate) / 100);
-            netAsset -= depreciation;
-          }
-          return sum + netAsset;
-        }, 0);
-      });
+      const calculatedAssets = Array.from({ length: years }).map(
+        (_, yearIndex) => {
+          return Object.values(formData.CostOfProject).reduce((sum, asset) => {
+            let netAsset = asset.amount;
+            for (let i = 0; i < yearIndex; i++) {
+              let depreciation = (netAsset * asset.rate) / 100;
+              netAsset -= depreciation;
+            }
+            return sum + netAsset;
+          }, 0);
+        }
+      );
 
       setGrossFixedAssetsPerYear(calculatedAssets);
 
@@ -232,8 +192,8 @@ const ProjectedDepreciation = ({
       for (let yearIndex = 0; yearIndex < years; yearIndex++) {
         let depreciation =
           yearIndex === 0 && asset.rate && asset.amount
-            ? Math.round((asset.amount * asset.rate) / 100) // ✅ First-Year Depreciation
-            : Math.round((assetValues[yearIndex - 1] * asset.rate) / 100 || 0); // ✅ Future Years
+            ? (asset.amount * asset.rate) / 100 // ✅ First-Year Depreciation
+            : (assetValues[yearIndex - 1] * asset.rate) / 100 || 0; // ✅ Future Years
 
         let netAsset =
           (yearIndex === 0 ? asset.amount : assetValues[yearIndex - 1]) -
@@ -246,8 +206,6 @@ const ProjectedDepreciation = ({
       return { assetValues, depreciationValues };
     }
   );
-
-
 
   const depreciationValues = Object.entries(formData.CostOfProject).map(
     ([key, asset]) => {
@@ -264,29 +222,6 @@ const ProjectedDepreciation = ({
     }
   );
 
-  // ✅ Calculate total depreciation for each year considering moratorium
-  // ✅ Apply depreciation considering moratorium for each year
-
-  // const totalDepreciationPerYear = Array.from({ length: years }).map((_, yearIndex) => {
-  //   return Object.entries(formData.CostOfProject).reduce((sum, [key, asset]) => {
-  //     const assetValue = asset.amount || 0;
-  //     const depreciationRate = asset.rate || 0;
-
-  //     // ✅ Use the updated moratorium depreciation calculation
-  //     const depreciationArray = calculateDepreciationWithMoratorium(
-  //       assetValue,
-  //       depreciationRate,
-  //       moratoriumMonths,
-  //       startingMonth,
-  //       years
-  //     );
-
-  //     return sum + depreciationArray[yearIndex];
-  //   }, 0);
-  // });
-
-  // ✅ Send data to parent component
-  // ✅ Use pre-defined function to calculate total depreciation
   const totalDepreciationPerYear = calculateTotalDepreciationPerYear(
     formData,
     moratoriumMonths,
@@ -307,26 +242,6 @@ const ProjectedDepreciation = ({
     }
   }, [JSON.stringify(totalDepreciationPerYear)]);
 
-  // ✅ Compute Cumulative Depreciation Totals Per Year
-  // const cumulativeDepreciationTotals = Array.from({ length: years }).map(
-  //   (_, yearIndex) => {
-  //     return Object.entries(formData.CostOfProject).reduce(
-  //       (sum, [key, asset], index) => {
-  //         let netAsset = asset.amount;
-  //         let cumulativeDepreciation = 0;
-
-  //         for (let i = 0; i <= yearIndex; i++) {
-  //           let depreciation = Math.round((netAsset * asset.rate) / 100);
-  //           cumulativeDepreciation += depreciation;
-  //           netAsset -= depreciation;
-  //         }
-
-  //         return sum + cumulativeDepreciation;
-  //       },
-  //       0 // Start sum at 0
-  //     );
-  //   }
-  // );
   const cumulativeDepreciationTotals = Array.from({ length: years }).map(
     (_, yearIndex) => {
       return Object.entries(formData.CostOfProject).reduce(
@@ -355,7 +270,7 @@ const ProjectedDepreciation = ({
 
         // Deduct depreciation for all previous years before current year
         for (let i = 0; i <= yearIndex; i++) {
-          let depreciation = Math.round((netAssetValue * asset.rate) / 100);
+          let depreciation = (netAssetValue * asset.rate) / 100;
           netAssetValue -= depreciation;
         }
 
@@ -364,26 +279,6 @@ const ProjectedDepreciation = ({
       0 // Start sum at 0
     );
   });
-
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(value);
-
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(value);
-
-      case "3": // Generic Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(value);
-
-      default:
-        return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-    }
-  };
 
   return (
     <Page
@@ -395,12 +290,22 @@ const ProjectedDepreciation = ({
       }
       wrap={false}
       break
+      style={[{ padding: "20px" }]}
     >
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-        <Text style={styles.clientName}>{localData.clientName}</Text>
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Bame"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          </Text>
+        </View>
         {/* Heading */}
         <View style={stylesCOP.heading}>
-          <Text>Projected Depreciation with Moratorium period</Text>
+          <Text>Projected Depreciation</Text>
         </View>
 
         {/* Table Container */}
@@ -429,43 +334,6 @@ const ProjectedDepreciation = ({
             ))}
           </View>
 
-          {/* Total Gross Fixed Assets Calculation for Each Year */}
-          {/* <View style={[styles.tableHeader, { marginTop: "20px" }]}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>A</Text>
-            <Text style={[styles.detailsCell, stylesCOP.boldText]}>
-              Gross Fixed Assets
-            </Text>
-            <Text style={[styles.particularsCell, stylesCOP.boldText]}></Text>
-
-            
-            {Array.from({ length: years }).map((_, yearIndex) => {
-              let totalFixedAssets = Object.values(
-                formData.CostOfProject
-              ).reduce(
-                (sum, asset) => {
-                  let netAsset = asset.amount; 
-                  for (let i = 0; i < yearIndex; i++) {
-                    let depreciation = Math.round(
-                      (netAsset * asset.rate) / 100
-                    );
-                    netAsset -= depreciation; 
-                  }
-
-                  return sum + netAsset;
-                },
-                0 // Initial sum starts from 0
-              );
-
-              return (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {formatNumber(totalFixedAssets)}
-                </Text>
-              );
-            })}
-          </View> */}
           <View style={[styles.tableHeader, { marginTop: "20px" }]}>
             <Text style={[styles.serialNoCell, stylesCOP.boldText]}>A</Text>
             <Text style={[styles.detailsCell, stylesCOP.boldText]}>
@@ -483,7 +351,6 @@ const ProjectedDepreciation = ({
               </Text>
             ))}
           </View>
-
 
           {/* Display Gross Fixed Assets (A) with updated values */}
           {Object.entries(formData.CostOfProject).map(([key, asset], index) => (
@@ -665,7 +532,7 @@ const ProjectedDepreciation = ({
                   // ✅ Calculate Depreciation for each year based on the updated net asset value
                   let depreciation =
                     asset.rate && netAssetValue
-                      ? Math.round((netAssetValue * asset.rate) / 100)
+                      ? (netAssetValue * asset.rate) / 100
                       : 0;
 
                   // ✅ Compute Net Asset by subtracting depreciation
@@ -691,9 +558,30 @@ const ProjectedDepreciation = ({
             );
           })}
         </View>
+
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "30px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "14px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            {formData?.AccountInformation?.clientName || "Client Name"}
+          </Text>
+        </View>
       </View>
     </Page>
   );
 };
 
-export default ProjectedDepreciation;
+export default React.memo(ProjectedDepreciation);

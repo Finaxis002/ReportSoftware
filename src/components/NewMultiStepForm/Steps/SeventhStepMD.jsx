@@ -10,7 +10,7 @@ const SeventhStepMD = ({
 }) => {
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
-    const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
+  const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
   // Initialize local data with default values or from props
   const [localData, setLocalData] = useState(() =>
     MoreDetailsData && Object.keys(MoreDetailsData).length > 0
@@ -166,11 +166,10 @@ const SeventhStepMD = ({
                 {["openingStock", "closingStock", "withdrawals"].map(
                   (stockType) => (
                     <tr key={stockType}>
-                      <td 
-                       className="form-control border-r-0 border-none"
-                       style={{width:"20rem", borderRadius:"0px"}}
-                       type="text"
-          
+                      <td
+                        className="form-control border-r-0 border-none"
+                        style={{ width: "20rem", borderRadius: "0px" }}
+                        type="text"
                       >
                         {stockType.replace(/([A-Z])/g, " $1")}{" "}
                         {/* Convert camelCase to readable text */}
@@ -192,11 +191,10 @@ const SeventhStepMD = ({
                               value={localData?.[stockType]?.[index] ?? ""}
                               className="form-control text-end noBorder"
                               type="number"
-                              
                             />
                           </td>
                         )
-                      )}  
+                      )}
                     </tr>
                   )
                 )}
@@ -241,7 +239,7 @@ const SeventhStepMD = ({
                               handleFormChange(event, i, null, dataType)
                             }
                             className="form-control text-center noBorder] bg-white p-0"
-                            style={{width:"20rem"}}
+                            style={{ width: "20rem" }}
                             type="text"
                             disabled={!entry.isCustom}
                           />
@@ -268,7 +266,10 @@ const SeventhStepMD = ({
 
                 <button
                   className="btn btn-sm btn-success px-4"
-                  onClick={() => addFields(dataType)}
+                  onClick={(event) => {
+                    event.preventDefault(); // Prevents form submission
+                    addFields(dataType);
+                  }}
                 >
                   Add{" "}
                   {dataType === "currentLiabilities" ? "Liability" : "Asset"} +
