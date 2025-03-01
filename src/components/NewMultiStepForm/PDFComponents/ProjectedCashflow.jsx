@@ -44,15 +44,15 @@ const ProjectedCashflow = ({
     }
   }, [yearlyInterestLiabilities]); // ✅ Runs when state update
 
-  if (
-    !formData ||
-    typeof formData !== "object" ||
-    !calculations ||
-    typeof calculations !== "object"
-  ) {
-    console.error("❌ Invalid formData or calculations provided");
-    return null;
-  }
+  // if (
+  //   !formData ||
+  //   typeof formData !== "object" ||
+  //   !calculations ||
+  //   typeof calculations !== "object"
+  // ) {
+  //   console.error("❌ Invalid formData or calculations provided");
+  //   return null;
+  // }
 
   // console.log("data for term loan", yearlyInterestLiabilities);
 
