@@ -180,7 +180,7 @@ const Repayment = ({
     }
 
     // ✅ Console log to verify the correct values
-    // console.log("Correct Yearly Interest Liabilities Sent to Parent:", correctYearlyInterestLiabilities);
+    //  console.log("Correct Yearly Interest Liabilities Sent to Parent:", correctYearlyInterestLiabilities);
   }, [JSON.stringify(data)]); // Trigger when data changes
 
   // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
