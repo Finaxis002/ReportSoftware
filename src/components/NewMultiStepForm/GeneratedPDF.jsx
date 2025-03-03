@@ -275,8 +275,10 @@ const GeneratedPDF = React.memo(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
-  const memoizedPDF = useMemo(
-    () => (
+  const pdfRef = useRef(null);
+
+  if (!pdfRef.current) {
+    pdfRef.current = (
       <Document>
         {/* basic details table */}
         <BasicDetails formData={formData} />
@@ -499,41 +501,9 @@ const GeneratedPDF = React.memo(() => {
           receiveTotalExpense={totalExpense}
         />
       </Document>
-    ),
-    [
-      formData,
-      totalRevenueReceipts,
-      localData,
-      normalExpense,
-      totalAnnualWages,
-      totalQuantity,
-      fringAndAnnualCalculation,
-      fringeCalculation,
-      dscr,
-      averageCurrentRatio,
-      breakEvenPointPercentage,
-      assetsliabilities,
-      marchClosingBalances,
-      totalExpense,
-      financialYearLabels,
-      totalDepreciation,
-      yearlyPrincipalRepayment,
-      interestOnWorkingCapital,
-      receivedData,
-      workingCapitalvalues,
-      closingCashBalanceArray,
-      totalLiabilities,
-      computedData.cashProfitArray,
-      computedData.grossProfitValues,
-      computedData.netProfitAfterTax,
-      computedData.netProfitBeforeTax,
-      setAssetsLiabilities,
-      formatNumber,
-      yearlyInterestLiabilities,
-      setDscr,
-      setBreakEvenPointPercentage,
-    ]
   );
+}
+const memoizedPDF = pdfRef.current;
 
   return (
     <>
