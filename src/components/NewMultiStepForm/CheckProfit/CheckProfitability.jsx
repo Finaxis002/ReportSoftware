@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
 
 // ✅ Register a Font That Supports Bold
@@ -15,7 +15,7 @@ Font.register({
   ],
 });
 
-const ProjectedProfitability = ({
+const CheckProfitability = ({
   formData,
   localData,
   normalExpense,
@@ -31,7 +31,6 @@ const ProjectedProfitability = ({
   handleIncomeTaxDataSend,
   formatNumber,
   receivedtotalRevenueReceipts,
-  onComputedDataToProfit
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -388,16 +387,6 @@ const ProjectedProfitability = ({
         netProfitAfterTax,
       }));
     }
-  }, [JSON.stringify(netProfitAfterTax)]);
-
-  useEffect(() => {
-    if (netProfitAfterTax.length > 0) {
-      onComputedDataToProfit((prev) => ({
-        ...prev,
-        netProfitAfterTax,
-      }));
-    }
-    console.log("Sending DAta to Checkl Profit", netProfitAfterTax)
   }, [JSON.stringify(netProfitAfterTax)]);
 
   return (
@@ -1428,4 +1417,4 @@ const ProjectedProfitability = ({
   );
 };
 
-export default React.memo(ProjectedProfitability);
+export default React.memo(CheckProfitability);

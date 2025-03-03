@@ -388,7 +388,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             <input
                               name="serialNumber"
                               type="text" // ✅ Changed to text to allow alphanumeric values
-                              className="form-control text-center noBorder"
+                              // className="form-control text-center noBorder"
+                               className="table-input"
                               value={
                                 entry.serialNumber !== undefined
                                   ? entry.serialNumber
@@ -407,7 +408,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               placeholder="Particular"
                               onChange={(event) => handleFormChange(event, i)}
                               value={entry.particular}
-                              className="form-control text-center noBorder"
+                              // className="form-control text-center noBorder"
+                               className="table-input"
                               type="text"
                             />
                           </td>
@@ -422,7 +424,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   handleFormChange(event, i, y)
                                 }
                                 value={yr || 0}
-                                className="form-control text-end noBorder"
+                                 className="table-input"
                                 type="text"
                               />
                             </td>
@@ -469,7 +471,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
               <div className="position-relative w-100 overflow-y-scroll">
                 <div className="pt-3 total-div">
                   <div className="d-flex">
-                    <label htmlFor="" className="form-label w-25 fs-10">
+                    <label htmlFor="" className="form-label w-25 fs-10 ">
                       Total Revenue
                     </label>
                     <table className="table">
@@ -493,7 +495,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                     i
                                   )
                                 }
-                                className="form-control text-end noBorder"
+                                // className="form-control text-end noBorder"
+                                  className="total-revenue-input"
                                 type="number"
                                 style={{
                                   padding: "5px",
@@ -561,7 +564,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               placeholder="Particular"
                               onChange={(event) => handleFormChange2(event, i)}
                               value={entry.particular}
-                              className="form-control text-center noBorder"
+                              // className="form-control text-center noBorder"
+                               className="total-revenue-input"
                               type="text"
                             />
                           </td>
@@ -576,7 +580,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   handleFormChange2(event, i, y)
                                 }
                                 value={yr || 1}
-                                className="form-control text-end noBorder"
+                                // className="form-control text-end noBorder"
+                                 className="total-revenue-input"
                                 type="number"
                               />
                             </td>
@@ -598,7 +603,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                 </table>
               </div>
 
-              {formType?.trim() !== "Others" && (
+              {String(formType || "")?.trim() !== "Others" && (
                 <div className="position-relative w-100">
                   <div className="total-div pt-3 px-2">
                     {/* Total Monthly Revenue */}
@@ -628,7 +633,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             {noOfMonths.map((v, i) => (
                               <td key={i}>
                                 <input
-                                  className="form-control text-center w-20 p-0"
+                                  // className="form-control text-center w-20 p-0"
+                                   className="total-revenue-input"
                                   style={{ width: "4rem", padding: "0px" }}
                                   type="number"
                                   value={v || 0}
@@ -645,7 +651,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                     {/* Total Revenue */}
                     <div className="d-flex">
-                      <label className="form-label w-[20rem] fs-10">
+                      <label className="form-label w-[30rem] fs-10 pe-8">
                         Total Revenue
                       </label>
                       <table className="table">

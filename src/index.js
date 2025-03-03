@@ -1,4 +1,4 @@
-import React, { useState , useEffect , useMemo} from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
@@ -22,8 +22,7 @@ import EmployeeDashboard from "./components/NewMultiStepForm/Dashboards/Employee
 import Employees from "./components/NewMultiStepForm/Employees/Employees.jsx";
 import Notification from "./components/NewMultiStepForm/Notifications/Notification.jsx";
 import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
-
-
+import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -32,7 +31,6 @@ const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -48,79 +46,66 @@ const App = () => {
     setIsAuthenticated(status);
     setUserRole(role);
   };
-  
 
   const MemoizedPDF = useMemo(() => <GeneratedPDF />, []);
 
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            {/* <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Dashboard />
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            /> */}
-
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  userRole === "admin" ? (
-                    <AdminDashboard />
-                  ) : userRole === "employee" ? (
-                    <EmployeeDashboard />
+            <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    userRole === "admin" ? (
+                      <AdminDashboard />
+                    ) : userRole === "employee" ? (
+                      <EmployeeDashboard />
+                    ) : (
+                      <Dashboard />
+                    )
                   ) : (
-                    <Dashboard />
+                    <MainLogin onLogin={handleLogin} />
                   )
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            
-           
-            
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            />
+                }
+              />
 
-           
-           
-            <Route path="/MultestepForm" element={<MultiStepForm />} />
-            <Route path="/employees" element={<Employees />} />
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/generated-pdf" element={MemoizedPDF} />;
-            <Route path="/clientData" element={<ClientData />} />
-            <Route path="/tasks/:taskId" element={<Tasks />} />
+              <Route
+                path="/login"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <MainLogin onLogin={handleLogin} />
+                  )
+                }
+              />
 
-            {/* Protect MongoDB route */}
-            <Route
-              path="/database"
-              element={
-                isAuthenticated ? (
-                  <MongoDB />
-                ) : (
-                  <DatabaseLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route path="/createreport" element={<CreateReport />} />
-          </Routes>
-        </BrowserRouter>
+              <Route path="/MultestepForm" element={<MultiStepForm />} />
+              <Route path="/employees" element={<Employees />} />
+              <Route path="/notifications" element={<Notification />} />
+              <Route path="/clientData" element={<ClientData />} />
+              <Route path="/tasks/:taskId" element={<Tasks />} />
+
+              {/* Protect MongoDB route */}
+              <Route
+                path="/database"
+                element={
+                  isAuthenticated ? (
+                    <MongoDB />
+                  ) : (
+                    <DatabaseLogin onLogin={handleLogin} />
+                  )
+                }
+              />
+              <Route path="/createreport" element={<CreateReport />} />
+              
+              {/* ✅ Correctly Placed Routes */}
+              <Route path="/generated-pdf" element={<GeneratedPDF />} />
+              <Route path="/checkprofit"  element={<CheckProfit />} />
+            </Routes>
+          </BrowserRouter>
       </QueryClientProvider>
     </Provider>
   );
