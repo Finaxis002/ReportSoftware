@@ -159,7 +159,6 @@
 
 .table thead th.header-label {
   cursor: pointer;
-  /* background: linear-gradient(0deg, #e4eff8, #63b3ed 5%, #e4eff8 150%); */
   background-color: #673ab7;
   color: white;
   border: 1px solid white;
@@ -242,9 +241,9 @@
   /* background-color: #c9e4f7; */
 }
 
-.total-div div {
+/* .total-div div {
   width:max-content;
-}
+} */
 
 .fs-10 {
   font-size: 0.8em;
@@ -332,6 +331,306 @@
   background-repeat: no-repeat;
   background-position: right;
   background-size: 80px;
+}
+
+/*css for revenue Make table inputs smaller and seamless */
+/* .table-revenue input {
+  width: 100px; 
+  height: 28px;  
+  font-size: 14px;  
+  text-align: right;
+  border: 1px solid #ddd;
+  padding: 5px;
+  background-color: white; 
+  outline: none; 
+  transition: all 0.2s ease-in-out;
+} */
+
+/* Make input fields have seamless borders on focus */
+.table-revenue input:focus {
+  border-color: #007bff; /* Light blue like Google Sheets */
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+/* Table header styling */
+.table-revenue thead {
+  background-color: #f1f3f4; /* Google Sheets header color */
+  font-weight: bold;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Align index and particulars */
+/* .table-revenue td:first-child,
+.table-revenue th:first-child {
+  text-align: left;
+  width: 80px;
+} */
+
+/* Align particulars to the left */
+/* .table-revenue td:nth-child(2),
+.table-revenue th:nth-child(2) {
+  text-align: left;
+  min-width: 200px;
+} */
+
+/* Remove extra padding and margin */
+/* .table-revenue td,
+.table-revenue th {
+  padding: 5px;
+  font-size: 14px;
+} */
+
+/* Table container with smooth scrolling */
+.form-scroll {
+  overflow-x: auto;
+  max-height: 60vh; /* Adjust the height as needed */
+}
+
+/* Button adjustments */
+.btn {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+/* Toggle button */
+.toggleBtn input {
+  margin: 0 5px;
+}
+
+/* Style the total revenue row */
+/* .total-div {
+  background-color: #f9f9f9;
+  font-weight: bold;
+} */
+
+/* Reduce width of Index column */
+.table-revenue td:first-child,
+.table-revenue th:first-child {
+  width: 50px; /* Reduce width */
+  min-width: 50px;
+  max-width: 50px;
+  text-align: center; /* Align center */
+}
+
+/* Improve "Particulars" column styling */
+.table-revenue td:nth-child(2),
+.table-revenue th:nth-child(2) {
+  text-align: left;
+  min-width: 180px; /* Adjust to fit text properly */
+  max-width: 180px;
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Show "..." if text overflows */
+}
+
+/* Reduce input size inside table */
+.table-revenue input {
+  width: 100%; /* Adjust input width to fill the cell */
+  height: 24px; /* Reduce height */
+  font-size: 14px;
+  padding: 3px; /* Reduce padding */
+  text-align: left;
+  border: none;
+  background-color: white;
+  outline: none;
+}
+/* .table-revenue td {
+  border: none;
+} */
+/* Fix extra spacing inside cells */
+.table-revenue td,
+.table-revenue th {
+  padding: 3px; /* Reduce padding */
+  font-size: 14px;
+}
+
+.table-revenue td:nth-child(n+3), /* Target Year 1, Year 2, etc. */
+.table-revenue th:nth-child(n+3) {
+  width: 80px; /* Adjust column width */
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center; /* Align numbers to the right */
+}
+
+/* Reduce input size inside Year columns */
+.table-revenue td:nth-child(n+3) input {
+  width: 100%;
+  height: 22px; /* Slightly reduce height */
+  font-size: 13px;
+  padding: 2px; /* Minimize padding */
+  text-align: center; /* Align numbers */
+}
+
+/* Total Revenue section styling */
+.total-div {
+  background-color: #f9f9f9; /* Light background like Google Sheets */
+  padding: 5px 10px;
+  font-weight: bold;
+}
+
+.total-div table {
+  width: 100%;
+  border-collapse: collapse; /* Merge borders like Google Sheets */
+  border: 1px solid #ccc; /* Light gray border for the entire table */
+}
+
+/* Remove input borders in Total Revenue */
+.total-div input {
+  width: 80px; /* Adjust input width */
+  height: 22px; /* Compact height */
+  font-size: 14px;
+  padding: 2px;
+  text-align: right;
+  border: none; /* Remove borders */
+  background-color: transparent; /* Transparent background */
+  outline: none; /* No outline */
+  
+}
+
+/* Remove table cell borders */
+.total-div td {
+  border: none; /* Remove cell borders */
+}
+
+/* Keep label aligned properly */
+.total-div label {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  padding-right: 10px;
+  min-width: 120px;
+}
+
+/* Make table compact */
+.total-div table {
+  width: auto;
+  border-collapse: collapse;
+}
+
+/* Keep table header styling */
+.total-div th {
+  font-weight: bold;
+  text-align: center;
+  background-color: #f1f3f4; /* Google Sheets-like header */
+  border-bottom: 2px solid #ccc;
+}
+.total-div td:nth-child(n+2) {
+  width: 80px; /* Match revenue table column width */
+  min-width: 80px;
+  max-width: 80px;
+  text-align: right;
+}
+
+.total-div td, 
+.total-div th {
+  border-right: 1px solid #ccc; /* Right-side border for column separation */
+  padding: 5px;
+  font-size: 14px;
+}
+
+/* Remove right border from last column to prevent double border effect */
+.total-div td:last-child, 
+.total-div th:last-child {
+  border-right: none;
+}
+
+/* ✅ Google Sheets Style - Apply only to SeventhStepMD */
+.google-sheet-table-container {
+  width: 100%;
+  overflow-x: auto; /* Enable horizontal scroll */
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.google-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  min-width: 1200px;
+}
+
+/* ✅ Table Header - Sticky with Light Gray Background */
+.google-sheet-table thead tr {
+  background-color: #f1f3f4; /* Google Sheets Header Color */
+  font-weight: bold;
+  text-align: left;
+  /* white-space: nowrap; */
+}
+
+/* ✅ Table Borders - Soft Gray */
+.google-sheet-table th,
+.google-sheet-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  /* min-width: 100px;
+  max-width: 150px;
+  text-align: center; */
+}
+
+/* ✅ Input Field - Styled to Look Like Google Sheets */
+.google-sheet-table input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 14px;
+  text-align: center;
+  padding: 4px;
+}
+
+/* ✅ Highlight Active Cell */
+.google-sheet-table input:focus {
+  background-color: #e8f0fe; /* Light blue focus effect */
+  border: 1px solid #4285f4;
+  outline: none;
+}
+
+/* ✅ Row Hover Effect */
+.google-sheet-table tbody tr:hover {
+  background-color: #f1f8ff; /* Google Sheets row hover effect */
+}
+
+/* ✅ Sticky Header for Scrolling */
+.google-sheet-table thead th {
+  /* position: sticky; */
+  top: 0;
+  background: #f1f3f4;
+  z-index: 2;
+}
+
+/* ✅ Make the Table Scrollable */
+.google-sheet-container {
+  overflow-x: auto;
+  max-height: 500px;
+}
+
+/* ✅ Google Sheets Button Style */
+.google-sheet-btn {
+  background-color: #34a853;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.google-sheet-btn:hover {
+  background-color: #2a8a4f;
+}
+.google-sheet-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.google-sheet-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.google-sheet-scroll::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 @media (max-width: 990px) {

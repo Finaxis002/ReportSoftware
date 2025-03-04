@@ -6,9 +6,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years || 1
   );
 
+  // const [totalRevenue, setTotalRevenue] = useState(
+  //   Array.from({ length: Math.max(1, projectionYears) }, () => 0)
+  // );
   const [totalRevenue, setTotalRevenue] = useState(
-    Array.from({ length: Math.max(1, projectionYears) }, () => 0)
+    Array.from({ length: projectionYears || 1 }, () => 0) // ✅ Ensures correct length
   );
+
   const [noOfMonths, setNoOfMonths] = useState(
     Array.from({ length: Math.max(1, projectionYears) }, () => 12)
   );
@@ -17,11 +21,24 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   );
 
   // Update totalRevenue dynamically when noOfMonths or totalMonthlyRevenue changes
+  // useEffect(() => {
+  //   setTotalRevenue(
+  //     noOfMonths.map((months, i) => months * (totalMonthlyRevenue[i] || 0))
+  //   );
+  // }, [noOfMonths, totalMonthlyRevenue]); 
+
   useEffect(() => {
-    setTotalRevenue(
-      noOfMonths.map((months, i) => months * (totalMonthlyRevenue[i] || 0))
-    );
-  }, [noOfMonths, totalMonthlyRevenue]); // Runs whenever these values change
+    const updatedTotalRevenue = Array.from({ length: projectionYears }, (_, i) => {
+      return (noOfMonths[i] || 12) * (totalMonthlyRevenue[i] || 0);
+    });
+
+    setTotalRevenue(updatedTotalRevenue); // ✅ Ensure it always matches projectionYears
+    setLocalData((prevData) => ({
+      ...prevData,
+      totalRevenue: updatedTotalRevenue, // ✅ Update in localData too
+    }));
+  }, [projectionYears, noOfMonths, totalMonthlyRevenue]); // ✅ Add projectionYears as dependency
+
 
   // ✅ Initialize togglerType (boolean) from revenueData, default to false
   const [togglerType, setTogglerType] = useState(
@@ -290,6 +307,30 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     // Handle form submission here
     console.log("Form submitted", localData);
   };
+  const formatNumber = (value, formatType) => {
+    // Ensure valid number
+    if (value === undefined || value === null || isNaN(value)) return "0.00";
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      case "2": // USD Format (1,123,456.00)
+        return new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      default: // Default to Indian Format
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+    }
+  };
 
   return (
     <>
@@ -371,17 +412,16 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       return (
                         <tr
                           key={i}
-                          className={`rowHover ${
-                            entry.rowType === "0"
-                              ? "normalRow"
-                              : entry.rowType === "1"
+                          className={`rowHover ${entry.rowType === "0"
+                            ? "normalRow"
+                            : entry.rowType === "1"
                               ? "headingRow"
                               : entry.rowType === "2"
-                              ? "boldRow"
-                              : entry.rowType === "3"
-                              ? "boldUnderlineRow"
-                              : ""
-                          }`}
+                                ? "boldRow"
+                                : entry.rowType === "3"
+                                  ? "boldUnderlineRow"
+                                  : ""
+                            }`}
                         >
                           {/* ✅ Editable Serial Number (Now Alphanumeric) */}
                           <td>
@@ -389,7 +429,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               name="serialNumber"
                               type="text" // ✅ Changed to text to allow alphanumeric values
                               // className="form-control text-center noBorder"
-                               className="table-input"
+                               
+
+                              className="table-input"
+
                               value={
                                 entry.serialNumber !== undefined
                                   ? entry.serialNumber
@@ -408,8 +451,9 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               placeholder="Particular"
                               onChange={(event) => handleFormChange(event, i)}
                               value={entry.particular}
-                              // className="form-control text-center noBorder"
+                              // className="form-control text-center noBorder" priya
                                className="table-input"
+                             
                               type="text"
                             />
                           </td>
@@ -424,7 +468,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   handleFormChange(event, i, y)
                                 }
                                 value={yr || 0}
+
                                  className="table-input"
+
+                                
                                 type="text"
                               />
                             </td>
@@ -496,7 +543,9 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   )
                                 }
                                 // className="form-control text-end noBorder"
+
                                   className="total-revenue-input"
+                                
                                 type="number"
                                 style={{
                                   padding: "5px",
@@ -516,7 +565,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           <form onSubmit={submit}>
             <div className="position-relative w-100">
               <div className="form-scroll" style={{ height: "30vh" }}>
-                <table className="table">
+                <table className="table table-revenue">
                   <thead>
                     <tr>
                       <th className="header-label">Index</th>
@@ -565,7 +614,12 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               onChange={(event) => handleFormChange2(event, i)}
                               value={entry.particular}
                               // className="form-control text-center noBorder"
-                               className="total-revenue-input"
+
+                              
+
+                              //  className="total-revenue-input"
+                              className="table-input"
+
                               type="text"
                             />
                           </td>
@@ -581,7 +635,12 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 }
                                 value={yr || 1}
                                 // className="form-control text-end noBorder"
-                                 className="total-revenue-input"
+
+                                
+
+                                //  className="total-revenue-input"
+                                className="table-input"
+
                                 type="number"
                               />
                             </td>
@@ -634,7 +693,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <td key={i}>
                                 <input
                                   // className="form-control text-center w-20 p-0"
-                                   className="total-revenue-input"
+
+                                  
+
+                                  className="total-revenue-input"
+
                                   style={{ width: "4rem", padding: "0px" }}
                                   type="number"
                                   value={v || 0}
@@ -651,15 +714,33 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                     {/* Total Revenue */}
                     <div className="d-flex">
-                      <label className="form-label w-[30rem] fs-10 pe-8">
+
+                     
+
+                      <label className="form-label w-[20rem] fs-10 pe-8">
+
                         Total Revenue
                       </label>
                       <table className="table">
                         <tbody>
                           <tr>
-                            {localData.totalRevenue.map((v, i) => (
+                            {/* {localData.totalRevenue.map((v, i) => (
                               <td key={i}>{v.toLocaleString("en-IN")}</td>
+                            ))} */}
+                            {Array.from({ length: projectionYears }).map((_, i) => (
+                              <td key={i}>
+                                <input
+                                  name={`value-${i}`} // Unique name for each input
+                                  placeholder="Enter value"
+                                  value={localData.totalRevenue?.[i] ?? 0} // Ensure it matches projectionYears
+                                  onChange={(e) => handleTotalRevenueForOthersChange(e.target.value, i)}
+                                  className="total-revenue-input"
+                                  type="number"
+                                  style={{ padding: "5px" }}
+                                />
+                              </td>
                             ))}
+
                           </tr>
                         </tbody>
                       </table>

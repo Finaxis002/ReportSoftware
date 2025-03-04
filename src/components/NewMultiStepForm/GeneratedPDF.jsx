@@ -277,6 +277,7 @@ const GeneratedPDF = React.memo(({ selectedOption }) => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
+
   const setComputedDataToProfit = useStore((state) => state.setComputedData);
 
 
@@ -532,6 +533,9 @@ const GeneratedPDF = React.memo(({ selectedOption }) => {
     breakEvenPointPercentage,
     assetsliabilities,
   ]);
+
+
+
 
   return (
     <>
