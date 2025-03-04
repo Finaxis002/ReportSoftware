@@ -74,7 +74,7 @@ const Assumptions = ({
             },
           ]}
         >
-          <Text>Assumptions</Text>
+          <Text>Assumption</Text>
         </View>
 
         <Text style={{ fontSize: 10 }}>
