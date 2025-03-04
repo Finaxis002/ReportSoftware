@@ -27,10 +27,17 @@ import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
 // Initialize query client
 const queryClient = new QueryClient();
 
+
 const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [generatePDfData , setGeneratedPDFData] = useState({});
+
+  // console.log(setGeneratedPDFData)
+
+  console.log("Received Data in Index.js" , generatePDfData)
+  
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -102,8 +109,8 @@ const App = () => {
               <Route path="/createreport" element={<CreateReport />} />
               
               {/* ✅ Correctly Placed Routes */}
-              <Route path="/generated-pdf" element={<GeneratedPDF />} />
-              <Route path="/checkprofit"  element={<CheckProfit />} />
+              <Route path="/generated-pdf" element={<GeneratedPDF setGeneratedPDFData={setGeneratedPDFData} />} />
+              <Route path="/checkprofit"  element={<CheckProfit receivedGeneratedPDFData = {generatePDfData} />} />
             </Routes>
           </BrowserRouter>
       </QueryClientProvider>

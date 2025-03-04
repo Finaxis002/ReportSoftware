@@ -7,7 +7,7 @@ const useStore = create((set) => ({
       const updatedData =
         typeof update === "function" ? update(prev.computedDataToProfit) : update;
 
-      console.log("🟢 Zustand Store Updated with Data:", updatedData);
+      // console.log("🟢 Zustand Store Updated with Data:", updatedData);
       return { computedDataToProfit: updatedData }; // ✅ Update the state correctly
     });
   },

@@ -1,27 +1,32 @@
 import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer"; // Ensure Image is imported
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import watermarkImage from "../Assets/SAWatermark.jpg"; // Ensure correct path
+import watermarkImage from "../Assets/SAWatermark";
+// import watermarkImage from "../Assets/watermark.png";
 
 const BasicDetails = ({ formData, selectedOption }) => {
+  // console.log("Selected Option" , selectedOption)
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={[styles.page, { padding: "30px"  }]}>
       {/* Watermark Image */}
-      {selectedOption === "Sharda Associates" && (
-        <Image
-          src={watermarkImage}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            opacity: 0.1, // Light watermark
-            zIndex: -1, // Ensure it is in the background
-          }}
-          fixed // Ensures it's placed on every page
-        />
-      )}
 
-      <View>
+         
+        {/* <View style={{ absolutePosition: { x: 240, y: 1500 } }}>
+          <Image
+            src={watermarkImage}
+            style={{
+              width: "600px",
+              height: "800px",
+              opacity: 0.2, // Light watermark
+            }}
+            fixed
+          />
+        </View> */}
+
+      {/* table  */}
+      <View
+        style={{ opacity: 1}}
+      >
         <Text style={styles.title}>Project Synopsis</Text>
 
         <View style={styles.table}>

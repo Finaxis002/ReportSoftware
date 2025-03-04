@@ -397,7 +397,7 @@ const ProjectedProfitability = ({
         netProfitAfterTax,
       }));
     }
-    console.log("Sending DAta to Checkl Profit", netProfitAfterTax)
+    // console.log("Sending DAta to Checkl Profit", netProfitAfterTax)
   }, [JSON.stringify(netProfitAfterTax)]);
 
   return (

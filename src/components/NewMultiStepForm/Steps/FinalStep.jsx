@@ -1,7 +1,19 @@
-import { useState } from "react";
+import React , {useState} from "react";
+import { jsPDF } from "jspdf"; // Import jsPDF for PDF generation
+import { useNavigate } from "react-router-dom";
 
-const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
+const FinalStep = ({ formData }) => {
+  const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState("Sharda Associates");
+  const handleGeneratePDF = () => {
+    // Navigate to the new page and pass form data via state
+    navigate("/generated-pdf", { state: formData });
+  };
+
+  const handleCheckProfit = () => {
+    // Navigate to the new page and pass form data via state
+    navigate("/checkprofit", { state: formData });
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
@@ -13,26 +25,18 @@ const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
         report PDF.
       </p>
 
-      {/* Dropdown */}
-      <div className="mb-4">
-        <label className="block text-gray-700 font-semibold mb-2">
-          Select Format:
-        </label>
-        <select
-          value={selectedOption}
-          onChange={(e) => setSelectedOption(e.target.value)}
-          className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="Sharda Associates">Sharda Associates</option>
-          <option value="CA Certified">CA Certified</option>
-          <option value="File Upload">File Upload</option>
-        </select>
-      </div>
-
       <div className="flex gap-5">
         {/* Generate PDF Button */}
         <button
-         onClick={() => handleGeneratePDF(selectedOption)}
+          onClick={() => {
+            if (typeof handleGeneratePDF === "function") {
+              handleGeneratePDF(selectedOption);
+            } else {
+              console.error(
+                "handleGeneratePDF is not defined or not a function"
+              );
+            }
+          }}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
@@ -49,7 +53,7 @@ const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
   );
 };
 
-export default GeneratePDFSection;
+export default FinalStep;
 
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";

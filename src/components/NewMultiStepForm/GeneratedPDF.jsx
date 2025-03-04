@@ -8,7 +8,7 @@ import React, {
 import { useLocation } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
-import { Document, PDFViewer } from "@react-pdf/renderer";
+import { Document, PDFViewer, Image } from "@react-pdf/renderer";
 import useStore from "./useStore";
 
 // Register chart.js components
@@ -30,11 +30,10 @@ import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
 import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
-import SAWatermark from "../NewMultiStepForm/Assets/SAWatermark.jpg"
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(({ selectedOption }) => {
+const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -159,6 +158,9 @@ const GeneratedPDF = React.memo(({ selectedOption }) => {
     [stableLocation.state]
   );
 
+
+ 
+
   const yearsRef = useRef(5);
 
   useEffect(() => {
@@ -277,24 +279,26 @@ const GeneratedPDF = React.memo(({ selectedOption }) => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
+
+  
+
+  // sending data to checkProfit 
+
+   useEffect(() => {
+      if (totalRevenueReceipts.length > 0) {
+        setGeneratedPDFData((prev) => ({
+          ...prev,
+          totalRevenueReceipts,
+        }));
+      }
+       console.log("Sending total revenue Receipt to Check Profit", totalRevenueReceipts)
+    }, [JSON.stringify(totalRevenueReceipts)]);
+
   const setComputedDataToProfit = useStore((state) => state.setComputedData);
-
-
 
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
-        {selectedOption === "Sharda Associates" && (
-        <Image
-          src={watermarkImage}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            opacity: 0.2, // Light watermark
-          }}
-        />
-      )}
         {/* basic details table */}
         <BasicDetails formData={formData} />
 
