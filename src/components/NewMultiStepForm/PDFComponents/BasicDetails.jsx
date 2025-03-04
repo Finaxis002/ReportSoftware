@@ -1,10 +1,26 @@
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer"; // Ensure Image is imported
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import watermarkImage from "../Assets/SAWatermark.jpg"; // Ensure correct path
 
-const BasicDetails = ({ formData }) => {
+const BasicDetails = ({ formData, selectedOption }) => {
   return (
     <Page size="A4" style={styles.page}>
+      {/* Watermark Image */}
+      {selectedOption === "Sharda Associates" && (
+        <Image
+          src={watermarkImage}
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            opacity: 0.1, // Light watermark
+            zIndex: -1, // Ensure it is in the background
+          }}
+          fixed // Ensures it's placed on every page
+        />
+      )}
+
       <View>
         <Text style={styles.title}>Project Synopsis</Text>
 
@@ -18,15 +34,12 @@ const BasicDetails = ({ formData }) => {
 
           {Object.entries(formData.AccountInformation).map(
             ([key, value], index) => {
-              // Skip _id, __v, and allPartners fields
               if (key === "allPartners" || key === "_id" || key === "__v") {
                 return null;
               }
-
-              // Track the visible index for the fields
               return (
                 <View style={styles.tableRow} key={index}>
-                  <Text style={styles.serialNoCellDetail}>{index + 0}</Text>
+                  <Text style={styles.serialNoCellDetail}>{index + 1}</Text>
                   <Text style={styles.particularsCellsDetail}>{key}</Text>
                   <Text style={styles.separatorCellDetail}>:</Text>
                   <Text style={styles.detailsCellDetail}>

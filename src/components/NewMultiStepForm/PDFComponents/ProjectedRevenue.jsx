@@ -209,7 +209,9 @@ const ProjectedRevenue = ({
         </View>
         {/* ✅ Compute & Display Revenue Based on formType */}
         <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-          <Text style={stylesCOP.serialNoCellDetail}></Text>
+          <Text
+            style={[stylesCOP.serialNoCellDetail, { borderBottomWidth: "0px" }]}
+          ></Text>
 
           {/* ✅ Conditional Label Based on formType */}
           <Text

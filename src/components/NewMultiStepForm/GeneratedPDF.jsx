@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
 import { Document, PDFViewer } from "@react-pdf/renderer";
+import useStore from "./useStore";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -29,10 +30,11 @@ import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
 import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
+import SAWatermark from "../NewMultiStepForm/Assets/SAWatermark.jpg"
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(() => {
+const GeneratedPDF = React.memo(({ selectedOption }) => {
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -275,475 +277,264 @@ const GeneratedPDF = React.memo(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
-//   const pdfRef = useRef(null);
 
-//   if (!pdfRef.current) {
-//     pdfRef.current = (
-//       <Document>
-//         {/* basic details table */}
-//         <BasicDetails formData={formData} />
+  const setComputedDataToProfit = useStore((state) => state.setComputedData);
 
-//         <ProjectSynopsis
-//           formData={formData}
-//           receivedtotalRevenueReceipts={totalRevenueReceipts}
-//           localData={localData}
-//           normalExpense={normalExpense}
-//           totalAnnualWages={totalAnnualWages}
-//           totalQuantity={totalQuantity}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           fringeCalculation={fringeCalculation}
-//           receivedDscr={dscr}
-//           receivedAverageCurrentRatio={averageCurrentRatio}
-//           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-//           receivedAssetsLiabilities={assetsliabilities}
-//         />
-//         {/* Means of Finance Table */}
-//         <MeansOfFinance
-//           formData={formData}
-//           localData={localData}
-//           formatNumber={formatNumber}
-//         />
 
-//         {/* cost of project table */}
-//         <CostOfProject
-//           formData={formData}
-//           localData={localData}
-//           formatNumber={formatNumber}
-//         />
 
-//         {/* Projected Salaries & Wages Table*/}
-//         <ProjectedSalaries
-//           localData={localData}
-//           normalExpense={normalExpense}
-//           totalAnnualWages={totalAnnualWages}
-//           totalQuantity={totalQuantity}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           fringeCalculation={fringeCalculation}
-//           formatNumber={formatNumber}
-//           formData={formData}
-//         />
+  const memoizedPDF = useMemo(() => {
+    return (
+      <Document>
+        {selectedOption === "Sharda Associates" && (
+        <Image
+          src={watermarkImage}
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            opacity: 0.2, // Light watermark
+          }}
+        />
+      )}
+        {/* basic details table */}
+        <BasicDetails formData={formData} />
 
-//         <ProjectedDepreciation
-//           formData={formData}
-//           localData={localData}
-//           setTotalDepreciation={setTotalDepreciation}
-//           onComputedData1={setComputedData1}
-//           financialYearLabels={financialYearLabels}
-//           onGrossFixedAssetsPerYearCalculated={(data) => {
-//             setGrossFixedAssetsPerYear(data);
-//           }}
-//           formatNumber={formatNumber}
-//         />
+        <ProjectSynopsis
+          formData={formData}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          localData={localData}
+          normalExpense={normalExpense}
+          totalAnnualWages={totalAnnualWages}
+          totalQuantity={totalQuantity}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          receivedDscr={dscr}
+          receivedAverageCurrentRatio={averageCurrentRatio}
+          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
+          receivedAssetsLiabilities={assetsliabilities}
+        />
+        {/* Means of Finance Table */}
+        <MeansOfFinance
+          formData={formData}
+          localData={localData}
+          formatNumber={formatNumber}
+        />
 
-//         {/* Projected Expense Table Direct and Indirect */}
-//         <ProjectedExpenses
-//           formData={formData}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           totalDepreciationPerYear={totalDepreciation}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           fringeCalculation={fringeCalculation}
-//           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-//           financialYearLabels={financialYearLabels}
-//           directExpenses={directExpenses}
-//           projectionYears={projectionYears}
-//           totalDirectExpensesArray={totalDirectExpensesArray}
-//           onTotalExpenseSend={setTotalExpense}
-//           receivedtotalRevenueReceipts={totalRevenueReceipts}
-//           formatNumber={formatNumber}
-//         />
+        {/* cost of project table */}
+        <CostOfProject
+          formData={formData}
+          localData={localData}
+          formatNumber={formatNumber}
+        />
 
-//         {/* Projected Revenue/ Sales */}
+        {/* Projected Salaries & Wages Table*/}
+        <ProjectedSalaries
+          localData={localData}
+          normalExpense={normalExpense}
+          totalAnnualWages={totalAnnualWages}
+          totalQuantity={totalQuantity}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          formatNumber={formatNumber}
+          formData={formData}
+        />
 
-//         <ProjectedRevenue
-//           formData={formData}
-//           onTotalRevenueUpdate={setTotalRevenueReceipts}
-//           financialYearLabels={financialYearLabels}
-//           formatNumber={formatNumber}
-//         />
+        <ProjectedDepreciation
+          formData={formData}
+          localData={localData}
+          setTotalDepreciation={setTotalDepreciation}
+          onComputedData1={setComputedData1}
+          financialYearLabels={financialYearLabels}
+          onGrossFixedAssetsPerYearCalculated={(data) => {
+            setGrossFixedAssetsPerYear(data);
+          }}
+          formatNumber={formatNumber}
+        />
 
-//         {/* Projected Profitability Statement */}
-//         <ProjectedProfitability
-//           formData={formData}
-//           localData={localData}
-//           normalExpense={normalExpense}
-//           directExpense={directExpense}
-//           location={stableLocation}
-//           totalDepreciationPerYear={totalDepreciation}
-//           onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
-//           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           financialYearLabels={financialYearLabels}
-//           handleDataSend={handleDataSend} // Ensure this is passed correctly
-//           handleIncomeTaxDataSend={handleIncomeTaxCalculation}
-//           formatNumber={formatNumber}
-//           receivedtotalRevenueReceipts={totalRevenueReceipts}
-//         />
-//         <Repayment
-//           formData={formData}
-//           localData={localData}
-//           onInterestCalculated={handleInterestCalculated}
-//           onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
-//           financialYearLabels={financialYearLabels}
-//           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
-//           formatNumber={formatNumber}
-//         />
+        {/* Projected Expense Table Direct and Indirect */}
+        <ProjectedExpenses
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          totalDepreciationPerYear={totalDepreciation}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+          financialYearLabels={financialYearLabels}
+          directExpenses={directExpenses}
+          projectionYears={projectionYears}
+          totalDirectExpensesArray={totalDirectExpensesArray}
+          onTotalExpenseSend={setTotalExpense}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          formatNumber={formatNumber}
+        />
 
-//         {computedData.netProfitBeforeTax.length > 0 && (
-//           <IncomeTaxCalculation
-//             formData={formData}
-//             netProfitBeforeTax={computedData.netProfitBeforeTax}
-//             totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
-//             financialYearLabels={financialYearLabels}
-//             formatNumber={formatNumber}
-//           />
-//         )}
-//         <ProjectedCashflow
-//           formData={formData}
-//           localData={localData}
-//           totalDepreciationPerYear={totalDepreciation}
-//           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-//           grossProfitValues={computedData.grossProfitValues || []}
-//           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           financialYearLabels={financialYearLabels}
-//           handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
-//           incomeTaxCalculation={incomeTaxCalculation}
-//           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
-//           formatNumber={formatNumber}
-//         />
+        {/* Projected Revenue/ Sales */}
 
-//         <ProjectedBalanceSheet
-//           formData={formData}
-//           localData={localData}
-//           totalDepreciationPerYear={totalDepreciation}
-//           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-//           grossProfitValues={computedData.grossProfitValues || []}
-//           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-//           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-//           grossFixedAssetsPerYear={grossFixedAssetsPerYear}
-//           onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           financialYearLabels={financialYearLabels}
-//           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-//           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-//           receivedWorkingCapitalValues={workingCapitalvalues}
-//           closingCashBalanceArray={closingCashBalanceArray}
-//           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
-//           formatNumber={formatNumber}
-//         />
+        <ProjectedRevenue
+          formData={formData}
+          onTotalRevenueUpdate={setTotalRevenueReceipts}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+        />
 
-//         <CurrentRatio
-//           formData={formData}
-//           financialYearLabels={financialYearLabels}
-//           receivedAssetsLiabilities={assetsliabilities}
-//           formatNumber={formatNumber}
-//           sendAverageCurrentRation={setAverageCurrentRatio}
-//         />
+        {/* Projected Profitability Statement */}
+        <ProjectedProfitability
+          formData={formData}
+          localData={localData}
+          normalExpense={normalExpense}
+          directExpense={directExpense}
+          location={stableLocation}
+          totalDepreciationPerYear={totalDepreciation}
+          onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
+          netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
+          totalRevenueReceipts={totalRevenueReceipts}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          financialYearLabels={financialYearLabels}
+          handleDataSend={handleDataSend} // Ensure this is passed correctly
+          handleIncomeTaxDataSend={handleIncomeTaxCalculation}
+          formatNumber={formatNumber}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          onComputedDataToProfit={setComputedDataToProfit}
+        />
+        <Repayment
+          formData={formData}
+          localData={localData}
+          onInterestCalculated={handleInterestCalculated}
+          onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
+          financialYearLabels={financialYearLabels}
+          onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
+          formatNumber={formatNumber}
+        />
 
-//         <BreakEvenPoint
-//           formData={formData}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           totalDepreciationPerYear={totalDepreciation}
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           financialYearLabels={financialYearLabels}
-//           formatNumber={formatNumber}
-//           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
-//           receivedtotalRevenueReceipts={totalRevenueReceipts}
-//         />
+        {computedData.netProfitBeforeTax.length > 0 && (
+          <IncomeTaxCalculation
+            formData={formData}
+            netProfitBeforeTax={computedData.netProfitBeforeTax}
+            totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+            financialYearLabels={financialYearLabels}
+            formatNumber={formatNumber}
+          />
+        )}
+        <ProjectedCashflow
+          formData={formData}
+          localData={localData}
+          totalDepreciationPerYear={totalDepreciation}
+          netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+          grossProfitValues={computedData.grossProfitValues || []}
+          yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+          totalRevenueReceipts={totalRevenueReceipts}
+          financialYearLabels={financialYearLabels}
+          handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
+          incomeTaxCalculation={incomeTaxCalculation}
+          onClosingCashBalanceCalculated={setClosingCashBalanceArray}
+          formatNumber={formatNumber}
+        />
 
-//         <DebtServiceCoverageRatio
-//           formData={formData}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
-//           totalDepreciationPerYear={totalDepreciation}
-//           netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
-//           financialYearLabels={financialYearLabels}
-//           DSCRSend={setDscr}
-//           formatNumber={formatNumber}
-//         />
+        <ProjectedBalanceSheet
+          formData={formData}
+          localData={localData}
+          totalDepreciationPerYear={totalDepreciation}
+          netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+          grossProfitValues={computedData.grossProfitValues || []}
+          yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+          firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+          grossFixedAssetsPerYear={grossFixedAssetsPerYear}
+          onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
+          totalRevenueReceipts={totalRevenueReceipts}
+          financialYearLabels={financialYearLabels}
+          receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
+          receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
+          receivedWorkingCapitalValues={workingCapitalvalues}
+          closingCashBalanceArray={closingCashBalanceArray}
+          onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
+          formatNumber={formatNumber}
+        />
 
-//         <RatioAnalysis
-//           formData={formData}
-//           localData={localData}
-//           totalDepreciationPerYear={totalDepreciation}
-//           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           financialYearLabels={financialYearLabels}
-//           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-//           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-//           receivedWorkingCapitalValues={workingCapitalvalues}
-//           closingCashBalanceArray={closingCashBalanceArray}
-//           receivedTotalLiabilities={totalLiabilities}
-//           cashProfitArray={computedData.cashProfitArray}
-//           grossProfitValues={computedData.grossProfitValues}
-//           netProfitBeforeTax={computedData.netProfitBeforeTax}
-//           netProfitAfterTax={computedData.netProfitAfterTax}
-//           receivedDscr={dscr}
-//           onAssetsLiabilitiesSend={setAssetsLiabilities}
-//           formatNumber={formatNumber}
-//         />
+        <CurrentRatio
+          formData={formData}
+          financialYearLabels={financialYearLabels}
+          receivedAssetsLiabilities={assetsliabilities}
+          formatNumber={formatNumber}
+          sendAverageCurrentRation={setAverageCurrentRatio}
+        />
 
-//         <Assumptions
-//           formData={formData}
-//           financialYearLabels={financialYearLabels}
-//           formatNumber={formatNumber}
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           receiveTotalExpense={totalExpense}
-//         />
-//       </Document>
-//   );
-// }
-// const memoizedPDF = pdfRef.current;
+        <BreakEvenPoint
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          totalDepreciationPerYear={totalDepreciation}
+          totalRevenueReceipts={totalRevenueReceipts}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+          sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+        />
 
-const memoizedPDF = useMemo(() => {
-  return (
-    <Document>
-      {/* basic details table */}
-      <BasicDetails formData={formData} />
+        <DebtServiceCoverageRatio
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
+          totalDepreciationPerYear={totalDepreciation}
+          netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
+          financialYearLabels={financialYearLabels}
+          DSCRSend={setDscr}
+          formatNumber={formatNumber}
+        />
 
-<ProjectSynopsis
-  formData={formData}
-  receivedtotalRevenueReceipts={totalRevenueReceipts}
-  localData={localData}
-  normalExpense={normalExpense}
-  totalAnnualWages={totalAnnualWages}
-  totalQuantity={totalQuantity}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  fringeCalculation={fringeCalculation}
-  receivedDscr={dscr}
-  receivedAverageCurrentRatio={averageCurrentRatio}
-  receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-  receivedAssetsLiabilities={assetsliabilities}
-/>
-{/* Means of Finance Table */}
-<MeansOfFinance
-  formData={formData}
-  localData={localData}
-  formatNumber={formatNumber}
-/>
+        <RatioAnalysis
+          formData={formData}
+          localData={localData}
+          totalDepreciationPerYear={totalDepreciation}
+          yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+          totalRevenueReceipts={totalRevenueReceipts}
+          financialYearLabels={financialYearLabels}
+          receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
+          receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
+          receivedWorkingCapitalValues={workingCapitalvalues}
+          closingCashBalanceArray={closingCashBalanceArray}
+          receivedTotalLiabilities={totalLiabilities}
+          cashProfitArray={computedData.cashProfitArray}
+          grossProfitValues={computedData.grossProfitValues}
+          netProfitBeforeTax={computedData.netProfitBeforeTax}
+          netProfitAfterTax={computedData.netProfitAfterTax}
+          receivedDscr={dscr}
+          onAssetsLiabilitiesSend={setAssetsLiabilities}
+          formatNumber={formatNumber}
+        />
 
-{/* cost of project table */}
-<CostOfProject
-  formData={formData}
-  localData={localData}
-  formatNumber={formatNumber}
-/>
+        <Assumptions
+          formData={formData}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+          totalRevenueReceipts={totalRevenueReceipts}
+          receiveTotalExpense={totalExpense}
+        />
+      </Document>
+    );
+  }, [
+    formData,
+    totalRevenueReceipts,
+    localData,
+    normalExpense,
+    totalAnnualWages,
+    totalQuantity,
+    fringAndAnnualCalculation,
+    fringeCalculation,
+    dscr,
+    averageCurrentRatio,
+    breakEvenPointPercentage,
+    assetsliabilities,
+  ]);
 
-{/* Projected Salaries & Wages Table*/}
-<ProjectedSalaries
-  localData={localData}
-  normalExpense={normalExpense}
-  totalAnnualWages={totalAnnualWages}
-  totalQuantity={totalQuantity}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  fringeCalculation={fringeCalculation}
-  formatNumber={formatNumber}
-  formData={formData}
-/>
 
-<ProjectedDepreciation
-  formData={formData}
-  localData={localData}
-  setTotalDepreciation={setTotalDepreciation}
-  onComputedData1={setComputedData1}
-  financialYearLabels={financialYearLabels}
-  onGrossFixedAssetsPerYearCalculated={(data) => {
-    setGrossFixedAssetsPerYear(data);
-  }}
-  formatNumber={formatNumber}
-/>
-
-{/* Projected Expense Table Direct and Indirect */}
-<ProjectedExpenses
-  formData={formData}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  totalDepreciationPerYear={totalDepreciation}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  fringeCalculation={fringeCalculation}
-  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  financialYearLabels={financialYearLabels}
-  directExpenses={directExpenses}
-  projectionYears={projectionYears}
-  totalDirectExpensesArray={totalDirectExpensesArray}
-  onTotalExpenseSend={setTotalExpense}
-  receivedtotalRevenueReceipts={totalRevenueReceipts}
-  formatNumber={formatNumber}
-/>
-
-{/* Projected Revenue/ Sales */}
-
-<ProjectedRevenue
-  formData={formData}
-  onTotalRevenueUpdate={setTotalRevenueReceipts}
-  financialYearLabels={financialYearLabels}
-  formatNumber={formatNumber}
-/>
-
-{/* Projected Profitability Statement */}
-<ProjectedProfitability
-  formData={formData}
-  localData={localData}
-  normalExpense={normalExpense}
-  directExpense={directExpense}
-  location={stableLocation}
-  totalDepreciationPerYear={totalDepreciation}
-  onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
-  netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
-  totalRevenueReceipts={totalRevenueReceipts}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  financialYearLabels={financialYearLabels}
-  handleDataSend={handleDataSend} // Ensure this is passed correctly
-  handleIncomeTaxDataSend={handleIncomeTaxCalculation}
-  formatNumber={formatNumber}
-  receivedtotalRevenueReceipts={totalRevenueReceipts}
-/>
-<Repayment
-  formData={formData}
-  localData={localData}
-  onInterestCalculated={handleInterestCalculated}
-  onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
-  financialYearLabels={financialYearLabels}
-  onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
-  formatNumber={formatNumber}
-/>
-
-{computedData.netProfitBeforeTax.length > 0 && (
-  <IncomeTaxCalculation
-    formData={formData}
-    netProfitBeforeTax={computedData.netProfitBeforeTax}
-    totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
-    financialYearLabels={financialYearLabels}
-    formatNumber={formatNumber}
-  />
-)}
-<ProjectedCashflow
-  formData={formData}
-  localData={localData}
-  totalDepreciationPerYear={totalDepreciation}
-  netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  grossProfitValues={computedData.grossProfitValues || []}
-  yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-  totalRevenueReceipts={totalRevenueReceipts}
-  financialYearLabels={financialYearLabels}
-  handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
-  incomeTaxCalculation={incomeTaxCalculation}
-  onClosingCashBalanceCalculated={setClosingCashBalanceArray}
-  formatNumber={formatNumber}
-/>
-
-<ProjectedBalanceSheet
-  formData={formData}
-  localData={localData}
-  totalDepreciationPerYear={totalDepreciation}
-  netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  grossProfitValues={computedData.grossProfitValues || []}
-  yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-  grossFixedAssetsPerYear={grossFixedAssetsPerYear}
-  onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
-  totalRevenueReceipts={totalRevenueReceipts}
-  financialYearLabels={financialYearLabels}
-  receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-  receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-  receivedWorkingCapitalValues={workingCapitalvalues}
-  closingCashBalanceArray={closingCashBalanceArray}
-  onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
-  formatNumber={formatNumber}
-/>
-
-<CurrentRatio
-  formData={formData}
-  financialYearLabels={financialYearLabels}
-  receivedAssetsLiabilities={assetsliabilities}
-  formatNumber={formatNumber}
-  sendAverageCurrentRation={setAverageCurrentRatio}
-/>
-
-<BreakEvenPoint
-  formData={formData}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  totalDepreciationPerYear={totalDepreciation}
-  totalRevenueReceipts={totalRevenueReceipts}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  financialYearLabels={financialYearLabels}
-  formatNumber={formatNumber}
-  sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
-  receivedtotalRevenueReceipts={totalRevenueReceipts}
-/>
-
-<DebtServiceCoverageRatio
-  formData={formData}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
-  totalDepreciationPerYear={totalDepreciation}
-  netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
-  financialYearLabels={financialYearLabels}
-  DSCRSend={setDscr}
-  formatNumber={formatNumber}
-/>
-
-<RatioAnalysis
-  formData={formData}
-  localData={localData}
-  totalDepreciationPerYear={totalDepreciation}
-  yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  totalRevenueReceipts={totalRevenueReceipts}
-  financialYearLabels={financialYearLabels}
-  receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-  receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-  receivedWorkingCapitalValues={workingCapitalvalues}
-  closingCashBalanceArray={closingCashBalanceArray}
-  receivedTotalLiabilities={totalLiabilities}
-  cashProfitArray={computedData.cashProfitArray}
-  grossProfitValues={computedData.grossProfitValues}
-  netProfitBeforeTax={computedData.netProfitBeforeTax}
-  netProfitAfterTax={computedData.netProfitAfterTax}
-  receivedDscr={dscr}
-  onAssetsLiabilitiesSend={setAssetsLiabilities}
-  formatNumber={formatNumber}
-/>
-
-<Assumptions
-  formData={formData}
-  financialYearLabels={financialYearLabels}
-  formatNumber={formatNumber}
-  totalRevenueReceipts={totalRevenueReceipts}
-  receiveTotalExpense={totalExpense}
-/>
-    </Document>
-  );
-}, [
-  formData,
-  totalRevenueReceipts,
-  localData,
-  normalExpense,
-  totalAnnualWages,
-  totalQuantity,
-  fringAndAnnualCalculation,
-  fringeCalculation,
-  dscr,
-  averageCurrentRatio,
-  breakEvenPointPercentage,
-  assetsliabilities
-]);
 
 
   return (

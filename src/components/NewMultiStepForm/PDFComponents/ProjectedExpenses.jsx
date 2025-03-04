@@ -12,7 +12,7 @@ const ProjectedExpenses = ({
   formatNumber,
   onTotalExpenseSend,
 }) => {
-  //  console.log(receivedtotalRevenueReceipts)
+ console.log("Received total depreciation", totalDepreciationPerYear)
 
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
