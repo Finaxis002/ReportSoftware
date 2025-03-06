@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 Font.register({
   family: "Roboto",
@@ -26,10 +28,9 @@ const ProjectedCashflow = ({
   handleWorkingCapitalValuesTransfer,
   incomeTaxCalculation,
   onClosingCashBalanceCalculated,
-  formatNumber
+  formatNumber,
+  pdfType
 }) => {
-  
-
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
 
@@ -67,9 +68,6 @@ const ProjectedCashflow = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  
-
-  
   const monthMap = {
     April: 1,
     May: 2,
@@ -215,10 +213,11 @@ const ProjectedCashflow = ({
       const depreciation = totalDepreciationPerYear[index] || 0;
 
       // ✅ Adding newly added current liabilities dynamically
-      const currentLiabilitiesTotal = formData.MoreDetails.currentLiabilities.reduce(
-        (sum, liability) => sum + (liability.years[index] || 0),
-        0
-      );
+      const currentLiabilitiesTotal =
+        formData.MoreDetails.currentLiabilities.reduce(
+          (sum, liability) => sum + (liability.years[index] || 0),
+          0
+        );
 
       // ✅ Sum up all sources including newly added liabilities
       return (
@@ -231,7 +230,6 @@ const ProjectedCashflow = ({
       );
     }
   );
-
 
   // ✅ Compute Total Uses for Each Year
   // const totalUsesArray = Array.from({ length: projectionYears }).map(
@@ -280,38 +278,47 @@ const ProjectedCashflow = ({
   //   }
   // );
 
-  const totalUsesArray = Array.from({ length: projectionYears }).map((_, index) => {
-    const fixedAssets = index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
-    const repaymentOfTermLoan = parseFloat(yearlyPrincipalRepayment[index] || 0);
-    const interestOnTermLoan = parseFloat(yearlyInterestLiabilities[index] || 0);
-    const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[index] || 0,
-      index
-    );
-    const withdrawals = parseFloat(formData.MoreDetails?.withdrawals?.[index] || 0);
-    const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
+  const totalUsesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const fixedAssets =
+        index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
+      const repaymentOfTermLoan = parseFloat(
+        yearlyPrincipalRepayment[index] || 0
+      );
+      const interestOnTermLoan = parseFloat(
+        yearlyInterestLiabilities[index] || 0
+      );
+      const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[index] || 0,
+        index
+      );
+      const withdrawals = parseFloat(
+        formData.MoreDetails?.withdrawals?.[index] || 0
+      );
+      const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
 
-    // ✅ Ensuring Projection Years Match for Current Assets
-    const currentAssetsTotal = formData.MoreDetails.currentAssets.reduce(
-      (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
-      0
-    );
+      // ✅ Ensuring Projection Years Match for Current Assets
+      const currentAssetsTotal = formData.MoreDetails.currentAssets.reduce(
+        (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
+        0
+      );
 
-    // ✅ Ensure negative values are treated as zero
-    const sanitize = (value) => (value < 0 ? 0 : value);
+      // ✅ Ensure negative values are treated as zero
+      const sanitize = (value) => (value < 0 ? 0 : value);
 
-    // ✅ Final Total Uses Calculation
-    const totalUses =
-      sanitize(fixedAssets) +
-      sanitize(repaymentOfTermLoan) +
-      sanitize(interestOnTermLoan) +
-      sanitize(interestOnWorkingCapitalValue) +
-      sanitize(withdrawals) +
-      sanitize(incomeTaxValue) +
-      sanitize(currentAssetsTotal); // Adding newly added current assets
+      // ✅ Final Total Uses Calculation
+      const totalUses =
+        sanitize(fixedAssets) +
+        sanitize(repaymentOfTermLoan) +
+        sanitize(interestOnTermLoan) +
+        sanitize(interestOnWorkingCapitalValue) +
+        sanitize(withdrawals) +
+        sanitize(incomeTaxValue) +
+        sanitize(currentAssetsTotal); // Adding newly added current assets
 
-    return totalUses;
-  });
+      return totalUses;
+    }
+  );
 
   // console.log(totalUsesArray);
 
@@ -351,7 +358,6 @@ const ProjectedCashflow = ({
     }
   );
 
-
   // ✅ Compute Closing Cash Balance for Each Year
   const closingCashBalanceArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -361,7 +367,6 @@ const ProjectedCashflow = ({
       return openingBalance + surplusDuringYear; // ✅ Correct Calculation
     }
   );
-
 
   // useEffect(() => {
   //   if (cashBalances.length > 0) {
@@ -388,7 +393,10 @@ const ProjectedCashflow = ({
     const computedClosingCashBalance = cashBalances.map((cb) => cb.closing);
 
     // ✅ Avoid unnecessary re-renders by comparing stringified arrays
-    if (JSON.stringify(computedClosingCashBalance) !== JSON.stringify(closingCashBalanceArray2)) {
+    if (
+      JSON.stringify(computedClosingCashBalance) !==
+      JSON.stringify(closingCashBalanceArray2)
+    ) {
       setClosingCashBalanceArray(computedClosingCashBalance);
 
       // ✅ Pass updated values to the parent component
@@ -400,7 +408,6 @@ const ProjectedCashflow = ({
     JSON.stringify(cashBalances), // Only trigger when cashBalances change
     onClosingCashBalanceCalculated, // Avoid unnecessary rerenders from state updates
   ]);
-
 
   useEffect(() => {
     const termLoanValues = Array.from({ length: projectionYears }).map(
@@ -422,16 +429,41 @@ const ProjectedCashflow = ({
 
   return (
     <Page
-    size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-    orientation={
-      formData.ProjectReportSetting.ProjectionYears > 7
-        ? "landscape"
-        : "portrait"
-    }
-    wrap={false}
-    break
-    style={[{padding:"20px"}]}
+      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      orientation={
+        formData.ProjectReportSetting.ProjectionYears > 7
+          ? "landscape"
+          : "portrait"
+      }
+      wrap={false}
+      break
+      style={[{ padding: "20px" }]}
     >
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -443,7 +475,6 @@ const ProjectedCashflow = ({
         </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
-        
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
@@ -485,9 +516,7 @@ const ProjectedCashflow = ({
 
             {/* ✅ Net Profit before Interest & Taxes */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 1
               </Text>
               <Text
@@ -519,9 +548,7 @@ const ProjectedCashflow = ({
 
             {/* Promoters’ Capital */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 2
               </Text>
               <Text
@@ -550,9 +577,7 @@ const ProjectedCashflow = ({
 
             {/* Bank Term Loan */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 3
               </Text>
               <Text
@@ -583,9 +608,7 @@ const ProjectedCashflow = ({
 
             {/* Working Capital Loan */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 4
               </Text>
               <Text
@@ -616,9 +639,7 @@ const ProjectedCashflow = ({
 
             {/* Depreciation */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 3
               </Text>
               <Text
@@ -643,39 +664,40 @@ const ProjectedCashflow = ({
               ))}
             </View>
 
-            
-
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
-            {formData?.MoreDetails?.currentLiabilities?.map((liabilities, idx) => (
-              <View style={styles.tableRow} key={idx}>
-                <Text
-                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                >
-                  {idx + 6}
-                </Text>
-                <Text
-                  style={[
-                    stylesCOP.detailsCellDetail,
-                    styleExpenses.particularWidth,
-                    styleExpenses.bordernone,
-                  ]}
-                >
-                  {liabilities.particular}
-                </Text>
-                {Array.from({ length: projectionYears }).map((_, yearIndex) => (
+            {formData?.MoreDetails?.currentLiabilities?.map(
+              (liabilities, idx) => (
+                <View style={styles.tableRow} key={idx}>
                   <Text
-                    key={yearIndex}
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {idx + 6}
+                  </Text>
+                  <Text
                     style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
                     ]}
                   >
-                    {formatNumber(liabilities.years[yearIndex] || "0")}
+                    {liabilities.particular}
                   </Text>
-                ))}
-              </View>
-            ))}
-
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(liabilities.years[yearIndex] || "0")}
+                      </Text>
+                    )
+                  )}
+                </View>
+              )
+            )}
 
             {/* Total Sources Calculation */}
             <View
@@ -713,8 +735,7 @@ const ProjectedCashflow = ({
                     },
                   ]}
                 >
-                  {formatNumber(total)}{" "}
-                  {/* ✅ Ensure Proper Formatting */}
+                  {formatNumber(total)} {/* ✅ Ensure Proper Formatting */}
                 </Text>
               ))}
             </View>
@@ -729,9 +750,7 @@ const ProjectedCashflow = ({
 
             {/* Fixed Assets */}
             <View style={styles.tableRow}>
-              <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-              >
+              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 1
               </Text>
               <Text
@@ -794,9 +813,7 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(
-                    (yearlyPrincipalRepayment[index] || 0)
-                  )}
+                  {formatNumber(yearlyPrincipalRepayment[index] || 0)}
                 </Text>
               ))}
             </View>
@@ -971,16 +988,11 @@ const ProjectedCashflow = ({
               )}
             </View>
 
-
-
-
             {/* Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets?.map((assets, index) => (
               <View style={styles.tableRow} key={index}>
                 {/* Serial No */}
-                <Text
-                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                >
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                   {index + 6}
                 </Text>
 
@@ -1004,12 +1016,12 @@ const ProjectedCashflow = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(assets.years[yearIndex] ?? 0)} {/* Fill missing values with 0 */}
+                    {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
+                    {/* Fill missing values with 0 */}
                   </Text>
                 ))}
               </View>
             ))}
-
 
             {/* Total Uses Calculation */}
             <View
@@ -1047,8 +1059,7 @@ const ProjectedCashflow = ({
                     },
                   ]}
                 >
-                  {formatNumber((total))}{" "}
-                  {/* ✅ Display Rounded Total */}
+                  {formatNumber(total)} {/* ✅ Display Rounded Total */}
                 </Text>
               ))}
             </View>
@@ -1085,7 +1096,7 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber((cb.opening))}{" "}
+                  {formatNumber(cb.opening)}{" "}
                 </Text>
               ))}
             </View>
@@ -1120,7 +1131,7 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber((cb.surplus))}
+                  {formatNumber(cb.surplus)}
                 </Text>
               ))}
             </View>
@@ -1155,7 +1166,7 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber((cb.closing))}
+                  {formatNumber(cb.closing)}
                 </Text>
               ))}
             </View>
@@ -1171,7 +1182,7 @@ const ProjectedCashflow = ({
             gap: "30px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
-            marginTop:"60px"
+            marginTop: "60px",
           },
         ]}
       >
@@ -1186,4 +1197,4 @@ const ProjectedCashflow = ({
   );
 };
 
-export default React.memo( ProjectedCashflow);
+export default React.memo(ProjectedCashflow);

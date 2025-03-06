@@ -1,7 +1,53 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
-  const [selectedOption, setSelectedOption] = useState("Sharda Associates");
+const FinalStep = ({ formData, setCurrentStep }) => {
+  const navigate = useNavigate();
+  const [isPDFLoaded, setIsPDFLoaded] = useState(false);
+  const [showError, setShowError] = useState();
+
+  // ✅ Default to "" (empty) if nothing is selected, ensuring "Select Report Type" appears first
+  const [selectedOption, setSelectedOption] = useState("select option");
+
+  const iframeRef = useRef(null);
+  console.log("selected Option", selectedOption);
+
+  // ✅ Store selected option in localStorage but do not pre-fill fields
+  useEffect(() => {
+    if (selectedOption !== "select option") {
+      // Prevent storing default value
+      localStorage.setItem("pdfType", selectedOption);
+    }
+  }, [selectedOption]);
+
+  // ✅ Save selected option to localStorage only if a valid option is chosen
+  useEffect(() => {
+    if (selectedOption !== "") {
+      localStorage.setItem("pdfType", selectedOption);
+    }
+  }, [selectedOption]);
+
+  // Function to check when iframe has loaded
+  const handleIframeLoad = () => {
+    console.log("Generated PDF is fully loaded.");
+    setIsPDFLoaded(true);
+  };
+
+  // When PDF is loaded, navigate to Check Profit
+  useEffect(() => {
+    if (isPDFLoaded) {
+      setTimeout(() => {
+        navigate("/checkprofit");
+      }, 500); // Small delay to ensure correct navigation
+    }
+  }, [isPDFLoaded, navigate]);
+
+  const handleCheckProfit = () => {
+    setIsPDFLoaded(false);
+    if (iframeRef.current) {
+      iframeRef.current.src = "/generated-pdf"; // Load PDF in the background
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
@@ -9,30 +55,65 @@ const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
         Final Step: Generate PDF
       </h2>
       <p className="text-gray-600 mb-4">
-        Review the information and click the button below to generate your final
-        report PDF.
+        Review the information and click the button below to proceed.
       </p>
 
-      {/* Dropdown */}
+      {/* ✅ Dropdown Selection */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-semibold mb-2">
-          Select Format:
+        <label className="block text-gray-700 font-medium mb-2">
+          Select PDF Type:
         </label>
         <select
           value={selectedOption}
-          onChange={(e) => setSelectedOption(e.target.value)}
-          className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          onChange={(e) => {
+            const selectedValue = e.target.value;
+            setSelectedOption(selectedValue);
+
+            // Debugging logs
+            console.log("Selected Option:", selectedValue);
+            console.log(
+              "UDIN Number:",
+              formData?.ProjectReportSetting?.UDINNumber
+            );
+
+            // Check if "CA Certified" is selected and UDIN Number is missing or empty
+            if (
+              selectedValue === "CA Certified" &&
+              (!formData?.ProjectReportSetting?.UDINNumber ||
+                formData?.ProjectReportSetting?.UDINNumber.trim() === "")
+            ) {
+              console.log("Error: UDIN Number is missing!");
+              setShowError(true);
+            } else {
+              console.log("No Error: UDIN Number is available!");
+              setShowError(false);
+            }
+          }}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
+          <option value="select option">Select Report Type</option>
           <option value="Sharda Associates">Sharda Associates</option>
           <option value="CA Certified">CA Certified</option>
-          <option value="File Upload">File Upload</option>
+          <option value="Finaxis">Finaxis</option>
         </select>
+
+        {/* Error Message & Redirect Button */}
+        {showError && (
+          <div className="mt-2 text-red-600">
+            <p>UDIN number is not available.</p>
+            <button
+              onClick={() => setCurrentStep(4)} // ✅ Move to Step 4 in Parent Component
+              className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              Go to Project Report Settings
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-5">
-        {/* Generate PDF Button */}
         <button
-         onClick={() => handleGeneratePDF(selectedOption)}
+          onClick={() => navigate("/generated-pdf")}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
@@ -45,11 +126,19 @@ const GeneratePDFSection = ({ handleGeneratePDF, handleCheckProfit }) => {
           Check Profit
         </button>
       </div>
+
+      {/* Hidden iframe to load generated-pdf in the background */}
+      <iframe
+        ref={iframeRef}
+        src=""
+        style={{ width: "0px", height: "0px", border: "none", display: "none" }}
+        onLoad={handleIframeLoad}
+      />
     </div>
   );
 };
 
-export default GeneratePDFSection;
+export default FinalStep;
 
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";

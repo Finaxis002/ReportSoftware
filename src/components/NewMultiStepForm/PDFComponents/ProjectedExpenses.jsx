@@ -1,6 +1,8 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 const ProjectedExpenses = ({
   formData,
@@ -11,8 +13,9 @@ const ProjectedExpenses = ({
   receivedtotalRevenueReceipts,
   formatNumber,
   onTotalExpenseSend,
+  pdfType,
 }) => {
- console.log("Received total depreciation", totalDepreciationPerYear)
+  //  console.log("Received total depreciation", totalDepreciationPerYear)
 
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -238,6 +241,33 @@ const ProjectedExpenses = ({
       break
       style={[{ padding: "20px" }]}
     >
+      {/* watermark  */}
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
+
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -422,7 +452,7 @@ const ProjectedExpenses = ({
                 styleExpenses.bordernone,
               ]}
             >
-             1
+              1
             </Text>
 
             <Text

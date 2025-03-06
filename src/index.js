@@ -4,7 +4,7 @@ import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.min.js";
 import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Provider } from "react-redux";
 import Authentication from "./components/Authentication.jsx";
@@ -23,14 +23,20 @@ import Employees from "./components/NewMultiStepForm/Employees/Employees.jsx";
 import Notification from "./components/NewMultiStepForm/Notifications/Notification.jsx";
 import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
 import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
+import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
+
 
 const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [generatePDfData , setGeneratedPDFData] = useState({});
+
+  // console.log(setGeneratedPDFData)
+
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -47,7 +53,8 @@ const App = () => {
     setUserRole(role);
   };
 
-  const MemoizedPDF = useMemo(() => <GeneratedPDF />, []);
+
+
 
   return (
     <Provider store={store}>
@@ -81,9 +88,10 @@ const App = () => {
                   )
                 }
               />
-
-              <Route path="/MultestepForm" element={<MultiStepForm />} />
+               <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+              <Route path="/MultestepForm" element={<MultiStepForm receivedGeneratedPDFData = {generatePDfData}/>} />
               <Route path="/employees" element={<Employees />} />
+
               <Route path="/notifications" element={<Notification />} />
               <Route path="/clientData" element={<ClientData />} />
               <Route path="/tasks/:taskId" element={<Tasks />} />
@@ -102,7 +110,7 @@ const App = () => {
               <Route path="/createreport" element={<CreateReport />} />
               
               {/* ✅ Correctly Placed Routes */}
-              <Route path="/generated-pdf" element={<GeneratedPDF />} />
+              <Route path="/generated-pdf" element={<GeneratedPDF  />} />
               <Route path="/checkprofit"  element={<CheckProfit />} />
             </Routes>
           </BrowserRouter>

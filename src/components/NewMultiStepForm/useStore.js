@@ -1,16 +1,18 @@
 import { create } from "zustand";
 
 const useStore = create((set) => ({
-  computedDataToProfit: null, // ✅ Initial state is null
-  setComputedData: (update) => {
-    set((prev) => {
-      const updatedData =
-        typeof update === "function" ? update(prev.computedDataToProfit) : update;
+  computedDataToProfit: null, // ✅ Store computed data
+  isDataReady: false, // ✅ Track whether computations are complete
 
-      console.log("🟢 Zustand Store Updated with Data:", updatedData);
-      return { computedDataToProfit: updatedData }; // ✅ Update the state correctly
-    });
+  setComputedDataToProfit: (data) => {
+    set(() => ({
+      computedDataToProfit: data,
+      isDataReady: true, // ✅ Mark computations as complete
+    }));
+    // console.log("🟢 Zustand Updated with Computed Data:", data);
   },
+
+  resetDataReady: () => set({ isDataReady: false }), // ✅ Reset before computations
 }));
 
 export default useStore;

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -17,7 +19,7 @@ Font.register({
 
 const Repayment = ({
   formData,
-  localData,
+  pdfType,
   onInterestCalculated,
   onPrincipalRepaymentCalculated,
   onMarchClosingBalanceCalculated, // New callback prop for March balances
@@ -212,8 +214,10 @@ const Repayment = ({
             ? "landscape"
             : "portrait"
         }
+        // wrap={false}
         style={[{ padding: "20px" }]}
       >
+        
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}
           <View>
@@ -399,7 +403,7 @@ const Repayment = ({
                     : sum + entry.interestLiability,
                 0
               );
-              
+
               let totalRepayment = filteredYearData.reduce(
                 (sum, entry) => sum + entry.totalRepayment,
                 0
@@ -415,7 +419,44 @@ const Repayment = ({
               }
 
               return (
-                <View key={yearIndex} wrap={false} style={{ marginBottom: 10 , borderLeftWidth:1}}>
+                <>
+                {/* {pdfType &&
+                  pdfType !== "select option" &&
+                  (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        left: "50%", // Center horizontally
+                        top: "50%", // Center vertically
+                        width: 500, // Set width to 500px
+                        height: 700, // Set height to 700px
+                        marginLeft: -200, // Move left by half width (500/2)
+                        marginTop: -350, // Move up by half height (700/2)
+                        opacity: 0.4, // Light watermark
+                        zIndex: -1, // Push behind content
+                      }}
+                    >
+                      <Image
+                        src={
+                          pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                        }
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                        }}
+                      />
+                    </View>
+                  )} */}
+
+                <View
+                  key={yearIndex}
+                  wrap={false}
+                  style={[
+                    { marginBottom: 10, borderLeftWidth: 1 }, // ✅ First object
+                    { position: "relative", zIndex: 1 } // ✅ Second object
+                  ]}
+                  
+                >
                   {/* Year Row */}
                   <View style={[stylesMOF.row, styleExpenses.headerRow]}>
                     <Text style={styles.serialNumberCellStyle}>
@@ -581,9 +622,11 @@ const Repayment = ({
                     </Text>
                   </View>
                 </View>
+                </>
               );
             })}
           </View>
+          
 
           {/* businees name and Client Name  */}
           <View
