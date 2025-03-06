@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import "../../css/reportForm.css"
 import Stepper from "./Stepper";
@@ -17,6 +15,7 @@ import MenuBar from "./MenuBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import ClientNameDropdown from "./Dropdown/clientNameDropdown";
+import ReportDropdown from "./Dropdown/ReportDropdown"
 import FileUpload from "./FileUpload";
 
 const MultiStepForm = () => {
@@ -70,10 +69,212 @@ const MultiStepForm = () => {
     }));
   }, []);
 
+  // const handleBusinessSelect = (businessData, sessionId) => {
+  //   setFormData(businessData); // ✅ Populate form fields correctly
+  //   setSessionId(sessionId || null); // ✅ Store sessionId separately
+  // };
+
+
+  //   const handleBusinessSelect = (businessData, sessionId) => {
+  //     setFormData(businessData); // ✅ Populate form fields correctly
+  //     setSessionId(sessionId || null); // ✅ Store sessionId separately
+
+  //     // 🚀 Reset sessionId to ensure new document is created
+  //     if (isCreateReportWithExistingClicked) {
+  //         console.log("🗑 Clearing sessionId for new report creation...");
+  //         setSessionId(null);
+  //     }
+  // };
+
+  // const handleBusinessSelect = (businessData, sessionId) => {
+  //   // ✅ Create a new object (Ensures NO reference issues)
+  //   let cleanedBusinessData = { ...businessData };
+
+  //   // ✅ REMOVE `_id` & `sessionId`
+  //   delete cleanedBusinessData._id;
+  //   delete cleanedBusinessData.sessionId;
+
+  //   setFormData(cleanedBusinessData);
+  //   setSessionId(sessionId || null);
+  // };
+
+  // const handleBusinessSelect = (businessData) => {
+  //   // ✅ Create a new object (Ensures NO reference issues)
+  //   let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
+
+  //   // ✅ REMOVE `_id` & `sessionId` (CRITICAL STEP)
+  //   delete cleanedBusinessData._id;
+  //   delete cleanedBusinessData.sessionId;
+
+  //   console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
+
+  //   setFormData(cleanedBusinessData);
+  //   setSessionId(null); // 🚀 Ensure sessionId is RESET before creating new report
+  // };
+
   const handleBusinessSelect = (businessData, sessionId) => {
-    setFormData(businessData); // ✅ Populate form fields correctly
-    setSessionId(sessionId || null); // ✅ Store sessionId separately
+    // ✅ Create a new object (Ensures NO reference issues)
+    let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
+
+    // ✅ REMOVE `_id` only when creating a new report from existing
+    if (isCreateReportWithExistingClicked) {
+      delete cleanedBusinessData._id;
+      delete cleanedBusinessData.sessionId; // 🚀 Ensure sessionId is removed for new report creation
+      console.log("🗑 Removing `_id` and `sessionId` for new report creation...");
+      setSessionId(null); // Reset sessionId for new report
+    } else {
+      setSessionId(sessionId || null); // Keep sessionId when updating an existing report
+    }
+
+    console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
+
+    setFormData(cleanedBusinessData);
   };
+
+
+
+  // const handleSaveData = async () => {
+  //   try {
+  //     let requestData = new FormData();
+  //     requestData.append("step", steps[currentStep - 1]); // Track current step
+
+  //     let formDataWithoutFile = { ...formData };
+
+  //     // ✅ Remove `_id` field to prevent MongoDB from generating a new one
+  //     if (formDataWithoutFile._id) {
+  //       delete formDataWithoutFile._id;
+  //     }
+
+  //     let apiUrl = "https://backend-three-pink.vercel.app/save-step"; // Always updating/saving
+
+  //     if (!sessionId) {
+  //       // 🆕 First Step - Creating a new document
+  //       console.log("🆕 First Step: Creating New Report...");
+  //     } else {
+  //       // 🔄 Subsequent Steps - Updating existing document
+  //       console.log("🔄 Updating Existing Report...");
+  //       requestData.append("sessionId", sessionId);
+  //     }
+
+  //     // ✅ Remove `logoOfBusiness` before sending (if needed)
+  //     if (formDataWithoutFile.AccountInformation) {
+  //       delete formDataWithoutFile.AccountInformation.logoOfBusiness;
+  //     }
+
+  //     requestData.append("data", JSON.stringify(formDataWithoutFile));
+
+  //     if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+  //       requestData.append("file", formData.AccountInformation.logoOfBusiness);
+  //     }
+
+  //     console.log(`🚀 Sending Request to API: ${apiUrl}`);
+  //     console.log("📩 Request Data:", requestData);
+
+  //     const response = await axios.post(apiUrl, requestData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+
+  //     console.log("✅ Response from API:", response.data);
+
+  //     if (!sessionId) {
+  //       // ✅ Store sessionId from Step 1 so that future steps use it
+  //       setSessionId(response.data.sessionId);
+  //       console.log("🆔 Stored sessionId:", response.data.sessionId);
+  //     }
+
+  //     alert("Data saved successfully!");
+
+  //     if (response.data.filePath) {
+  //       handleFormDataChange({
+  //         AccountInformation: {
+  //           ...formData.AccountInformation,
+  //           logoOfBusiness: response.data.filePath,
+  //         },
+  //       });
+  //     }
+
+  //   } catch (error) {
+  //     console.error("🔥 Error saving data:", error);
+
+  //     if (error.response) {
+  //       console.error("🚨 Full Error Response:", error.response.data);
+  //     } else {
+  //       console.error("❌ No response received from server");
+  //     }
+
+  //     alert(`Failed to save data: ${error.response?.data?.message || error.message}`);
+  //   }
+  // };
+
+
+  // const handleCreateNewFromExisting = async () => {
+  //   try {
+  //     console.log("🔄 Preparing to create a new report from an existing one...");
+
+  //     // ✅ Remove `_id` to prevent MongoDB duplicate key error
+  //     let newData = { ...formData };
+  //     if (newData._id) {
+  //       console.log("🗑 Removing old _id:", newData._id);
+  //       delete newData._id;
+  //     }
+
+  //     // ✅ Remove existing sessionId (so a new document is created)
+  //     if (newData.sessionId) {
+  //       console.log("🗑 Removing old sessionId:", newData.sessionId);
+  //       delete newData.sessionId;
+  //     }
+
+  //     // ✅ Prepare FormData for submission
+  //     let requestData = new FormData();
+  //     requestData.append("data", JSON.stringify(newData));
+
+  //     if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+  //       requestData.append("file", formData.AccountInformation.logoOfBusiness);
+  //     }
+
+  //     console.log("🚀 Sending Request to /create-new-from-existing");
+
+  //     // ✅ Step 1: Always create a new document
+  //     const createResponse = await axios.post("https://backend-three-pink.vercel.app/create-new-from-existing", requestData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+
+  //     console.log("✅ New Report Created:", createResponse.data);
+
+  //     // ✅ Step 2+: Store the NEW sessionId to use in next steps
+  //     const newSessionId = createResponse.data.sessionId;
+  //     setSessionId(newSessionId);
+  //     localStorage.setItem("activeSessionId", newSessionId); // Persist sessionId for next steps
+
+  //     alert("New Report Created Successfully!");
+
+  //   } catch (error) {
+  //     console.error("🔥 Error creating new report from existing:", error);
+  //     alert(`Failed to create new report: ${error.response?.data?.message || error.message}`);
+  //   }
+  // };
+
+
+  // const handleUpdate = async () => {
+  //   if (!sessionId) {
+  //     alert("No session ID found. Please select a client and business first.");
+  //     return;
+  //   }
+
+  //   try {
+  //     await axios.post("https://backend-three-pink.vercel.app/update-step", {
+  //       sessionId,
+  //       data: formData,
+  //     });
+
+  //     alert("Report updated successfully!");
+  //   } catch (error) {
+  //     console.error("Error updating report:", error);
+  //     alert("Failed to update report.");
+  //   }
+  // };
+
+  // ✅ Memoized step rendering to prevent re-renders
 
   const handleSaveData = async () => {
     try {
@@ -82,18 +283,17 @@ const MultiStepForm = () => {
 
       let formDataWithoutFile = { ...formData };
 
-      // ✅ Remove `_id` field to prevent MongoDB from generating a new one
-      if (formDataWithoutFile._id) {
-        delete formDataWithoutFile._id;
-      }
+      // ✅ Remove `_id` to prevent MongoDB from generating a new one
+      if (formDataWithoutFile._id) delete formDataWithoutFile._id;
 
-      let apiUrl = "https://backend-three-pink.vercel.app/save-step"; // Always updating/saving
+      let apiUrl = "https://backend-three-pink.vercel.app/save-step"; // Default: Save Step (update mode)
 
-      if (!sessionId) {
-        // 🆕 First Step - Creating a new document
-        console.log("🆕 First Step: Creating New Report...");
+      if (!sessionId || isCreateReportWithExistingClicked) {
+        console.log("🆕 Creating New Report...");
+        apiUrl = "https://backend-three-pink.vercel.app/create-new-from-existing";
+        localStorage.removeItem("activeSessionId"); // ✅ Ensure sessionId is cleared
+        setSessionId(null);
       } else {
-        // 🔄 Subsequent Steps - Updating existing document
         console.log("🔄 Updating Existing Report...");
         requestData.append("sessionId", sessionId);
       }
@@ -110,7 +310,6 @@ const MultiStepForm = () => {
       }
 
       console.log(`🚀 Sending Request to API: ${apiUrl}`);
-      console.log("📩 Request Data:", requestData);
 
       const response = await axios.post(apiUrl, requestData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -118,32 +317,15 @@ const MultiStepForm = () => {
 
       console.log("✅ Response from API:", response.data);
 
-      if (!sessionId) {
-        // ✅ Store sessionId from Step 1 so that future steps use it
+      if (!sessionId || isCreateReportWithExistingClicked) {
         setSessionId(response.data.sessionId);
-        console.log("🆔 Stored sessionId:", response.data.sessionId);
+        localStorage.setItem("activeSessionId", response.data.sessionId);
       }
 
       alert("Data saved successfully!");
 
-      if (response.data.filePath) {
-        handleFormDataChange({
-          AccountInformation: {
-            ...formData.AccountInformation,
-            logoOfBusiness: response.data.filePath,
-          },
-        });
-      }
-
     } catch (error) {
       console.error("🔥 Error saving data:", error);
-
-      if (error.response) {
-        console.error("🚨 Full Error Response:", error.response.data);
-      } else {
-        console.error("❌ No response received from server");
-      }
-
       alert(`Failed to save data: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -153,20 +335,16 @@ const MultiStepForm = () => {
     try {
       console.log("🔄 Preparing to create a new report from an existing one...");
 
-      // ✅ Remove `_id` to prevent MongoDB duplicate key error
-      let newData = { ...formData };
-      if (newData._id) {
-        console.log("🗑 Removing old _id:", newData._id);
-        delete newData._id;
-      }
+      // ✅ Deep Copy `formData` to remove any lingering references
+      let newData = JSON.parse(JSON.stringify(formData));
 
-      // ✅ Remove existing sessionId (so a new document is created)
-      if (newData.sessionId) {
-        console.log("🗑 Removing old sessionId:", newData.sessionId);
-        delete newData.sessionId;
-      }
+      // ✅ REMOVE `_id` & `sessionId` (CRITICAL)
+      delete newData._id;
+      delete newData.sessionId;
 
-      // ✅ Prepare FormData for submission
+      console.log("🚀 Final Payload Before API Call:", JSON.stringify(newData, null, 2));
+
+      // ✅ Prepare FormData
       let requestData = new FormData();
       requestData.append("data", JSON.stringify(newData));
 
@@ -176,47 +354,80 @@ const MultiStepForm = () => {
 
       console.log("🚀 Sending Request to /create-new-from-existing");
 
-      // ✅ Step 1: Always create a new document
-      const createResponse = await axios.post("https://backend-three-pink.vercel.app/create-new-from-existing", requestData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // ✅ Step 1: Always create a new document (NO `sessionId`)
+      const createResponse = await axios.post(
+        "https://backend-three-pink.vercel.app/create-new-from-existing",
+        requestData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       console.log("✅ New Report Created:", createResponse.data);
 
-      // ✅ Step 2+: Store the NEW sessionId to use in next steps
+      // ✅ Step 2: Store the NEW `sessionId`
       const newSessionId = createResponse.data.sessionId;
       setSessionId(newSessionId);
-      localStorage.setItem("activeSessionId", newSessionId); // Persist sessionId for next steps
+      localStorage.setItem("activeSessionId", newSessionId);
 
-      alert("New Report Created Successfully!");
-
+      alert("✅ New Report Created Successfully!");
     } catch (error) {
       console.error("🔥 Error creating new report from existing:", error);
-      alert(`Failed to create new report: ${error.response?.data?.message || error.message}`);
+      alert(`❌ Failed to create new report: ${error.response?.data?.message || error.message}`);
     }
   };
+
+
+
+
+
+  // const handleUpdate = async () => {
+  //   if (!sessionId) {
+  //     alert("No session ID found. Please select a business first.");
+  //     return;
+  //   }
+
+  //   console.log("🔄 Updating session:", sessionId);
+  //   console.log("📦 FormData:", formData);
+
+  //   try {
+  //     const response = await axios.post("https://backend-three-pink.vercel.app/update-step", {
+  //       sessionId,
+  //       data: formData,
+  //     });
+
+  //     console.log("✅ Update successful:", response.data);
+  //     alert("Report updated successfully!");
+  //   } catch (error) {
+  //     console.error("❌ Error updating report:", error.response ? error.response.data : error.message);
+  //     alert("Failed to update report.");
+  //   }
+  // };
 
 
   const handleUpdate = async () => {
     if (!sessionId) {
-      alert("No session ID found. Please select a client and business first.");
+      alert("No session ID found. Please select a business first.");
       return;
     }
 
+    console.log("🔄 Updating session:", sessionId);
+    console.log("📦 FormData:", formData);
+
     try {
-      await axios.post("https://backend-three-pink.vercel.app/update-step", {
-        sessionId,
+      const response = await axios.post("https://backend-three-pink.vercel.app/update-step", {
+        sessionId, // 🚀 Ensure sessionId is included for update
         data: formData,
       });
 
+      console.log("✅ Update successful:", response.data);
       alert("Report updated successfully!");
     } catch (error) {
-      console.error("Error updating report:", error);
+      console.error("❌ Error updating report:", error.response ? error.response.data : error.message);
       alert("Failed to update report.");
     }
   };
 
-  // ✅ Memoized step rendering to prevent re-renders
   const stepContent = useMemo(() => {
     switch (currentStep) {
       case 1:
@@ -378,17 +589,17 @@ const MultiStepForm = () => {
     console.log("📥 Received Data from File Upload:", uploadedData); // Debugging Log
 
     setFormData((prevData) => ({
-        ...prevData,
-        AccountInformation: {
-            ...prevData.AccountInformation, // Preserve existing data
-            ...uploadedData.AccountInformation, // Merge new data
-        },
-        CostOfProject: {
-          ...prevData.CostOfProject, // Preserve existing data
-          ...uploadedData.CostOfProject, // Merge uploaded data
+      ...prevData,
+      AccountInformation: {
+        ...prevData.AccountInformation, // Preserve existing data
+        ...uploadedData.AccountInformation, // Merge new data
+      },
+      CostOfProject: {
+        ...prevData.CostOfProject, // Preserve existing data
+        ...uploadedData.CostOfProject, // Merge uploaded data
       },
     }));
-};
+  };
 
 
   return (
@@ -413,10 +624,11 @@ const MultiStepForm = () => {
         {/* ✅ Dropdown placed outside steps to persist selection */}
         {!isCreateReportClicked && userRole !== "client" && (
           <div className="mt-[4rem]">
-            <ClientNameDropdown
+            {/* <ClientNameDropdown
               onClientSelect={() => { }}
               onBusinessSelect={handleBusinessSelect}
-            />
+            /> */}
+            <ReportDropdown onBusinessSelect={handleBusinessSelect} />
           </div>
         )}
 
