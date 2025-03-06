@@ -483,7 +483,6 @@ const CheckProfit = () => {
     []
   );
 
-  console;
 
   // First, compute the arrays for Fixed Assets and Net Fixed Assets
   const computedFixedAssets = [];
