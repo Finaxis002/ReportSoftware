@@ -233,7 +233,7 @@ const SeventhStepMD = ({
                           </th>
                         )
                       )}
-                      <th className="header-label"></th>
+                      {/* <th className="header-label"></th> */}
                     </tr>
                   </thead>
                   <tbody>

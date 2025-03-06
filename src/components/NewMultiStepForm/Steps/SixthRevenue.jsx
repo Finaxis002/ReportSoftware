@@ -664,7 +664,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                   <div className="total-div pt-3 px-2">
                     {/* Total Monthly Revenue */}
                     <div className="d-flex">
-                      <label className="form-label w-[20rem] fs-10">
+                      <label className="form-label w-[15rem] fs-10">
                         Total Monthly Revenue
                       </label>
                       <table className="table mb-1">
@@ -680,7 +680,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                     {/* Number of Months */}
                     <div className="d-flex">
-                      <label className="form-label w-[20rem] fs-10">
+                      <label className="form-label w-[15rem] fs-10">
                         No. of Months
                       </label>
                       <table className="table mb-1">

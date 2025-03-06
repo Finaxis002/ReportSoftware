@@ -51,6 +51,7 @@ const ClientNameDropdown = ({ onClientSelect, onBusinessSelect }) => {
       />
 
       {/* Pass onBusinessSelect to ReportDropdown */}
+      {/* {selectedClient && <ReportDropdown key={resetKey} clientName={selectedClient.value} onBusinessSelect={onBusinessSelect} />} */}
       {selectedClient && <ReportDropdown key={resetKey} clientName={selectedClient.value} onBusinessSelect={onBusinessSelect} />}
     </div>
   );

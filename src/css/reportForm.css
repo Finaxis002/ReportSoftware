@@ -529,6 +529,12 @@
   font-size: 14px;
 }
 
+.total-div td{
+  width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
 /* Remove right border from last column to prevent double border effect */
 .total-div td:last-child, 
 .total-div th:last-child {

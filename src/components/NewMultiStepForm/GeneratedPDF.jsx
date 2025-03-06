@@ -252,9 +252,9 @@ const totalAnnualWages = useMemo(() => {
 
   // Example Usage
   const financialYear =
-    parseInt(formData?.ProjectReportSetting?.FinancialYear) || 2025; // Use the provided year
+    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
   const projectionYears =
-    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 20;
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
 
   const financialYearLabels = generateFinancialYearLabels(
     financialYear,
@@ -379,11 +379,11 @@ useEffect(() => {
   return () => resetDataReady(); // ✅ Reset flag when leaving the page
 }, [computedData, setComputedDataToProfit, resetDataReady, location, navigate]);
 
-  const memoizedPDF = useMemo(() => {
-    return (
-      <Document>
-        {/* basic details table */}
-        <BasicDetails formData={formData} pdfType={pdfType} />
+const memoizedPDF = useMemo(() => {
+  return (
+    <Document>
+      {/* basic details table */}
+      <BasicDetails formData={formData} />
 
         <ProjectSynopsis
           formData={formData}
@@ -408,57 +408,53 @@ useEffect(() => {
           pdfType={pdfType}
         />
 
-        {/* cost of project table */}
-        <CostOfProject
-          formData={formData}
-          localData={localData}
-          formatNumber={formatNumber}
-          pdfType={pdfType}
-        />
+{/* cost of project table */}
+<CostOfProject
+  formData={formData}
+  localData={localData}
+  formatNumber={formatNumber}
+/>
 
-        {/* Projected Salaries & Wages Table*/}
-        <ProjectedSalaries
-          localData={localData}
-          normalExpense={normalExpense}
-          totalAnnualWages={totalAnnualWages}
-          totalQuantity={totalQuantity}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          formatNumber={formatNumber}
-          formData={formData}
-          pdfType={pdfType}
-        />
+{/* Projected Salaries & Wages Table*/}
+<ProjectedSalaries
+  localData={localData}
+  normalExpense={normalExpense}
+  totalAnnualWages={totalAnnualWages}
+  totalQuantity={totalQuantity}
+  fringAndAnnualCalculation={fringAndAnnualCalculation}
+  fringeCalculation={fringeCalculation}
+  formatNumber={formatNumber}
+  formData={formData}
+/>
 
-        <ProjectedDepreciation
-          formData={formData}
-          localData={localData}
-          setTotalDepreciation={setTotalDepreciation}
-          onComputedData1={setComputedData1}
-          financialYearLabels={financialYearLabels}
-          onGrossFixedAssetsPerYearCalculated={(data) => {
-            setGrossFixedAssetsPerYear(data);
-          }}
-          formatNumber={formatNumber}
-          pdfType={pdfType}
-        />
+<ProjectedDepreciation
+  formData={formData}
+  localData={localData}
+  setTotalDepreciation={setTotalDepreciation}
+  onComputedData1={setComputedData1}
+  financialYearLabels={financialYearLabels}
+  onGrossFixedAssetsPerYearCalculated={(data) => {
+    setGrossFixedAssetsPerYear(data);
+  }}
+  formatNumber={formatNumber}
+/>
 
-        {/* Projected Expense Table Direct and Indirect */}
-        <ProjectedExpenses
-          formData={formData}
-          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-          totalDepreciationPerYear={totalDepreciation}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-          financialYearLabels={financialYearLabels}
-          directExpenses={directExpenses}
-          projectionYears={projectionYears}
-          totalDirectExpensesArray={totalDirectExpensesArray}
-          onTotalExpenseSend={setTotalExpense}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          formatNumber={formatNumber}
-          pdfType={pdfType}
-        />
+{/* Projected Expense Table Direct and Indirect */}
+<ProjectedExpenses
+  formData={formData}
+  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  totalDepreciationPerYear={totalDepreciation}
+  fringAndAnnualCalculation={fringAndAnnualCalculation}
+  fringeCalculation={fringeCalculation}
+  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+  financialYearLabels={financialYearLabels}
+  directExpenses={directExpenses}
+  projectionYears={projectionYears}
+  totalDirectExpensesArray={totalDirectExpensesArray}
+  onTotalExpenseSend={setTotalExpense}
+  receivedtotalRevenueReceipts={totalRevenueReceipts}
+  formatNumber={formatNumber}
+/>
 
         {/* Projected Revenue/ Sales */}
 
