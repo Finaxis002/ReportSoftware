@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -31,7 +33,8 @@ const ProjectedProfitability = ({
   handleIncomeTaxDataSend,
   formatNumber,
   receivedtotalRevenueReceipts,
-  onComputedDataToProfit
+  onComputedDataToProfit,
+  pdfType,
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -400,6 +403,27 @@ const ProjectedProfitability = ({
     // console.log("Sending DAta to Checkl Profit", netProfitAfterTax)
   }, [JSON.stringify(netProfitAfterTax)]);
 
+  useEffect(() => {
+    const storedProfitabilityData = {
+      totalDirectExpensesArray,
+      totalIndirectExpensesArray,
+      calculateExpense,
+    };
+
+    localStorage.setItem(
+      "storedProfitabilityData",
+      JSON.stringify(storedProfitabilityData)
+    );
+  }, [totalDirectExpensesArray, totalIndirectExpensesArray, calculateExpense]); // Runs when these values change
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("storedProfitabilityData");
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      // console.log("Retrieved Data:", parsedData);
+    }
+  }, []);
+
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -412,6 +436,31 @@ const ProjectedProfitability = ({
       wrap={false}
       break
     >
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -765,6 +814,7 @@ const ProjectedProfitability = ({
                 </View>
               );
             })}
+
           {/* direct Expenses total  */}
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text
@@ -798,6 +848,7 @@ const ProjectedProfitability = ({
               </Text>
             ))}
           </View>
+
           {/* Gross Profit Calculation */}
           <View style={[stylesMOF.row, styles.tableRow, { marginTop: "12px" }]}>
             <Text
@@ -1234,7 +1285,7 @@ const ProjectedProfitability = ({
           {/* Withdrawals during the year  */}
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text
-               style={[
+              style={[
                 stylesCOP.serialNoCellDetail,
                 styleExpenses.sno,
                 styleExpenses.bordernone,
@@ -1260,10 +1311,10 @@ const ProjectedProfitability = ({
               return (
                 <Text
                   key={`withdrawals-${yearIndex}`}
-                 style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
                 >
                   {formatNumber(amount)}
                 </Text>
@@ -1300,10 +1351,10 @@ const ProjectedProfitability = ({
               return (
                 <Text
                   key={`balanceTransferred-${yearIndex}`}
-                 style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
                 >
                   {formatNumber(roundedValue)}
                 </Text>
@@ -1341,10 +1392,10 @@ const ProjectedProfitability = ({
               return (
                 <Text
                   key={`cumulativeBalance-${yearIndex}`}
-                 style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
                 >
                   {formatNumber(roundedValue)}
                 </Text>

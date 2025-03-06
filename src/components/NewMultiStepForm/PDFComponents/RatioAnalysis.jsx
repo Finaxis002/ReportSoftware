@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image} from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 Font.register({
   family: "Roboto",
@@ -30,6 +32,7 @@ const RatioAnalysis = ({
   receivedDscr = [],
   onAssetsLiabilitiesSend,
   formatNumber,
+  pdfType,
 }) => {
   //  console.log(receivedTotalLiabilities)
 
@@ -372,7 +375,7 @@ const RatioAnalysis = ({
         ).toFixed(2)
       : "0.00"; // ✅ Avoid division by zero
 
-    const numOfYearsUsedForAvg = validRatios.length; 
+  const numOfYearsUsedForAvg = validRatios.length;
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -400,14 +403,14 @@ const RatioAnalysis = ({
         CurrentAssetsArray,
         yearlycurrentLiabilities,
         averageCurrentRatio,
-        numOfYearsUsedForAvg
+        numOfYearsUsedForAvg,
       }));
     }
   }, [
     JSON.stringify(CurrentAssetsArray || []),
     JSON.stringify(yearlycurrentLiabilities || []),
     JSON.stringify(averageCurrentRatio),
-    numOfYearsUsedForAvg
+    numOfYearsUsedForAvg,
   ]);
 
   return (
@@ -418,6 +421,32 @@ const RatioAnalysis = ({
       break
       style={[{ padding: "20px" }]}
     >
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>

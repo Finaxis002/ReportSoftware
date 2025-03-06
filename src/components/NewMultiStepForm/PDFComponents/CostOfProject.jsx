@@ -1,8 +1,11 @@
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image} from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
-const CostOfProject = ({ formData, localData, formatNumber }) => {
+
+const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   // ✅ Helper Function to Format Numbers Based on Selected Format
 
   // ✅ Compute Total Cost of Project including Working Capital
@@ -16,6 +19,26 @@ const CostOfProject = ({ formData, localData, formatNumber }) => {
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
+
+       {/* watermark  */}
+       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
+            {/* ✅ Conditionally Render Watermark */}
+            {pdfType &&
+              pdfType !== "select option" &&
+              (pdfType === "Sharda Associates" ||
+                pdfType === "CA Certified") && (
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "500px", // Adjust size based on PDF layout
+                    height: "700px",
+                    opacity: 0.4, // Light watermark to avoid blocking content
+                  }}
+                />
+              )}
+          </View>
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>

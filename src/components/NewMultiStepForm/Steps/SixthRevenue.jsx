@@ -145,10 +145,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     onFormDataChange({ Revenue: localData });
   }, [localData]);
 
-  console.log("Updated formType: ", formType);
-  console.log("Updated localData formType: ", localData.formType);
 
-  console.log("form Data : ", formData);
 
   // ✅ Toggle function to correctly update both `formType` and `togglerType`
   const toggleType = (isChecked) => {

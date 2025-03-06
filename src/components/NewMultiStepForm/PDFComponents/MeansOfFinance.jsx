@@ -1,10 +1,40 @@
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
-const MeansOfFinance = ({ formData, localData, formatNumber }) => {
+const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
   return (
-    <Page style={styles.page}>
+    <Page style={[styles.page ]}>
+      {/* watermark  */}
+      <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
+        {/* ✅ Conditionally Render Watermark */}
+        {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <View
+              style={{
+                position: "absolute",
+                left: 50, // Center horizontally
+                top: "50%", // Center vertically
+                // transform: "translate(-50%, -50%)", // Adjust position to center
+                zIndex: -1, // Ensure it's behind the content
+              }}
+            >
+              <Image
+                src={
+                  pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                }
+                style={{
+                  width: "400px", // Adjust size based on PDF layout
+                  height: "600px",
+                  opacity: 0.2, // Light watermark to avoid blocking content
+                }}
+              />
+            </View>
+          )}
+      </View>
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -133,7 +163,7 @@ const MeansOfFinance = ({ formData, localData, formatNumber }) => {
         </View>
 
         {/* Second Table */}
-        <View style={[stylesMOF.table , {marginBottom:0}]}>
+        <View style={[stylesMOF.table, { marginBottom: 0 }]}>
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
@@ -169,7 +199,14 @@ const MeansOfFinance = ({ formData, localData, formatNumber }) => {
             </Text>
           </View>
 
-          <View style={[stylesMOF.row, styles.noBorder, stylesMOF.totalRow , {marginBottom:"0px"}]}>
+          <View
+            style={[
+              stylesMOF.row,
+              styles.noBorder,
+              stylesMOF.totalRow,
+              { marginBottom: "0px" },
+            ]}
+          >
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>

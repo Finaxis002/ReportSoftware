@@ -5,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation , useNavigate } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
 import { Document, PDFViewer, Image } from "@react-pdf/renderer";
@@ -33,7 +33,7 @@ import Assumptions from "./PDFComponents/Assumptions";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
+const GeneratedPDF = React.memo(() => {
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -83,8 +83,27 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
 
   const [userRole, setUserRole] = useState("");
 
+  const [pdfType, setPdfType] = useState("");
+
+  
+  const [years, setYears] = useState(5);
+
+  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
+
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
+
+
+  useEffect(() => {
+    // ✅ Fetch from localStorage when component mounts
+    const storedPdfType = localStorage.getItem("pdfType");
+    if (storedPdfType) {
+      setPdfType(storedPdfType);
+    }
+  }, []);
+
+
+  console.log("pdf type", pdfType)
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -134,8 +153,6 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-  const [years, setYears] = useState(5);
-  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -153,13 +170,11 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
 
-  const formData = useMemo(
-    () => (stableLocation.state ? { ...stableLocation.state } : {}),
-    [stableLocation.state]
-  );
+   const [formData, setFormData] = useState(() => {
+      return JSON.parse(localStorage.getItem("formData")) || {};
+    });
 
-
- 
+    // console.log("formData", formData);
 
   const yearsRef = useRef(5);
 
@@ -178,6 +193,8 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
 
+  // console.log("normal expenses", normalExpense)
+
   // Salary & wages calculations
   const totalQuantity = useMemo(
     () =>
@@ -188,16 +205,16 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
     [normalExpense]
   );
 
+
+
   // ✅ Compute Total Annual Wages
-  const totalAnnualWages = useMemo(
-    () =>
-      normalExpense.reduce(
-        (sum, expense) =>
-          sum + Number(expense.amount * expense.quantity * 12 || 0),
-        0
-      ),
-    [normalExpense]
+const totalAnnualWages = useMemo(() => {
+  if (!Array.isArray(normalExpense)) return 0; // Prevents errors
+  return normalExpense.reduce(
+    (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
+    0
   );
+}, [normalExpense]);
 
   // ✅ Compute Fringe Benefits at 5%
   const fringeCalculation = useMemo(
@@ -235,9 +252,9 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
 
   // Example Usage
   const financialYear =
-    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
+    parseInt(formData?.ProjectReportSetting?.FinancialYear) || 2025; // Use the provided year
   const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 20;
 
   const financialYearLabels = generateFinancialYearLabels(
     financialYear,
@@ -279,28 +296,94 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
+ 
+ //saving data to Local Storage
 
+ useEffect(() => {
+  const saveData = {
+    normalExpense,
+    totalAnnualWages,
+    directExpenses,
+    totalDirectExpensesArray,
+    computedData,
+    computedData1,
+    totalDepreciation,
+    yearlyInterestLiabilities,
+    yearlyPrincipalRepayment,
+    interestOnWorkingCapital,
+    receivedData,
+    marchClosingBalances,
+    workingCapitalvalues,
+    grossFixedAssetsPerYear,
+    incomeTaxCalculation,
+    closingCashBalanceArray,
+    totalLiabilities,
+    assetsliabilities,
+    dscr,
+    averageCurrentRatio,
+    breakEvenPointPercentage,
+    totalExpense,
+    userRole,
+    years,
+    totalRevenueReceipts,
+  };
   
+  // console.log("Saving to localStorage:", saveData);
+  localStorage.setItem("storedGeneratedPdfData", JSON.stringify(saveData));
+}, [
+  normalExpense,
+  totalAnnualWages,
+  directExpenses,
+  totalDirectExpensesArray,
+  computedData,
+  computedData1,
+  totalDepreciation,
+  yearlyInterestLiabilities,
+  yearlyPrincipalRepayment,
+  interestOnWorkingCapital,
+  receivedData,
+  marchClosingBalances,
+  workingCapitalvalues,
+  grossFixedAssetsPerYear,
+  incomeTaxCalculation,
+  closingCashBalanceArray,
+  totalLiabilities,
+  assetsliabilities,
+  dscr,
+  averageCurrentRatio,
+  breakEvenPointPercentage,
+  totalExpense,
+  userRole,
+  years,
+  totalRevenueReceipts,
+]);
 
-  // sending data to checkProfit 
 
-   useEffect(() => {
-      if (totalRevenueReceipts.length > 0) {
-        setGeneratedPDFData((prev) => ({
-          ...prev,
-          totalRevenueReceipts,
-        }));
-      }
-       console.log("Sending total revenue Receipt to Check Profit", totalRevenueReceipts)
-    }, [JSON.stringify(totalRevenueReceipts)]);
 
-  const setComputedDataToProfit = useStore((state) => state.setComputedData);
+
+const setComputedDataToProfit = useStore((state) => state.setComputedDataToProfit);
+const resetDataReady = useStore((state) => state.resetDataReady);
+const navigate = useNavigate();
+
+useEffect(() => {
+  if (computedData) {
+    setComputedDataToProfit(computedData); // ✅ Store computed data in Zustand
+    // console.log("✅ Computed Data Stored in Zustand:", computedData);
+
+    // ✅ If this was a silent trigger, navigate back to Check Profit
+    if (location.state?.fromCheckProfit) {
+      // console.log("🔄 Redirecting to Check Profit after computation...");
+      navigate("/checkprofit");
+    }
+  }
+  return () => resetDataReady(); // ✅ Reset flag when leaving the page
+}, [computedData, setComputedDataToProfit, resetDataReady, location, navigate]);
 
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
         {/* basic details table */}
-        <BasicDetails formData={formData} />
+        <BasicDetails formData={formData} pdfType={pdfType} />
 
         <ProjectSynopsis
           formData={formData}
@@ -315,12 +398,14 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           receivedAverageCurrentRatio={averageCurrentRatio}
           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
           receivedAssetsLiabilities={assetsliabilities}
+          pdfType={pdfType}
         />
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* cost of project table */}
@@ -328,6 +413,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* Projected Salaries & Wages Table*/}
@@ -340,6 +426,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           fringeCalculation={fringeCalculation}
           formatNumber={formatNumber}
           formData={formData}
+          pdfType={pdfType}
         />
 
         <ProjectedDepreciation
@@ -352,6 +439,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
             setGrossFixedAssetsPerYear(data);
           }}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* Projected Expense Table Direct and Indirect */}
@@ -369,6 +457,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           onTotalExpenseSend={setTotalExpense}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* Projected Revenue/ Sales */}
@@ -378,6 +467,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           onTotalRevenueUpdate={setTotalRevenueReceipts}
           financialYearLabels={financialYearLabels}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* Projected Profitability Statement */}
@@ -400,6 +490,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           onComputedDataToProfit={setComputedDataToProfit}
+          pdfType={pdfType}
         />
         <Repayment
           formData={formData}
@@ -409,6 +500,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           financialYearLabels={financialYearLabels}
           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {computedData.netProfitBeforeTax.length > 0 && (
@@ -418,6 +510,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
             totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
             financialYearLabels={financialYearLabels}
             formatNumber={formatNumber}
+            pdfType={pdfType}
           />
         )}
         <ProjectedCashflow
@@ -435,6 +528,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           incomeTaxCalculation={incomeTaxCalculation}
           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <ProjectedBalanceSheet
@@ -457,6 +551,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           closingCashBalanceArray={closingCashBalanceArray}
           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <CurrentRatio
@@ -465,6 +560,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           receivedAssetsLiabilities={assetsliabilities}
           formatNumber={formatNumber}
           sendAverageCurrentRation={setAverageCurrentRatio}
+          pdfType={pdfType}
         />
 
         <BreakEvenPoint
@@ -477,6 +573,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           formatNumber={formatNumber}
           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pdfType={pdfType}
         />
 
         <DebtServiceCoverageRatio
@@ -488,6 +585,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           financialYearLabels={financialYearLabels}
           DSCRSend={setDscr}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <RatioAnalysis
@@ -511,6 +609,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           receivedDscr={dscr}
           onAssetsLiabilitiesSend={setAssetsLiabilities}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <Assumptions
@@ -519,6 +618,7 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
           formatNumber={formatNumber}
           totalRevenueReceipts={totalRevenueReceipts}
           receiveTotalExpense={totalExpense}
+          pdfType={pdfType}
         />
       </Document>
     );
@@ -536,9 +636,6 @@ const GeneratedPDF = React.memo(({ selectedOption , setGeneratedPDFData}) => {
     breakEvenPointPercentage,
     assetsliabilities,
   ]);
-
-
-
 
   return (
     <>

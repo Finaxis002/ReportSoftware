@@ -1,8 +1,9 @@
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
-
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 Font.register({
   family: "Roboto",
@@ -11,7 +12,7 @@ Font.register({
     {
       src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
       fontWeight: "bold",
-    }, 
+    },
   ],
 });
 
@@ -20,7 +21,8 @@ const IncomeTaxCalculation = ({
   netProfitBeforeTax = [],
   totalDepreciationPerYear = [],
   financialYearLabels,
-  formatNumber
+  formatNumber,
+  pdfType
 }) => {
   if (!formData || typeof formData !== "object") {
     console.error("❌ Invalid formData provided");
@@ -39,11 +41,9 @@ const IncomeTaxCalculation = ({
   const incomeTax =
     Array.isArray(netProfitBeforeTax) && netProfitBeforeTax.length > 0
       ? netProfitBeforeTax.map((npbt) =>
-          npbt ? (npbt * (rateOfInterest / 100)) : "0.00"
+          npbt ? npbt * (rateOfInterest / 100) : "0.00"
         )
       : [];
-
-      
 
   return (
     <Page
@@ -53,20 +53,44 @@ const IncomeTaxCalculation = ({
           ? "landscape"
           : "portrait"
       }
-      style={[{padding:"20px"}]}
+      style={[{ padding: "20px" }]}
     >
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
-            <View>
-              <Text style={styles.businessName}>
-                {formData?.AccountInformation?.businessName || "Business Bame"}
-              </Text>
-              <Text style={styles.FinancialYear}>
-                Financial Year{" "}
-                {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
-              </Text>
-            </View>
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Bame"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+        </Text>
+      </View>
       <View style={[styleExpenses.paddingx]}>
-        
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
@@ -139,7 +163,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber(npbt) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -183,7 +207,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber(npbt) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -231,7 +255,7 @@ const IncomeTaxCalculation = ({
                     },
                   ]}
                 >
-                 {formatNumber(npbt + (totalDepreciationPerYear[index] || 0))}
+                  {formatNumber(npbt + (totalDepreciationPerYear[index] || 0))}
                 </Text>
               ))
             ) : (
@@ -278,7 +302,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber(npbt) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -328,7 +352,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber(npbt) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -373,7 +397,7 @@ const IncomeTaxCalculation = ({
                   ]}
                 >
                   {npbt
-                    ? formatNumber((npbt)) // ✅ Use the formatNumber function
+                    ? formatNumber(npbt) // ✅ Use the formatNumber function
                     : "0"}
                 </Text>
               ))
@@ -427,25 +451,25 @@ const IncomeTaxCalculation = ({
         </View>
       </View>
       {/* businees name and Client Name  */}
-            <View
-              style={[
-                {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "30px",
-                  alignItems: "flex-end",
-                  justifyContent: "flex-end",
-                  marginTop:"60px"
-                },
-              ]}
-            >
-              <Text style={[styles.businessName, { fontSize: "14px" }]}>
-                {formData?.AccountInformation?.businessName || "Business Name"}
-              </Text>
-              <Text style={styles.FinancialYear}>
-                {formData?.AccountInformation?.clientName || "Client Name"}
-              </Text>
-            </View>
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop: "60px",
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          {formData?.AccountInformation?.clientName || "Client Name"}
+        </Text>
+      </View>
     </Page>
   );
 };
