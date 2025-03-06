@@ -12,16 +12,19 @@ import FifthStepExpenses from "./Steps/FifthStepExpenses";
 import SixthRevenue from "./Steps/SixthRevenue";
 import SeventhStepMD from "./Steps/SeventhStepMD";
 import MenuBar from "./MenuBar";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation , useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ClientNameDropdown from "./Dropdown/clientNameDropdown";
 import ReportDropdown from "./Dropdown/ReportDropdown"
 import FileUpload from "./FileUpload";
+import useStore from "./useStore";
 
-const MultiStepForm = () => {
+const MultiStepForm = ({receivedGeneratedPDFData}) => {
+  // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
   const isUpdateMode = location.state?.isUpdateMode || false; // ✅ Check if navigated from Update Report
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1); // Manages step state
+
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
   const [projectionYears, setProjectionYears] = useState(0);
@@ -29,6 +32,15 @@ const MultiStepForm = () => {
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const isCreateReportWithExistingClicked = location.state?.isCreateReportWithExistingClicked || false;
+  const [searchParams] = useSearchParams();
+  const step = searchParams.get("step");
+
+
+  useEffect(() => {
+    if (step) {
+      setCurrentStep(parseInt(step)); // Update step in state
+    }
+  }, [step]);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -40,6 +52,16 @@ const MultiStepForm = () => {
     setProjectionYears(newYears);
   };
   // ✅ State to store business data when selected in ReportDropdown
+  // const [formData, setFormData] = useState({
+  //   AccountInformation: {},
+  //   MeansOfFinance: {},
+  //   CostOfProject: {},
+  //   ProjectReportSetting: {},
+  //   Expenses: {},
+  //   Revenue: {},
+  //   MoreDetails: {},
+  // });
+
   const [formData, setFormData] = useState({
     AccountInformation: {},
     MeansOfFinance: {},
@@ -49,6 +71,20 @@ const MultiStepForm = () => {
     Revenue: {},
     MoreDetails: {},
   });
+  
+  // Store data in localStorage whenever formData changes
+  useEffect(() => {
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
+  
+  // Load data from localStorage only when needed (e.g., on a button click)
+  const loadFormData = () => {
+    const storedData = localStorage.getItem("formData");
+    if (storedData) {
+      setFormData(JSON.parse(storedData));
+    }
+  };
+  
 
   const steps = [
     "Account Information",
@@ -488,7 +524,7 @@ const MultiStepForm = () => {
           />
         );
       case 8:
-        return <FinalStep formData={formData} />;
+        return <FinalStep formData={formData}  setCurrentStep={setCurrentStep}/>;
       default:
         return null;
     }

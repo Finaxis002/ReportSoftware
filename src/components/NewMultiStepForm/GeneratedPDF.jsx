@@ -5,10 +5,11 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation , useNavigate } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
-import { Document, Page, PDFViewer, View } from "@react-pdf/renderer";
+import { Document, PDFViewer, Image } from "@react-pdf/renderer";
+import useStore from "./useStore";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -82,8 +83,27 @@ const GeneratedPDF = React.memo(() => {
 
   const [userRole, setUserRole] = useState("");
 
+  const [pdfType, setPdfType] = useState("");
+
+  
+  const [years, setYears] = useState(5);
+
+  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
+
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
+
+
+  useEffect(() => {
+    // ✅ Fetch from localStorage when component mounts
+    const storedPdfType = localStorage.getItem("pdfType");
+    if (storedPdfType) {
+      setPdfType(storedPdfType);
+    }
+  }, []);
+
+
+  console.log("pdf type", pdfType)
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -133,8 +153,6 @@ const GeneratedPDF = React.memo(() => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-  const [years, setYears] = useState(5);
-  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -152,10 +170,11 @@ const GeneratedPDF = React.memo(() => {
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
 
-  const formData = useMemo(
-    () => (stableLocation.state ? { ...stableLocation.state } : {}),
-    [stableLocation.state]
-  );
+   const [formData, setFormData] = useState(() => {
+      return JSON.parse(localStorage.getItem("formData")) || {};
+    });
+
+    // console.log("formData", formData);
 
   const yearsRef = useRef(5);
 
@@ -174,6 +193,8 @@ const GeneratedPDF = React.memo(() => {
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
 
+  // console.log("normal expenses", normalExpense)
+
   // Salary & wages calculations
   const totalQuantity = useMemo(
     () =>
@@ -184,16 +205,16 @@ const GeneratedPDF = React.memo(() => {
     [normalExpense]
   );
 
+
+
   // ✅ Compute Total Annual Wages
-  const totalAnnualWages = useMemo(
-    () =>
-      normalExpense.reduce(
-        (sum, expense) =>
-          sum + Number(expense.amount * expense.quantity * 12 || 0),
-        0
-      ),
-    [normalExpense]
+const totalAnnualWages = useMemo(() => {
+  if (!Array.isArray(normalExpense)) return 0; // Prevents errors
+  return normalExpense.reduce(
+    (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
+    0
   );
+}, [normalExpense]);
 
   // ✅ Compute Fringe Benefits at 5%
   const fringeCalculation = useMemo(
@@ -231,9 +252,9 @@ const GeneratedPDF = React.memo(() => {
 
   // Example Usage
   const financialYear =
-    parseInt(formData?.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
+    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
   const projectionYears =
-    parseInt(formData?.ProjectReportSetting.ProjectionYears) || 20;
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
 
   const financialYearLabels = generateFinancialYearLabels(
     financialYear,
@@ -275,243 +296,94 @@ const GeneratedPDF = React.memo(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
-  //   const pdfRef = useRef(null);
+ 
+ //saving data to Local Storage
 
-  //   if (!pdfRef.current) {
-  //     pdfRef.current = (
-  //       <Document>
-  //         {/* basic details table */}
-  //         <BasicDetails formData={formData} />
+ useEffect(() => {
+  const saveData = {
+    normalExpense,
+    totalAnnualWages,
+    directExpenses,
+    totalDirectExpensesArray,
+    computedData,
+    computedData1,
+    totalDepreciation,
+    yearlyInterestLiabilities,
+    yearlyPrincipalRepayment,
+    interestOnWorkingCapital,
+    receivedData,
+    marchClosingBalances,
+    workingCapitalvalues,
+    grossFixedAssetsPerYear,
+    incomeTaxCalculation,
+    closingCashBalanceArray,
+    totalLiabilities,
+    assetsliabilities,
+    dscr,
+    averageCurrentRatio,
+    breakEvenPointPercentage,
+    totalExpense,
+    userRole,
+    years,
+    totalRevenueReceipts,
+  };
+  
+  // console.log("Saving to localStorage:", saveData);
+  localStorage.setItem("storedGeneratedPdfData", JSON.stringify(saveData));
+}, [
+  normalExpense,
+  totalAnnualWages,
+  directExpenses,
+  totalDirectExpensesArray,
+  computedData,
+  computedData1,
+  totalDepreciation,
+  yearlyInterestLiabilities,
+  yearlyPrincipalRepayment,
+  interestOnWorkingCapital,
+  receivedData,
+  marchClosingBalances,
+  workingCapitalvalues,
+  grossFixedAssetsPerYear,
+  incomeTaxCalculation,
+  closingCashBalanceArray,
+  totalLiabilities,
+  assetsliabilities,
+  dscr,
+  averageCurrentRatio,
+  breakEvenPointPercentage,
+  totalExpense,
+  userRole,
+  years,
+  totalRevenueReceipts,
+]);
 
-  //         <ProjectSynopsis
-  //           formData={formData}
-  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
-  //           localData={localData}
-  //           normalExpense={normalExpense}
-  //           totalAnnualWages={totalAnnualWages}
-  //           totalQuantity={totalQuantity}
-  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
-  //           fringeCalculation={fringeCalculation}
-  //           receivedDscr={dscr}
-  //           receivedAverageCurrentRatio={averageCurrentRatio}
-  //           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-  //           receivedAssetsLiabilities={assetsliabilities}
-  //         />
-  //         {/* Means of Finance Table */}
-  //         <MeansOfFinance
-  //           formData={formData}
-  //           localData={localData}
-  //           formatNumber={formatNumber}
-  //         />
 
-  //         {/* cost of project table */}
-  //         <CostOfProject
-  //           formData={formData}
-  //           localData={localData}
-  //           formatNumber={formatNumber}
-  //         />
 
-  //         {/* Projected Salaries & Wages Table*/}
-  //         <ProjectedSalaries
-  //           localData={localData}
-  //           normalExpense={normalExpense}
-  //           totalAnnualWages={totalAnnualWages}
-  //           totalQuantity={totalQuantity}
-  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
-  //           fringeCalculation={fringeCalculation}
-  //           formatNumber={formatNumber}
-  //           formData={formData}
-  //         />
 
-  //         <ProjectedDepreciation
-  //           formData={formData}
-  //           localData={localData}
-  //           setTotalDepreciation={setTotalDepreciation}
-  //           onComputedData1={setComputedData1}
-  //           financialYearLabels={financialYearLabels}
-  //           onGrossFixedAssetsPerYearCalculated={(data) => {
-  //             setGrossFixedAssetsPerYear(data);
-  //           }}
-  //           formatNumber={formatNumber}
-  //         />
+const setComputedDataToProfit = useStore((state) => state.setComputedDataToProfit);
+const resetDataReady = useStore((state) => state.resetDataReady);
+const navigate = useNavigate();
 
-  //         {/* Projected Expense Table Direct and Indirect */}
-  //         <ProjectedExpenses
-  //           formData={formData}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
-  //           fringeCalculation={fringeCalculation}
-  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  //           financialYearLabels={financialYearLabels}
-  //           directExpenses={directExpenses}
-  //           projectionYears={projectionYears}
-  //           totalDirectExpensesArray={totalDirectExpensesArray}
-  //           onTotalExpenseSend={setTotalExpense}
-  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
-  //           formatNumber={formatNumber}
-  //         />
+useEffect(() => {
+  if (computedData) {
+    setComputedDataToProfit(computedData); // ✅ Store computed data in Zustand
+    // console.log("✅ Computed Data Stored in Zustand:", computedData);
 
-  //         {/* Projected Revenue/ Sales */}
+    // ✅ If this was a silent trigger, navigate back to Check Profit
+    if (location.state?.fromCheckProfit) {
+      // console.log("🔄 Redirecting to Check Profit after computation...");
+      navigate("/checkprofit");
+    }
+  }
+  return () => resetDataReady(); // ✅ Reset flag when leaving the page
+}, [computedData, setComputedDataToProfit, resetDataReady, location, navigate]);
 
-  //         <ProjectedRevenue
-  //           formData={formData}
-  //           onTotalRevenueUpdate={setTotalRevenueReceipts}
-  //           financialYearLabels={financialYearLabels}
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         {/* Projected Profitability Statement */}
-  //         <ProjectedProfitability
-  //           formData={formData}
-  //           localData={localData}
-  //           normalExpense={normalExpense}
-  //           directExpense={directExpense}
-  //           location={stableLocation}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
-  //           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
-  //           financialYearLabels={financialYearLabels}
-  //           handleDataSend={handleDataSend} // Ensure this is passed correctly
-  //           handleIncomeTaxDataSend={handleIncomeTaxCalculation}
-  //           formatNumber={formatNumber}
-  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
-  //         />
-  //         <Repayment
-  //           formData={formData}
-  //           localData={localData}
-  //           onInterestCalculated={handleInterestCalculated}
-  //           onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
-  //           financialYearLabels={financialYearLabels}
-  //           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         {computedData.netProfitBeforeTax.length > 0 && (
-  //           <IncomeTaxCalculation
-  //             formData={formData}
-  //             netProfitBeforeTax={computedData.netProfitBeforeTax}
-  //             totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
-  //             financialYearLabels={financialYearLabels}
-  //             formatNumber={formatNumber}
-  //           />
-  //         )}
-  //         <ProjectedCashflow
-  //           formData={formData}
-  //           localData={localData}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  //           grossProfitValues={computedData.grossProfitValues || []}
-  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           financialYearLabels={financialYearLabels}
-  //           handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
-  //           incomeTaxCalculation={incomeTaxCalculation}
-  //           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         <ProjectedBalanceSheet
-  //           formData={formData}
-  //           localData={localData}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-  //           grossProfitValues={computedData.grossProfitValues || []}
-  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  //           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
-  //           grossFixedAssetsPerYear={grossFixedAssetsPerYear}
-  //           onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           financialYearLabels={financialYearLabels}
-  //           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-  //           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-  //           receivedWorkingCapitalValues={workingCapitalvalues}
-  //           closingCashBalanceArray={closingCashBalanceArray}
-  //           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         <CurrentRatio
-  //           formData={formData}
-  //           financialYearLabels={financialYearLabels}
-  //           receivedAssetsLiabilities={assetsliabilities}
-  //           formatNumber={formatNumber}
-  //           sendAverageCurrentRation={setAverageCurrentRatio}
-  //         />
-
-  //         <BreakEvenPoint
-  //           formData={formData}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
-  //           financialYearLabels={financialYearLabels}
-  //           formatNumber={formatNumber}
-  //           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
-  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
-  //         />
-
-  //         <DebtServiceCoverageRatio
-  //           formData={formData}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
-  //           financialYearLabels={financialYearLabels}
-  //           DSCRSend={setDscr}
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         <RatioAnalysis
-  //           formData={formData}
-  //           localData={localData}
-  //           totalDepreciationPerYear={totalDepreciation}
-  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
-  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           financialYearLabels={financialYearLabels}
-  //           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
-  //           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
-  //           receivedWorkingCapitalValues={workingCapitalvalues}
-  //           closingCashBalanceArray={closingCashBalanceArray}
-  //           receivedTotalLiabilities={totalLiabilities}
-  //           cashProfitArray={computedData.cashProfitArray}
-  //           grossProfitValues={computedData.grossProfitValues}
-  //           netProfitBeforeTax={computedData.netProfitBeforeTax}
-  //           netProfitAfterTax={computedData.netProfitAfterTax}
-  //           receivedDscr={dscr}
-  //           onAssetsLiabilitiesSend={setAssetsLiabilities}
-  //           formatNumber={formatNumber}
-  //         />
-
-  //         <Assumptions
-  //           formData={formData}
-  //           financialYearLabels={financialYearLabels}
-  //           formatNumber={formatNumber}
-  //           totalRevenueReceipts={totalRevenueReceipts}
-  //           receiveTotalExpense={totalExpense}
-  //         />
-  //       </Document>
-  //   );
-  // }
-  // const memoizedPDF = pdfRef.current;
-
-  const memoizedPDF = useMemo(() => {
-    return (
-      <Document>
-        {/* basic details table */}
-
-        <BasicDetails formData={formData} />
-
+const memoizedPDF = useMemo(() => {
+  return (
+    <Document>
+      {/* basic details table */}
+      <BasicDetails formData={formData} />
 
         <ProjectSynopsis
           formData={formData}
@@ -526,62 +398,63 @@ const GeneratedPDF = React.memo(() => {
           receivedAverageCurrentRatio={averageCurrentRatio}
           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
           receivedAssetsLiabilities={assetsliabilities}
+          pdfType={pdfType}
         />
-
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
-        {/* cost of project table */}
-        <CostOfProject
-          formData={formData}
-          localData={localData}
-          formatNumber={formatNumber}
-        />
+{/* cost of project table */}
+<CostOfProject
+  formData={formData}
+  localData={localData}
+  formatNumber={formatNumber}
+/>
 
-        {/* Projected Salaries & Wages Table*/}
-        <ProjectedSalaries
-          localData={localData}
-          normalExpense={normalExpense}
-          totalAnnualWages={totalAnnualWages}
-          totalQuantity={totalQuantity}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          formatNumber={formatNumber}
-          formData={formData}
-        />
+{/* Projected Salaries & Wages Table*/}
+<ProjectedSalaries
+  localData={localData}
+  normalExpense={normalExpense}
+  totalAnnualWages={totalAnnualWages}
+  totalQuantity={totalQuantity}
+  fringAndAnnualCalculation={fringAndAnnualCalculation}
+  fringeCalculation={fringeCalculation}
+  formatNumber={formatNumber}
+  formData={formData}
+/>
 
-        <ProjectedDepreciation
-          formData={formData}
-          localData={localData}
-          setTotalDepreciation={setTotalDepreciation}
-          onComputedData1={setComputedData1}
-          financialYearLabels={financialYearLabels}
-          onGrossFixedAssetsPerYearCalculated={(data) => {
-            setGrossFixedAssetsPerYear(data);
-          }}
-          formatNumber={formatNumber}
-        />
+<ProjectedDepreciation
+  formData={formData}
+  localData={localData}
+  setTotalDepreciation={setTotalDepreciation}
+  onComputedData1={setComputedData1}
+  financialYearLabels={financialYearLabels}
+  onGrossFixedAssetsPerYearCalculated={(data) => {
+    setGrossFixedAssetsPerYear(data);
+  }}
+  formatNumber={formatNumber}
+/>
 
-        {/* Projected Expense Table Direct and Indirect */}
-        <ProjectedExpenses
-          formData={formData}
-          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-          totalDepreciationPerYear={totalDepreciation}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-          financialYearLabels={financialYearLabels}
-          directExpenses={directExpenses}
-          projectionYears={projectionYears}
-          totalDirectExpensesArray={totalDirectExpensesArray}
-          onTotalExpenseSend={setTotalExpense}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          formatNumber={formatNumber}
-        />
+{/* Projected Expense Table Direct and Indirect */}
+<ProjectedExpenses
+  formData={formData}
+  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  totalDepreciationPerYear={totalDepreciation}
+  fringAndAnnualCalculation={fringAndAnnualCalculation}
+  fringeCalculation={fringeCalculation}
+  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+  financialYearLabels={financialYearLabels}
+  directExpenses={directExpenses}
+  projectionYears={projectionYears}
+  totalDirectExpensesArray={totalDirectExpensesArray}
+  onTotalExpenseSend={setTotalExpense}
+  receivedtotalRevenueReceipts={totalRevenueReceipts}
+  formatNumber={formatNumber}
+/>
 
         {/* Projected Revenue/ Sales */}
 
@@ -590,6 +463,7 @@ const GeneratedPDF = React.memo(() => {
           onTotalRevenueUpdate={setTotalRevenueReceipts}
           financialYearLabels={financialYearLabels}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {/* Projected Profitability Statement */}
@@ -611,6 +485,8 @@ const GeneratedPDF = React.memo(() => {
           handleIncomeTaxDataSend={handleIncomeTaxCalculation}
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          onComputedDataToProfit={setComputedDataToProfit}
+          pdfType={pdfType}
         />
         <Repayment
           formData={formData}
@@ -620,6 +496,7 @@ const GeneratedPDF = React.memo(() => {
           financialYearLabels={financialYearLabels}
           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         {computedData.netProfitBeforeTax.length > 0 && (
@@ -629,6 +506,7 @@ const GeneratedPDF = React.memo(() => {
             totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
             financialYearLabels={financialYearLabels}
             formatNumber={formatNumber}
+            pdfType={pdfType}
           />
         )}
         <ProjectedCashflow
@@ -646,6 +524,7 @@ const GeneratedPDF = React.memo(() => {
           incomeTaxCalculation={incomeTaxCalculation}
           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <ProjectedBalanceSheet
@@ -668,6 +547,7 @@ const GeneratedPDF = React.memo(() => {
           closingCashBalanceArray={closingCashBalanceArray}
           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <CurrentRatio
@@ -676,6 +556,7 @@ const GeneratedPDF = React.memo(() => {
           receivedAssetsLiabilities={assetsliabilities}
           formatNumber={formatNumber}
           sendAverageCurrentRation={setAverageCurrentRatio}
+          pdfType={pdfType}
         />
 
         <BreakEvenPoint
@@ -688,6 +569,7 @@ const GeneratedPDF = React.memo(() => {
           formatNumber={formatNumber}
           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pdfType={pdfType}
         />
 
         <DebtServiceCoverageRatio
@@ -699,6 +581,7 @@ const GeneratedPDF = React.memo(() => {
           financialYearLabels={financialYearLabels}
           DSCRSend={setDscr}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <RatioAnalysis
@@ -722,6 +605,7 @@ const GeneratedPDF = React.memo(() => {
           receivedDscr={dscr}
           onAssetsLiabilitiesSend={setAssetsLiabilities}
           formatNumber={formatNumber}
+          pdfType={pdfType}
         />
 
         <Assumptions
@@ -730,6 +614,7 @@ const GeneratedPDF = React.memo(() => {
           formatNumber={formatNumber}
           totalRevenueReceipts={totalRevenueReceipts}
           receiveTotalExpense={totalExpense}
+          pdfType={pdfType}
         />
       </Document>
     );
@@ -745,9 +630,8 @@ const GeneratedPDF = React.memo(() => {
     dscr,
     averageCurrentRatio,
     breakEvenPointPercentage,
-    assetsliabilities
+    assetsliabilities,
   ]);
-
 
   return (
     <>

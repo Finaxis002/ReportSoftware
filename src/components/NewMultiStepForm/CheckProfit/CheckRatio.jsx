@@ -1,9 +1,7 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { Page, View, Text } from "@react-pdf/renderer";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles";
 import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -17,18 +15,18 @@ Font.register({
   ],
 });
 
-const CurrentRatio = ({
+const CheckRatio = ({
   formData = {},
   financialYearLabels = [],
   receivedAssetsLiabilities = [],
   formatNumber,
   sendAverageCurrentRation,
-  pdfType,
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
 
+  // ✅ Calculate Current Ratio and store in a variable
   const currentRatio = Array.from({
     length: receivedAssetsLiabilities?.CurrentAssetsArray?.length || 0,
   }).map((_, index) => {
@@ -86,31 +84,6 @@ const CurrentRatio = ({
       //   wrap={false}
       //   break
     >
-      {pdfType &&
-        pdfType !== "select option" &&
-        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-          <View
-            style={{
-              position: "absolute",
-              left: "50%", // Center horizontally
-              top: "50%", // Center vertically
-              width: 500, // Set width to 500px
-              height: 700, // Set height to 700px
-              marginLeft: -200, // Move left by half width (500/2)
-              marginTop: -350, // Move up by half height (700/2)
-              opacity: 0.4, // Light watermark
-              zIndex: -1, // Push behind content
-            }}
-          >
-            <Image
-              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            />
-          </View>
-        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -123,115 +96,10 @@ const CurrentRatio = ({
       </View>
 
       <View>
-        {/* Table Heading */}
-        <View
-          style={[
-            stylesCOP.heading,
-            {
-              fontWeight: "bold",
-              paddingLeft: 10,
-            },
-          ]}
-        >
-          <Text>Current Ratio</Text>
-        </View>
 
-        {/* Table Header */}
-        <View style={styles.tableHeader}>
-          <Text
-            style={[
-              styles.serialNoCell,
-              styleExpenses.sno,
-              { textAlign: "center" },
-            ]}
-          >
-            S. No.
-          </Text>
-          <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
-            Particulars
-          </Text>
-
-          {/* ✅ Dynamically generate years with fallback */}
-          {financialYearLabels.map((yearLabel, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {yearLabel}
-            </Text>
-          ))}
-        </View>
+    
 
         <View style={[styles.table]}>
-          {/* currect Assets  */}
-          <View style={styles.tableRow}>
-            <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-              1
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Current Assets
-            </Text>
-            {Array.isArray(receivedAssetsLiabilities?.CurrentAssetsArray) &&
-              receivedAssetsLiabilities.CurrentAssetsArray.map(
-                (tax, yearIndex) => (
-                  <Text
-                    key={`receivedAssetsLiabilities-CurrentAssetsArray-${yearIndex}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(tax || 0)}{" "}
-                    {/* Format the value and handle undefined/null */}
-                  </Text>
-                )
-              )}
-          </View>
-
-          {/* Current Liabilities  */}
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              2
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Current Liabilities
-            </Text>
-            {Array.isArray(
-              receivedAssetsLiabilities?.yearlycurrentLiabilities
-            ) &&
-              receivedAssetsLiabilities.yearlycurrentLiabilities.map(
-                (tax, yearIndex) => (
-                  <Text
-                    key={`receivedAssetsLiabilities-yearlycurrentLiabilities-${yearIndex}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(tax || 0)}{" "}
-                    {/* Format the value and handle undefined/null */}
-                  </Text>
-                )
-              )}
-          </View>
 
           {/* Ratio  */}
           <View
@@ -294,7 +162,6 @@ const CurrentRatio = ({
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
                 {
-                  width: `${financialYearLabels.length * 200}px`, // ✅ Adjust width dynamically
                   fontWeight: "bold",
                   fontFamily: "Roboto",
                   textAlign: "center",
@@ -304,6 +171,21 @@ const CurrentRatio = ({
             >
               {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
             </Text>
+            {Array.from({ length: projectionYears - 1 }).map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  {
+                    fontWeight: "bold",
+                    fontFamily: "Roboto",
+                    textAlign: "center",
+                    borderWidth: "0px",
+                  },
+                ]}
+              ></Text>
+            ))}
           </View>
         </View>
       </View>
@@ -332,4 +214,4 @@ const CurrentRatio = ({
   );
 };
 
-export default React.memo(CurrentRatio);
+export default React.memo(CheckRatio);

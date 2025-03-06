@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text , Image} from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { Page, View, Text } from "@react-pdf/renderer";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles";
 import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
 
 Font.register({
   family: "Roboto",
@@ -16,9 +14,9 @@ Font.register({
   ],
 });
 
-const ProjectedBalanceSheet = ({
+const CheckBS = ({
   formData = {},
-  pdfType,
+  calculations = {},
   totalDepreciationPerYear = [],
   grossFixedAssetsPerYear = [],
   yearlyPrincipalRepayment = [],
@@ -59,8 +57,6 @@ const ProjectedBalanceSheet = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
 
   // If it's undefined, default to an empty array.
   const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
@@ -277,47 +273,7 @@ const ProjectedBalanceSheet = ({
       break
       style={[{ padding: "20px" }]}
     >
-        {pdfType &&
-                    pdfType !== "select option" &&
-                    (pdfType === "Sharda Associates" ||
-                      pdfType === "CA Certified") && (
-                      <View
-                        style={{
-                          position: "absolute",
-                          left: "50%", // Center horizontally
-                          top: "50%", // Center vertically
-                          width: 500, // Set width to 500px
-                          height: 700, // Set height to 700px
-                          marginLeft: -200, // Move left by half width (500/2)
-                          marginTop: -350, // Move up by half height (700/2)
-                          opacity: 0.4, // Light watermark
-                          zIndex: -1, // Push behind content
-                        }}
-                      >
-                        <Image
-                          src={
-                            pdfType === "Sharda Associates"
-                              ? SAWatermark
-                              : CAWatermark
-                          }
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                          }}
-                        />
-                      </View>
-                    )}
       <View style={[styleExpenses.paddingx]}>
-        {/* businees name and financial year  */}
-        <View>
-          <Text style={styles.businessName}>
-            {formData?.AccountInformation?.businessName || "Business Bame"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
-          </Text>
-        </View>
 
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -817,29 +773,10 @@ const ProjectedBalanceSheet = ({
           </View>
         </View>
 
-        {/* businees name and Client Name  */}
-        <View
-          style={[
-            {
-              display: "flex",
-              flexDirection: "column",
-              gap: "30px",
-              alignItems: "flex-end",
-              justifyContent: "flex-end",
-              marginTop: "60px",
-            },
-          ]}
-        >
-          <Text style={[styles.businessName, { fontSize: "14px" }]}>
-            {formData?.AccountInformation?.businessName || "Business Name"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            {formData?.AccountInformation?.clientName || "Client Name"}
-          </Text>
-        </View>
+       
       </View>
     </Page>
   );
 };
 
-export default React.memo(ProjectedBalanceSheet);
+export default React.memo(CheckBS);

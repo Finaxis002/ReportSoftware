@@ -1,7 +1,9 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -24,6 +26,7 @@ const DebtServiceCoverageRatio = ({
   financialYearLabels,
   DSCRSend,
   formatNumber,
+  pdfType
 }) => {
   // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
@@ -156,7 +159,6 @@ const DebtServiceCoverageRatio = ({
     return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
   });
 
-  const totalDSCR = DSCR.reduce((sum, value) => sum + value, 0);
   // ✅ Filter out zero values from the beginning
   const validDSCRValues = DSCR.filter(
     (value, index) => !(index === 0 && value === 0)
@@ -171,7 +173,7 @@ const DebtServiceCoverageRatio = ({
     );
   }, [JSON.stringify(validDSCRValues)]); // Deep dependency check with stringify
 
-  const numOfYearsUsedForAvg = validDSCRValues.length
+  const numOfYearsUsedForAvg = validDSCRValues.length;
 
   useEffect(() => {
     // ✅ Only update if `averageDSCR` or `DSCR` changes
@@ -179,7 +181,7 @@ const DebtServiceCoverageRatio = ({
       const newDSCRData = {
         averageDSCR,
         DSCR, // ✅ Ensure DSCR is included
-        numOfYearsUsedForAvg
+        numOfYearsUsedForAvg,
       };
 
       if (JSON.stringify(prev) !== JSON.stringify(newDSCRData)) {
@@ -189,7 +191,7 @@ const DebtServiceCoverageRatio = ({
     });
 
     // console.log("DSCR:", DSCR);
-  }, [averageDSCR, DSCR , numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
+  }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
   return (
     <Page
@@ -205,6 +207,34 @@ const DebtServiceCoverageRatio = ({
       wrap={false}
       break
     >
+      {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <View
+              style={{
+                position: "absolute",
+                left: "50%", // Center horizontally
+                top: "50%", // Center vertically
+                width: 500, // Set width to 500px
+                height: 700, // Set height to 700px
+                marginLeft: -200, // Move left by half width (500/2)
+                marginTop: -350, // Move up by half height (700/2)
+                opacity: 0.4, // Light watermark
+                zIndex: -1, // Push behind content
+              }}
+              fixed
+            >
+              <Image
+                src={
+                  pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                }
+                style={{
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
+            </View>
+          )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -455,8 +485,6 @@ const DebtServiceCoverageRatio = ({
           </View>
         </View>
 
-      
-
         <View>
           {/* Interest On Term Loan */}
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -466,7 +494,7 @@ const DebtServiceCoverageRatio = ({
                 stylesCOP.serialNoCellDetail,
                 styleExpenses.sno,
                 styleExpenses.bordernone,
-                {paddingTop:"20px"}
+                { paddingTop: "20px" },
               ]}
             >
               1
@@ -477,7 +505,7 @@ const DebtServiceCoverageRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {paddingTop:"20px"}
+                { paddingTop: "20px" },
               ]}
             >
               Interest On Term Loan
@@ -492,7 +520,7 @@ const DebtServiceCoverageRatio = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  {paddingTop:"20px"}
+                  { paddingTop: "20px" },
                 ]}
               >
                 {formatNumber(yearlyInterestLiabilities[index] || 0)}
@@ -599,11 +627,15 @@ const DebtServiceCoverageRatio = ({
               stylesMOF.row,
               styles.tableRow,
               styleExpenses.totalRow,
-              { borderWidth: 0, },
+              { borderWidth: 0 },
             ]}
           >
             <Text
-              style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, {paddingBottom:"20px" }]}
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                { paddingBottom: "20px" },
+              ]}
             ></Text>
             <Text
               style={[
@@ -614,7 +646,7 @@ const DebtServiceCoverageRatio = ({
                   fontWeight: "bold",
                   fontFamily: "Roboto",
                   textAlign: "right",
-                  paddingBottom:"20px" 
+                  paddingBottom: "20px",
                 },
               ]}
             >
@@ -629,7 +661,7 @@ const DebtServiceCoverageRatio = ({
                   stylesCOP.particularsCellsDetail,
                   stylesCOP.boldText,
                   styleExpenses.fontSmall,
-                  {paddingBottom:"20px" , borderBottomWidth:0}
+                  { paddingBottom: "20px", borderBottomWidth: 0 },
                 ]}
               >
                 {formatNumber(totalValue)} {/* ✅ Display Rounded Value */}
@@ -677,7 +709,6 @@ const DebtServiceCoverageRatio = ({
           ))}
         </View>
 
-
         {/* Blank Row  */}
 
         <View
@@ -689,50 +720,10 @@ const DebtServiceCoverageRatio = ({
           ]}
         >
           <Text
-            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno , {padding:"20px"}]}
-          ></Text>
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "left" ,padding:"10px"},
-            ]}
-          >
-            
-          </Text>
-
-          {/* ✅ Display Computed Total for Each Year */}
-          {DSCR.map((totalValue, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                {borderTopWidth:0, padding:"10px"}
-              ]}
-            >
-              {" "}
-              {/* ✅ Display Rounded Value */}
-            </Text>
-          ))}
-        </View>
-
-        {/* ✅ Display Average DSCR */}
-        <View
-          style={[
-            stylesMOF.row,
-            styles.tableRow,
-            styleExpenses.totalRow,
-            { border: "1px solid #000" },
-          ]}
-        >
-          <Text
             style={[
               stylesCOP.serialNoCellDetail,
               styleExpenses.sno,
-              { width: "85px" },
+              { padding: "20px" },
             ]}
           ></Text>
           <Text
@@ -744,22 +735,68 @@ const DebtServiceCoverageRatio = ({
                 fontWeight: "bold",
                 fontFamily: "Roboto",
                 textAlign: "left",
-                borderRight: "0",
+                padding: "10px",
               },
+            ]}
+          ></Text>
+
+          {/* ✅ Display Computed Total for Each Year */}
+          {DSCR.map((totalValue, yearIndex) => (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
+                styleExpenses.fontSmall,
+                { borderTopWidth: 0, padding: "10px" },
+              ]}
+            >
+              {" "}
+              {/* ✅ Display Rounded Value */}
+            </Text>
+          ))}
+        </View>
+
+        {/* ✅ Display Average DSCR */}
+        <View
+         style={[
+          stylesMOF.row,
+          styles.tableRow,
+          styleExpenses.totalRow,
+          { borderWidth: 0 },
+        ]}
+        >
+          {/* Empty Column for Sr. No. */}
+          <Text
+            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+          ></Text>
+
+          {/* Label: Average DSCR */}
+          <Text
+            style={[
+              stylesCOP.detailsCellDetail,
+              styleExpenses.particularWidth,
+              styleExpenses.bordernone,
+              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "left" },
             ]}
           >
             Average DSCR
           </Text>
+
+          {/* ✅ Value - Dynamic Width Based on Financial Years */}
           <Text
             style={[
               stylesCOP.particularsCellsDetail,
               stylesCOP.boldText,
               styleExpenses.fontSmall,
               {
-                width: "850px",
-                fontSize: "10px",
+                width: `${financialYearLabels.length * 150}px`, // ✅ Adjust width dynamically
+                minWidth: "500px", // ✅ Ensure a minimum width for consistency
+                maxWidth: "100%", // ✅ Prevent overflow issues
+                fontSize: "12px",
                 fontFamily: "Roboto",
                 fontWeight: "extrabold",
+                textAlign: "center",
                 borderBottomWidth: "0px",
                 borderWidth: "1px",
               },

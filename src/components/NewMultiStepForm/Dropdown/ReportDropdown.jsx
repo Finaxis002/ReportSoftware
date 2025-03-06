@@ -17,8 +17,8 @@
 //     const fetchBusinesses = async () => {
 //       try {
 //         const trimmedClientName = clientName.trim();
-//         // const response = await axios.get(`https://backend-three-pink.vercel.app/api/businesses/${trimmedClientName}`);
-//         const response = await axios.get(`https://backend-three-pink.vercel.app/api/businesses`);
+//         const response = await axios.get(`https://backend-three-pink.vercel.app/api/businesses/${trimmedClientName}`);
+
 //         if (response.data && Array.isArray(response.data.businessNames)) {
 //           const options = response.data.businessNames.map((name) => ({
 //             value: name,
@@ -82,170 +82,7 @@
 
 // export default ReportDropdown;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import Select from "react-select";
-
-// const ReportDropdown = ({ onBusinessSelect }) => {
-//   const [businessOptions, setBusinessOptions] = useState([]);
-//   const [selectedBusiness, setSelectedBusiness] = useState(null);
-
-//   useEffect(() => {
-//     const fetchBusinesses = async () => {
-//       try {
-//         const response = await axios.get("https://backend-three-pink.vercel.app/api/businesses");
-
-//         if (response.data && Array.isArray(response.data.businesses)) {
-//           const options = response.data.businesses.map((entry) => ({
-//             value: entry, // Example: "KBR & SON'S (Prakriti Bhatt)"
-//             label: entry, // Display as "KBR & SON'S (Prakriti Bhatt)"
-//           }));
-//           setBusinessOptions(options);
-//         } else {
-//           console.error("Invalid response format:", response.data);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching businesses:", error.message);
-//       }
-//     };
-
-//     fetchBusinesses();
-//   }, []);
-
-//   const handleSelect = async (selectedOption) => {
-//     setSelectedBusiness(selectedOption);
-
-//     if (selectedOption) {
-//       const selectedBusinessFullName = selectedOption.value;
-//       const match = selectedBusinessFullName.match(/^(.*?)\((.*?)\)$/); // Extract business and client name
-//       const businessName = match ? match[1].trim() : selectedBusinessFullName;
-//       const clientName = match ? match[2].trim() : "Unknown Client";
-
-//       try {
-//         const response = await axios.get(
-//           `https://backend-three-pink.vercel.app/fetch-business-data?clientName=${encodeURIComponent(clientName)}&businessName=${encodeURIComponent(businessName)}`
-//         );
-
-//         if (response.data && response.data.data.length > 0) {
-//           const businessData = response.data.data[0];
-//           onBusinessSelect?.(businessData); // ✅ Prevents error if function is undefined
-//         } else {
-//           onBusinessSelect?.({});
-//         }
-//       } catch (error) {
-//         console.error("Error fetching business data:", error.message);
-//         onBusinessSelect?.({});
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="m-1 flex items-center justify-center gap-4">
-//       <label>Select Business</label>
-//       <Select
-//         className="w-[30rem]"
-//         options={businessOptions}
-//         value={selectedBusiness}
-//         onChange={handleSelect}
-//         placeholder="Select a business..."
-//         isClearable
-//       />
-//     </div>
-//   );
-// };
-
-// export default ReportDropdown;
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import Select from "react-select";
-
-// const ReportDropdown = ({ onBusinessSelect }) => {
-//   const [businessOptions, setBusinessOptions] = useState([]);
-//   const [selectedBusiness, setSelectedBusiness] = useState(null);
-
-//   useEffect(() => {
-//     const fetchBusinesses = async () => {
-//       try {
-//         const response = await axios.get("https://backend-three-pink.vercel.app/api/businesses");
-
-//         if (response.data && Array.isArray(response.data.businesses)) {
-//           const options = response.data.businesses.map((entry) => ({
-//             value: entry, // Example: "KBR & SON'S (Prakriti Bhatt)"
-//             label: entry, // Display as "KBR & SON'S (Prakriti Bhatt)"
-//           }));
-//           setBusinessOptions(options);
-//         } else {
-//           console.error("Invalid response format:", response.data);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching businesses:", error.message);
-//       }
-//     };
-
-//     fetchBusinesses();
-//   }, []);
-
-//   const handleSelect = async (selectedOption) => {
-//     setSelectedBusiness(selectedOption);
-
-//     if (selectedOption) {
-//       const selectedBusinessFullName = selectedOption.value;
-//       const match = selectedBusinessFullName.match(/^(.*?)\((.*?)\)$/); // Extract business and client name
-//       const businessName = match ? match[1].trim() : selectedBusinessFullName;
-//       const clientName = match ? match[2].trim() : "Unknown Client";
-
-//       try {
-//         const response = await axios.get(
-//           `https://backend-three-pink.vercel.app/fetch-business-data?clientName=${encodeURIComponent(clientName)}&businessName=${encodeURIComponent(businessName)}`
-//         );
-
-//         if (response.data && response.data.data.length > 0) {
-//           const businessData = response.data.data[0];
-
-//           // ✅ Restore sessionId handling
-//           const sessionId = businessData.sessionId || null;
-
-//           onBusinessSelect?.(businessData, sessionId); // Pass sessionId
-//         } else {
-//           onBusinessSelect?.({}, null);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching business data:", error.message);
-//         onBusinessSelect?.({}, null);
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="m-1 flex items-center justify-center gap-4">
-//       <label>Select Business</label>
-//       <Select
-//         className="w-[30rem]"
-//         options={businessOptions}
-//         value={selectedBusiness}
-//         onChange={handleSelect}
-//         placeholder="Select a business..."
-//         isClearable
-//       />
-//     </div>
-//   );
-// };
-
-// export default ReportDropdown;
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
@@ -323,4 +160,7 @@ const ReportDropdown = ({ onBusinessSelect }) => {
 };
 
 export default ReportDropdown;
+
+
+
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 const FourthStepPRS = ({
   formData,
   onFormDataChange,
-  onProjectionYearChange,
+  onProjectionYearChange 
 }) => {
   const prevDataRef = useRef(null);
   const [projectionYears, setProjectionYears] = useState(0);
@@ -341,13 +341,13 @@ const FourthStepPRS = ({
 
             <div className="col-4">
               <div className="input">
-                <input
+                 <input
                   id="FinancialYear"
                   name="FinancialYear"
-                  type="text"
-                  placeholder="e.g. 2023-2024"
-                  required
-                  value={localData.FinancialYear.value}
+                  type="number"
+                  placeholder="e.g. 2023"
+                  
+                  value={localData.FinancialYear}
                   onChange={handleChange}
                 />
                 <label htmlFor="FinancialYear">Financial Year</label>
@@ -591,7 +591,7 @@ const FourthStepPRS = ({
                     name="UDINNumber"
                     type="text"
                     placeholder="Enter UDIN Number"
-                    value={localData.UDINNumber.value}
+                    value={localData.UDINNumber}
                     onChange={handleChange}
                   />
                   <label htmlFor="UDINNumber">UDIN Number</label>

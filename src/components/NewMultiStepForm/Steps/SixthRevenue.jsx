@@ -145,10 +145,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     onFormDataChange({ Revenue: localData });
   }, [localData]);
 
-  console.log("Updated formType: ", formType);
-  console.log("Updated localData formType: ", localData.formType);
 
-  console.log("form Data : ", formData);
 
   // ✅ Toggle function to correctly update both `formType` and `togglerType`
   const toggleType = (isChecked) => {
@@ -429,7 +426,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               name="serialNumber"
                               type="text" // ✅ Changed to text to allow alphanumeric values
                               // className="form-control text-center noBorder"
+                               
+
                               className="table-input"
+
                               value={
                                 entry.serialNumber !== undefined
                                   ? entry.serialNumber
@@ -448,8 +448,9 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               placeholder="Particular"
                               onChange={(event) => handleFormChange(event, i)}
                               value={entry.particular}
-                              // className="form-control text-center noBorder"
-                              className="table-input"
+                              // className="form-control text-center noBorder" priya
+                               className="table-input"
+                             
                               type="text"
                             />
                           </td>
@@ -464,7 +465,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   handleFormChange(event, i, y)
                                 }
                                 value={yr || 0}
-                                className="table-input"
+
+                                 className="table-input"
+
+                                
                                 type="text"
                               />
                             </td>
@@ -536,7 +540,9 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                   )
                                 }
                                 // className="form-control text-end noBorder"
-                                className="total-revenue-input"
+
+                                  className="total-revenue-input"
+                                
                                 type="number"
                                 style={{
                                   padding: "5px",
@@ -605,8 +611,12 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               onChange={(event) => handleFormChange2(event, i)}
                               value={entry.particular}
                               // className="form-control text-center noBorder"
+
+                              
+
                               //  className="total-revenue-input"
                               className="table-input"
+
                               type="text"
                             />
                           </td>
@@ -622,8 +632,12 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 }
                                 value={yr || 1}
                                 // className="form-control text-end noBorder"
+
+                                
+
                                 //  className="total-revenue-input"
                                 className="table-input"
+
                                 type="number"
                               />
                             </td>
@@ -676,7 +690,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <td key={i}>
                                 <input
                                   // className="form-control text-center w-20 p-0"
+
+                                  
+
                                   className="total-revenue-input"
+
                                   style={{ width: "4rem", padding: "0px" }}
                                   type="number"
                                   value={v || 0}
@@ -693,7 +711,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                     {/* Total Revenue */}
                     <div className="d-flex">
-                      <label className="form-label w-[15rem] fs-10 pe-8">
+
+                     
+
+                      <label className="form-label w-[20rem] fs-10 pe-8">
+
                         Total Revenue
                       </label>
                       <table className="table">

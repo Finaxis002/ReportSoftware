@@ -1,7 +1,11 @@
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text , Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+
+
 
 const ProjectedSalaries = ({
   formData,
@@ -12,9 +16,30 @@ const ProjectedSalaries = ({
   fringeCalculation,
   fringAndAnnualCalculation,
   formatNumber,
+  pdfType
 }) => {
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
+
+       {/* watermark  */}
+       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
+            {/* ✅ Conditionally Render Watermark */}
+            {pdfType &&
+              pdfType !== "select option" &&
+              (pdfType === "Sharda Associates" ||
+                pdfType === "CA Certified") && (
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "500px", // Adjust size based on PDF layout
+                    height: "700px",
+                    opacity: 0.4, // Light watermark to avoid blocking content
+                  }}
+                />
+              )}
+        </View>
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
