@@ -24,6 +24,7 @@ const CurrentRatio = ({
   formatNumber,
   sendAverageCurrentRation,
   pdfType,
+  receivedtotalRevenueReceipts,
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
@@ -77,6 +78,7 @@ const CurrentRatio = ({
     }
     // console.log("sending average current ratio : ", averageCurrentRatio)
   }, [JSON.stringify(averageCurrentRatio)]);
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   return (
     <Page
@@ -152,14 +154,16 @@ const CurrentRatio = ({
           </Text>
 
           {/* ✅ Dynamically generate years with fallback */}
-          {financialYearLabels.map((yearLabel, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {yearLabel}
-            </Text>
-          ))}
+          {financialYearLabels
+            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
         </View>
 
         <View style={[styles.table]}>
@@ -179,18 +183,19 @@ const CurrentRatio = ({
             </Text>
             {Array.isArray(receivedAssetsLiabilities?.CurrentAssetsArray) &&
               receivedAssetsLiabilities.CurrentAssetsArray.map(
-                (tax, yearIndex) => (
-                  <Text
-                    key={`receivedAssetsLiabilities-CurrentAssetsArray-${yearIndex}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(tax || 0)}{" "}
-                    {/* Format the value and handle undefined/null */}
-                  </Text>
-                )
+                (tax, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={`receivedAssetsLiabilities-CurrentAssetsArray-${yearIndex}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(tax || 0)}{" "}
+                      {/* Format the value and handle undefined/null */}
+                    </Text>
+                  )
               )}
           </View>
 
@@ -218,18 +223,19 @@ const CurrentRatio = ({
               receivedAssetsLiabilities?.yearlycurrentLiabilities
             ) &&
               receivedAssetsLiabilities.yearlycurrentLiabilities.map(
-                (tax, yearIndex) => (
-                  <Text
-                    key={`receivedAssetsLiabilities-yearlycurrentLiabilities-${yearIndex}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(tax || 0)}{" "}
-                    {/* Format the value and handle undefined/null */}
-                  </Text>
-                )
+                (tax, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={`receivedAssetsLiabilities-yearlycurrentLiabilities-${yearIndex}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(tax || 0)}{" "}
+                      {/* Format the value and handle undefined/null */}
+                    </Text>
+                  )
               )}
           </View>
 
@@ -252,22 +258,25 @@ const CurrentRatio = ({
             </Text>
 
             {/* ✅ Display Computed Total for Each Year */}
-            {currentRatio.map((ratio, yearIndex) => (
-              <Text
-                key={`current-ratio-${yearIndex}`}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  {
-                    fontWeight: "bold",
-                    fontFamily: "Roboto",
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {ratio !== "-" ? ratio : "0"}
-              </Text>
-            ))}
+            {currentRatio.map(
+              (ratio, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={`current-ratio-${yearIndex}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                        fontFamily: "Roboto",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {ratio !== "-" ? ratio : "0"}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Average Current Ratio */}
@@ -294,11 +303,12 @@ const CurrentRatio = ({
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
                 {
-                  width: `${financialYearLabels.length * 200}px`, // ✅ Adjust width dynamically
+                  width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
                   fontWeight: "bold",
                   fontFamily: "Roboto",
                   textAlign: "center",
                   borderRightWidth: 0,
+                  fontSize: "12px",
                 },
               ]}
             >

@@ -5,10 +5,10 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useLocation , useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
-import { Document, PDFViewer, Image } from "@react-pdf/renderer";
+import { Document, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import useStore from "./useStore";
 
 // Register chart.js components
@@ -33,7 +33,8 @@ import Assumptions from "./PDFComponents/Assumptions";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(() => {
+const GeneratedPDF = React.memo(({ pdfData }) => {
+  console.log("received Pdf Data", pdfData);
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -85,14 +86,12 @@ const GeneratedPDF = React.memo(() => {
 
   const [pdfType, setPdfType] = useState("");
 
-  
   const [years, setYears] = useState(5);
 
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
-
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -102,8 +101,7 @@ const GeneratedPDF = React.memo(() => {
     }
   }, []);
 
-
-  console.log("pdf type", pdfType)
+  console.log("pdf type", pdfType);
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -153,7 +151,6 @@ const GeneratedPDF = React.memo(() => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
 
@@ -170,11 +167,15 @@ const GeneratedPDF = React.memo(() => {
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
 
-   const [formData, setFormData] = useState(() => {
-      return JSON.parse(localStorage.getItem("formData")) || {};
-    });
+  const [formData1, setFormData] = useState(() => {
+    return JSON.parse(localStorage.getItem("formData")) || {};
+  });
 
-    // console.log("formData", formData);
+  console.log("formData1", formData1);
+
+  const formData = pdfData || formData1;
+
+  // console.log("formData", formData);
 
   const yearsRef = useRef(5);
 
@@ -205,16 +206,15 @@ const GeneratedPDF = React.memo(() => {
     [normalExpense]
   );
 
-
-
   // ✅ Compute Total Annual Wages
-const totalAnnualWages = useMemo(() => {
-  if (!Array.isArray(normalExpense)) return 0; // Prevents errors
-  return normalExpense.reduce(
-    (sum, expense) => sum + Number(expense.amount * expense.quantity * 12 || 0),
-    0
-  );
-}, [normalExpense]);
+  const totalAnnualWages = useMemo(() => {
+    if (!Array.isArray(normalExpense)) return 0; // Prevents errors
+    return normalExpense.reduce(
+      (sum, expense) =>
+        sum + Number(expense.amount * expense.quantity * 12 || 0),
+      0
+    );
+  }, [normalExpense]);
 
   // ✅ Compute Fringe Benefits at 5%
   const fringeCalculation = useMemo(
@@ -296,11 +296,40 @@ const totalAnnualWages = useMemo(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
 
- 
- //saving data to Local Storage
+  //saving data to Local Storage
 
- useEffect(() => {
-  const saveData = {
+  useEffect(() => {
+    const saveData = {
+      normalExpense,
+      totalAnnualWages,
+      directExpenses,
+      totalDirectExpensesArray,
+      computedData,
+      computedData1,
+      totalDepreciation,
+      yearlyInterestLiabilities,
+      yearlyPrincipalRepayment,
+      interestOnWorkingCapital,
+      receivedData,
+      marchClosingBalances,
+      workingCapitalvalues,
+      grossFixedAssetsPerYear,
+      incomeTaxCalculation,
+      closingCashBalanceArray,
+      totalLiabilities,
+      assetsliabilities,
+      dscr,
+      averageCurrentRatio,
+      breakEvenPointPercentage,
+      totalExpense,
+      userRole,
+      years,
+      totalRevenueReceipts,
+    };
+
+    // console.log("Saving to localStorage:", saveData);
+    localStorage.setItem("storedGeneratedPdfData", JSON.stringify(saveData));
+  }, [
     normalExpense,
     totalAnnualWages,
     directExpenses,
@@ -326,64 +355,48 @@ const totalAnnualWages = useMemo(() => {
     userRole,
     years,
     totalRevenueReceipts,
-  };
-  
-  // console.log("Saving to localStorage:", saveData);
-  localStorage.setItem("storedGeneratedPdfData", JSON.stringify(saveData));
-}, [
-  normalExpense,
-  totalAnnualWages,
-  directExpenses,
-  totalDirectExpensesArray,
-  computedData,
-  computedData1,
-  totalDepreciation,
-  yearlyInterestLiabilities,
-  yearlyPrincipalRepayment,
-  interestOnWorkingCapital,
-  receivedData,
-  marchClosingBalances,
-  workingCapitalvalues,
-  grossFixedAssetsPerYear,
-  incomeTaxCalculation,
-  closingCashBalanceArray,
-  totalLiabilities,
-  assetsliabilities,
-  dscr,
-  averageCurrentRatio,
-  breakEvenPointPercentage,
-  totalExpense,
-  userRole,
-  years,
-  totalRevenueReceipts,
-]);
+  ]);
 
+  const setComputedDataToProfit = useStore(
+    (state) => state.setComputedDataToProfit
+  );
+  const resetDataReady = useStore((state) => state.resetDataReady);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (computedData) {
+      setComputedDataToProfit(computedData); // ✅ Store computed data in Zustand
+      // console.log("✅ Computed Data Stored in Zustand:", computedData);
 
-
-const setComputedDataToProfit = useStore((state) => state.setComputedDataToProfit);
-const resetDataReady = useStore((state) => state.resetDataReady);
-const navigate = useNavigate();
-
-useEffect(() => {
-  if (computedData) {
-    setComputedDataToProfit(computedData); // ✅ Store computed data in Zustand
-    // console.log("✅ Computed Data Stored in Zustand:", computedData);
-
-    // ✅ If this was a silent trigger, navigate back to Check Profit
-    if (location.state?.fromCheckProfit) {
-      // console.log("🔄 Redirecting to Check Profit after computation...");
-      navigate("/checkprofit");
+      // ✅ If this was a silent trigger, navigate back to Check Profit
+      if (location.state?.fromCheckProfit) {
+        // console.log("🔄 Redirecting to Check Profit after computation...");
+        navigate("/checkprofit");
+      }
     }
-  }
-  return () => resetDataReady(); // ✅ Reset flag when leaving the page
-}, [computedData, setComputedDataToProfit, resetDataReady, location, navigate]);
+    return () => resetDataReady(); // ✅ Reset flag when leaving the page
+  }, [
+    computedData,
+    setComputedDataToProfit,
+    resetDataReady,
+    location,
+    navigate,
+  ]);
 
-const memoizedPDF = useMemo(() => {
-  return (
-    <Document>
-      {/* basic details table */}
-      <BasicDetails formData={formData} />
+  const businessName =
+    formData.AccountInformation.businessName || "Unknown Business";
+  const clientName = formData.AccountInformation.clientName || "Unknown Client";
+
+  const fileName = `ProjectReport_${businessName.replace(
+    /[^a-zA-Z0-9]/g,
+    "_"
+  )}_${clientName.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+
+  const memoizedPDF = useMemo(() => {
+    return (
+      <Document>
+        {/* basic details table */}
+        <BasicDetails formData={formData} />
 
         <ProjectSynopsis
           formData={formData}
@@ -408,53 +421,54 @@ const memoizedPDF = useMemo(() => {
           pdfType={pdfType}
         />
 
-{/* cost of project table */}
-<CostOfProject
-  formData={formData}
-  localData={localData}
-  formatNumber={formatNumber}
-/>
+        {/* cost of project table */}
+        <CostOfProject
+          formData={formData}
+          localData={localData}
+          formatNumber={formatNumber}
+        />
 
-{/* Projected Salaries & Wages Table*/}
-<ProjectedSalaries
-  localData={localData}
-  normalExpense={normalExpense}
-  totalAnnualWages={totalAnnualWages}
-  totalQuantity={totalQuantity}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  fringeCalculation={fringeCalculation}
-  formatNumber={formatNumber}
-  formData={formData}
-/>
+        {/* Projected Salaries & Wages Table*/}
+        <ProjectedSalaries
+          localData={localData}
+          normalExpense={normalExpense}
+          totalAnnualWages={totalAnnualWages}
+          totalQuantity={totalQuantity}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          formatNumber={formatNumber}
+          formData={formData}
+        />
 
-<ProjectedDepreciation
-  formData={formData}
-  localData={localData}
-  setTotalDepreciation={setTotalDepreciation}
-  onComputedData1={setComputedData1}
-  financialYearLabels={financialYearLabels}
-  onGrossFixedAssetsPerYearCalculated={(data) => {
-    setGrossFixedAssetsPerYear(data);
-  }}
-  formatNumber={formatNumber}
-/>
+        <ProjectedDepreciation
+          formData={formData}
+          localData={localData}
+          setTotalDepreciation={setTotalDepreciation}
+          onComputedData1={setComputedData1}
+          financialYearLabels={financialYearLabels}
+          onGrossFixedAssetsPerYearCalculated={(data) => {
+            setGrossFixedAssetsPerYear(data);
+          }}
+          formatNumber={formatNumber}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+        />
 
-{/* Projected Expense Table Direct and Indirect */}
-<ProjectedExpenses
-  formData={formData}
-  yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-  totalDepreciationPerYear={totalDepreciation}
-  fringAndAnnualCalculation={fringAndAnnualCalculation}
-  fringeCalculation={fringeCalculation}
-  interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
-  financialYearLabels={financialYearLabels}
-  directExpenses={directExpenses}
-  projectionYears={projectionYears}
-  totalDirectExpensesArray={totalDirectExpensesArray}
-  onTotalExpenseSend={setTotalExpense}
-  receivedtotalRevenueReceipts={totalRevenueReceipts}
-  formatNumber={formatNumber}
-/>
+        {/* Projected Expense Table Direct and Indirect */}
+        <ProjectedExpenses
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          totalDepreciationPerYear={totalDepreciation}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+          financialYearLabels={financialYearLabels}
+          directExpenses={directExpenses}
+          projectionYears={projectionYears}
+          totalDirectExpensesArray={totalDirectExpensesArray}
+          onTotalExpenseSend={setTotalExpense}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          formatNumber={formatNumber}
+        />
 
         {/* Projected Revenue/ Sales */}
 
@@ -507,6 +521,7 @@ const memoizedPDF = useMemo(() => {
             financialYearLabels={financialYearLabels}
             formatNumber={formatNumber}
             pdfType={pdfType}
+            receivedtotalRevenueReceipts={totalRevenueReceipts}
           />
         )}
         <ProjectedCashflow
@@ -557,6 +572,7 @@ const memoizedPDF = useMemo(() => {
           formatNumber={formatNumber}
           sendAverageCurrentRation={setAverageCurrentRatio}
           pdfType={pdfType}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
 
         <BreakEvenPoint
@@ -582,6 +598,7 @@ const memoizedPDF = useMemo(() => {
           DSCRSend={setDscr}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
 
         <RatioAnalysis
@@ -606,6 +623,7 @@ const memoizedPDF = useMemo(() => {
           onAssetsLiabilitiesSend={setAssetsLiabilities}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
 
         <Assumptions
@@ -615,6 +633,7 @@ const memoizedPDF = useMemo(() => {
           totalRevenueReceipts={totalRevenueReceipts}
           receiveTotalExpense={totalExpense}
           pdfType={pdfType}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
       </Document>
     );
@@ -633,19 +652,68 @@ const memoizedPDF = useMemo(() => {
     assetsliabilities,
   ]);
 
-  return (
-    <>
-      <PDFViewer
-        width="100%"
-        height="800"
-        style={{ overflow: "hidden" }}
-        showToolbar={userRole !== "client" && userRole !== "employee"}
-      >
-        {memoizedPDF}
-      </PDFViewer>
+  // ✅ Function to handle download
+  const handleDownloadOverride = (blob) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName; // ✅ Correct file name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
-      <section className="h-[100vh]"></section>
-    </>
+  useEffect(() => {
+    // ✅ Remove the default download button using CSS
+    const style = document.createElement("style");
+    style.innerHTML = `
+    button[aria-label="Download"] {
+      display: none !important;
+    }
+  `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  return (
+    <BlobProvider document={memoizedPDF}>
+      {({ blob, url, loading }) => (
+        <>
+          <PDFViewer
+            width="100%"
+            height="800"
+            style={{ overflow: "hidden" }}
+            showToolbar={userRole !== "client" && userRole !== "employee"}
+          >
+            {memoizedPDF}
+          </PDFViewer>
+          {/* ✅ Trigger manual download */}
+          {!loading && (
+            <button
+              onClick={() => handleDownloadOverride(blob)}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Download Report
+            </button>
+          )}
+          {/* ✅ Custom Download Button */}
+
+          <section className="h-[100vh]"></section>
+        </>
+      )}
+    </BlobProvider>
   );
 });
 

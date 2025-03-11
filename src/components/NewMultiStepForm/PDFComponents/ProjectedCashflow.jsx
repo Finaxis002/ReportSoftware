@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Page, View, Text , Image } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -29,7 +29,7 @@ const ProjectedCashflow = ({
   incomeTaxCalculation,
   onClosingCashBalanceCalculated,
   formatNumber,
-  pdfType
+  pdfType,
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
@@ -664,15 +664,24 @@ const ProjectedCashflow = ({
               ))}
             </View>
 
-            {/* Liabilities from More Details dynamically aligned with projectionYears */}
-            {formData?.MoreDetails?.currentLiabilities?.map(
-              (liabilities, idx) => (
+            {/* ✅ Liabilities from More Details dynamically aligned with projectionYears */}
+            {formData?.MoreDetails?.currentLiabilities
+              ?.filter((liabilities) =>
+                // ✅ Filter out rows where all year values are zero
+                liabilities.years.every((value) => Number(value) === 0)
+                  ? false
+                  : true
+              )
+              .map((liabilities, idx) => (
                 <View style={styles.tableRow} key={idx}>
+                  {/* ✅ Adjust Serial Number after filtering */}
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
                     {idx + 6}
                   </Text>
+
+                  {/* ✅ Liabilities Name */}
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -682,6 +691,8 @@ const ProjectedCashflow = ({
                   >
                     {liabilities.particular}
                   </Text>
+
+                  {/* ✅ Loop through Projection Years */}
                   {Array.from({ length: projectionYears }).map(
                     (_, yearIndex) => (
                       <Text
@@ -696,8 +707,7 @@ const ProjectedCashflow = ({
                     )
                   )}
                 </View>
-              )
-            )}
+              ))}
 
             {/* Total Sources Calculation */}
             <View
@@ -859,7 +869,7 @@ const ProjectedCashflow = ({
               ))}
             </View>
 
-            {/* Interest On Term Loan */}
+            {/* Interest On Working Capital */}
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
@@ -914,7 +924,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                4
+                5
               </Text>
               <Text
                 style={[
@@ -949,7 +959,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                5
+                6
               </Text>
               <Text
                 style={[
@@ -988,40 +998,51 @@ const ProjectedCashflow = ({
               )}
             </View>
 
-            {/* Current Assets from More Details */}
-            {formData?.MoreDetails?.currentAssets?.map((assets, index) => (
-              <View style={styles.tableRow} key={index}>
-                {/* Serial No */}
-                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {index + 6}
-                </Text>
-
-                {/* Particular Name */}
-                <Text
-                  style={[
-                    stylesCOP.detailsCellDetail,
-                    styleExpenses.particularWidth,
-                    styleExpenses.bordernone,
-                  ]}
-                >
-                  {assets.particular}
-                </Text>
-
-                {/* Ensure Projection Years Match */}
-                {Array.from({ length: projectionYears }).map((_, yearIndex) => (
+            {/* ✅ Current Assets from More Details */}
+            {formData?.MoreDetails?.currentAssets
+              ?.filter((assets) =>
+                // ✅ Filter out rows where all year values are zero
+                assets.years.every((value) => Number(value) === 0)
+                  ? false
+                  : true
+              )
+              .map((assets, index) => (
+                <View style={styles.tableRow} key={index}>
+                  {/* ✅ Adjust Serial Number after filtering */}
                   <Text
-                    key={yearIndex}
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {index + 7}
+                  </Text>
+
+                  {/* ✅ Particular Name */}
+                  <Text
                     style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
                     ]}
                   >
-                    {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
-                    {/* Fill missing values with 0 */}
+                    {assets.particular}
                   </Text>
-                ))}
-              </View>
-            ))}
+
+                  {/* ✅ Ensure Projection Years Match */}
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
+                        {/* Fill missing values with 0 */}
+                      </Text>
+                    )
+                  )}
+                </View>
+              ))}
 
             {/* Total Uses Calculation */}
             <View

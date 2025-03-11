@@ -56,31 +56,8 @@ const MenuBar = ({ userRole }) => {
       ),
     },
     {
-      path: "/form",
-      label: "Add Report",
-      roles: ["admin", "employee", "client"],
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="feather feather-shopping-bag"
-        >
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 0 1-8 0" />
-        </svg>
-      ),
-    },
-    {
-      path: "/MultestepForm",
-      label: "MultestepForm",
+      path: "/reports",
+      label: "Reports",
       roles: ["admin", "employee", "client"],
       icon: (
         <svg
@@ -186,28 +163,6 @@ const MenuBar = ({ userRole }) => {
         >
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-      ),
-    },
-    {
-      path: "/database",
-      label: "Database",
-      roles: ["admin"],
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="feather feather-pie-chart"
-        >
-          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
-          <path d="M22 12A10 10 0 0 0 12 2v10z" />
         </svg>
       ),
     },

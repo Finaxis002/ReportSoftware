@@ -52,13 +52,13 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Assign Task</h2>
+        <h2 className="text-xl font-bold mb-4">Assign Report</h2>
         {error && <p className="mb-2 text-red-500">{error}</p>}
         {message && <p className="mb-2 text-green-500">{message}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Task Title
+              Report Title
             </label>
             <input
               type="text"
@@ -70,7 +70,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Task Description
+              Report Description
             </label>
             <textarea
               className="w-full p-2 border rounded"
