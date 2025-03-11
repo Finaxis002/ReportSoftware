@@ -203,6 +203,8 @@ const Repayment = ({
     }
   }, [JSON.stringify(data), onMarchClosingBalanceCalculated]);
 
+
+  let yearCounter = 1; // ✅ Separate counter for valid years
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
@@ -420,33 +422,6 @@ const Repayment = ({
 
               return (
                 <>
-                {/* {pdfType &&
-                  pdfType !== "select option" &&
-                  (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        left: "50%", // Center horizontally
-                        top: "50%", // Center vertically
-                        width: 500, // Set width to 500px
-                        height: 700, // Set height to 700px
-                        marginLeft: -200, // Move left by half width (500/2)
-                        marginTop: -350, // Move up by half height (700/2)
-                        opacity: 0.4, // Light watermark
-                        zIndex: -1, // Push behind content
-                      }}
-                    >
-                      <Image
-                        src={
-                          pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                        }
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                        }}
-                      />
-                    </View>
-                  )} */}
 
                 <View
                   key={yearIndex}
