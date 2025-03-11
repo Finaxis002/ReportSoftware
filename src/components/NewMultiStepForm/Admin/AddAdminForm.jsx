@@ -10,6 +10,22 @@ const AddAdminForm = ({ onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [caSign, setCaSign] = useState(null);
   
+  // ✅ State for user roles
+  const [roles, setRoles] = useState({
+    createNew: false,
+    createFromExisting: false,
+    updateReport: false,
+    generateReport: false,
+    checkPDF: false,
+  });
+
+  // ✅ Handle checkbox changes
+  const handleRoleChange = (role) => {
+    setRoles((prevRoles) => ({
+      ...prevRoles,
+      [role]: !prevRoles[role],
+    }));
+  };
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -38,6 +54,7 @@ const AddAdminForm = ({ onSuccess }) => {
     if (caSign) {
       formData.append('caSign', caSign);
     }
+    formData.append('roles', JSON.stringify(roles));
   
     try {
       await addAdmin(formData); // ✅ Pass formData directly here
@@ -88,6 +105,49 @@ const AddAdminForm = ({ onSuccess }) => {
           onChange={(e) => setCaSign(e.target.files[0])}
           style={styles.input}
         />
+
+<div style={styles.checkboxContainer}>
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={roles.createNew}
+              onChange={() => handleRoleChange('createNew')}
+            />
+            Create New
+          </label>
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={roles.createFromExisting}
+              onChange={() => handleRoleChange('createFromExisting')}
+            />
+            Create from Existing
+          </label>
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={roles.updateReport}
+              onChange={() => handleRoleChange('updateReport')}
+            />
+            Update Report
+          </label>
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={roles.generateReport}
+              onChange={() => handleRoleChange('generateReport')}
+            />
+            Generate Report
+          </label>
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={roles.checkPDF}
+              onChange={() => handleRoleChange('checkPDF')}
+            />
+            Check PDF
+          </label>
+        </div>
         {error && <p style={styles.error}>{error}</p>}
         <button type="submit" style={styles.button}>Create</button>
       </form>
@@ -176,6 +236,20 @@ const styles = {
   error: {
     color: 'red',
     marginBottom: '10px',
+  },
+  // ✅ Checkbox styles
+  checkboxContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginBottom: '10px',
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '5px',
+    fontSize: '14px',
+    cursor: 'pointer',
   },
 };
 
