@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import deleteImg from "../delete.png";
 import checkImg from "../check.png";
 
-const ThirdStepCOP = ({ formData, onFormDataChange }) => {
+const ThirdStepCOP = ({ formData, onFormDataChange , setError , error}) => {
   const prevDataRef = useRef(null);
 
   const defaultData = {
@@ -56,14 +56,16 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
       };
 
       // Prevent unnecessary updates
-      if (!prevDataRef.current || JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)) {
+      if (
+        !prevDataRef.current ||
+        JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
+      ) {
         // console.log("Populating CostOfProject data:", newData);
         setLocalData(newData);
         prevDataRef.current = newData;
       }
     }
   }, [formData?.CostOfProject]);
-
 
   // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
   useEffect(() => {
@@ -92,6 +94,19 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
     }));
   };
 
+  const calculatedTotal = 
+    Object.values(localData).reduce(
+      (total, field) => total + field.amount,
+      0
+    ) + Number(formData.MeansOfFinance.totalWorkingCapital);
+
+  useEffect(() => {
+    if (formData.MeansOfFinance.total !== calculatedTotal) {
+      setError('Total Amount should be equal to the Total Amount of the Means of Finance.');
+    } else {
+      setError('');
+    }
+  }, [calculatedTotal, formData.MeansOfFinance.total, setError]);
 
   return (
     <div className="form-scroll">
@@ -162,19 +177,6 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
           </div>
         ))}
 
-
-        {/* <div className="d-flex gap-2 my-4 justify-content-end">
-          <div className="w-100 flex">
-            <label className="form-label w-100">Working Capital</label>
-             <input 
-             type="text"
-             name="workingCapital"
-             className="form-control w-[50%]"
-             value={formData.MeansOfFinance.totalWorkingCapital}
-              />
-          </div>
-
-        </div> */}
         {/* Working Capital Input */}
         <div className="d-flex gap-2 my-4 justify-content-end">
           <div className="w-100 flex">
@@ -196,7 +198,10 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
               className="form-control w-[50%]"
               value={formData.MeansOfFinance?.totalWorkingCapital || ""}
               onChange={(e) => {
-                const newValue = e.target.value.trim() === "" ? 0 : parseFloat(e.target.value) || 0;
+                const newValue =
+                  e.target.value.trim() === ""
+                    ? 0
+                    : parseFloat(e.target.value) || 0;
                 onFormDataChange({
                   ...formData,
                   MeansOfFinance: {
@@ -215,16 +220,20 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
             <label className="form-label w-100">Total Amount</label>
             <input
               name="totalAmount"
-              value={Object.values(localData).reduce(
-                ((total, field) => total + field.amount),
-                0
-              ) + Number(formData.MeansOfFinance.totalWorkingCapital)}
+              value={calculatedTotal}
               className="form-control w-[50%]"
               type="number"
               disabled
             />
+           
           </div>
         </div>
+        {error && (
+            <div className="text-danger mt-2 text-right">
+              {error}
+            </div>
+          )}
+
         <button
           className="btn btn-secondary px-4"
           onClick={() => {
@@ -254,12 +263,6 @@ const ThirdStepCOP = ({ formData, onFormDataChange }) => {
 };
 
 export default ThirdStepCOP;
-
-
-
-
-
-
 
 // import React, { useState, useEffect, useRef } from "react";
 // import deleteImg from "../delete.png";
@@ -327,7 +330,6 @@ export default ThirdStepCOP;
 //     }
 //   }, [formData?.CostOfProject]);
 
-
 //   // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
 //   useEffect(() => {
 //     if (JSON.stringify(localData) !== JSON.stringify(prevDataRef.current)) {
@@ -354,7 +356,6 @@ export default ThirdStepCOP;
 //       },
 //     }));
 //   };
-
 
 //   return (
 //     <div className="form-scroll">
@@ -469,6 +470,3 @@ export default ThirdStepCOP;
 // };
 
 // export default ThirdStepCOP;
-
-
-

@@ -27,66 +27,51 @@ const MainLogin = ({ onLogin }) => {
   }, [navigate, onLogin]);
 
   // Handle Login
- // Handle Login (made async to allow API call)
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-
-  if (activeTab === "admin") {
-    if (
-      inputUsername === adminCredentials.username &&
-      inputPassword === adminCredentials.password
-    ) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "admin");
-      onLogin(true, "admin");
-      navigate("/");
-    } else {
-      setError("Invalid Admin Credentials!");
-    }
-  } else if (activeTab === "client") {
-    if (
-      inputUsername === clientCredentials.username &&
-      inputPassword === clientCredentials.password
-    ) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "client");
-      onLogin(true, "client");
-      navigate("/");
-    } else {
-      setError("Invalid Client Credentials!");
-    }
-  } else if (activeTab === "employee") {
-    // Call the API endpoint to login the employee
-    try {
-      const response = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          employeeId: inputUsername, // make sure this matches your API field name
-          password: inputPassword,
-        }),
-      });
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Store login details in localStorage
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "employee");
-        localStorage.setItem("userId", data.employee.employeeId);
-        onLogin(true, "employee");
-        navigate("/");
-      } else {
-        setError(data.error || "Invalid Employee ID or Password!");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+  
+    if (activeTab === "employee") {
+      try {
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              employeeId: inputUsername,
+              password: inputPassword,
+            }),
+          }
+        );
+  
+        const data = await response.json();
+        console.log("Backend Response:", data); // ✅ Check the full response
+  
+        if (response.ok && data.success) {
+          console.log("✅ Employee Login Success:", data);
+  
+          // ✅ Pass `employeeName` from backend response
+          onLogin(true, "employee", {
+            employeeId: data.employee.employeeId,
+            employeeName: data.employee.name, // ✅ Pass employeeName properly
+            permissions: data.employee.permissions,
+          });
+  
+          navigate("/"); // ✅ Redirect after login
+        } else {
+          setError(data.error || "Invalid Employee ID or Password!");
+        }
+      } catch (err) {
+        console.error("🔥 Error logging in employee:", err);
+        setError("Server error. Please try again later.");
       }
-    } catch (err) {
-      console.error("Error logging in employee:", err);
-      setError("Server error. Please try again later.");
     }
-  }
-};
+  };
+  
+  
   
 
   return (

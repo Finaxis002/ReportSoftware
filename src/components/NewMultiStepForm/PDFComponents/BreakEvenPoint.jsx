@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text , Image } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -27,7 +27,7 @@ const BreakEvenPoint = ({
   formatNumber,
   sendBreakEvenPointPercentage,
   receivedtotalRevenueReceipts,
-  pdfType
+  pdfType,
 }) => {
   // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
@@ -266,6 +266,9 @@ const BreakEvenPoint = ({
     }
     // console.log("Sending Dscr : ", DSCR )
   }, [JSON.stringify(breakEvenPointPercentage)]);
+
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   return (
     <Page
       size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
@@ -279,33 +282,31 @@ const BreakEvenPoint = ({
       style={[{ padding: "20px" }]}
     >
       {pdfType &&
-          pdfType !== "select option" &&
-          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-            <View
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
               style={{
-                position: "absolute",
-                left: "50%", // Center horizontally
-                top: "50%", // Center vertically
-                width: 500, // Set width to 500px
-                height: 700, // Set height to 700px
-                marginLeft: -200, // Move left by half width (500/2)
-                marginTop: -350, // Move up by half height (700/2)
-                opacity: 0.4, // Light watermark
-                zIndex: -1, // Push behind content
+                width: "100%",
+                height: "100%",
               }}
-              fixed
-            >
-              <Image
-                src={
-                  pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                }
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </View>
-          )}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -331,9 +332,9 @@ const BreakEvenPoint = ({
         >
           <Text>Break-Even Point</Text>
         </View>
-       
+
         <View style={[styles.table]}>
-           {/* Table Header */}
+          {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text
               style={[
@@ -355,14 +356,16 @@ const BreakEvenPoint = ({
             </Text>
 
             {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels.map((yearLabel, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[styles.particularsCell, stylesCOP.boldText]}
-              >
-                {yearLabel}
-              </Text>
-            ))}
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
           </View>
 
           {/* ✅ Display Total Revenue Receipt Row */}
@@ -372,14 +375,18 @@ const BreakEvenPoint = ({
               styles.tableRow,
               {
                 fontWeight: "black",
-                borderBottom:0
+                borderBottom: 0,
               },
             ]}
           >
             {/* ✅ Serial Number */}
-            <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno , {paddingVertical:"10px"}]}>
-              
-            </Text>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                { paddingVertical: "10px" },
+              ]}
+            ></Text>
 
             {/* ✅ Title */}
             <Text
@@ -387,31 +394,41 @@ const BreakEvenPoint = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "extrabold" ,paddingVertical:"10px"},
+                { fontWeight: "extrabold", paddingVertical: "10px" },
               ]}
             >
               Gross Receipts
             </Text>
 
             {/* ✅ Dynamically Display Cells Based on Projection Years */}
-            {Array.from({ length: projectionYears }).map((_, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                  {fontFamily:"Roboto", fontWeight: "extrabold", borderLeftWidth: "0px", paddingVertical:"10px" , borderTopWidth:0, paddingBottom:"10px"},
-                ]}
-              >
-                {/* ✅ Display revenue value if available, else 0 */}
-                {formatNumber(totalRevenueReceipts[yearIndex] || 0)}
-              </Text>
-            ))}
+            {Array.from({ length: projectionYears }).map(
+              (_, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      {
+                        fontFamily: "Roboto",
+                        fontWeight: "extrabold",
+                        borderLeftWidth: "0px",
+                        paddingVertical: "10px",
+                        borderTopWidth: 0,
+                        paddingBottom: "10px",
+                      },
+                    ]}
+                  >
+                    {/* ✅ Display revenue value if available, else 0 */}
+                    {formatNumber(totalRevenueReceipts[yearIndex] || 0)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Closing Stock / Inventory */}
-          <View  style={[styles.tableRow, styles.totalRow]}>
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
             ></Text>
@@ -428,20 +445,25 @@ const BreakEvenPoint = ({
             {Array.from({
               length:
                 parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-            }).map((_, index) => (
-              <Text
-                key={`closingStock-${index}`}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(formData.MoreDetails.closingStock?.[index] ?? 0)}
-              </Text>
-            ))}
+            }).map(
+              (_, index) =>
+                (!hideFirstYear || index !== 0) && (
+                  <Text
+                    key={`closingStock-${index}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(
+                      formData.MoreDetails.closingStock?.[index] ?? 0
+                    )}
+                  </Text>
+                )
+            )}
           </View>
           {/* Opening Stock / Inventory */}
-          <View  style={[styles.tableRow, styles.totalRow]}>
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
             ></Text>
@@ -458,17 +480,22 @@ const BreakEvenPoint = ({
             {Array.from({
               length:
                 parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-            }).map((_, index) => (
-              <Text
-                key={`openingStock-${index}`}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(formData.MoreDetails.openingStock?.[index] ?? 0)}
-              </Text>
-            ))}
+            }).map(
+              (_, index) =>
+                (!hideFirstYear || index !== 0) && (
+                  <Text
+                    key={`openingStock-${index}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(
+                      formData.MoreDetails.openingStock?.[index] ?? 0
+                    )}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
@@ -492,23 +519,26 @@ const BreakEvenPoint = ({
             ></Text>
 
             {/* ✅ Display Computed Adjusted Revenue Values */}
-            {adjustedRevenueValues.map((finalValue, yearIndex) => (
-              <Text
-                key={`finalValue-${yearIndex}`}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                  {
-                    fontFamily: "Roboto",
-                    fontWeight: "extrabold",
-                    borderLeftWidth: "0px",
-                  },
-                ]}
-              >
-                {formatNumber(finalValue)}
-              </Text>
-            ))}
+            {adjustedRevenueValues.map(
+              (finalValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={`finalValue-${yearIndex}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      {
+                        fontFamily: "Roboto",
+                        fontWeight: "extrabold",
+                        borderLeftWidth: "0px",
+                      },
+                    ]}
+                  >
+                    {formatNumber(finalValue)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Less: Variable Expense */}
@@ -520,75 +550,110 @@ const BreakEvenPoint = ({
             </View>
 
             {/* ✅ Render All Expenses (Direct + Indirect) in a Single Section */}
-            {allExpenses.map((expense, expenseIndex) => {
-              const baseValue = Number(expense.value) || 0;
-              const isRawMaterial =
-                expense.name.trim() === "Raw Material Expenses / Purchases";
+            {allExpenses
+              .filter((expense) => {
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
 
-              return (
-                <View
-                  key={expenseIndex}
-                  style={[styles.tableRow, styles.totalRow]}
-                >
-                  {/* ✅ Serial No. */}
-                  <Text
-                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                // ✅ Check if all projected values are zero
+                const allValuesAreZero = Array.from({
+                  length: projectionYears,
+                }).every((_, yearIndex) => {
+                  if (hideFirstYear && yearIndex === 0) return true; // Skip first year if hideFirstYear is true
+
+                  let expenseValue;
+
+                  if (
+                    isRawMaterial &&
+                    String(expense.value).trim().endsWith("%")
+                  ) {
+                    // ✅ If it's "Raw Material Expenses / Purchases" with percentage, calculate based on revenue
+                    expenseValue =
+                      (parseFloat(expense.value) / 100) *
+                      receivedtotalRevenueReceipts[yearIndex];
+                  } else {
+                    // ✅ Otherwise, apply normal numeric calculation
+                    expenseValue = Number(expense.value) * 12 || 0;
+                  }
+
+                  return expenseValue === 0;
+                });
+
+                return !allValuesAreZero; // ✅ Remove rows where all year values are zero
+              })
+              .map((expense, expenseIndex) => {
+                const baseValue = Number(expense.value) || 0;
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
+
+                return (
+                  <View
+                    key={expenseIndex}
+                    style={[styles.tableRow, styles.totalRow]}
                   >
-                    {expenseIndex + 1}
-                  </Text>
+                    {/* ✅ Serial No. (Adjusted after filtering) */}
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {expenseIndex + 1}
+                    </Text>
 
-                  {/* ✅ Expense Name */}
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {expense.name}
-                  </Text>
+                    {/* ✅ Expense Name */}
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {expense.name}
+                    </Text>
 
-                  {/* ✅ Calculate and Display Expense for Each Year */}
-                  {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) => {
-                      let expenseValue;
+                    {/* ✅ Calculate and Display Expense for Each Year */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
 
-                      if (
-                        isRawMaterial &&
-                        String(expense.value).trim().endsWith("%")
-                      ) {
-                        // ✅ If it's "Raw Material Expenses / Purchases" with a percentage, calculate based on revenue
-                        expenseValue =
-                          (parseFloat(expense.value) / 100) *
-                          receivedtotalRevenueReceipts[yearIndex];
-                      } else {
-                        // ✅ Otherwise, apply normal numeric calculation
-                        expenseValue = baseValue * 12 || 0;
+                        let expenseValue;
+
+                        if (
+                          isRawMaterial &&
+                          String(expense.value).trim().endsWith("%")
+                        ) {
+                          // ✅ If "Raw Material Expenses / Purchases" with percentage, calculate based on revenue
+                          expenseValue =
+                            (parseFloat(expense.value) / 100) *
+                            receivedtotalRevenueReceipts[yearIndex];
+                        } else {
+                          // ✅ Otherwise, apply normal numeric calculation
+                          expenseValue = baseValue * 12 || 0;
+                        }
+
+                        // ✅ Format the expense value correctly
+                        const formattedExpense = isRawMaterial
+                          ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expenses
+                          : formatNumber(
+                              calculateExpense(expenseValue, yearIndex).toFixed(
+                                2
+                              )
+                            );
+
+                        return (
+                          <Text
+                            key={yearIndex}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formattedExpense}
+                          </Text>
+                        );
                       }
-
-                      // ✅ Format the expense value correctly
-                      const formattedExpense = isRawMaterial
-                        ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expenses
-                        : formatNumber(
-                            calculateExpense(expenseValue, yearIndex).toFixed(2)
-                          );
-
-                      return (
-                        <Text
-                          key={yearIndex}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                          ]}
-                        >
-                          {formattedExpense}
-                        </Text>
-                      );
-                    }
-                  )}
-                </View>
-              );
-            })}
+                    )}
+                  </View>
+                );
+              })}
 
             {/* ✅ Total Row for Variable Expense */}
             <View
@@ -619,24 +684,27 @@ const BreakEvenPoint = ({
               </Text>
 
               {/* ✅ Display Properly Formatted Totals for Each Year */}
-              {totalVariableExpenses.map((total, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                    {
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
-                      borderBottom: 0,
-                      paddingBottom: "10px",
-                      borderTopWidth:".5px"
-                    },
-                  ]}
-                >
-                  {formatNumber(total)} {/* ✅ Correctly formatted total */}
-                </Text>
-              ))}
+              {totalVariableExpenses.map(
+                (total, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontFamily: "Roboto",
+                          fontWeight: "extrabold",
+                          borderBottom: 0,
+                          paddingBottom: "10px",
+                          borderTopWidth: ".5px",
+                        },
+                      ]}
+                    >
+                      {formatNumber(total)} {/* ✅ Correctly formatted total */}
+                    </Text>
+                  )
+              )}
             </View>
           </View>
 
@@ -667,23 +735,26 @@ const BreakEvenPoint = ({
             </Text>
 
             {/* ✅ Display Contribution for Each Year */}
-            {contribution.map((total, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  {
-                    fontWeight: "extrabold",
-                    fontFamily: "Roboto",
-                    borderWidth: "1.2px",
-                    borderLeftWidth: "0px",
-                  },
-                ]}
-              >
-                {formatNumber(total)} {/* ✅ Round off Value */}
-              </Text>
-            ))}
+            {contribution.map(
+              (total, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "extrabold",
+                        fontFamily: "Roboto",
+                        borderWidth: "1.2px",
+                        borderLeftWidth: "0px",
+                      },
+                    ]}
+                  >
+                    {formatNumber(total)} {/* ✅ Round off Value */}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Less: Fixed Expenses */}
@@ -713,22 +784,25 @@ const BreakEvenPoint = ({
               >
                 Salary and Wages
               </Text>
-              {Array.from({ length: projectionYears }).map((_, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(
-                    calculateExpense(
-                      Number(fringAndAnnualCalculation) || 0,
-                      yearIndex
-                    ).toFixed(2)
-                  )}
-                </Text>
-              ))}
+              {Array.from({ length: projectionYears }).map(
+                (_, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(
+                        calculateExpense(
+                          Number(fringAndAnnualCalculation) || 0,
+                          yearIndex
+                        ).toFixed(2)
+                      )}
+                    </Text>
+                  )
+              )}
             </View>
 
             {/* Interest On Term Loan */}
@@ -757,17 +831,21 @@ const BreakEvenPoint = ({
               {/* Get total projection years */}
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
-              }).map((_, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(yearlyInterestLiabilities[index] || 0)}
-                </Text>
-              ))}
+              }).map((_, index) => {
+                if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
+
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(yearlyInterestLiabilities[index] || 0)}
+                  </Text>
+                );
+              })}
             </View>
 
             {/* Interest On Working Capital */}
@@ -797,6 +875,7 @@ const BreakEvenPoint = ({
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
+                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
                 const calculatedInterest = calculateInterestOnWorkingCapital(
                   interestOnWorkingCapital[yearIndex] || 0,
                   yearIndex
@@ -817,7 +896,7 @@ const BreakEvenPoint = ({
             </View>
 
             {/* ✅ Render Depreciation Row */}
-            <View  style={[styles.tableRow, styles.totalRow]}>
+            <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -838,17 +917,20 @@ const BreakEvenPoint = ({
               </Text>
 
               {/* ✅ Display Depreciation Values for Each Year */}
-              {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(depreciationValue)}
-                </Text>
-              ))}
+              {totalDepreciationPerYear.map(
+                (depreciationValue, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(depreciationValue)}
+                    </Text>
+                  )
+              )}
             </View>
 
             {/* ✅ Total Row for Fixed Expenses */}
@@ -879,20 +961,23 @@ const BreakEvenPoint = ({
               </Text>
 
               {/* ✅ Display the calculated `totalFixedExpenses` */}
-              {totalFixedExpenses.map((totalValue, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    stylesCOP.boldText,
-                    styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
-                  ]}
-                >
-                  {formatNumber(totalValue)}{" "}
-                  {/* ✅ Round off for display only */}
-                </Text>
-              ))}
+              {totalFixedExpenses.map(
+                (totalValue, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        { fontFamily: "Roboto", fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {formatNumber(totalValue)}{" "}
+                      {/* ✅ Round off for display only */}
+                    </Text>
+                  )
+              )}
             </View>
           </View>
 
@@ -931,24 +1016,27 @@ const BreakEvenPoint = ({
             </Text>
 
             {/* ✅ Display Break Even Point for Each Year with Two Decimal Places */}
-            {breakEvenPointPercentage.map((value, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  {
-                    fontWeight: "extrabold",
-                    fontFamily: "Roboto",
-                    borderWidth: "0px",
-                    paddingVertical: "10px",
-                  },
-                ]}
-              >
-                {formatNumber(parseFloat(value.toFixed(2)))}%{" "}
-                {/* ✅ Display with 2 Decimal Places */}
-              </Text>
-            ))}
+            {breakEvenPointPercentage.map(
+              (value, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "extrabold",
+                        fontFamily: "Roboto",
+                        borderWidth: "0px",
+                        paddingVertical: "10px",
+                      },
+                    ]}
+                  >
+                    {formatNumber(parseFloat(value.toFixed(2)))}%{" "}
+                    {/* ✅ Display with 2 Decimal Places */}
+                  </Text>
+                )
+            )}
           </View>
         </View>
       </View>

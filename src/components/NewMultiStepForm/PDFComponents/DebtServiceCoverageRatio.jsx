@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text , Image } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -26,7 +26,8 @@ const DebtServiceCoverageRatio = ({
   financialYearLabels,
   DSCRSend,
   formatNumber,
-  pdfType
+  pdfType,
+  receivedtotalRevenueReceipts,
 }) => {
   // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
@@ -193,6 +194,8 @@ const DebtServiceCoverageRatio = ({
     // console.log("DSCR:", DSCR);
   }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   return (
     <Page
       size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
@@ -208,33 +211,31 @@ const DebtServiceCoverageRatio = ({
       break
     >
       {pdfType &&
-          pdfType !== "select option" &&
-          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-            <View
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
               style={{
-                position: "absolute",
-                left: "50%", // Center horizontally
-                top: "50%", // Center vertically
-                width: 500, // Set width to 500px
-                height: 700, // Set height to 700px
-                marginLeft: -200, // Move left by half width (500/2)
-                marginTop: -350, // Move up by half height (700/2)
-                opacity: 0.4, // Light watermark
-                zIndex: -1, // Push behind content
+                width: "100%",
+                height: "100%",
               }}
-              fixed
-            >
-              <Image
-                src={
-                  pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                }
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </View>
-          )}
+            />
+          </View>
+        )}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -273,14 +274,16 @@ const DebtServiceCoverageRatio = ({
           </Text>
 
           {/* Generate Dynamic Year Headers using financialYearLabels */}
-          {financialYearLabels.map((yearLabel, yearIndex) => (
-            <Text
-              key={yearIndex}
-              style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-              {yearLabel}
-            </Text>
-          ))}
+          {financialYearLabels
+            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
         </View>
 
         <View>
@@ -307,17 +310,20 @@ const DebtServiceCoverageRatio = ({
               Net Profit After Tax
             </Text>
             {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
-            {netProfitAfterTax.map((tax, yearIndex) => (
-              <Text
-                key={`netProfitAfterTax-${yearIndex}`}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(tax)}
-              </Text>
-            ))}
+            {netProfitAfterTax.map(
+              (tax, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={`netProfitAfterTax-${yearIndex}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(tax)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* ✅ Render Depreciation Row */}
@@ -344,17 +350,20 @@ const DebtServiceCoverageRatio = ({
             </Text>
 
             {/* ✅ Display Depreciation Values for Each Year */}
-            {totalDepreciationPerYear.map((depreciationValue, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(depreciationValue)}
-              </Text>
-            ))}
+            {totalDepreciationPerYear.map(
+              (depreciationValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(depreciationValue)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Interest On Term Loan */}
@@ -383,17 +392,20 @@ const DebtServiceCoverageRatio = ({
             {/* Get total projection years */}
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
-            }).map((_, index) => (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(yearlyInterestLiabilities[index] || 0)}
-              </Text>
-            ))}
+            }).map(
+              (_, index) =>
+                (!hideFirstYear || index !== 0) && (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(yearlyInterestLiabilities[index] || 0)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Interest On Working Capital */}
@@ -423,6 +435,8 @@ const DebtServiceCoverageRatio = ({
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
             }).map((_, yearIndex) => {
+              if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+
               const calculatedInterest = calculateInterestOnWorkingCapital(
                 interestOnWorkingCapital[yearIndex] || 0,
                 yearIndex
@@ -470,7 +484,8 @@ const DebtServiceCoverageRatio = ({
             </Text>
 
             {/* ✅ Display Computed Total for Each Year */}
-            {totalA.map((totalValue, yearIndex) => (
+            {totalA.map((totalValue, yearIndex) => 
+            (!hideFirstYear || yearIndex !== 0) && (
               <Text
                 key={yearIndex}
                 style={[
@@ -514,7 +529,8 @@ const DebtServiceCoverageRatio = ({
             {/* Get total projection years */}
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
-            }).map((_, index) => (
+            }).map((_, index) => 
+              (!hideFirstYear || index !== 0) && (
               <Text
                 key={index}
                 style={[
@@ -555,6 +571,7 @@ const DebtServiceCoverageRatio = ({
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
             }).map((_, yearIndex) => {
+              if (hideFirstYear && yearIndex === 0) return null; 
               const calculatedInterest = calculateInterestOnWorkingCapital(
                 interestOnWorkingCapital[yearIndex] || 0,
                 yearIndex
@@ -598,7 +615,8 @@ const DebtServiceCoverageRatio = ({
 
             {/* ✅ Ensure First-Year Repayment is Included */}
             {yearlyPrincipalRepayment && yearlyPrincipalRepayment.length > 0 ? (
-              Array.from({ length: projectionYears }).map((_, index) => (
+              Array.from({ length: projectionYears }).map((_, index) => 
+                (!hideFirstYear || index !== 0) && (
                 <Text
                   key={index}
                   style={[
@@ -654,7 +672,8 @@ const DebtServiceCoverageRatio = ({
             </Text>
 
             {/* ✅ Display Computed Total for Each Year */}
-            {totalB.map((totalValue, yearIndex) => (
+            {totalB.map((totalValue, yearIndex) => 
+            (!hideFirstYear || yearIndex !== 0) && (
               <Text
                 key={yearIndex}
                 style={[
@@ -694,7 +713,8 @@ const DebtServiceCoverageRatio = ({
           </Text>
 
           {/* ✅ Display Computed Total for Each Year */}
-          {DSCR.map((totalValue, yearIndex) => (
+          {DSCR.map((totalValue, yearIndex) => 
+          (!hideFirstYear || yearIndex !== 0) && (
             <Text
               key={yearIndex}
               style={[
@@ -741,7 +761,8 @@ const DebtServiceCoverageRatio = ({
           ></Text>
 
           {/* ✅ Display Computed Total for Each Year */}
-          {DSCR.map((totalValue, yearIndex) => (
+          {DSCR.map((totalValue, yearIndex) => 
+            (!hideFirstYear || yearIndex !== 0) && (
             <Text
               key={yearIndex}
               style={[
@@ -759,12 +780,12 @@ const DebtServiceCoverageRatio = ({
 
         {/* ✅ Display Average DSCR */}
         <View
-         style={[
-          stylesMOF.row,
-          styles.tableRow,
-          styleExpenses.totalRow,
-          { borderWidth: 0 },
-        ]}
+          style={[
+            stylesMOF.row,
+            styles.tableRow,
+            styleExpenses.totalRow,
+            { borderWidth: 0 },
+          ]}
         >
           {/* Empty Column for Sr. No. */}
           <Text
@@ -790,9 +811,7 @@ const DebtServiceCoverageRatio = ({
               stylesCOP.boldText,
               styleExpenses.fontSmall,
               {
-                width: `${financialYearLabels.length * 150}px`, // ✅ Adjust width dynamically
-                minWidth: "500px", // ✅ Ensure a minimum width for consistency
-                maxWidth: "100%", // ✅ Prevent overflow issues
+                width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
                 fontSize: "12px",
                 fontFamily: "Roboto",
                 fontWeight: "extrabold",

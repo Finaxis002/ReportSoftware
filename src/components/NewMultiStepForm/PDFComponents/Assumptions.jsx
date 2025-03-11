@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text , Image} from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -23,7 +23,8 @@ const Assumptions = ({
   formatNumber,
   totalRevenueReceipts,
   receiveTotalExpense,
-  pdfType
+  pdfType,
+  receivedtotalRevenueReceipts,
 }) => {
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
   const years = Math.floor(formData.ProjectReportSetting.RepaymentMonths / 12);
@@ -44,45 +45,48 @@ const Assumptions = ({
     }
   }, [receiveTotalExpense]);
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
       orientation={projectionYears > 7 ? "landscape" : "portrait"}
       style={[
-        { paddingVertical: "70px",paddingBottom:"200px", paddingLeft: "20px", paddingRight: "20px" },
+        {
+          paddingVertical: "70px",
+          paddingBottom: "200px",
+          paddingLeft: "20px",
+          paddingRight: "20px",
+        },
       ]}
       wrap={false}
-      
     >
-
-{pdfType &&
-          pdfType !== "select option" &&
-          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-            <View
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
               style={{
-                position: "absolute",
-                left: "50%", // Center horizontally
-                top: "50%", // Center vertically
-                width: 500, // Set width to 500px
-                height: 700, // Set height to 700px
-                marginLeft: -200, // Move left by half width (500/2)
-                marginTop: -350, // Move up by half height (700/2)
-                opacity: 0.4, // Light watermark
-                zIndex: -1, // Push behind content
+                width: "100%",
+                height: "100%",
               }}
-              fixed
-            >
-              <Image
-                src={
-                  pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                }
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </View>
-          )}
+            />
+          </View>
+        )}
 
       <View style={[styleExpenses?.paddingx]}>
         {/* businees name and financial year  */}
@@ -129,14 +133,16 @@ const Assumptions = ({
             </Text>
 
             {/* ✅ Dynamically generate years with fallback */}
-            {financialYearLabels.map((yearLabel, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[styles.particularsCell, stylesCOP.boldText]}
-              >
-                {yearLabel}
-              </Text>
-            ))}
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
           </View>
           <View
             style={[stylesMOF.row, styles.tableRow, { borderWidth: "1px" }]}
@@ -151,7 +157,8 @@ const Assumptions = ({
             >
               Sales
             </Text>
-            {Array.from({ length: projectionYears }).map((_, index) => (
+            {Array.from({ length: projectionYears }).map((_, index) => 
+            (!hideFirstYear || index !== 0) && (
               <Text
                 key={index}
                 style={[
@@ -186,14 +193,16 @@ const Assumptions = ({
             </Text>
 
             {/* ✅ Dynamically generate years with fallback */}
-            {financialYearLabels.map((yearLabel, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[styles.particularsCell, stylesCOP.boldText]}
-              >
-                {yearLabel}
-              </Text>
-            ))}
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
           </View>
           <View
             style={[stylesMOF.row, styles.tableRow, { borderWidth: "1px" }]}
@@ -209,7 +218,8 @@ const Assumptions = ({
             </Text>
 
             {isDataReady ? (
-              Array.from({ length: projectionYears }).map((_, index) => (
+              Array.from({ length: projectionYears }).map((_, index) => 
+                (!hideFirstYear || index !== 0) && (
                 <Text
                   key={index}
                   style={[
