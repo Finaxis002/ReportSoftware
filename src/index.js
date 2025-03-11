@@ -20,6 +20,7 @@ import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/NewMultiStepForm/Dashboards/AdminDashboard/AdminDashboard.jsx";
 import EmployeeDashboard from "./components/NewMultiStepForm/Dashboards/EmployeeDashboard/EmployeeDashboard.jsx";
 import Employees from "./components/NewMultiStepForm/Employees/Employees.jsx";
+import AdminList from "./components/NewMultiStepForm/Admin/AdminList.jsx";
 import Notification from "./components/NewMultiStepForm/Notifications/Notification.jsx";
 import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
 import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
@@ -91,7 +92,7 @@ const App = () => {
                <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
               <Route path="/MultestepForm" element={<MultiStepForm receivedGeneratedPDFData = {generatePDfData}/>} />
               <Route path="/employees" element={<Employees />} />
-
+              <Route path="/admin" element={<AdminList />} />
               <Route path="/notifications" element={<Notification />} />
               <Route path="/clientData" element={<ClientData />} />
               <Route path="/tasks/:taskId" element={<Tasks />} />
