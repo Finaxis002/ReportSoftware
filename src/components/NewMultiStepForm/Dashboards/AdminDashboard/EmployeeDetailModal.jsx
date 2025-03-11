@@ -31,7 +31,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
   }, [employee.employeeId]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 overflow-auto">
+    <div className=" px-5 fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 overflow-auto">
       <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-2 bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 px-6 py-4 border-b">
@@ -129,8 +129,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
                       {new Date(task.dueDate).toLocaleDateString()}
                     </p>
                     <p className="mt-2 text-gray-700">
-                    <span className="font-medium">Status:</span>{" "}
-                    {task.status}
+                      <span className="font-medium">Status:</span> {task.status}
                     </p>
                   </div>
                 ))}
@@ -138,15 +137,126 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
             )}
           </div>
         </div>
+        {/* ✅ Permissions Section */}
+        <div className="p-10 mx-10 mb-4 bg-gray-50 border-t rounded-b-lg shadow-inner">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            Access Permissions
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            {/* ✅ Create Report */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={employee.permissions?.createReport}
+                  readOnly
+                  className="hidden"
+                />
+                <div
+                  className={`w-8 h-4 flex items-center rounded-full p-1 transition duration-300 ${
+                    employee.permissions?.createReport
+                      ? "bg-green-500"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md transform transition ${
+                      employee.permissions?.createReport
+                        ? "translate-x-3"
+                        : "translate-x-0"
+                    }`}
+                  ></div>
+                </div>
+                <span className="text-gray-800 font-medium">Create Report</span>
+              </label>
+            </div>
 
-        {/* Footer */}
-        <div className="px-8 py-4 border-t bg-gray-50 flex justify-end">
-          <button
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition duration-300"
-            onClick={onClose}
-          >
-            Close
-          </button>
+            {/* ✅ Update Report */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={employee.permissions?.updateReport}
+                  readOnly
+                  className="hidden"
+                />
+                <div
+                  className={`w-8 h-4 flex items-center rounded-full p-1 transition duration-300 ${
+                    employee.permissions?.updateReport
+                      ? "bg-green-500"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md transform transition ${
+                      employee.permissions?.updateReport
+                        ? "translate-x-3"
+                        : "translate-x-0"
+                    }`}
+                  ></div>
+                </div>
+                <span className="text-gray-800 font-medium">Update Report</span>
+              </label>
+            </div>
+
+            {/* ✅ Create New with Existing */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={employee.permissions?.createNewWithExisting}
+                  readOnly
+                  className="hidden"
+                />
+                <div
+                  className={`w-8 h-4 flex items-center rounded-full p-1 transition duration-300 ${
+                    employee.permissions?.createNewWithExisting
+                      ? "bg-green-500"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md transform transition ${
+                      employee.permissions?.createNewWithExisting
+                        ? "translate-x-3"
+                        : "translate-x-0"
+                    }`}
+                  ></div>
+                </div>
+                <span className="text-gray-800 font-medium">
+                  Create New with Existing
+                </span>
+              </label>
+            </div>
+
+            {/* ✅ Download PDF */}
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={employee.permissions?.downloadPDF}
+                  readOnly
+                  className="hidden"
+                />
+                <div
+                  className={`w-8 h-4 flex items-center rounded-full p-1 transition duration-300 ${
+                    employee.permissions?.downloadPDF
+                      ? "bg-green-500"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md transform transition ${
+                      employee.permissions?.downloadPDF
+                        ? "translate-x-3"
+                        : "translate-x-0"
+                    }`}
+                  ></div>
+                </div>
+                <span className="text-gray-800 font-medium">Download PDF</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>

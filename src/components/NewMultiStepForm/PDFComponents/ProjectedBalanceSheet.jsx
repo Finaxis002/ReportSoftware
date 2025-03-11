@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text , Image} from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -277,36 +277,31 @@ const ProjectedBalanceSheet = ({
       break
       style={[{ padding: "20px" }]}
     >
-        {pdfType &&
-                    pdfType !== "select option" &&
-                    (pdfType === "Sharda Associates" ||
-                      pdfType === "CA Certified") && (
-                      <View
-                        style={{
-                          position: "absolute",
-                          left: "50%", // Center horizontally
-                          top: "50%", // Center vertically
-                          width: 500, // Set width to 500px
-                          height: 700, // Set height to 700px
-                          marginLeft: -200, // Move left by half width (500/2)
-                          marginTop: -350, // Move up by half height (700/2)
-                          opacity: 0.4, // Light watermark
-                          zIndex: -1, // Push behind content
-                        }}
-                      >
-                        <Image
-                          src={
-                            pdfType === "Sharda Associates"
-                              ? SAWatermark
-                              : CAWatermark
-                          }
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                          }}
-                        />
-                      </View>
-                    )}
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       <View style={[styleExpenses.paddingx]}>
         {/* businees name and financial year  */}
         <View>
@@ -513,49 +508,49 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
-            {formData?.MoreDetails?.currentLiabilities?.map(
-              (liabilities, idx) => {
-                let cumulativeSum = 0; // Initialize cumulative sum
+            {formData?.MoreDetails?.currentLiabilities
+              ?.filter((liabilities) =>
+                // ✅ Filter out rows where all year values are zero
+                liabilities.years.every((value) => Number(value) === 0)
+                  ? false
+                  : true
+              )
+              .map((liabilities, idx) => (
+                <View style={styles.tableRow} key={idx}>
+                  {/* ✅ Adjust Serial Number after filtering */}
+                  <Text
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {idx + 5}
+                  </Text>
 
-                return (
-                  <View style={styles.tableRow} key={idx}>
-                    <Text
-                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                    >
-                      {idx + 6}
-                    </Text>
-                    <Text
-                      style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.particularWidth,
-                        styleExpenses.bordernone,
-                      ]}
-                    >
-                      {liabilities.particular}
-                    </Text>
-                    {Array.from({ length: projectionYears }).map(
-                      (_, yearIndex) => {
-                        // Apply cumulative rule
-                        cumulativeSum +=
-                          Number(liabilities.years[yearIndex]) || 0;
+                  {/* ✅ Liabilities Name */}
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {liabilities.particular}
+                  </Text>
 
-                        return (
-                          <Text
-                            key={yearIndex}
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                            ]}
-                          >
-                            {formatNumber(cumulativeSum)}
-                          </Text>
-                        );
-                      }
-                    )}
-                  </View>
-                );
-              }
-            )}
+                  {/* ✅ Loop through Projection Years */}
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(liabilities.years[yearIndex] || "0")}
+                      </Text>
+                    )
+                  )}
+                </View>
+              ))}
 
             {/* Total Liabilities Calculation */}
             <View
@@ -727,20 +722,24 @@ const ProjectedBalanceSheet = ({
               ))}
             </View>
 
-            {/* Current Assets from More Details */}
-            {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
-              let cumulativeSum = 0; // Initialize cumulative sum
-
-              return (
+            {/* ✅ Current Assets from More Details */}
+            {formData?.MoreDetails?.currentAssets
+              ?.filter((assets) =>
+                // ✅ Filter out rows where all year values are zero
+                assets.years.every((value) => Number(value) === 0)
+                  ? false
+                  : true
+              )
+              .map((assets, index) => (
                 <View style={styles.tableRow} key={index}>
-                  {/* Serial No */}
+                  {/* ✅ Adjust Serial Number after filtering */}
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
                     {index + 6}
                   </Text>
 
-                  {/* Particular Name */}
+                  {/* ✅ Particular Name */}
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -751,28 +750,23 @@ const ProjectedBalanceSheet = ({
                     {assets.particular}
                   </Text>
 
-                  {/* Ensure Projection Years Match */}
+                  {/* ✅ Ensure Projection Years Match */}
                   {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) => {
-                      // Apply cumulative rule
-                      cumulativeSum += Number(assets.years[yearIndex]) || 0;
-
-                      return (
-                        <Text
-                          key={yearIndex}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                          ]}
-                        >
-                          {formatNumber(cumulativeSum)}
-                        </Text>
-                      );
-                    }
+                    (_, yearIndex) => (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
+                        {/* Fill missing values with 0 */}
+                      </Text>
+                    )
                   )}
                 </View>
-              );
-            })}
+              ))}
 
             {/* Total assets Calculation */}
             <View

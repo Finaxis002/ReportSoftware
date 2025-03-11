@@ -1,35 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Page, View, Text , Image} from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-
 
 const ProjectedRevenue = ({
   formData,
   onTotalRevenueUpdate,
   financialYearLabels,
   formatNumber,
-  pdfType
+  pdfType,
 }) => {
-  // ✅ Ensure `noOfMonths` is safely initialized
-  const [noOfMonths, setNoOfMonths] = useState(
-    formData?.Revenue?.noOfMonths || []
-  );
-
   // ✅ Extract projection years and formType safely
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
   const formType = formData?.Revenue?.formType || "Others"; // ✅ Defaults to "Others" if missing
-
-  // ✅ Function to handle changes in the input field
-  const changeMonth = (index, value) => {
-    setNoOfMonths((prevMonths) => {
-      const updatedMonths = [...prevMonths]; // Clone previous state
-      updatedMonths[index] = isNaN(value) ? 0 : Number(value); // Ensure valid number
-      return updatedMonths;
-    });
-  };
 
   // ✅ Corrected selection of dataset for "Others"
   const selectedData = useMemo(() => {
@@ -39,8 +24,6 @@ const ProjectedRevenue = ({
       ] || []
     );
   }, [formData?.Revenue, formType]);
-
-  const totalMonthlyRevenue = formData.Revenue.totalMonthlyRevenue;
 
   // ✅ Determine the total revenue array based on formType
   const totalRevenueReceipts = useMemo(() => {
@@ -59,6 +42,25 @@ const ProjectedRevenue = ({
     }
     // console.log("sending revenue receipt", totalRevenueReceipts)
   }, [totalRevenueReceipts, onTotalRevenueUpdate]);
+
+  {
+    /* ✅ Determine if first year column should be hidden */
+  }
+  const hideFirstYear = totalRevenueReceipts?.[0] === 0;
+
+  // ✅ Remove first year from financialYearLabels if hiding is required
+  const adjustedFinancialYearLabels = hideFirstYear
+    ? financialYearLabels.slice(1)
+    : financialYearLabels;
+// ✅ Remove first-year revenue if hiding is required
+const adjustedTotalRevenueReceipts = hideFirstYear
+  ? totalRevenueReceipts.slice(1)
+  : totalRevenueReceipts;
+
+  
+  const adjustedTotalRevenueForOthers = hideFirstYear
+    ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
+    : formData?.Revenue?.totalRevenueForOthers;
 
   return (
     <Page
@@ -110,14 +112,12 @@ const ProjectedRevenue = ({
 
       <View style={styleExpenses.paddingx}>
         {/* Heading */}
-
         <View style={stylesCOP.heading}>
           <Text>Projected Revenue/ Sales</Text>
         </View>
-
         {/* ✅ Table Rendering Based on `formType` */}
         <View style={[styles.table]}>
-          {/* Table Header */}
+          {/* ✅ Table Header */}
           <View style={styles.tableHeader}>
             <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
               S. No.
@@ -126,8 +126,8 @@ const ProjectedRevenue = ({
               Particulars
             </Text>
 
-            {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels.map((yearLabel, yearIndex) => (
+            {/* ✅ Generate Dynamic Year Headers, skipping first year if needed */}
+            {adjustedFinancialYearLabels.map((yearLabel, yearIndex) => (
               <Text
                 key={yearIndex}
                 style={[styles.particularsCell, stylesCOP.boldText]}
@@ -148,34 +148,29 @@ const ProjectedRevenue = ({
               updatedYears.push(0); // ✅ Fill missing values with 0
             }
 
-            // ✅ Determine Row Style Based on rowType
+            // ✅ Remove first-year column if required
+            if (hideFirstYear) {
+              updatedYears.shift();
+            }
+
             const isHeading = item.rowType === "1";
             const isBold = item.rowType === "2";
-
-            // ✅ Determine which form is selected (assuming `selectedForm` determines this)
-            const isForm1 = formType === "Others"; // Adjust according to your actual form selector
-            const isForm2 = formType === "Monthly"; // Adjust based on actual selection logic
-
-            // ✅ Fetch serial number conditionally
             const serialNumber =
               formData?.Revenue?.formFields?.[index]?.serialNumber;
 
-            // ✅ Apply serial number logic:
             const finalSerialNumber =
-              isForm1 && serialNumber !== undefined && serialNumber !== null
+              formType === "Others" &&
+              serialNumber !== undefined &&
+              serialNumber !== null
                 ? serialNumber
-                : isForm2
+                : formType === "Monthly"
                 ? serialNumber || index + 1
                 : "";
 
-            // console.log("serialNumber:", serialNumber, "Final Serial:", finalSerialNumber);
-
-            // ✅ Check if all year values are blank or zero
             const isEmptyRow = updatedYears.every(
               (year) => year === 0 || year === ""
             );
 
-            // ✅ Skip rendering for empty rows
             if (isEmptyRow && !isHeading) {
               return null;
             }
@@ -186,15 +181,15 @@ const ProjectedRevenue = ({
                 style={[
                   stylesMOF.row,
                   styleExpenses.tableRow,
-                  isHeading && styleExpenses.headingRow, // ✅ Apply heading style
-                  isBold && { fontFamily: "Roboto", fontWeight: "bold" }, // ✅ Apply bold style
+                  isHeading && styleExpenses.headingRow,
+                  isBold && { fontFamily: "Roboto", fontWeight: "bold" },
                   { borderBottomWidth: "0px" },
                 ]}
               >
                 <Text
                   style={[
                     stylesCOP.serialNoCellDetail,
-                    isHeading && styleExpenses.headingText, // ✅ Apply heading text style
+                    isHeading && styleExpenses.headingText,
                     { borderBottomWidth: "0px" },
                   ]}
                 >
@@ -206,30 +201,30 @@ const ProjectedRevenue = ({
                     stylesCOP.detailsCellDetail,
                     styleExpenses.particularWidth,
                     styleExpenses.bordernone,
-                    isHeading && styleExpenses.headingText, // ✅ Apply heading style
+                    isHeading && styleExpenses.headingText,
                     { borderBottomWidth: "0px" },
                   ]}
                 >
                   {item.particular}
                 </Text>
 
+                {/* ✅ Render years dynamically, skipping first year if necessary */}
                 {updatedYears.map((yearValue, yearIndex) => (
                   <Text
                     key={yearIndex}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      isBold && { fontFamily: "Roboto", fontWeight: "bold" }, // ✅ Apply bold for rowType "2"
+                      isBold && { fontFamily: "Roboto", fontWeight: "bold" },
                       isHeading && {
                         fontFamily: "Roboto",
                         color: "black",
                         fontWeight: "bold",
-                      }, // ✅ Heading Style
+                      },
                       { borderBottomWidth: "0px" },
                     ]}
                   >
                     {isHeading && isEmptyRow ? "" : formatNumber(yearValue)}{" "}
-                    {/* ✅ Leave blank for headings */}
                   </Text>
                 ))}
               </View>
@@ -257,7 +252,7 @@ const ProjectedRevenue = ({
           </Text>
 
           {/* ✅ Display Correct Revenue Based on formType */}
-          {Array.from({ length: projectionYears }).map((_, yearIndex) => (
+          {adjustedTotalRevenueReceipts.map((_, yearIndex) => (
             <Text
               key={yearIndex}
               style={[
@@ -268,9 +263,9 @@ const ProjectedRevenue = ({
             >
               {
                 formType?.trim() === "Monthly"
-                  ? formatNumber(totalRevenueReceipts[yearIndex] || 0) // Monthly revenue
+                  ? formatNumber(adjustedTotalRevenueReceipts[yearIndex] || 0) // Monthly revenue
                   : formatNumber(
-                      formData?.Revenue?.totalRevenueForOthers?.[yearIndex] || 0
+                      adjustedTotalRevenueForOthers?.[yearIndex] || 0
                     ) // Others revenue
               }
             </Text>

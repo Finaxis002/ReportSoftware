@@ -1,9 +1,8 @@
 import React from "react";
-import { Page, View, Text , Image} from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-
 
 const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   // ✅ Helper Function to Format Numbers Based on Selected Format
@@ -19,26 +18,22 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
-
-       {/* watermark  */}
-       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
-            {/* ✅ Conditionally Render Watermark */}
-            {pdfType &&
-              pdfType !== "select option" &&
-              (pdfType === "Sharda Associates" ||
-                pdfType === "CA Certified") && (
-                <Image
-                  src={
-                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                  }
-                  style={{
-                    width: "500px", // Adjust size based on PDF layout
-                    height: "700px",
-                    opacity: 0.4, // Light watermark to avoid blocking content
-                  }}
-                />
-              )}
-          </View>
+      {/* watermark  */}
+      <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
+        {/* ✅ Conditionally Render Watermark */}
+        {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "500px", // Adjust size based on PDF layout
+                height: "700px",
+                opacity: 0.4, // Light watermark to avoid blocking content
+              }}
+            />
+          )}
+      </View>
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -63,17 +58,21 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         {/* ✅ Show Cost of Project Items */}
         {formData?.CostOfProject &&
         Object.keys(formData.CostOfProject).length > 0 ? (
-          Object.entries(formData.CostOfProject).map(([key, field], index) => (
-            <View key={key} style={styles.tableRow}>
-              <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
-              <Text style={stylesCOP.detailsCellDetail}>
-                {field?.name || "N/A"}
-              </Text>
-              <Text style={stylesCOP.particularsCellsDetail}>
-                {formatNumber(field?.amount || 0)}
-              </Text>
-            </View>
-          ))
+          // ✅ Filter out rows where amount = 0
+          Object.entries(formData.CostOfProject)
+            .filter(([_, field]) => field?.amount > 0) // ✅ Filter condition
+            .map(([key, field], index) => (
+              <View key={key} style={styles.tableRow}>
+                {/* ✅ Serial No. based on filtered data */}
+                <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
+                <Text style={stylesCOP.detailsCellDetail}>
+                  {field?.name || "N/A"}
+                </Text>
+                <Text style={stylesCOP.particularsCellsDetail}>
+                  {formatNumber(field?.amount || 0)}
+                </Text>
+              </View>
+            ))
         ) : (
           <View style={styles.tableRow}>
             <Text
@@ -135,7 +134,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             gap: "30px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
-            marginTop:"60px"
+            marginTop: "60px",
           },
         ]}
       >

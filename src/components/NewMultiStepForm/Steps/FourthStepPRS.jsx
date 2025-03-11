@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 const FourthStepPRS = ({
   formData,
   onFormDataChange,
-  onProjectionYearChange 
+  onProjectionYearChange,
 }) => {
   const prevDataRef = useRef(null);
   const [projectionYears, setProjectionYears] = useState(0);
@@ -162,6 +162,51 @@ const FourthStepPRS = ({
         id: "CAName",
         value: "",
         isCustom: false,
+      },
+      // ✅ New Object for Bank Details
+      BankDetails: {
+        Bank: {
+          name: "Bank",
+          id: "Bank",
+          value: "",
+          isCustom: false,
+        },
+        BankManagerName: {
+          name: "Bank Manager Name",
+          id: "BankManagerName",
+          value: "",
+          isCustom: false,
+        },
+        Post: {
+          name: "Post",
+          id: "Post",
+          value: "",
+          isCustom: false,
+        },
+        ContactNo: {
+          name: "Contact No.",
+          id: "ContactNo",
+          value: "",
+          isCustom: false,
+        },
+        EmailId: {
+          name: "Email ID",
+          id: "EmailId",
+          value: "",
+          isCustom: false,
+        },
+        IFSCCode: {
+          name: "IFSC Code",
+          id: "IFSCCode",
+          value: "",
+          isCustom: false,
+        },
+        City: {
+          name: "City",
+          id: "City",
+          value: "",
+          isCustom: false,
+        },
       },
     },
     ...(formData?.ProjectReportSetting || {}), // Merging formData if available
@@ -341,12 +386,11 @@ const FourthStepPRS = ({
 
             <div className="col-4">
               <div className="input">
-                 <input
+                <input
                   id="FinancialYear"
                   name="FinancialYear"
                   type="number"
                   placeholder="e.g. 2023"
-                  
                   value={localData.FinancialYear}
                   onChange={handleChange}
                 />
@@ -464,7 +508,7 @@ const FourthStepPRS = ({
                 </label>
               </div>
             </div>
-            
+
             <div className="row">
               <div className="col-4">
                 <div className="input">
@@ -488,23 +532,22 @@ const FourthStepPRS = ({
               </div>
 
               <div className="col-4">
-              <div className="input">
-                <input
-                  id="interestOnWC"
-                  name="interestOnWC"
-                  type="number"
-                  placeholder="Interest On WC"
-                  required
-                  value={localData.interestOnWC}
-                  onChange={handleChange}
-                />
-                <label htmlFor="interestOnWC">
-                  Interest On Working Capital
-                </label>
+                <div className="input">
+                  <input
+                    id="interestOnWC"
+                    name="interestOnWC"
+                    type="number"
+                    placeholder="Interest On WC"
+                    required
+                    value={localData.interestOnWC}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="interestOnWC">
+                    Interest On Working Capital
+                  </label>
+                </div>
               </div>
             </div>
-            </div>
-           
           </div>
           <div className="row">
             {/* Name Field */}
@@ -584,6 +627,7 @@ const FourthStepPRS = ({
 
           {showAdvance && (
             <div className="row mt-3">
+              {/* UDIN Number */}
               <div className="col-6">
                 <div className="input">
                   <input
@@ -597,6 +641,8 @@ const FourthStepPRS = ({
                   <label htmlFor="UDINNumber">UDIN Number</label>
                 </div>
               </div>
+
+              {/* CA Name */}
               <div className="col-6">
                 <div className="input">
                   <input
@@ -604,33 +650,121 @@ const FourthStepPRS = ({
                     name="CAName"
                     type="text"
                     placeholder="Enter CA Name"
-                    value={localData.CAName.value}
+                    value={localData?.CAName?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="CAName">Name of the CA</label>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* <div className="row">
-            <div className="col-4">
-              <div className="input">
-                <input
-                  id="rateOfWorkingCapital"
-                  name="rateOfWorkingCapital"
-                  type="number"
-                  placeholder="Rate of Working Capital"
-                  required
-                  value={localData.rateOfWorkingCapital}
-                  onChange={handleChange}
-                />
-                <label htmlFor="rateOfWorkingCapital">
-                  Rate Of Working Capital
-                </label>
+
+              {/* Bank */}
+             
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="Bank"
+                    name="Bank"
+                    type="text"
+                    placeholder="Enter Bank Name"
+                    value={localData?.Bank?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="Bank">Bank Name</label>
+                </div>
+              </div>
+
+              {/* Bank Manager Name */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="BankManagerName"
+                    name="BankManagerName"
+                    type="text"
+                    placeholder="Enter Bank Manager Name"
+                    value={localData?.BankManagerName?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="BankManagerName">Bank Manager Name</label>
+                </div>
+              </div>
+
+              {/* Post */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="Post"
+                    name="Post"
+                    type="text"
+                    placeholder="Enter Post"
+                    value={localData?.Post?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="Post">Post</label>
+                </div>
+              </div>
+
+              {/* Contact No */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="ContactNo"
+                    name="ContactNo"
+                    type="text"
+                    placeholder="Enter Contact No."
+                    value={localData?.ContactNo?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="ContactNo">Contact No.</label>
+                </div>
+              </div>
+
+              {/* Email ID */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="EmailId"
+                    name="EmailId"
+                    type="email"
+                    placeholder="Enter Email ID"
+                    value={localData?.EmailId?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="EmailId">Email ID</label>
+                </div>
+              </div>
+
+              {/* IFSC Code */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="IFSCCode"
+                    name="IFSCCode"
+                    type="text"
+                    placeholder="Enter IFSC Code"
+                    value={localData?.IFSCCode?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="IFSCCode">IFSC Code</label>
+                </div>
+              </div>
+
+              {/* City */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="City"
+                    name="City"
+                    type="text"
+                    placeholder="Enter City"
+                    value={localData?.City?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="City">City</label>
+                </div>
               </div>
             </div>
-          </div> */}
+          )}
         </div>
       </div>
     </div>

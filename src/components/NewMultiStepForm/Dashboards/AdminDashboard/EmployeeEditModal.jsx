@@ -1,4 +1,3 @@
-// EmployeeEditModal.jsx
 import React, { useState, useEffect } from "react";
 
 const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
@@ -9,7 +8,14 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
     email: employee.email || "",
     designation: employee.designation || "",
     password: employee.password || "",
+    permissions: {
+      createReport: employee?.permissions?.createReport || false,
+      updateReport: employee?.permissions?.updateReport || false,
+      createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
+      downloadPDF: employee?.permissions?.downloadPDF || false,
+    },
   });
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +28,12 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
       email: employee.email || "",
       designation: employee.designation || "",
       password: employee.password || "",
+      permissions: {
+        createReport: employee?.permissions?.createReport || false,
+        updateReport: employee?.permissions?.updateReport || false,
+        createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
+        downloadPDF: employee?.permissions?.downloadPDF || false,
+      },
     });
   }, [employee]);
 
@@ -29,6 +41,18 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle permission changes (for checkboxes)
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      permissions: {
+        ...prev.permissions,
+        [name]: checked,
+      },
+    }));
   };
 
   // Handle form submission: send updated data to the API
@@ -73,7 +97,9 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
         <h2 className="text-lg font-bold mb-4">Edit Employee</h2>
         {message && <p className="mb-4 text-green-500">{message}</p>}
         {error && <p className="mb-4 text-red-500">{error}</p>}
+
         <form onSubmit={handleSubmit}>
+          {/* Employee ID */}
           <input
             type="text"
             name="employeeId"
@@ -82,8 +108,10 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
             onChange={handleInputChange}
             className="w-full p-2 mb-2 border rounded"
             required
-            disabled // Disable editing the ID if it's unique
+            disabled
           />
+
+          {/* Name */}
           <input
             type="text"
             name="name"
@@ -93,6 +121,8 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
             className="w-full p-2 mb-2 border rounded"
             required
           />
+
+          {/* Email */}
           <input
             type="email"
             name="email"
@@ -102,6 +132,8 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
             className="w-full p-2 mb-2 border rounded"
             required
           />
+
+          {/* Designation */}
           <input
             type="text"
             name="designation"
@@ -111,6 +143,8 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
             className="w-full p-2 mb-4 border rounded"
             required
           />
+
+          {/* Password */}
           <div className="flex w-full">
             <div className="relative w-full">
               <input
@@ -122,7 +156,6 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
                 className="w-full p-2 mb-4 border rounded"
                 required
               />
-
               <button
                 type="button"
                 className="absolute right-3 top-3 text-teal-600"
@@ -136,7 +169,62 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
               </button>
             </div>
           </div>
-        
+
+          {/* Permissions Section */}
+          <div className="mb-4">
+            <h3 className="font-semibold mb-2">Access Permissions:</h3>
+            <div className="flex flex-col gap-2">
+              {/* Create Report */}
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="createReport"
+                  checked={formData.permissions.createReport}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+                Create Report
+              </label>
+
+              {/* Update Report */}
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="updateReport"
+                  checked={formData.permissions.updateReport}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+                Update Report
+              </label>
+
+              {/* Create New Report with Existing */}
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="createNewWithExisting"
+                  checked={formData.permissions.createNewWithExisting}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+                Create New Report with Existing
+              </label>
+
+              {/* Download PDF */}
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="downloadPDF"
+                  checked={formData.permissions.downloadPDF}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+                Download PDF
+              </label>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex justify-end">
             <button
               type="button"

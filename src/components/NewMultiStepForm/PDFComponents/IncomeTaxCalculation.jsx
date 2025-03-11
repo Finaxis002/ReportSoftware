@@ -1,5 +1,5 @@
 import React from "react";
-import { Page, View, Text , Image } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
@@ -22,7 +22,8 @@ const IncomeTaxCalculation = ({
   totalDepreciationPerYear = [],
   financialYearLabels,
   formatNumber,
-  pdfType
+  pdfType,
+  receivedtotalRevenueReceipts,
 }) => {
   if (!formData || typeof formData !== "object") {
     console.error("❌ Invalid formData provided");
@@ -44,6 +45,8 @@ const IncomeTaxCalculation = ({
           npbt ? npbt * (rateOfInterest / 100) : "0.00"
         )
       : [];
+
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   return (
     <Page
@@ -114,14 +117,17 @@ const IncomeTaxCalculation = ({
             </Text>
 
             {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels.map((yearLabel, yearIndex) => (
-              <Text
-                key={yearIndex}
-                style={[styles.particularsCell, stylesCOP.boldText]}
-              >
-                {yearLabel}
-              </Text>
-            ))}
+            {financialYearLabels.map(
+              (yearLabel, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[styles.particularsCell, stylesCOP.boldText]}
+                  >
+                    {yearLabel}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Net Profit Before Tax */}
@@ -148,25 +154,26 @@ const IncomeTaxCalculation = ({
               Net Profit Before Tax
             </Text>
             {netProfitBeforeTax.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styles.boldText,
-                    {
-                      fontSize: "9px",
-                      fontFamily: "Roboto",
-                      fontWeight: "bold",
-                      paddingVertical: "10px",
-                    },
-                  ]}
-                >
-                  {npbt
-                    ? formatNumber(npbt) // ✅ Use the formatNumber function
-                    : "0"}
-                </Text>
-              ))
+              netProfitBeforeTax.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styles.boldText,
+                        {
+                          fontSize: "9px",
+                          fontFamily: "Roboto",
+                          fontWeight: "bold",
+                          paddingVertical: "10px",
+                        },
+                      ]}
+                    >
+                      {npbt ? formatNumber(npbt) : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -194,23 +201,24 @@ const IncomeTaxCalculation = ({
               Depreciation(WDA)
             </Text>
             {totalDepreciationPerYear.length > 0 ? (
-              totalDepreciationPerYear.map((npbt, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    {
-                      fontWeight: "light",
-                      fontSize: "9px",
-                      fontFamily: "Roboto",
-                    },
-                  ]}
-                >
-                  {npbt
-                    ? formatNumber(npbt) // ✅ Use the formatNumber function
-                    : "0"}
-                </Text>
-              ))
+              totalDepreciationPerYear.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          fontWeight: "light",
+                          fontSize: "9px",
+                          fontFamily: "Roboto",
+                        },
+                      ]}
+                    >
+                      {npbt ? formatNumber(npbt) : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -240,24 +248,29 @@ const IncomeTaxCalculation = ({
             </Text>
             {netProfitBeforeTax.length > 0 &&
             totalDepreciationPerYear.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styles.boldText,
-                    {
-                      fontSize: "9px",
-                      paddingVertical: "10px",
-                      borderTopWidth: "2px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
-                    },
-                  ]}
-                >
-                  {formatNumber(npbt + (totalDepreciationPerYear[index] || 0))}
-                </Text>
-              ))
+              netProfitBeforeTax.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styles.boldText,
+                        {
+                          fontSize: "9px",
+                          paddingVertical: "10px",
+                          borderTopWidth: "2px",
+                          fontFamily: "Roboto",
+                          fontWeight: "extrabold",
+                        },
+                      ]}
+                    >
+                      {formatNumber(
+                        npbt + (totalDepreciationPerYear[index] || 0)
+                      )}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -289,23 +302,26 @@ const IncomeTaxCalculation = ({
               Depreciation(As per ITA , 1961)
             </Text>
             {totalDepreciationPerYear.length > 0 ? (
-              totalDepreciationPerYear.map((npbt, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    {
-                      fontWeight: "bold",
-                      fontSize: "9px",
-                      paddingVertical: "5px",
-                    },
-                  ]}
-                >
-                  {npbt
-                    ? formatNumber(npbt) // ✅ Use the formatNumber function
-                    : "0"}
-                </Text>
-              ))
+              totalDepreciationPerYear.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          fontWeight: "bold",
+                          fontSize: "9px",
+                          paddingVertical: "5px",
+                        },
+                      ]}
+                    >
+                      {npbt
+                        ? formatNumber(npbt) // ✅ Use the formatNumber function
+                        : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -335,7 +351,8 @@ const IncomeTaxCalculation = ({
               Net Profit (/loss)
             </Text>
             {netProfitBeforeTax.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => (
+              netProfitBeforeTax.map((npbt, index) => 
+                (!hideFirstYear || index !== 0) && (
                 <Text
                   key={index}
                   style={[
@@ -384,7 +401,8 @@ const IncomeTaxCalculation = ({
               Taxable Profit
             </Text>
             {netProfitBeforeTax.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => (
+              netProfitBeforeTax.map((npbt, index) => 
+                (!hideFirstYear || index !== 0) && (
                 <Text
                   key={index}
                   style={[
@@ -429,7 +447,8 @@ const IncomeTaxCalculation = ({
               Tax {formData.ProjectReportSetting.incomeTax}%
             </Text>
             {incomeTax.length > 0 ? (
-              incomeTax.map((tax, index) => (
+              incomeTax.map((tax, index) => 
+                (!hideFirstYear || index !== 0) && (
                 <Text
                   key={index}
                   style={[
