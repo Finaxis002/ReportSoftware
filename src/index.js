@@ -26,6 +26,7 @@ import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/NewMultiStepForm/Dashboards/AdminDashboard/AdminDashboard.jsx";
 import EmployeeDashboard from "./components/NewMultiStepForm/Dashboards/EmployeeDashboard/EmployeeDashboard.jsx";
 import Employees from "./components/NewMultiStepForm/Employees/Employees.jsx";
+import AdminList from "./components/NewMultiStepForm/Admin/AdminList.jsx";
 import Notification from "./components/NewMultiStepForm/Notifications/Notification.jsx";
 import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
 import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
@@ -77,7 +78,9 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
-            <Route
+          
+
+              <Route
               path="/"
               element={
                 isAuthenticated ? (
@@ -94,6 +97,43 @@ const App = () => {
               }
             />
 
+              <Route
+                path="/login"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <MainLogin onLogin={handleLogin} />
+                  )
+                }
+              />
+               <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+              <Route path="/MultestepForm" element={<MultiStepForm receivedGeneratedPDFData = {generatePDfData}/>} />
+              <Route path="/employees" element={<Employees />} />
+              <Route path="/admin" element={<AdminList />} />
+              <Route path="/notifications" element={<Notification />} />
+              <Route path="/clientData" element={<ClientData />} />
+              <Route path="/tasks/:taskId" element={<Tasks />} />
+
+              {/* Protect MongoDB route */}
+              <Route
+                path="/database"
+                element={
+                  isAuthenticated ? (
+                    <MongoDB />
+                  ) : (
+                    <DatabaseLogin onLogin={handleLogin} />
+                  )
+                }
+              />
+              <Route path="/createreport" element={<CreateReport />} />
+              
+              {/* ✅ Correctly Placed Routes */}
+              <Route path="/generated-pdf" element={<GeneratedPDF  />} />
+              <Route path="/checkprofit"  element={<CheckProfit />} />
+           
+
+               
             <Route
               path="/login"
               element={

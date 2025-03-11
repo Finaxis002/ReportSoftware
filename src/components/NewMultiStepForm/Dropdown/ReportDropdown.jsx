@@ -98,8 +98,8 @@ const ReportDropdown = ({ onBusinessSelect }) => {
 
         if (response.data && Array.isArray(response.data.businesses)) {
           const options = response.data.businesses.map((entry) => ({
-            value: entry, // Example: "KBR & SON'S (Prakriti Bhatt)"
-            label: entry, // Display as "KBR & SON'S (Prakriti Bhatt)"
+            value: entry,
+            label: entry, 
           }));
           setBusinessOptions(options);
         } else {
