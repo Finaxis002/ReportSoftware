@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from 'axios';
+
 
 const EmployeeRegistrationModal = ({ setShowForm }) => {
   // Initial form state with keys that match your API (update keys if needed)
@@ -68,7 +70,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
       <h2 className="text-lg font-bold mb-4">Add Employee</h2>
-      {message && <p className="mb-4 text-green-500">{message}</p>}
+      {message && <p className="mb-4 text-green-600">{message}</p>}
       {error && <p className="mb-4 text-red-500">{error}</p>}
       <form onSubmit={handleSubmit}>
         {/* Employee ID */}
