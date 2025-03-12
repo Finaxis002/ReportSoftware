@@ -336,15 +336,7 @@ const BreakEvenPoint = ({
         <View style={[styles.table]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text
-              style={[
-                styles.serialNoCell,
-                stylesCOP.boldText,
-                { width: "85px" },
-              ]}
-            >
-              Sr. No.
-            </Text>
+            <Text style={[styles.serialNoCell, styleExpenses.sno]}>S. No.</Text>
             <Text
               style={[
                 styles.detailsCell,
@@ -544,9 +536,47 @@ const BreakEvenPoint = ({
           {/* Less: Variable Expense */}
 
           <View>
-            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-              <Text style={[styleExpenses.sno]}></Text>
-              <Text style={stylesMOF.cell}>Less: Variable Expense</Text>
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                Less: Variable Expense
+              </Text>
+              {Array.from({
+                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              }).map((_, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    {
+                      paddingVertical: "10px",
+                      fontFamily: "Roboto",
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+              ))}
             </View>
 
             {/* ✅ Render All Expenses (Direct + Indirect) in a Single Section */}
@@ -759,9 +789,49 @@ const BreakEvenPoint = ({
 
           {/* Less: Fixed Expenses */}
           <View>
-            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-              <Text style={[styleExpenses.sno]}></Text>
-              <Text style={stylesMOF.cell}> Less: Fixed Expenses</Text>
+           
+
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                Less: Fixed Expenses
+              </Text>
+              {Array.from({
+                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              }).map((_, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    {
+                      paddingVertical: "10px",
+                      fontFamily: "Roboto",
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+              ))}
             </View>
 
             {/* Salary and Wages */}
@@ -1047,10 +1117,10 @@ const BreakEvenPoint = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "60px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
-            marginTop: "60px",
+            marginTop: "50px",
           },
         ]}
       >

@@ -17,19 +17,28 @@ const Reports = ({ sendPdfData }) => {
     const fetchReports = async () => {
       try {
         const response = await fetch("https://backend-three-pink.vercel.app/get-report");
+  
         if (!response.ok) {
           throw new Error("Failed to fetch reports");
         }
+  
         const data = await response.json();
-        setReports(data);
+  
+        console.log("Fetched Reports Data:", data);
+  
+        if (data.success) {
+          setReports(data.data || []);
+        } else {
+          console.error("Error fetching reports:", data.message);
+        }
       } catch (err) {
-        console.error("Error fetching reports:", err);
+        console.error("🔥 Error fetching reports:", err);
       }
     };
-
+  
     fetchReports();
   }, []);
-
+  
   // ✅ Handle Delete Action
   const handleDelete = async (reportId) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
@@ -55,13 +64,7 @@ const Reports = ({ sendPdfData }) => {
   };
 
   // ✅ Handle Update Action after Editing
-  const handleUpdateReport = (updatedReport) => {
-    setReports((prevReports) =>
-      prevReports.map((report) =>
-        report._id === updatedReport._id ? updatedReport : report
-      )
-    );
-  };
+
 
   const handleDownload = async (sessionId) => {
     try {
@@ -113,7 +116,7 @@ const Reports = ({ sendPdfData }) => {
       <div className="overflow-x-auto shadow-md rounded-xl border border-gray-200 bg-white">
         <table className="min-w-full border-collapse rounded-lg overflow-hidden">
           {/* ✅ Table Header */}
-          <thead className="bg-teal-600 text-white">
+          <thead className="bg-teal-400 text-white">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold">
                 Business Name

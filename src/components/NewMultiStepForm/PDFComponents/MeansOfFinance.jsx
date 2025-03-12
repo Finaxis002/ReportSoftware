@@ -226,7 +226,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             gap: "30px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
-            marginTop: "60px",
+            marginTop: "30px",
           },
         ]}
       >

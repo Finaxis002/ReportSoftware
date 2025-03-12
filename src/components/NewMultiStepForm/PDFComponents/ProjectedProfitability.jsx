@@ -1563,7 +1563,7 @@ const ProjectedProfitability = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
