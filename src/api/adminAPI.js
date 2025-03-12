@@ -85,9 +85,37 @@ export const deleteAdmin = async (id) => {
 };
 
 
-export const updateAdmin = async (id, username, password) => {
+// export const updateAdmin = async (id, username, password) => {
+//   try {
+//     const response = await axios.put(`${API_URL}/admin/${id}`, { username, password });
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error updating admin:', error);
+//     throw error;
+//   }
+// };
+export const updateAdmin = async (id, username, password, caSign, roles) => {
   try {
-    const response = await axios.put(`${API_URL}/admin/${id}`, { username, password });
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    
+    // ✅ Append file if selected
+    if (caSign) {
+      formData.append('caSign', caSign);
+    }
+
+    // ✅ Append roles (convert object to string)
+    if (roles) {
+      formData.append('roles', JSON.stringify(roles));
+    }
+
+    const response = await axios.put(`${API_URL}/admin/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // ✅ Important for file upload
+      },
+    });
+    
     return response.data;
   } catch (error) {
     console.error('Error updating admin:', error);

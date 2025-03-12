@@ -13,22 +13,49 @@ const Reports = ({ sendPdfData }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   // Fetch reports when the component mounts
-  useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const response = await fetch("https://backend-three-pink.vercel.app/get-report");
-        if (!response.ok) {
-          throw new Error("Failed to fetch reports");
-        }
-        const data = await response.json();
-        setReports(data);
-      } catch (err) {
-        console.error("Error fetching reports:", err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchReports = async () => {
+  //     try {
+  //       const response = await fetch("https://backend-three-pink.vercel.app/get-report");
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch reports");
+  //       }
+  //       const data = await response.json();
+  //       setReports(data);
+  //     } catch (err) {
+  //       console.error("Error fetching reports:", err);
+  //     }
+  //   };
 
-    fetchReports();
-  }, []);
+  //   fetchReports();
+  // }, []);
+    // Fetch reports when the component mounts
+    useEffect(() => {
+      const fetchReports = async () => {
+        try {
+          const response = await fetch("https://backend-three-pink.vercel.app/get-report");
+    
+          if (!response.ok) {
+            throw new Error("Failed to fetch reports");
+          }
+    
+          const data = await response.json();
+    
+          console.log("Fetched Reports Data:", data);
+    
+          if (data.success) {
+            setReports(data.data || []);
+          } else {
+            console.error("Error fetching reports:", data.message);
+          }
+        } catch (err) {
+          console.error("🔥 Error fetching reports:", err);
+        }
+      };
+    
+      fetchReports();
+    }, []);
+    
 
   // ✅ Handle Delete Action
   const handleDelete = async (reportId) => {
