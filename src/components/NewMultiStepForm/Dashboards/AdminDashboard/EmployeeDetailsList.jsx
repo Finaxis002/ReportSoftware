@@ -13,6 +13,7 @@ import EmployeeEditModal from "./EmployeeEditModal";
 import AssignTaskModal from "./AssignTaskModal";
 import EmployeeDetailModal from "./EmployeeDetailModal";
 import EmployeeRegistration from "./EmployeeRegistration";
+import EmployeeList from "./EmployeeList";
 
 const EmployeeDetailsList = () => {
   const [employees, setEmployees] = useState([]);
@@ -23,28 +24,22 @@ const EmployeeDetailsList = () => {
   const [showCombinedModal, setShowCombinedModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
+
+ // Fetch employee data when the component mounts
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
-        );
-        if (!response.ok) throw new Error("Failed to fetch employee data");
-  
-        const data = await response.json();
-  
-        console.log("Fetched Employees Data:", data);
-  
-        if (data.success) {
-          setEmployees(data.data || []); // ✅ Use data.data instead of data directly
-        } else {
-          console.error("Failed to fetch employee data:", data.message);
+        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
+        if (!response.ok) {
+          throw new Error("Failed to fetch employee data");
         }
+        const data = await response.json();
+        setEmployees(data);
       } catch (err) {
-        console.error("🔥 Error fetching employees:", err);
+        console.error("Error fetching employees:", err);
       }
     };
-  
+
     fetchEmployees();
   }, []);
   
@@ -252,6 +247,7 @@ const EmployeeDetailsList = () => {
           ))}
         </div>
       </div>
+
 
       {/* ✅ No Data */}
       {employees.length === 0 && (
