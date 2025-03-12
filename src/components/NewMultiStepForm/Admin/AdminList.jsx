@@ -139,7 +139,8 @@ const AdminList = () => {
     if (admin.caSign) {
 
       // setCaSign(`http://localhost:5000${admin.caSign}`);
-      setCaSign(`https://backend-three-pink.vercel.app/api/${admin.caSign}`);
+
+      setCaSign(`https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`);
 
       setFileName(admin.caSign.split("/").pop()); // ✅ Set file name from path
     } else {
