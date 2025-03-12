@@ -509,9 +509,47 @@ const ProjectedCashflow = ({
 
           {/* Sources Section */}
           <View>
-            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-              <Text style={[styleExpenses.sno]}>A</Text>
-              <Text style={stylesMOF.cell}>Sources</Text>
+           
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                A
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                Sources
+              </Text>
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears || 0,
+              }).map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                </Text>
+              ))}
+              
             </View>
 
             {/* ✅ Net Profit before Interest & Taxes */}
@@ -753,9 +791,46 @@ const ProjectedCashflow = ({
 
           {/* Uses Section */}
           <View>
-            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-              <Text style={[styleExpenses.sno]}>B</Text>
-              <Text style={stylesMOF.cell}>Uses</Text>
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                B
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                Uses
+              </Text>
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears || 0,
+              }).map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                </Text>
+              ))}
+              
             </View>
 
             {/* Fixed Assets */}

@@ -48,7 +48,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         <Text>Cost Of Project</Text>
       </View>
 
-      <View style={styles.table}>
+      <View style={[styles.table , {paddingBottom:0}]}>
         <View style={styles.tableHeader}>
           <Text style={styles.serialNoCell}>S.No.</Text>
           <Text style={styles.detailsCell}>Particulars</Text>
@@ -92,8 +92,17 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesCOP.serialNoCellDetail}>
               {Object.keys(formData.CostOfProject).length + 1}
             </Text>
-            <Text style={stylesCOP.detailsCellDetail}>Working Capital</Text>
-            <Text style={stylesCOP.particularsCellsDetail}>
+            <Text
+              style={[stylesCOP.detailsCellDetail , {paddingBottom:"10px"}]}
+            >
+              Working Capital Required
+            </Text>
+            <Text
+              style={[
+                stylesCOP.particularsCellsDetail,
+                {paddingBottom:"10px"}
+              ]}
+            >
               {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
             </Text>
           </View>
@@ -102,22 +111,38 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         {/* ✅ Total Cost Row (Including Working Capital) */}
         <View style={stylesCOP.totalHeader}>
           <Text style={stylesCOP.serialNoCellDetail}></Text>
-          <Text
+          <View
             style={[
               stylesCOP.detailsCellDetail,
               stylesCOP.boldText,
               styles.Total,
-              { borderTop: "1px solid #000", paddingVertical: "5px" },
+              {
+                borderWidth: 0,
+                display: "flex",
+                alignContent: "flex-end",
+                alignItems: "flex-end",
+                fontSize: "12px",
+                padding: 0,
+              },
             ]}
           >
-            Total
-          </Text>
+            <Text style={{ width: "30%", border: "1px solid #000", borderBottomWidth:0 }}>
+              {" "}
+              Total{" "}
+            </Text>
+          </View>
           <Text
             style={[
               stylesCOP.particularsCellsDetail,
               stylesCOP.boldText,
               styles.Total,
-              { borderTop: "1px solid #000", paddingVertical: "5px" },
+              {
+                borderTop: "1px solid #000",
+                borderBottomWidth: 0,
+                borderLeftWidth: 1,
+                fontFamily:"Roboto",
+                fontWeight:"bold",
+              },
             ]}
           >
             {formatNumber(totalCost)}
@@ -131,10 +156,10 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "60px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
-            marginTop: "60px",
+            marginTop: "30px",
           },
         ]}
       >
