@@ -25,6 +25,7 @@ const EmployeeDetailsList = () => {
   const [showForm, setShowForm] = useState(false);
 
 
+
  // Fetch employee data when the component mounts
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -33,13 +34,21 @@ const EmployeeDetailsList = () => {
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }
+        
         const data = await response.json();
-        setEmployees(data);
+  
+        console.log("Fetched Employees Data:", data);
+  
+        if (data.success) {
+          setEmployees(data.data || []); // ✅ Use data.data instead of data directly
+        } else {
+          console.error("Failed to fetch employee data:", data.message);
+        }
       } catch (err) {
-        console.error("Error fetching employees:", err);
+        console.error("🔥 Error fetching employees:", err);
       }
     };
-
+  
     fetchEmployees();
   }, []);
   

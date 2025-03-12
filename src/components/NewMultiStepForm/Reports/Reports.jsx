@@ -13,6 +13,7 @@ const Reports = ({ sendPdfData }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   // Fetch reports when the component mounts
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -39,6 +40,7 @@ const Reports = ({ sendPdfData }) => {
     fetchReports();
   }, []);
   
+
   // ✅ Handle Delete Action
   const handleDelete = async (reportId) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
