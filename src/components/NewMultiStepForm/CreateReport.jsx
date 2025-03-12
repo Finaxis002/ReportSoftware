@@ -12,18 +12,22 @@ const CreateReport = ({ userRole, userName }) => {
 
   const navigate = useNavigate();
 
-  // ✅ Fetch permissions from backend
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/employees");
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees"
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
         }
-
-        const data = await response.json();
-        console.log("Fetched Employees Data:", data);
-
+  
+        const result = await response.json(); // ✅ Get the full response object
+        console.log("✅ Fetched Employees Data:", result);
+  
+        // ✅ Extract employee data properly from result
+        const employees = Array.isArray(result.data) ? result.data : [];
+  
         if (userRole === "admin") {
           // ✅ Grant full permissions if admin
           setPermissions({
@@ -32,24 +36,42 @@ const CreateReport = ({ userRole, userName }) => {
             createNewWithExisting: true,
             downloadPDF: true,
           });
+          console.log("✅ Admin permissions granted");
         } else if (userRole === "employee") {
-          // ✅ Find the logged-in employee's permissions
-          const employee = data.find((emp) => emp.name === userName);
-          if (employee) {
+          // ✅ Match using email or employee ID (case-insensitive + trimmed)
+          const normalizedUserName = userName?.trim().toLowerCase();
+  
+          const employee = employees.find(
+            (emp) =>
+              emp.name?.trim().toLowerCase() === normalizedUserName || // Match by name
+              emp.email?.trim().toLowerCase() === normalizedUserName || // Match by email
+              emp.employeeId?.trim().toLowerCase() === normalizedUserName // Match by ID
+          );
+  
+          if (employee && employee.permissions) {
             setPermissions(employee.permissions);
+            console.log(
+              "✅ Permissions fetched for employee:",
+              employee.permissions
+            );
+          } else {
+            console.warn(
+              "⚠️ No matching employee found or permissions missing"
+            );
           }
         }
       } catch (err) {
-        console.error("Error fetching permissions:", err);
+        console.error("🔥 Error fetching permissions:", err.message);
       }
     };
-
+  
     fetchPermissions();
   }, [userRole, userName]);
-
+  
   console.log("✅ User Role:", userRole);
   console.log("✅ User Name:", userName);
   console.log("✅ Permissions:", permissions);
+  
 
   // ✅ Render the menu bar based on user role
   const renderMenuBar = () => {

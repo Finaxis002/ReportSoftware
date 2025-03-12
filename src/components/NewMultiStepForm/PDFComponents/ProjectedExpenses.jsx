@@ -316,9 +316,49 @@ const ProjectedExpenses = ({
 
         {/* Direct Expenses */}
         <View style={[{ borderLeftWidth: 1 }]}>
-          <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-            <Text style={[styleExpenses.sno]}>A</Text>
-            <Text style={stylesMOF.cell}>Direct Expenses</Text>
+          <View style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  paddingVertical: "10px",
+                  fontFamily: "Roboto",
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              A
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  paddingVertical: "10px",
+                  fontFamily: "Roboto",
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              Direct Expenses
+            </Text>
+            {Array.from({
+              length: hideFirstYear ? projectionYears - 1 : projectionYears,
+            }).map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              ></Text>
+            ))}
           </View>
 
           {/* Salary and Wages */}
@@ -477,10 +517,51 @@ const ProjectedExpenses = ({
 
         {/* Indirect Expenses  */}
         <View style={[{ borderLeftWidth: 1, borderBottom: 1 }]}>
-          <View style={[stylesMOF.row, styleExpenses.headerRow]}>
-            <Text style={[styleExpenses.sno]}>B</Text>
-            <Text style={stylesMOF.cell}>Indirect Expenses</Text>
+        <View style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  paddingVertical: "10px",
+                  fontFamily: "Roboto",
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              B
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  paddingVertical: "10px",
+                  fontFamily: "Roboto",
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              Indirect Expenses
+            </Text>
+            {Array.from({
+              length: hideFirstYear ? projectionYears - 1 : projectionYears,
+            }).map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  {
+                    paddingVertical: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              ></Text>
+            ))}
           </View>
+
 
           {/* Interest On Term Loan */}
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -742,7 +823,7 @@ const ProjectedExpenses = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "60px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",

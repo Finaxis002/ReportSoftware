@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 10,
+    fontSize: 12,
     textAlign: "center",
     marginBottom: 14,
     textTransform: "uppercase",

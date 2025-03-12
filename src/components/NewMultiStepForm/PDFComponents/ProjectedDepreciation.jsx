@@ -442,7 +442,7 @@ const ProjectedDepreciation = ({
               <Text
                 style={[stylesCOP.particularsCellsDetail, { fontSize: "8px" }]}
               >
-                {asset.rate ? `${asset.rate}%` : "N/A"}
+                {asset.rate ? `${asset.rate}%` : " "}
               </Text>
 
               {Array.from({ length: years }).map((_, yearIndex) => (
@@ -594,10 +594,10 @@ const ProjectedDepreciation = ({
             {
               display: "flex",
               flexDirection: "column",
-              gap: "30px",
+              gap: "60px",
               alignItems: "flex-end",
               justifyContent: "flex-end",
-              marginTop: "60px",
+              marginTop: "50px",
             },
           ]}
         >
