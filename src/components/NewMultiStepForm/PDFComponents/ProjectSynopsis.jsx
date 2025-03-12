@@ -126,7 +126,7 @@ const ProjectSynopsis = React.memo(
       const firstValidValue = revenueArray.find((value) => value !== 0);
       return firstValidValue !== undefined
         ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
-        : "N/A";
+        : " ";
     };
 
     // ✅ Function to get the first non-zero percentage value and its corresponding year
@@ -148,7 +148,7 @@ const ProjectSynopsis = React.memo(
       // ✅ If no valid non-zero value found
       return {
         value: "-",
-        year: "N/A",
+        year: " ",
       };
     };
 
@@ -283,10 +283,10 @@ const ProjectSynopsis = React.memo(
                       receivedtotalRevenueReceipts
                     );
                   } else {
-                    value = formData?.AccountInformation?.[field.key] || "N/A";
+                    value = formData?.AccountInformation?.[field.key] || " ";
                   }
                 } else if (field.source === "ProjectReportSetting") {
-                  value = formData?.ProjectReportSetting?.[field.key] || "N/A";
+                  value = formData?.ProjectReportSetting?.[field.key] || " ";
                 }
 
                 // ✅ Check if the field requires special formatting for Repayment Months
@@ -392,7 +392,7 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "45%" },
                       ]}
                     >
-                      {expense.name || "N/A"}
+                      {expense.name || " "}
                     </Text>
                     <Text
                       style={[
@@ -685,7 +685,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
-                    { padding: "8px", width: "35%", textAlign: "center" },
+                    { padding: "8px", width: "35%", textAlign: "left" },
                   ]}
                 >
                   Particulars
@@ -703,9 +703,11 @@ const ProjectSynopsis = React.memo(
               {/* cost of project mapping  */}
               {formData?.CostOfProject &&
               Object.keys(formData.CostOfProject).length > 0 ? (
-                Object.entries(formData.CostOfProject).map(
-                  ([key, field], index) => (
+                Object.entries(formData.CostOfProject)
+                  .filter(([key, field]) => field?.amount > 0) // ✅ Filter out fields where amount = 0
+                  .map(([key, field], index) => (
                     <View key={index} style={styles.tableRow}>
+                      {/* ✅ Serial No */}
                       <Text
                         style={[
                           styles.serialNoCellDetail,
@@ -718,6 +720,7 @@ const ProjectSynopsis = React.memo(
                         ]}
                       ></Text>
 
+                      {/* ✅ Particular Name */}
                       <Text
                         style={[
                           styles.particularsCellsDetail,
@@ -729,26 +732,34 @@ const ProjectSynopsis = React.memo(
                           },
                         ]}
                       ></Text>
+
+                      {/* ✅ Separator */}
                       <Text
                         style={[
                           styles.separatorCellDetail,
                           {
                             padding: "8px",
-                            textAlign: "center",
+                            textAlign: "left",
                             width: "5%",
                             borderBottomWidth: "0px",
                             borderTopWidth: "0px",
                           },
                         ]}
-                      ></Text>
+                      >
+                        {/* ✅ Leave blank if no separator value */}
+                      </Text>
+
+                      {/* ✅ Details */}
                       <Text
                         style={[
                           styles.detailsCellDetail,
-                          { padding: "8px", width: "35%", textAlign: "center" },
+                          { padding: "8px", width: "35%", textAlign: "left" },
                         ]}
                       >
-                        {field?.name || key || "N/A"}
+                        {field?.name || ""}
                       </Text>
+
+                      {/* ✅ Amount */}
                       <Text
                         style={[
                           styles.detailsCellDetail,
@@ -763,8 +774,7 @@ const ProjectSynopsis = React.memo(
                         {formatNumber(field?.amount || 0)}
                       </Text>
                     </View>
-                  )
-                )
+                  ))
               ) : (
                 <View style={styles.tableRow}>
                   <Text
@@ -807,7 +817,7 @@ const ProjectSynopsis = React.memo(
                     styles.separatorCellDetail,
                     {
                       padding: "8px",
-                      textAlign: "center",
+                      textAlign: "left",
                       width: "5%",
                       borderBottomWidth: "0px",
                       borderTopWidth: "0px",
@@ -817,7 +827,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCellDetail,
-                    { padding: "8px", width: "35%", textAlign: "center" },
+                    { padding: "8px", width: "35%", textAlign: "left" },
                   ]}
                 >
                   Working Capital Required
@@ -873,7 +883,7 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "35%",
-                      textAlign: "center",
+                      textAlign: "left",
                       fontFamily: "Roboto",
                       fontWeight: "extrabold",
                       fontSize: "12px",
@@ -930,7 +940,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
-                    { padding: "8px", width: "35%", textAlign: "center" },
+                    { padding: "8px", width: "35%", textAlign: "left" },
                   ]}
                 >
                   Particulars
@@ -987,9 +997,10 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "35%",
-                      textAlign: "center",
+                      textAlign: "left",
                       borderBottomWidth: "0px",
                       borderTopWidth: "0px",
+                      paddingTop: "20px",
                     },
                   ]}
                 >
@@ -1005,6 +1016,7 @@ const ProjectSynopsis = React.memo(
                       borderLeftWidth: "1px",
                       borderBottomWidth: "0px",
                       borderTopWidth: "0px",
+                      paddingTop: "20px",
                     },
                   ]}
                 >
@@ -1054,7 +1066,7 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "35%",
-                      textAlign: "center",
+                      textAlign: "left",
                       borderBottomWidth: "0px",
                       borderTopWidth: "0px",
                     },
@@ -1115,7 +1127,7 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "35%",
-                      textAlign: "center",
+                      textAlign: "left",
                       fontFamily: "Roboto",
                       fontWeight: "extrabold",
                       fontSize: "12px",
@@ -1304,7 +1316,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", paddingLeft: "20px", width: "55%" },
                   ]}
                 >
-                  {formData?.ProjectReportSetting?.subsidyName || "N/A"}
+                  {formData?.ProjectReportSetting?.subsidyName || " "}
                 </Text>
               </View>
             </View>
@@ -1316,7 +1328,7 @@ const ProjectSynopsis = React.memo(
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "30px",
+                gap: "80px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "60px",

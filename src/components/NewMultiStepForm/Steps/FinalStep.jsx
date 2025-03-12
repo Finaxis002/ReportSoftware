@@ -150,15 +150,22 @@ const FinalStep = ({ formData, setCurrentStep }) => {
       </div>
 
       <div className="flex gap-5">
+        {/* ✅ Open Generate PDF in new tab */}
         <button
-          onClick={() => navigate("/generated-pdf")} // ✅ Correct function syntax
+          onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
         </button>
 
+        {/* ✅ Open Check Profit in new tab */}
         <button
-          onClick={handleCheckProfit}
+          onClick={() => {
+            const profitUrl = handleCheckProfit(); // ✅ Call the function and get the result (if it's a URL)
+            if (profitUrl) {
+              window.open(profitUrl, "_blank"); // ✅ Open the result in a new tab
+            }
+          }}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Check Profit
