@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const API_URL = 'http://localhost:5000/api/admin';
-const API_URL = 'http://localhost:5000/api';
+// const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://backend-three-pink.vercel.app/api';
 
 
 export const getAdmins = async () => {

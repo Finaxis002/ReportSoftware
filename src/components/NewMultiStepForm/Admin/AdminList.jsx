@@ -137,7 +137,10 @@ const AdminList = () => {
     setRoles(admin.roles || {});
 
     if (admin.caSign) {
-      setCaSign(`https://backend-three-pink.vercel.app/${admin.caSign}`);
+
+      // setCaSign(`http://localhost:5000${admin.caSign}`);
+      setCaSign(`https://backend-three-pink.vercel.app/api/${admin.caSign}`);
+
       setFileName(admin.caSign.split("/").pop()); // ✅ Set file name from path
     } else {
       setFileName(""); // If no file exists
@@ -436,24 +439,24 @@ const styles = {
     display: "flex",
     gap: "10px",
   },
-  editButton: {
-    backgroundColor: "#57B9FF",
-    color: "#fff",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
-  deleteButton: {
-    backgroundColor: "#FF474D",
-    color: "#fff",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
+  // editButton: {
+  //   backgroundColor: "#57B9FF",
+  //   color: "#fff",
+  //   border: "none",
+  //   padding: "6px 12px",
+  //   borderRadius: "4px",
+  //   cursor: "pointer",
+  //   transition: "background-color 0.2s",
+  // },
+  // deleteButton: {
+  //   backgroundColor: "#FF474D",
+  //   color: "#fff",
+  //   border: "none",
+  //   padding: "6px 12px",
+  //   borderRadius: "4px",
+  //   cursor: "pointer",
+  //   transition: "background-color 0.2s",
+  // },
   editContainer: {
     display: "flex",
     gap: "10px",
@@ -701,7 +704,7 @@ card: {
 
   // ✅ Styling for Buttons with Icons
   editButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#0CAFFF",
     color: "#fff",
     border: "none",
     padding: "10px 20px", // ✅ Increased padding for better touch area
@@ -715,7 +718,7 @@ card: {
   },
 
   deleteButton: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: "#FF474D",
     color: "#fff",
     border: "none",
     padding: "10px 20px", // ✅ Increased padding for better touch area
@@ -732,13 +735,13 @@ card: {
     fontSize: "18px", // ✅ Larger icon for better visibility
   },
 
-  editButtonHover: {
-    backgroundColor: "#45a049",
-  },
+  // editButtonHover: {
+  //   backgroundColor: "#0CAFFF",
+  // },
 
-  deleteButtonHover: {
-    backgroundColor: "#c0392b",
-  },
+  // deleteButtonHover: {
+  //   backgroundColor: "#FF474D",
+  // },
 };
 
 export default AdminList;
