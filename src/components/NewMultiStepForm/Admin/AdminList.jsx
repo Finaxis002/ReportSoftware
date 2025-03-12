@@ -133,11 +133,11 @@ const AdminList = () => {
     );
     setIsModalOpen(true);
     setUpdatedPassword("");
-    // setCaSign(admin.caSign ? `http://localhost:5000${admin.caSign}` : null);
+    // setCaSign(admin.caSign ? `https://backend-three-pink.vercel.app/${admin.caSign}` : null);
     setRoles(admin.roles || {});
 
     if (admin.caSign) {
-      setCaSign(`http://localhost:5000${admin.caSign}`);
+      setCaSign(`https://backend-three-pink.vercel.app/${admin.caSign}`);
       setFileName(admin.caSign.split("/").pop()); // ✅ Set file name from path
     } else {
       setFileName(""); // If no file exists
@@ -167,7 +167,7 @@ const AdminList = () => {
                 
                 {admin.caSign && (
                   <img
-                    src={`http://localhost:5000${admin.caSign}`}
+                    src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
                     alt="CA Sign"
                     style={styles.caSign}
                   />
@@ -233,7 +233,7 @@ const AdminList = () => {
         {/* ✅ Show CA Sign if available, otherwise show initials */}
         {admin.caSign ? (
           <img
-            src={`http://localhost:5000${admin.caSign}`}
+            src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
             alt="CA Sign"
             style={styles.profileIcon}
           />
