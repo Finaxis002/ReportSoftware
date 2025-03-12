@@ -203,6 +203,8 @@ const MenuBar = ({ userRole }) => {
     console.warn("Duplicate paths detected:", paths);
   }
 
+  const employeeName = localStorage.getItem("employeeName"); // Get employeeName from localStorage
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -231,7 +233,7 @@ const MenuBar = ({ userRole }) => {
             alt="Account"
           />
         </div>
-        <div className="account-info-name">Anugraha</div>
+        {userRole === "employee" ? employeeName : "Admin"}
         <button className="account-info-more">
           <svg
             xmlns="http://www.w3.org/2000/svg"
