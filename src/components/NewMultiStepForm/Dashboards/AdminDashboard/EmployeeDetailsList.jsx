@@ -13,7 +13,7 @@ import EmployeeEditModal from "./EmployeeEditModal";
 import AssignTaskModal from "./AssignTaskModal";
 import EmployeeDetailModal from "./EmployeeDetailModal";
 import EmployeeRegistration from "./EmployeeRegistration";
-import EmployeeList from "./EmployeeList";
+import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 
 const EmployeeDetailsList = () => {
   const [employees, setEmployees] = useState([]);
@@ -23,6 +23,8 @@ const EmployeeDetailsList = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [showCombinedModal, setShowCombinedModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
+
 
 
 
@@ -46,6 +48,9 @@ const EmployeeDetailsList = () => {
         }
       } catch (err) {
         console.error("🔥 Error fetching employees:", err);
+      }
+      finally {
+        setIsLoading(false); // Set loading to false once data is fetched
       }
     };
   
@@ -132,7 +137,16 @@ const EmployeeDetailsList = () => {
       {/* ✅ Employee Registration */}
       {showForm && <EmployeeRegistration setShowForm={setShowForm} />}
 
+
       {/* ✅ Card-based Layout */}
+      <div className="flex align-middle justify-center">
+      {isLoading ? (
+        <tr>
+          <td colSpan="5" className="px-6 py-4 text-center">
+            <LoadingSpinner />
+          </td>
+        </tr>
+      ) : (
       <div
         className="overflow-y-auto"
         style={{
@@ -255,6 +269,8 @@ const EmployeeDetailsList = () => {
             </div>
           ))}
         </div>
+      </div>
+      )}
       </div>
 
 

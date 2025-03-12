@@ -15,21 +15,21 @@ const CreateReport = ({ userRole, userName }) => {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
-        );
+        // Fetching all employees
+        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
+        
+        // Check if the response is successful
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
         }
-  
-        const result = await response.json(); // ✅ Get the full response object
+        
+        const result = await response.json();
         console.log("✅ Fetched Employees Data:", result);
-  
-        // ✅ Extract employee data properly from result
-        const employees = Array.isArray(result.data) ? result.data : [];
-  
+        
+        const employees = Array.isArray(result) ? result : [];
+
+        // Assign permissions based on userRole
         if (userRole === "admin") {
-          // ✅ Grant full permissions if admin
           setPermissions({
             createReport: true,
             updateReport: true,
@@ -38,36 +38,34 @@ const CreateReport = ({ userRole, userName }) => {
           });
           console.log("✅ Admin permissions granted");
         } else if (userRole === "employee") {
-          // ✅ Match using email or employee ID (case-insensitive + trimmed)
+          // Normalize the userName to lowercase and trim spaces
           const normalizedUserName = userName?.trim().toLowerCase();
-  
+
+          // Find the employee based on name, email, or employeeId
           const employee = employees.find(
             (emp) =>
-              emp.name?.trim().toLowerCase() === normalizedUserName || // Match by name
-              emp.email?.trim().toLowerCase() === normalizedUserName || // Match by email
-              emp.employeeId?.trim().toLowerCase() === normalizedUserName // Match by ID
+              (emp.name?.trim().toLowerCase() === normalizedUserName) ||
+              (emp.email?.trim().toLowerCase() === normalizedUserName) ||
+              (emp.employeeId?.trim().toLowerCase() === normalizedUserName)
           );
-  
+
+          // Set permissions if employee is found
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
-            console.log(
-              "✅ Permissions fetched for employee:",
-              employee.permissions
-            );
+            console.log("✅ Permissions fetched for employee:", employee.permissions);
           } else {
-            console.warn(
-              "⚠️ No matching employee found or permissions missing"
-            );
+            console.warn("⚠️ No matching employee found or permissions missing");
           }
         }
       } catch (err) {
         console.error("🔥 Error fetching permissions:", err.message);
       }
     };
-  
+
+    // Fetch permissions when the component mounts or when userRole/userName changes
     fetchPermissions();
   }, [userRole, userName]);
-  
+
   console.log("✅ User Role:", userRole);
   console.log("✅ User Name:", userName);
   console.log("✅ Permissions:", permissions);
