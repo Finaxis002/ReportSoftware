@@ -1,9 +1,17 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React,{useState, useEffect} from "react";
+import { useLocation, useNavigate} from "react-router-dom";
 
 const MenuBar = ({ userRole }) => {
   const nav = useNavigate();
   const location = useLocation();
+  const [adminName, setAdminName] = useState("");
+
+  useEffect(() => {
+    const storedAdminName = localStorage.getItem("adminName");
+    if (storedAdminName) {
+      setAdminName(storedAdminName);
+    }
+  }, []);
 
   const getLocation = (loc) => {
     return location.pathname === loc ? "active" : "";
@@ -233,7 +241,13 @@ const MenuBar = ({ userRole }) => {
             alt="Account"
           />
         </div>
+
         {userRole === "employee" ? employeeName : "Admin"}
+
+        <div className="account-info-name">
+          {adminName || "Admin"}
+        </div>
+
         <button className="account-info-more">
           <svg
             xmlns="http://www.w3.org/2000/svg"
