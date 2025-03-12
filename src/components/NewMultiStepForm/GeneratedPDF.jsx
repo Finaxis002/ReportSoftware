@@ -30,11 +30,14 @@ import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
 import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
+import LoadingSpinner from "./LoadingSpinner/LoadingSpinner"; // Import loading spinner
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const GeneratedPDF = React.memo(({ pdfData }) => {
   console.log("received Pdf Data", pdfData);
+  const [isLoading, setIsLoading] = useState(true); // Loading state for the spinner
+
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -383,14 +386,16 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     navigate,
   ]);
 
-  const businessName =
-    formData.AccountInformation.businessName || "Unknown Business";
-  const clientName = formData.AccountInformation.clientName || "Unknown Client";
+  // Dummy function to simulate loading the PDF (replace with actual logic)
+  const loadPDF = () => {
+    setTimeout(() => {
+      setIsLoading(false); // Once content is ready, set loading to false
+    }, 2000); // Simulating a 2-second delay (Replace with real loading time)
+  };
 
-  const fileName = `ProjectReport_${businessName.replace(
-    /[^a-zA-Z0-9]/g,
-    "_"
-  )}_${clientName.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+  useEffect(() => {
+    loadPDF(); // Trigger the loading of the PDF
+  }, []); // Runs only once on component mount
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -652,18 +657,6 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     assetsliabilities,
   ]);
 
-  // ✅ Function to handle download
-  const handleDownloadOverride = (blob) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName; // ✅ Correct file name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   useEffect(() => {
     // ✅ Remove the default download button using CSS
     const style = document.createElement("style");
@@ -680,40 +673,24 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
   }, []);
 
   return (
-    <BlobProvider document={memoizedPDF}>
-      {({ blob, url, loading }) => (
-        <>
-          <PDFViewer
-            width="100%"
-            height="800"
-            style={{ overflow: "hidden" }}
-            showToolbar={userRole !== "client" && userRole !== "employee"}
-          >
-            {memoizedPDF}
-          </PDFViewer>
-          {/* ✅ Trigger manual download */}
-          {!loading && (
-            <button
-              onClick={() => handleDownloadOverride(blob)}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Download Report
-            </button>
-          )}
-          {/* ✅ Custom Download Button */}
-
-          <section className="h-[100vh]"></section>
-        </>
+    <>
+      {isLoading ? (
+        <div className="loader-container">
+          <LoadingSpinner /> {/* Your loading spinner component */}
+        </div>
+      ) : (
+        <PDFViewer
+          width="100%"
+          height="800"
+          style={{ overflow: "hidden" }}
+          showToolbar={true}
+        >
+          {memoizedPDF}
+        </PDFViewer>
       )}
-    </BlobProvider>
+
+      <section className="h-[100vh]"></section>
+    </>
   );
 });
 
