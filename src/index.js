@@ -78,9 +78,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
-          
-
-              <Route
+            <Route
               path="/"
               element={
                 isAuthenticated ? (
@@ -97,43 +95,58 @@ const App = () => {
               }
             />
 
-              <Route
-                path="/login"
-                element={
-                  isAuthenticated ? (
-                    <Navigate to="/login" replace />
-                  ) : (
-                    <MainLogin onLogin={handleLogin} />
-                  )
-                }
-              />
-               <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-              <Route path="/MultestepForm" element={<MultiStepForm receivedGeneratedPDFData = {generatePDfData}/>} />
-              <Route path="/employees" element={<Employees />} />
-              <Route path="/admin" element={<AdminList />} />
-              <Route path="/notifications" element={<Notification />} />
-              <Route path="/clientData" element={<ClientData />} />
-              <Route path="/tasks/:taskId" element={<Tasks />} />
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
+              }
+            />
+            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+            <Route
+              path="/MultestepForm"
+              element={
+                <MultiStepForm
+                  receivedGeneratedPDFData={generatePDfData}
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                />
+              }
+            />
+            <Route path="/employees" element={<Employees />} />
+            <Route path="/admin" element={<AdminList />} />
+            <Route path="/notifications" element={<Notification />} />
+            <Route path="/clientData" element={<ClientData />} />
+            <Route path="/tasks/:taskId" element={<Tasks />} />
 
-              {/* Protect MongoDB route */}
-              <Route
-                path="/database"
-                element={
-                  isAuthenticated ? (
-                    <MongoDB />
-                  ) : (
-                    <DatabaseLogin onLogin={handleLogin} />
-                  )
-                }
-              />
-              <Route path="/createreport" element={<CreateReport />} />
-              
-              {/* ✅ Correctly Placed Routes */}
-              <Route path="/generated-pdf" element={<GeneratedPDF  />} />
-              <Route path="/checkprofit"  element={<CheckProfit />} />
-           
+            {/* Protect MongoDB route */}
+            <Route
+              path="/database"
+              element={
+                isAuthenticated ? (
+                  <MongoDB />
+                ) : (
+                  <DatabaseLogin onLogin={handleLogin} />
+                )
+              }
+            />
+            <Route
+              path="/createreport"
+              element={
+                <CreateReport
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                />
+              }
+            />
 
-               
+            {/* ✅ Correctly Placed Routes */}
+            <Route path="/generated-pdf" element={<GeneratedPDF />} />
+            <Route path="/checkprofit" element={<CheckProfit />} />
+
             <Route
               path="/login"
               element={
@@ -203,3 +216,5 @@ const App = () => {
 // Render the app
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
+///////////////////////////////////////////////////////////////////////////////////////////
