@@ -134,7 +134,7 @@ const SeventhStepMD = ({
       updatedStock[index] = Number(value); // Update value
 
       // If it's closing stock, propagate value to opening stock of next year
-      if (name === "closingStock" && index < years - 1) {
+      if (name === "ClosingStock" && index < years - 1) {
         updatedStock[index + 1] = Number(value);
       }
 
@@ -169,7 +169,7 @@ const SeventhStepMD = ({
                 </tr>
               </thead>
               <tbody>
-                {["openingStock", "closingStock", "withdrawals"].map(
+                {["OpeningStock", "ClosingStock", "Withdrawals"].map(
                   (stockType) => (
                     <tr key={stockType}>
                       <td

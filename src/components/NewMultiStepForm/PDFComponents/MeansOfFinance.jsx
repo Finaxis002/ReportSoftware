@@ -181,7 +181,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.totalWorkingCapital || 0)}
             </Text>
           </View>
@@ -208,7 +208,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
                 formData?.MeansOfFinance?.TotalPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
             </Text>
           </View>
@@ -219,7 +219,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.TotalTermLoanPercent || 0}%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.totalTL || 0)}
             </Text>
           </View>
@@ -235,7 +235,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.total || 0)}
             </Text>
           </View>
@@ -248,17 +248,17 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "30px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={styles.FinancialYear}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>

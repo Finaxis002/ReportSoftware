@@ -12,7 +12,6 @@ const FourthStepPRS = ({
   const [showAdvance, setShowAdvance] = useState(false);
   const [caList, setCaList] = useState([]);
 
-
   // ✅ Default data structure\
   const monthNames = [
     "January",
@@ -272,7 +271,7 @@ const FourthStepPRS = ({
         console.error("Failed to load CA list:", error);
       }
     };
-  
+
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
@@ -684,25 +683,24 @@ const FourthStepPRS = ({
                 </div>
               </div> */}
               <div className="col-6">
-  <div className="input">
-    <select
-      id="CAName"
-      name="CAName"
-      value={localData?.CAName || ""}
-      onChange={handleChange}
-      className="form-control selectInput"
-    >
-      <option value="">Select CA Name</option>
-      {caList.map((ca, index) => (
-        <option key={index} value={ca}>
-          {ca}
-        </option>
-      ))}
-    </select>
-    {/* <label htmlFor="CAName">Name of the CA</label> */}
-  </div>
-</div>
-
+                <div className="input">
+                  <select
+                    id="CAName"
+                    name="CAName"
+                    value={localData?.CAName?.value || ""}
+                    onChange={handleChange}
+                    className="form-control selectInput"
+                  >
+                    <option value="">Select CA Name</option>
+                    {caList.map((ca, index) => (
+                      <option key={index} value={ca}>
+                        {ca}
+                      </option>
+                    ))}
+                  </select>
+                  {/* <label htmlFor="CAName">Name of the CA</label> */}
+                </div>
+              </div>
 
               {/* Bank */}
 

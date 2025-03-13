@@ -93,7 +93,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 <Text style={stylesCOP.detailsCellDetail}>
                   {field?.name || "N/A"}
                 </Text>
-                <Text style={stylesCOP.particularsCellsDetail}>
+                <Text style={[stylesCOP.particularsCellsDetail, {textAlign:"right"}]}>
                   {formatNumber(field?.amount || 0)}
                 </Text>
               </View>
@@ -125,7 +125,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             <Text
               style={[
                 stylesCOP.particularsCellsDetail,
-                { paddingBottom: "10px" },
+                { paddingBottom: "10px" },{textAlign:"right"}
               ]}
             >
               {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
@@ -187,17 +187,17 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           {
             display: "flex",
             flexDirection: "column",
-            gap: "60px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "30px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={styles.FinancialYear}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>

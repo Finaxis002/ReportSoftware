@@ -852,7 +852,7 @@ const DebtServiceCoverageRatio = ({
               styleExpenses.fontSmall,
               {
                 width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
-                fontSize: "12px",
+                fontSize: "10px",
                 fontFamily: "Roboto",
                 fontWeight: "extrabold",
                 textAlign: "center",
@@ -872,17 +872,17 @@ const DebtServiceCoverageRatio = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={styles.FinancialYear}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>

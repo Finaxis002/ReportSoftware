@@ -619,17 +619,17 @@ const ProjectedDepreciation = ({
             {
               display: "flex",
               flexDirection: "column",
-              gap: "60px",
+              gap: "80px",
               alignItems: "flex-end",
               justifyContent: "flex-end",
               marginTop: "50px",
             },
           ]}
         >
-          <Text style={[styles.businessName, { fontSize: "14px" }]}>
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
             {formData?.AccountInformation?.businessName || "Business Name"}
           </Text>
-          <Text style={styles.FinancialYear}>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
             {formData?.AccountInformation?.clientName || "Client Name"}
           </Text>
         </View>
