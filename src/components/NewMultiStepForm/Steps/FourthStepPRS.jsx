@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { getAdmins } from "../../../api/adminAPI";
 
 const FourthStepPRS = ({
   formData,
@@ -9,6 +10,8 @@ const FourthStepPRS = ({
   const [projectionYears, setProjectionYears] = useState(0);
   const [rateOfExpense, setRateOfExpense] = useState(0);
   const [showAdvance, setShowAdvance] = useState(false);
+  const [caList, setCaList] = useState([]);
+
 
   // ✅ Default data structure\
   const monthNames = [
@@ -259,6 +262,19 @@ const FourthStepPRS = ({
       );
     }
   }, [formData?.ProjectReportSetting?.ProjectionYears?.value]);
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const data = await getAdmins();
+        setCaList(data.map((admin) => admin.username)); // Extract only the CA names
+      } catch (error) {
+        console.error("Failed to load CA list:", error);
+      }
+    };
+  
+    fetchAdmins(); // ✅ Fetch data on component mount
+  }, []);
 
   // Handle change for any field including ProjectionYears
   const handleChange = (e) => {
@@ -643,7 +659,7 @@ const FourthStepPRS = ({
               </div>
 
               {/* CA Name */}
-              <div className="col-6">
+              {/* <div className="col-6">
                 <div className="input">
                   <input
                     id="CAName"
@@ -655,7 +671,27 @@ const FourthStepPRS = ({
                   />
                   <label htmlFor="CAName">Name of the CA</label>
                 </div>
-              </div>
+              </div> */}
+              <div className="col-6">
+  <div className="input">
+    <select
+      id="CAName"
+      name="CAName"
+      value={localData?.CAName || ""}
+      onChange={handleChange}
+      className="form-control selectInput"
+    >
+      <option value="">Select CA Name</option>
+      {caList.map((ca, index) => (
+        <option key={index} value={ca}>
+          {ca}
+        </option>
+      ))}
+    </select>
+    {/* <label htmlFor="CAName">Name of the CA</label> */}
+  </div>
+</div>
+
 
 
               {/* Bank */}
