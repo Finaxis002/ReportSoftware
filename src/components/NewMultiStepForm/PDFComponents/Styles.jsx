@@ -43,6 +43,9 @@ Font.register({
 
 
 const styles = StyleSheet.create({
+  text:{
+    fontFamily:"TimesNewRoman",
+  },
 
   italicText :{
     fontFamily:"TimesNewRoman",
@@ -241,7 +244,7 @@ const stylesMOF = StyleSheet.create({
   sectionHeader: {
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 14,
     textTransform: "capitalize",
     padding: 4,
     backgroundColor: "#172554",

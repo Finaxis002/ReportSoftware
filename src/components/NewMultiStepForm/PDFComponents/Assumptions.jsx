@@ -302,7 +302,7 @@ const Assumptions = ({
         )}
       </View>
       {/* Notes Section */}
-      <View style={{ marginTop: 20, marginLeft: 2 }}>
+      <View style={[ styles.text , { marginTop: 20, marginLeft: 2 }]}>
         <Text style={{ fontSize: 10 }}>
           The Term Loan Repayment for {years} Years {months} Months is
           calculated at an interest rate of{" "}
