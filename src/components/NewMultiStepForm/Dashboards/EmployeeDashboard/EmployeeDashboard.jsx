@@ -76,7 +76,9 @@ const EmployeeDashboard = ({ userRole }) => {
                 <div className="flex justify-center mt-8">
                   <div className="w-full max-w-4xl bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                     <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white text-center py-2">
-                      <h2 className="text-xl font-semibold">Employee Details</h2>
+                      <h2 className="text-xl font-semibold">
+                        Employee Details
+                      </h2>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700">
                       {/* ✅ Employee ID */}
@@ -178,7 +180,16 @@ const EmployeeDashboard = ({ userRole }) => {
           )}
 
           {/* Assigned Tasks */}
-          {employeeData && <EmployeeTasks employeeId={employeeData.employeeId} />}
+          <div
+            style={{
+              overflowY: "scroll",
+              height: "400px", // ✅ Set fixed height
+            }}
+          >
+            {employeeData && (
+              <EmployeeTasks employeeId={employeeData.employeeId} />
+            )}
+          </div>
         </div>
       </div>
     </div>

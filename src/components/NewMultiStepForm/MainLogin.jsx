@@ -87,6 +87,7 @@ const MainLogin = ({ onLogin }) => {
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
+        localStorage.setItem("employeeId", data.employeeId)
 
         onLogin(true, "admin");
         navigate("/");
@@ -232,6 +233,7 @@ const MainLogin = ({ onLogin }) => {
           localStorage.setItem("isLoggedIn", "true");
           localStorage.setItem("userRole", "employee");
           localStorage.setItem("employeeName", data.employee.name);
+          localStorage.setItem("employeeId", data.employee.employeeId)
   
           onLogin(true, "employee", {
             employeeId: data.employee.employeeId,
