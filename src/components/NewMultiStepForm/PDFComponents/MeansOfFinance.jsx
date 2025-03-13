@@ -51,6 +51,25 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             : "2025-26"}
         </Text>
       </View>
+
+      {/* Amount format */}
+
+      <View
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn , styles.italicText]}>
+          (Amount In{" "}
+          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
+            ? "Rs" // ✅ Convert "rupees" to "Rs"
+            : formData?.ProjectReportSetting?.AmountIn?.value}.)
+        </Text>
+      </View>
+
       <Text style={styles.title}>Means of Finance</Text>
 
       <View style={[{ border: "1px solid #000", padding: "0px" }]}>
@@ -67,7 +86,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.Snocell}>S.No.</Text>
             <Text style={stylesMOF.cell}>Particulars</Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={stylesMOF.cell}>Amount</Text>
+            <Text style={[stylesMOF.cell , {textAlign:"center"}]}>Amount</Text>
           </View>
 
           <View
@@ -89,7 +108,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
                 formData?.MeansOfFinance?.TLPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"right"}]}>
               {formatNumber(
                 formData?.MeansOfFinance?.termLoan?.promoterContribution || 0
               )}
@@ -102,7 +121,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.TLTermLoanPercent || 0}%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.termLoan?.termLoan || 0)}
             </Text>
           </View>
@@ -111,7 +130,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
               {formatNumber(formData?.MeansOfFinance?.totalTermLoan || 0)}
             </Text>
           </View>
@@ -137,7 +156,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
                 formData?.MeansOfFinance?.WCPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"right"}]}>
               {formatNumber(
                 formData?.MeansOfFinance?.workingCapital
                   ?.promoterContribution || 0
@@ -151,7 +170,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.WCTermLoanPercent || 0}%`}
             </Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell,{textAlign:"right"}]}>
               {formatNumber(
                 formData?.MeansOfFinance?.workingCapital?.termLoan || 0
               )}

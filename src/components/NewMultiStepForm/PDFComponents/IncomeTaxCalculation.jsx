@@ -90,10 +90,32 @@ const IncomeTaxCalculation = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear 
-  ? `${formData.ProjectReportSetting.FinancialYear}-${(parseInt(formData.ProjectReportSetting.FinancialYear) + 1).toString().slice(-2)}`
-  : "2025-26"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
+        </Text>
+      </View>
 
+      {/* Amount format */}
+
+      <View
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
+            ? "Rs" // ✅ Convert "rupees" to "Rs"
+            : formData?.ProjectReportSetting?.AmountIn?.value}
+          .)
         </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
@@ -354,28 +376,30 @@ const IncomeTaxCalculation = ({
               Net Profit (/loss)
             </Text>
             {netProfitBeforeTax.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => 
-                (!hideFirstYear || index !== 0) && (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styles.boldText,
-                    {
-                      fontSize: "9px",
-                      borderTopWidth: "2px",
-                      borderBottomWidth: "2px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
-                      paddingVertical: "8px",
-                    },
-                  ]}
-                >
-                  {npbt
-                    ? formatNumber(npbt) // ✅ Use the formatNumber function
-                    : "0"}
-                </Text>
-              ))
+              netProfitBeforeTax.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styles.boldText,
+                        {
+                          fontSize: "9px",
+                          borderTopWidth: "2px",
+                          borderBottomWidth: "2px",
+                          fontFamily: "Roboto",
+                          fontWeight: "extrabold",
+                          paddingVertical: "8px",
+                        },
+                      ]}
+                    >
+                      {npbt
+                        ? formatNumber(npbt) // ✅ Use the formatNumber function
+                        : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -404,24 +428,26 @@ const IncomeTaxCalculation = ({
               Taxable Profit
             </Text>
             {netProfitBeforeTax.length > 0 ? (
-              netProfitBeforeTax.map((npbt, index) => 
-                (!hideFirstYear || index !== 0) && (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    {
-                      fontSize: "9px",
+              netProfitBeforeTax.map(
+                (npbt, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          fontSize: "9px",
 
-                      paddingVertical: "8px",
-                    },
-                  ]}
-                >
-                  {npbt
-                    ? formatNumber(npbt) // ✅ Use the formatNumber function
-                    : "0"}
-                </Text>
-              ))
+                          paddingVertical: "8px",
+                        },
+                      ]}
+                    >
+                      {npbt
+                        ? formatNumber(npbt) // ✅ Use the formatNumber function
+                        : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
@@ -450,22 +476,24 @@ const IncomeTaxCalculation = ({
               Tax {formData.ProjectReportSetting.incomeTax}%
             </Text>
             {incomeTax.length > 0 ? (
-              incomeTax.map((tax, index) => 
-                (!hideFirstYear || index !== 0) && (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    {
-                      fontSize: "9px",
+              incomeTax.map(
+                (tax, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          fontSize: "9px",
 
-                      paddingVertical: "8px",
-                    },
-                  ]}
-                >
-                  {tax ? formatNumber(tax) : "0"}
-                </Text>
-              ))
+                          paddingVertical: "8px",
+                        },
+                      ]}
+                    >
+                      {tax ? formatNumber(tax) : "0"}
+                    </Text>
+                  )
+              )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
