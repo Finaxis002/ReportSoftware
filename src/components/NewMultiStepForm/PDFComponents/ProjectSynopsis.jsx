@@ -886,7 +886,7 @@ const ProjectSynopsis = React.memo(
                       textAlign: "left",
                       fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
-                      fontSize: "12px",
+                      fontSize: "10px",
                     },
                   ]}
                 >
@@ -1130,7 +1130,7 @@ const ProjectSynopsis = React.memo(
                       textAlign: "left",
                       fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
-                      fontSize: "12px",
+                      fontSize: "10px",
                       borderTop: "1px",
                     },
                   ]}
@@ -1335,10 +1335,10 @@ const ProjectSynopsis = React.memo(
               },
             ]}
           >
-            <Text style={[styles.businessName, { fontSize: "14px" }]}>
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
               {formData?.AccountInformation?.businessName || "Business Name"}
             </Text>
-            <Text style={styles.FinancialYear}>
+            <Text style={[styles.FinancialYear, {fontSize: "10px"}]}>
               {formData?.AccountInformation?.clientName || "Client Name"}
             </Text>
           </View>

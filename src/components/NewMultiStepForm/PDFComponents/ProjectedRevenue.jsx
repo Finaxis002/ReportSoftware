@@ -259,7 +259,7 @@ const ProjectedRevenue = ({
         {/* ✅ Compute & Display Revenue Based on formType */}
         <View style={[stylesMOF.row, styleExpenses.totalRow]}>
           <Text
-            style={[stylesCOP.serialNoCellDetail, { borderBottomWidth: "0px" }]}
+            style={[stylesCOP.serialNoCellDetail, { borderBottomWidth: "0px", borderLeftWidth:"1px" }]}
           ></Text>
 
           {/* ✅ Conditional Label Based on formType */}
@@ -304,17 +304,17 @@ const ProjectedRevenue = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "30px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={styles.FinancialYear}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>

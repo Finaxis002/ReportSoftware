@@ -804,9 +804,54 @@ const ProjectedExpenses = ({
               ))}
           </View>
 
+{/* blank row */}
+          <View style={[styles.tableRow, styles.totalRow]}>
+            {/* Serial Number */}
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            >
+              
+            </Text>
+
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              
+            </Text>
+
+            {/* Get total projection years */}
+            {Array.from({
+              length: hideFirstYear
+                ? formData?.ProjectReportSetting?.ProjectionYears - 1
+                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
+            }).map((_, index) => {
+              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
+
+              return (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                 
+                </Text>
+              );
+            })}
+          </View>
+
           {/* ✅ Total (A + B) - Combined Direct and Indirect Expenses */}
           <View
-            style={[styles.tableRow, styles.totalRow, { marginTop: "10px" }]}
+            style={[styles.tableRow, styles.totalRow]}
           >
             <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
@@ -818,6 +863,9 @@ const ProjectedExpenses = ({
             >
               Total Expenses(A + B)
             </Text>
+
+
+            
 
             {/* ✅ Display the combined total for each year */}
             {totalExpensesArray
@@ -844,17 +892,17 @@ const ProjectedExpenses = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "60px",
+            gap: "80px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={styles.FinancialYear}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>
