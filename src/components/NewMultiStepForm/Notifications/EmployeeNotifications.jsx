@@ -9,14 +9,14 @@ const EmployeeNotifications = () => {
   const [readNotifications, setReadNotifications] = useState({});
   const navigate = useNavigate();
 
-  const employeeId = localStorage.getItem("userId");
+  const employeeId = localStorage.getItem("employeeId");
 
   const fetchNotifications = async () => {
     setLoading(true);
     setError("");
     try {
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/api/employees/register/api/notifications?employeeId=${employeeId}`
+        `https://backend-three-pink.vercel.app/api/notifications?employeeId=${employeeId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch notifications");
