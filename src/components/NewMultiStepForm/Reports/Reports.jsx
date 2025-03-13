@@ -12,22 +12,23 @@ const Reports = ({ sendPdfData }) => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
 
-
   // Fetch reports when the component mounts
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/get-report");
-  
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/get-report"
+        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch reports");
         }
-  
+
         const data = await response.json();
-  
+
         console.log("Fetched Reports Data:", data);
-  
+
         if (data.success) {
           setReports(data.data || []);
         } else {
@@ -35,15 +36,13 @@ const Reports = ({ sendPdfData }) => {
         }
       } catch (err) {
         console.error("🔥 Error fetching reports:", err);
-      }
-      finally {
+      } finally {
         setIsLoading(false); // Set loading to false once data is fetched
       }
     };
-  
+
     fetchReports();
   }, []);
-  
 
   // ✅ Handle Delete Action
   const handleDelete = async (reportId) => {
@@ -70,7 +69,6 @@ const Reports = ({ sendPdfData }) => {
   };
 
   // ✅ Handle Update Action after Editing
-
 
   const handleDownload = async (sessionId) => {
     try {
@@ -116,107 +114,125 @@ const Reports = ({ sendPdfData }) => {
 
   return (
     <div className="app-container bg-gray-50 min-h-screen">
-    {renderMenuBar()}
-    <div className="flex flex-col w-full px-6 py-4 gap-8">
-      <Header />
-      <div className="overflow-x-auto shadow-md rounded-xl border border-gray-200 bg-white">
-        <table className="min-w-full border-collapse rounded-lg overflow-hidden">
-          {/* ✅ Table Header */}
-          <thead className="bg-teal-400 text-white">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Business Name
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Name of Owner
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Author
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Date Created
-              </th>
-              <th className="px-6 py-4 text-center text-sm font-semibold">
-                Actions
-              </th>
-            </tr>
-          </thead>
-  
-          {/* ✅ Table Body */}
-          <tbody className="divide-y divide-gray-200">
-      {/* Show loading spinner if data is still being fetched */}
-      {isLoading ? (
-        <tr>
-          <td colSpan="5" className="px-6 py-4 text-center">
-            <LoadingSpinner />
-          </td>
-        </tr>
-      ) : (
-        reports.map((report, index) => (
-          <tr
-            key={index}
-            className="hover:bg-gray-100 transition duration-200"
-          >
-            {/* ✅ Business Name */}
-            <td className="px-6 py-4 text-gray-700 font-medium">
-              {report.AccountInformation?.businessName || "N/A"}
-            </td>
+      {renderMenuBar()}
+      <div className="flex flex-col w-full px-6 py-4 gap-8">
+        <Header />
+        <div className="overflow-x-auto shadow-md rounded-xl border border-gray-200 bg-white">
+          <table className="min-w-full border-collapse rounded-lg overflow-hidden">
+            {/* ✅ Table Header */}
+            <thead className="bg-teal-400 text-white">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold">
+                  Business Name
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">
+                  Name of Owner
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">
+                  Author
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">
+                  Date Created
+                </th>
+                <th className="px-6 py-4 text-center text-sm font-semibold">
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-            {/* ✅ Name of Owner */}
-            <td className="px-6 py-4 text-gray-700">
-              {report.AccountInformation?.clientName || "N/A"}
-            </td>
+            {/* ✅ Table Body */}
+            <tbody className="divide-y divide-gray-200">
+              {/* Show loading spinner if data is still being fetched */}
+              {isLoading ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-4 text-center">
+                    <LoadingSpinner />
+                  </td>
+                </tr>
+              ) : (
+                reports.map((report, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-100 transition duration-200"
+                  >
+                    {/* ✅ Business Name */}
+                    <td className="px-6 py-4 text-gray-700 font-medium">
+                      {report.AccountInformation?.businessName || "N/A"}
+                    </td>
 
-            {/* ✅ Author */}
-            <td className="px-6 py-4 text-gray-700">
-              {report.AccountInformation?.userRole || "N/A"}
-            </td>
+                    {/* ✅ Name of Owner */}
+                    <td className="px-6 py-4 text-gray-700">
+                      {report.AccountInformation?.clientName || "N/A"}
+                    </td>
 
-            {/* ✅ Date Created */}
-            <td className="px-6 py-4 text-gray-700">
-              {report?.AccountInformation?.createdAt
-                ? new Date(report.AccountInformation.createdAt).toLocaleDateString()
-                : "N/A"}
-            </td>
+                    {/* ✅ Author */}
+                    <td className="px-6 py-4 text-gray-700">
+                      {report.AccountInformation?.userRole || "N/A"}
+                    </td>
 
-            {/* ✅ Actions */}
-            <td className="px-6 py-4 flex justify-center gap-4">
-              {/* ✅ Download Button */}
-              <button
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2"
-                onClick={() => handleDownload(report.sessionId)} // ✅ Use sessionId
-              >
-                <FontAwesomeIcon icon={faDownload} />
-                Download
-              </button>
+                    {/* ✅ Date Created */}
+                    <td className="px-6 py-4 text-gray-700">
+                      {report?.AccountInformation?.createdAt
+                        ? new Date(
+                            report.AccountInformation.createdAt
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </td>
 
-              {/* ✅ Delete Button */}
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2"
-                onClick={() => handleDelete(report._id)}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))
-      )}
+                    {/* ✅ Actions */}
+                    <td className="px-6 py-4 flex justify-center gap-4">
+                      {/* ✅ Download Button */}
+                      <button
+                        className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
+                          localStorage.getItem("userRole") === "employee"
+                            ? "bg-gray-400 cursor-not-allowed" // ✅ Disabled styling
+                            : "bg-green-500 hover:bg-green-600 text-white"
+                        }`}
+                        onClick={() => handleDownload(report.sessionId)}
+                        disabled={
+                          localStorage.getItem("userRole") === "employee"
+                        } // ✅ Disable for employees
+                      >
+                        <FontAwesomeIcon icon={faDownload} />
+                        Download
+                      </button>
 
-      {/* ✅ No Reports Found */}
-      {reports.length === 0 && !isLoading && (
-        <tr>
-          <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-            No reports found.
-          </td>
-        </tr>
-      )}
-    </tbody>
-        </table>
+                      {/* ✅ Delete Button */}
+                      <button
+                        className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
+                          localStorage.getItem("userRole") === "employee"
+                            ? "bg-gray-400 cursor-not-allowed" // ✅ Disabled styling
+                            : "bg-red-500 hover:bg-red-600 text-white"
+                        }`}
+                        onClick={() => handleDelete(report._id)}
+                        disabled={
+                          localStorage.getItem("userRole") === "employee"
+                        } // ✅ Disable for employees
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+
+              {/* ✅ No Reports Found */}
+              {reports.length === 0 && !isLoading && (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    No reports found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-  
   );
 };
 

@@ -25,7 +25,7 @@ const Repayment = ({
   onMarchClosingBalanceCalculated, // New callback prop for March balances
   formatNumber,
 }) => {
-  const termLoan = formData.MeansOfFinance.termLoan.termLoan;
+  const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
   const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
