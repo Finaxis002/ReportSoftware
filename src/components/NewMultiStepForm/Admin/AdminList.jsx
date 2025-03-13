@@ -253,8 +253,8 @@ const AdminList = () => {
       <div style={styles.actionButtons}>
         <button
           onClick={() => handleOpenEdit(admin)}
-          onMouseEnter={(e) => e.target.style.backgroundColor = "#45a049"}
-          onMouseLeave={(e) => e.target.style.backgroundColor = "#4CAF50"}
+          onMouseEnter={(e) => e.target.style.backgroundColor = "#14B7FF"}
+          onMouseLeave={(e) => e.target.style.backgroundColor = "#0CAFFF"}
           style={styles.editButton}
         >
            <FontAwesomeIcon icon={faEdit} style={styles.buttonIcon} /> 
@@ -583,7 +583,6 @@ const styles = {
     marginTop: "10px", // ✅ Correct camelCase
     textAlign: "left" // ✅ Correct camelCase
 },
-
   checkboxLabel: {
     display: "flex",
     alignItems: "center",
