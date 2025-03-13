@@ -50,6 +50,34 @@ const EmployeeTasks = ({ employeeId }) => {
   }, []);  // Empty dependency array to run only once on mount
   
 
+  // const handleStatusChange = async (taskId, newStatus) => {
+  //   try {
+  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ status: newStatus }),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update task status");
+  //     }
+  
+  //     const updatedTask = await response.json();
+  
+  //     setTasks((prevTasks) =>
+  //       prevTasks.map((task) =>
+  //         task.taskId === taskId || task._id === taskId
+  //           ? { ...task, status: updatedTask.task.status }
+  //           : task
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("Error updating status:", err);
+  //     setError("Failed to update task status");
+  //   }
+  // };
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
@@ -66,9 +94,10 @@ const EmployeeTasks = ({ employeeId }) => {
   
       const updatedTask = await response.json();
   
+      // ✅ Update state correctly
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task.taskId === taskId || task._id === taskId
+          task._id === taskId
             ? { ...task, status: updatedTask.task.status }
             : task
         )
