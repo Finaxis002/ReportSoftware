@@ -1124,7 +1124,9 @@ const BreakEvenPoint = ({
                         fontWeight: "extrabold",
                         fontFamily: "Roboto",
                         borderWidth: "0px",
+                        borderRightWidth:"1px",
                         paddingVertical: "10px",
+
                       },
                     ]}
                   >
