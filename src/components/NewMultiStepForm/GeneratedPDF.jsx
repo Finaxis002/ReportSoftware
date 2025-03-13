@@ -401,7 +401,7 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     return (
       <Document>
         {/* basic details table */}
-        <BasicDetails formData={formData} />
+        {/* <BasicDetails formData={formData} /> */}
 
         <ProjectSynopsis
           formData={formData}

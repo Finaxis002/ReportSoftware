@@ -635,7 +635,7 @@ const FourthStepPRS = ({
                     name="UDINNumber"
                     type="text"
                     placeholder="Enter UDIN Number"
-                    value={localData.UDINNumber}
+                    value={localData.UDINNumber.value}
                     onChange={handleChange}
                   />
                   <label htmlFor="UDINNumber">UDIN Number</label>

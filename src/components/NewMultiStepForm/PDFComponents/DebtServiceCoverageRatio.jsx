@@ -9,11 +9,14 @@ import CAWatermark from "../Assets/CAWatermark";
 Font.register({
   family: "Roboto",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
     {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
       fontWeight: "bold",
-    }, // Bold
+    },
   ],
 });
 
@@ -243,7 +246,13 @@ const DebtServiceCoverageRatio = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
       <View style={[styles.table]}>
@@ -484,19 +493,21 @@ const DebtServiceCoverageRatio = ({
             </Text>
 
             {/* ✅ Display Computed Total for Each Year */}
-            {totalA.map((totalValue, yearIndex) => 
-            (!hideFirstYear || yearIndex !== 0) && (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                ]}
-              >
-                {formatNumber(totalValue)} {/* ✅ Display Rounded Value */}
-              </Text>
-            ))}
+            {totalA.map(
+              (totalValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(totalValue)} {/* ✅ Display Rounded Value */}
+                  </Text>
+                )
+            )}
           </View>
         </View>
 
@@ -529,19 +540,21 @@ const DebtServiceCoverageRatio = ({
             {/* Get total projection years */}
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
-            }).map((_, index) => 
-              (!hideFirstYear || index !== 0) && (
-              <Text
-                key={index}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  { paddingTop: "20px" },
-                ]}
-              >
-                {formatNumber(yearlyInterestLiabilities[index] || 0)}
-              </Text>
-            ))}
+            }).map(
+              (_, index) =>
+                (!hideFirstYear || index !== 0) && (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingTop: "20px" },
+                    ]}
+                  >
+                    {formatNumber(yearlyInterestLiabilities[index] || 0)}
+                  </Text>
+                )
+            )}
           </View>
 
           {/* Interest On Working Capital */}
@@ -571,7 +584,7 @@ const DebtServiceCoverageRatio = ({
             {Array.from({
               length: formData.ProjectReportSetting.ProjectionYears,
             }).map((_, yearIndex) => {
-              if (hideFirstYear && yearIndex === 0) return null; 
+              if (hideFirstYear && yearIndex === 0) return null;
               const calculatedInterest = calculateInterestOnWorkingCapital(
                 interestOnWorkingCapital[yearIndex] || 0,
                 yearIndex
@@ -615,18 +628,20 @@ const DebtServiceCoverageRatio = ({
 
             {/* ✅ Ensure First-Year Repayment is Included */}
             {yearlyPrincipalRepayment && yearlyPrincipalRepayment.length > 0 ? (
-              Array.from({ length: projectionYears }).map((_, index) => 
-                (!hideFirstYear || index !== 0) && (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(yearlyPrincipalRepayment[index] || 0)}
-                </Text>
-              ))
+              Array.from({ length: projectionYears }).map(
+                (_, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(yearlyPrincipalRepayment[index] || 0)}
+                    </Text>
+                  )
+              )
             ) : (
               <Text
                 style={[
@@ -672,20 +687,22 @@ const DebtServiceCoverageRatio = ({
             </Text>
 
             {/* ✅ Display Computed Total for Each Year */}
-            {totalB.map((totalValue, yearIndex) => 
-            (!hideFirstYear || yearIndex !== 0) && (
-              <Text
-                key={yearIndex}
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  stylesCOP.boldText,
-                  styleExpenses.fontSmall,
-                  { paddingBottom: "20px", borderBottomWidth: 0 },
-                ]}
-              >
-                {formatNumber(totalValue)} {/* ✅ Display Rounded Value */}
-              </Text>
-            ))}
+            {totalB.map(
+              (totalValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      { paddingBottom: "20px", borderBottomWidth: 0 },
+                    ]}
+                  >
+                    {formatNumber(totalValue)} {/* ✅ Display Rounded Value */}
+                  </Text>
+                )
+            )}
           </View>
         </View>
 
@@ -713,20 +730,22 @@ const DebtServiceCoverageRatio = ({
           </Text>
 
           {/* ✅ Display Computed Total for Each Year */}
-          {DSCR.map((totalValue, yearIndex) => 
-          (!hideFirstYear || yearIndex !== 0) && (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                stylesCOP.boldText,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(parseFloat(totalValue).toFixed(2))}{" "}
-              {/* ✅ Display Rounded Value */}
-            </Text>
-          ))}
+          {DSCR.map(
+            (totalValue, yearIndex) =>
+              (!hideFirstYear || yearIndex !== 0) && (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(parseFloat(totalValue).toFixed(2))}{" "}
+                  {/* ✅ Display Rounded Value */}
+                </Text>
+              )
+          )}
         </View>
 
         {/* Blank Row  */}
@@ -761,21 +780,23 @@ const DebtServiceCoverageRatio = ({
           ></Text>
 
           {/* ✅ Display Computed Total for Each Year */}
-          {DSCR.map((totalValue, yearIndex) => 
-            (!hideFirstYear || yearIndex !== 0) && (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                stylesCOP.boldText,
-                styleExpenses.fontSmall,
-                { borderTopWidth: 0, padding: "10px" },
-              ]}
-            >
-              {" "}
-              {/* ✅ Display Rounded Value */}
-            </Text>
-          ))}
+          {DSCR.map(
+            (totalValue, yearIndex) =>
+              (!hideFirstYear || yearIndex !== 0) && (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    { borderTopWidth: 0, padding: "10px" },
+                  ]}
+                >
+                  {" "}
+                  {/* ✅ Display Rounded Value */}
+                </Text>
+              )
+          )}
         </View>
 
         {/* ✅ Display Average DSCR */}

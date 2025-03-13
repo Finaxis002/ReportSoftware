@@ -41,14 +41,20 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
       <View style={stylesCOP.heading}>
         <Text>Cost Of Project</Text>
       </View>
 
-      <View style={[styles.table , {paddingBottom:0}]}>
+      <View style={[styles.table, { paddingBottom: 0 }]}>
         <View style={styles.tableHeader}>
           <Text style={styles.serialNoCell}>S.No.</Text>
           <Text style={styles.detailsCell}>Particulars</Text>
@@ -90,17 +96,17 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         {formData?.MeansOfFinance?.totalWorkingCapital && (
           <View style={styles.tableRow}>
             <Text style={stylesCOP.serialNoCellDetail}>
-              {Object.keys(formData.CostOfProject).length + 1}
+              {Object.keys(formData.CostOfProject).length-1 + 1}
             </Text>
             <Text
-              style={[stylesCOP.detailsCellDetail , {paddingBottom:"10px"}]}
+              style={[stylesCOP.detailsCellDetail, { paddingBottom: "10px" }]}
             >
               Working Capital Required
             </Text>
             <Text
               style={[
                 stylesCOP.particularsCellsDetail,
-                {paddingBottom:"10px"}
+                { paddingBottom: "10px" },
               ]}
             >
               {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
@@ -126,7 +132,13 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
               },
             ]}
           >
-            <Text style={{ width: "30%", border: "1px solid #000", borderBottomWidth:0 }}>
+            <Text
+              style={{
+                width: "30%",
+                border: "1px solid #000",
+                borderBottomWidth: 0,
+              }}
+            >
               {" "}
               Total{" "}
             </Text>
@@ -140,8 +152,8 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 borderTop: "1px solid #000",
                 borderBottomWidth: 0,
                 borderLeftWidth: 1,
-                fontFamily:"Roboto",
-                fontWeight:"bold",
+                fontFamily: "Roboto",
+                fontWeight: "bold",
               },
             ]}
           >
