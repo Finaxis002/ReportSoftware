@@ -31,6 +31,11 @@ Font.register({
       src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
       fontWeight: "bold",
     },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold-italic.ttf"),
+      fontWeight:"bold",
+      fontStyle: "italic",
+    }
   ],
 });
 
@@ -39,7 +44,10 @@ Font.register({
 
 const styles = StyleSheet.create({
 
-  
+  italicText :{
+    fontFamily:"TimesNewRoman",
+    fontStyle:"italic"
+  },
   
   noBorder: {
     border: "0px",
@@ -50,6 +58,12 @@ const styles = StyleSheet.create({
     fontWeight: "extrabold",
     paddingVertical: "3px",
     paddingBottom: "20px",
+  },
+
+  AmountIn:{
+    fontSize: "11px",
+    fontFamily: "TimesNewRoman",
+    fontWeight: "extrabold",
   },
 
   Total: {

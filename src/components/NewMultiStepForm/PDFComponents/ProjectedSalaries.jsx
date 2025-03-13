@@ -50,6 +50,25 @@ const ProjectedSalaries = ({
             : "2025-26"}
         </Text>
       </View>
+
+      {/* Amount format */}
+
+      <View
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
+            ? "Rs" // ✅ Convert "rupees" to "Rs"
+            : formData?.ProjectReportSetting?.AmountIn?.value}
+          .)
+        </Text>
+      </View>
       <View style={stylesCOP.heading}>
         <Text>Projected Salaries & Wages</Text>
       </View>
