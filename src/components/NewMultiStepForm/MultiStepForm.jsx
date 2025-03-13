@@ -14,7 +14,7 @@ import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
-import FileUpload from "./FileUpload";
+// import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
@@ -466,14 +466,12 @@ const MultiStepForm = ({ userRole, userName }) => {
           <Stepper steps={steps} currentStep={currentStep} />
         </div>
 
-        {isCreateReportClicked && (
+        {/* {isCreateReportClicked && (
           <div className="my-5">
             <FileUpload setFormData={handleFileData} />
           </div>
-        )}
-        {/* <div className="my-5">
-          <FileUpload setFormData={handleFileData} />
-        </div> */}
+        )} */}
+        
 
         {/* ✅ Dropdown placed outside steps to persist selection */}
         {!isCreateReportClicked && userRole !== "client" && (
