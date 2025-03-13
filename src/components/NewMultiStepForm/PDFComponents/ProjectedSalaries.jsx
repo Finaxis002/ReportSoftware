@@ -41,7 +41,13 @@ const ProjectedSalaries = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
       <View style={stylesCOP.heading}>
@@ -90,7 +96,7 @@ const ProjectedSalaries = ({
                 stylesCOP.textCenter,
                 index === 0 && { paddingTop: 20 },
                 index === normalExpense.length - 1 && { paddingBottom: 20 },
-                {textAlign:"left"}
+                { textAlign: "left" },
               ]}
             >
               {expense.name || "N/A"}
@@ -210,7 +216,12 @@ const ProjectedSalaries = ({
               stylesCOP.boldText,
               stylesCOP.extraWidth,
               styles.Total,
-              { borderTopWidth: "1px", borderBottomWidth: "1px", fontSize:"12px", paddingVertical:"6px" },
+              {
+                borderTopWidth: "1px",
+                borderBottomWidth: "1px",
+                fontSize: "12px",
+                paddingVertical: "6px",
+              },
             ]}
           >
             {" "}
@@ -223,7 +234,12 @@ const ProjectedSalaries = ({
               stylesCOP.textCenter,
               stylesCOP.boldText,
               styles.Total,
-              { borderTopWidth: "1px", borderBottomWidth: "1px" , fontSize:"12px", paddingVertical:"6px" },
+              {
+                borderTopWidth: "1px",
+                borderBottomWidth: "1px",
+                fontSize: "12px",
+                paddingVertical: "6px",
+              },
             ]}
           >
             {" "}

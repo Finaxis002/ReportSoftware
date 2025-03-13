@@ -8,11 +8,14 @@ import CAWatermark from "../Assets/CAWatermark";
 Font.register({
   family: "Roboto",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
     {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
       fontWeight: "bold",
-    }, // Bold
+    },
   ],
 });
 
@@ -310,7 +313,13 @@ const ProjectedBalanceSheet = ({
           </Text>
           <Text style={styles.FinancialYear}>
             Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
           </Text>
         </View>
 
@@ -633,7 +642,6 @@ const ProjectedBalanceSheet = ({
           {/* Assets Section */}
 
           <View>
-           
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -670,12 +678,9 @@ const ProjectedBalanceSheet = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                   ]}
-                >
-                </Text>
+                ></Text>
               ))}
-              
             </View>
-
 
             {/* Fixed Assets */}
             <View style={styles.tableRow}>

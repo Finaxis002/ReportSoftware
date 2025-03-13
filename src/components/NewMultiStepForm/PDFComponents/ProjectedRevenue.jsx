@@ -52,12 +52,11 @@ const ProjectedRevenue = ({
   const adjustedFinancialYearLabels = hideFirstYear
     ? financialYearLabels.slice(1)
     : financialYearLabels;
-// ✅ Remove first-year revenue if hiding is required
-const adjustedTotalRevenueReceipts = hideFirstYear
-  ? totalRevenueReceipts.slice(1)
-  : totalRevenueReceipts;
+  // ✅ Remove first-year revenue if hiding is required
+  const adjustedTotalRevenueReceipts = hideFirstYear
+    ? totalRevenueReceipts.slice(1)
+    : totalRevenueReceipts;
 
-  
   const adjustedTotalRevenueForOthers = hideFirstYear
     ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
     : formData?.Revenue?.totalRevenueForOthers;
@@ -106,7 +105,13 @@ const adjustedTotalRevenueReceipts = hideFirstYear
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
 
@@ -220,6 +225,7 @@ const adjustedTotalRevenueReceipts = hideFirstYear
                         fontFamily: "Roboto",
                         color: "black",
                         fontWeight: "bold",
+                        textAlign: "center",
                       },
                       { borderBottomWidth: "0px" },
                     ]}
@@ -258,7 +264,7 @@ const adjustedTotalRevenueReceipts = hideFirstYear
               style={[
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
-                { fontWeight: "extrabold" },
+                { fontWeight: "extrabold", textAlign: "center" },
               ]}
             >
               {

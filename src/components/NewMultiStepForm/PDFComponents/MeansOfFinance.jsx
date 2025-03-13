@@ -6,7 +6,7 @@ import CAWatermark from "../Assets/CAWatermark";
 
 const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
   return (
-    <Page style={[styles.page ]}>
+    <Page style={[styles.page]}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -42,7 +42,13 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
       <Text style={styles.title}>Means of Finance</Text>

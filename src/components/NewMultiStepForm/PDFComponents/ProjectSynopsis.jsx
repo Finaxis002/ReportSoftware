@@ -307,7 +307,7 @@ const ProjectSynopsis = React.memo(
                     <Text
                       style={[
                         styles.particularsCellsDetail,
-                        { padding: "8px", width: "45%" },
+                        { padding: "8px", width: "45%" , textAlign:"left" },
                       ]}
                     >
                       {field.label}
@@ -389,7 +389,7 @@ const ProjectSynopsis = React.memo(
                     <Text
                       style={[
                         styles.particularsCellsDetail,
-                        { padding: "8px", width: "45%" },
+                        { padding: "8px", width: "45%" , textAlign:"left" },
                       ]}
                     >
                       {expense.name || " "}
@@ -442,7 +442,7 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -471,7 +471,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -488,7 +488,7 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -575,7 +575,7 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -602,7 +602,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -619,7 +619,7 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        fontFamily: "Roboto",
+                        fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
                       },
                     ]}
@@ -884,7 +884,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      fontFamily: "Roboto",
+                      fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
                       fontSize: "12px",
                     },
@@ -900,7 +900,7 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      fontFamily: "Roboto",
+                      fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
                     },
                   ]}
@@ -1128,7 +1128,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      fontFamily: "Roboto",
+                      fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
                       fontSize: "12px",
                       borderTop: "1px",
@@ -1145,7 +1145,7 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      fontFamily: "Roboto",
+                      fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
                       borderTop: "1px",
                     },
@@ -1174,7 +1174,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" },
+                    { padding: "8px", width: "45%" , textAlign:"left"},
                   ]}
                 >
                   Debt Service Coverage Ratio
@@ -1215,7 +1215,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" },
+                    { padding: "8px", width: "45%" , textAlign:"left"},
                   ]}
                 >
                   Current Ratio
@@ -1258,7 +1258,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" },
+                    { padding: "8px", width: "45%" , textAlign:"left" },
                   ]}
                 >
                   Breakeven Point
@@ -1289,7 +1289,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.serialNoCellDetail,
-                    { padding: "8px", width: "10%" },
+                    { padding: "8px", width: "10%" , },
                   ]}
                 >
                   19
@@ -1297,7 +1297,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" },
+                    { padding: "8px", width: "45%" , textAlign:"left"},
                   ]}
                 >
                   Subsidy Scheme

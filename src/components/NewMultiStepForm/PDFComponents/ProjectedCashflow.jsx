@@ -471,7 +471,13 @@ const ProjectedCashflow = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
@@ -509,7 +515,6 @@ const ProjectedCashflow = ({
 
           {/* Sources Section */}
           <View>
-           
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -546,10 +551,8 @@ const ProjectedCashflow = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                   ]}
-                >
-                </Text>
+                ></Text>
               ))}
-              
             </View>
 
             {/* ✅ Net Profit before Interest & Taxes */}
@@ -762,6 +765,7 @@ const ProjectedCashflow = ({
                     paddingVertical: "8px",
                     fontFamily: "Roboto",
                     fontWeight: "bold",
+                    textAlign:"right"
                   },
                 ]}
               >
@@ -775,8 +779,8 @@ const ProjectedCashflow = ({
                     styles.boldText,
                     {
                       fontSize: "9px",
-                      borderTopWidth: "2px",
-                      borderBottomWidth: "2px",
+                      borderTopWidth: "1px",
+                      borderBottomWidth: "1px",
                       fontFamily: "Roboto",
                       fontWeight: "extrabold",
                       paddingVertical: "8px",
@@ -827,10 +831,8 @@ const ProjectedCashflow = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                   ]}
-                >
-                </Text>
+                ></Text>
               ))}
-              
             </View>
 
             {/* Fixed Assets */}
@@ -1134,10 +1136,11 @@ const ProjectedCashflow = ({
                     paddingVertical: "8px",
                     fontFamily: "Roboto",
                     fontWeight: "bold",
+                    textAlign:"right"
                   },
                 ]}
               >
-                Total Uses
+                Total 
               </Text>
               {totalUsesArray.map((total, index) => (
                 <Text
@@ -1147,8 +1150,8 @@ const ProjectedCashflow = ({
                     styles.boldText,
                     {
                       fontSize: "9px",
-                      borderTopWidth: "2px",
-                      borderBottomWidth: "2px",
+                      borderTopWidth: "1px",
+                      borderBottomWidth: "1px",
                       fontFamily: "Roboto",
                       fontWeight: "extrabold",
                       paddingVertical: "8px",

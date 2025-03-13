@@ -277,15 +277,19 @@ const ProjectedExpenses = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
 
       <View style={[styleExpenses.paddingx]}>
         <View>
-          <Text style={styles.clientName}>
-            {formData.AccountInformation.clientName}
-          </Text>
+  
           <View style={stylesCOP.heading}>
             <Text>Projected Expenses</Text>
           </View>
@@ -517,7 +521,7 @@ const ProjectedExpenses = ({
 
         {/* Indirect Expenses  */}
         <View style={[{ borderLeftWidth: 1, borderBottom: 1 }]}>
-        <View style={[styles.tableRow, styles.totalRow]}>
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -561,7 +565,6 @@ const ProjectedExpenses = ({
               ></Text>
             ))}
           </View>
-
 
           {/* Interest On Term Loan */}
           <View style={[styles.tableRow, styles.totalRow]}>

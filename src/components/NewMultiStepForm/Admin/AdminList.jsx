@@ -9,6 +9,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Header from "../Header";
 
 const AdminList = () => {
   const [admins, setAdmins] = useState([]);
@@ -27,20 +28,10 @@ const AdminList = () => {
   const [caSign, setCaSign] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fileName, setFileName] = useState("");
-  
 
   useEffect(() => {
     fetchAdmins();
   }, []);
-
-  // const fetchAdmins = async () => {
-  //   try {
-  //     const data = await getAdmins();
-  //     setAdmins(data);
-  //   } catch (error) {
-  //     console.error("Failed to load admins:", error);
-  //   }
-  // };
 
   const fetchAdmins = async () => {
     try {
@@ -75,32 +66,6 @@ const AdminList = () => {
       console.error("Failed to delete admin:", error);
     }
   };
-
-  // const handleEdit = async (id) => {
-  //   try {
-  //     await updateAdmin(id, updatedName, updatedPassword);
-  //     setEditingAdmin(null);
-  //     fetchAdmins(); // Refresh admin list after edit
-  //   } catch (error) {
-  //     console.error("Failed to update admin:", error);
-  //   }
-  // };
-
-  // const handleEdit = async (id) => {
-  //   const formData = new FormData();
-  //   formData.append("username", updatedName);
-  //   if (updatedPassword) formData.append("password", updatedPassword);
-  //   if (caSign) formData.append("caSign", caSign);
-  //   formData.append("roles", JSON.stringify(roles)); // Include roles
-
-  //   try {
-  //     await updateAdmin(id, formData);
-  //     setEditingAdmin(null);
-  //     fetchAdmins();
-  //   } catch (error) {
-  //     console.error("Failed to update admin:", error);
-  //   }
-  // };
 
   const handleEdit = async (id) => {
     try {
@@ -137,10 +102,11 @@ const AdminList = () => {
     setRoles(admin.roles || {});
 
     if (admin.caSign) {
-
       // setCaSign(`http://localhost:5000${admin.caSign}`);
 
-      setCaSign(`https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`);
+      setCaSign(
+        `https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`
+      );
 
       setFileName(admin.caSign.split("/").pop()); // ✅ Set file name from path
     } else {
@@ -155,150 +121,93 @@ const AdminList = () => {
   const handleCloseForm = () => {
     setShowForm(false);
   };
-  
 
   return (
     <div className="app-container" style={styles.scrollContainer}>
       <MenuBar userRole="admin" />
-      <div style={styles.container}>
+
+      <div className="flex flex-col w-full px-4 gap-8">
+        <Header dashboardType="Admin Dashboard" />
         <h2 style={styles.header}>List of Chartered Accountants (Admin)</h2>
 
-        
-        {/* <div style={styles.adminList}>
+        <div style={styles.cardContainer}>
           {admins.map((admin) => (
-            <div key={admin._id} style={styles.adminCard}>
-              <div style={styles.adminDetails}>
-                
-                {admin.caSign && (
+            <div key={admin._id} style={styles.card}>
+              {/* Header */}
+              <div style={styles.cardHeader}>
+                {/* ✅ Show CA Sign if available, otherwise show initials */}
+                {admin.caSign ? (
                   <img
                     src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
                     alt="CA Sign"
-                    style={styles.caSign}
+                    style={styles.profileIcon}
                   />
+                ) : (
+                  <div style={styles.profileIcon}>
+                    {admin.username.charAt(0).toUpperCase()}
+                  </div>
                 )}
-
-                <span style={styles.adminName}>{admin.username}</span>
-                <div style={styles.actionButtons}>
-                  <button
-                    onClick={() => handleOpenEdit(admin)}
-                    style={styles.editButton}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(admin._id)}
-                    style={styles.deleteButton}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                    Delete
-                  </button>
+                <div>
+                  <div style={styles.name}>{admin.username}</div>
+                  <div style={styles.designation}>Administrator</div>
                 </div>
+              </div>
+
+              {/* ✅ Action Buttons */}
+              <div style={styles.actionButtons}>
+                <button
+                  onClick={() => handleOpenEdit(admin)}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#14B7FF")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#0CAFFF")
+                  }
+                  style={styles.editButton}
+                >
+                  <FontAwesomeIcon icon={faEdit} style={styles.buttonIcon} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(admin._id)}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#c0392b")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#e74c3c")
+                  }
+                  style={styles.deleteButton}
+                >
+                  <FontAwesomeIcon icon={faTrash} style={styles.buttonIcon} />
+                  Delete
+                </button>
               </div>
             </div>
           ))}
-        </div> */}
-
-{/* <div style={styles.cardContainer}>
-  {admins.map((admin) => (
-    <div key={admin._id} style={styles.card}>
-      
-      <div style={styles.cardHeader}>
-        <div style={styles.profileIcon}>
-          {admin.username.charAt(0).toUpperCase()}
         </div>
-        <div>
-          <div style={styles.name}>{admin.username}</div>
-          <div style={styles.designation}>Administrator</div>
-        </div>
-      </div>
-
-      
-
-      
-      <div style={styles.actionButtons}>
-        <button onClick={() => handleOpenEdit(admin)} style={styles.editButton}>
-          Edit
-        </button>
-        <button onClick={() => handleDelete(admin._id)} style={styles.deleteButton}>
-          Delete
-        </button>
-      </div>
-    </div>
-  ))}
-</div> */}
-
-<div style={styles.cardContainer}>
-  {admins.map((admin) => (
-    <div key={admin._id} style={styles.card}>
-      {/* Header */}
-      <div style={styles.cardHeader}>
-        {/* ✅ Show CA Sign if available, otherwise show initials */}
-        {admin.caSign ? (
-          <img
-            src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
-            alt="CA Sign"
-            style={styles.profileIcon}
-          />
-        ) : (
-          <div style={styles.profileIcon}>
-            {admin.username.charAt(0).toUpperCase()}
-          </div>
-        )}
-        <div>
-          <div style={styles.name}>{admin.username}</div>
-          <div style={styles.designation}>Administrator</div>
-        </div>
-      </div>
-
-      {/* ✅ Action Buttons */}
-      <div style={styles.actionButtons}>
-        <button
-          onClick={() => handleOpenEdit(admin)}
-          onMouseEnter={(e) => e.target.style.backgroundColor = "#14B7FF"}
-          onMouseLeave={(e) => e.target.style.backgroundColor = "#0CAFFF"}
-          style={styles.editButton}
-        >
-           <FontAwesomeIcon icon={faEdit} style={styles.buttonIcon} /> 
-          Edit
-        </button>
-        <button
-          onClick={() => handleDelete(admin._id)}
-          onMouseEnter={(e) => e.target.style.backgroundColor = "#c0392b"}
-          onMouseLeave={(e) => e.target.style.backgroundColor = "#e74c3c"}
-          style={styles.deleteButton}
-        >
-           <FontAwesomeIcon icon={faTrash} style={styles.buttonIcon} />
-          Delete
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
-
-
 
         {/* Add Admin Button */}
+        <div className="flex align-middle justify-center">
         <button onClick={() => setShowForm(true)} style={styles.addButton}>
           + Add CA
         </button>
+        </div>
 
         {/* AddAdminForm Component */}
         {/* {showForm && <AddAdminForm onSuccess={handleAdminAdded} />} */}
         {showForm && (
-  <div style={styles.modalOverlay}>
-    <div style={styles.modalContent}>
-      <AddAdminForm 
-        onSuccess={() => {
-          handleAdminAdded();
-          handleCloseForm(); // ✅ Close modal after submission
-        }} 
-        onCancel={handleCloseForm} // ✅ Close modal on cancel
-      />
-    </div>
-  </div>
-)}
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <AddAdminForm
+                onSuccess={() => {
+                  handleAdminAdded();
+                  handleCloseForm(); // ✅ Close modal after submission
+                }}
+                onCancel={handleCloseForm} // ✅ Close modal on cancel
+              />
+            </div>
+          </div>
+        )}
 
         {isModalOpen && (
           <div style={styles.modalOverlay}>
@@ -325,20 +234,20 @@ const AdminList = () => {
                   style={styles.input}
                 />
                 {fileName && <span style={styles.fileName}>{fileName}</span>}
-              
-              {caSign && (
-                <div style={styles.filePreview}>
-                  {typeof caSign === "string" ? (
-                    <img
-                      src={caSign}
-                      alt="CA Sign"
-                      style={styles.previewImage}
-                    />
-                  ) : (
-                    <span>{caSign.name}</span>
-                  )}
-                </div>
-              )}
+
+                {caSign && (
+                  <div style={styles.filePreview}>
+                    {typeof caSign === "string" ? (
+                      <img
+                        src={caSign}
+                        alt="CA Sign"
+                        style={styles.previewImage}
+                      />
+                    ) : (
+                      <span>{caSign.name}</span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div style={{ position: "relative" }}>
@@ -440,24 +349,7 @@ const styles = {
     display: "flex",
     gap: "10px",
   },
-  // editButton: {
-  //   backgroundColor: "#57B9FF",
-  //   color: "#fff",
-  //   border: "none",
-  //   padding: "6px 12px",
-  //   borderRadius: "4px",
-  //   cursor: "pointer",
-  //   transition: "background-color 0.2s",
-  // },
-  // deleteButton: {
-  //   backgroundColor: "#FF474D",
-  //   color: "#fff",
-  //   border: "none",
-  //   padding: "6px 12px",
-  //   borderRadius: "4px",
-  //   cursor: "pointer",
-  //   transition: "background-color 0.2s",
-  // },
+
   editContainer: {
     display: "flex",
     gap: "10px",
@@ -499,6 +391,7 @@ const styles = {
     fontSize: "16px",
     borderRadius: "5px",
     transition: "background-color 0.2s",
+    width: "20rem",
   },
   passwordWrapper: {
     position: "relative",
@@ -584,8 +477,8 @@ const styles = {
     flexDirection: "column", // ✅ Correct camelCase
     gap: "8px",
     marginTop: "10px", // ✅ Correct camelCase
-    textAlign: "left" // ✅ Correct camelCase
-},
+    textAlign: "left", // ✅ Correct camelCase
+  },
   checkboxLabel: {
     display: "flex",
     alignItems: "center",
@@ -639,28 +532,26 @@ const styles = {
     borderRadius: "4px",
     border: "1px solid #ccc",
   },
-  fileName:{
-    fontSize:"10px"
+  fileName: {
+    fontSize: "10px",
   },
   cardContainer: {
     display: "flex",
     flexWrap: "wrap", // ✅ Allow wrapping to next row
     gap: "20px", // ✅ Space between cards
-    justifyContent: "center", // ✅ Center items in row
     alignItems: "stretch", // ✅ Stretch items vertically to match height
-},
+  },
 
-card: {
-  backgroundColor: "#f9f9f9",
-  borderRadius: "16px",
-  padding: "20px",
-  boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
-  transition: "transform 0.2s ease",
-  width: "350px", // ✅ Adjust width so that two cards fit in one row
-  maxWidth: "350px", // ✅ Prevent overflow
-  flex: "0 0 calc(50% - 20px)", // ✅ Ensure 2 cards in 1 row
-},
-
+  card: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: "16px",
+    padding: "20px",
+    boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
+    transition: "transform 0.2s ease",
+    width: "350px", // ✅ Adjust width so that two cards fit in one row
+    maxWidth: "350px", // ✅ Prevent overflow
+    flex: "0 0 calc(50% - 20px)", // ✅ Ensure 2 cards in 1 row
+  },
 
   cardHeader: {
     display: "flex",

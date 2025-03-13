@@ -60,6 +60,9 @@ export const getAdmins = async () => {
 //     throw error;
 //   }
 // };
+
+
+
 export const addAdmin = async (formData) => {
   try {
     const response = await axios.post(`${API_URL}/admin/register`, formData, {
