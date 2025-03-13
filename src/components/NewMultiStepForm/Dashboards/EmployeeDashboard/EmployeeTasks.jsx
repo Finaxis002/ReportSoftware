@@ -10,26 +10,45 @@ const EmployeeTasks = ({ employeeId }) => {
     const fetchTasks = async () => {
       setLoading(true);
       setError("");
+  
+      // Retrieve employeeId from localStorage
+      const employeeId = localStorage.getItem("employeeId");
+  
+      if (!employeeId) {
+        console.log("⚠️ No employeeId found in localStorage, skipping task fetch.");
+        setError("No employee ID found.");
+        setLoading(false);
+        return;
+      }
+  
       try {
+        console.log(`🚀 Fetching tasks for employeeId: ${employeeId}`);  // Log employeeId
+  
         const response = await fetch(
           `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`
         );
+  
+        console.log("🛡️ Response status:", response.status);  // Log the response status
+  
         if (!response.ok) {
           throw new Error("Failed to fetch tasks");
         }
+  
         const data = await response.json();
+        console.log("✅ Fetched Tasks Data:", data);  // Log the fetched tasks data
+  
         setTasks(data);
       } catch (err) {
+        console.error("🔥 Error fetching tasks:", err.message);  // Log errors
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
-    if (employeeId) {
-      fetchTasks();
-    }
-  }, [employeeId]);
+  
+    fetchTasks();
+  }, []);  // Empty dependency array to run only once on mount
+  
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
