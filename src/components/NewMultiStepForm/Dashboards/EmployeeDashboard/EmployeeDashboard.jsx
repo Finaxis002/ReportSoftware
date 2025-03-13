@@ -184,6 +184,7 @@ const EmployeeDashboard = ({ userRole }) => {
             style={{
               overflowY: "scroll",
               height: "400px", // ✅ Set fixed height
+              paddingBottom:"5rem"
             }}
           >
             {employeeData && (

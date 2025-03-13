@@ -204,7 +204,7 @@ const ProjectedCashflow = ({
         index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
       const bankTermLoan =
         index === 0
-          ? parseFloat(formData.MeansOfFinance.termLoan.termLoan || 0)
+          ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
           : 0;
       const workingCapitalLoan =
         index === 0
@@ -214,10 +214,10 @@ const ProjectedCashflow = ({
 
       // ✅ Adding newly added current liabilities dynamically
       const currentLiabilitiesTotal =
-        formData.MoreDetails.currentLiabilities.reduce(
-          (sum, liability) => sum + (liability.years[index] || 0),
-          0
-        );
+      formData?.MoreDetails?.currentLiabilities?.reduce(
+        (sum, liability) => sum + (liability.years?.[index] || 0),
+        0
+      ) || 0;
 
       // ✅ Sum up all sources including newly added liabilities
       return (
@@ -231,52 +231,6 @@ const ProjectedCashflow = ({
     }
   );
 
-  // ✅ Compute Total Uses for Each Year
-  // const totalUsesArray = Array.from({ length: projectionYears }).map(
-  //   (_, index) => {
-  //     // Fixed Assets for the first year, 0 for the rest
-  //     const fixedAssets =
-  //       index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
-
-  //     // Repayment of Term Loan
-  //     const repaymentOfTermLoan = parseFloat(
-  //       yearlyPrincipalRepayment[index] || 0
-  //     );
-
-  //     // Interest on Term Loan
-  //     const interestOnTermLoan = parseFloat(
-  //       yearlyInterestLiabilities[index] || 0
-  //     );
-
-  //     // 4. Interest on Working Capital (use the `calculateInterestOnWorkingCapital` function)
-  //     const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
-  //       interestOnWorkingCapital[index] || 0,
-  //       index
-  //     );
-
-  //     // Withdrawals
-  //     const withdrawals = parseFloat(
-  //       formData.MoreDetails?.withdrawals?.[index] || 0
-  //     );
-
-  //     // Income Tax
-  //     const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
-
-  //     // ✅ Ensure negative values are treated as zero (sanitize function)
-  //     const sanitize = (value) => (value < 0 ? 0 : value);
-
-  //     // Total Uses Calculation: Sum of all sanitized values
-  //     const totalUses =
-  //       sanitize(fixedAssets) +
-  //       sanitize(repaymentOfTermLoan) +
-  //       sanitize(interestOnTermLoan) +
-  //       sanitize(interestOnWorkingCapitalValue) +
-  //       sanitize(withdrawals) +
-  //       sanitize(incomeTaxValue);
-
-  //     return totalUses;
-  //   }
-  // );
 
   const totalUsesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {

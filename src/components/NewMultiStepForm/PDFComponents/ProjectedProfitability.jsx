@@ -247,8 +247,8 @@ const ProjectedProfitability = ({
   });
 
   // ✅ Extract required values from formData
-  const workingCapitalLoan = formData.MeansOfFinance.workingCapital.termLoan; // Loan amount
-  const interestRate = formData.ProjectReportSetting.rateOfInterest / 100; // Convert % to decimal
+  const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
+  const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
 
   const startMonthIndex = months.indexOf(
     formData.ProjectReportSetting.SelectStartingMonth
@@ -481,9 +481,9 @@ const ProjectedProfitability = ({
         </Text>
       </View>
 
-        {/* Amount format */}
+      {/* Amount format */}
 
-        <View
+      <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -533,6 +533,45 @@ const ProjectedProfitability = ({
             )}
           </View>
 
+          {/* Blank Row  */}
+
+          <View style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+                styles.Total,
+                { paddingVertical: "5px" },
+              ]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { paddingVertical: "5px" },
+              ]}
+            ></Text>
+
+            {Array.from({
+              length:
+                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+            }).map(
+              (_, index) =>
+                (!hideFirstYear || index !== 0) && (
+                  <Text
+                    key={`closingStock-${index}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  ></Text>
+                )
+            )}
+          </View>
+
           {/* ✅ Display Total Revenue Receipt Row */}
           <View
             style={[
@@ -542,7 +581,6 @@ const ProjectedProfitability = ({
               {
                 fontWeight: "black",
                 border: 0,
-                marginTop: "10px",
               },
             ]}
           >
@@ -596,7 +634,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 styles.Total,
-                { paddingVertical: "10px" },
+                { paddingTop: "10px" },
               ]}
             >
               B
@@ -606,7 +644,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { paddingVertical: "10px" },
+                { paddingTop: "10px" },
               ]}
             >
               Add: Closing Stock / Inventory
@@ -623,7 +661,7 @@ const ProjectedProfitability = ({
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      { paddingVertical: "10px" },
+                      { paddingTop: "10px" },
                     ]}
                   >
                     {formatNumber(

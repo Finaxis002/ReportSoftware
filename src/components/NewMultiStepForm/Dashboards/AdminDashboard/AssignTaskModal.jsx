@@ -91,17 +91,6 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <textarea
-              className="w-full p-2 border rounded"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            ></textarea>
-          </div>
           <div className="flex justify-end">
             <button
               type="button"
