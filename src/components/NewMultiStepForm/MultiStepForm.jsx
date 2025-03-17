@@ -441,21 +441,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-  const handleFileData = (uploadedData) => {
-    console.log("📥 Received Data from File Upload:", uploadedData); // Debugging Log
-
-    setFormData((prevData) => ({
-      ...prevData,
-      AccountInformation: {
-        ...prevData.AccountInformation, // Preserve existing data
-        ...uploadedData.AccountInformation, // Merge new data
-      },
-      CostOfProject: {
-        ...prevData.CostOfProject, // Preserve existing data
-        ...uploadedData.CostOfProject, // Merge uploaded data
-      },
-    }));
-  };
 
   return (
     <div className="flex">

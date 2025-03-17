@@ -179,7 +179,7 @@ const ProjectedCashflow = ({
   //       index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
   //     const bankTermLoan =
   //       index === 0
-  //         ? parseFloat(formData.MeansOfFinance.termLoan.termLoan || 0)
+  //         ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
   //         : 0;
   //     const workingCapitalLoan =
   //       index === 0
@@ -247,12 +247,12 @@ const ProjectedCashflow = ({
         index
       );
       const withdrawals = parseFloat(
-        formData.MoreDetails?.withdrawals?.[index] || 0
+        formData?.MoreDetails?.withdrawals?.[index] || 0
       );
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
 
       // ✅ Ensuring Projection Years Match for Current Assets
-      const currentAssetsTotal = formData.MoreDetails.currentAssets.reduce(
+      const currentAssetsTotal = formData?.MoreDetails?.currentAssets?.reduce(
         (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
         0
       );
@@ -613,7 +613,7 @@ const ProjectedCashflow = ({
                 >
                   {formatNumber(
                     index === 0
-                      ? formData.MeansOfFinance.termLoan.termLoan || "-"
+                      ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
                       : "0"
                   )}
                 </Text>

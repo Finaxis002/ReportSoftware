@@ -8,6 +8,8 @@ const FinalStep = ({ formData, setCurrentStep }) => {
 
   // ✅ Default to "" (empty) if nothing is selected, ensuring "Select Report Type" appears first
   const [selectedOption, setSelectedOption] = useState("select option");
+  const [isLoading, setIsLoading] = useState(false); // ✅ Loader state
+  
 
   const iframeRef = useRef(null);
   console.log("selected Option", selectedOption);
@@ -27,10 +29,16 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }
   }, [selectedOption]);
 
-  // Function to check when iframe has loaded
+  // ✅ Function to handle iframe load
   const handleIframeLoad = () => {
-    console.log("Generated PDF is fully loaded.");
+    console.log("✅ PDF Loaded Successfully");
     setIsPDFLoaded(true);
+    setIsLoading(false); // ✅ Stop loading once PDF is loaded
+
+    // ✅ Small delay before navigating
+    setTimeout(() => {
+      navigate("/checkprofit");
+    }, 1000);
   };
 
   // When PDF is loaded, navigate to Check Profit
@@ -42,10 +50,15 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }
   }, [isPDFLoaded, navigate]);
 
+  // ✅ Function to trigger loading and PDF generation
   const handleCheckProfit = () => {
+    console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
+    setIsLoading(true); // ✅ Start loading
+
     if (iframeRef.current) {
-      iframeRef.current.src = "/generated-pdf"; // Load PDF in the background
+      // ✅ Add cache-busting to avoid caching issues
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
     }
   };
 
@@ -113,8 +126,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
 
       <div className="flex gap-5">
         <button
-           onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
-        
+          onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
@@ -124,7 +136,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          Check Profit
+          {isLoading ? "Loading..." : "Check Profit"}
         </button>
       </div>
 

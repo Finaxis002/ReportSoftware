@@ -46,9 +46,7 @@ const App = () => {
   const [generatePDfData, setGeneratedPDFData] = useState({});
 
   const [pdfData, setPdfData] = useState();
-  console.log(pdfData);
-
-  // console.log(setGeneratedPDFData)
+  console.log("pdfData", pdfData );
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -206,7 +204,7 @@ const App = () => {
 
             <Route
               path="/reports"
-              element={<Reports sendPdfData={setPdfData} pdfData={pdfData} />}
+              element={<Reports sendPdfData={setPdfData} />}
             />
           </Routes>
         </BrowserRouter>

@@ -247,8 +247,8 @@ const ProjectedProfitability = ({
   });
 
   // ✅ Extract required values from formData
-  const workingCapitalLoan = formData.MeansOfFinance.workingCapital.termLoan; // Loan amount
-  const interestRate = formData.ProjectReportSetting.rateOfInterest / 100; // Convert % to decimal
+  const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
+  const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
 
   const startMonthIndex = months.indexOf(
     formData.ProjectReportSetting.SelectStartingMonth

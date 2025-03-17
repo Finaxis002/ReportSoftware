@@ -34,8 +34,8 @@ import Assumptions from "./PDFComponents/Assumptions";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(({ pdfData }) => {
-  console.log("received Pdf Data", pdfData);
+const GeneratedPDF = React.memo(({  }) => {
+  
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -91,10 +91,17 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
 
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
+  const [isPDFLoading, setIsPDFLoading] = useState(true);
+
   
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
+
+
+  const pdfData = location.state?.reportData; // ✅ Get report data from state
+
+  console.log("📥 Received PDF Data:", pdfData);
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -655,6 +662,21 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     assetsliabilities,
   ]);
 
+  // for filling the form data silently 
+  
+useEffect(() => {
+  const reportData = location.state?.reportData;
+  const sessionId = location.state?.sessionId;
+
+  if (reportData && sessionId) {
+    console.log("📥 Received Data from Report:", reportData);
+
+    // ✅ Simulate form population
+    populateForm(reportData);
+  }
+}, [location.state]);
+
+
 
 
   useEffect(() => {
@@ -722,40 +744,76 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
   };
 
   return (
+
+    <div className="flex flex-col items-center justify-center min-h-screen">
+    {/* ✅ Loader Section */}
+    {isPDFLoading && (
+      <div className="flex items-center justify-center">
+        <svg
+          className="animate-spin h-12 w-12 text-indigo-600"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+            fill="none"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
+          />
+        </svg>
+        <span className="ml-2 text-gray-500 font-medium">Loading PDF...</span>
+      </div>
+    )}
+  
     <BlobProvider document={memoizedPDF}>
-      {({ blob, url, loading }) => (
-        <>
-          <PDFViewer
-            width="100%"
-            height="800"
-            style={{ overflow: "hidden" }}
-            showToolbar={userRole !== "client" && userRole !== "employee"}
-          >
-            {memoizedPDF}
-          </PDFViewer>
-          {/* ✅ Trigger manual download */}
-          <button
-            onClick={saveToDatabase}
-            style={{
-              marginTop: "20px",
-              padding: "10px 20px",
-              backgroundColor: "#28a745",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              marginLeft: "10px",
-            }}
-          >
-            Save to Database
-          </button>
-
-          {/* ✅ Custom Download Button */}
-
-          <section className="h-[100vh]"></section>
-        </>
-      )}
+      {({ blob, url, loading }) => {
+        if (!loading) {
+          // ✅ Update state when PDF is fully loaded
+          setTimeout(() => setIsPDFLoading(false), 5000);
+        }
+        return !isPDFLoading ? (
+          <>
+            <PDFViewer
+              width="100%"
+              height="800"
+              style={{ overflow: "hidden" }}
+              showToolbar={userRole !== "client" && userRole !== "employee"}
+            >
+              {memoizedPDF}
+            </PDFViewer>
+  
+            {/* ✅ Trigger manual download */}
+            <button
+              onClick={saveToDatabase}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                backgroundColor: "#28a745",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                marginLeft: "10px",
+              }}
+            >
+              Save to Database
+            </button>
+  
+            {/* ✅ Custom Download Button */}
+            <section className="h-[100vh]"></section>
+          </>
+        ) : null;
+      }}
     </BlobProvider>
+  </div>
+  
   );
 });
 
