@@ -12,6 +12,7 @@ import {
   faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Navigate } from "react-router-dom";
 
 const BankDetails = () => {
   const [bankDetails, setBankDetails] = useState([]);
