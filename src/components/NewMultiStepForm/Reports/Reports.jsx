@@ -11,6 +11,8 @@ const Reports = ({ sendPdfData }) => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
+  const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
+
 
   // Fetch reports when the component mounts
 
@@ -68,27 +70,37 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-  // ✅ Handle Update Action after Editing
 
+
+  // ✅ Handle Download and Store Report Data
   const handleDownload = async (sessionId) => {
     try {
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
+        `http://localhost:5000/get-report-data/${sessionId}`
       );
       if (!response.ok) throw new Error("Failed to fetch report data");
-
+  
       const reportData = await response.json();
-
+  
       console.log("✅ Report Data Fetched:", reportData);
+  
+      // ✅ Send to parent (if needed for other logic)
       sendPdfData(reportData);
-
-      // ✅ Navigate to the /generated-pdf route and pass data as state
+  
+      console.log("📤 Sent PDF Data to Parent:", reportData);
+  
+      // ✅ Pass data directly in state when navigating
       navigate("/generated-pdf", { state: { reportData } });
     } catch (error) {
       console.error("❌ Error downloading PDF:", error);
       alert(`Error fetching report data: ${error.message}`);
     }
   };
+  
+  
+
+  
+    // ✅ Handle Update Action after Editing
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state
@@ -113,7 +125,7 @@ const Reports = ({ sendPdfData }) => {
   };
 
   return (
-    <div className="flex h-[100vh]">
+    <div className="app-container bg-gray-50 min-h-screen">
       {renderMenuBar()}
       <div className="flex flex-col w-full px-6 py-4 gap-8">
         <Header />

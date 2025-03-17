@@ -34,8 +34,8 @@ import Assumptions from "./PDFComponents/Assumptions";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GeneratedPDF = React.memo(({ pdfData }) => {
-  console.log("received Pdf Data", pdfData);
+const GeneratedPDF = React.memo(({  }) => {
+  
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -97,6 +97,11 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
+
+
+  const pdfData = location.state?.reportData; // ✅ Get report data from state
+
+  console.log("📥 Received PDF Data:", pdfData);
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -656,6 +661,21 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     breakEvenPointPercentage,
     assetsliabilities,
   ]);
+
+  // for filling the form data silently 
+  
+useEffect(() => {
+  const reportData = location.state?.reportData;
+  const sessionId = location.state?.sessionId;
+
+  if (reportData && sessionId) {
+    console.log("📥 Received Data from Report:", reportData);
+
+    // ✅ Simulate form population
+    populateForm(reportData);
+  }
+}, [location.state]);
+
 
 
 
