@@ -12,7 +12,8 @@ import {
   faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 const BankDetails = () => {
   const [bankDetails, setBankDetails] = useState([]);
@@ -82,25 +83,6 @@ const [selectedIFSC, setSelectedIFSC] = useState(null);
     fetchBankDetails();
   }, []);
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   const filteredData = useMemo(() => {
     return bankDetails
@@ -129,7 +111,29 @@ const [selectedIFSC, setSelectedIFSC] = useState(null);
       });
   }, [bankDetails, selectedBank, selectedManager, selectedIFSC]);
   
+  const navigate = useNavigate();
 
+  const renderMenuBar = () => {
+    const authRole = localStorage.getItem("userRole");
+    if (!authRole) {
+      navigate("/login");
+      return null;
+    }
+
+    switch (authRole) {
+      case "admin":
+        return <MenuBar userRole="admin" />;
+      case "employee":
+        return <MenuBar userRole="employee" />;
+      case "client":
+        return <MenuBar userRole="client" />;
+      default:
+        navigate("/login");
+        return null;
+    }
+  };
+
+  
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
