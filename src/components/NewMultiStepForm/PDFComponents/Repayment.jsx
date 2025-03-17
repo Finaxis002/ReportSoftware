@@ -335,7 +335,7 @@ const Repayment = ({
 
             <View style={[styles.table, { marginTop: "10px" }]}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.serialNoCell, styleExpenses.sno]}>
+                <Text style={[styles.serialNoCell, styleExpenses.sno , {width:"150px"}]}>
                   S. No.
                 </Text>
                 <Text
@@ -501,7 +501,7 @@ const Repayment = ({
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            { textAlign: "center", fontSize: "9px" },
+                            { textAlign: "center", fontSize: "10px" },
                           ]}
                         >
                           {formatNumber(entry.principalOpeningBalance)}
@@ -510,7 +510,7 @@ const Repayment = ({
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            { textAlign: "center", fontSize: "9px" },
+                            { textAlign: "center", fontSize: "10px" },
                           ]}
                         >
                           {formatNumber(entry.principalRepayment)}
@@ -519,7 +519,7 @@ const Repayment = ({
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            { textAlign: "center", fontSize: "9px" },
+                            { textAlign: "center", fontSize: "10px" },
                           ]}
                         >
                           {formatNumber(entry.principalClosingBalance)}
@@ -528,7 +528,7 @@ const Repayment = ({
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            { textAlign: "center", fontSize: "9px" },
+                            { textAlign: "center", fontSize: "10px" },
                           ]}
                         >
                           {formatNumber(
@@ -541,7 +541,7 @@ const Repayment = ({
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            { textAlign: "center", fontSize: "9px" },
+                            { textAlign: "center", fontSize: "10px" },
                           ]}
                         >
                           {formatNumber(entry.totalRepayment)}
@@ -566,7 +566,7 @@ const Repayment = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", fontSize: "9px" },
+                          { textAlign: "center", fontSize: "10px" },
                         ]}
                       ></Text>
                       <Text
@@ -575,7 +575,7 @@ const Repayment = ({
                           styleExpenses.fontSmall,
                           {
                             textAlign: "center",
-                            fontSize: "9px",
+                            fontSize: "10px",
                             fontWeight: "bold",
                             borderWidth: "1.3px",
                           },
@@ -587,7 +587,7 @@ const Repayment = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", fontSize: "9px" },
+                          { textAlign: "center", fontSize: "10px" },
                         ]}
                       ></Text>
                       <Text
@@ -596,7 +596,7 @@ const Repayment = ({
                           styleExpenses.fontSmall,
                           {
                             textAlign: "center",
-                            fontSize: "9px",
+                            fontSize: "10px",
                             fontWeight: "bold",
                             borderWidth: "1.3px",
                           },
@@ -610,7 +610,7 @@ const Repayment = ({
                           styleExpenses.fontSmall,
                           {
                             textAlign: "center",
-                            fontSize: "9px",
+                            fontSize: "10px",
                             fontWeight: "bold",
                             borderWidth: "1.3px",
                           },

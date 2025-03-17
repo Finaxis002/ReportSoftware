@@ -77,9 +77,9 @@ const SeventhStepMD = ({
               isCustom: false,
             },
           ],
-          openingStock: getEmptyArray(),
-          closingStock: getEmptyArray(),
-          withdrawals: getEmptyArray(),
+          OpeningStock: getEmptyArray(),
+          ClosingStock: getEmptyArray(),
+          Withdrawals: getEmptyArray(),
         }
   );
 
@@ -146,17 +146,18 @@ const SeventhStepMD = ({
     <div>
       <form>
         <div className="position-relative w-100">
-          <div 
-          // className="form-scroll" 
-          style={{ paddingBottom: "12%" }} 
-          className="form-scroll google-sheet-container">
+          <div
+            // className="form-scroll"
+            style={{ paddingBottom: "12%" }}
+            className="form-scroll google-sheet-container"
+          >
             {/* Stock Table */}
             <h5 className="text-start text-primary mt-4 mb-0">Stock Details</h5>
             <hr className="mt-0 mb-1" />
             {/* Stock Table */}
-            <table 
-            // className="table"
-            className="table google-sheet-table"
+            <table
+              // className="table"
+              className="table google-sheet-table"
             >
               <thead>
                 <tr>
@@ -217,9 +218,10 @@ const SeventhStepMD = ({
                     : "Current Assets"}
                 </h5>
                 <hr className="mt-0 mb-1" />
-                <table 
-                // className="table"
-                className="table google-sheet-table">
+                <table
+                  // className="table"
+                  className="table google-sheet-table"
+                >
                   <thead>
                     <tr>
                       <th className="header-label">Index</th>
@@ -248,7 +250,7 @@ const SeventhStepMD = ({
                               handleFormChange(event, i, null, dataType)
                             }
                             // className="form-control text-center noBorder] bg-white p-0"
-                             className="google-sheet-input"
+                            className="google-sheet-input"
                             style={{ width: "20rem" }}
                             type="text"
                             disabled={!entry.isCustom}

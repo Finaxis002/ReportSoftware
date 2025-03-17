@@ -594,1087 +594,217 @@ const CheckProfit = () => {
   return (
     <div className="p-2 w-full">
       {/* ✅ Corrected inline styles using spread operator */}
-      <div className="p-20 flex flex-col items-center align-middle justify-center w-full">
-        <h2 className="text-3xl font-bold mb-4">Profit Statements</h2>
-
-        <div style={{ scale: "0.9" }}>
-          <div className="w-full">
-            {/* Profit Statement Heading */}
-            <div className="bg-blue-950 text-white text-center py-2 text-sm">
-              PROJECTED PROFITABILITY STATEMENT
-            </div>
-
-            <table
-              className="w-full  mt-3"
-              style={{ borderCollapse: "collapse" }}
-            >
-              <thead>
-                <tr className="bg-blue-950 text-white">
-                  <th className="border border-black px-2 py-2 w-16 text-center font-normal text-sm">
-                    S. No.
-                  </th>
-                  <th className="border border-black px-2 py-2 text-left font-normal text-sm">
-                    Particulars
-                  </th>
-                  {financialYearLabels.map((yearLabel, yearIndex) => (
-                    <th
-                      key={yearIndex}
-                      className="border border-black px-2 py-2 text-center font-normal text-sm"
-                    >
-                      {yearLabel}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {/* Revenue Receipt  */}
-                <tr className=" font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    A
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left font-normal text-sm">
-                    Total Revenue Receipt
-                  </td>
-
-                  {/* ✅ Display revenue values based on projectionYears */}
-                  {storedData?.totalRevenueReceipts
-                    ?.slice(0, projectionYears)
-                    .map((totalYearValue, yearIndex) => (
-                      <td
-                        key={yearIndex}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(totalYearValue)}
-                      </td>
-                    ))}
-                </tr>
-                {/* Closing Stock / Inventory */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    B
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Add: Closing Stock / Inventory
-                  </td>
-
-                  {Array.from({
-                    length:
-                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                      0,
-                  }).map((_, index) => (
-                    <td
-                      key={`closingStock-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(
-                        formData.MoreDetails.closingStock?.[index] ?? 0
-                      )}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Opening Stock / Inventory */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Less: Opening Stock / Inventory
-                  </td>
-
-                  {Array.from({
-                    length:
-                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                      0,
-                  }).map((_, index) => (
-                    <td
-                      key={`openingStock-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(
-                        formData.MoreDetails.openingStock?.[index] ?? 0
-                      )}
-                    </td>
-                  ))}
-                </tr>
-                {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-                  <td className="border border-black px-4 py-2 font-extrabold text-left w-1/3"></td>
-
-                  {/* ✅ Display Computed Adjusted Revenue Values */}
-                  {adjustedRevenueValues?.map((finalValue, yearIndex) => (
-                    <td
-                      key={`finalValue-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-extrabold font-roboto"
-                    >
-                      {formatNumber(finalValue)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* direct expenses heading  */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    C
-                  </td>
-                  <td className="border border-black px-4 py-2 font-extrabold text-left w-1/3">
-                    Direct Expenses
-                  </td>
-                </tr>
-
-                {/* Salary and Wages */}
-                {storedData?.normalExpense.map((expense, index) => {
-                  if (index !== activeRowIndex) return null; // Only render the active row
-
-                  return (
-                    <tr className="font-normal text-sm border-0 mt-2">
-                      <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                        1
-                      </td>
-                      <td className="border border-black px-4 py-2  text-left w-1/3">
-                        Salary and Wages
-                      </td>
-
-                      {Array.from({ length: projectionYears }).map(
-                        (_, yearIndex) => (
-                          <td
-                            key={yearIndex}
-                            className="border border-black px-4 py-2 text-center  font-roboto"
-                          >
-                            {formatNumber(
-                              calculateExpense(
-                                Number(fringAndAnnualCalculation) || 0,
-                                yearIndex
-                              )
-                            )}
-                          </td>
-                        )
-                      )}
-                    </tr>
-                  );
-                })}
-
-                {directExpense
-                  ?.filter((expense) => expense.type === "direct")
-                  ?.map((expense, index) => {
-                    // ✅ Check if this is the "Raw Material Expenses / Purchases" field
-                    const isRawMaterial =
-                      expense.name.trim() ===
-                      "Raw Material Expenses / Purchases";
-
-                    return (
-                      <tr
-                        key={`directExpense-${index}`}
-                        className="font-normal text-sm border-0 mt-2"
-                      >
-                        <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                          {index + 2}
-                        </td>
-                        <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                          {expense.name}
-                        </td>
-
-                        {Array.from({ length: projectionYears }).map(
-                          (_, yearIndex) => {
-                            let expenseValue;
-
-                            if (
-                              isRawMaterial &&
-                              String(expense.value).trim().endsWith("%")
-                            ) {
-                              // ✅ If "Raw Material Expenses / Purchases" contains `%`, calculate based on revenue
-                              expenseValue =
-                                (parseFloat(expense.value) / 100) *
-                                storedData?.totalRevenueReceipts[yearIndex];
-                            } else {
-                              // ✅ Otherwise, use the normal numeric calculation
-                              expenseValue = Number(expense.value) * 12 || 0;
-                            }
-
-                            // ✅ Apply calculateExpense only if it's NOT a raw material expense
-                            const formattedExpense = isRawMaterial
-                              ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expense
-                              : formatNumber(
-                                  calculateExpense(
-                                    expenseValue,
-                                    yearIndex
-                                  ).toFixed(2)
-                                );
-
-                            return (
-                              <td
-                                key={`directExpense-${index}-year-${yearIndex}`}
-                                className="border border-black px-4 py-2 text-center font-normal text-sm"
-                              >
-                                {formattedExpense}
-                              </td>
-                            );
-                          }
-                        )}
-                      </tr>
-                    );
-                  })}
-
-                {/* Direct Expenses Total as Table Row */}
-                <tr className="font-normal text-sm border-black">
-                  <td className="border border-black  px-4 py-2 text-center font-normal text-sm"></td>
-                  <td className="border border-black px-4 py-2 font-normal text-left w-1/3">
-                    Total
-                  </td>
-                  {/* ✅ Display Precomputed Total Direct Expenses */}
-                  {totalDirectExpensesArray.map((grandTotal, yearIndex) => (
-                    <td
-                      key={yearIndex}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(grandTotal)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Gross Profit  */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-bold text-sm">
-                    D
-                  </td>
-                  <td className="border border-black px-4 py-2 font-bold text-sm text-left w-1/3">
-                    Gross Profit
-                  </td>
-
-                  {/* ✅ Display Precomputed Gross Profit Values */}
-                  {grossProfitValues.map((grossProfit, yearIndex) => (
-                    <td
-                      key={`grossProfit-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-bold text-sm"
-                    >
-                      {formatNumber(grossProfit)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Less: Indirect Expenses Heading */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    E
-                  </td>
-                  <td className="border border-black px-4 py-2 font-extrabold text-left w-1/3">
-                    Less: Indirect Expenses
-                  </td>
-                </tr>
-
-                {/* Interest On Term Loan */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    1
-                  </td>
-
-                  {/* Particular Name */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Interest On Term Loan
-                  </td>
-
-                  {/* Projection Yearly Values */}
-                  {Array.from({
-                    length:
-                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                      0,
-                  }).map((_, index) => (
-                    <td
-                      key={`interestLoan-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(
-                        storedData?.yearlyInterestLiabilities?.[index] ?? 0
-                      )}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Interest on Working Capital */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    2
-                  </td>
-
-                  {/* Particular Name */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Interest On Working Capital
-                  </td>
-
-                  {/* Projection Yearly Values */}
-                  {Array.from({
-                    length:
-                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                      0,
-                  }).map((_, yearIndex) => {
-                    const calculatedInterest =
-                      calculateInterestOnWorkingCapital(
-                        interestOnWorkingCapital?.[yearIndex] || 0,
-                        yearIndex
-                      );
-
-                    return (
-                      <td
-                        key={`workingCapitalInterest-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(calculatedInterest)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* Depreciation Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    3
-                  </td>
-
-                  {/* Particular Name */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Depreciation
-                  </td>
-
-                  {/* Depreciation Values for Each Year */}
-                  {storedData?.computedData1?.totalDepreciationPerYear?.map(
-                    (depreciationValue, yearIndex) => (
-                      <td
-                        key={`depreciation-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(depreciationValue)}
-                      </td>
-                    )
-                  )}
-                </tr>
-
-                {/* Indirect Expenses Rows */}
-                {directExpense
-                  .filter((expense) => expense.type === "indirect")
-                  .map((expense, index) => {
-                    const baseValue = Number(expense.value) || 0;
-
-                    return (
-                      <tr
-                        key={`indirect-expense-${index}`}
-                        className="font-normal text-sm border-0 mt-2"
-                      >
-                        {/* Serial Number */}
-                        <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                          {index + 4}
-                        </td>
-
-                        {/* Expense Name */}
-                        <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                          {expense.name}
-                        </td>
-
-                        {/* Loop through Projection Years */}
-                        {Array.from({
-                          length:
-                            parseInt(
-                              formData.ProjectReportSetting.ProjectionYears
-                            ) || 0,
-                        }).map((_, yearIndex) => {
-                          const calculatedValue = calculateIndirectExpense(
-                            baseValue,
-                            yearIndex
-                          );
-
-                          return (
-                            <td
-                              key={`indirectExpense-${index}-${yearIndex}`}
-                              className="border border-black px-4 py-2 text-center font-normal text-sm"
-                            >
-                              {formatNumber(calculatedValue * 12)}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-
-                {/* ✅ Total Indirect Expenses Row */}
-                <tr className="font-normal text-sm border-black">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-
-                  {/* "Total" Label */}
-                  <td className="border border-black px-4 py-2 font-normal text-left w-1/3">
-                    Total
-                  </td>
-
-                  {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
-                  {totalIndirectExpensesArray.map((totalValue, yearIndex) => (
-                    <td
-                      key={`totalIndirectExpenses-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(totalValue)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Net Profit Before Tax (NPBT) Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-bold text-sm">
-                    F
-                  </td>
-
-                  {/* Label: Net Profit Before Tax */}
-                  <td className="border border-black px-4 py-2 font-bold text-sm text-left w-1/3">
-                    Net Profit Before Tax
-                  </td>
-
-                  {/* ✅ Display Precomputed NPBT Values */}
-                  {netProfitBeforeTax.map((npbt, yearIndex) => (
-                    <td
-                      key={`netProfitBeforeTax-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-bold text-sm"
-                    >
-                      {formatNumber(npbt)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Income Tax Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black border-b-black px-4 py-2 text-center font-normal text-sm">
-                    Less
-                  </td>
-
-                  {/* Label: Income Tax @ % */}
-                  <td className="border border-black border-b-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Income Tax @ {formData.ProjectReportSetting.incomeTax} %
-                  </td>
-
-                  {/* ✅ Display Precomputed Income Tax Values */}
-                  {incomeTaxCalculation.map((tax, yearIndex) => (
-                    <td
-                      key={`incomeTax-${yearIndex}`}
-                      className="border border-black border-b-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(tax)}
-                    </td>
-                  ))}
-                </tr>
-                {/* ✅ Net Profit After Tax (NPAT) Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-bold text-sm">
-                    G
-                  </td>
-
-                  {/* Label: Net Profit After Tax */}
-                  <td className="border border-black px-4 py-2 font-bold text-sm text-left w-1/3">
-                    Net Profit After Tax
-                  </td>
-
-                  {/* ✅ Display Precomputed NPAT Values */}
-                  {netProfitAfterTax.map((npat, yearIndex) => (
-                    <td
-                      key={`netProfitAfterTax-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-bold text-sm"
-                    >
-                      {formatNumber(npat)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Withdrawals During the Year Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-
-                  {/* Label: Withdrawals During the Year */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Withdrawals during the year
-                  </td>
-
-                  {/* ✅ Display Precomputed Withdrawals Values */}
-                  {Array.from({
-                    length:
-                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                      0,
-                  }).map((_, yearIndex) => {
-                    const amount =
-                      formData.MoreDetails.withdrawals?.[yearIndex] ?? 0; // Ensure safe data access
-
-                    return (
-                      <td
-                        key={`withdrawals-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(amount)}
-                      </td>
-                    );
-                  })}
-                </tr>
-                {/* ✅ Balance Trf. To Balance Sheet Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-
-                  {/* Label: Balance Trf. To Balance Sheet */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Balance Trf. To Balance Sheet
-                  </td>
-
-                  {/* ✅ Display Precomputed Balance Transferred Values */}
-                  {balanceTransferred.map((amount, yearIndex) => {
-                    const roundedValue =
-                      amount - Math.floor(amount) <= 0.5
-                        ? Math.floor(amount)
-                        : Math.ceil(amount); // Rounding logic
-
-                    return (
-                      <td
-                        key={`balanceTransferred-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(roundedValue)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* ✅ Cumulative Balance Trf. To Balance Sheet Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-
-                  {/* Label: Cumulative Balance Trf. To Balance Sheet */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Cumulative Balance Trf. To Balance Sheet
-                  </td>
-
-                  {/* ✅ Display Cumulative Balance Transferred Values */}
-                  {cumulativeBalanceTransferred.map((amount, yearIndex) => {
-                    const adjustedAmount = Math.max(amount, 0); // Convert negative values to 0
-                    const roundedValue =
-                      adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                        ? Math.floor(adjustedAmount)
-                        : Math.ceil(adjustedAmount); // Rounding logic
-
-                    return (
-                      <td
-                        key={`cumulativeBalance-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(roundedValue)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* ✅ Cash Profit (NPAT + Dep.) Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm"></td>
-
-                  {/* Label: Cash Profit (NPAT + Dep.) */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Cash Profit (NPAT + Dep.)
-                  </td>
-
-                  {/* ✅ Display Computed Cash Profit */}
-                  {netProfitAfterTax.map((npat, yearIndex) => {
-                    const depreciation =
-                      storedData?.computedData1?.totalDepreciationPerYear[
-                        yearIndex
-                      ] || 0;
-                    const cashProfit = npat + depreciation;
-
-                    const roundedValue =
-                      cashProfit - Math.floor(cashProfit) <= 0.5
-                        ? Math.floor(cashProfit)
-                        : Math.ceil(cashProfit); // Rounding logic
-
-                    return (
-                      <td
-                        key={`cashProfit-${yearIndex}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(roundedValue)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* Dscr Table header  */}
-                <tr className="font-bold text-sm border-black border-2">
-                  {/* Serial Number Column */}
-                  <th className="border border-black px-2 py-2 text-center">
-                    Sr. No.
-                  </th>
-
-                  {/* Particulars Column */}
-                  <th className="border border-black px-2 py-2 text-left w-1/3">
-                    Particulars
-                  </th>
-
-                  {/* Dynamic Year Headers */}
-                  {financialYearLabels.map((yearLabel, yearIndex) => (
-                    <th
-                      key={`yearHeader-${yearIndex}`}
-                      className="border border-black px-2 py-2 text-center"
-                    >
-                      {yearLabel}
-                    </th>
-                  ))}
-                </tr>
-                {/* ✅ DSCR Ratio Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    2
-                  </td>
-
-                  {/* Label: DSCR (A/B) */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    DSCR Ratio
-                  </td>
-
-                  {/* ✅ Display Computed DSCR Values for Each Year */}
-                  {DSCR.map((totalValue, yearIndex) => (
-                    <td
-                      key={`dscr-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(parseFloat(totalValue).toFixed(2))}
-                    </td>
-                  ))}
-                </tr>
-                {/* ✅ Average DSCR Row */}
-                <tr className="font-bold text-sm border-black border-2">
-                  {/* Empty Serial Number Column */}
-                  <td
-                    className="border border-black px-4 py-2 text-center"
-                    style={{ width: "85px" }}
-                  ></td>
-
-                  {/* Label: Average DSCR */}
-                  <td
-                    className="border border-black px-4 py-2 text-left w-1/3"
-                    style={{ borderRight: "0" }}
-                  >
-                    Average DSCR
-                  </td>
-
-                  {/* ✅ Display Computed Average DSCR Value Across All Financial Year Columns */}
-                  <td
-                    className="border border-black px-4 py-2 text-center font-extrabold text-lg"
-                    colSpan={financialYearLabels.length} // Dynamically spans across financial years
-                  >
-                    {formatNumber(parseFloat(averageDSCR).toFixed(2))}
-                  </td>
-                </tr>
-                {/* ✅ Current Ratio Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    3
-                  </td>
-
-                  {/* Label: Current Ratio */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Current Ratio
-                  </td>
-
-                  {/* ✅ Display Computed Current Ratio for Each Year */}
-                  {currentRatio.map((ratio, yearIndex) => (
-                    <td
-                      key={`current-ratio-${yearIndex}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {ratio !== "-" ? ratio : "0"}
-                    </td>
-                  ))}
-                </tr>
-                {/* ✅ Average Current Ratio Row */}
-                <tr className="font-bold text-sm border-black border-2">
-                  {/* Empty Serial Number Column */}
-                  <td
-                    className="border border-black px-4 py-2 text-center"
-                    style={{ width: "85px" }}
-                  ></td>
-
-                  {/* Label: Average Current Ratio */}
-                  <td
-                    className="border border-black px-4 py-2 text-left w-1/3"
-                    style={{ borderRight: "0" }}
-                  >
-                    Average Current Ratio
-                  </td>
-
-                  {/* ✅ Display Computed Average Current Ratio Across All Financial Year Columns */}
-                  <td
-                    className="border border-black px-4 py-2 text-center font-extrabold text-lg"
-                    colSpan={financialYearLabels.length} // Dynamically spans across financial years
-                  >
-                    {averageCurrentRatio !== "-"
-                      ? `${averageCurrentRatio}`
-                      : "0"}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <div className="p-20 pt-4 flex flex-col items-center w-full">
+        <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
+
+        <div className="w-full">
+          {/* Profit Statement Heading */}
+          <div className="bg-blue-950 text-white text-center py-2 text-[11px]">
+            PROJECTED PROFITABILITY STATEMENT
           </div>
 
-          <div className="w-full mt-10">
-            {/* Profit Statement Heading */}
-            <div className="bg-blue-950 text-white text-center py-2 text-sm">
-              PROJECTED BALANCE SHEET
-            </div>
-            <table
-              className="w-full  mt-3"
-              style={{ borderCollapse: "collapse" }}
-            >
-              <thead>
-                <tr className="bg-blue-950 text-white">
-                  <th className="border border-black px-2 py-2 w-16 text-center font-normal text-sm">
-                    S. No.
+          <table
+            className="w-full  mt-3"
+            style={{ borderCollapse: "collapse" }}
+          >
+            <thead>
+              <tr className="bg-blue-950 text-white">
+                <th className="border border-black px-1 py-2 w-16 text-center font-normal text-[11px]">
+                  S. No.
+                </th>
+                <th className="border border-black px-1 py-2 text-left font-normal text-[11px]">
+                  Particulars
+                </th>
+                {financialYearLabels.map((yearLabel, yearIndex) => (
+                  <th
+                    key={yearIndex}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {yearLabel}
                   </th>
-                  <th className="border border-black px-2 py-2 text-left font-normal text-sm">
-                    Particulars
-                  </th>
-                  {financialYearLabels.map((yearLabel, yearIndex) => (
-                    <th
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {/* Revenue Receipt  */}
+              <tr className=" font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  A
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left font-normal text-[11px]">
+                  Total Revenue Receipt
+                </td>
+
+                {/* ✅ Display revenue values based on projectionYears */}
+                {storedData?.totalRevenueReceipts
+                  ?.slice(0, projectionYears)
+                  .map((totalYearValue, yearIndex) => (
+                    <td
                       key={yearIndex}
-                      className="border border-black px-2 py-2 text-center font-normal text-sm"
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {yearLabel}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {/* ✅ Liabilities Header Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    A
-                  </td>
-
-                  {/* Label: Liabilities */}
-                  <td className="border border-black px-4 py-2 font-extrabold text-left w-1/3">
-                    Liabilities
-                  </td>
-                </tr>
-
-                {/* ✅ Capital Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    1
-                  </td>
-
-                  {/* Label: Capital */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Capital
-                  </td>
-
-                  {/* ✅ Display Total PC for Each Year */}
-                  {Array.from({ length: projectionYears }).map((_, index) => (
-                    <td
-                      key={`capital-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
+                      {formatNumber(totalYearValue)}
                     </td>
                   ))}
-                </tr>
+              </tr>
+              {/* Closing Stock / Inventory */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  B
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Add: Closing Stock / Inventory
+                </td>
 
-                {/* ✅ Reserves & Surplus Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    2
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                }).map((_, index) => (
+                  <td
+                    key={`closingStock-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(
+                      formData.MoreDetails.closingStock?.[index] ?? 0
+                    )}
                   </td>
+                ))}
+              </tr>
 
-                  {/* Label: Reserves & Surplus */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Reserves & Surplus
+              {/* Opening Stock / Inventory */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Less: Opening Stock / Inventory
+                </td>
+
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                }).map((_, index) => (
+                  <td
+                    key={`openingStock-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(
+                      formData.MoreDetails.openingStock?.[index] ?? 0
+                    )}
                   </td>
+                ))}
+              </tr>
+              {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+                <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3"></td>
 
-                  {/* ✅ Display Computed Reserves & Surplus Values */}
-                  {storedData?.receivedData?.cumulativeBalanceTransferred?.map(
-                    (amount, yearIndex) => {
-                      const adjustedAmount = Math.max(amount, 0);
-                      const roundedValue =
-                        adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                          ? Math.floor(adjustedAmount)
-                          : Math.ceil(adjustedAmount);
+                {/* ✅ Display Computed Adjusted Revenue Values */}
+                {adjustedRevenueValues?.map((finalValue, yearIndex) => (
+                  <td
+                    key={`finalValue-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-extrabold font-roboto"
+                  >
+                    {formatNumber(finalValue)}
+                  </td>
+                ))}
+              </tr>
 
-                      return (
+              {/* direct expenses heading  */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  C
+                </td>
+                <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3">
+                  Direct Expenses
+                </td>
+              </tr>
+
+              {/* Salary and Wages */}
+              {storedData?.normalExpense.map((expense, index) => {
+                if (index !== activeRowIndex) return null; // Only render the active row
+
+                return (
+                  <tr className="font-normal text-[11px] border-0 mt-2">
+                    <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                      1
+                    </td>
+                    <td className="border border-black px-1 py-2  text-left w-1/3">
+                      Salary and Wages
+                    </td>
+
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => (
                         <td
-                          key={`cumulativeBalance-${yearIndex}`}
-                          className="border border-black px-4 py-2 text-center font-normal text-sm"
+                          key={yearIndex}
+                          className="border border-black px-1 py-2 text-center  font-roboto"
                         >
-                          {formatNumber(roundedValue)}
+                          {formatNumber(
+                            calculateExpense(
+                              Number(fringAndAnnualCalculation) || 0,
+                              yearIndex
+                            )
+                          )}
                         </td>
-                      );
-                    }
-                  )}
-                </tr>
+                      )
+                    )}
+                  </tr>
+                );
+              })}
 
-                {/* ✅ Bank Loan - Term Loan Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    3
-                  </td>
+              {directExpense
+                ?.filter((expense) => expense.type === "direct")
+                ?.map((expense, index) => {
+                  // ✅ Check if this is the "Raw Material Expenses / Purchases" field
+                  const isRawMaterial =
+                    expense.name.trim() === "Raw Material Expenses / Purchases";
 
-                  {/* Label: Bank Loan - Term Loan */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Bank Loan - Term Loan
-                  </td>
-
-                  {/* ✅ Display Bank Loan Balances */}
-                  {Array.from({ length: projectionYears }).map((_, index) => {
-                    const balance =
-                      storedData?.marchClosingBalances[index] || 0;
-                    return (
-                      <td
-                        key={`bankLoan-${index}`}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(balance)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* ✅ Bank Loan Payable within next 12 months */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    4
-                  </td>
-
-                  {/* Label: Bank Loan Payable within next 12 months */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Bank Loan Payable within next 12 months
-                  </td>
-
-                  {/* ✅ Display Payable Loan Values */}
-                  {repaymentValueswithin12months.map((value, index) => (
-                    <td
-                      key={`loanPayable-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(value)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Bank Loan - Working Capital Loan */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    5
-                  </td>
-
-                  {/* Label: Bank Loan - Working Capital Loan */}
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Bank Loan - Working Capital Loan
-                  </td>
-
-                  {/* ✅ Display Cumulative Working Capital Loan for Each Year */}
-                  {cumulativeLoanForPreviousYears.map((loan, index) => (
-                    <td
-                      key={`workingCapitalLoan-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(loan)}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Liabilities from More Details (Dynamically Aligned with Projection Years) */}
-                {formData?.MoreDetails?.currentLiabilities?.map(
-                  (liabilities, idx) => {
-                    let cumulativeSum = 0; // Initialize cumulative sum
-
-                    return (
-                      <tr
-                        className="font-normal text-sm border-0 mt-2"
-                        key={`liabilities-${idx}`}
-                      >
-                        {/* Serial Number */}
-                        <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                          {idx + 6}
-                        </td>
-
-                        {/* Label: Particular Liability Name */}
-                        <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                          {liabilities.particular}
-                        </td>
-
-                        {/* ✅ Display Liabilities for Each Year with Cumulative Rule Applied */}
-                        {Array.from({ length: projectionYears }).map(
-                          (_, yearIndex) => {
-                            cumulativeSum +=
-                              Number(liabilities.years[yearIndex]) || 0; // Apply cumulative sum logic
-
-                            return (
-                              <td
-                                key={`liability-${idx}-${yearIndex}`}
-                                className="border border-black px-4 py-2 text-center font-normal text-sm"
-                              >
-                                {formatNumber(cumulativeSum)}
-                              </td>
-                            );
-                          }
-                        )}
-                      </tr>
-                    );
-                  }
-                )}
-
-                {/* ✅ Total Liabilities Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Empty Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-bold text-sm"></td>
-
-                  {/* Label: Total Liabilities */}
-                  <td className="border border-black px-4 py-2 font-bold text-sm text-left w-1/3">
-                    Total
-                  </td>
-
-                  {/* ✅ Display Computed Total Liabilities for Each Year */}
-                  {totalLiabilitiesArray.map((total, index) => (
-                    <td
-                      key={`totalLiabilities-${index}`}
-                      className="border border-black px-4 py-2 text-center font-bold text-sm"
-                      style={{
-                        borderTopWidth: "2px",
-                        borderBottomWidth: "2px",
-                      }} // ✅ Adds thick borders to highlight total
-                    >
-                      {formatNumber(Math.round(total))}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Assets Header Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  {/* Serial Number Column */}
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    B
-                  </td>
-
-                  {/* Label: Liabilities */}
-                  <td className="border border-black px-4 py-2 font-extrabold text-left w-1/3">
-                    Assets
-                  </td>
-                </tr>
-
-                {/* ✅ Fixed Assets Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    1
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Fixed Assets
-                  </td>
-                  {computedFixedAssets.map((value, index) => (
-                    <td
-                      key={`fixedAssets-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {value.toLocaleString("en-IN")}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Less: Depreciation Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    2
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Less: Depreciation
-                  </td>
-                  {Array.from({ length: projectionYears }).map((_, index) => (
-                    <td
-                      key={`depreciation-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {formatNumber(
-                        storedData?.computedData1?.totalDepreciationPerYear[
-                          index
-                        ] || "-"
-                      )}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Net Fixed Assets Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    3
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Net Fixed Assets
-                  </td>
-                  {computedNetFixedAssets.map((value, index) => (
-                    <td
-                      key={`netFixedAssets-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {value.toLocaleString("en-IN")}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Cash & Cash Equivalents Row */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    4
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Cash & Cash Equivalents
-                  </td>
-                  {storedData?.closingCashBalanceArray.map((balance, index) => (
-                    <td
-                      key={`cashEquivalents-${index}`}
-                      className="border border-black px-4 py-2 text-center font-normal text-sm"
-                    >
-                      {balance ? balance.toLocaleString("en-IN") : "0"}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* ✅ Current Assets from More Details */}
-                {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
-                  let cumulativeSum = 0; // Initialize cumulative sum
                   return (
                     <tr
-                      className="font-normal text-sm border-0 mt-2"
-                      key={`currentAssets-${index}`}
+                      key={`directExpense-${index}`}
+                      className="font-normal text-[11px] border-0 mt-2"
                     >
-                      <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                        {index + 6}
+                      <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                        {index + 2}
                       </td>
-                      <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                        {assets.particular}
+                      <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                        {expense.name}
                       </td>
+
                       {Array.from({ length: projectionYears }).map(
                         (_, yearIndex) => {
-                          cumulativeSum += Number(assets.years[yearIndex]) || 0;
+                          let expenseValue;
+
+                          if (
+                            isRawMaterial &&
+                            String(expense.value).trim().endsWith("%")
+                          ) {
+                            // ✅ If "Raw Material Expenses / Purchases" contains `%`, calculate based on revenue
+                            expenseValue =
+                              (parseFloat(expense.value) / 100) *
+                              storedData?.totalRevenueReceipts[yearIndex];
+                          } else {
+                            // ✅ Otherwise, use the normal numeric calculation
+                            expenseValue = Number(expense.value) * 12 || 0;
+                          }
+
+                          // ✅ Apply calculateExpense only if it's NOT a raw material expense
+                          const formattedExpense = isRawMaterial
+                            ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expense
+                            : formatNumber(
+                                calculateExpense(
+                                  expenseValue,
+                                  yearIndex
+                                ).toFixed(2)
+                              );
+
                           return (
                             <td
-                              key={`currentAsset-${index}-${yearIndex}`}
-                              className="border border-black px-4 py-2 text-center font-normal text-sm"
+                              key={`directExpense-${index}-year-${yearIndex}`}
+                              className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                             >
-                              {formatNumber(cumulativeSum)}
+                              {formattedExpense}
                             </td>
                           );
                         }
@@ -1683,31 +813,889 @@ const CheckProfit = () => {
                   );
                 })}
 
-                {/* ✅ Total Assets Row */}
-                <tr className="font-bold text-sm border-black border-2 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-bold text-sm"></td>
-                  <td className="border border-black px-4 py-2 font-bold text-sm text-left w-1/3">
-                    Total Assets
+              {/* Direct Expenses Total as Table Row */}
+              <tr className="font-normal text-[11px] border-black">
+                <td className="border border-black  px-1 py-2 text-center font-normal text-[11px]"></td>
+                <td className="border border-black px-1 py-2 font-normal text-left w-1/3">
+                  Total
+                </td>
+                {/* ✅ Display Precomputed Total Direct Expenses */}
+                {totalDirectExpensesArray.map((grandTotal, yearIndex) => (
+                  <td
+                    key={yearIndex}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(grandTotal)}
                   </td>
-                  {totalAssetArray.map((total, index) => (
+                ))}
+              </tr>
+
+              {/* Gross Profit  */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-bold text-[11px]">
+                  D
+                </td>
+                <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
+                  Gross Profit
+                </td>
+
+                {/* ✅ Display Precomputed Gross Profit Values */}
+                {grossProfitValues.map((grossProfit, yearIndex) => (
+                  <td
+                    key={`grossProfit-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                  >
+                    {formatNumber(grossProfit)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Less: Indirect Expenses Heading */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  E
+                </td>
+                <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3">
+                  Less: Indirect Expenses
+                </td>
+              </tr>
+
+              {/* Interest On Term Loan */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  1
+                </td>
+
+                {/* Particular Name */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Interest On Term Loan
+                </td>
+
+                {/* Projection Yearly Values */}
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                }).map((_, index) => (
+                  <td
+                    key={`interestLoan-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(
+                      storedData?.yearlyInterestLiabilities?.[index] ?? 0
+                    )}
+                  </td>
+                ))}
+              </tr>
+
+              {/* Interest on Working Capital */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  2
+                </td>
+
+                {/* Particular Name */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Interest On Working Capital
+                </td>
+
+                {/* Projection Yearly Values */}
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                }).map((_, yearIndex) => {
+                  const calculatedInterest = calculateInterestOnWorkingCapital(
+                    interestOnWorkingCapital?.[yearIndex] || 0,
+                    yearIndex
+                  );
+
+                  return (
                     <td
-                      key={`totalAssets-${index}`}
-                      className="border border-black px-4 py-2 text-center font-bold text-sm"
-                      style={{
-                        borderTopWidth: "2px",
-                        borderBottomWidth: "2px",
-                      }}
+                      key={`workingCapitalInterest-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {formatNumber(Math.round(total))}
+                      {formatNumber(calculatedInterest)}
                     </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+                  );
+                })}
+              </tr>
+
+              {/* Depreciation Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  3
+                </td>
+
+                {/* Particular Name */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Depreciation
+                </td>
+
+                {/* Depreciation Values for Each Year */}
+                {storedData?.computedData1?.totalDepreciationPerYear?.map(
+                  (depreciationValue, yearIndex) => (
+                    <td
+                      key={`depreciation-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(depreciationValue)}
+                    </td>
+                  )
+                )}
+              </tr>
+
+              {/* Indirect Expenses Rows */}
+              {directExpense
+                .filter((expense) => expense.type === "indirect")
+                .map((expense, index) => {
+                  const baseValue = Number(expense.value) || 0;
+
+                  return (
+                    <tr
+                      key={`indirect-expense-${index}`}
+                      className="font-normal text-[11px] border-0 mt-2"
+                    >
+                      {/* Serial Number */}
+                      <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                        {index + 4}
+                      </td>
+
+                      {/* Expense Name */}
+                      <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                        {expense.name}
+                      </td>
+
+                      {/* Loop through Projection Years */}
+                      {Array.from({
+                        length:
+                          parseInt(
+                            formData.ProjectReportSetting.ProjectionYears
+                          ) || 0,
+                      }).map((_, yearIndex) => {
+                        const calculatedValue = calculateIndirectExpense(
+                          baseValue,
+                          yearIndex
+                        );
+
+                        return (
+                          <td
+                            key={`indirectExpense-${index}-${yearIndex}`}
+                            className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                          >
+                            {formatNumber(calculatedValue * 12)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+
+              {/* ✅ Total Indirect Expenses Row */}
+              <tr className="font-normal text-[11px] border-black">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+
+                {/* "Total" Label */}
+                <td className="border border-black px-1 py-2 font-normal text-left w-1/3">
+                  Total
+                </td>
+
+                {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
+                {totalIndirectExpensesArray.map((totalValue, yearIndex) => (
+                  <td
+                    key={`totalIndirectExpenses-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(totalValue)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Net Profit Before Tax (NPBT) Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-bold text-[11px]">
+                  F
+                </td>
+
+                {/* Label: Net Profit Before Tax */}
+                <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
+                  Net Profit Before Tax
+                </td>
+
+                {/* ✅ Display Precomputed NPBT Values */}
+                {netProfitBeforeTax.map((npbt, yearIndex) => (
+                  <td
+                    key={`netProfitBeforeTax-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                  >
+                    {formatNumber(npbt)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Income Tax Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black border-b-black px-1 py-2 text-center font-normal text-[11px]">
+                  Less
+                </td>
+
+                {/* Label: Income Tax @ % */}
+                <td className="border border-black border-b-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Income Tax @ {formData.ProjectReportSetting.incomeTax} %
+                </td>
+
+                {/* ✅ Display Precomputed Income Tax Values */}
+                {incomeTaxCalculation.map((tax, yearIndex) => (
+                  <td
+                    key={`incomeTax-${yearIndex}`}
+                    className="border border-black border-b-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(tax)}
+                  </td>
+                ))}
+              </tr>
+              {/* ✅ Net Profit After Tax (NPAT) Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-bold text-[11px]">
+                  G
+                </td>
+
+                {/* Label: Net Profit After Tax */}
+                <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
+                  Net Profit After Tax
+                </td>
+
+                {/* ✅ Display Precomputed NPAT Values */}
+                {netProfitAfterTax.map((npat, yearIndex) => (
+                  <td
+                    key={`netProfitAfterTax-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                  >
+                    {formatNumber(npat)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Withdrawals During the Year Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+
+                {/* Label: Withdrawals During the Year */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Withdrawals during the year
+                </td>
+
+                {/* ✅ Display Precomputed Withdrawals Values */}
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                }).map((_, yearIndex) => {
+                  const amount =
+                    formData.MoreDetails.withdrawals?.[yearIndex] ?? 0; // Ensure safe data access
+
+                  return (
+                    <td
+                      key={`withdrawals-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(amount)}
+                    </td>
+                  );
+                })}
+              </tr>
+              {/* ✅ Balance Trf. To Balance Sheet Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+
+                {/* Label: Balance Trf. To Balance Sheet */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Balance Trf. To Balance Sheet
+                </td>
+
+                {/* ✅ Display Precomputed Balance Transferred Values */}
+                {balanceTransferred.map((amount, yearIndex) => {
+                  const roundedValue =
+                    amount - Math.floor(amount) <= 0.5
+                      ? Math.floor(amount)
+                      : Math.ceil(amount); // Rounding logic
+
+                  return (
+                    <td
+                      key={`balanceTransferred-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(roundedValue)}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* ✅ Cumulative Balance Trf. To Balance Sheet Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+
+                {/* Label: Cumulative Balance Trf. To Balance Sheet */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Cumulative Balance Trf. To Balance Sheet
+                </td>
+
+                {/* ✅ Display Cumulative Balance Transferred Values */}
+                {cumulativeBalanceTransferred.map((amount, yearIndex) => {
+                  const adjustedAmount = Math.max(amount, 0); // Convert negative values to 0
+                  const roundedValue =
+                    adjustedAmount - Math.floor(adjustedAmount) <= 0.5
+                      ? Math.floor(adjustedAmount)
+                      : Math.ceil(adjustedAmount); // Rounding logic
+
+                  return (
+                    <td
+                      key={`cumulativeBalance-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(roundedValue)}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* ✅ Cash Profit (NPAT + Dep.) Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
+
+                {/* Label: Cash Profit (NPAT + Dep.) */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Cash Profit (NPAT + Dep.)
+                </td>
+
+                {/* ✅ Display Computed Cash Profit */}
+                {netProfitAfterTax.map((npat, yearIndex) => {
+                  const depreciation =
+                    storedData?.computedData1?.totalDepreciationPerYear[
+                      yearIndex
+                    ] || 0;
+                  const cashProfit = npat + depreciation;
+
+                  const roundedValue =
+                    cashProfit - Math.floor(cashProfit) <= 0.5
+                      ? Math.floor(cashProfit)
+                      : Math.ceil(cashProfit); // Rounding logic
+
+                  return (
+                    <td
+                      key={`cashProfit-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(roundedValue)}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Dscr Table header  */}
+              <tr className="font-bold text-[11px] border-black border-2">
+                {/* Serial Number Column */}
+                <th className="border border-black px-1 py-2 text-center">
+                  Sr. No.
+                </th>
+
+                {/* Particulars Column */}
+                <th className="border border-black px-1 py-2 text-left w-1/3">
+                  Particulars
+                </th>
+
+                {/* Dynamic Year Headers */}
+                {financialYearLabels.map((yearLabel, yearIndex) => (
+                  <th
+                    key={`yearHeader-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center"
+                  >
+                    {yearLabel}
+                  </th>
+                ))}
+              </tr>
+              {/* ✅ DSCR Ratio Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  2
+                </td>
+
+                {/* Label: DSCR (A/B) */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  DSCR Ratio
+                </td>
+
+                {/* ✅ Display Computed DSCR Values for Each Year */}
+                {DSCR.map((totalValue, yearIndex) => (
+                  <td
+                    key={`dscr-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(parseFloat(totalValue).toFixed(2))}
+                  </td>
+                ))}
+              </tr>
+              {/* ✅ Average DSCR Row */}
+              <tr className="font-bold text-[11px] border-black border-2">
+                {/* Empty Serial Number Column */}
+                <td
+                  className="border border-black px-1 py-2 text-center"
+                  style={{ width: "85px" }}
+                ></td>
+
+                {/* Label: Average DSCR */}
+                <td
+                  className="border border-black px-1 py-2 text-left w-1/3"
+                  style={{ borderRight: "0" }}
+                >
+                  Average DSCR
+                </td>
+
+                {/* ✅ Display Computed Average DSCR Value Across All Financial Year Columns */}
+                <td
+                  className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
+                  colSpan={financialYearLabels.length} // Dynamically spans across financial years
+                >
+                  {formatNumber(parseFloat(averageDSCR).toFixed(2))}
+                </td>
+              </tr>
+              {/* ✅ Current Ratio Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  3
+                </td>
+
+                {/* Label: Current Ratio */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Current Ratio
+                </td>
+
+                {/* ✅ Display Computed Current Ratio for Each Year */}
+                {currentRatio.map((ratio, yearIndex) => (
+                  <td
+                    key={`current-ratio-${yearIndex}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {ratio !== "-" ? ratio : "0"}
+                  </td>
+                ))}
+              </tr>
+              {/* ✅ Average Current Ratio Row */}
+              <tr className="font-bold text-[11px] border-black border-2">
+                {/* Empty Serial Number Column */}
+                <td
+                  className="border border-black px-1 py-2 text-center"
+                  style={{ width: "85px" }}
+                ></td>
+
+                {/* Label: Average Current Ratio */}
+                <td
+                  className="border border-black px-1 py-2 text-left w-1/3"
+                  style={{ borderRight: "0" }}
+                >
+                  Average Current Ratio
+                </td>
+
+                {/* ✅ Display Computed Average Current Ratio Across All Financial Year Columns */}
+                <td
+                  className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
+                  colSpan={financialYearLabels.length} // Dynamically spans across financial years
+                >
+                  {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="w-full mt-10">
+          {/* Profit Statement Heading */}
+          <div className="bg-blue-950 text-white text-center py-2 text-[11px]">
+            PROJECTED BALANCE SHEET
           </div>
+          <table
+            className="w-full  mt-3"
+            style={{ borderCollapse: "collapse" }}
+          >
+            <thead>
+              <tr className="bg-blue-950 text-white">
+                <th className="border border-black px-1 py-2 w-16 text-center font-normal text-[11px]">
+                  S. No.
+                </th>
+                <th className="border border-black px-1 py-2 text-left font-normal text-[11px]">
+                  Particulars
+                </th>
+                {financialYearLabels.map((yearLabel, yearIndex) => (
+                  <th
+                    key={yearIndex}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {yearLabel}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {/* ✅ Liabilities Header Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  A
+                </td>
+
+                {/* Label: Liabilities */}
+                <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3">
+                  Liabilities
+                </td>
+              </tr>
+
+              {/* ✅ Capital Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  1
+                </td>
+
+                {/* Label: Capital */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Capital
+                </td>
+
+                {/* ✅ Display Total PC for Each Year */}
+                {Array.from({ length: projectionYears }).map((_, index) => (
+                  <td
+                    key={`capital-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Reserves & Surplus Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  2
+                </td>
+
+                {/* Label: Reserves & Surplus */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Reserves & Surplus
+                </td>
+
+                {/* ✅ Display Computed Reserves & Surplus Values */}
+                {storedData?.receivedData?.cumulativeBalanceTransferred?.map(
+                  (amount, yearIndex) => {
+                    const adjustedAmount = Math.max(amount, 0);
+                    const roundedValue =
+                      adjustedAmount - Math.floor(adjustedAmount) <= 0.5
+                        ? Math.floor(adjustedAmount)
+                        : Math.ceil(adjustedAmount);
+
+                    return (
+                      <td
+                        key={`cumulativeBalance-${yearIndex}`}
+                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                      >
+                        {formatNumber(roundedValue)}
+                      </td>
+                    );
+                  }
+                )}
+              </tr>
+
+              {/* ✅ Bank Loan - Term Loan Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  3
+                </td>
+
+                {/* Label: Bank Loan - Term Loan */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Bank Loan - Term Loan
+                </td>
+
+                {/* ✅ Display Bank Loan Balances */}
+                {Array.from({ length: projectionYears }).map((_, index) => {
+                  const balance = storedData?.marchClosingBalances[index] || 0;
+                  return (
+                    <td
+                      key={`bankLoan-${index}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(balance)}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* ✅ Bank Loan Payable within next 12 months */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  4
+                </td>
+
+                {/* Label: Bank Loan Payable within next 12 months */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Bank Loan Payable within next 12 months
+                </td>
+
+                {/* ✅ Display Payable Loan Values */}
+                {repaymentValueswithin12months.map((value, index) => (
+                  <td
+                    key={`loanPayable-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(value)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Bank Loan - Working Capital Loan */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  5
+                </td>
+
+                {/* Label: Bank Loan - Working Capital Loan */}
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Bank Loan - Working Capital Loan
+                </td>
+
+                {/* ✅ Display Cumulative Working Capital Loan for Each Year */}
+                {cumulativeLoanForPreviousYears.map((loan, index) => (
+                  <td
+                    key={`workingCapitalLoan-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(loan)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Liabilities from More Details (Dynamically Aligned with Projection Years) */}
+              {formData?.MoreDetails?.currentLiabilities?.map(
+                (liabilities, idx) => {
+                  let cumulativeSum = 0; // Initialize cumulative sum
+
+                  return (
+                    <tr
+                      className="font-normal text-[11px] border-0 mt-2"
+                      key={`liabilities-${idx}`}
+                    >
+                      {/* Serial Number */}
+                      <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                        {idx + 6}
+                      </td>
+
+                      {/* Label: Particular Liability Name */}
+                      <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                        {liabilities.particular}
+                      </td>
+
+                      {/* ✅ Display Liabilities for Each Year with Cumulative Rule Applied */}
+                      {Array.from({ length: projectionYears }).map(
+                        (_, yearIndex) => {
+                          cumulativeSum +=
+                            Number(liabilities.years[yearIndex]) || 0; // Apply cumulative sum logic
+
+                          return (
+                            <td
+                              key={`liability-${idx}-${yearIndex}`}
+                              className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                            >
+                              {formatNumber(cumulativeSum)}
+                            </td>
+                          );
+                        }
+                      )}
+                    </tr>
+                  );
+                }
+              )}
+
+              {/* ✅ Total Liabilities Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Empty Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-bold text-[11px]"></td>
+
+                {/* Label: Total Liabilities */}
+                <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
+                  Total
+                </td>
+
+                {/* ✅ Display Computed Total Liabilities for Each Year */}
+                {totalLiabilitiesArray.map((total, index) => (
+                  <td
+                    key={`totalLiabilities-${index}`}
+                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                    style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }} // ✅ Adds thick borders to highlight total
+                  >
+                    {formatNumber(Math.round(total))}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Assets Header Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number Column */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  B
+                </td>
+
+                {/* Label: Liabilities */}
+                <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3">
+                  Assets
+                </td>
+              </tr>
+
+              {/* ✅ Fixed Assets Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  1
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Fixed Assets
+                </td>
+                {computedFixedAssets.map((value, index) => (
+                  <td
+                    key={`fixedAssets-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {value.toLocaleString("en-IN")}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Less: Depreciation Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  2
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Less: Depreciation
+                </td>
+                {Array.from({ length: projectionYears }).map((_, index) => (
+                  <td
+                    key={`depreciation-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {formatNumber(
+                      storedData?.computedData1?.totalDepreciationPerYear[
+                        index
+                      ] || "-"
+                    )}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Net Fixed Assets Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  3
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Net Fixed Assets
+                </td>
+                {computedNetFixedAssets.map((value, index) => (
+                  <td
+                    key={`netFixedAssets-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {value.toLocaleString("en-IN")}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Cash & Cash Equivalents Row */}
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  4
+                </td>
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                  Cash & Cash Equivalents
+                </td>
+                {storedData?.closingCashBalanceArray.map((balance, index) => (
+                  <td
+                    key={`cashEquivalents-${index}`}
+                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                  >
+                    {balance ? balance.toLocaleString("en-IN") : "0"}
+                  </td>
+                ))}
+              </tr>
+
+              {/* ✅ Current Assets from More Details */}
+              {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
+                let cumulativeSum = 0; // Initialize cumulative sum
+                return (
+                  <tr
+                    className="font-normal text-[11px] border-0 mt-2"
+                    key={`currentAssets-${index}`}
+                  >
+                    <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                      {index + 6}
+                    </td>
+                    <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                      {assets.particular}
+                    </td>
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        cumulativeSum += Number(assets.years[yearIndex]) || 0;
+                        return (
+                          <td
+                            key={`currentAsset-${index}-${yearIndex}`}
+                            className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                          >
+                            {formatNumber(cumulativeSum)}
+                          </td>
+                        );
+                      }
+                    )}
+                  </tr>
+                );
+              })}
+
+              {/* ✅ Total Assets Row */}
+              <tr className="font-bold text-[11px] border-black border-2 mt-2">
+                <td className="border border-black px-1 py-2 text-center font-bold text-[11px]"></td>
+                <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
+                  Total Assets
+                </td>
+                {totalAssetArray.map((total, index) => (
+                  <td
+                    key={`totalAssets-${index}`}
+                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                    style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
+                  >
+                    {formatNumber(Math.round(total))}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
+      {/* <h1>Check Profit Data</h1> */}
 
       {/* <pre>{JSON.stringify(formData, null, 2)}</pre> */}
 

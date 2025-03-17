@@ -278,50 +278,64 @@ const FourthStepPRS = ({
   // Handle change for any field including ProjectionYears
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const [key, subKey] = name.split(".");
+    const keys = name.split("."); // Handle nested objects
 
-    // ✅ Update localData state properly for objects
     setLocalData((prevData) => {
-      if (subKey) {
+      if (keys.length === 2) {
+        // For nested objects like BankDetails.Bank
+        const [parentKey, childKey] = keys;
         return {
           ...prevData,
-          [key]: {
-            ...prevData[key],
-            [subKey]: value, // ✅ Proper nested value update
+          [parentKey]: {
+            ...prevData[parentKey],
+            [childKey]: {
+              ...prevData[parentKey][childKey],
+              value: value, // ✅ Update value inside object
+            },
           },
         };
       } else {
+        // For non-nested fields
         return {
           ...prevData,
           [name]: {
             ...prevData[name],
-            value: value, // ✅ Update value inside object
+            value: value,
           },
         };
       }
     });
 
-    // ✅ Update parent state correctly for objects
-    onFormDataChange((prevData) => ({
-      ...prevData,
-      ProjectReportSetting: {
-        ...prevData.ProjectReportSetting,
-        [name]: {
-          ...prevData.ProjectReportSetting[name],
-          value: value, // ✅ Ensure value is sent correctly
-        },
-      },
-    }));
-
-    // ✅ Special handling for specific fields
-    if (name === "ProjectionYears") {
-      setProjectionYears(value);
-      onProjectionYearChange(value);
-    }
-
-    if (name === "rateOfExpense") {
-      setRateOfExpense(value);
-    }
+    // ✅ Update parent state (onFormDataChange)
+    onFormDataChange((prevData) => {
+      if (keys.length === 2) {
+        const [parentKey, childKey] = keys;
+        return {
+          ...prevData,
+          ProjectReportSetting: {
+            ...prevData.ProjectReportSetting,
+            [parentKey]: {
+              ...prevData.ProjectReportSetting[parentKey],
+              [childKey]: {
+                ...prevData.ProjectReportSetting[parentKey][childKey],
+                value: value,
+              },
+            },
+          },
+        };
+      } else {
+        return {
+          ...prevData,
+          ProjectReportSetting: {
+            ...prevData.ProjectReportSetting,
+            [name]: {
+              ...prevData.ProjectReportSetting[name],
+              value: value,
+            },
+          },
+        };
+      }
+    });
   };
 
   return (
@@ -703,15 +717,14 @@ const FourthStepPRS = ({
               </div>
 
               {/* Bank */}
-
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
                     id="Bank"
-                    name="Bank"
+                    name="BankDetails.Bank" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter Bank Name"
-                    value={localData?.Bank?.value || ""}
+                    value={localData?.BankDetails?.Bank?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="Bank">Bank Name</label>
@@ -723,10 +736,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="BankManagerName"
-                    name="BankManagerName"
+                    name="BankDetails.BankManagerName" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter Bank Manager Name"
-                    value={localData?.BankManagerName?.value || ""}
+                    value={localData?.BankDetails?.BankManagerName?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="BankManagerName">Bank Manager Name</label>
@@ -738,10 +751,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="Post"
-                    name="Post"
+                    name="BankDetails.Post" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter Post"
-                    value={localData?.Post?.value || ""}
+                    value={localData?.BankDetails?.Post?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="Post">Post</label>
@@ -753,10 +766,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="ContactNo"
-                    name="ContactNo"
+                    name="BankDetails.ContactNo" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter Contact No."
-                    value={localData?.ContactNo?.value || ""}
+                    value={localData?.BankDetails?.ContactNo?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="ContactNo">Contact No.</label>
@@ -768,10 +781,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="EmailId"
-                    name="EmailId"
+                    name="BankDetails.EmailId" // ✅ Add Parent Key
                     type="email"
                     placeholder="Enter Email ID"
-                    value={localData?.EmailId?.value || ""}
+                    value={localData?.BankDetails?.EmailId?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="EmailId">Email ID</label>
@@ -783,10 +796,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="IFSCCode"
-                    name="IFSCCode"
+                    name="BankDetails.IFSCCode" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter IFSC Code"
-                    value={localData?.IFSCCode?.value || ""}
+                    value={localData?.BankDetails?.IFSCCode?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="IFSCCode">IFSC Code</label>
@@ -798,10 +811,10 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="City"
-                    name="City"
+                    name="BankDetails.City" // ✅ Add Parent Key
                     type="text"
                     placeholder="Enter City"
-                    value={localData?.City?.value || ""}
+                    value={localData?.BankDetails?.City?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="City">City</label>

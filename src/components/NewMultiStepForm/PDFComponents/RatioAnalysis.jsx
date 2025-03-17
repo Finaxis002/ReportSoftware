@@ -417,6 +417,7 @@ const RatioAnalysis = ({
     numOfYearsUsedForAvg,
   ]);
 
+
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   return (

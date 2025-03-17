@@ -49,44 +49,6 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }
   };
 
-  // const savePdfDataToDB = async () => {
-  //   try {
-  //     // ✅ Prepare data to send to backend
-  //     const dataToSave = {
-  //       AccountInformation: formData?.AccountInformation || {},
-  //       MeansOfFinance: formData?.MeansOfFinance || {},
-  //       CostOfProject: formData?.CostOfProject || {},
-  //       ProjectReportSetting: formData?.ProjectReportSetting || {},
-  //       Expenses: formData?.Expenses || {},
-  //       Revenue: formData?.Revenue || {},
-  //       MoreDetails: formData?.MoreDetails || {},
-  //     };
-
-  //     console.log("🚀 Saving PDF data to DB:", dataToSave);
-
-  //     const response = await fetch("http://localhost:5000/save-pdf-data", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ data: dataToSave }),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (response.ok) {
-  //       console.log("✅ PDF data saved successfully:", result);
-  //       alert(`PDF data saved successfully with sessionId: ${result.sessionId}`);
-  //     } else {
-  //       console.error("❌ Error saving PDF data:", result.error);
-  //       alert("Failed to save PDF data. Please try again.");
-  //     }
-  //   } catch (error) {
-  //     console.error("🔥 Error:", error);
-  //     alert("An error occurred while saving PDF data.");
-  //   }
-  // };
-
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -150,22 +112,16 @@ const FinalStep = ({ formData, setCurrentStep }) => {
       </div>
 
       <div className="flex gap-5">
-        {/* ✅ Open Generate PDF in new tab */}
         <button
-          onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
+           onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
+        
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
         </button>
 
-        {/* ✅ Open Check Profit in new tab */}
         <button
-          onClick={() => {
-            const profitUrl = handleCheckProfit(); // ✅ Call the function and get the result (if it's a URL)
-            if (profitUrl) {
-              window.open(profitUrl, "_blank"); // ✅ Open the result in a new tab
-            }
-          }}
+          onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Check Profit

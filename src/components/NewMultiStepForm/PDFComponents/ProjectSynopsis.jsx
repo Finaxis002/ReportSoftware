@@ -537,7 +537,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        fontSize: "9px",
+                        // fontSize: "9px",
                       },
                     ]}
                   >
@@ -886,7 +886,7 @@ const ProjectSynopsis = React.memo(
                       textAlign: "left",
                       fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
-                      fontSize: "10px",
+                      // fontSize: "9px",
                     },
                   ]}
                 >
@@ -1130,7 +1130,7 @@ const ProjectSynopsis = React.memo(
                       textAlign: "left",
                       fontFamily: "TimesNewRoman",
                       fontWeight: "extrabold",
-                      fontSize: "10px",
+                      // fontSize: "9px",
                       borderTop: "1px",
                     },
                   ]}

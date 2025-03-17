@@ -247,8 +247,8 @@ const ProjectedProfitability = ({
   });
 
   // ✅ Extract required values from formData
-  const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
-  const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
+  const workingCapitalLoan = formData.MeansOfFinance.workingCapital.termLoan; // Loan amount
+  const interestRate = formData.ProjectReportSetting.rateOfInterest / 100; // Convert % to decimal
 
   const startMonthIndex = months.indexOf(
     formData.ProjectReportSetting.SelectStartingMonth
@@ -471,32 +471,7 @@ const ProjectedProfitability = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear
-            ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
-            : "2025-26"}
-        </Text>
-      </View>
-
-      {/* Amount format */}
-
-      <View
-        style={{
-          display: "flex",
-          alignContent: "flex-end",
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-        <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
-            ? "Rs" // ✅ Convert "rupees" to "Rs"
-            : formData?.ProjectReportSetting?.AmountIn?.value}
-          .)
+          {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
         </Text>
       </View>
 
@@ -533,45 +508,6 @@ const ProjectedProfitability = ({
             )}
           </View>
 
-          {/* Blank Row  */}
-
-          <View style={[styles.tableRow, styles.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-                styles.Total,
-                { paddingVertical: "5px" },
-              ]}
-            ></Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-                { paddingVertical: "5px" },
-              ]}
-            ></Text>
-
-            {Array.from({
-              length:
-                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-            }).map(
-              (_, index) =>
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`closingStock-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      { paddingVertical: "5px" },
-                    ]}
-                  ></Text>
-                )
-            )}
-          </View>
-
           {/* ✅ Display Total Revenue Receipt Row */}
           <View
             style={[
@@ -581,6 +517,7 @@ const ProjectedProfitability = ({
               {
                 fontWeight: "black",
                 border: 0,
+                marginTop: "10px",
               },
             ]}
           >
@@ -634,7 +571,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 styles.Total,
-                { paddingTop: "10px" },
+                { paddingVertical: "10px" },
               ]}
             >
               B
@@ -644,7 +581,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { paddingTop: "10px" },
+                { paddingVertical: "10px" },
               ]}
             >
               Add: Closing Stock / Inventory
@@ -661,7 +598,7 @@ const ProjectedProfitability = ({
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      { paddingTop: "10px" },
+                      { paddingVertical: "10px" },
                     ]}
                   >
                     {formatNumber(
@@ -803,7 +740,11 @@ const ProjectedProfitability = ({
 
             return (
               <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text
+                  style={stylesCOP.serialNoCellDetail}
+                >
+                  1
+                </Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1060,7 +1001,11 @@ const ProjectedProfitability = ({
             {/* Interest On Term Loan */}
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
-              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+              <Text
+                style={stylesCOP.serialNoCellDetail}
+              >
+                1
+              </Text>
 
               <Text
                 style={[
@@ -1096,7 +1041,11 @@ const ProjectedProfitability = ({
             {/* Interest on Working Capital */}
 
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+              <Text
+                style={stylesCOP.serialNoCellDetail}
+              >
+                2
+              </Text>
 
               <Text
                 style={[
@@ -1134,7 +1083,11 @@ const ProjectedProfitability = ({
             </View>
             {/* ✅ Render Depreciation Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+              <Text
+                style={stylesCOP.serialNoCellDetail}
+              >
+                3
+              </Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -1243,7 +1196,9 @@ const ProjectedProfitability = ({
 
             {/* ✅ Total Indirect Expenses Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}></Text>
+              <Text
+                style={stylesCOP.serialNoCellDetail}
+              ></Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -1608,17 +1563,17 @@ const ProjectedProfitability = ({
           {
             display: "flex",
             flexDirection: "column",
-            gap: "80px",
+            gap: "30px",
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
           },
         ]}
       >
-        <Text style={[styles.businessName, { fontSize: "10px" }]}>
+        <Text style={[styles.businessName, { fontSize: "14px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+        <Text style={styles.FinancialYear}>
           {formData?.AccountInformation?.clientName || "Client Name"}
         </Text>
       </View>

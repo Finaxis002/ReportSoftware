@@ -32,6 +32,7 @@ import Tasks from "./components/NewMultiStepForm/Employees/Tasks.jsx";
 import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
 import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx";
 import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
+import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -121,7 +122,7 @@ const App = () => {
             <Route path="/notifications" element={<Notification />} />
             <Route path="/clientData" element={<ClientData />} />
             <Route path="/tasks/:taskId" element={<Tasks />} />
-
+            <Route path="/bank-details" element={<BankDetails />} />
             {/* Protect MongoDB route */}
             <Route
               path="/database"

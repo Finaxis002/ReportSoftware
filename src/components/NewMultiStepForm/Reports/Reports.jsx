@@ -113,7 +113,7 @@ const Reports = ({ sendPdfData }) => {
   };
 
   return (
-    <div className="app-container bg-gray-50 min-h-screen">
+    <div className="flex h-[100vh]">
       {renderMenuBar()}
       <div className="flex flex-col w-full px-6 py-4 gap-8">
         <Header />
