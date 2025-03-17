@@ -10,6 +10,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
 import { Document, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import useStore from "./useStore";
+import axios from "axios";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -89,6 +90,8 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
   const [years, setYears] = useState(5);
 
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
+
+  
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
@@ -652,17 +655,7 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     assetsliabilities,
   ]);
 
-  // ✅ Function to handle download
-  const handleDownloadOverride = (blob) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName; // ✅ Correct file name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+
 
   useEffect(() => {
     // ✅ Remove the default download button using CSS
@@ -679,6 +672,55 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
     };
   }, []);
 
+
+  const saveToDatabase = async () => {
+    const payload = {
+      directExpenses,
+      totalDirectExpensesArray,
+      computedData,
+      computedData1,
+      totalDepreciation,
+      yearlyInterestLiabilities,
+      yearlyPrincipalRepayment,
+      interestOnWorkingCapital,
+      receivedData,
+      marchClosingBalances,
+      workingCapitalvalues,
+      grossFixedAssetsPerYear,
+      incomeTaxCalculation,
+      closingCashBalanceArray,
+      totalLiabilities,
+      assetsliabilities,
+      dscr,
+      averageCurrentRatio,
+      breakEvenPointPercentage,
+      totalExpense,
+      userRole,
+      years,
+      totalRevenueReceipts,
+      formData,
+      pdfType,
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/save-pdf-data",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("✅ Data saved successfully:", response.data);
+      alert("Data saved successfully!");
+    } catch (error) {
+      console.error("❌ Failed to save data:", error);
+      alert("Failed to save data");
+    }
+  };
+
   return (
     <BlobProvider document={memoizedPDF}>
       {({ blob, url, loading }) => (
@@ -692,22 +734,22 @@ const GeneratedPDF = React.memo(({ pdfData }) => {
             {memoizedPDF}
           </PDFViewer>
           {/* ✅ Trigger manual download */}
-          {!loading && (
-            <button
-              onClick={() => handleDownloadOverride(blob)}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Download Report
-            </button>
-          )}
+          <button
+            onClick={saveToDatabase}
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              backgroundColor: "#28a745",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginLeft: "10px",
+            }}
+          >
+            Save to Database
+          </button>
+
           {/* ✅ Custom Download Button */}
 
           <section className="h-[100vh]"></section>
