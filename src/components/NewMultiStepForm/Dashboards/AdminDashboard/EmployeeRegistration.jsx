@@ -44,7 +44,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
     e.preventDefault();
   
     try {
-      const response = await axios.post("/api/employees", formData);
+      const response = await axios.post("/api/employees/register", formData);
       console.log(response.data);
       setMessage("Employee added successfully");
       setFormData({
