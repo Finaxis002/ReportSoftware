@@ -74,7 +74,9 @@ const Notification = () => {
       {renderMenuBar()}
      
       <div className="flex flex-col w-full">
-      <Header dashboardType="Employee Dashboard"/>
+      {/* <Header dashboardType="Employee Dashboard"/> */}
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Notifications</h2>
         {loading ? (
