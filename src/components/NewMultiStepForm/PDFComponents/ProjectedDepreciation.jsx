@@ -417,12 +417,7 @@ const ProjectedDepreciation = ({
                 <Text style={stylesCOP.detailsCellDetail}>{asset.name}</Text>
 
                 {/* Empty column for alignment */}
-                <Text
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    { fontSize: "9px" },
-                  ]}
-                ></Text>
+                <Text style={[stylesCOP.particularsCellsDetail]}></Text>
 
                 {/* ✅ Generate Yearly Gross Fixed Asset Values */}
                 {assetValues.map((value, yearIndex) =>
@@ -431,7 +426,7 @@ const ProjectedDepreciation = ({
                       key={yearIndex}
                       style={[
                         stylesCOP.particularsCellsDetail,
-                        { fontSize: "9px" },
+                        styleExpenses.fontSmall,
                       ]}
                     >
                       {formatNumber(value)}
@@ -468,9 +463,7 @@ const ProjectedDepreciation = ({
             <View key={index} style={styles.tableRow}>
               <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
               <Text style={stylesCOP.detailsCellDetail}>{asset.name}</Text>
-              <Text
-                style={[stylesCOP.particularsCellsDetail, { fontSize: "9px" }]}
-              >
+              <Text style={[stylesCOP.particularsCellsDetail]}>
                 {asset.rate ? `${asset.rate}%` : " "}
               </Text>
 
@@ -480,7 +473,7 @@ const ProjectedDepreciation = ({
                     key={yearIndex}
                     style={[
                       stylesCOP.particularsCellsDetail,
-                      { fontSize: "9px" },
+                      styleExpenses.fontSmall,
                     ]}
                   >
                     {formatNumber(
@@ -526,19 +519,14 @@ const ProjectedDepreciation = ({
               <Text style={stylesCOP.detailsCellDetail}>{asset.name}</Text>
 
               {/* Empty Column for Depreciation Rate */}
-              <Text
-                style={[stylesCOP.particularsCellsDetail, { fontSize: "9px" }]}
-              ></Text>
+              <Text style={[stylesCOP.particularsCellsDetail]}></Text>
 
               {/* Display Cumulative Depreciation Yearly (THIS IS NOW FIXED) */}
               {Array.from({ length: years }).map((_, yearIndex) =>
                 hideFirstYear && yearIndex === 0 ? null : (
                   <Text
                     key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      { fontSize: "9px" },
-                    ]}
+                    style={[stylesCOP.particularsCellsDetail , styleExpenses.fontSmall,]}
                   >
                     {formatNumber(
                       depreciationValues[index].cumulativeDepreciation[
@@ -588,12 +576,7 @@ const ProjectedDepreciation = ({
                 <Text style={stylesCOP.detailsCellDetail}>{asset.name}</Text>
 
                 {/* Empty column for alignment */}
-                <Text
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    { fontSize: "9px" },
-                  ]}
-                ></Text>
+                <Text style={[stylesCOP.particularsCellsDetail]}></Text>
 
                 {/* Generate Yearly Net Asset Values */}
                 {Array.from({ length: years }).map((_, yearIndex) => {
@@ -611,13 +594,9 @@ const ProjectedDepreciation = ({
                   // ✅ Update the Net Asset Value for next year's calculation
                   netAssetValue = netAsset;
                   return hideFirstYear && yearIndex === 0 ? null : (
-                 
                     <Text
                       key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        { fontSize: "9px" },
-                      ]}
+                      style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall,]}
                     >
                       {formatNumber(netAsset)}{" "}
                       {/* ✅ Correctly Display Net Asset for Each Year */}

@@ -93,7 +93,12 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 <Text style={stylesCOP.detailsCellDetail}>
                   {field?.name || "N/A"}
                 </Text>
-                <Text style={[stylesCOP.particularsCellsDetail, {textAlign:"right"}]}>
+                <Text
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    { textAlign: "right" },
+                  ]}
+                >
                   {formatNumber(field?.amount || 0)}
                 </Text>
               </View>
@@ -125,7 +130,8 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             <Text
               style={[
                 stylesCOP.particularsCellsDetail,
-                { paddingBottom: "10px" },{textAlign:"right"}
+                { paddingBottom: "10px" },
+                { textAlign: "right" },
               ]}
             >
               {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
@@ -146,17 +152,24 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 display: "flex",
                 alignContent: "flex-end",
                 alignItems: "flex-end",
-                fontSize: "12px",
+                fontSize: "10px",
                 padding: 0,
               },
             ]}
           >
             <Text
-              style={{
-                width: "30%",
-                border: "1px solid #000",
-                borderBottomWidth: 0,
-              }}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                stylesCOP.boldText,
+                styles.Total,
+                {
+                  width: "30%",
+                  border: "1px solid #000",
+                  borderBottomWidth: 0,
+                  textAlign: "left",
+                  borderLeftWidth:1
+                },
+              ]}
             >
               {" "}
               Total{" "}
@@ -173,6 +186,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 borderLeftWidth: 1,
                 fontFamily: "Roboto",
                 fontWeight: "bold",
+                textAlign: "right",
               },
             ]}
           >
