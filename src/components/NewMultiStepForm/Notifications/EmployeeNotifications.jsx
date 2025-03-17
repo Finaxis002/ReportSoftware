@@ -158,7 +158,7 @@
 
 // export default EmployeeNotifications;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 // import React, { useEffect, useState } from "react";
 
 // const EmployeeNotifications = () => {
@@ -201,24 +201,126 @@
 
 // export default EmployeeNotifications;
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 
-const AdminNotifications = () => {
+// const AdminNotifications = () => {
+//   const [notifications, setNotifications] = useState([]);
+
+//   useEffect(() => {
+//     const fetchNotifications = async () => {
+//       try {
+//         const response = await fetch("https://backend-three-pink.vercel.app/api/admin/notifications");
+//         if (!response.ok) {
+//           throw new Error("Failed to fetch notifications");
+//         }
+//         const data = await response.json();
+//         setNotifications(data);
+//       } catch (err) {
+//         console.error("Failed to load notifications:", err);
+//       }
+//     };
+
+//     fetchNotifications();
+//   }, []);
+
+//   return (
+//     <div className="mt-4">
+//       <h3 className="text-lg font-bold mb-2">Notifications</h3>
+//       {notifications.length === 0 ? (
+//         <p>No notifications</p>
+//       ) : (
+//         <ul className="list-disc ml-4">
+//           {notifications.map((notification) => (
+//             <li key={notification._id} className="text-gray-700 mb-1">
+//               {notification.message} {/* ✅ Message already contains taskTitle */}
+//             </li>
+//           ))}
+//         </ul>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default AdminNotifications;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+import React, { useEffect, useState } from "react";
+import moment from 'moment';
+
+const EmployeeNotifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
+    // const fetchNotifications = async () => {
+    //   try {
+    //     // ✅ Get user role from localStorage
+    //     const role = localStorage.getItem("userRole");
+    //     setUserRole(role);
+
+    //     let url = "";
+    //     if (role === "admin") {
+    //       url = "https://backend-three-pink.vercel.app/api/admin/notifications";
+    //     } else if (role === "employee") {
+    //       const employeeId = localStorage.getItem("employeeId");
+    //       if (!employeeId) {
+    //         console.error("Employee ID not found in localStorage");
+    //         return;
+    //       }
+    //       url = `https://backend-three-pink.vercel.app/api/notifications/employee?employeeId=${employeeId}`;
+    //     }
+
+    //     if (url) {
+    //       const response = await fetch(url);
+    //       if (!response.ok) {
+    //         throw new Error("Failed to fetch notifications");
+    //       }
+    //       const data = await response.json();
+    //       setNotifications(data);
+    //     }
+    //   } catch (err) {
+    //     console.error("Failed to load notifications:", err);
+    //   }
+    // };
+
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/api/admin/notifications");
-        if (!response.ok) {
-          throw new Error("Failed to fetch notifications");
+        const role = localStorage.getItem("userRole");
+        setUserRole(role);
+
+        let url = "";
+        if (role === "admin") {
+          url = "https://backend-three-pink.vercel.app/api/admin/notifications";
+        } else if (role === "employee") {
+          const employeeId = localStorage.getItem("employeeId");
+          if (!employeeId) {
+            console.error("Employee ID not found in localStorage");
+            return;
+          }
+          url = `https://backend-three-pink.vercel.app/api/notifications/employee?employeeId=${employeeId}`;
         }
-        const data = await response.json();
-        setNotifications(data);
+
+        if (url) {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Failed to fetch notifications");
+          }
+
+          const data = await response.json();
+
+          console.log("✅ Fetched Notifications Data:", data);
+
+          // ✅ Conditional Handling Based on Role
+          if (role === "admin") {
+            setNotifications(data || []); // Admin API directly returns an array
+          } else if (role === "employee") {
+            setNotifications(data.notifications || []); // Employee API returns an object with `notifications`
+          }
+        }
       } catch (err) {
         console.error("Failed to load notifications:", err);
+        setNotifications([]); // ✅ Prevent map() failure by setting an empty array in case of error
       }
     };
 
@@ -227,20 +329,42 @@ const AdminNotifications = () => {
 
   return (
     <div className="mt-4">
-      <h3 className="text-lg font-bold mb-2">Notifications</h3>
-      {notifications.length === 0 ? (
+      {/* ✅ Dynamic Title */}
+      <h3 className="text-lg font-bold mb-2">
+        {userRole === "admin"
+          ? "Admin Notifications"
+          : "Employee Notifications"}
+      </h3>
+
+      {/* ✅ Show Notifications */}
+      {/* {notifications.length === 0 ? (
         <p>No notifications</p>
       ) : (
         <ul className="list-disc ml-4">
           {notifications.map((notification) => (
             <li key={notification._id} className="text-gray-700 mb-1">
-              {notification.message} {/* ✅ Message already contains taskTitle */}
+             
+              {notification.message}
             </li>
           ))}
         </ul>
-      )}
+      )} */}
+      <ul className="list-disc ml-4">
+        {Array.isArray(notifications) && notifications.length > 0 ? (
+          notifications.map((notification) => (
+            <li key={notification._id} className="text-gray-700 mb-1">
+              {notification.message}
+              <span className="text-gray-500 ml-2">
+                ({moment(notification.createdAt).format("DD-MM-YYYY")})
+              </span>
+            </li>
+          ))
+        ) : (
+          <p>No notifications</p>
+        )}
+      </ul>
     </div>
   );
 };
 
-export default AdminNotifications;
+export default EmployeeNotifications;
