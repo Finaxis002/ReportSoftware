@@ -50,6 +50,7 @@ const EmployeeTasks = ({ employeeId }) => {
   }, []);  // Empty dependency array to run only once on mount
   
 
+  
   // const handleStatusChange = async (taskId, newStatus) => {
   //   try {
   //     const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
@@ -66,9 +67,10 @@ const EmployeeTasks = ({ employeeId }) => {
   
   //     const updatedTask = await response.json();
   
+  //     // ✅ Update state correctly
   //     setTasks((prevTasks) =>
   //       prevTasks.map((task) =>
-  //         task.taskId === taskId || task._id === taskId
+  //         task._id === taskId
   //           ? { ...task, status: updatedTask.task.status }
   //           : task
   //       )
@@ -78,14 +80,55 @@ const EmployeeTasks = ({ employeeId }) => {
   //     setError("Failed to update task status");
   //   }
   // };
+  // const handleStatusChange = async (taskId, newStatus) => {
+  //   try {
+  //     const employeeId = localStorage.getItem("employeeId"); // Get employeeId from storage
+  //     const task = tasks.find((task) => task._id === taskId);
+  
+  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         status: newStatus,
+  //         employeeId, // ✅ Pass employeeId to generate notification
+  //         taskTitle: task.taskTitle, // ✅ Pass taskTitle for notification message
+  //       }),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update task status");
+  //     }
+  
+  //     const updatedTask = await response.json();
+  
+  //     // ✅ Update task list after successful status change
+  //     setTasks((prevTasks) =>
+  //       prevTasks.map((task) =>
+  //         task._id === taskId ? updatedTask.task : task
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("Error updating status:", err);
+  //   }
+  // };
+  
   const handleStatusChange = async (taskId, newStatus) => {
     try {
+      const employeeId = localStorage.getItem("employeeId");
+      const employeeName = localStorage.getItem("employeeName");
+  
       const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          employeeId, // ✅ Pass employeeId only
+          employeeName, // ✅ Pass employeeName only
+        }),
       });
   
       if (!response.ok) {
@@ -94,19 +137,18 @@ const EmployeeTasks = ({ employeeId }) => {
   
       const updatedTask = await response.json();
   
-      // ✅ Update state correctly
+      // ✅ Update task state locally
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task._id === taskId
-            ? { ...task, status: updatedTask.task.status }
-            : task
+          task._id === taskId ? updatedTask.task : task
         )
       );
     } catch (err) {
       console.error("Error updating status:", err);
-      setError("Failed to update task status");
     }
   };
+  
+
   
 
   return (
