@@ -38,7 +38,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     if (isPDFLoaded) {
       setTimeout(() => {
         navigate("/checkprofit");
-      }, 500); // Small delay to ensure correct navigation
+      }, 1000); // Small delay to ensure correct navigation
     }
   }, [isPDFLoaded, navigate]);
 
