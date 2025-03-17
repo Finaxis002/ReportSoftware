@@ -354,9 +354,9 @@ const EmployeeNotifications = () => {
           notifications.map((notification) => (
             <li key={notification._id} className="text-gray-700 mb-1">
               {notification.message}
-              <span className="text-gray-500 ml-2">
+              {/* <span className="text-gray-500 ml-2">
                 ({moment(notification.createdAt).format("DD-MM-YYYY")})
-              </span>
+              </span> */}
             </li>
           ))
         ) : (
