@@ -671,8 +671,8 @@ useEffect(() => {
   if (reportData && sessionId) {
     console.log("📥 Received Data from Report:", reportData);
 
-    // ✅ Simulate form population
-    populateForm(reportData);
+    // // ✅ Simulate form population
+    // populateForm(reportData);
   }
 }, [location.state]);
 
