@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -526,7 +524,6 @@ const CheckProfit = () => {
   });
 
   // ✅ Initialize cumulative liabilities
-  let cumulativeCurrentLiabilities = 0;
   let cumulativeAdditionalLiabilities = 0; // ✅ Initialize cumulative liabilities
 
   const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
@@ -661,6 +658,9 @@ const CheckProfit = () => {
                   <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
                     Add: Closing Stock / Inventory
                   </td>
+                  </tr>
+                  </tbody>
+              </table>
 
 
         <div className="w-full">
@@ -1759,14 +1759,11 @@ const CheckProfit = () => {
             </tbody>
           </table>
         </div>
+        </div>
+        </div>
       </div>
 
-      {/* <h1>Check Profit Data</h1> */}
-
-      {/* <pre>{JSON.stringify(formData, null, 2)}</pre> */}
-
-      {/* <pre>{JSON.stringify(profitabilityData, null, 2)}</pre>
-      <pre>{JSON.stringify(storedData, null, 2)}</pre> */}
+      
     </div>
   );
 };

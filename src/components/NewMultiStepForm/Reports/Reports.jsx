@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faDownload } from "@fortawesome/free-solid-svg-icons";
 import ReportEditModal from "./ReportEditModal";
@@ -69,21 +69,17 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-
   // ✅ Handle Download and Store Report Data
   const handleDownload = async (sessionId) => {
-
     try {
       const response = await fetch(
         `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
       );
-  
       if (!response.ok) throw new Error("Failed to fetch report data");
-  
-      const reportData = (await response.json()) || {};
-  
-      console.log("✅ Report Data Fetched:", reportData);
 
+      const reportData = await response.json();
+
+      console.log("✅ Report Data Fetched:", reportData);
 
       // ✅ Send to parent (if needed for other logic)
       sendPdfData(reportData);
@@ -92,13 +88,11 @@ const Reports = ({ sendPdfData }) => {
 
       // ✅ Pass data directly in state when navigating
       navigate("/generated-pdf", { state: { reportData } });
-
     } catch (error) {
       console.error("❌ Error downloading PDF:", error);
       alert(`Error fetching report data: ${error.message}`);
     }
-  }, [navigate, sendPdfData]);
-  
+  };
 
   // ✅ Handle Update Action after Editing
 
