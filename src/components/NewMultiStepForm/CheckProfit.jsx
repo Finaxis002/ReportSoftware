@@ -5,7 +5,9 @@ import useStore from "./useStore";
 import {useNavigate} from "react-router-dom";
 
 const CheckProfit = () => {
+
   const navigateTo = useNavigate();
+
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
@@ -44,6 +46,8 @@ const CheckProfit = () => {
 
   console.log("generated PDf DAta", storedData);
 
+<<<<<<<<< Temporary merge branch 1
+=========
   const handleBack = () => {
     const lastStep = localStorage.getItem("lastStep") || 8;
     navigate(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
@@ -51,6 +55,7 @@ const CheckProfit = () => {
   
   
 
+>>>>>>>>> Temporary merge branch 2
   const storedProfitabilityData = JSON.parse(
     localStorage.getItem("storedProfitabilityData")
   );
@@ -603,6 +608,9 @@ const CheckProfit = () => {
         </button>
         
       </div>
+<<<<<<<<< Temporary merge branch 1
+        <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
+=========
       <h2 className="text-3xl font-bold">Profit Statements</h2>
         {/* <h2 className="text-3xl font-bold mb-4">Profit Statements</h2> */}
         <div style={{ scale: "0.9" }}>
@@ -665,7 +673,12 @@ const CheckProfit = () => {
                   <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
                     Add: Closing Stock / Inventory
                   </td>
+                  </tr>
+                  </tbody>
 
+                  </table>
+
+>>>>>>>>> Temporary merge branch 2
 
         <div className="w-full">
           {/* Profit Statement Heading */}
