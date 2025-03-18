@@ -5,6 +5,9 @@ import useStore from "./useStore";
 import {useNavigate} from "react-router-dom";
 
 const CheckProfit = () => {
+
+  const navigateTo = useNavigate();
+
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
@@ -42,6 +45,12 @@ const CheckProfit = () => {
   }, []);
 
   console.log("generated PDf DAta", storedData);
+
+
+  const handleBack = () => {
+    const lastStep = localStorage.getItem("lastStep") || 8;
+    navigateTo(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
+  };
 
   const storedProfitabilityData = JSON.parse(
     localStorage.getItem("storedProfitabilityData")
@@ -595,7 +604,9 @@ const CheckProfit = () => {
         </button>
         
       </div>
+
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
+
 
         <div className="w-full">
           {/* Profit Statement Heading */}
@@ -1701,6 +1712,8 @@ const CheckProfit = () => {
 
       {/* <pre>{JSON.stringify(profitabilityData, null, 2)}</pre>
       <pre>{JSON.stringify(storedData, null, 2)}</pre> */}
+    </div>
+    </div>
     </div>
   );
 };
