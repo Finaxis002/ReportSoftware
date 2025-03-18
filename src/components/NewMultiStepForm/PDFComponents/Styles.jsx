@@ -479,4 +479,48 @@ const columnWidths = {
   totalRepayment: { width: "120px", textAlign: "center" },
 };
 
-export { styles, stylesMOF, stylesCOP, styleExpenses, columnWidths };
+
+const stylesRepayment = {
+  heading: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingVertical: 10,
+    color: "#000", // Black text
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#002F5F", // Dark blue background
+    paddingVertical: 10,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  tableCellHeader: {
+    color: "#ffffff", // White text
+    fontWeight: "bold",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontSize: 12,
+    textAlign: "center",
+    flex: 1,
+    borderRightWidth: 1,
+    borderColor: "#ffffff", // White borders inside header
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#f9f9f9", // Light gray background for rows
+  },
+  tableCell: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontSize: 12,
+    textAlign: "center",
+    flex: 1,
+    borderRightWidth: 1,
+    borderColor: "#ccc", // Gray borders inside row
+  },
+};
+
+
+export { styles, stylesMOF, stylesCOP, styleExpenses, columnWidths , stylesRepayment };
