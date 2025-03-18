@@ -1467,10 +1467,8 @@ const ProjectSynopsis = React.memo(
             <Text style={[styles.businessName, { fontSize: "10px" }]}>
               {formData?.AccountInformation?.businessName || "Business Name"}
             </Text>
-
-            <Text style={[styles.FinancialYear, {fontSize: "10px"}]}>
-              {formData?.AccountInformation?.businessOwner || "businessOwner"}
-
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "Client Name"}
             </Text>
           </View>
         </Page>
