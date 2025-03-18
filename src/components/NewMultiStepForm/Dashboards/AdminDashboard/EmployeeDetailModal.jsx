@@ -31,7 +31,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
   }, [employee.employeeId]);
 
   return (
-    <div className=" px-5 fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 overflow-auto">
+    <div className="  px-5 fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 overflow-auto">
       <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-2 bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 px-6 py-4 border-b">

@@ -27,7 +27,7 @@ const StepperControl = ({
 
   return (
     <div className="container flex justify-end gap-4 mt-2 mb-2">
-      {/* Back Button */}
+      {/* ✅ Back Button */}
       <button
         type="button"
         onClick={handleBack}
@@ -40,71 +40,56 @@ const StepperControl = ({
       </button>
 
       {/* ✅ Update Report Button */}
-      {!isCreateReportClicked &&
-        !isCreateReportWithExistingClicked &&
-        userRole !== "client" && (
-          <button
-            type="button"
-            onClick={handleUpdate}
-            className="bg-orange-500 py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out"
-          >
-            Update Report
-          </button>
-        )}
+      {isUpdateReportClicked && userRole !== "client" && (
+        <button
+          type="button"
+          onClick={handleUpdate}
+          className="bg-orange-500 py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out"
+        >
+          Update Report
+        </button>
+      )}
 
-      {!isUpdateReportClicked &&
-        (!isCreateReportWithExistingClicked ||
-          (isCreateReportWithExistingClicked &&
-            currentStep === totalSteps)) && (
-          <button
-            type="button"
-            onClick={() => handleSave(isCreateReportWithExistingClicked)} // ✅ Pass the flag
-            className={`${
-              isCreateReportWithExistingClicked
-                ? "bg-orange-500 hover:bg-orange-700"
-                : "bg-blue-500 hover:bg-blue-700"
-            } text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out`}
-          >
-            Save Data
-          </button>
-        )}
-      {/* Next Button */}
-      {isCreateReportWithExistingClicked ? (
-        // Show this button if "Create Report With Existing" is clicked
+      {/* ✅ Save Data Button */}
+      {isCreateReportClicked && (
+        <button
+          type="button"
+          onClick={() => handleSave(isCreateReportWithExistingClicked)} // ✅ Pass the flag
+          className={`bg-blue-500 hover:bg-blue-700 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 transition duration-200 ease-in-out`}
+        >
+          Save Data
+        </button>
+      )}
+
+      {/* ✅ Save & Next Button */}
+      {isCreateReportWithExistingClicked && (
         <button
           onClick={() => handleNextStep(stepData)}
           className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
             currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
           }`}
+          disabled={currentStep === totalSteps}
         >
           Save & Next
         </button>
-      ) : (
-        // Hide this button if "Create Report With Existing" is clicked
-        <button
-        type="button"
-        onClick={handleNext}
-        className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
-          currentStep === 3 && disableNext ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        disabled={currentStep === 3 && disableNext} // ✅ Disable only on step 3 if error exists
-        style={{
-          display: currentStep === totalSteps ? "none" : "inline-block",
-        }}
-      >
-        Next
-      </button>
-      
       )}
 
-      {/* {!isCreateReportClicked && !isUpdateReportClicked && (
+      {/* ✅ Next Button */}
+      {!isCreateReportWithExistingClicked && (
         <button
-          onClick={handleCreateNewFromExisting}
-          className="btn btn-primary"
+          type="button"
+          onClick={handleNext}
+          className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
+            currentStep === 3 && disableNext ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={currentStep === 3 && disableNext}
+          style={{
+            display: currentStep === totalSteps ? "none" : "inline-block",
+          }}
         >
-          Create New Report from Existing
+          Next
         </button>
-      )} */}
+      )}
     </div>
   );
 };
