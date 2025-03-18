@@ -283,7 +283,7 @@ const ProjectedSalaries = ({
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
         <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.clientName || "Client Name"}
+          {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
     </Page>

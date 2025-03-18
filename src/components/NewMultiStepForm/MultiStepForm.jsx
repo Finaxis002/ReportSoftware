@@ -14,14 +14,15 @@ import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
+
 // import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
   const isUpdateMode = location.state?.isUpdateMode || false; // ✅ Check if navigated from Update Report
-  const [currentStep, setCurrentStep] = useState(1); // Manages step state
-
+  // const [currentStep, setCurrentStep] = useState(1); // Manages step state
+  
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
   const [projectionYears, setProjectionYears] = useState(0);
@@ -31,15 +32,50 @@ const MultiStepForm = ({ userRole, userName }) => {
   const isCreateReportWithExistingClicked =
     location.state?.isCreateReportWithExistingClicked || false;
   const [searchParams] = useSearchParams();
-  const step = searchParams.get("step");
+  // const step = searchParams.get("step");
+  const steps = [
+    "Account Information",
+    "Means Of Finance",
+    "Cost Of Project",
+    "Project Report Settings",
+    "Expenses",
+    "Revenue",
+    "More Details",
+    "Complete",
+  ];
+
+  // const [currentStep, setCurrentStep] = useState(step);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const step = parseInt(searchParams.get("step")) || 1;
+    return step > 0 && step <= steps.length ? step : 1;
+  });
+  
 
 
 
+
+  // useEffect(() => {
+  //   if (step) {
+  //     setCurrentStep(parseInt(step)); // Update step in state
+  //   }
+  // }, [step]);
+
+  // useEffect(() => {
+  //   const step = parseInt(searchParams.get("step")) || 1;
+  //   if (step !== currentStep && step > 0 && step <= steps.length) {
+  //     setCurrentStep(step);
+  //   }
+  // }, [searchParams]);
   useEffect(() => {
-    if (step) {
-      setCurrentStep(parseInt(step)); // Update step in state
+    const step = parseInt(searchParams.get("step")) || 1;
+    if (step !== currentStep && step > 0 && step <= steps.length) {
+      console.log(`✅ Setting Step from URL: ${step}`); // Debugging Log ✅
+      setCurrentStep(step);
     }
-  }, [step]);
+  }, [searchParams, steps]); // ✅ Depend on steps to avoid async conflicts
+  
+  
+  
 
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {
@@ -72,17 +108,7 @@ const MultiStepForm = ({ userRole, userName }) => {
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
 
-  const steps = [
-    "Account Information",
-    "Means Of Finance",
-    "Cost Of Project",
-    "Project Report Settings",
-    "Expenses",
-    "Revenue",
-    "More Details",
-    "Complete",
-  ];
-
+  
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
@@ -333,24 +359,50 @@ const MultiStepForm = ({ userRole, userName }) => {
         );
       case 8:
         return (
-          <FinalStep formData={formData} setCurrentStep={setCurrentStep} />
+          <FinalStep formData={formData} setCurrentStep={setCurrentStep}  currentStep={currentStep} />
         );
       default:
         return null;
     }
   }, [currentStep, formData, handleFormDataChange]);
 
+  // const handleNext = () => {
+  //   if (currentStep < steps.length) {
+  //     setCurrentStep((prev) => prev + 1);
+  //   }
+  // };
+
+  // const handleBack = () => {
+  //   if (currentStep > 1) {
+  //     setCurrentStep((prev) => prev - 1);
+  //   }
+  // };
+
   const handleNext = () => {
     if (currentStep < steps.length) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep((prev) => {
+        const nextStep = prev + 1;
+        console.log(`🔄 Next Step: ${nextStep}`); // Debugging Log ✅
+        navigate(`/MultistepForm?step=${nextStep}`, { replace: true });
+        return nextStep; // ✅ Ensure state update before navigation
+      });
     }
   };
-
+  
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => {
+        const previousStep = prev - 1;
+        console.log(`🔄 Previous Step: ${previousStep}`); // Debugging Log ✅
+        navigate(`/MultistepForm?step=${previousStep}`, { replace: true });
+        return previousStep; // ✅ Ensure state update before navigation
+      });
     }
   };
+  
+  
+  
+  
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole");
