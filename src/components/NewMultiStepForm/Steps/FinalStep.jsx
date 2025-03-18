@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-const FinalStep = ({ formData, setCurrentStep }) => {
+const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
+  console.log(`✅ Final Step Received Step: ${currentStep}`);
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState();
@@ -74,6 +75,8 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         }, 3000); // 3 seconds delay after loading
       };
     }
+    localStorage.setItem("lastStep", currentStep);
+  navigate("/checkprofit");
   };
   
   

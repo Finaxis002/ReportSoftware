@@ -117,17 +117,28 @@ const ProjectedCashflow = ({
   const monthsPerYear = calculateMonthsPerYear();
 
   // ✅ Calculate Interest on Working Capital for each projection year
+  // const interestOnWorkingCapital = Array.from({
+  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  // }).map(() => {
+  //   const workingCapitalLoan =
+  //     Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+  //   const interestRate =
+  //     Number(formData.ProjectReportSetting.interestOnTL) || 0;
+
+  //   // ✅ Annual Interest Calculation
+  //   return (workingCapitalLoan * interestRate) / 100;
+  // });
   const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map(() => {
     const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+      Number(formData?.MeansOfFinance?.workingCapital?.termLoan) || 0;
     const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
+      Number(formData?.ProjectReportSetting?.interestOnTL) || 0;
+  
     return (workingCapitalLoan * interestRate) / 100;
   });
+  
 
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
@@ -169,7 +180,9 @@ const ProjectedCashflow = ({
     return calculatedValue;
   });
 
-  const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || 0;
+  // const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || 0;
+  const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || [];
+
 
   // ✅ Compute Total Sources for Each Year
   // const totalSourcesArray = Array.from({ length: projectionYears }).map(
@@ -213,11 +226,18 @@ const ProjectedCashflow = ({
       const depreciation = totalDepreciationPerYear[index] || 0;
 
       // ✅ Adding newly added current liabilities dynamically
+      // const currentLiabilitiesTotal =
+      // formData?.MoreDetails?.currentLiabilities?.reduce(
+      //   (sum, liability) => sum + (liability.years?.[index] || 0),
+      //   0
+      // ) || 0;
       const currentLiabilitiesTotal =
+
         formData?.MoreDetails?.currentLiabilities?.reduce(
           (sum, liability) => sum + (liability.years?.[index] || 0),
           0
         ) || 0;
+
 
       // ✅ Sum up all sources including newly added liabilities
       return (
@@ -251,10 +271,13 @@ const ProjectedCashflow = ({
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
 
       // ✅ Ensuring Projection Years Match for Current Assets
+
       const currentAssetsTotal = formData?.MoreDetails?.currentAssets?.reduce(
         (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
+
         0
       );
+      
 
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
@@ -363,12 +386,19 @@ const ProjectedCashflow = ({
   ]);
 
   useEffect(() => {
+    // const termLoanValues = Array.from({ length: projectionYears }).map(
+    //   (_, index) =>
+    //     index === 0
+    //       ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
+    //       : "0"
+    // );
     const termLoanValues = Array.from({ length: projectionYears }).map(
       (_, index) =>
         index === 0
-          ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
+          ? formData?.MeansOfFinance?.workingCapital?.termLoan || "-"
           : "0"
     );
+    
 
     // console.log("term Loan Values:", termLoanValues);
 
@@ -618,11 +648,16 @@ const ProjectedCashflow = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(
+                  {/* {formatNumber(
                     index === 0
                       ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
                       : "0"
-                  )}
+                  )} */}
+                  {formatNumber(
+      index === 0
+        ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
+        : "0"
+    )}
                 </Text>
               ))}
             </View>
@@ -1269,7 +1304,7 @@ const ProjectedCashflow = ({
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
         <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.clientName || "Client Name"}
+          {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
     </Page>
