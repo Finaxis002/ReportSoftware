@@ -118,21 +118,18 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = parentKey ? `${parentKey}.${key}` : key;
-  
-        if (Array.isArray(obj[key])) {
-          // ✅ If it's an array (likely yearly data), store it directly as an array
-          result[newKey] = obj[key];
-        } else if (typeof obj[key] === "object" && obj[key] !== null) {
-          // ✅ Handle nested objects recursively
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+          // ✅ If it's a File, convert it to string format
           if (obj[key] instanceof File) {
             result[newKey] = `File Attached: ${obj[key].name}`;
           } else {
             flattenObject(obj[key], newKey, result);
           }
         } else {
+          // ✅ Convert all values to string (handles undefined and null)
           result[newKey] = obj[key] !== undefined && obj[key] !== null 
             ? obj[key].toString()
-            : "";
+            : ""; // ✅ Empty string for null or undefined
         }
       }
     }
@@ -142,52 +139,25 @@ const FinalStep = ({ formData, setCurrentStep }) => {
   const handleExportData = () => {
     if (!formData) return;
   
-    // ✅ Flatten the object
+    // ✅ Flatten nested data
     const flattenedData = flattenObject(formData);
   
-    // ✅ Separate Year-based data and normal data
-    const yearData = {};
-    const normalData = {};
+    // ✅ Convert flattened object to array format
+    const dataArray = Object.keys(flattenedData).map((key) => ({
+      Key: key,
+      Value: flattenedData[key],
+    }));
   
-    Object.keys(flattenedData).forEach((key) => {
-      if (Array.isArray(flattenedData[key])) {
-        yearData[key] = flattenedData[key];
-      } else {
-        normalData[key] = flattenedData[key];
-      }
-    });
+    // ✅ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataArray);
   
-    // ✅ Format Year-based data for Excel
-    const yearRows = [
-      ["Parameter", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"], // Header Row
-    ];
-  
-    Object.keys(yearData).forEach((key) => {
-      const row = [key, ...yearData[key]];
-      yearRows.push(row);
-    });
-  
-    // ✅ Format Normal Data for Excel
-    const normalRows = [["Key", "Value"]];
-    Object.keys(normalData).forEach((key) => {
-      normalRows.push([key, normalData[key]]);
-    });
-  
-    // ✅ Create workbook and add worksheets
+    // ✅ Create workbook and add worksheet
     const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Exported Data");
   
-    // ✅ Add year-based data to first sheet
-    const yearSheet = XLSX.utils.aoa_to_sheet(yearRows);
-    XLSX.utils.book_append_sheet(workbook, yearSheet, "Yearly Data");
-  
-    // ✅ Add normal data to second sheet
-    const normalSheet = XLSX.utils.aoa_to_sheet(normalRows);
-    XLSX.utils.book_append_sheet(workbook, normalSheet, "Other Data");
-  
-    // ✅ Save file
+    // ✅ Write file
     XLSX.writeFile(workbook, "exported-data.xlsx");
   };
-  
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
