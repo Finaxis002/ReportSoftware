@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
 
@@ -515,7 +513,6 @@ const CheckProfit = () => {
   });
 
   // ✅ Initialize cumulative liabilities
-  let cumulativeCurrentLiabilities = 0;
   let cumulativeAdditionalLiabilities = 0; // ✅ Initialize cumulative liabilities
 
   const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
