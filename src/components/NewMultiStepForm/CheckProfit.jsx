@@ -1,29 +1,10 @@
-// import React from "react";
-// import useStore from "./useStore";
-
-// const CheckProfit = () => {
-//   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
-
-//   return (
-//     <div>
-//       <h2>Check Profit</h2>
-//       {computedDataToProfit ? (
-//         <pre>{JSON.stringify(computedDataToProfit, null, 2)}</pre>
-//       ) : (
-//         <p>No Data Available</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CheckProfit;
 
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const CheckProfit = () => {
-  const navigate = useNavigate();
+  const navigateTo = useNavigate();
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
@@ -60,7 +41,7 @@ const CheckProfit = () => {
 
   const handleBack = () => {
     const lastStep = localStorage.getItem("lastStep") || 8;
-    navigate(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
+    navigateTo(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
   };
   
   
@@ -679,6 +660,10 @@ const CheckProfit = () => {
                   <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
                     Add: Closing Stock / Inventory
                   </td>
+                  </tr>
+                  </tbody>
+
+                  </table>
 
 
         <div className="w-full">
@@ -1785,6 +1770,8 @@ const CheckProfit = () => {
 
       {/* <pre>{JSON.stringify(profitabilityData, null, 2)}</pre>
       <pre>{JSON.stringify(storedData, null, 2)}</pre> */}
+    </div>
+    </div>
     </div>
   );
 };
