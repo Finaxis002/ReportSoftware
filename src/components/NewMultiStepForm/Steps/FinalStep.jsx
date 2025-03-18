@@ -75,7 +75,7 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
         }, 3000); // 3 seconds delay after loading
       };
     }
-    localStorage.setItem("lastStep", currentStep);
+    localStorage.setItem("lastStep", currentStep || 1); 
   navigate("/checkprofit");
   };
   

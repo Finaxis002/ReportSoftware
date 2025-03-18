@@ -25,15 +25,13 @@ const MultiStepForm = ({ userRole, userName }) => {
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
   const [projectionYears, setProjectionYears] = useState(0);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const isCreateReportWithExistingClicked =
     location.state?.isCreateReportWithExistingClicked || false;
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
-
-
 
   useEffect(() => {
     if (step) {
@@ -265,9 +263,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-
-  
-
   const stepContent = useMemo(() => {
     switch (currentStep) {
       case 1:
@@ -333,7 +328,8 @@ const MultiStepForm = ({ userRole, userName }) => {
         );
       case 8:
         return (
-          <FinalStep formData={formData} setCurrentStep={setCurrentStep} />
+          <FinalStep formData={formData} setCurrentStep={setCurrentStep} 
+          currentStep={currentStep || 1} />
         );
       default:
         return null;
@@ -441,46 +437,51 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
+  const goToLastStep = () => {
+    const lastStep = steps.length;
+    setCurrentStep(lastStep);
+    navigate(`/MultistepForm?step=${lastStep}`, { replace: true }); // ✅ Update URL to last step
+  };
+  
 
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App md:w-[100%] mx-auto shadow-xl rounded-2xl pb-2 bg-white">
-        {/* Stepper Component */}
-        <div className="container horizontal mt-5">
-          <Stepper steps={steps} currentStep={currentStep} />
-        </div>
+      <div className="App md:w-[85%] shadow-xl rounded-2xl pb-2 bg-white">
+        {/* Step Content */}
 
-        {/* ✅ Dropdown placed outside steps to persist selection */}
-        {!isCreateReportClicked && userRole !== "client" && (
-          <div className="mt-[4rem]">
-            {/* <ClientNameDropdown
+          {/* Stepper Component */}
+          <div className="container horizontal my-[3.5rem]">
+            <Stepper steps={steps} currentStep={currentStep} />
+          </div>
+
+          {/* ✅ Dropdown placed outside steps to persist selection */}
+          {!isCreateReportClicked && userRole !== "client" && (
+            <div className="">
+              {/* <ClientNameDropdown
               onClientSelect={() => { }}
               onBusinessSelect={handleBusinessSelect}
             /> */}
-            <ReportDropdown onBusinessSelect={handleBusinessSelect} />
-          </div>
-        )}
-
-        {/* Step Content */}
-        <div className=" h-[50vh]">{stepContent}
-        <StepperControl
-          handleNext={handleNext}
-          handleBack={handleBack}
-          handleSave={handleSaveData}
-          handleUpdate={handleUpdate}
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
-          handleCreateNewFromExisting={handleCreateNewFromExisting}
-          handleNextStep={handleNextStep}
-          stepData={formData}
-          disableNext={!!error}
-        />
-        </div>
+              <ReportDropdown onBusinessSelect={handleBusinessSelect} />
+            </div>
+          )}
+          {stepContent}
+          <StepperControl
+            handleNext={handleNext}
+            handleBack={handleBack}
+            handleSave={handleSaveData}
+            handleUpdate={handleUpdate}
+            currentStep={currentStep}
+            totalSteps={steps.length}
+            isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
+            handleCreateNewFromExisting={handleCreateNewFromExisting}
+            handleNextStep={handleNextStep}
+            stepData={formData}
+            disableNext={!!error}
+            goToLastStep={goToLastStep} // ✅ Pass goToLastStep to StepperControl
+          />
 
         {/* Stepper Control Buttons */}
-        
       </div>
     </div>
   );
