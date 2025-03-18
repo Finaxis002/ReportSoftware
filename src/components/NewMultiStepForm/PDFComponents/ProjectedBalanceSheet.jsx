@@ -355,12 +355,20 @@ const ProjectedBalanceSheet = ({
               style={[
                 styles.serialNoCell,
                 styleExpenses.sno,
+                styleExpenses.fontBold,
                 { textAlign: "center" },
               ]}
             >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}

@@ -132,12 +132,13 @@ const IncomeTaxCalculation = ({
               style={[
                 styles.serialNoCell,
                 styleExpenses.sno,
-                { paddingHorizontal: "20px", textAlign: "center" },
+                styleExpenses.fontBold,
+                { paddingHorizontal: "5px", textAlign: "center" },
               ]}
             >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text style={[styles.detailsCell, styleExpenses.particularWidth , styleExpenses.fontBold, {textAlign:"center"}]}>
               Particulars
             </Text>
 

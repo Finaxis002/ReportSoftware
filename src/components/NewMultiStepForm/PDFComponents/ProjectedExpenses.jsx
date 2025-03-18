@@ -314,10 +314,24 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.serialNoCell, styleExpenses.sno]}>
+              <Text
+                style={[
+                  styles.serialNoCell,
+                  styleExpenses.sno,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
                 S. No.
               </Text>
-              <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.particularWidth,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
                 Particulars
               </Text>
 

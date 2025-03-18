@@ -327,9 +327,9 @@ const BreakEvenPoint = ({
         </Text>
       </View>
 
-        {/* Amount format */}
+      {/* Amount format */}
 
-        <View
+      <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -364,17 +364,26 @@ const BreakEvenPoint = ({
         <View style={[styles.table]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.serialNoCell, styleExpenses.sno]}>S. No.</Text>
+            <Text
+              style={[
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
+              S. No.
+            </Text>
             <Text
               style={[
                 styles.detailsCell,
-                stylesCOP.boldText,
                 styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
               ]}
             >
               Particulars
             </Text>
-
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels
               .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
@@ -1124,9 +1133,8 @@ const BreakEvenPoint = ({
                         fontWeight: "extrabold",
                         fontFamily: "Roboto",
                         borderWidth: "0px",
-                        borderRightWidth:"1px",
+                        borderRightWidth: "1px",
                         paddingVertical: "10px",
-
                       },
                     ]}
                   >

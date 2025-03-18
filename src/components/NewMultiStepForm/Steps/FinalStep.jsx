@@ -38,30 +38,45 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     // ✅ Small delay before navigating
     setTimeout(() => {
       navigate("/checkprofit");
-    }, 1000);
+    }, 10000);
   };
 
-  // When PDF is loaded, navigate to Check Profit
-  useEffect(() => {
-    if (isPDFLoaded) {
-      setTimeout(() => {
-        navigate("/checkprofit");
-      }, 1000); // Small delay to ensure correct navigation
-    }
-  }, [isPDFLoaded, navigate]);
+
 
   // ✅ Function to trigger loading and PDF generation
   const handleCheckProfit = () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
-    setIsLoading(true); // ✅ Start loading
-
+    setIsLoading(true);
+  
     if (iframeRef.current) {
-      // ✅ Add cache-busting to avoid caching issues
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+  
+      // ✅ Fallback with setTimeout after 15 seconds
+      const timeoutId = setTimeout(() => {
+        console.log("⏳ Navigating after timeout...");
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+        navigate("/checkprofit");
+      }, 15000); // 15 seconds timeout
+  
+      // ✅ Trigger earlier if PDF loads before timeout
+      iframeRef.current.onload = () => {
+        console.log("✅ PDF Loaded Successfully");
+        clearTimeout(timeoutId); // ✅ Clear timeout if PDF loads first
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+  
+        // ✅ Add a small delay (2-3 seconds) to account for any rendering lag
+        setTimeout(() => {
+          console.log("🚀 Navigating after short delay...");
+          navigate("/checkprofit");
+        }, 3000); // 3 seconds delay after loading
+      };
     }
   };
-
+  
+  
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">

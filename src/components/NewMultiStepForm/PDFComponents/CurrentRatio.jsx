@@ -133,9 +133,9 @@ const CurrentRatio = ({
         </Text>
       </View>
 
-        {/* Amount format */}
+      {/* Amount format */}
 
-        <View
+      <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -172,12 +172,20 @@ const CurrentRatio = ({
             style={[
               styles.serialNoCell,
               styleExpenses.sno,
+              styleExpenses.fontBold,
               { textAlign: "center" },
             ]}
           >
             S. No.
           </Text>
-          <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+          <Text
+            style={[
+              styles.detailsCell,
+              styleExpenses.particularWidth,
+              styleExpenses.fontBold,
+              { textAlign: "center" },
+            ]}
+          >
             Particulars
           </Text>
 
@@ -319,7 +327,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold", fontFamily: "Roboto" , fontSize: "10px"},
+                { fontWeight: "bold", fontFamily: "Roboto", fontSize: "10px" },
               ]}
             >
               Average Current Ratio
