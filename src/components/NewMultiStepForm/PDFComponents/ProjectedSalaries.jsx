@@ -205,7 +205,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
-              { fontSize: "10px" },
+              {paddingHorizontal:"1px" },
             ]}
           >
             Add: Fringe Benefits @ 5 %

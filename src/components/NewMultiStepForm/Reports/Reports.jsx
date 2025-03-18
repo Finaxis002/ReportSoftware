@@ -13,7 +13,6 @@ const Reports = ({ sendPdfData }) => {
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
   const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
 
-
   // Fetch reports when the component mounts
 
   useEffect(() => {
@@ -70,25 +69,23 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-
-
   // ✅ Handle Download and Store Report Data
   const handleDownload = async (sessionId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/get-report-data/${sessionId}`
+        `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
       );
       if (!response.ok) throw new Error("Failed to fetch report data");
-  
+
       const reportData = await response.json();
-  
+
       console.log("✅ Report Data Fetched:", reportData);
-  
+
       // ✅ Send to parent (if needed for other logic)
       sendPdfData(reportData);
-  
+
       console.log("📤 Sent PDF Data to Parent:", reportData);
-  
+
       // ✅ Pass data directly in state when navigating
       navigate("/generated-pdf", { state: { reportData } });
     } catch (error) {
@@ -96,11 +93,8 @@ const Reports = ({ sendPdfData }) => {
       alert(`Error fetching report data: ${error.message}`);
     }
   };
-  
-  
 
-  
-    // ✅ Handle Update Action after Editing
+  // ✅ Handle Update Action after Editing
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state

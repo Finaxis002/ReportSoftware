@@ -214,10 +214,10 @@ const ProjectedCashflow = ({
 
       // ✅ Adding newly added current liabilities dynamically
       const currentLiabilitiesTotal =
-      formData?.MoreDetails?.currentLiabilities?.reduce(
-        (sum, liability) => sum + (liability.years?.[index] || 0),
-        0
-      ) || 0;
+        formData?.MoreDetails?.currentLiabilities?.reduce(
+          (sum, liability) => sum + (liability.years?.[index] || 0),
+          0
+        ) || 0;
 
       // ✅ Sum up all sources including newly added liabilities
       return (
@@ -230,7 +230,6 @@ const ProjectedCashflow = ({
       );
     }
   );
-
 
   const totalUsesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -467,12 +466,20 @@ const ProjectedCashflow = ({
               style={[
                 styles.serialNoCell,
                 styleExpenses.sno,
+                styleExpenses.fontBold,
                 { textAlign: "center" },
               ]}
             >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}

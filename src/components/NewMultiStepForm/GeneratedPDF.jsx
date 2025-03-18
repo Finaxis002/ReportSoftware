@@ -789,22 +789,6 @@ useEffect(() => {
               {memoizedPDF}
             </PDFViewer>
   
-            {/* ✅ Trigger manual download */}
-            <button
-              onClick={saveToDatabase}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                backgroundColor: "#28a745",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                marginLeft: "10px",
-              }}
-            >
-              Save to Database
-            </button>
   
             {/* ✅ Custom Download Button */}
             <section className="h-[100vh]"></section>

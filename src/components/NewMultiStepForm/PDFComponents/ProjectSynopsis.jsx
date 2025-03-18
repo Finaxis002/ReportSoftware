@@ -444,6 +444,7 @@ const ProjectSynopsis = React.memo(
                         width: "45%",
                         fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
+                        textTransform:"uppercase"
                       },
                     ]}
                   >
@@ -535,6 +536,7 @@ const ProjectSynopsis = React.memo(
                       styles.detailsCellDetail,
                       {
                         padding: "8px",
+                        paddingHorizontal:"1px",
                         width: "27.5%",
                         textAlign: "center",
                         // fontSize: "9px",

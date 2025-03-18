@@ -489,8 +489,24 @@ const ProjectedProfitability = ({
         </View>
         <View style={[styles.table]}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.serialNoCell, styleExpenses.sno]}>S. No.</Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
+              S. No.
+            </Text>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
 
@@ -740,11 +756,7 @@ const ProjectedProfitability = ({
 
             return (
               <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                <Text
-                  style={stylesCOP.serialNoCellDetail}
-                >
-                  1
-                </Text>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1001,11 +1013,7 @@ const ProjectedProfitability = ({
             {/* Interest On Term Loan */}
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
-              <Text
-                style={stylesCOP.serialNoCellDetail}
-              >
-                1
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
 
               <Text
                 style={[
@@ -1041,11 +1049,7 @@ const ProjectedProfitability = ({
             {/* Interest on Working Capital */}
 
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={stylesCOP.serialNoCellDetail}
-              >
-                2
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>2</Text>
 
               <Text
                 style={[
@@ -1083,11 +1087,7 @@ const ProjectedProfitability = ({
             </View>
             {/* ✅ Render Depreciation Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={stylesCOP.serialNoCellDetail}
-              >
-                3
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -1196,9 +1196,7 @@ const ProjectedProfitability = ({
 
             {/* ✅ Total Indirect Expenses Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={stylesCOP.serialNoCellDetail}
-              ></Text>
+              <Text style={stylesCOP.serialNoCellDetail}></Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
