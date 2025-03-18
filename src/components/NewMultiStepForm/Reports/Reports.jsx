@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faDownload } from "@fortawesome/free-solid-svg-icons";
 import ReportEditModal from "./ReportEditModal";
@@ -70,25 +70,61 @@ const Reports = ({ sendPdfData }) => {
 
   // ✅ Handle Update Action after Editing
 
-  const handleDownload = async (sessionId) => {
+  // const handleDownload = async (sessionId) => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
+  //     );
+  //     if (!response.ok) throw new Error("Failed to fetch report data");
+
+  //     const reportData = await response.json() || {};
+
+  //     console.log("✅ Report Data Fetched:", reportData);
+  //     sendPdfData(reportData);
+
+  //     // ✅ Navigate to the /generated-pdf route and pass data as state
+  //     navigate("/generated-pdf", { state: { reportData } });
+  //   } catch (error) {
+  //     console.error("❌ Error downloading PDF:", error);
+  //     alert(`Error fetching report data: ${error.message}`);
+  //   }
+  // };
+  const handleDownload = useCallback(async (sessionId) => {
     try {
       const response = await fetch(
         `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
       );
+  
       if (!response.ok) throw new Error("Failed to fetch report data");
-
-      const reportData = await response.json();
-
+  
+      const reportData = (await response.json()) || {};
+  
       console.log("✅ Report Data Fetched:", reportData);
-      sendPdfData(reportData);
-
-      // ✅ Navigate to the /generated-pdf route and pass data as state
-      navigate("/generated-pdf", { state: { reportData } });
+  
+      if (!reportData || Object.keys(reportData).length === 0) {
+        throw new Error("No data available for this report");
+      }
+  
+      const sanitizedData = {
+        AccountInformation: reportData?.AccountInformation || {},
+        ProjectReportSetting: reportData?.ProjectReportSetting || {},
+        MeansOfFinance: reportData?.MeansOfFinance || {},
+        MoreDetails: reportData?.MoreDetails || {},
+        totalDepreciationPerYear: reportData?.totalDepreciationPerYear || [],
+        netProfitBeforeTax: reportData?.netProfitBeforeTax || [],
+        yearlyPrincipalRepayment: reportData?.yearlyPrincipalRepayment || [],
+        yearlyInterestLiabilities: reportData?.yearlyInterestLiabilities || [],
+        financialYearLabels: reportData?.financialYearLabels || [],
+      };
+  
+      sendPdfData(sanitizedData);
+      navigate("/generated-pdf", { state: { reportData: sanitizedData } });
     } catch (error) {
       console.error("❌ Error downloading PDF:", error);
       alert(`Error fetching report data: ${error.message}`);
     }
-  };
+  }, [navigate, sendPdfData]);
+  
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state

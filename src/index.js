@@ -107,7 +107,7 @@ const App = () => {
             />
             <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
             <Route
-              path="/MultestepForm"
+              path="/MultistepForm"
               element={
                 <MultiStepForm
                   receivedGeneratedPDFData={generatePDfData}

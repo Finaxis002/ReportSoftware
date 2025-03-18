@@ -78,7 +78,7 @@ const Notification = () => {
       <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
 
       <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+        {/* <h2 className="text-2xl font-bold mb-4">Notifications</h2> */}
         {loading ? (
           <p className="text-gray-600">Loading notifications...</p>
         ) : error ? (

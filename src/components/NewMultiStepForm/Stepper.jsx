@@ -2,12 +2,23 @@
 
 
 import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const Stepper = ({ steps, currentStep }) => {
   const [newStep, setNewStep] = useState([]);
   const stepRef = useRef([]);
+  const [searchParams] = useSearchParams();
+  // const stepFromURL = parseInt(searchParams.get("step")) || currentStep;
 
   // Function to update step properties based on currentStep
+  // const updateStep = (stepNumber, steps) => {
+  //   return steps.map((step, index) => ({
+  //     ...step,
+  //     completed: index < stepNumber,
+  //     highlighted: index === stepNumber,
+  //     selected: index <= stepNumber,
+  //   }));
+  // };
   const updateStep = (stepNumber, steps) => {
     return steps.map((step, index) => ({
       ...step,
@@ -16,21 +27,54 @@ const Stepper = ({ steps, currentStep }) => {
       selected: index <= stepNumber,
     }));
   };
+  
+  
+  
+  // useEffect(() => {
+  //   if (!steps.length) return;
+  
+  //   // Initialize steps with default properties
+  //   const stepState = steps.map((step, index) => ({
+  //     description: step,
+  //     completed: index < stepFromURL - 1,
+  //     highlighted: index === stepFromURL - 1,
+  //     selected: index <= stepFromURL - 1,
+  //   }));
+  
+  //   stepRef.current = stepState;
+  //   setNewStep(updateStep(stepFromURL - 1, stepState));
+  // }, [steps, stepFromURL]);
 
+  // useEffect(() => {
+  //   if (!steps.length) return;
+  
+  //   const stepState = steps.map((step, index) => ({
+  //     description: step,
+  //     completed: index < currentStep,
+  //     highlighted: index === currentStep - 1,
+  //     selected: index <= currentStep - 1,
+  //   }));
+  
+  //   stepRef.current = stepState;
+  //   setNewStep(stepState);
+  // }, [steps, currentStep]); 
   useEffect(() => {
     if (!steps.length) return;
-
-    // Initialize steps with default properties
+  
     const stepState = steps.map((step, index) => ({
       description: step,
-      completed: false,
-      highlighted: index === 0,
-      selected: index === 0,
+      completed: index < currentStep - 1,
+      highlighted: index === currentStep - 1,
+      selected: index <= currentStep - 1,
     }));
-
+  
+    console.log(`🚀 Stepper State Updated to Step ${currentStep}`); // Debugging Log ✅
+  
     stepRef.current = stepState;
-    setNewStep(updateStep(currentStep - 1, stepState));
-  }, [steps, currentStep]); // Dependencies ensure it updates only when needed
+    setNewStep(stepState);
+  }, [steps, currentStep]); // ✅ Depend only on steps and currentStep
+  
+  
 
   return (
     <div className="mx-4 p-2 flex justify-between items-center">

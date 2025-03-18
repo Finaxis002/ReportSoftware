@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-const FinalStep = ({ formData, setCurrentStep }) => {
+const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
+  console.log(`✅ Final Step Received Step: ${currentStep}`);
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState();
@@ -47,6 +48,8 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     if (iframeRef.current) {
       iframeRef.current.src = "/generated-pdf"; // Load PDF in the background
     }
+    localStorage.setItem("lastStep", currentStep);
+  navigate("/checkprofit");
   };
 
   // const savePdfDataToDB = async () => {

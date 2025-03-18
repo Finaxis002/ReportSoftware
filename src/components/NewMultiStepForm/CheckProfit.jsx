@@ -20,8 +20,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
+import {useNavigate, useSearchParams} from "react-router-dom";
 
 const CheckProfit = () => {
+  const navigate = useNavigate();
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
@@ -33,6 +35,8 @@ const CheckProfit = () => {
     totalDirectExpensesArray: [],
     totalIndirectExpensesArray: [],
   });
+
+  
 
   useEffect(() => {
     try {
@@ -53,6 +57,13 @@ const CheckProfit = () => {
   }, []);
 
   console.log("generated PDf DAta", storedData);
+
+  const handleBack = () => {
+    const lastStep = localStorage.getItem("lastStep") || 8;
+    navigate(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
+  };
+  
+  
 
   const storedProfitabilityData = JSON.parse(
     localStorage.getItem("storedProfitabilityData")
@@ -595,8 +606,18 @@ const CheckProfit = () => {
     <div className="p-2 w-full">
       {/* ✅ Corrected inline styles using spread operator */}
       <div className="p-20 flex flex-col items-center align-middle justify-center w-full">
-        <h2 className="text-3xl font-bold mb-4">Profit Statements</h2>
-
+      <div className="">
+        <button
+          onClick={handleBack}
+          className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200 "
+          style={{marginRight: "66rem"}}
+        >
+          ← Back
+        </button>
+        
+      </div>
+      <h2 className="text-3xl font-bold">Profit Statements</h2>
+        {/* <h2 className="text-3xl font-bold mb-4">Profit Statements</h2> */}
         <div style={{ scale: "0.9" }}>
           <div className="w-full">
             {/* Profit Statement Heading */}
