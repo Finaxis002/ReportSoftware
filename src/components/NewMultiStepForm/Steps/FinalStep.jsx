@@ -55,45 +55,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }, 10000);
   };
 
-  const handleCheckProfit = () => {
-    console.log("🚀 Triggering PDF Load...");
-    setIsPDFLoaded(false);
-    setIsLoading(true);
 
-    if (iframeRef.current) {
-      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-
-      // ✅ Fallback with setTimeout after 15 seconds
-      timeoutId.current = setTimeout(() => {
-        if (isComponentMounted.current) {
-          console.log("⏳ Navigating after timeout...");
-          setIsPDFLoaded(true);
-          setIsLoading(false);
-          navigate("/checkprofit");
-        }
-      }, 15000);
-
-      iframeRef.current.onload = () => {
-        if (!isComponentMounted.current) return;
-        console.log("✅ PDF Loaded Successfully");
-
-        clearTimeout(timeoutId.current);
-        timeoutId.current = null;
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-
-        setTimeout(() => {
-          if (isComponentMounted.current) {
-            console.log("🚀 Navigating after short delay...");
-            navigate("/checkprofit");
-          }
-        }, 3000);
-      };
-    }
-
-    // ✅ Save last step to localStorage
-    localStorage.setItem("lastStep", 8);
-  };
 
   // const handleExportData = () => {
   //   const data = formData; // Assuming formData contains your data
@@ -118,18 +80,21 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = parentKey ? `${parentKey}.${key}` : key;
-        if (typeof obj[key] === "object" && obj[key] !== null) {
-          // ✅ If it's a File, convert it to string format
+  
+        if (Array.isArray(obj[key])) {
+          // ✅ If it's an array (like years), keep as an array for row-wise format
+          result[newKey] = obj[key];
+        } else if (typeof obj[key] === "object" && obj[key] !== null) {
           if (obj[key] instanceof File) {
             result[newKey] = `File Attached: ${obj[key].name}`;
           } else {
             flattenObject(obj[key], newKey, result);
           }
         } else {
-          // ✅ Convert all values to string (handles undefined and null)
-          result[newKey] = obj[key] !== undefined && obj[key] !== null 
-            ? obj[key].toString()
-            : ""; // ✅ Empty string for null or undefined
+          result[newKey] =
+            obj[key] !== undefined && obj[key] !== null
+              ? obj[key].toString()
+              : "";
         }
       }
     }
@@ -139,25 +104,200 @@ const FinalStep = ({ formData, setCurrentStep }) => {
   const handleExportData = () => {
     if (!formData) return;
   
-    // ✅ Flatten nested data
+    // ✅ Flatten the object for easy processing
     const flattenedData = flattenObject(formData);
   
-    // ✅ Convert flattened object to array format
-    const dataArray = Object.keys(flattenedData).map((key) => ({
-      Key: key,
-      Value: flattenedData[key],
-    }));
+    // ✅ Split data into separate components (sheets)
+    const sections = {
+      "Account Information": {},
+      "Means of Finance": {},
+      "Cost of Project": {},
+      "Expenses": {},
+      "Revenue": {},
+      "More Details": {},
+      "Other Data": {},
+    };
   
-    // ✅ Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(dataArray);
+    // ✅ Categorize data based on prefix (like "AccountInformation")
+    Object.keys(flattenedData).forEach((key) => {
+      if (key.startsWith("AccountInformation")) {
+        sections["Account Information"][key.replace("AccountInformation.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("MeansOfFinance")) {
+        sections["Means of Finance"][key.replace("MeansOfFinance.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("CostOfProject")) {
+        sections["Cost of Project"][key.replace("CostOfProject.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("Expenses")) {
+        sections["Expenses"][key.replace("Expenses.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("Revenue")) {
+        sections["Revenue"][key.replace("Revenue.", "")] = flattenedData[key];
+      } else if (key.startsWith("MoreDetails")) {
+        sections["More Details"][key.replace("MoreDetails.", "")] =
+          flattenedData[key];
+      } else {
+        sections["Other Data"][key] = flattenedData[key];
+      }
+    });
   
-    // ✅ Create workbook and add worksheet
+    // ✅ Create workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Exported Data");
   
-    // ✅ Write file
+    // ✅ Function to format key-value pairs into a worksheet
+    const addKeyValueSheet = (data, sheetName) => {
+      const rows = [["Key", "Value"]]; // Header row
+  
+      Object.keys(data).forEach((key) => {
+        if (Array.isArray(data[key])) {
+          // ✅ If it's an array (like years), format row-wise
+          rows.push([key, ...data[key]]);
+        } else {
+          rows.push([key, data[key]]);
+        }
+      });
+  
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    };
+  
+    // ✅ Function to format array-based data in a structured table format
+    const addArraySheet = (data, sheetName) => {
+      const headerRow = ["Parameter", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"];
+      const rows = [headerRow];
+  
+      Object.keys(data).forEach((key) => {
+        if (Array.isArray(data[key])) {
+          rows.push([key, ...data[key]]);
+        }
+      });
+  
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    };
+  
+    // ✅ Add individual sheets for each section
+    if (Object.keys(sections["Account Information"]).length > 0) {
+      addKeyValueSheet(sections["Account Information"], "Account Info");
+    }
+  
+    if (Object.keys(sections["Means of Finance"]).length > 0) {
+      addKeyValueSheet(sections["Means of Finance"], "Means of Finance");
+    }
+  
+    if (Object.keys(sections["Cost of Project"]).length > 0) {
+      addKeyValueSheet(sections["Cost of Project"], "Cost of Project");
+    }
+  
+    if (Object.keys(sections["Expenses"]).length > 0) {
+      addArraySheet(sections["Expenses"], "Expenses");
+    }
+  
+    if (Object.keys(sections["Revenue"]).length > 0) {
+      addArraySheet(sections["Revenue"], "Revenue");
+    }
+  
+    if (Object.keys(sections["More Details"]).length > 0) {
+      addKeyValueSheet(sections["More Details"], "More Details");
+    }
+  
+    if (Object.keys(sections["Other Data"]).length > 0) {
+      addKeyValueSheet(sections["Other Data"], "Other Data");
+    }
+  
+    // ✅ Save the file
     XLSX.writeFile(workbook, "exported-data.xlsx");
   };
+
+
+  // const handleCheckProfit = () => {
+  //   console.log("🚀 Triggering PDF Load...");
+  //   setIsPDFLoaded(false);
+  //   setIsLoading(true);
+
+  //   if (iframeRef.current) {
+  //     iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+
+  //     // ✅ Fallback with setTimeout after 15 seconds
+  //     timeoutId.current = setTimeout(() => {
+  //       if (isComponentMounted.current) {
+  //         console.log("⏳ Navigating after timeout...");
+  //         setIsPDFLoaded(true);
+  //         setIsLoading(false);
+  //         navigate("/checkprofit");
+  //       }
+  //     }, 15000);
+
+  //     iframeRef.current.onload = () => {
+  //       if (!isComponentMounted.current) return;
+  //       console.log("✅ PDF Loaded Successfully");
+
+  //       clearTimeout(timeoutId.current);
+  //       timeoutId.current = null;
+  //       setIsPDFLoaded(true);
+  //       setIsLoading(false);
+
+  //       setTimeout(() => {
+  //         if (isComponentMounted.current) {
+  //           console.log("🚀 Navigating after short delay...");
+  //           navigate("/checkprofit");
+  //         }
+  //       }, 3000);
+  //     };
+  //   }
+
+  //   // ✅ Save last step to localStorage
+  //   localStorage.setItem("lastStep", 8);
+  // };
+  
+  const handleCheckProfit = () => {
+    console.log("🚀 Triggering PDF Load...");
+    setIsPDFLoaded(false);
+    setIsLoading(true);
+  
+    // ✅ Open the tab immediately (to avoid browser popup blocking)
+    const newTab = window.open("about:blank", "_blank"); 
+  
+    if (iframeRef.current) {
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+  
+      // ✅ Fallback timeout after 15 seconds
+      timeoutId.current = setTimeout(() => {
+        if (isComponentMounted.current && newTab) {
+          console.log("⏳ Navigating to checkprofit after timeout...");
+          setIsPDFLoaded(true);
+          setIsLoading(false);
+          newTab.location.href = "/checkprofit"; // ✅ Update URL in new tab
+        }
+      }, 15000);
+  
+      // ✅ Handle load event for early completion
+      iframeRef.current.onload = () => {
+        if (!isComponentMounted.current) return;
+        console.log("✅ PDF Loaded Successfully");
+  
+        clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+  
+        // ✅ Open /checkprofit in the new tab
+        setTimeout(() => {
+          if (isComponentMounted.current && newTab) {
+            console.log("🚀 Opening /checkprofit in new tab...");
+            newTab.location.href = "/checkprofit"; // ✅ Navigate in opened tab
+          }
+        }, 3000);
+      };
+    }
+  
+    // ✅ Save last step to localStorage
+    localStorage.setItem("lastStep", 8);
+  };
+  
+  
+  
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">

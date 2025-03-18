@@ -163,7 +163,7 @@ const FourthStepPRS = ({
         name: "CA Name",
         id: "CAName",
         value: "",
-        isCustom: false,
+        isCustom: true,
       },
       // ✅ New Object for Bank Details
       BankDetails: {
@@ -275,68 +275,84 @@ const FourthStepPRS = ({
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
-  // Handle change for any field including ProjectionYears
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const keys = name.split("."); // Handle nested objects
-
+    const [key, subKey] = name.split(".");
+  
     setLocalData((prevData) => {
-      if (keys.length === 2) {
-        // For nested objects like BankDetails.Bank
-        const [parentKey, childKey] = keys;
+      if (subKey) {
+        // ✅ Use `.value` for nested fields under BankDetails and advanced fields
         return {
           ...prevData,
-          [parentKey]: {
-            ...prevData[parentKey],
-            [childKey]: {
-              ...prevData[parentKey][childKey],
-              value: value, // ✅ Update value inside object
+          [key]: {
+            ...prevData[key],
+            [subKey]: {
+              ...prevData[key][subKey],
+              value: value, // ✅ Use .value for advance fields
             },
           },
         };
       } else {
-        // For non-nested fields
+        // ✅ Direct value update for other fields
+        const isAdvancedField =
+          name === "UDINNumber" ||
+          name === "CAName" ||
+          name.startsWith("BankDetails.");
+  
         return {
           ...prevData,
-          [name]: {
-            ...prevData[name],
-            value: value,
-          },
+          [name]: isAdvancedField
+            ? { ...prevData[name], value: value } // ✅ Use .value for advance fields
+            : value, // ✅ Directly update value for normal fields
         };
       }
     });
-
-    // ✅ Update parent state (onFormDataChange)
+  
+    // ✅ Update parent state (onFormDataChange) with nested values
     onFormDataChange((prevData) => {
-      if (keys.length === 2) {
-        const [parentKey, childKey] = keys;
+      if (subKey) {
         return {
           ...prevData,
           ProjectReportSetting: {
             ...prevData.ProjectReportSetting,
-            [parentKey]: {
-              ...prevData.ProjectReportSetting[parentKey],
-              [childKey]: {
-                ...prevData.ProjectReportSetting[parentKey][childKey],
-                value: value,
+            [key]: {
+              ...prevData.ProjectReportSetting[key],
+              [subKey]: {
+                ...prevData.ProjectReportSetting[key]?.[subKey],
+                value: value, // ✅ Use .value for advance fields
               },
             },
           },
         };
       } else {
+        const isAdvancedField =
+          name === "UDINNumber" ||
+          name === "CAName" ||
+          name.startsWith("BankDetails.");
+  
         return {
           ...prevData,
           ProjectReportSetting: {
             ...prevData.ProjectReportSetting,
-            [name]: {
-              ...prevData.ProjectReportSetting[name],
-              value: value,
-            },
+            [name]: isAdvancedField
+              ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advance fields
+              : value, // ✅ Directly update value for normal fields
           },
         };
       }
     });
+  
+    // ✅ Handle ProjectionYears and RateOfExpense Separately
+    if (name === "ProjectionYears") {
+      setProjectionYears(value);
+      onProjectionYearChange(value); // Call the parent handler if necessary
+    }
+    if (name === "rateOfExpense") {
+      setRateOfExpense(value);
+    }
   };
+  
+  
 
   return (
     <div>
@@ -461,7 +477,7 @@ const FourthStepPRS = ({
                   id="AmountIn"
                   name="AmountIn"
                   required
-                  value={localData.AmountIn.value} // ✅ Accessing value inside object
+                  value={localData.AmountIn}
                   onChange={handleChange}
                 >
                   <option value="rupees">Rupees</option>
@@ -472,7 +488,6 @@ const FourthStepPRS = ({
                 </select>
               </div>
             </div>
-
             <div className="col-4">
               <div>
                 <select
@@ -667,7 +682,7 @@ const FourthStepPRS = ({
 
           {showAdvance && (
             <div className="row mt-3">
-              {/* UDIN Number */}
+              {/* ✅ Fix UDIN Number */}
               <div className="col-6">
                 <div className="input">
                   <input
@@ -675,27 +690,14 @@ const FourthStepPRS = ({
                     name="UDINNumber"
                     type="text"
                     placeholder="Enter UDIN Number"
-                    value={localData.UDINNumber.value}
+                    value={localData?.UDINNumber?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="UDINNumber">UDIN Number</label>
                 </div>
               </div>
 
-              {/* CA Name */}
-              {/* <div className="col-6">
-                <div className="input">
-                  <input
-                    id="CAName"
-                    name="CAName"
-                    type="text"
-                    placeholder="Enter CA Name"
-                    value={localData?.CAName?.value || ""}
-                    onChange={handleChange}
-                  />
-                  <label htmlFor="CAName">Name of the CA</label>
-                </div>
-              </div> */}
+              {/* ✅ Fix CA Name */}
               <div className="col-6">
                 <div className="input">
                   <select
@@ -712,16 +714,16 @@ const FourthStepPRS = ({
                       </option>
                     ))}
                   </select>
-                  {/* <label htmlFor="CAName">Name of the CA</label> */}
                 </div>
               </div>
 
+              {/* ✅ Fix Nested Objects for BankDetails */}
               {/* Bank */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
                     id="Bank"
-                    name="BankDetails.Bank" // ✅ Add Parent Key
+                    name="BankDetails.Bank"
                     type="text"
                     placeholder="Enter Bank Name"
                     value={localData?.BankDetails?.Bank?.value || ""}
@@ -736,7 +738,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="BankManagerName"
-                    name="BankDetails.BankManagerName" // ✅ Add Parent Key
+                    name="BankDetails.BankManagerName"
                     type="text"
                     placeholder="Enter Bank Manager Name"
                     value={localData?.BankDetails?.BankManagerName?.value || ""}
@@ -751,7 +753,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="Post"
-                    name="BankDetails.Post" // ✅ Add Parent Key
+                    name="BankDetails.Post"
                     type="text"
                     placeholder="Enter Post"
                     value={localData?.BankDetails?.Post?.value || ""}
@@ -766,7 +768,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="ContactNo"
-                    name="BankDetails.ContactNo" // ✅ Add Parent Key
+                    name="BankDetails.ContactNo"
                     type="text"
                     placeholder="Enter Contact No."
                     value={localData?.BankDetails?.ContactNo?.value || ""}
@@ -781,7 +783,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="EmailId"
-                    name="BankDetails.EmailId" // ✅ Add Parent Key
+                    name="BankDetails.EmailId"
                     type="email"
                     placeholder="Enter Email ID"
                     value={localData?.BankDetails?.EmailId?.value || ""}
@@ -796,7 +798,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="IFSCCode"
-                    name="BankDetails.IFSCCode" // ✅ Add Parent Key
+                    name="BankDetails.IFSCCode"
                     type="text"
                     placeholder="Enter IFSC Code"
                     value={localData?.BankDetails?.IFSCCode?.value || ""}
@@ -811,7 +813,7 @@ const FourthStepPRS = ({
                 <div className="input">
                   <input
                     id="City"
-                    name="BankDetails.City" // ✅ Add Parent Key
+                    name="BankDetails.City"
                     type="text"
                     placeholder="Enter City"
                     value={localData?.BankDetails?.City?.value || ""}
