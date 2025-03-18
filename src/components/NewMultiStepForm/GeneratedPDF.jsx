@@ -406,7 +406,7 @@ const GeneratedPDF = React.memo(({  }) => {
     return (
       <Document>
         {/* basic details table */}
-        <BasicDetails formData={formData} />
+        {/* <BasicDetails formData={formData} /> */}
 
         <ProjectSynopsis
           formData={formData}
@@ -695,53 +695,7 @@ useEffect(() => {
   }, []);
 
 
-  const saveToDatabase = async () => {
-    const payload = {
-      directExpenses,
-      totalDirectExpensesArray,
-      computedData,
-      computedData1,
-      totalDepreciation,
-      yearlyInterestLiabilities,
-      yearlyPrincipalRepayment,
-      interestOnWorkingCapital,
-      receivedData,
-      marchClosingBalances,
-      workingCapitalvalues,
-      grossFixedAssetsPerYear,
-      incomeTaxCalculation,
-      closingCashBalanceArray,
-      totalLiabilities,
-      assetsliabilities,
-      dscr,
-      averageCurrentRatio,
-      breakEvenPointPercentage,
-      totalExpense,
-      userRole,
-      years,
-      totalRevenueReceipts,
-      formData,
-      pdfType,
-    };
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/save-pdf-data",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("✅ Data saved successfully:", response.data);
-      alert("Data saved successfully!");
-    } catch (error) {
-      console.error("❌ Failed to save data:", error);
-      alert("Failed to save data");
-    }
-  };
 
   return (
 

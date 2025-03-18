@@ -194,10 +194,11 @@ const ProjectSynopsis = React.memo(
 
             <View style={styles.table}>
               {/* ✅ Table Header */}
-              <View style={[styles.tableHeader]}>
+              <View style={[styles.tableHeader]}> 
                 <Text
                   style={[
                     styles.serialNoCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "10%" },
                   ]}
                 >
@@ -206,6 +207,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "45%" },
                   ]}
                 >
@@ -214,13 +216,14 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.separatorCell,
+                    styleExpenses.fontBold,
                     { textAlign: "center", width: "5%" },
                   ]}
                 >
                   :
                 </Text>
                 <Text
-                  style={[styles.detailsCell, { padding: "8px", width: "55%" }]}
+                  style={[styles.detailsCell,  styleExpenses.fontBold, { padding: "8px", width: "55%" }]}
                 >
                   Details
                 </Text>
@@ -307,7 +310,7 @@ const ProjectSynopsis = React.memo(
                     <Text
                       style={[
                         styles.particularsCellsDetail,
-                        { padding: "8px", width: "45%" , textAlign:"left" },
+                        { padding: "8px", width: "45%", textAlign: "left" },
                       ]}
                     >
                       {field.label}
@@ -332,12 +335,122 @@ const ProjectSynopsis = React.memo(
                 );
               })}
 
+              {/* partner details */}
+              {formData?.AccountInformation?.allPartners?.length > 0 && (
+                <View>
+                  {/* Header */}
+                  <View style={[styles.tableHeader]}>
+                    <Text
+                      style={[
+                        styles.serialNoCell,
+                        { padding: "8px", width: "10%" },
+                      ]}
+                    ></Text>
+                    <Text
+                       style={[
+                        styles.particularsCell,
+                        styleExpenses.fontBold,
+                        { padding: "8px", width: "45%" },
+                      ]}
+                    >
+                      Name of Partner
+                    </Text>
+                    <Text
+                      style={[
+                        styles.separatorCell,
+                        styleExpenses.fontBold,
+                        { textAlign: "center", width: "5%" },
+                      ]}
+                    >
+                      :
+                    </Text>
+                    <Text
+                     style={[
+                      styles.detailsCell,
+                      styleExpenses.fontBold,
+                      { padding: "8px", width: "27.5%", textAlign: "center" },
+                    ]}
+                    >
+                      Aadhar No. of Partner
+                    </Text>
+                    <Text
+                      style={[
+                        styles.detailsCell,
+                        styleExpenses.fontBold,
+                        { padding: "8px", width: "27.5%", textAlign: "center" },
+                      ]}
+                    >
+                      DIN of Partner
+                    </Text>
+                  </View>
+
+                  {/* Body */}
+                  {formData?.AccountInformation?.allPartners?.map(
+                    (partner, index) => (
+                      <View key={index} style={styles.tableRow}>
+                        <Text
+                           style={[
+                            styles.serialNoCellDetail,
+                            { padding: "8px", width: "10%" },
+                          ]}
+                        >
+                          {index + 1}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.particularsCellsDetail,
+                            { padding: "8px", width: "45%", textAlign: "left" },
+                          ]}
+                        >
+                          {partner.partnerName || "N/A"}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.separatorCellDetail,
+                            { padding: "8px", textAlign: "center", width: "5%" },
+                          ]}
+                        >
+                          :
+                        </Text>
+
+                        <Text
+                          style={[
+                            styles.detailsCellDetail,
+                            { padding: "8px", width: "27.5%", textAlign: "center" },
+                          ]}
+                        >
+                          {partner.partnerAadhar || "N/A"}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.detailsCellDetail,
+                            {
+                              padding: "8px",
+                              width: "27.5%",
+                              textAlign: "center",
+                              borderLeftWidth: "1px",
+                            },
+                          ]}
+                        >
+                          {partner.partnerDin || "N/A"}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+              )}
+
               {/* Manpower Requirement  */}
               <View>
                 <View style={[styles.tableHeader]}>
                   <Text
                     style={[
                       styles.serialNoCell,
+                      styleExpenses.fontBold,
+                      styleExpenses.fontBold,
                       { padding: "8px", width: "10%" },
                     ]}
                   >
@@ -346,6 +459,7 @@ const ProjectSynopsis = React.memo(
                   <Text
                     style={[
                       styles.particularsCell,
+                      styleExpenses.fontBold,
                       { padding: "8px", width: "45%" },
                     ]}
                   >
@@ -354,6 +468,7 @@ const ProjectSynopsis = React.memo(
                   <Text
                     style={[
                       styles.separatorCell,
+                      styleExpenses.fontBold,
                       { textAlign: "center", width: "5%" },
                     ]}
                   >
@@ -362,6 +477,7 @@ const ProjectSynopsis = React.memo(
                   <Text
                     style={[
                       styles.detailsCell,
+                      styleExpenses.fontBold,
                       { padding: "8px", width: "27.5%", textAlign: "center" },
                     ]}
                   >
@@ -370,6 +486,7 @@ const ProjectSynopsis = React.memo(
                   <Text
                     style={[
                       styles.detailsCell,
+                      styleExpenses.fontBold, 
                       { padding: "8px", width: "27.5%", textAlign: "center" },
                     ]}
                   >
@@ -389,7 +506,7 @@ const ProjectSynopsis = React.memo(
                     <Text
                       style={[
                         styles.particularsCellsDetail,
-                        { padding: "8px", width: "45%" , textAlign:"left" },
+                        { padding: "8px", width: "45%", textAlign: "left" },
                       ]}
                     >
                       {expense.name || " "}
@@ -444,7 +561,7 @@ const ProjectSynopsis = React.memo(
                         width: "45%",
                         fontFamily: "TimesNewRoman",
                         fontWeight: "extrabold",
-                        textTransform:"uppercase"
+                        textTransform: "uppercase",
                       },
                     ]}
                   >
@@ -536,7 +653,7 @@ const ProjectSynopsis = React.memo(
                       styles.detailsCellDetail,
                       {
                         padding: "8px",
-                        paddingHorizontal:"1px",
+                        paddingHorizontal: "1px",
                         width: "27.5%",
                         textAlign: "center",
                         // fontSize: "9px",
@@ -663,6 +780,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.serialNoCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "10%" },
                   ]}
                 >
@@ -671,6 +789,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "45%" },
                   ]}
                 >
@@ -679,6 +798,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.separatorCell,
+                    styleExpenses.fontBold,
                     { textAlign: "center", width: "5%" },
                   ]}
                 >
@@ -687,6 +807,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "35%", textAlign: "left" },
                   ]}
                 >
@@ -695,6 +816,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "20%", textAlign: "center" },
                   ]}
                 >
@@ -918,6 +1040,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.serialNoCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "10%" },
                   ]}
                 >
@@ -926,6 +1049,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "45%" },
                   ]}
                 >
@@ -934,6 +1058,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.separatorCell,
+                    styleExpenses.fontBold,
                     { textAlign: "center", width: "5%" },
                   ]}
                 >
@@ -942,6 +1067,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "35%", textAlign: "left" },
                   ]}
                 >
@@ -950,6 +1076,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     { padding: "8px", width: "20%", textAlign: "center" },
                   ]}
                 >
@@ -1176,7 +1303,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" , textAlign:"left"},
+                    { padding: "8px", width: "45%", textAlign: "left" },
                   ]}
                 >
                   Debt Service Coverage Ratio
@@ -1217,7 +1344,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" , textAlign:"left"},
+                    { padding: "8px", width: "45%", textAlign: "left" },
                   ]}
                 >
                   Current Ratio
@@ -1260,7 +1387,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" , textAlign:"left" },
+                    { padding: "8px", width: "45%", textAlign: "left" },
                   ]}
                 >
                   Breakeven Point
@@ -1291,7 +1418,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.serialNoCellDetail,
-                    { padding: "8px", width: "10%" , },
+                    { padding: "8px", width: "10%" },
                   ]}
                 >
                   19
@@ -1299,7 +1426,7 @@ const ProjectSynopsis = React.memo(
                 <Text
                   style={[
                     styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%" , textAlign:"left"},
+                    { padding: "8px", width: "45%", textAlign: "left" },
                   ]}
                 >
                   Subsidy Scheme
@@ -1340,7 +1467,7 @@ const ProjectSynopsis = React.memo(
             <Text style={[styles.businessName, { fontSize: "10px" }]}>
               {formData?.AccountInformation?.businessName || "Business Name"}
             </Text>
-            <Text style={[styles.FinancialYear, {fontSize: "10px"}]}>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
               {formData?.AccountInformation?.clientName || "Client Name"}
             </Text>
           </View>
