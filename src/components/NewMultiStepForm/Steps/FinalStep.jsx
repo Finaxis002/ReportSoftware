@@ -4,79 +4,96 @@ import { useNavigate } from "react-router-dom";
 const FinalStep = ({ formData, setCurrentStep }) => {
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
-  const [showError, setShowError] = useState();
-
-  // ✅ Default to "" (empty) if nothing is selected, ensuring "Select Report Type" appears first
+  const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
-  const [isLoading, setIsLoading] = useState(false); // ✅ Loader state
-  
+  const [isLoading, setIsLoading] = useState(false);
 
   const iframeRef = useRef(null);
-  console.log("selected Option", selectedOption);
+  let timeoutId = useRef(null);
+  let isComponentMounted = useRef(true);
 
-  // ✅ Store selected option in localStorage but do not pre-fill fields
   useEffect(() => {
     if (selectedOption !== "select option") {
-      // Prevent storing default value
       localStorage.setItem("pdfType", selectedOption);
     }
   }, [selectedOption]);
 
-  // ✅ Save selected option to localStorage only if a valid option is chosen
   useEffect(() => {
-    if (selectedOption !== "") {
-      localStorage.setItem("pdfType", selectedOption);
-    }
-  }, [selectedOption]);
+    isComponentMounted.current = true;
 
-  // ✅ Function to handle iframe load
+    // ✅ Cleanup on unmount
+    return () => {
+      console.log("🧹 Cleaning up FinalStep...");
+      isComponentMounted.current = false;
+
+      // ✅ Clear timeout
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+      }
+
+      // ✅ Reset iframe source to prevent load event triggering
+      if (iframeRef.current) {
+        iframeRef.current.src = "";
+      }
+    };
+  }, []);
+
   const handleIframeLoad = () => {
+    if (!isComponentMounted.current) return; // ✅ Exit if component unmounted
+
     console.log("✅ PDF Loaded Successfully");
     setIsPDFLoaded(true);
-    setIsLoading(false); // ✅ Stop loading once PDF is loaded
+    setIsLoading(false);
 
-    // ✅ Small delay before navigating
-    setTimeout(() => {
-      navigate("/checkprofit");
+    timeoutId.current = setTimeout(() => {
+      if (isComponentMounted.current) {
+        console.log("✅ Navigating to /checkprofit after delay...");
+        navigate("/checkprofit");
+      }
     }, 10000);
   };
 
-
-
-  // ✅ Function to trigger loading and PDF generation
   const handleCheckProfit = () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
-  
+
     if (iframeRef.current) {
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-  
+
       // ✅ Fallback with setTimeout after 15 seconds
-      const timeoutId = setTimeout(() => {
-        console.log("⏳ Navigating after timeout...");
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-        navigate("/checkprofit");
-      }, 15000); // 15 seconds timeout
-  
-      // ✅ Trigger earlier if PDF loads before timeout
-      iframeRef.current.onload = () => {
-        console.log("✅ PDF Loaded Successfully");
-        clearTimeout(timeoutId); // ✅ Clear timeout if PDF loads first
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-  
-        // ✅ Add a small delay (2-3 seconds) to account for any rendering lag
-        setTimeout(() => {
-          console.log("🚀 Navigating after short delay...");
+      timeoutId.current = setTimeout(() => {
+        if (isComponentMounted.current) {
+          console.log("⏳ Navigating after timeout...");
+          setIsPDFLoaded(true);
+          setIsLoading(false);
           navigate("/checkprofit");
-        }, 3000); // 3 seconds delay after loading
+        }
+      }, 15000);
+
+      iframeRef.current.onload = () => {
+        if (!isComponentMounted.current) return;
+        console.log("✅ PDF Loaded Successfully");
+
+        clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+
+        setTimeout(() => {
+          if (isComponentMounted.current) {
+            console.log("🚀 Navigating after short delay...");
+            navigate("/checkprofit");
+          }
+        }, 3000);
       };
     }
+
+    // ✅ Save last step to localStorage
+    localStorage.setItem("lastStep", 8);
   };
-  
-  
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -94,26 +111,15 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         <select
           value={selectedOption}
           onChange={(e) => {
-            const selectedValue = e.target.value;
-            setSelectedOption(selectedValue);
+            setSelectedOption(e.target.value);
 
-            // Debugging logs
-            console.log("Selected Option:", selectedValue);
-            console.log(
-              "UDIN Number:",
-              formData?.ProjectReportSetting?.UDINNumber
-            );
-
-            // Check if "CA Certified" is selected and UDIN Number is missing or empty
             if (
-              selectedValue === "CA Certified" &&
+              e.target.value === "CA Certified" &&
               (!formData?.ProjectReportSetting?.UDINNumber ||
                 formData?.ProjectReportSetting?.UDINNumber.trim() === "")
             ) {
-              console.log("Error: UDIN Number is missing!");
               setShowError(true);
             } else {
-              console.log("No Error: UDIN Number is available!");
               setShowError(false);
             }
           }}
@@ -125,12 +131,12 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           <option value="Finaxis">Finaxis</option>
         </select>
 
-        {/* Error Message & Redirect Button */}
+        {/* ✅ Error Message */}
         {showError && (
           <div className="mt-2 text-red-600">
             <p>UDIN number is not available.</p>
             <button
-              onClick={() => setCurrentStep(4)} // ✅ Move to Step 4 in Parent Component
+              onClick={() => setCurrentStep(4)}
               className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               Go to Project Report Settings
@@ -141,7 +147,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
 
       <div className="flex gap-5">
         <button
-          onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
+          onClick={() => window.open("/generated-pdf", "_blank")}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
@@ -155,7 +161,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         </button>
       </div>
 
-      {/* Hidden iframe to load generated-pdf in the background */}
+      {/* ✅ Hidden Iframe */}
       <iframe
         ref={iframeRef}
         src=""
@@ -167,5 +173,3 @@ const FinalStep = ({ formData, setCurrentStep }) => {
 };
 
 export default FinalStep;
-
-
