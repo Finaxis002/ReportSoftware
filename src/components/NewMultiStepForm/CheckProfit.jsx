@@ -1,22 +1,4 @@
-// import React from "react";
-// import useStore from "./useStore";
 
-// const CheckProfit = () => {
-//   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
-
-//   return (
-//     <div>
-//       <h2>Check Profit</h2>
-//       {computedDataToProfit ? (
-//         <pre>{JSON.stringify(computedDataToProfit, null, 2)}</pre>
-//       ) : (
-//         <p>No Data Available</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CheckProfit;
 
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
