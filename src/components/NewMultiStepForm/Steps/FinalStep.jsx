@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
 const FinalStep = ({ formData, setCurrentStep }) => {
   const navigate = useNavigate();
@@ -94,6 +95,100 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     localStorage.setItem("lastStep", 8);
   };
 
+  // const handleExportData = () => {
+  //   const data = formData; // Assuming formData contains your data
+
+  //   // Convert data to JSON format
+  //   const jsonData = JSON.stringify(data, null, 2);
+  //   const blob = new Blob([jsonData], { type: "application/json" });
+
+  //   // Create a link and trigger download
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = "exported-data.json"; // File name for download
+  //   link.click();
+
+  //   // Cleanup
+  //   URL.revokeObjectURL(url);
+  // };
+
+  // ✅ Utility function to flatten nested objects
+  const flattenObject = (obj, parentKey = "", result = {}) => {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const newKey = parentKey ? `${parentKey}.${key}` : key;
+  
+        if (Array.isArray(obj[key])) {
+          // ✅ If it's an array (likely yearly data), store it directly as an array
+          result[newKey] = obj[key];
+        } else if (typeof obj[key] === "object" && obj[key] !== null) {
+          // ✅ Handle nested objects recursively
+          if (obj[key] instanceof File) {
+            result[newKey] = `File Attached: ${obj[key].name}`;
+          } else {
+            flattenObject(obj[key], newKey, result);
+          }
+        } else {
+          result[newKey] = obj[key] !== undefined && obj[key] !== null 
+            ? obj[key].toString()
+            : "";
+        }
+      }
+    }
+    return result;
+  };
+  
+  const handleExportData = () => {
+    if (!formData) return;
+  
+    // ✅ Flatten the object
+    const flattenedData = flattenObject(formData);
+  
+    // ✅ Separate Year-based data and normal data
+    const yearData = {};
+    const normalData = {};
+  
+    Object.keys(flattenedData).forEach((key) => {
+      if (Array.isArray(flattenedData[key])) {
+        yearData[key] = flattenedData[key];
+      } else {
+        normalData[key] = flattenedData[key];
+      }
+    });
+  
+    // ✅ Format Year-based data for Excel
+    const yearRows = [
+      ["Parameter", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"], // Header Row
+    ];
+  
+    Object.keys(yearData).forEach((key) => {
+      const row = [key, ...yearData[key]];
+      yearRows.push(row);
+    });
+  
+    // ✅ Format Normal Data for Excel
+    const normalRows = [["Key", "Value"]];
+    Object.keys(normalData).forEach((key) => {
+      normalRows.push([key, normalData[key]]);
+    });
+  
+    // ✅ Create workbook and add worksheets
+    const workbook = XLSX.utils.book_new();
+  
+    // ✅ Add year-based data to first sheet
+    const yearSheet = XLSX.utils.aoa_to_sheet(yearRows);
+    XLSX.utils.book_append_sheet(workbook, yearSheet, "Yearly Data");
+  
+    // ✅ Add normal data to second sheet
+    const normalSheet = XLSX.utils.aoa_to_sheet(normalRows);
+    XLSX.utils.book_append_sheet(workbook, normalSheet, "Other Data");
+  
+    // ✅ Save file
+    XLSX.writeFile(workbook, "exported-data.xlsx");
+  };
+  
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -146,6 +241,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
       </div>
 
       <div className="flex gap-5">
+        {/* ✅ Generate PDF Button */}
         <button
           onClick={() => window.open("/generated-pdf", "_blank")}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -153,11 +249,20 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           Generate PDF
         </button>
 
+        {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {isLoading ? "Loading..." : "Check Profit"}
+        </button>
+
+        {/* ✅ New Export Data Button */}
+        <button
+          onClick={handleExportData}
+          className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        >
+          Export Data
         </button>
       </div>
 
