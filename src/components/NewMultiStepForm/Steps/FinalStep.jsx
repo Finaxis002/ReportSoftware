@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
 const FinalStep = ({ formData, setCurrentStep }) => {
   const navigate = useNavigate();
@@ -94,6 +95,70 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     localStorage.setItem("lastStep", 8);
   };
 
+  // const handleExportData = () => {
+  //   const data = formData; // Assuming formData contains your data
+
+  //   // Convert data to JSON format
+  //   const jsonData = JSON.stringify(data, null, 2);
+  //   const blob = new Blob([jsonData], { type: "application/json" });
+
+  //   // Create a link and trigger download
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = "exported-data.json"; // File name for download
+  //   link.click();
+
+  //   // Cleanup
+  //   URL.revokeObjectURL(url);
+  // };
+
+  // ✅ Utility function to flatten nested objects
+  const flattenObject = (obj, parentKey = "", result = {}) => {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const newKey = parentKey ? `${parentKey}.${key}` : key;
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+          // ✅ If it's a File, convert it to string format
+          if (obj[key] instanceof File) {
+            result[newKey] = `File Attached: ${obj[key].name}`;
+          } else {
+            flattenObject(obj[key], newKey, result);
+          }
+        } else {
+          // ✅ Convert all values to string (handles undefined and null)
+          result[newKey] = obj[key] !== undefined && obj[key] !== null 
+            ? obj[key].toString()
+            : ""; // ✅ Empty string for null or undefined
+        }
+      }
+    }
+    return result;
+  };
+  
+  const handleExportData = () => {
+    if (!formData) return;
+  
+    // ✅ Flatten nested data
+    const flattenedData = flattenObject(formData);
+  
+    // ✅ Convert flattened object to array format
+    const dataArray = Object.keys(flattenedData).map((key) => ({
+      Key: key,
+      Value: flattenedData[key],
+    }));
+  
+    // ✅ Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataArray);
+  
+    // ✅ Create workbook and add worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Exported Data");
+  
+    // ✅ Write file
+    XLSX.writeFile(workbook, "exported-data.xlsx");
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -146,6 +211,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
       </div>
 
       <div className="flex gap-5">
+        {/* ✅ Generate PDF Button */}
         <button
           onClick={() => window.open("/generated-pdf", "_blank")}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -153,11 +219,20 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           Generate PDF
         </button>
 
+        {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {isLoading ? "Loading..." : "Check Profit"}
+        </button>
+
+        {/* ✅ New Export Data Button */}
+        <button
+          onClick={handleExportData}
+          className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        >
+          Export Data
         </button>
       </div>
 
