@@ -584,13 +584,7 @@ const CheckProfit = () => {
       {/* ✅ Corrected inline styles using spread operator */}
       <div className="p-20 pt-4 flex flex-col items-center w-full">
         <div className="">
-          <button
-            onClick={handleBack}
-            className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200"
-            style={{ marginRight: "66rem" }}
-          >
-            ← Back
-          </button>
+         
         </div>
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
 
