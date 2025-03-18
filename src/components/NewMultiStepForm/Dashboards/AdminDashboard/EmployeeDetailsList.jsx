@@ -121,9 +121,9 @@ const EmployeeDetailsList = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="flex flex-col h-[100vh]">
       {/* ✅ Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center my-4">
         <h2 className="text-xl font-semibold text-black">Employee List</h2>
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300"
@@ -137,7 +137,7 @@ const EmployeeDetailsList = () => {
       {showForm && <EmployeeRegistration setShowForm={setShowForm} />}
 
       {/* ✅ Employee Card Layout */}
-      <div className="flex align-middle justify-center">
+      <div className=" h-[70vh] flex align-middle justify-center">
         {isLoading ? (
           <div className="px-6 py-4 text-center">
             <LoadingSpinner />
