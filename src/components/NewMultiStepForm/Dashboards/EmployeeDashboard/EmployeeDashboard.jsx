@@ -57,7 +57,7 @@ const EmployeeDashboard = ({ userRole }) => {
   }, [navigate]);
 
   return (
-    <div className="app-container">
+    <div className="flex h-[100vh]">
       <MenuBar userRole={"employee"} />
 
       <div className="app-content">

@@ -36,7 +36,7 @@ const RatioAnalysis = ({
   onAssetsLiabilitiesSend,
   formatNumber,
   pdfType,
-  receivedtotalRevenueReceipts
+  receivedtotalRevenueReceipts,
 }) => {
   //  console.log(receivedTotalLiabilities)
 
@@ -460,16 +460,19 @@ const RatioAnalysis = ({
         </Text>
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear 
-  ? `${formData.ProjectReportSetting.FinancialYear}-${(parseInt(formData.ProjectReportSetting.FinancialYear) + 1).toString().slice(-2)}`
-  : "2025-26"}
-
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
         </Text>
       </View>
 
-        {/* Amount format */}
+      {/* Amount format */}
 
-        <View
+      <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -499,12 +502,20 @@ const RatioAnalysis = ({
               style={[
                 styles.serialNoCell,
                 styleExpenses.sno,
+                styleExpenses.fontBold,
                 { textAlign: "center" },
               ]}
             >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
@@ -911,18 +922,20 @@ const RatioAnalysis = ({
               </Text>
 
               {/* ✅ Display total Current Assets for each projection year */}
-              {CurrentAssetsArray.map((total, index) => 
-              (!hideFirstYear || index !== 0) && (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(total)} {/* ✅ Display Correct Total */}
-                </Text>
-              ))}
+              {CurrentAssetsArray.map(
+                (total, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(total)} {/* ✅ Display Correct Total */}
+                    </Text>
+                  )
+              )}
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
@@ -955,18 +968,18 @@ const RatioAnalysis = ({
 
               {/* ✅ Display Updated Current Liabilities */}
               {(receivedTotalLiabilities?.yearlyTotalLiabilities ?? []).map(
-                (total, index) => 
+                (total, index) =>
                   (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(total)} {/* ✅ Display Correct Total */}
-                  </Text>
-                )
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(total)} {/* ✅ Display Correct Total */}
+                    </Text>
+                  )
               )}
               <Text
                 style={[
@@ -1000,18 +1013,20 @@ const RatioAnalysis = ({
 
               {/* ✅ Access the nested array correctly */}
               {Array.isArray(cashProfitArray) &&
-                cashProfitArray.map((total, index) => 
-                  (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(total)} {/* ✅ Display Correct Total */}
-                  </Text>
-                ))}
+                cashProfitArray.map(
+                  (total, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={index}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(total)} {/* ✅ Display Correct Total */}
+                      </Text>
+                    )
+                )}
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
@@ -1021,14 +1036,8 @@ const RatioAnalysis = ({
             </View>
 
             {/* ✅ Total Cash Profit Calculation */}
-
             <View
-              style={[
-                stylesMOF.row,
-                styles.tableRow,
-                styleExpenses.totalRow,
-                { borderWidth: 1 },
-              ]}
+              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
             >
               <Text
                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
@@ -1054,6 +1063,7 @@ const RatioAnalysis = ({
                     fontFamily: "Roboto",
                     textAlign: "center",
                     borderRightWidth: 0,
+                    borderTopWidth: 1,
                   },
                 ]}
               >
@@ -1067,26 +1077,29 @@ const RatioAnalysis = ({
                 )}
               </Text>
               {Array.from({ length: projectionYears - 1 }).map(
-                (_, yearIndex) => (!hideFirstYear || yearIndex !== 0) && (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      {
-                        fontWeight: "bold",
-                        fontFamily: "Roboto",
-                        textAlign: "center",
-                        borderWidth: "0px",
-                      },
-                    ]}
-                  ></Text>
-                )
+                (_, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "bold",
+                          fontFamily: "Roboto",
+                          textAlign: "center",
+                          borderWidth: "0px",
+                          borderTopWidth: 1,
+                        },
+                      ]}
+                    ></Text>
+                  )
               )}
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  {borderLeftWidth:1}
                 ]}
               ></Text>
             </View>
@@ -1095,9 +1108,11 @@ const RatioAnalysis = ({
           {/* Calculation of Ratios */}
 
           <View>
-            <View style={[stylesMOF.row, styleExpenses.headerRow]}>
+            <View style={[stylesMOF.row]}>
               <Text style={[styleExpenses.sno]}></Text>
-              <Text style={stylesMOF.cell}>Calculation of Ratios</Text>
+              <Text style={[stylesMOF.cell, styleExpenses.fontBold, { textAlign: "center" }]}>
+                Calculation of Ratios
+              </Text>
             </View>
 
             <View>
@@ -1125,20 +1140,22 @@ const RatioAnalysis = ({
                 </Text>
 
                 {/* ✅ Display Ratio from the Stored Variable */}
-                {grossProfitSalesRatios.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`gp-sales-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      { paddingTop: "20px" },
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}%` : ratio}{" "}
-                    {/* Showing ratio as a percentage only if valid */}
-                  </Text>
-                ))}
+                {grossProfitSalesRatios.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`gp-sales-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          { paddingTop: "20px" },
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}%` : ratio}{" "}
+                        {/* Showing ratio as a percentage only if valid */}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1179,18 +1196,20 @@ const RatioAnalysis = ({
                 </Text>
 
                 {/* ✅ Display Ratio from the Stored Variable */}
-                {operatingProfitSalesRatios.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`op-sales-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}%` : ratio}
-                  </Text>
-                ))}
+                {operatingProfitSalesRatios.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`op-sales-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}%` : ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1226,18 +1245,20 @@ const RatioAnalysis = ({
                   Profit Before Tax / Sales Ratio
                 </Text>
                 {/* ✅ Display Ratio from the Stored Variable */}
-                {ProfitBeforeTaxRatios.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`op-pbt-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}%` : ratio}
-                  </Text>
-                ))}
+                {ProfitBeforeTaxRatios.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`op-pbt-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}%` : ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1274,18 +1295,20 @@ const RatioAnalysis = ({
                 </Text>
 
                 {/* ✅ Display Ratio from the Stored Variable */}
-                {netProfitSalesRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`np-pbt-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}%` : ratio}
-                  </Text>
-                ))}
+                {netProfitSalesRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`np-pbt-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}%` : ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1321,18 +1344,20 @@ const RatioAnalysis = ({
                   Net Profit / Net Worth Ratio
                 </Text>
 
-                {netProfitNetWorthRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`np-nw-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}%` : ratio}
-                  </Text>
-                ))}
+                {netProfitNetWorthRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`np-nw-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}%` : ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1368,18 +1393,20 @@ const RatioAnalysis = ({
                   Debt-Equity Ratio
                 </Text>
 
-                {deptEqualityRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={`dept-equality-ratio-${index}`}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio !== "-" ? `${ratio}` : ratio}
-                  </Text>
-                ))}
+                {deptEqualityRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={`dept-equality-ratio-${index}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio !== "-" ? `${ratio}` : ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1415,18 +1442,20 @@ const RatioAnalysis = ({
                   Total Outside Liabilities / Total Net Worth
                 </Text>
 
-                {totalOutsideLiabilitiesNetWorthRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio}
-                  </Text>
-                ))}
+                {totalOutsideLiabilitiesNetWorthRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={index}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1462,18 +1491,20 @@ const RatioAnalysis = ({
                   Net Worth / Total Liabilities
                 </Text>
 
-                {netWorthTotalLiabilitiesRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio}
-                  </Text>
-                ))}
+                {netWorthTotalLiabilitiesRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={index}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1563,18 +1594,20 @@ const RatioAnalysis = ({
                   Current Ratio
                 </Text>
 
-                {currentRatio.map((ratio, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {ratio}
-                  </Text>
-                ))}
+                {currentRatio.map(
+                  (ratio, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={index}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {ratio}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,
@@ -1608,18 +1641,20 @@ const RatioAnalysis = ({
                   Return on Investment
                 </Text>
 
-                {returnOnInvestment.map((roi, index) => 
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {roi === "-" ? roi : `${roi}%`}
-                  </Text>
-                ))}
+                {returnOnInvestment.map(
+                  (roi, index) =>
+                    (!hideFirstYear || index !== 0) && (
+                      <Text
+                        key={index}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {roi === "-" ? roi : `${roi}%`}
+                      </Text>
+                    )
+                )}
                 <Text
                   style={[
                     stylesCOP.particularsCellsDetail,

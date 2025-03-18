@@ -314,10 +314,24 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.serialNoCell, styleExpenses.sno]}>
+              <Text
+                style={[
+                  styles.serialNoCell,
+                  styleExpenses.sno,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
                 S. No.
               </Text>
-              <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.particularWidth,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
                 Particulars
               </Text>
 
@@ -804,7 +818,7 @@ const ProjectedExpenses = ({
               ))}
           </View>
 
-{/* blank row */}
+          {/* blank row */}
           <View style={[styles.tableRow, styles.totalRow]}>
             {/* Serial Number */}
             <Text
@@ -813,9 +827,7 @@ const ProjectedExpenses = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
               ]}
-            >
-              
-            </Text>
+            ></Text>
 
             <Text
               style={[
@@ -823,9 +835,7 @@ const ProjectedExpenses = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
               ]}
-            >
-              
-            </Text>
+            ></Text>
 
             {/* Get total projection years */}
             {Array.from({
@@ -842,17 +852,13 @@ const ProjectedExpenses = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                   ]}
-                >
-                 
-                </Text>
+                ></Text>
               );
             })}
           </View>
 
           {/* ✅ Total (A + B) - Combined Direct and Indirect Expenses */}
-          <View
-            style={[styles.tableRow, styles.totalRow]}
-          >
+          <View style={[styles.tableRow, styles.totalRow]}>
             <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
@@ -863,9 +869,6 @@ const ProjectedExpenses = ({
             >
               Total Expenses(A + B)
             </Text>
-
-
-            
 
             {/* ✅ Display the combined total for each year */}
             {totalExpensesArray

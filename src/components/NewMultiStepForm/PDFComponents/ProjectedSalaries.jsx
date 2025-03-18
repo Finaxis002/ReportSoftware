@@ -161,7 +161,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               styles.Total,
-              {},
+              {textAlign:"left"},
             ]}
           >
             Total
@@ -205,7 +205,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
-              { fontSize: "9px" },
+              {paddingHorizontal:"1px" },
             ]}
           >
             Add: Fringe Benefits @ 5 %
@@ -256,7 +256,6 @@ const ProjectedSalaries = ({
               {
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                fontSize: "10px",
                 paddingVertical: "6px",
               },
             ]}

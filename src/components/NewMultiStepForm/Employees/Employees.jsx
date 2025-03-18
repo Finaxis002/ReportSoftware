@@ -30,7 +30,7 @@ const Employees = () => {
     }
   };
   return (
-    <div className="app-container">
+    <div className="flex h-[100vh]">
       {renderMenuBar()}
 
       <div className="app-content">

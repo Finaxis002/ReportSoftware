@@ -11,6 +11,7 @@ const Reports = ({ sendPdfData }) => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
+  const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
 
   // Fetch reports when the component mounts
 
@@ -68,28 +69,10 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-  // ✅ Handle Update Action after Editing
 
-  // const handleDownload = async (sessionId) => {
-  //   try {
-  //     const response = await fetch(
-  //       `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
-  //     );
-  //     if (!response.ok) throw new Error("Failed to fetch report data");
+  // ✅ Handle Download and Store Report Data
+  const handleDownload = async (sessionId) => {
 
-  //     const reportData = await response.json() || {};
-
-  //     console.log("✅ Report Data Fetched:", reportData);
-  //     sendPdfData(reportData);
-
-  //     // ✅ Navigate to the /generated-pdf route and pass data as state
-  //     navigate("/generated-pdf", { state: { reportData } });
-  //   } catch (error) {
-  //     console.error("❌ Error downloading PDF:", error);
-  //     alert(`Error fetching report data: ${error.message}`);
-  //   }
-  // };
-  const handleDownload = useCallback(async (sessionId) => {
     try {
       const response = await fetch(
         `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
@@ -100,31 +83,24 @@ const Reports = ({ sendPdfData }) => {
       const reportData = (await response.json()) || {};
   
       console.log("✅ Report Data Fetched:", reportData);
-  
-      if (!reportData || Object.keys(reportData).length === 0) {
-        throw new Error("No data available for this report");
-      }
-  
-      const sanitizedData = {
-        AccountInformation: reportData?.AccountInformation || {},
-        ProjectReportSetting: reportData?.ProjectReportSetting || {},
-        MeansOfFinance: reportData?.MeansOfFinance || {},
-        MoreDetails: reportData?.MoreDetails || {},
-        totalDepreciationPerYear: reportData?.totalDepreciationPerYear || [],
-        netProfitBeforeTax: reportData?.netProfitBeforeTax || [],
-        yearlyPrincipalRepayment: reportData?.yearlyPrincipalRepayment || [],
-        yearlyInterestLiabilities: reportData?.yearlyInterestLiabilities || [],
-        financialYearLabels: reportData?.financialYearLabels || [],
-      };
-  
-      sendPdfData(sanitizedData);
-      navigate("/generated-pdf", { state: { reportData: sanitizedData } });
+
+
+      // ✅ Send to parent (if needed for other logic)
+      sendPdfData(reportData);
+
+      console.log("📤 Sent PDF Data to Parent:", reportData);
+
+      // ✅ Pass data directly in state when navigating
+      navigate("/generated-pdf", { state: { reportData } });
+
     } catch (error) {
       console.error("❌ Error downloading PDF:", error);
       alert(`Error fetching report data: ${error.message}`);
     }
   }, [navigate, sendPdfData]);
   
+
+  // ✅ Handle Update Action after Editing
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state

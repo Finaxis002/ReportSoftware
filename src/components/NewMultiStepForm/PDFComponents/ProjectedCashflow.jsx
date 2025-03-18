@@ -192,7 +192,7 @@ const ProjectedCashflow = ({
   //       index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
   //     const bankTermLoan =
   //       index === 0
-  //         ? parseFloat(formData.MeansOfFinance.termLoan.termLoan || 0)
+  //         ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
   //         : 0;
   //     const workingCapitalLoan =
   //       index === 0
@@ -232,10 +232,11 @@ const ProjectedCashflow = ({
       //   0
       // ) || 0;
       const currentLiabilitiesTotal =
-  (formData?.MoreDetails?.currentLiabilities || []).reduce(
-    (sum, liability) => sum + (liability?.years?.[index] || 0),
-    0
-  );
+
+        formData?.MoreDetails?.currentLiabilities?.reduce(
+          (sum, liability) => sum + (liability.years?.[index] || 0),
+          0
+        ) || 0;
 
 
       // ✅ Sum up all sources including newly added liabilities
@@ -249,7 +250,6 @@ const ProjectedCashflow = ({
       );
     }
   );
-
 
   const totalUsesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -266,17 +266,15 @@ const ProjectedCashflow = ({
         index
       );
       const withdrawals = parseFloat(
-        formData.MoreDetails?.withdrawals?.[index] || 0
+        formData?.MoreDetails?.withdrawals?.[index] || 0
       );
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
 
       // ✅ Ensuring Projection Years Match for Current Assets
-      // const currentAssetsTotal = formData.MoreDetails.currentAssets.reduce(
-      //   (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
-      //   0
-      // );
-      const currentAssetsTotal = (formData?.MoreDetails?.currentAssets || []).reduce(
-        (sum, asset) => sum + (asset.years?.[index] ?? 0),
+
+      const currentAssetsTotal = formData?.MoreDetails?.currentAssets?.reduce(
+        (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
+
         0
       );
       
@@ -498,12 +496,20 @@ const ProjectedCashflow = ({
               style={[
                 styles.serialNoCell,
                 styleExpenses.sno,
+                styleExpenses.fontBold,
                 { textAlign: "center" },
               ]}
             >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
@@ -644,7 +650,7 @@ const ProjectedCashflow = ({
                 >
                   {/* {formatNumber(
                     index === 0
-                      ? formData.MeansOfFinance.termLoan.termLoan || "-"
+                      ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
                       : "0"
                   )} */}
                   {formatNumber(

@@ -44,7 +44,9 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
     e.preventDefault();
   
     try {
-      const response = await axios.post("https://backend-three-pink.vercel.app/api/employees/register", formData);
+
+      const response = await axios.post("https://backend-three-pink.vercel.app//api/employees/register", formData);
+
       console.log(response.data);
       setMessage("Employee added successfully");
       setFormData({

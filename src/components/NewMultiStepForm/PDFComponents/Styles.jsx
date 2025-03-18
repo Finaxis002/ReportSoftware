@@ -43,6 +43,10 @@ Font.register({
 
 
 const styles = StyleSheet.create({
+
+  Width60:{
+    width:"60%"
+  },
   text:{
     fontFamily:"TimesNewRoman",
   },
@@ -126,7 +130,7 @@ const styles = StyleSheet.create({
   serialNoCell: {
     width: "20%",
     padding: 3,
-    fontSize: 10,
+    fontSize: "10px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontSize: 10,
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
     textAlign:"center"
   },
@@ -144,7 +148,7 @@ const styles = StyleSheet.create({
     width: "5%",
     padding: 3,
     fontFamily:"TimesNewRoman",
-    fontSize: 10,
+    fontSize: "10px",
   },
   detailsCell: {
     width: "65%",
@@ -152,8 +156,8 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontSize: 10,
     fontFamily:"TimesNewRoman",
+    fontSize:"10px"
   },
   partnersSection: {
     marginTop: 16,
@@ -168,42 +172,42 @@ const styles = StyleSheet.create({
   partnerCell: {
     width: "25%",
     padding: 3,
-    borderLeft: "1px solid #8a8b91",
-    fontSize: 10,
+    borderLeft: "1px solid #000",
+    fontSize: "10px",
     color: "#fff",
     fontFamily:"TimesNewRoman",
   },
   serialNoCellDetail: {
     width: "20%",
     padding: 3,
-    borderRight: "1px solid #8a8b91",
-    borderBottom: "1px solid #8a8b91",
-    fontSize: 10,
+    borderRight: "1px solid #000",
+    borderBottom: "1px solid #000",
+    fontSize: "10px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
   particularsCellsDetail: {
     width: "30%",
     padding: 3,
-    borderBottom: "1px solid #8a8b91",
-    fontSize: 10,
+    borderBottom: "1px solid #000",
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
-    textAlign:"center"
+    textAlign:"center",
   },
   separatorCellDetail: {
     width: "5%",
     padding: 3,
-    borderLeft: "1px solid #8a8b91",
-    borderRight: "1px solid #8a8b91",
-    borderBottom: "1px solid #8a8b91",
-    fontSize: 10,
+    borderLeft: "1px solid #000",
+    borderRight: "1px solid #000",
+    borderBottom: "1px solid #000",
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
     width: "65%",
     padding: 3,
-    borderBottom: "1px solid #8a8b91",
-    fontSize: 10,
+    borderBottom: "1px solid #000",
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   partnerCellDetail: {
@@ -212,7 +216,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontSize: 10,
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   pdfViewer: {
@@ -258,20 +262,20 @@ const stylesMOF = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    borderBottom: "1px solid #9CA3AF",
+    borderBottom: "1px solid #000",
     fontFamily:"TimesNewRoman",
   },
   cell: {
     flex: 1,
     padding: 4,
-    borderRight: "1px solid #9CA3AF",
-    fontSize: 10,
+    borderRight: "1px solid #000",
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   Snocell: {
     padding: 4,
-    borderRight: "1px solid #9CA3AF",
-    fontSize: 10,
+    borderRight: "1px solid #000",
+    fontSize: "10px",
     paddingHorizontal: 20,
     width: 50,
     fontFamily:"TimesNewRoman",
@@ -362,7 +366,7 @@ const stylesCOP = StyleSheet.create({
     width: "20%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: 10,
+    fontSize: "10px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
@@ -370,32 +374,33 @@ const stylesCOP = StyleSheet.create({
     width: "30%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: 10,
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
     textAlign:"center"
   },
   separatorCellDetail: {
     width: "5%",
     padding: 3,
-    borderLeft: "1px solid #8a8b91",
-    borderRight: "1px solid #8a8b91",
-    borderBottom: "1px solid #8a8b91",
-    fontSize: 10,
+    borderLeft: "1px solid #000",
+    borderRight: "1px solid #000",
+    borderBottom: "1px solid #000",
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
     width: "65%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: 10,
+    fontSize: "10px",
     paddingLeft: 10,
     fontFamily:"TimesNewRoman",
+    fontSize:"10px"
   },
   boldText: {
     border: "1.2px solid #000",
     borderLeft: "none",
     fontWeight: "extrabold",
-    fontSize:"9px",
+    fontSize:"10px",
     fontFamily:"TimesNewRoman",
   },
 
@@ -439,7 +444,7 @@ const styleExpenses = StyleSheet.create({
   },
   sno: {
     width: 100,
-    fontSize: 10,
+    fontSize: "10px",
     paddingLeft: 10,
     paddingTop: 5,
     textAlign:"center",
@@ -451,7 +456,7 @@ const styleExpenses = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   fontSmall: {
-    fontSize: 8,
+    fontSize: "10px",
     fontFamily:"TimesNewRoman",
   },
   paddingx: {
@@ -474,4 +479,48 @@ const columnWidths = {
   totalRepayment: { width: "120px", textAlign: "center" },
 };
 
-export { styles, stylesMOF, stylesCOP, styleExpenses, columnWidths };
+
+const stylesRepayment = {
+  heading: {
+    fontSize: 18,
+    fontWeight: "bold",
+    paddingVertical: 10,
+    color: "#000", // Black text
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#002F5F", // Dark blue background
+    paddingVertical: 10,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  tableCellHeader: {
+    color: "#ffffff", // White text
+    fontWeight: "bold",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontSize: 12,
+    textAlign: "center",
+    flex: 1,
+    borderRightWidth: 1,
+    borderColor: "#ffffff", // White borders inside header
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#f9f9f9", // Light gray background for rows
+  },
+  tableCell: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontSize: 12,
+    textAlign: "center",
+    flex: 1,
+    borderRightWidth: 1,
+    borderColor: "#ccc", // Gray borders inside row
+  },
+};
+
+
+export { styles, stylesMOF, stylesCOP, styleExpenses, columnWidths , stylesRepayment };

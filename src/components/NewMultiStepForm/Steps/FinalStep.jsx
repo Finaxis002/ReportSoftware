@@ -9,6 +9,8 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
 
   // ✅ Default to "" (empty) if nothing is selected, ensuring "Select Report Type" appears first
   const [selectedOption, setSelectedOption] = useState("select option");
+  const [isLoading, setIsLoading] = useState(false); // ✅ Loader state
+  
 
   const iframeRef = useRef(null);
   console.log("selected Option", selectedOption);
@@ -28,68 +30,56 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
     }
   }, [selectedOption]);
 
-  // Function to check when iframe has loaded
+  // ✅ Function to handle iframe load
   const handleIframeLoad = () => {
-    console.log("Generated PDF is fully loaded.");
+    console.log("✅ PDF Loaded Successfully");
     setIsPDFLoaded(true);
+    setIsLoading(false); // ✅ Stop loading once PDF is loaded
+
+    // ✅ Small delay before navigating
+    setTimeout(() => {
+      navigate("/checkprofit");
+    }, 10000);
   };
 
-  // When PDF is loaded, navigate to Check Profit
-  useEffect(() => {
-    if (isPDFLoaded) {
-      setTimeout(() => {
-        navigate("/checkprofit");
-      }, 500); // Small delay to ensure correct navigation
-    }
-  }, [isPDFLoaded, navigate]);
 
+
+  // ✅ Function to trigger loading and PDF generation
   const handleCheckProfit = () => {
+    console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
+    setIsLoading(true);
+  
     if (iframeRef.current) {
-      iframeRef.current.src = "/generated-pdf"; // Load PDF in the background
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+  
+      // ✅ Fallback with setTimeout after 15 seconds
+      const timeoutId = setTimeout(() => {
+        console.log("⏳ Navigating after timeout...");
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+        navigate("/checkprofit");
+      }, 15000); // 15 seconds timeout
+  
+      // ✅ Trigger earlier if PDF loads before timeout
+      iframeRef.current.onload = () => {
+        console.log("✅ PDF Loaded Successfully");
+        clearTimeout(timeoutId); // ✅ Clear timeout if PDF loads first
+        setIsPDFLoaded(true);
+        setIsLoading(false);
+  
+        // ✅ Add a small delay (2-3 seconds) to account for any rendering lag
+        setTimeout(() => {
+          console.log("🚀 Navigating after short delay...");
+          navigate("/checkprofit");
+        }, 3000); // 3 seconds delay after loading
+      };
     }
     localStorage.setItem("lastStep", currentStep);
   navigate("/checkprofit");
   };
-
-  // const savePdfDataToDB = async () => {
-  //   try {
-  //     // ✅ Prepare data to send to backend
-  //     const dataToSave = {
-  //       AccountInformation: formData?.AccountInformation || {},
-  //       MeansOfFinance: formData?.MeansOfFinance || {},
-  //       CostOfProject: formData?.CostOfProject || {},
-  //       ProjectReportSetting: formData?.ProjectReportSetting || {},
-  //       Expenses: formData?.Expenses || {},
-  //       Revenue: formData?.Revenue || {},
-  //       MoreDetails: formData?.MoreDetails || {},
-  //     };
-
-  //     console.log("🚀 Saving PDF data to DB:", dataToSave);
-
-  //     const response = await fetch("http://localhost:5000/save-pdf-data", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ data: dataToSave }),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (response.ok) {
-  //       console.log("✅ PDF data saved successfully:", result);
-  //       alert(`PDF data saved successfully with sessionId: ${result.sessionId}`);
-  //     } else {
-  //       console.error("❌ Error saving PDF data:", result.error);
-  //       alert("Failed to save PDF data. Please try again.");
-  //     }
-  //   } catch (error) {
-  //     console.error("🔥 Error:", error);
-  //     alert("An error occurred while saving PDF data.");
-  //   }
-  // };
-
+  
+  
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -153,7 +143,6 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
       </div>
 
       <div className="flex gap-5">
-        {/* ✅ Open Generate PDF in new tab */}
         <button
           onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -161,17 +150,11 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
           Generate PDF
         </button>
 
-        {/* ✅ Open Check Profit in new tab */}
         <button
-          onClick={() => {
-            const profitUrl = handleCheckProfit(); // ✅ Call the function and get the result (if it's a URL)
-            if (profitUrl) {
-              window.open(profitUrl, "_blank"); // ✅ Open the result in a new tab
-            }
-          }}
+          onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          Check Profit
+          {isLoading ? "Loading..." : "Check Profit"}
         </button>
       </div>
 

@@ -62,19 +62,20 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           alignItems: "flex-end",
         }}
       >
-        <Text style={[styles.AmountIn , styles.italicText]}>
+        <Text style={[styles.AmountIn, styles.italicText]}>
           (Amount In{" "}
           {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
             ? "Rs" // ✅ Convert "rupees" to "Rs"
-            : formData?.ProjectReportSetting?.AmountIn?.value}.)
+            : formData?.ProjectReportSetting?.AmountIn?.value}
+          .)
         </Text>
       </View>
 
       <Text style={styles.title}>Means of Finance</Text>
 
-      <View style={[{ border: "1px solid #000", padding: "0px" }]}>
+      <View style={[{ border: "1px solid #000", paddingBottom:0, marginBottom:0 }]}>
         {/* First Table */}
-        <View style={stylesMOF.table}>
+        <View style={[stylesMOF.table, {paddingBottom:0 ,marginBottom:0}]}>
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
@@ -83,10 +84,20 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               { marginTop: "0px" },
             ]}
           >
-            <Text style={stylesMOF.Snocell}>S.No.</Text>
-            <Text style={stylesMOF.cell}>Particulars</Text>
+            <Text style={[stylesMOF.Snocell, stylesMOF.boldCell]}>Sr.No.</Text>
+            <Text style={[stylesMOF.cell, stylesMOF.boldCell]}>
+              Particulars
+            </Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell , {textAlign:"center"}]}>Amount</Text>
+            <Text
+              style={[
+                stylesMOF.cell,
+                stylesMOF.boldCell,
+                { textAlign: "center" },
+              ]}
+            >
+              Amount
+            </Text>
           </View>
 
           <View
@@ -96,19 +107,21 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               styles.noBorder,
             ]}
           >
-            <Text style={stylesMOF.Snocell}>1</Text>
-            <Text style={stylesMOF.cell}>Towards Setting-up of Business</Text>
+            <Text style={[stylesMOF.Snocell, stylesMOF.boldCell]}>1</Text>
+            <Text style={[stylesMOF.cell, stylesMOF.boldCell ]}>
+              Towards Setting-up of Business
+            </Text>
           </View>
 
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={stylesMOF.Snocell}>a.</Text>
-            <Text style={stylesMOF.cell}>Promoter's Contribution</Text>
+            <Text style={[stylesMOF.cell  ]}>Promoter's Contribution</Text>
             <Text style={stylesMOF.cell}>
               {`${
                 formData?.MeansOfFinance?.TLPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={[stylesMOF.cell , {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(
                 formData?.MeansOfFinance?.termLoan?.promoterContribution || 0
               )}
@@ -117,11 +130,11 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
 
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={stylesMOF.Snocell}>b.</Text>
-            <Text style={stylesMOF.cell}>Term Loan from Bank</Text>
+            <Text style={[stylesMOF.cell  ]}>Term Loan from Bank</Text>
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.TLTermLoanPercent || 0}%`}
             </Text>
-            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(formData?.MeansOfFinance?.termLoan?.termLoan || 0)}
             </Text>
           </View>
@@ -129,10 +142,22 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total ]}>Total</Text>
+            <Text
+              style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
+            >
               {formatNumber(formData?.MeansOfFinance?.totalTermLoan || 0)}
             </Text>
+          </View>
+
+          {/* Blank Row  */}
+          <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
+            <Text style={stylesMOF.Snocell}></Text>
+            <Text style={[stylesMOF.cell ]}></Text>
+            <Text style={[stylesMOF.cell, stylesMOF.total]}></Text>
+            <Text
+              style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
+            ></Text>
           </View>
 
           <View
@@ -140,6 +165,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               [stylesMOF.row, styles.noBorder],
               stylesMOF.headerRow,
               styles.noBorder,
+              { marginTop: 0 },
             ]}
           >
             <Text style={[stylesMOF.Snocell, stylesMOF.boldCell]}>2</Text>
@@ -156,7 +182,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
                 formData?.MeansOfFinance?.WCPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={[stylesMOF.cell , {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(
                 formData?.MeansOfFinance?.workingCapital
                   ?.promoterContribution || 0
@@ -170,7 +196,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.WCTermLoanPercent || 0}%`}
             </Text>
-            <Text style={[stylesMOF.cell,{textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(
                 formData?.MeansOfFinance?.workingCapital?.termLoan || 0
               )}
@@ -180,20 +206,32 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell]}>
+              Total
+            </Text>
+            <Text
+              style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
+            >
               {formatNumber(formData?.MeansOfFinance?.totalWorkingCapital || 0)}
             </Text>
           </View>
-        </View>
 
-        {/* Second Table */}
-        <View style={[stylesMOF.table, { marginBottom: 0 }]}>
+          {/* Blank Row  */}
+          <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
+            <Text style={stylesMOF.Snocell}></Text>
+            <Text style={stylesMOF.cell}></Text>
+            <Text style={[stylesMOF.cell, stylesMOF.total]}></Text>
+            <Text
+              style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
+            ></Text>
+          </View>
+
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
               stylesMOF.headerRow,
               styles.noBorder,
+              { marginTop: 0 },
             ]}
           >
             <Text style={stylesMOF.Snocell}></Text>
@@ -208,7 +246,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
                 formData?.MeansOfFinance?.TotalPromoterContributionPercent || 0
               }%`}
             </Text>
-            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
             </Text>
           </View>
@@ -219,24 +257,21 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={stylesMOF.cell}>
               {`${formData?.MeansOfFinance?.TotalTermLoanPercent || 0}%`}
             </Text>
-            <Text style={[stylesMOF.cell, {textAlign:"right"}]}>
+            <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
               {formatNumber(formData?.MeansOfFinance?.totalTL || 0)}
             </Text>
           </View>
 
-          <View
-            style={[
-              stylesMOF.row,
-              styles.noBorder,
-              stylesMOF.totalRow,
-              { marginBottom: "0px" },
-            ]}
-          >
+          <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={stylesMOF.Snocell}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total]}>Total</Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total, {textAlign:"right"}]}>
-              {formatNumber(formData?.MeansOfFinance?.total || 0)}
+            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell]}>
+              Total
+            </Text>
+            <Text
+              style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
+            >
+               {formatNumber(formData?.MeansOfFinance?.total || 0)}
             </Text>
           </View>
         </View>

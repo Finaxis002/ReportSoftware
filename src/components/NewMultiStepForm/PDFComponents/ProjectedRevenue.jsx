@@ -143,13 +143,26 @@ const ProjectedRevenue = ({
         <View style={[styles.table]}>
           {/* ✅ Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
+            <Text
+              style={[
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               S. No.
             </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth]}>
+            <Text
+              style={[
+                styles.detailsCell,
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
               Particulars
             </Text>
-
             {/* ✅ Generate Dynamic Year Headers, skipping first year if needed */}
             {adjustedFinancialYearLabels.map((yearLabel, yearIndex) => (
               <Text
@@ -259,7 +272,10 @@ const ProjectedRevenue = ({
         {/* ✅ Compute & Display Revenue Based on formType */}
         <View style={[stylesMOF.row, styleExpenses.totalRow]}>
           <Text
-            style={[stylesCOP.serialNoCellDetail, { borderBottomWidth: "0px", borderLeftWidth:"1px" }]}
+            style={[
+              stylesCOP.serialNoCellDetail,
+              { borderBottomWidth: "0px", borderLeftWidth: "1px" },
+            ]}
           ></Text>
 
           {/* ✅ Conditional Label Based on formType */}
