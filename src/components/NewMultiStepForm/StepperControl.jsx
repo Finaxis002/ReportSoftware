@@ -97,14 +97,6 @@ const StepperControl = ({
       
       )}
 
-      {/* {!isCreateReportClicked && !isUpdateReportClicked && (
-        <button
-          onClick={handleCreateNewFromExisting}
-          className="btn btn-primary"
-        >
-          Create New Report from Existing
-        </button>
-      )} */}
     </div>
   );
 };

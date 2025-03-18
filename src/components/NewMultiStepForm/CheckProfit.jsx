@@ -17,7 +17,7 @@ const CheckProfit = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    const lastStep = parseInt(localStorage.getItem("lastStep")) || 1; // ✅ Parse and set fallback
+    const lastStep = parseInt(localStorage.getItem("lastStep")) || 8; // ✅ Parse and set fallback
     console.log(`🔄 Navigating back to step: ${lastStep}`);
     navigate(`/MultistepForm?step=${lastStep}`);
   };
