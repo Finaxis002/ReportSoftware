@@ -5,9 +5,6 @@ import useStore from "./useStore";
 import {useNavigate} from "react-router-dom";
 
 const CheckProfit = () => {
-
-  const navigateTo = useNavigate();
-
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
@@ -46,16 +43,6 @@ const CheckProfit = () => {
 
   console.log("generated PDf DAta", storedData);
 
-<<<<<<<<< Temporary merge branch 1
-=========
-  const handleBack = () => {
-    const lastStep = localStorage.getItem("lastStep") || 8;
-    navigate(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
-  };
-  
-  
-
->>>>>>>>> Temporary merge branch 2
   const storedProfitabilityData = JSON.parse(
     localStorage.getItem("storedProfitabilityData")
   );
@@ -608,77 +595,7 @@ const CheckProfit = () => {
         </button>
         
       </div>
-<<<<<<<<< Temporary merge branch 1
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
-=========
-      <h2 className="text-3xl font-bold">Profit Statements</h2>
-        {/* <h2 className="text-3xl font-bold mb-4">Profit Statements</h2> */}
-        <div style={{ scale: "0.9" }}>
-          <div className="w-full">
-            {/* Profit Statement Heading */}
-            <div className="bg-blue-950 text-white text-center py-2 text-sm">
-              PROJECTED PROFITABILITY STATEMENT
-            </div>
-
-            <table
-              className="w-full  mt-3"
-              style={{ borderCollapse: "collapse" }}
-            >
-              <thead>
-                <tr className="bg-blue-950 text-white">
-                  <th className="border border-black px-2 py-2 w-16 text-center font-normal text-sm">
-                    S. No.
-                  </th>
-                  <th className="border border-black px-2 py-2 text-left font-normal text-sm">
-                    Particulars
-                  </th>
-                  {financialYearLabels.map((yearLabel, yearIndex) => (
-                    <th
-                      key={yearIndex}
-                      className="border border-black px-2 py-2 text-center font-normal text-sm"
-                    >
-                      {yearLabel}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {/* Revenue Receipt  */}
-                <tr className=" font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    A
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left font-normal text-sm">
-                    Total Revenue Receipt
-                  </td>
-
-                  {/* ✅ Display revenue values based on projectionYears */}
-                  {storedData?.totalRevenueReceipts
-                    ?.slice(0, projectionYears)
-                    .map((totalYearValue, yearIndex) => (
-                      <td
-                        key={yearIndex}
-                        className="border border-black px-4 py-2 text-center font-normal text-sm"
-                      >
-                        {formatNumber(totalYearValue)}
-                      </td>
-                    ))}
-                </tr>
-                {/* Closing Stock / Inventory */}
-                <tr className="font-normal text-sm border-0 mt-2">
-                  <td className="border border-black px-4 py-2 text-center font-normal text-sm">
-                    B
-                  </td>
-                  <td className="border border-black px-4 py-2 font-normal text-sm text-left w-1/3">
-                    Add: Closing Stock / Inventory
-                  </td>
-                  </tr>
-                  </tbody>
-
-                  </table>
-
->>>>>>>>> Temporary merge branch 2
 
         <div className="w-full">
           {/* Profit Statement Heading */}
@@ -1784,8 +1701,6 @@ const CheckProfit = () => {
 
       {/* <pre>{JSON.stringify(profitabilityData, null, 2)}</pre>
       <pre>{JSON.stringify(storedData, null, 2)}</pre> */}
-    </div>
-    </div>
     </div>
   );
 };
