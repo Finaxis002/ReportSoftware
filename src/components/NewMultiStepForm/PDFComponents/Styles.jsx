@@ -85,6 +85,22 @@ const styles = StyleSheet.create({
     fontFamily: "TimesNewRoman",
     fontWeight: "extrabold",
   },
+  caName: {
+    fontWeight: "bold",
+    textAlign: "right",
+  },
+  membershipNumber: {
+    fontWeight: "normal",
+    textAlign: "right",
+  },
+  udinNumber: {
+    fontWeight: "normal",
+    textAlign: "right",
+  },
+  mobileNumber: {
+    fontWeight: "normal",
+    textAlign: "right",
+  },
   page: {
     fontFamily:"TimesNewRoman",
     flexDirection: "column",

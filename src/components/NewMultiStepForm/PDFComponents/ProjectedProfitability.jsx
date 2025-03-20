@@ -445,14 +445,14 @@ const ProjectedProfitability = ({
           <View
             style={{
               position: "absolute",
-              left: "50%", // Center horizontally
-              top: "50%", // Center vertically
-              width: 500, // Set width to 500px
-              height: 700, // Set height to 700px
-              marginLeft: -200, // Move left by half width (500/2)
-              marginTop: -350, // Move up by half height (700/2)
-              opacity: 0.4, // Light watermark
-              zIndex: -1, // Push behind content
+              left: "50%",
+              top: "50%",
+              width: 500,
+              height: 700,
+              marginLeft: -200,
+              marginTop: -350,
+              opacity: 0.4,
+              zIndex: -1,
             }}
           >
             <Image
@@ -475,7 +475,7 @@ const ProjectedProfitability = ({
         </Text>
       </View>
 
-      <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+      <View style={[styleExpenses.paddingx, { paddingBottom: "5px" }]}>
         <View
           style={[
             stylesCOP.heading,
@@ -1555,8 +1555,34 @@ const ProjectedProfitability = ({
         </View>
       </View>
 
+      <view>
+        <Text
+          style={[
+            {
+              fontSize: "8px",
+              paddingRight: "4px",
+              paddingLeft: "4px",
+              textAlign: "justify",
+            },
+          ]}
+        >
+          Guidance and assistance have been provided for the preparation of
+          these financial statements on the specific request of the promoter for
+          the purpose of availing finance for the business. These financial
+          statements are based on realistic market assumptions, proposed
+          estimates issued by an approved valuer, details provided by the
+          promoter, and rates prevailing in the market. Based on the examination
+          of the evidence supporting the assumptions, nothing has come to
+          attention that causes any belief that the assumptions do not provide a
+          reasonable basis for the forecast. These financials do not vouch for
+          the accuracy of the same, as actual results are likely to be different
+          from the forecast since anticipated events might not occur as
+          expected, and the variation might be material.
+        </Text>
+      </view>
+
       {/* businees name and Client Name  */}
-      <View
+      {/* <View
         style={[
           {
             display: "flex",
@@ -1574,11 +1600,84 @@ const ProjectedProfitability = ({
 
         <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
-
         </Text>
+      </View> */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "row", // ✅ Change to row
+            justifyContent: "space-between", // ✅ Align items left and right
+            alignItems: "center",
+            marginTop: 60,
+          },
+        ]}
+      >
+        
+
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop : 100 ,
+          }}
+        >
+          {/* ✅ CA Name (Conditional Display) */}
+          {formData?.ProjectReportSetting?.CAName?.value ? (
+            <Text style={[styles.caName, { fontSize: "10px", fontFamily: "Roboto", 
+              fontWeight: "bold" }]}>
+              CA {formData?.ProjectReportSetting?.CAName?.value}
+            </Text>
+          ) : null}
+
+          {/* ✅ Membership Number (Conditional Display) */}
+          {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+            <Text style={[styles.membershipNumber, { fontSize: "10px",fontFamily: "Roboto"
+              }]}>
+              M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
+            </Text>
+          ) : null}
+
+          {/* ✅ UDIN Number (Conditional Display) */}
+          {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+            <Text style={[styles.udinNumber, { fontSize: "10px",fontFamily: "Roboto"
+              }]}>
+              UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+            </Text>
+          ) : null}
+
+          {/* ✅ Mobile Number (Conditional Display) */}
+          {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+            <Text style={[styles.mobileNumber, { fontSize: "10px",fontFamily: "Roboto"
+              }]}>
+              Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+            </Text>
+          ) : null}
+        </View>
+
+
+        <View style={{ display: "flex", flexDirection: "column" ,gap: "80px",}}>
+          {/* ✅ Business Name */}
+          {formData?.AccountInformation?.businessName ? (
+            <Text style={[styles.businessName, { fontSize: "14px" }]}>
+              {formData?.AccountInformation?.businessName}
+            </Text>
+          ) : null}
+
+          {/* ✅ Business Owner */}
+          {formData?.AccountInformation?.businessOwner ? (
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner}
+            </Text>
+          ) : null}
+        </View>
       </View>
     </Page>
   );
 };
 
 export default React.memo(ProjectedProfitability);
+
+
+
