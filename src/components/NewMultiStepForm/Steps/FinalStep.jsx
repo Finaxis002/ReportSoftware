@@ -211,68 +211,92 @@ const FinalStep = ({ formData, setCurrentStep }) => {
   };
 
 
+
+
+
+
+  // new handle check proifit
+
   // const handleCheckProfit = () => {
   //   console.log("🚀 Triggering PDF Load...");
   //   setIsPDFLoaded(false);
   //   setIsLoading(true);
-
+  
+  //   // ✅ Open the tab immediately (to avoid browser popup blocking)
+  //   const newTab = window.open("checkprofit", "_blank"); 
+  
   //   if (iframeRef.current) {
   //     iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-
-  //     // ✅ Fallback with setTimeout after 15 seconds
+  
+  //     // ✅ Fallback timeout after 15 seconds
   //     timeoutId.current = setTimeout(() => {
-  //       if (isComponentMounted.current) {
-  //         console.log("⏳ Navigating after timeout...");
+  //       if (isComponentMounted.current && newTab) {
+  //         console.log("⏳ Navigating to checkprofit after timeout...");
   //         setIsPDFLoaded(true);
   //         setIsLoading(false);
-  //         navigate("/checkprofit");
+  //         newTab.location.href = "/checkprofit"; // ✅ Update URL in new tab
   //       }
   //     }, 15000);
-
+  
+  //     // ✅ Handle load event for early completion
   //     iframeRef.current.onload = () => {
   //       if (!isComponentMounted.current) return;
   //       console.log("✅ PDF Loaded Successfully");
-
+  
   //       clearTimeout(timeoutId.current);
   //       timeoutId.current = null;
   //       setIsPDFLoaded(true);
   //       setIsLoading(false);
-
+  
+  //       // ✅ Open /checkprofit in the new tab
   //       setTimeout(() => {
-  //         if (isComponentMounted.current) {
-  //           console.log("🚀 Navigating after short delay...");
-  //           navigate("/checkprofit");
+  //         if (isComponentMounted.current && newTab) {
+  //           console.log("🚀 Opening /checkprofit in new tab...");
+  //           newTab.location.href = "/checkprofit"; // ✅ Navigate in opened tab
   //         }
   //       }, 3000);
   //     };
   //   }
-
+  
   //   // ✅ Save last step to localStorage
   //   localStorage.setItem("lastStep", 8);
   // };
+  
   
   const handleCheckProfit = () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
   
-    // ✅ Open the tab immediately (to avoid browser popup blocking)
-    const newTab = window.open("about:blank", "_blank"); 
+    // ✅ Open the popup window with specific size and position
+    const popup = window.open(
+      "",
+      "popupWindow",
+      "width=800,height=600,left=200,top=200,resizable=no,scrollbars=yes"
+    );
+  
+    if (!popup) {
+      alert("Popup blocked. Please allow popups for this site.");
+      return;
+    }
   
     if (iframeRef.current) {
+      // ✅ Load the generated PDF
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
   
       // ✅ Fallback timeout after 15 seconds
       timeoutId.current = setTimeout(() => {
-        if (isComponentMounted.current && newTab) {
+        if (isComponentMounted.current && popup) {
           console.log("⏳ Navigating to checkprofit after timeout...");
           setIsPDFLoaded(true);
           setIsLoading(false);
-          newTab.location.href = "/checkprofit"; // ✅ Update URL in new tab
+  
+          // ✅ Open checkprofit in the popup window
+          popup.location.href = "/checkprofit";
         }
       }, 15000);
   
-      // ✅ Handle load event for early completion
+      // ✅ Handle iframe load for early completion
       iframeRef.current.onload = () => {
         if (!isComponentMounted.current) return;
         console.log("✅ PDF Loaded Successfully");
@@ -282,11 +306,11 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         setIsPDFLoaded(true);
         setIsLoading(false);
   
-        // ✅ Open /checkprofit in the new tab
+        // ✅ Navigate the popup window after PDF load
         setTimeout(() => {
-          if (isComponentMounted.current && newTab) {
-            console.log("🚀 Opening /checkprofit in new tab...");
-            newTab.location.href = "/checkprofit"; // ✅ Navigate in opened tab
+          if (isComponentMounted.current && popup) {
+            console.log("🚀 Opening checkprofit in popup...");
+            popup.location.href = "/checkprofit";
           }
         }, 3000);
       };
@@ -295,7 +319,6 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     // ✅ Save last step to localStorage
     localStorage.setItem("lastStep", 8);
   };
-  
   
   
 
