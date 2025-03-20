@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./View.css";
 import { Document, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import useStore from "./useStore";
@@ -31,11 +30,10 @@ import ProjectedBalanceSheet from "./PDFComponents/ProjectedBalanceSheet";
 import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
+import PromoterDetails from "./PDFComponents/PromoterDetails";
+import FinancialGraphs from "./PDFComponents/FinancialGraphs";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const GeneratedPDF = React.memo(({  }) => {
-  
+const GeneratedPDF = React.memo(({}) => {
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -93,11 +91,8 @@ const GeneratedPDF = React.memo(({  }) => {
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
 
-  
-
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
-
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
@@ -423,6 +418,22 @@ const GeneratedPDF = React.memo(({  }) => {
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
         />
+
+        <FinancialGraphs
+          formData={formData}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          localData={localData}
+          normalExpense={normalExpense}
+          totalAnnualWages={totalAnnualWages}
+          totalQuantity={totalQuantity}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          receivedDscr={dscr}
+          receivedAverageCurrentRatio={averageCurrentRatio}
+          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
+          receivedAssetsLiabilities={assetsliabilities}
+          pdfType={pdfType}
+        />
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
@@ -645,6 +656,12 @@ const GeneratedPDF = React.memo(({  }) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
+
+        <PromoterDetails
+          formData={formData}
+          pdfType={pdfType}
+          formatNumber={formatNumber}
+        />
       </Document>
     );
   }, [
@@ -662,22 +679,19 @@ const GeneratedPDF = React.memo(({  }) => {
     assetsliabilities,
   ]);
 
-  // for filling the form data silently 
-  
-useEffect(() => {
-  const reportData = location.state?.reportData;
-  const sessionId = location.state?.sessionId;
+  // for filling the form data silently
 
-  if (reportData && sessionId) {
-    console.log("📥 Received Data from Report:", reportData);
+  useEffect(() => {
+    const reportData = location.state?.reportData;
+    const sessionId = location.state?.sessionId;
 
-    // // ✅ Simulate form population
-    // populateForm(reportData);
-  }
-}, [location.state]);
+    if (reportData && sessionId) {
+      console.log("📥 Received Data from Report:", reportData);
 
-
-
+      // // ✅ Simulate form population
+      // populateForm(reportData);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     // ✅ Remove the default download button using CSS
@@ -694,64 +708,58 @@ useEffect(() => {
     };
   }, []);
 
-
-
-
   return (
-
     <div className="flex flex-col items-center justify-center min-h-screen">
-    {/* ✅ Loader Section */}
-    {isPDFLoading && (
-      <div className="flex items-center justify-center">
-        <svg
-          className="animate-spin h-12 w-12 text-indigo-600"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
-          />
-        </svg>
-        <span className="ml-2 text-gray-500 font-medium">Loading PDF...</span>
-      </div>
-    )}
-  
-    <BlobProvider document={memoizedPDF}>
-      {({ blob, url, loading }) => {
-        if (!loading) {
-          // ✅ Update state when PDF is fully loaded
-          setTimeout(() => setIsPDFLoading(false), 5000);
-        }
-        return !isPDFLoading ? (
-          <>
-            <PDFViewer
-              width="100%"
-              height="800"
-              style={{ overflow: "hidden" }}
-              showToolbar={userRole !== "client" && userRole !== "employee"}
-            >
-              {memoizedPDF}
-            </PDFViewer>
-  
-  
-            {/* ✅ Custom Download Button */}
-            <section className="h-[100vh]"></section>
-          </>
-        ) : null;
-      }}
-    </BlobProvider>
-  </div>
-  
+      {/* ✅ Loader Section */}
+      {isPDFLoading && (
+        <div className="flex items-center justify-center">
+          <svg
+            className="animate-spin h-12 w-12 text-indigo-600"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
+            />
+          </svg>
+          <span className="ml-2 text-gray-500 font-medium">Loading PDF...</span>
+        </div>
+      )}
+
+      <BlobProvider document={memoizedPDF}>
+        {({ blob, url, loading }) => {
+          if (!loading) {
+            // ✅ Update state when PDF is fully loaded
+            setTimeout(() => setIsPDFLoading(false), 5000);
+          }
+          return !isPDFLoading ? (
+            <>
+              <PDFViewer
+                width="100%"
+                height="800"
+                style={{ overflow: "hidden" }}
+                showToolbar={userRole !== "client" && userRole !== "employee"}
+              >
+                {memoizedPDF}
+              </PDFViewer>
+
+              {/* ✅ Custom Download Button */}
+              <section className="h-[100vh]"></section>
+            </>
+          ) : null;
+        }}
+      </BlobProvider>
+    </div>
   );
 });
 

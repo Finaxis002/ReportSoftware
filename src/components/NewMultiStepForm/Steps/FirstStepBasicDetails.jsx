@@ -12,6 +12,7 @@ const FirstStepBasicDetails = ({
 }) => {
   const [localData, setLocalData] = useState({
     clientName: formData?.AccountInformation?.clientName || "",
+    gender: formData?.AccountInformation?.gender || "",
     clientEmail: formData?.AccountInformation?.clientEmail || "",
     clientPhone: formData?.AccountInformation?.clientPhone || "",
     businessDescription:
@@ -209,6 +210,24 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="clientName">Client Name</label>
+            </div>
+
+            <div className="input w-full">
+              <select
+                className="form-control selectInput"
+                id="gender"
+                name="gender"
+                value={localData.gender || ""}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  Select Gender
+                </option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
             </div>
 
             <div className="input">
