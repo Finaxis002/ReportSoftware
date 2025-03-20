@@ -424,6 +424,7 @@ const FourthStepPRS = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const [key, subKey] = name.split(".");
 
     setLocalData((prevData) => {
       // ✅ Handle CA Name selection
@@ -473,55 +474,106 @@ const FourthStepPRS = ({
     });
   
     // ✅ Update parent state (onFormDataChange) with nested values
-    onFormDataChange((prevData) => {
+//     onFormDataChange((prevData) => {
 
-      if (name === "CAName" && CA_DETAILS[value]) {
+//       if (name === "CAName" && CA_DETAILS[value]) {
 
-        return {
-          ...prevData,
-          ProjectReportSetting: {
-            ...prevData.ProjectReportSetting,
+//         return {
+//           ...prevData,
+//           ProjectReportSetting: {
+//             ...prevData.ProjectReportSetting,
 
-            CAName: {
-              ...prevData.ProjectReportSetting.CAName,
-              value,
-            },
-            MembershipNumber: {
-              ...prevData.ProjectReportSetting.MembershipNumber,
-              value: CA_DETAILS[value].membershipNumber,
-            },
-            MobileNumber: {
-              ...prevData.ProjectReportSetting.MobileNumber,
-              value: CA_DETAILS[value].mobileNumber,
-},
-            [key]:subKey ?{
-              ...prevData.ProjectReportSetting[key],
-              [subKey]: {
-                ...prevData.ProjectReportSetting[key]?.[subKey],
-                value: value, // ✅ Use .value for advance fields
-              },
+//             CAName: {
+//               ...prevData.ProjectReportSetting.CAName,
+//               value,
+//             },
+//             MembershipNumber: {
+//               ...prevData.ProjectReportSetting.MembershipNumber,
+//               value: CA_DETAILS[value].membershipNumber,
+//             },
+//             MobileNumber: {
+//               ...prevData.ProjectReportSetting.MobileNumber,
+//               value: CA_DETAILS[value].mobileNumber,
+// },
+//             [key]:subKey ?{
+//               ...prevData.ProjectReportSetting[key],
+//               [subKey]: {
+//                 ...prevData.ProjectReportSetting[key]?.[subKey],
+//                 value: value, // ✅ Use .value for advance fields
+//               },
 
             
-          },
-        };
-      } else {
-        const isAdvancedField =
-          name === "UDINNumber" ||
-          name === "CAName" ||
-          name.startsWith("BankDetails.");
+//           },
+//         };
+//       } else {
+//         const isAdvancedField =
+//           name === "UDINNumber" ||
+//           name === "CAName" ||
+//           name.startsWith("BankDetails.");
   
-        return {
-          ...prevData,
-          ProjectReportSetting: {
-            ...prevData.ProjectReportSetting,
-[name]: isAdvancedField
-    ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
-    : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
+//         return {
+//           ...prevData,
+//           ProjectReportSetting: {
+//             ...prevData.ProjectReportSetting,
+// [name]: isAdvancedField
+//     ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
+//     : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
 
-          },
-        };
-      }
-    });
+//           },
+//         };
+//       }
+//     });
+onFormDataChange((prevData) => {
+  if (name === "CAName" && CA_DETAILS[value]) {
+    return {
+      ...prevData,
+      ProjectReportSetting: {
+        ...prevData.ProjectReportSetting,
+
+        CAName: {
+          ...prevData.ProjectReportSetting.CAName,
+          value,
+        },
+        MembershipNumber: {
+          ...prevData.ProjectReportSetting.MembershipNumber,
+          value: CA_DETAILS[value].membershipNumber,
+        },
+        MobileNumber: {
+          ...prevData.ProjectReportSetting.MobileNumber,
+          value: CA_DETAILS[value].mobileNumber,
+        },
+
+        ...(key && subKey
+          ? {
+              [key]: {
+                ...prevData.ProjectReportSetting[key],
+                [subKey]: {
+                  ...prevData.ProjectReportSetting[key]?.[subKey],
+                  value: value, // ✅ Use .value for advance fields
+                },
+              },
+            }
+          : {}),
+      },
+    };
+  } else {
+    const isAdvancedField =
+      name === "UDINNumber" ||
+      name === "CAName" ||
+      name.startsWith("BankDetails.");
+
+    return {
+      ...prevData,
+      ProjectReportSetting: {
+        ...prevData.ProjectReportSetting,
+        [name]: isAdvancedField
+          ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
+          : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
+      },
+    };
+  }
+});
+
   
     // ✅ Handle ProjectionYears and RateOfExpense Separately
     if (name === "ProjectionYears") {

@@ -127,17 +127,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   }, [formData]);
 
   
-  const steps = [
-    "Account Information",
-    "Means Of Finance",
-    "Cost Of Project",
-    "Project Report Settings",
-    "Expenses",
-    "Revenue",
-    "More Details",
-    "Complete",
-  ];
-
+  
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
