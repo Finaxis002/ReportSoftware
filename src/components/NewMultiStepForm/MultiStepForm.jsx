@@ -52,8 +52,6 @@ const MultiStepForm = ({ userRole, userName }) => {
   
 
 
-
-
   // useEffect(() => {
   //   if (step) {
   //     setCurrentStep(parseInt(step)); // Update step in state
@@ -66,6 +64,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   //     setCurrentStep(step);
   //   }
   // }, [searchParams]);
+  
   useEffect(() => {
     const step = parseInt(searchParams.get("step")) || 1;
     if (step !== currentStep && step > 0 && step <= steps.length) {
@@ -103,6 +102,44 @@ const MultiStepForm = ({ userRole, userName }) => {
     generatedPDF: {},
   });
 
+  const [loading, setLoading] = useState(true);
+
+   // ✅ Load Data from Local Storage on Mount
+  //  useEffect(() => {
+  //   const storedData = localStorage.getItem("formData");
+  //   if (storedData && loading) {
+  //     const parsedData = JSON.parse(storedData);
+
+  //     // ✅ Populate form fields with stored data
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       AccountInformation: parsedData?.AccountInformation || {},
+  //       MeansOfFinance: parsedData?.MeansOfFinance || {},
+  //       CostOfProject: parsedData?.CostOfProject || {},
+  //       ProjectReportSetting: parsedData?.ProjectReportSetting || {},
+  //       Expenses: parsedData?.Expenses || {},
+  //       Revenue: parsedData?.Revenue || {},
+  //       MoreDetails: parsedData?.MoreDetails || {},
+  //       generatedPDF: parsedData?.generatedPDF || {},
+  //     }));
+
+  //     // ✅ Set session ID if available
+  //     if (parsedData?.sessionId) {
+  //       setSessionId(parsedData.sessionId);
+  //       localStorage.setItem("activeSessionId", parsedData.sessionId);
+  //     }
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      console.log("🚀 Saving data to localStorage...");
+      localStorage.setItem("formData", JSON.stringify(formData));
+    }
+  }, [formData, loading]); // ✅ Prevent conflicts by skipping during loading
+  
+
   // Store data in localStorage whenever formData changes
   useEffect(() => {
     localStorage.setItem("formData", JSON.stringify(formData));
@@ -114,6 +151,10 @@ const MultiStepForm = ({ userRole, userName }) => {
     (stepData) => {
       setFormData((prevData) => ({
         ...prevData,
+        MoreDetails: {
+          ...prevData.MoreDetails, // ✅ Spread to avoid mutation
+          ...stepData.MoreDetails, // ✅ Spread new values
+        },
         ...stepData,
         userRole, // ✅ Include userRole
       }));
@@ -536,7 +577,9 @@ const MultiStepForm = ({ userRole, userName }) => {
           handleCreateNewFromExisting={handleCreateNewFromExisting}
           handleNextStep={handleNextStep}
           stepData={formData}
-          disableNext={!!error}
+          // disableNext={!!error}
+          disableNext={currentStep === 3 && error} // ✅ Conditional disable
+          userRole={userRole}
         />
       </div>
     </div>

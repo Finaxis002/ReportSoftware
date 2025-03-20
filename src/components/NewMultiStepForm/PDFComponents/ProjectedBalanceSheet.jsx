@@ -918,7 +918,7 @@ const ProjectedBalanceSheet = ({
         </View>
 
         {/* businees name and Client Name  */}
-        <View
+        {/* <View
           style={[
             {
               display: "flex",
@@ -936,6 +936,124 @@ const ProjectedBalanceSheet = ({
           <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
             {formData?.AccountInformation?.businessOwner || "businessOwner"}
           </Text>
+        </View> */}
+
+        <view>
+          <Text
+            style={[
+              {
+                fontSize: "8px",
+                paddingRight: "4px",
+                paddingLeft: "4px",
+                textAlign: "justify",
+              },
+            ]}
+          >
+            Guidance and assistance have been provided for the preparation of
+            these financial statements on the specific request of the promoter
+            for the purpose of availing finance for the business. These
+            financial statements are based on realistic market assumptions,
+            proposed estimates issued by an approved valuer, details provided by
+            the promoter, and rates prevailing in the market. Based on the
+            examination of the evidence supporting the assumptions, nothing has
+            come to attention that causes any belief that the assumptions do not
+            provide a reasonable basis for the forecast. These financials do not
+            vouch for the accuracy of the same, as actual results are likely to
+            be different from the forecast since anticipated events might not
+            occur as expected, and the variation might be material.
+          </Text>
+        </view>
+
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "row", // ✅ Change to row
+              justifyContent: "space-between", // ✅ Align items left and right
+              alignItems: "flex-start",
+              marginTop: 60,
+            },
+          ]}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              paddingTop: 100,
+            }}
+          >
+            {/* ✅ CA Name (Conditional Display) */}
+            {formData?.ProjectReportSetting?.CAName?.value ? (
+              <Text
+                style={[
+                  styles.caName,
+                  {
+                    fontSize: "10px",
+                    fontFamily: "Roboto",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                CA {formData?.ProjectReportSetting?.CAName?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ Membership Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+              <Text
+                style={[
+                  styles.membershipNumber,
+                  { fontSize: "10px", fontFamily: "Roboto" },
+                ]}
+              >
+                M. No.:{" "}
+                {formData?.ProjectReportSetting?.MembershipNumber?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ UDIN Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+              <Text
+                style={[
+                  styles.udinNumber,
+                  { fontSize: "10px", fontFamily: "Roboto" },
+                ]}
+              >
+                UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ Mobile Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+              <Text
+                style={[
+                  styles.mobileNumber,
+                  { fontSize: "10px", fontFamily: "Roboto" },
+                ]}
+              >
+                Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+              </Text>
+            ) : null}
+          </View>
+
+          <View
+            style={{ display: "flex", flexDirection: "column", gap: "80px" }}
+          >
+            {/* ✅ Business Name */}
+            {formData?.AccountInformation?.businessName ? (
+              <Text style={[styles.businessName, { fontSize: "14px" }]}>
+                {formData?.AccountInformation?.businessName}
+              </Text>
+            ) : null}
+
+            {/* ✅ Business Owner */}
+            {formData?.AccountInformation?.businessOwner ? (
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner}
+              </Text>
+            ) : null}
+          </View>
         </View>
       </View>
     </Page>
