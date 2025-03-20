@@ -1,85 +1,327 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
-const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
-  console.log(`✅ Final Step Received Step: ${currentStep}`);
+const FinalStep = ({ formData, setCurrentStep }) => {
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
-  const [showError, setShowError] = useState();
-
-  // ✅ Default to "" (empty) if nothing is selected, ensuring "Select Report Type" appears first
+  const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
-  const [isLoading, setIsLoading] = useState(false); // ✅ Loader state
-  
+  const [isLoading, setIsLoading] = useState(false);
 
   const iframeRef = useRef(null);
-  console.log("selected Option", selectedOption);
+  let timeoutId = useRef(null);
+  let isComponentMounted = useRef(true);
 
-  // ✅ Store selected option in localStorage but do not pre-fill fields
   useEffect(() => {
     if (selectedOption !== "select option") {
-      // Prevent storing default value
       localStorage.setItem("pdfType", selectedOption);
     }
   }, [selectedOption]);
 
-  // ✅ Save selected option to localStorage only if a valid option is chosen
   useEffect(() => {
-    if (selectedOption !== "") {
-      localStorage.setItem("pdfType", selectedOption);
-    }
-  }, [selectedOption]);
+    isComponentMounted.current = true;
 
-  // ✅ Function to handle iframe load
+    // ✅ Cleanup on unmount
+    return () => {
+      console.log("🧹 Cleaning up FinalStep...");
+      isComponentMounted.current = false;
+
+      // ✅ Clear timeout
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+        timeoutId.current = null;
+      }
+
+      // ✅ Reset iframe source to prevent load event triggering
+      if (iframeRef.current) {
+        iframeRef.current.src = "";
+      }
+    };
+  }, []);
+
   const handleIframeLoad = () => {
+    if (!isComponentMounted.current) return; // ✅ Exit if component unmounted
+
     console.log("✅ PDF Loaded Successfully");
     setIsPDFLoaded(true);
-    setIsLoading(false); // ✅ Stop loading once PDF is loaded
+    setIsLoading(false);
 
-    // ✅ Small delay before navigating
-    setTimeout(() => {
-      navigate("/checkprofit");
+    timeoutId.current = setTimeout(() => {
+      if (isComponentMounted.current) {
+        console.log("✅ Navigating to /checkprofit after delay...");
+        navigate("/checkprofit");
+      }
     }, 10000);
   };
 
 
 
-  // ✅ Function to trigger loading and PDF generation
+  // const handleExportData = () => {
+  //   const data = formData; // Assuming formData contains your data
+
+  //   // Convert data to JSON format
+  //   const jsonData = JSON.stringify(data, null, 2);
+  //   const blob = new Blob([jsonData], { type: "application/json" });
+
+  //   // Create a link and trigger download
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = "exported-data.json"; // File name for download
+  //   link.click();
+
+  //   // Cleanup
+  //   URL.revokeObjectURL(url);
+  // };
+
+  // ✅ Utility function to flatten nested objects
+  const flattenObject = (obj, parentKey = "", result = {}) => {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const newKey = parentKey ? `${parentKey}.${key}` : key;
+  
+        if (Array.isArray(obj[key])) {
+          // ✅ If it's an array (like years), keep as an array for row-wise format
+          result[newKey] = obj[key];
+        } else if (typeof obj[key] === "object" && obj[key] !== null) {
+          if (obj[key] instanceof File) {
+            result[newKey] = `File Attached: ${obj[key].name}`;
+          } else {
+            flattenObject(obj[key], newKey, result);
+          }
+        } else {
+          result[newKey] =
+            obj[key] !== undefined && obj[key] !== null
+              ? obj[key].toString()
+              : "";
+        }
+      }
+    }
+    return result;
+  };
+  
+  const handleExportData = () => {
+    if (!formData) return;
+  
+    // ✅ Flatten the object for easy processing
+    const flattenedData = flattenObject(formData);
+  
+    // ✅ Split data into separate components (sheets)
+    const sections = {
+      "Account Information": {},
+      "Means of Finance": {},
+      "Cost of Project": {},
+      "Expenses": {},
+      "Revenue": {},
+      "More Details": {},
+      "Other Data": {},
+    };
+  
+    // ✅ Categorize data based on prefix (like "AccountInformation")
+    Object.keys(flattenedData).forEach((key) => {
+      if (key.startsWith("AccountInformation")) {
+        sections["Account Information"][key.replace("AccountInformation.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("MeansOfFinance")) {
+        sections["Means of Finance"][key.replace("MeansOfFinance.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("CostOfProject")) {
+        sections["Cost of Project"][key.replace("CostOfProject.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("Expenses")) {
+        sections["Expenses"][key.replace("Expenses.", "")] =
+          flattenedData[key];
+      } else if (key.startsWith("Revenue")) {
+        sections["Revenue"][key.replace("Revenue.", "")] = flattenedData[key];
+      } else if (key.startsWith("MoreDetails")) {
+        sections["More Details"][key.replace("MoreDetails.", "")] =
+          flattenedData[key];
+      } else {
+        sections["Other Data"][key] = flattenedData[key];
+      }
+    });
+  
+    // ✅ Create workbook
+    const workbook = XLSX.utils.book_new();
+  
+    // ✅ Function to format key-value pairs into a worksheet
+    const addKeyValueSheet = (data, sheetName) => {
+      const rows = [["Key", "Value"]]; // Header row
+  
+      Object.keys(data).forEach((key) => {
+        if (Array.isArray(data[key])) {
+          // ✅ If it's an array (like years), format row-wise
+          rows.push([key, ...data[key]]);
+        } else {
+          rows.push([key, data[key]]);
+        }
+      });
+  
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    };
+  
+    // ✅ Function to format array-based data in a structured table format
+    const addArraySheet = (data, sheetName) => {
+      const headerRow = ["Parameter", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"];
+      const rows = [headerRow];
+  
+      Object.keys(data).forEach((key) => {
+        if (Array.isArray(data[key])) {
+          rows.push([key, ...data[key]]);
+        }
+      });
+  
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    };
+  
+    // ✅ Add individual sheets for each section
+    if (Object.keys(sections["Account Information"]).length > 0) {
+      addKeyValueSheet(sections["Account Information"], "Account Info");
+    }
+  
+    if (Object.keys(sections["Means of Finance"]).length > 0) {
+      addKeyValueSheet(sections["Means of Finance"], "Means of Finance");
+    }
+  
+    if (Object.keys(sections["Cost of Project"]).length > 0) {
+      addKeyValueSheet(sections["Cost of Project"], "Cost of Project");
+    }
+  
+    if (Object.keys(sections["Expenses"]).length > 0) {
+      addArraySheet(sections["Expenses"], "Expenses");
+    }
+  
+    if (Object.keys(sections["Revenue"]).length > 0) {
+      addArraySheet(sections["Revenue"], "Revenue");
+    }
+  
+    if (Object.keys(sections["More Details"]).length > 0) {
+      addKeyValueSheet(sections["More Details"], "More Details");
+    }
+  
+    if (Object.keys(sections["Other Data"]).length > 0) {
+      addKeyValueSheet(sections["Other Data"], "Other Data");
+    }
+  
+    // ✅ Save the file
+    XLSX.writeFile(workbook, "exported-data.xlsx");
+  };
+
+
+
+
+
+
+  // new handle check proifit
+
+  // const handleCheckProfit = () => {
+  //   console.log("🚀 Triggering PDF Load...");
+  //   setIsPDFLoaded(false);
+  //   setIsLoading(true);
+  
+  //   // ✅ Open the tab immediately (to avoid browser popup blocking)
+  //   const newTab = window.open("checkprofit", "_blank"); 
+  
+  //   if (iframeRef.current) {
+  //     iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+  
+  //     // ✅ Fallback timeout after 15 seconds
+  //     timeoutId.current = setTimeout(() => {
+  //       if (isComponentMounted.current && newTab) {
+  //         console.log("⏳ Navigating to checkprofit after timeout...");
+  //         setIsPDFLoaded(true);
+  //         setIsLoading(false);
+  //         newTab.location.href = "/checkprofit"; // ✅ Update URL in new tab
+  //       }
+  //     }, 15000);
+  
+  //     // ✅ Handle load event for early completion
+  //     iframeRef.current.onload = () => {
+  //       if (!isComponentMounted.current) return;
+  //       console.log("✅ PDF Loaded Successfully");
+  
+  //       clearTimeout(timeoutId.current);
+  //       timeoutId.current = null;
+  //       setIsPDFLoaded(true);
+  //       setIsLoading(false);
+  
+  //       // ✅ Open /checkprofit in the new tab
+  //       setTimeout(() => {
+  //         if (isComponentMounted.current && newTab) {
+  //           console.log("🚀 Opening /checkprofit in new tab...");
+  //           newTab.location.href = "/checkprofit"; // ✅ Navigate in opened tab
+  //         }
+  //       }, 3000);
+  //     };
+  //   }
+  
+  //   // ✅ Save last step to localStorage
+  //   localStorage.setItem("lastStep", 8);
+  // };
+  
+  
   const handleCheckProfit = () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
   
+    // ✅ Open the popup window with specific size and position
+    const popup = window.open(
+      "",
+      "popupWindow",
+      "width=800,height=600,left=200,top=200,resizable=no,scrollbars=yes"
+    );
+  
+    if (!popup) {
+      alert("Popup blocked. Please allow popups for this site.");
+      return;
+    }
+  
     if (iframeRef.current) {
+      // ✅ Load the generated PDF
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
   
-      // ✅ Fallback with setTimeout after 15 seconds
-      const timeoutId = setTimeout(() => {
-        console.log("⏳ Navigating after timeout...");
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-        navigate("/checkprofit");
-      }, 15000); // 15 seconds timeout
+      // ✅ Fallback timeout after 15 seconds
+      timeoutId.current = setTimeout(() => {
+        if (isComponentMounted.current && popup) {
+          console.log("⏳ Navigating to checkprofit after timeout...");
+          setIsPDFLoaded(true);
+          setIsLoading(false);
   
-      // ✅ Trigger earlier if PDF loads before timeout
+          // ✅ Open checkprofit in the popup window
+          popup.location.href = "/checkprofit";
+        }
+      }, 15000);
+  
+      // ✅ Handle iframe load for early completion
       iframeRef.current.onload = () => {
+        if (!isComponentMounted.current) return;
         console.log("✅ PDF Loaded Successfully");
-        clearTimeout(timeoutId); // ✅ Clear timeout if PDF loads first
+  
+        clearTimeout(timeoutId.current);
+        timeoutId.current = null;
         setIsPDFLoaded(true);
         setIsLoading(false);
   
-        // ✅ Add a small delay (2-3 seconds) to account for any rendering lag
+        // ✅ Navigate the popup window after PDF load
         setTimeout(() => {
-          console.log("🚀 Navigating after short delay...");
-          navigate("/checkprofit");
-        }, 3000); // 3 seconds delay after loading
+          if (isComponentMounted.current && popup) {
+            console.log("🚀 Opening checkprofit in popup...");
+            popup.location.href = "/checkprofit";
+          }
+        }, 3000);
       };
     }
-    localStorage.setItem("lastStep", currentStep);
-  navigate("/checkprofit");
+  
+    // ✅ Save last step to localStorage
+    localStorage.setItem("lastStep", 8);
   };
   
   
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -97,26 +339,15 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
         <select
           value={selectedOption}
           onChange={(e) => {
-            const selectedValue = e.target.value;
-            setSelectedOption(selectedValue);
+            setSelectedOption(e.target.value);
 
-            // Debugging logs
-            console.log("Selected Option:", selectedValue);
-            console.log(
-              "UDIN Number:",
-              formData?.ProjectReportSetting?.UDINNumber
-            );
-
-            // Check if "CA Certified" is selected and UDIN Number is missing or empty
             if (
-              selectedValue === "CA Certified" &&
+              e.target.value === "CA Certified" &&
               (!formData?.ProjectReportSetting?.UDINNumber ||
                 formData?.ProjectReportSetting?.UDINNumber.trim() === "")
             ) {
-              console.log("Error: UDIN Number is missing!");
               setShowError(true);
             } else {
-              console.log("No Error: UDIN Number is available!");
               setShowError(false);
             }
           }}
@@ -128,12 +359,12 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
           <option value="Finaxis">Finaxis</option>
         </select>
 
-        {/* Error Message & Redirect Button */}
+        {/* ✅ Error Message */}
         {showError && (
           <div className="mt-2 text-red-600">
             <p>UDIN number is not available.</p>
             <button
-              onClick={() => setCurrentStep(4)} // ✅ Move to Step 4 in Parent Component
+              onClick={() => setCurrentStep(4)}
               className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               Go to Project Report Settings
@@ -143,22 +374,32 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
       </div>
 
       <div className="flex gap-5">
+        {/* ✅ Generate PDF Button */}
         <button
-          onClick={() => window.open("/generated-pdf", "_blank")} // ✅ Use window.open for new tab
+          onClick={() => window.open("/generated-pdf", "_blank")}
           className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Generate PDF
         </button>
 
+        {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {isLoading ? "Loading..." : "Check Profit"}
         </button>
+
+        {/* ✅ New Export Data Button */}
+        <button
+          onClick={handleExportData}
+          className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        >
+          Export Data
+        </button>
       </div>
 
-      {/* Hidden iframe to load generated-pdf in the background */}
+      {/* ✅ Hidden Iframe */}
       <iframe
         ref={iframeRef}
         src=""
@@ -170,93 +411,3 @@ const FinalStep = ({ formData, setCurrentStep ,  currentStep}) => {
 };
 
 export default FinalStep;
-
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import CheckProfit from "../CheckProfit"
-
-// const FinalStep = ({
-//   formData = [],
-//   localData = [],
-//   normalExpense = [],
-//   directExpense = [],
-//   stableLocation = {},
-//   computedData = {},
-//   yearlyInterestLiabilities = [],
-//   totalRevenueReceipts = [],
-//   fringAndAnnualCalculation = [],
-//   financialYearLabels = [],
-//   yearlyPrincipalRepayment = [],
-//   totalDepreciationPerYear = [],
-//   netProfitBeforeTax = [],
-//   netProfitAfterTax = [],
-//   formatNumber = [],
-//   receivedtotalRevenueReceipts = [],
-//   receivedAssetsLiabilities = []
-// }) => {
-//   const navigate = useNavigate();
-//   const [showCheckProfit, setShowCheckProfit] = useState(false); // State to control visibility of CheckProfit
-
-//   // Handler for "Generate PDF" button click
-//   const handleGeneratePDF = () => {
-//     // Navigate to the generated-pdf page and pass form data via state
-//     navigate("/generated-pdf", { state: formData });
-//   };
-
-//   // Handler for "Check Profit" button click
-//   const handleCheckProfit = () => {
-//     setShowCheckProfit(true); // Show CheckProfit component when clicked
-//   };
-
-//   return (
-//     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
-//       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
-//         Final Step: Generate PDF
-//       </h2>
-//       <p className="text-gray-600 mb-4">
-//         Review the information and click the button below to generate your final
-//         report PDF.
-//       </p>
-
-//       {/* Generate PDF Button */}
-//       <button
-//         onClick={handleGeneratePDF}
-//         className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//       >
-//         Generate PDF
-//       </button>
-
-//       {/* Check Profit Button */}
-//       <button
-//         onClick={handleCheckProfit}
-//         className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//       >
-//         Check Profit
-//       </button>
-
-//       {/* Conditionally render CheckProfit component */}
-//       {showCheckProfit && (
-//         <CheckProfit
-//           formData={formData}
-//           localData={localData}
-//           normalExpense={normalExpense}
-//           directExpense={directExpense}
-//           location={stableLocation}
-//           totalDepreciationPerYear={computedData.totalDepreciation}
-//           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-//           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-//           totalRevenueReceipts={totalRevenueReceipts}
-//           fringAndAnnualCalculation={fringAndAnnualCalculation}
-//           financialYearLabels={financialYearLabels}
-//           formatNumber={formatNumber}
-//           receivedtotalRevenueReceipts={totalRevenueReceipts}
-//           yearlyPrincipalRepayment={yearlyPrincipalRepayment || []}
-//           netProfitAfterTax={computedData.netProfitAfterTax || []}
-//           receivedAssetsLiabilities={assetsliabilities}
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default FinalStep;

@@ -335,114 +335,6 @@ const ProjectSynopsis = React.memo(
                 );
               })}
 
-              {/* partner details */}
-              {formData?.AccountInformation?.allPartners?.length > 0 && (
-                <View>
-                  {/* Header */}
-                  <View style={[styles.tableHeader]}>
-                    <Text
-                      style={[
-                        styles.serialNoCell,
-                        { padding: "8px", width: "10%" },
-                      ]}
-                    ></Text>
-                    <Text
-                       style={[
-                        styles.particularsCell,
-                        styleExpenses.fontBold,
-                        { padding: "8px", width: "45%" },
-                      ]}
-                    >
-                      Name of Partner
-                    </Text>
-                    <Text
-                      style={[
-                        styles.separatorCell,
-                        styleExpenses.fontBold,
-                        { textAlign: "center", width: "5%" },
-                      ]}
-                    >
-                      :
-                    </Text>
-                    <Text
-                     style={[
-                      styles.detailsCell,
-                      styleExpenses.fontBold,
-                      { padding: "8px", width: "27.5%", textAlign: "center" },
-                    ]}
-                    >
-                      Aadhar No. of Partner
-                    </Text>
-                    <Text
-                      style={[
-                        styles.detailsCell,
-                        styleExpenses.fontBold,
-                        { padding: "8px", width: "27.5%", textAlign: "center" },
-                      ]}
-                    >
-                      DIN of Partner
-                    </Text>
-                  </View>
-
-                  {/* Body */}
-                  {formData?.AccountInformation?.allPartners?.map(
-                    (partner, index) => (
-                      <View key={index} style={styles.tableRow}>
-                        <Text
-                           style={[
-                            styles.serialNoCellDetail,
-                            { padding: "8px", width: "10%" },
-                          ]}
-                        >
-                          {index + 1}
-                        </Text>
-
-                        <Text
-                           style={[
-                            styles.particularsCellsDetail,
-                            { padding: "8px", width: "45%", textAlign: "left" },
-                          ]}
-                        >
-                          {partner.partnerName || "N/A"}
-                        </Text>
-
-                        <Text
-                           style={[
-                            styles.separatorCellDetail,
-                            { padding: "8px", textAlign: "center", width: "5%" },
-                          ]}
-                        >
-                          :
-                        </Text>
-
-                        <Text
-                          style={[
-                            styles.detailsCellDetail,
-                            { padding: "8px", width: "27.5%", textAlign: "center" },
-                          ]}
-                        >
-                          {partner.partnerAadhar || "N/A"}
-                        </Text>
-
-                        <Text
-                           style={[
-                            styles.detailsCellDetail,
-                            {
-                              padding: "8px",
-                              width: "27.5%",
-                              textAlign: "center",
-                              borderLeftWidth: "1px",
-                            },
-                          ]}
-                        >
-                          {partner.partnerDin || "N/A"}
-                        </Text>
-                      </View>
-                    )
-                  )}
-                </View>
-              )}
-
               {/* Manpower Requirement  */}
               <View>
                 <View style={[styles.tableHeader]}>
@@ -1448,6 +1340,114 @@ const ProjectSynopsis = React.memo(
                   {formData?.ProjectReportSetting?.subsidyName || " "}
                 </Text>
               </View>
+
+                 {/* partner details */}
+                 {formData?.AccountInformation?.allPartners?.length > 1 && (
+                <View>
+                  {/* Header */}
+                  <View style={[styles.tableHeader]}>
+                    <Text
+                      style={[
+                        styles.serialNoCell,
+                        { padding: "8px", width: "10%" },
+                      ]}
+                    >20</Text>
+                    <Text
+                       style={[
+                        styles.particularsCell,
+                        styleExpenses.fontBold,
+                        { padding: "8px", width: "45%" },
+                      ]}
+                    >
+                      Name of Partner
+                    </Text>
+                    <Text
+                      style={[
+                        styles.separatorCell,
+                        styleExpenses.fontBold,
+                        { textAlign: "center", width: "5%" },
+                      ]}
+                    >
+                      :
+                    </Text>
+                    <Text
+                     style={[
+                      styles.detailsCell,
+                      styleExpenses.fontBold,
+                      { padding: "8px", width: "27.5%", textAlign: "center" },
+                    ]}
+                    >
+                      Aadhar No. of Partner
+                    </Text>
+                    <Text
+                      style={[
+                        styles.detailsCell,
+                        styleExpenses.fontBold,
+                        { padding: "8px", width: "27.5%", textAlign: "center" },
+                      ]}
+                    >
+                      DIN of Partner
+                    </Text>
+                  </View>
+
+                  {/* Body */}
+                  {formData?.AccountInformation?.allPartners?.map(
+                    (partner, index) => (
+                      <View key={index} style={styles.tableRow}>
+                        <Text
+                           style={[
+                            styles.serialNoCellDetail,
+                            { padding: "8px", width: "10%" },
+                          ]}
+                        >
+                          {index + 1}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.particularsCellsDetail,
+                            { padding: "8px", width: "45%", textAlign: "left" },
+                          ]}
+                        >
+                          {partner.partnerName || "N/A"}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.separatorCellDetail,
+                            { padding: "8px", textAlign: "center", width: "5%" },
+                          ]}
+                        >
+                          :
+                        </Text>
+
+                        <Text
+                          style={[
+                            styles.detailsCellDetail,
+                            { padding: "8px", width: "27.5%", textAlign: "center" },
+                          ]}
+                        >
+                          {partner.partnerAadhar || "N/A"}
+                        </Text>
+
+                        <Text
+                           style={[
+                            styles.detailsCellDetail,
+                            {
+                              padding: "8px",
+                              width: "27.5%",
+                              textAlign: "center",
+                              borderLeftWidth: "1px",
+                            },
+                          ]}
+                        >
+                          {partner.partnerDin || "N/A"}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+              )}
             </View>
           </View>
 

@@ -1,8 +1,6 @@
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CheckProfit = () => {
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
@@ -16,13 +14,14 @@ const CheckProfit = () => {
     totalDirectExpensesArray: [],
     totalIndirectExpensesArray: [],
   });
-  const navigateTo = useNavigate();
+  const navigate = useNavigate();
 
   const handleBack = () => {
-    const lastStep = localStorage.getItem("lastStep") || 8;
-    navigateTo(`/multistepform?step=${lastStep}`); // ✅ Sync with query parameter
+    const lastStep = parseInt(localStorage.getItem("lastStep")) || 8; // ✅ Parse and set fallback
+    console.log(`🔄 Navigating back to step: ${lastStep}`);
+    navigate(`/MultistepForm?step=${lastStep}`);
   };
-
+  
   useEffect(() => {
     try {
       const retrievedData = localStorage.getItem("storedGeneratedPdfData");
@@ -46,7 +45,6 @@ const CheckProfit = () => {
   const storedProfitabilityData = JSON.parse(
     localStorage.getItem("storedProfitabilityData")
   );
-
 
   console.log("Profitability Data", storedProfitabilityData);
 
@@ -585,16 +583,9 @@ const CheckProfit = () => {
     <div className="p-2 w-full">
       {/* ✅ Corrected inline styles using spread operator */}
       <div className="p-20 pt-4 flex flex-col items-center w-full">
-      <div className="">
-        <button
-          onClick={handleBack}
-          className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200 "
-          style={{marginRight: "66rem"}}
-        >
-          ← Back
-        </button>
-        
-      </div>
+        <div className="">
+         
+        </div>
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
 
         <div className="w-full">

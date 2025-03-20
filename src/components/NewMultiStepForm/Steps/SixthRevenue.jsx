@@ -592,11 +592,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                         formData?.ProjectReportSetting?.ProjectionYears || 1
                       );
                       const adjustedYears = [
-                        ...entry.years.slice(0, validProjectionYears),
+                        ...entry?.years?.slice(0, validProjectionYears),
                         ...Array(
                           Math.max(
                             0,
-                            validProjectionYears - (entry.years?.length || 0)
+                            validProjectionYears - (entry?.years?.length || 0)
                           )
                         ).fill(""),
                       ];

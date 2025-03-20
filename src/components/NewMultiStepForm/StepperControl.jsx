@@ -457,20 +457,25 @@ const StepperControl = ({
           Save & Next
         </button>
       ) : (
+
+        // Hide this button if "Create Report With Existing" is clicked
         <button
-          type="button"
-          onClick={handleNextWithState}
-          className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-green-600 transition duration-200 ease-in-out ${
-            disableNext ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={disableNext}
-          style={{
-            display: currentStep === totalSteps ? "none" : "inline-block",
-          }}
-        >
-          Next
-        </button>
+        type="button"
+        onClick={handleNext}
+        className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
+          currentStep === 3 && disableNext ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        disabled={currentStep === 3 && disableNext} // ✅ Disable only on step 3 if error exists
+        style={{
+          display: currentStep === totalSteps ? "none" : "inline-block",
+        }}
+      >
+        Next
+      </button>
+      
       )}
+
+
     </div>
   );
 };

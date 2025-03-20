@@ -14,25 +14,25 @@ import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
-
 // import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
   const isUpdateMode = location.state?.isUpdateMode || false; // ✅ Check if navigated from Update Report
-  // const [currentStep, setCurrentStep] = useState(1); // Manages step state
-  
+  const [currentStep, setCurrentStep] = useState(1); // Manages step state
+
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
   const [projectionYears, setProjectionYears] = useState(0);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const isCreateReportWithExistingClicked =
     location.state?.isCreateReportWithExistingClicked || false;
   const [searchParams] = useSearchParams();
-  // const step = searchParams.get("step");
+
+  const step = searchParams.get("step");
   const steps = [
     "Account Information",
     "Means Of Finance",
@@ -44,37 +44,18 @@ const MultiStepForm = ({ userRole, userName }) => {
     "Complete",
   ];
 
-  // const [currentStep, setCurrentStep] = useState(step);
-  const [currentStep, setCurrentStep] = useState(() => {
-    const step = parseInt(searchParams.get("step")) || 1;
-    return step > 0 && step <= steps.length ? step : 1;
-  });
+ 
   
 
 
-  // useEffect(() => {
-  //   if (step) {
-  //     setCurrentStep(parseInt(step)); // Update step in state
-  //   }
-  // }, [step]);
-
-  // useEffect(() => {
-  //   const step = parseInt(searchParams.get("step")) || 1;
-  //   if (step !== currentStep && step > 0 && step <= steps.length) {
-  //     setCurrentStep(step);
-  //   }
-  // }, [searchParams]);
   
+  
+
   useEffect(() => {
-    const step = parseInt(searchParams.get("step")) || 1;
-    if (step !== currentStep && step > 0 && step <= steps.length) {
-      console.log(`✅ Setting Step from URL: ${step}`); // Debugging Log ✅
-      setCurrentStep(step);
+    if (step) {
+      setCurrentStep(parseInt(step)); // Update step in state
     }
-  }, [searchParams, steps]); // ✅ Depend on steps to avoid async conflicts
-  
-  
-  
+  }, [step]);
 
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {
@@ -146,6 +127,17 @@ const MultiStepForm = ({ userRole, userName }) => {
   }, [formData]);
 
   
+  const steps = [
+    "Account Information",
+    "Means Of Finance",
+    "Cost Of Project",
+    "Project Report Settings",
+    "Expenses",
+    "Revenue",
+    "More Details",
+    "Complete",
+  ];
+
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
@@ -332,9 +324,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-
-  
-
   const stepContent = useMemo(() => {
     switch (currentStep) {
       case 1:
@@ -400,50 +389,25 @@ const MultiStepForm = ({ userRole, userName }) => {
         );
       case 8:
         return (
-          <FinalStep formData={formData} setCurrentStep={setCurrentStep}  currentStep={currentStep} />
+          <FinalStep formData={formData} setCurrentStep={setCurrentStep} 
+          currentStep={currentStep || 1} />
         );
       default:
         return null;
     }
   }, [currentStep, formData, handleFormDataChange]);
 
-  // const handleNext = () => {
-  //   if (currentStep < steps.length) {
-  //     setCurrentStep((prev) => prev + 1);
-  //   }
-  // };
-
-  // const handleBack = () => {
-  //   if (currentStep > 1) {
-  //     setCurrentStep((prev) => prev - 1);
-  //   }
-  // };
-
   const handleNext = () => {
     if (currentStep < steps.length) {
-      setCurrentStep((prev) => {
-        const nextStep = prev + 1;
-        console.log(`🔄 Next Step: ${nextStep}`); // Debugging Log ✅
-        navigate(`/MultistepForm?step=${nextStep}`, { replace: true });
-        return nextStep; // ✅ Ensure state update before navigation
-      });
+      setCurrentStep((prev) => prev + 1);
     }
   };
-  
+
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => {
-        const previousStep = prev - 1;
-        console.log(`🔄 Previous Step: ${previousStep}`); // Debugging Log ✅
-        navigate(`/MultistepForm?step=${previousStep}`, { replace: true });
-        return previousStep; // ✅ Ensure state update before navigation
-      });
+      setCurrentStep((prev) => prev - 1);
     }
   };
-  
-  
-  
-  
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole");
@@ -534,38 +498,52 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
+  const goToLastStep = () => {
+    const lastStep = steps.length;
+    setCurrentStep(lastStep);
+    navigate(`/MultistepForm?step=${lastStep}`, { replace: true }); // ✅ Update URL to last step
+  };
+  
 
   return (
-    <div className="flex">
+    <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App md:w-[80%] mx-auto shadow-xl rounded-2xl pb-2 bg-white">
-        {/* Stepper Component */}
-        <div className="container horizontal mt-5">
-          <Stepper steps={steps} currentStep={currentStep} />
-        </div>
+      <div className="App md:w-[85%] shadow-xl rounded-2xl pb-2 bg-white">
+        {/* Step Content */}
 
-        {/* {isCreateReportClicked && (
-          <div className="my-5">
-            <FileUpload setFormData={handleFileData} />
+          {/* Stepper Component */}
+          <div className="container horizontal my-[3.5rem]">
+            <Stepper steps={steps} currentStep={currentStep} />
           </div>
-        )} */}
-        
 
-        {/* ✅ Dropdown placed outside steps to persist selection */}
-        {!isCreateReportClicked && userRole !== "client" && (
-          <div className="mt-[4rem]">
-            {/* <ClientNameDropdown
+          {/* ✅ Dropdown placed outside steps to persist selection */}
+          {!isCreateReportClicked && userRole !== "client" && (
+            <div className="">
+              {/* <ClientNameDropdown
               onClientSelect={() => { }}
               onBusinessSelect={handleBusinessSelect}
             /> */}
-            <ReportDropdown onBusinessSelect={handleBusinessSelect} />
-          </div>
-        )}
-
-        {/* Step Content */}
-        <div className="my-5">{stepContent}</div>
+              <ReportDropdown onBusinessSelect={handleBusinessSelect} />
+            </div>
+          )}
+          {stepContent}
+          <StepperControl
+            handleNext={handleNext}
+            handleBack={handleBack}
+            handleSave={handleSaveData}
+            handleUpdate={handleUpdate}
+            currentStep={currentStep}
+            totalSteps={steps.length}
+            isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
+            handleCreateNewFromExisting={handleCreateNewFromExisting}
+            handleNextStep={handleNextStep}
+            stepData={formData}
+            disableNext={!!error}
+            goToLastStep={goToLastStep} // ✅ Pass goToLastStep to StepperControl
+          />
 
         {/* Stepper Control Buttons */}
+
         <StepperControl
           handleNext={handleNext}
           handleBack={handleBack}
@@ -581,6 +559,7 @@ const MultiStepForm = ({ userRole, userName }) => {
           disableNext={currentStep === 3 && error} // ✅ Conditional disable
           userRole={userRole}
         />
+
       </div>
     </div>
   );
