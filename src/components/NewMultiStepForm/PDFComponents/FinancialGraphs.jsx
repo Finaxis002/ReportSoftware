@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useState} from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
@@ -19,10 +19,12 @@ const FinancialGraphs = ({
   receivedAssetsLiabilities = [],
   pdfType,
 }) => {
+
+  const [chartImage, setChartImage] = useState(null);
+
   return (
     <Page size="A4" style={styles.page}>
-      <DirectExpenseBreakUpGraph
-      />
+      <DirectExpenseBreakUpGraph setExportedImage={setChartImage} />
     </Page>
   );
 };

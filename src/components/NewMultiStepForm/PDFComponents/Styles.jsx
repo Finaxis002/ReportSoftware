@@ -238,12 +238,6 @@ const styles = StyleSheet.create({
 });
 
 const stylesMOF = StyleSheet.create({
-
-  chartImage: {
-    width: 300,
-    height: 300,
-    marginTop: 10,
-  },
   page: {
     width: "100%",
     height: "100%",

@@ -3,12 +3,15 @@ import MenuBar from "../../MenuBar";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import the loading spinner
+import DirectExpenseBreakUpGraph from "../../PDFComponents/Graphs/DirectExpenseBreakUp";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
+
+  const [chartImage, setChartImage] = useState(null);
 
   // ✅ Redirect if not admin
   useEffect(() => {
@@ -119,7 +122,9 @@ const AdminDashboard = () => {
                       <p className="text-xs text-gray-500">
                         Last Report:{" "}
                         {reports.length > 0
-                          ? new Date(reports[reports.length - 1].createdAt).toDateString()
+                          ? new Date(
+                              reports[reports.length - 1].createdAt
+                            ).toDateString()
                           : "N/A"}
                       </p>
                     </div>
@@ -147,6 +152,7 @@ const AdminDashboard = () => {
             </div>
           </>
         )}
+
       </div>
     </div>
   );
