@@ -493,14 +493,22 @@ const Repayment = ({
                     key={yearIndex}
                     wrap={false}
                     style={[
-                      {borderLeftWidth: 0 },
-                      { position: "relative", zIndex: 1, borderLeftWidth: 1 , borderTopWidth:1},
+                      { borderLeftWidth: 0 },
+                      {
+                        position: "relative",
+                        zIndex: 1,
+                        borderLeftWidth: 1,
+                        borderTopWidth: 1,
+                      },
                     ]}
                   >
                     {/* Year Row */}
                     <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
-                        style={[styles.serialNumberCellStyle, { width: "8%" , paddingTop:"5px" }]}
+                        style={[
+                          styles.serialNumberCellStyle,
+                          { width: "8%", paddingTop: "5px" },
+                        ]}
                       >
                         {yearIndex + 1}
                       </Text>
@@ -514,7 +522,7 @@ const Repayment = ({
                             textAlign: "center",
                             width: "15.35%",
                             borderLeftWidth: 1,
-                            paddingTop:"5px"
+                            paddingTop: "5px",
                           },
                         ]}
                       >
@@ -526,28 +534,44 @@ const Repayment = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%",paddingTop:"5px" },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            paddingTop: "5px",
+                          },
                         ]}
                       ></Text>
                       <Text
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%",paddingTop:"5px" },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            paddingTop: "5px",
+                          },
                         ]}
                       ></Text>
                       <Text
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%",paddingTop:"5px" },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            paddingTop: "5px",
+                          },
                         ]}
                       ></Text>
                       <Text
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%",paddingTop:"5px" },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            paddingTop: "5px",
+                          },
                         ]}
                       ></Text>
                       <Text
@@ -646,7 +670,7 @@ const Repayment = ({
                       style={[
                         stylesMOF.row,
                         styles.tableRow,
-                        {  borderTopWidth: 0 },
+                        { borderTopWidth: 0 },
                       ]}
                     >
                       <Text
@@ -663,12 +687,28 @@ const Repayment = ({
                           },
                         ]}
                       ></Text>
+
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderLeftWidth: 1,
+                          },
+                        ]}
+                      ></Text>
                       <Text
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
                           styleExpenses.fontBold,
-                          { textAlign: "center", width: "15.35%" , borderTopWidth:1 },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
                         ]}
                       >
                         {formatNumber(totalPrincipalRepayment)}
@@ -685,7 +725,11 @@ const Repayment = ({
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
                           styleExpenses.fontBold,
-                          { textAlign: "center", width: "15.35%" , borderTopWidth:1 },
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
                         ]}
                       >
                         {formatNumber(totalInterestLiability)}
@@ -699,26 +743,13 @@ const Repayment = ({
                             textAlign: "center",
                             width: "15.35%",
                             borderRightWidth: 1,
-                            borderTopWidth:1
+                            borderTopWidth: 1,
                           },
                         ]}
                       >
                         {formatNumber(totalRepayment)}
                       </Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          styleExpenses.fontBold,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderRightWidth: 1,
-                          },
-                        ]}
-                      >
-                        
-                      </Text>
+                     
                     </View>
                   </View>
                 </>
