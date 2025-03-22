@@ -229,6 +229,14 @@ const ProjectedExpenses = ({
     }
   }, [JSON.stringify(totalExpensesArray)]);
 
+  useEffect(() => {
+    if (totalExpensesArray.length > 0) {
+      // ✅ Pass the totalExpensesArray to PdfWithChart.jsx
+      onTotalExpenseSend(totalExpensesArray);
+    }
+  }, [JSON.stringify(totalExpensesArray), onTotalExpenseSend]);
+  
+
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   return (
