@@ -31,9 +31,34 @@ import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
+
+
 import FinancialGraphs from "./PDFComponents/FinancialGraphs";
 import PdfWithChart from "./PDFComponents/PdfWithChart"
 import { generateChart } from "./charts/chart";
+
+import DirectExpenseBreakUp from "./PDFComponents/Graphs/DirectExpenseBreakUp";
+
+Font.register({
+  family: "TimesNewRoman",
+  fonts: [
+    {
+      src: require("./Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
 
 const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
@@ -444,21 +469,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           pdfType={pdfType}
         />
 
-        <FinancialGraphs
-          formData={formData}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          localData={localData}
-          normalExpense={normalExpense}
-          totalAnnualWages={totalAnnualWages}
-          totalQuantity={totalQuantity}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          receivedDscr={dscr}
-          receivedAverageCurrentRatio={averageCurrentRatio}
-          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-          receivedAssetsLiabilities={assetsliabilities}
-          pdfType={pdfType}
-        />
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
@@ -688,6 +698,8 @@ const handleTotalExpenseUpdate = (expenses) => {
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
+
+
 
         <PdfWithChart 
         formData={formData}

@@ -53,13 +53,16 @@ const ProjectedRevenue = ({
     ? financialYearLabels.slice(1)
     : financialYearLabels;
   // ✅ Remove first-year revenue if hiding is required
-  const adjustedTotalRevenueReceipts = hideFirstYear
-    ? totalRevenueReceipts.slice(1)
-    : totalRevenueReceipts;
+
 
   const adjustedTotalRevenueForOthers = hideFirstYear
     ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
     : formData?.Revenue?.totalRevenueForOthers;
+
+
+    const adjustedTotalRevenueReceipts = hideFirstYear
+    ? totalRevenueReceipts.slice(1)
+    : totalRevenueReceipts;
 
   return (
     <Page
