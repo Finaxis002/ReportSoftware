@@ -32,12 +32,9 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
-
-import FinancialGraphs from "./PDFComponents/FinancialGraphs";
 import PdfWithChart from "./PDFComponents/PdfWithChart"
 import { generateChart } from "./charts/chart";
 
-import DirectExpenseBreakUp from "./PDFComponents/Graphs/DirectExpenseBreakUp";
 
 Font.register({
   family: "TimesNewRoman",
