@@ -38,10 +38,12 @@
     "file-saver": "^2.0.5",
     "file-system": "^2.2.2",
     "font-awesome": "^4.7.0",
+
+    "html-to-image": "^1.11.13",
     "html-react-parser": "^5.2.2",
-    "html-to-image": "^1.11.11",
     "html-to-pdfmake": "^2.5.23",
     "html-to-text": "^9.0.5",
+
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",

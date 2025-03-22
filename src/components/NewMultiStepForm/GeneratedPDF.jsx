@@ -33,7 +33,35 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 
+import FinancialGraphs from "./PDFComponents/FinancialGraphs";
+import PdfWithChart from "./PDFComponents/PdfWithChart"
+import { generateChart } from "./charts/chart";
+
+import DirectExpenseBreakUp from "./PDFComponents/Graphs/DirectExpenseBreakUp";
+
+Font.register({
+  family: "TimesNewRoman",
+  fonts: [
+    {
+      src: require("./Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+
 const GeneratedPDF = React.memo(({}) => {
+  const [chartBase64, setChartBase64] = useState(null);
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -155,6 +183,23 @@ const GeneratedPDF = React.memo(({}) => {
 
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
+
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        console.log("🚀 Generating Chart...");
+        const base64 = await generateChart();
+        console.log("✅ Chart Base64:", base64);
+        setChartBase64(base64);
+      } catch (error) {
+        console.error("❌ Failed to generate chart:", error);
+      }
+    };
+
+    fetchChart(); // ✅ Generate on component mount
+  }, []);
+
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -647,6 +692,33 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
+
+
+
+        <PdfWithChart 
+        formData={formData}
+        chartBase64={chartBase64}/>
+
+        {/* Append Imported Pages */}
+
+        {/* ✅ Render Imported Pages */}
+        {importedPages.map((html, index) => (
+          <Page key={`imported-${index}`}>
+            <View
+              style={{
+                fontSize: 12,
+                padding: 10,
+                lineHeight: 1.5,
+                marginTop: 0,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {convertHtmlToReactElements(html)}
+            </View>
+          </Page>
+        ))}
+
+
       </Document>
     );
   }, [
