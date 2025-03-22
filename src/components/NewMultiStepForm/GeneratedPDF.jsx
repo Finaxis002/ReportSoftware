@@ -36,25 +36,6 @@ import PdfWithChart from "./PDFComponents/PdfWithChart"
 import { generateChart } from "./charts/chart";
 
 
-Font.register({
-  family: "TimesNewRoman",
-  fonts: [
-    {
-      src: require("./Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-    {
-      src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
-      fontWeight: "bold",
-      fontStyle: "italic",
-    },
-  ],
-});
-
 
 
 const GeneratedPDF = React.memo(({}) => {
@@ -695,26 +676,6 @@ const GeneratedPDF = React.memo(({}) => {
         <PdfWithChart 
         formData={formData}
         chartBase64={chartBase64}/>
-
-        {/* Append Imported Pages */}
-
-        {/* ✅ Render Imported Pages */}
-        {importedPages.map((html, index) => (
-          <Page key={`imported-${index}`}>
-            <View
-              style={{
-                fontSize: 12,
-                padding: 10,
-                lineHeight: 1.5,
-                marginTop: 0,
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {convertHtmlToReactElements(html)}
-            </View>
-          </Page>
-        ))}
-
 
       </Document>
     );
