@@ -3,7 +3,6 @@ import MenuBar from "../../MenuBar";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import the loading spinner
-import DirectExpenseBreakUpGraph from "../../PDFComponents/Graphs/DirectExpenseBreakUp";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

@@ -31,7 +31,7 @@ import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
-import FinancialGraphs from "./PDFComponents/FinancialGraphs";
+
 
 const GeneratedPDF = React.memo(({}) => {
   const [directExpenses, setDirectExpenses] = useState([]);
@@ -419,21 +419,6 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
         />
 
-        <FinancialGraphs
-          formData={formData}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          localData={localData}
-          normalExpense={normalExpense}
-          totalAnnualWages={totalAnnualWages}
-          totalQuantity={totalQuantity}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          receivedDscr={dscr}
-          receivedAverageCurrentRatio={averageCurrentRatio}
-          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-          receivedAssetsLiabilities={assetsliabilities}
-          pdfType={pdfType}
-        />
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
