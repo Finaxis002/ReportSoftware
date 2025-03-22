@@ -32,8 +32,11 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 import FinancialGraphs from "./PDFComponents/FinancialGraphs";
+import PdfWithChart from "./PDFComponents/PdfWithChart"
+import { generateChart } from "./charts/chart";
 
 const GeneratedPDF = React.memo(({}) => {
+  const [chartBase64, setChartBase64] = useState(null);
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -155,6 +158,23 @@ const GeneratedPDF = React.memo(({}) => {
 
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
+
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        console.log("🚀 Generating Chart...");
+        const base64 = await generateChart();
+        console.log("✅ Chart Base64:", base64);
+        setChartBase64(base64);
+      } catch (error) {
+        console.error("❌ Failed to generate chart:", error);
+      }
+    };
+
+    fetchChart(); // ✅ Generate on component mount
+  }, []);
+
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -662,6 +682,10 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
+
+        <PdfWithChart 
+        formData={formData}
+        chartBase64={chartBase64}/>
       </Document>
     );
   }, [
