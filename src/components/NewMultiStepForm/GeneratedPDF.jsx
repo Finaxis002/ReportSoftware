@@ -7,34 +7,9 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import {
-  Document,
-  PDFViewer,
-  BlobProvider,
-  Page,
-  Text,
-  View,
-  Image,
-} from "@react-pdf/renderer";
-import { Font } from "@react-pdf/renderer";
+import { Document, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import useStore from "./useStore";
-import { PDFDocument } from "pdf-lib";
-
-import * as pdfjs from "pdfjs-dist";
-import "pdfjs-dist/build/pdf.worker.entry"; // ✅ Direct worker import
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
-
-// import convertToPdf from 'docx-pdf';
-import htmlToPdfmake from "html-to-pdfmake";
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { renderAsync } from "docx-preview";
-
-pdfMake.vfs = pdfFonts;
+import axios from "axios";
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -56,6 +31,7 @@ import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
+
 
 import FinancialGraphs from "./PDFComponents/FinancialGraphs";
 import PdfWithChart from "./PDFComponents/PdfWithChart"
@@ -81,6 +57,7 @@ Font.register({
     },
   ],
 });
+
 
 
 const GeneratedPDF = React.memo(({}) => {
@@ -141,8 +118,6 @@ const GeneratedPDF = React.memo(({}) => {
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
-
-  const [importedPages, setImportedPages] = useState([]);
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
@@ -336,76 +311,35 @@ const GeneratedPDF = React.memo(({}) => {
     projectionYears
   );
 
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-  //   if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
-
-  //   switch (formatType) {
-  //     case "1": // Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     case "2": // USD Format (1,123,456.00)
-  //       return new Intl.NumberFormat("en-US", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     case "3": // Generic Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     default: // Default to Indian Format with 2 decimal places
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-  //   }
-  // };
-
-  //new format number to visually remove decimals after
-
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    let formattedValue;
+    if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
 
     switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        formattedValue = new Intl.NumberFormat("en-IN", {
+      case "1": // Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(value);
-        break;
 
-      case "2": // USD Format (1,123,456)
-        formattedValue = new Intl.NumberFormat("en-US", {
+      case "2": // USD Format (1,123,456.00)
+        return new Intl.NumberFormat("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(value);
-        break;
 
-      case "3": // Generic Indian Format (1,23,456)
-        formattedValue = new Intl.NumberFormat("en-IN", {
+      case "3": // Generic Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(value);
-        break;
 
-      default: // Default to Indian Format
-        formattedValue = new Intl.NumberFormat("en-IN", {
+      default: // Default to Indian Format with 2 decimal places
+        return new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(value);
     }
-
-    // ✅ Remove the decimal part visually but keep it internally
-    return formattedValue.split(".")[0];
   };
 
   useEffect(() => {
@@ -499,437 +433,14 @@ const GeneratedPDF = React.memo(({}) => {
     navigate,
   ]);
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  const businessName =
+    formData.AccountInformation.businessName || "Unknown Business";
+  const clientName = formData.AccountInformation.clientName || "Unknown Client";
 
-    if (file) {
-      const fileType = file.type;
-
-      if (fileType === "application/pdf") {
-        await handlePdfUpload(file);
-      } else if (
-        fileType ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      ) {
-        await handleWordUpload(file);
-      } else {
-        alert("Unsupported file type");
-      }
-    }
-  };
-    
-  const handleWordUpload = async (file) => {
-    try {
-      const reader = new FileReader();
-  
-      reader.onload = async (event) => {
-        const arrayBuffer = event.target.result;
-        const container = document.createElement("div");
-  
-        // ✅ Render the document (async)
-        await renderAsync(arrayBuffer, container);
-  
-        const images = container.getElementsByTagName("img");
-        console.log(`🔎 Found ${images.length} images`);
-  
-        for (let img of images) {
-          console.log(`➡️ Original image src: ${img.src}`);
-          
-          // ✅ Check if blob URL exists
-          if (img.src.startsWith("blob:")) {
-            console.log(`🔍 Attempting to convert blob: ${img.src}`);
-            const base64 = await convertBlobToBase64(img.src);
-  
-            if (base64) {
-              img.src = base64; // ✅ Replace blob with base64
-              console.log(`✅ Converted blob to base64`);
-            } else {
-              console.warn(`⚠️ Failed to convert blob to base64: ${img.src}`);
-            }
-          }
-        }
-  
-        console.log("🟢 Extracted HTML:", container.innerHTML);
-        const extractedHtml = container.innerHTML;
-        setImportedPages((prev) => [...prev, extractedHtml]);
-      };
-  
-      reader.readAsArrayBuffer(file);
-    } catch (error) {
-      console.error("❌ Error uploading Word file:", error);
-    }
-  };
-  
-  
-
-  const cleanHtml = (html) => {
-    return html
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "") // Remove <style> tags
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "") // Remove <script> tags
-      .replace(/<!--[\s\S]*?-->/g, "") // Remove HTML comments
-      .replace(/<(iframe|video|svg)[^>]*>[\s\S]*?<\/\1>/gi, "") // Remove unsupported tags
-      .replace(/\s+/g, " ") // Remove excessive whitespace
-      .trim();
-  };
-  
-
-  const convertCssToPdfStyles = (styleString) => {
-    if (!styleString) return {};
-  
-    return styleString.split(";").reduce((acc, style) => {
-      const [key, value] = style.split(":").map((s) => s.trim());
-      if (!key || !value) return acc;
-  
-      // Convert CSS property names to camelCase
-      const camelCaseKey = key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-  
-      let finalValue = value;
-  
-      // Handle numeric values like px and pt
-      if (value.endsWith("pt") || value.endsWith("px")) {
-        finalValue = parseFloat(value);
-      }
-  
-      // Handle common CSS styles for pdfMake compatibility
-      switch (camelCaseKey) {
-        case "fontWeight":
-          acc.bold = value === "bold" || parseInt(value) >= 600;
-          break;
-        case "fontStyle":
-          acc.italics = value === "italic";
-          break;
-        case "textAlign":
-          acc.alignment = value;
-          break;
-        case "color":
-          acc.color = value;
-          break;
-        case "backgroundColor":
-          acc.fillColor = value;
-          break;
-        case "fontSize":
-          acc.fontSize = finalValue;
-          break;
-        case "paddingTop":
-          acc.marginTop = finalValue;
-          break;
-        case "paddingBottom":
-          acc.marginBottom = finalValue;
-          break;
-        case "paddingLeft":
-          acc.marginLeft = finalValue;
-          break;
-        case "paddingRight":
-          acc.marginRight = finalValue;
-          break;
-        case "borderColor":
-          acc.borderColor = value;
-          break;
-        case "borderWidth":
-          acc.borderWidth = finalValue;
-          break;
-        case "borderStyle":
-          acc.borderStyle = value;
-          break;
-        default:
-          acc[camelCaseKey] = finalValue;
-      }
-  
-      return acc;
-    }, {});
-  };
-  
-  
-
-  const resizeImage = async (blob, maxWidth = 500) => {
-    return new Promise((resolve, reject) => {
-      const img = new window.Image(); // ✅ Use native Image object
-      img.src = URL.createObjectURL(blob);
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-  
-        if (width > maxWidth) {
-          height *= maxWidth / width;
-          width = maxWidth;
-        }
-  
-        canvas.width = width;
-        canvas.height = height;
-  
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-  
-        canvas.toBlob((newBlob) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            console.log(`✅ Resized Image Base64: ${reader.result.substring(0, 50)}...`);
-            resolve(reader.result);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(newBlob);
-        }, 'image/jpeg', 0.8); // Use JPEG format to reduce size
-      };
-      img.onerror = reject;
-    });
-  };
-  
-
-  const isValidBase64 = (base64) => {
-    return base64 && base64.startsWith('data:image');
-  };
-  
-  const convertBlobToBase64 = async (blobUrl) => {
-    if (!blobUrl.startsWith("blob:")) return null;
-  
-    try {
-      const blob = await fetch(blobUrl).then((res) => res.blob());
-      const resizedBase64 = await resizeImage(blob); // ✅ Resize before encoding
-  
-      if (isValidBase64(resizedBase64)) {
-        console.log(`✅ Resized and converted base64: ${resizedBase64.substring(0, 50)}...`);
-        return resizedBase64;
-      } else {
-        console.warn(`⚠️ Invalid Base64 string`);
-        return null;
-      }
-    } catch (error) {
-      console.error("❌ Failed to convert blob to base64:", error);
-      return null;
-    }
-  };
-  
-  
-  useEffect(() => {
-    const loadPdfMake = async () => {
-      const pdfMakeModule = await import('pdfmake/build/pdfmake');
-      const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
-      pdfMakeModule.default.vfs = pdfFontsModule.default.vfs; // ✅ Fix Here
-    };
-  
-    loadPdfMake();
-  }, []);
-  
-
-  
-  const convertHtmlToReactElements = (html) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-  
-    const walkNodes = (node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent.trim();
-        if (text) {
-          return <Text key={Math.random()}>{text}</Text>;
-        }
-        return null;
-      }
-  
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const styles = convertCssToPdfStyles(node.getAttribute("style") || "");
-  
-        switch (node.nodeName.toLowerCase()) {
-          case "p":
-            return (
-              <Text key={Math.random()} style={{ fontSize: 12, marginBottom: 5, ...styles }}>
-                {Array.from(node.childNodes).map(walkNodes).filter(Boolean)}
-              </Text>
-            );
-  
-          case "b":
-          case "strong":
-            return (
-              <Text key={Math.random()} style={{ fontWeight: "bold", ...styles }}>
-                {Array.from(node.childNodes).map(walkNodes).filter(Boolean)}
-              </Text>
-            );
-  
-          case "i":
-          case "em":
-            return (
-              <Text key={Math.random()} style={{ fontStyle: "italic", ...styles }}>
-                {Array.from(node.childNodes).map(walkNodes).filter(Boolean)}
-              </Text>
-            );
-  
-          case "ul":
-            return (
-              <View key={Math.random()} style={{ marginLeft: 10, marginBottom: 5, ...styles }}>
-                {Array.from(node.childNodes).map(walkNodes).filter(Boolean)}
-              </View>
-            );
-  
-          case "li":
-            return (
-              <Text key={Math.random()} style={{ marginLeft: 10, ...styles }}>
-                • {Array.from(node.childNodes).map(walkNodes).filter(Boolean)}
-              </Text>
-            );
-  
-          case "img":
-            const src = node.getAttribute("src");
-            if (src && src.startsWith("data:image")) {
-              return (
-                <Image
-                  key={Math.random()}
-                  src={src}
-                  style={{ width: 150, height: 100, ...styles }}
-                />
-              );
-            }
-            return null;
-  
-          default:
-            return Array.from(node.childNodes).map(walkNodes).filter(Boolean);
-        }
-      }
-  
-      return null;
-    };
-  
-    return Array.from(doc.body.childNodes).map(walkNodes).filter(Boolean);
-  };
-
-  const generatePdfContent = (html) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-  
-    const walkNodes = (node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent.trim();
-        if (text) return { text };
-        return null;
-      }
-  
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const styles = convertCssToPdfStyles(node.getAttribute("style") || "");
-  
-        switch (node.nodeName.toLowerCase()) {
-          case "p":
-            return {
-              text: Array.from(node.childNodes).map(walkNodes).filter(Boolean),
-              marginBottom: 5,
-              ...styles,
-            };
-  
-          case "b":
-          case "strong":
-            return {
-              text: Array.from(node.childNodes).map(walkNodes).filter(Boolean),
-              bold: true,
-              ...styles,
-            };
-  
-          case "i":
-          case "em":
-            return {
-              text: Array.from(node.childNodes).map(walkNodes).filter(Boolean),
-              italics: true,
-              ...styles,
-            };
-  
-          case "ul":
-            return {
-              ul: Array.from(node.childNodes).map(walkNodes).filter(Boolean),
-              margin: [10, 5],
-              ...styles,
-            };
-  
-          case "li":
-            return {
-              text: `• ${Array.from(node.childNodes).map(walkNodes).filter(Boolean).join("")}`,
-              marginLeft: 10,
-              ...styles,
-            };
-  
-          case "img":
-            const src = node.getAttribute("src");
-            if (src && src.startsWith("data:image")) {
-              return {
-                image: src,
-                width: 150,
-                height: 100,
-                ...styles,
-              };
-            }
-            return null;
-  
-          default:
-            return Array.from(node.childNodes).map(walkNodes).filter(Boolean);
-        }
-      }
-  
-      return null;
-    };
-  
-    return Array.from(doc.body.childNodes).map(walkNodes).flat().filter(Boolean);
-  };
-  
-  const handleAppendPages = async () => {
-    if (importedPages.length === 0) {
-      alert("No imported pages to append!");
-      return;
-    }
-  
-    try {
-      // ✅ Ensure all blob URLs are converted to Base64 before PDF generation
-      await Promise.all(
-        importedPages.map(async (page, index) => {
-          const container = document.createElement("div");
-          container.innerHTML = page;
-  
-          const images = container.getElementsByTagName("img");
-          // console.log(`🔎 Found ${images.length} images in imported page`);
-  
-          for (let img of images) {
-            // console.log(`➡️ Original image src: ${img.src}`);
-            if (img.src.startsWith("blob:")) {
-              const base64 = await convertBlobToBase64(img.src);
-              if (base64) {
-                img.src = base64;
-                // console.log(`✅ Converted blob to base64`);
-              } else {
-                // console.warn(`⚠️ Failed to convert blob to base64: ${img.src}`);
-              }
-            }
-          }
-  
-          importedPages[index] = container.innerHTML;
-        })
-      );
-  
-      // ✅ Generate PDF content
-      const pdfContent = importedPages
-        .map((page) => generatePdfContent(cleanHtml(page)))
-        .flat();
-  
-      // console.log("🟢 Generated PDF content:", pdfContent);
-  
-      const docDefinition = {
-        content: pdfContent,
-        styles: {
-          header: {
-            fontSize: 18,
-            bold: true,
-            margin: [0, 10, 0, 10],
-          },
-        },
-        defaultStyle: {
-          fontSize: 12,
-          margin: [5, 5, 5, 5],
-          lineHeight: 1.5,
-        },
-      };
-  
-      // console.log("🟢 Generated PDF definition:", docDefinition);
-      pdfMake.createPdf(docDefinition).download("generated-pdf.pdf");
-    } catch (error) {
-      // console.error("❌ Error generating PDF:", error);
-    }
-  };
-  
-
+  const fileName = `ProjectReport_${businessName.replace(
+    /[^a-zA-Z0-9]/g,
+    "_"
+  )}_${clientName.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -953,7 +464,6 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
         />
 
-        {/* <DirectExpenseBreakUp /> */}
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
@@ -1184,6 +694,7 @@ const GeneratedPDF = React.memo(({}) => {
         />
 
 
+
         <PdfWithChart 
         formData={formData}
         chartBase64={chartBase64}/>
@@ -1207,6 +718,7 @@ const GeneratedPDF = React.memo(({}) => {
           </Page>
         ))}
 
+
       </Document>
     );
   }, [
@@ -1222,7 +734,6 @@ const GeneratedPDF = React.memo(({}) => {
     averageCurrentRatio,
     breakEvenPointPercentage,
     assetsliabilities,
-    importedPages,
   ]);
 
   // for filling the form data silently
@@ -1290,25 +801,6 @@ const GeneratedPDF = React.memo(({}) => {
           }
           return !isPDFLoading ? (
             <>
-              <div>
-                <div>
-                  {/* Import Button */}
-                  <input
-                    type="file"
-                    accept=".pdf, .docx"
-                    onChange={handleFileUpload}
-                  />
-
-                  {/* Append Button */}
-
-                  <button
-                    onClick={handleAppendPages}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    Append Pages to PDF
-                  </button>
-                </div>
-              </div>
               <PDFViewer
                 width="100%"
                 height="800"
