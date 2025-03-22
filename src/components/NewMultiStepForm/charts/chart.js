@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+
+
+
 import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
-import html2canvas from 'html2canvas';
-import LineChart from './LineChart';
+
 
 // ✅ Register controllers and elements
 Chart.register(...registerables,ArcElement, Tooltip, Legend);
@@ -40,7 +40,9 @@ export const generateChart = async (data) => {
           data: data.values,
           backgroundColor: backgroundColors,
           borderColor: borderColors,
-          borderWidth: 1, // Creates the "3D" depth
+
+          borderWidth: 1, 
+
           hoverOffset: 8,
         }]
       },
@@ -81,84 +83,6 @@ export const generateChart = async (data) => {
     return null;
   }
 };
-
-
-// export const generateLineChart = async ({ labels, values }) => {
-//   console.log("🚀 Generating Line Chart with labels:", labels);
-//   console.log("🚀 Generating Line Chart with values:", values);
-
-//   // ✅ Create container for rendering
-//   const chartContainer = document.createElement('div');
-//   chartContainer.style.width = '400px';
-//   chartContainer.style.height = '300px';
-//   chartContainer.style.position = 'fixed';
-//   chartContainer.style.left = '-9999px'; // Hide off-screen
-//   document.body.appendChild(chartContainer);
-
-//   // ✅ Destroy any existing chart instance
-//   if (chartContainer.chart) {
-//     chartContainer.chart.destroy();
-//   }
-
-//   // ✅ Create and render chart using ReactDOM
-//   const root = ReactDOM.createRoot(chartContainer);
-//   root.render(
-//     <Line
-//       data={{
-//         labels,
-//         datasets: [
-//           {
-//             label: 'DSCR',
-//             data: values,
-//             borderColor: '#4CAF50',
-//             backgroundColor: 'rgba(76, 175, 80, 0.2)',
-//             fill: true,
-//             tension: 0.4,
-//           },
-//         ],
-//       }}
-//       options={{
-//         responsive: true,
-//         plugins: {
-//           legend: { display: true },
-//           tooltip: { enabled: true },
-//         },
-//         scales: {
-//           x: { title: { display: true, text: 'Years' } },
-//           y: { title: { display: true, text: 'Value' } },
-//         },
-//       }}
-//     />
-//   );
-
-//   // ✅ Allow chart to render before capturing
-//   await new Promise(resolve => setTimeout(resolve, 500));
-
-//   // ✅ Capture using html2canvas
-//   const canvas = await html2canvas(chartContainer, {
-//     scale: 2,
-//     useCORS: true,
-//     backgroundColor: '#fff',
-//   });
-
-//   // ✅ Convert to base64
-//   const base64Image = canvas.toDataURL('image/png');
-
-//   // ✅ Clean up
-//   document.body.removeChild(chartContainer);
-//   root.unmount();
-
-//   console.log("✅ Line Chart Base64 generated:", base64Image);
-
-//   return base64Image;
-// };
-
-
-
-
-
-
-
 
 
 
