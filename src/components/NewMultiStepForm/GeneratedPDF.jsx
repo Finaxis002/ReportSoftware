@@ -99,7 +99,12 @@ const GeneratedPDF = React.memo(({}) => {
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
-  console.log("📥 Received PDF Data:", pdfData);
+  
+
+const handleTotalExpenseUpdate = (expenses) => {
+  console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
+  setTotalExpense(expenses); // ✅ Update state
+};
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -109,7 +114,7 @@ const GeneratedPDF = React.memo(({}) => {
     }
   }, []);
 
-  console.log("pdf type", pdfType);
+ 
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -506,9 +511,10 @@ const GeneratedPDF = React.memo(({}) => {
           directExpenses={directExpenses}
           projectionYears={projectionYears}
           totalDirectExpensesArray={totalDirectExpensesArray}
-          onTotalExpenseSend={setTotalExpense}
+          onTotalExpenseSend={handleTotalExpenseUpdate}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
+          
         />
 
         {/* Projected Revenue/ Sales */}
@@ -685,7 +691,8 @@ const GeneratedPDF = React.memo(({}) => {
 
         <PdfWithChart 
         formData={formData}
-        chartBase64={chartBase64}/>
+        chartBase64={chartBase64}
+        totalExpenses={totalExpense}/>
       </Document>
     );
   }, [
