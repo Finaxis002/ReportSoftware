@@ -7,11 +7,29 @@ import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
 // ✅ Register controllers and elements
 Chart.register(...registerables,ArcElement, Tooltip, Legend);
 
+const shadowPlugin = {
+  id: 'shadowPlugin',
+  beforeDraw: (chart) => {
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)'; // ✅ Shadow color
+    ctx.shadowBlur = 10; // ✅ Blurry effect for depth
+    ctx.shadowOffsetX = 4; // ✅ Horizontal offset
+    ctx.shadowOffsetY = 4; // ✅ Vertical offset
+  },
+  afterDraw: (chart) => {
+    const ctx = chart.ctx;
+    ctx.restore(); // ✅ Reset shadow settings after draw
+  }
+};
+
+Chart.register(shadowPlugin);
+
 export const generateChart = async (data) => {
   try {
     // Create a hidden canvas for chart rendering
     const canvas = document.createElement('canvas');
-    canvas.width = 600;
+    canvas.width = 500;
     canvas.height = 400;
     const ctx = canvas.getContext('2d');
     const backgroundColors = [
@@ -26,6 +44,12 @@ export const generateChart = async (data) => {
     const borderColors = backgroundColors.map(color =>
         color.replace('0.8', '1')
       );
+
+      // ✅ Create Gradient for Shadow Effect
+    const gradient = ctx.createLinearGradient(0, 0, 400, 400);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.1)');
+
     // ✅ Destroy previous chart instance if any
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
@@ -41,9 +65,12 @@ export const generateChart = async (data) => {
           backgroundColor: backgroundColors,
           borderColor: borderColors,
 
-          borderWidth: 1, 
+          borderWidth: 2, 
+          hoverOffset: 12,
+          
+          borderJoinStyle: 'round',
+          spacing: 2
 
-          hoverOffset: 8,
         }]
       },
       options: {
@@ -53,6 +80,14 @@ export const generateChart = async (data) => {
           legend: {
             display: true,
             position: 'bottom',
+            labels: {
+              color: '#000', // ✅ Black legend color
+              font: {
+                size: 12,
+                weight: 'bold',
+              },
+              usePointStyle: true, // ✅ Circular legend points
+            },
           },
           title: {
             display: true,
@@ -67,7 +102,8 @@ export const generateChart = async (data) => {
         animation: {
             animateRotate: true,
             animateScale: true
-          }
+          },
+         
       }
     });
 
