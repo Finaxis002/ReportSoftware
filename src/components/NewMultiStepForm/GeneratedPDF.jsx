@@ -33,7 +33,6 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfWithChart from "./PDFComponents/PdfWithChart";
-import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 import { generateChart } from "./charts/chart";
 
 
