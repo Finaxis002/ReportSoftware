@@ -95,7 +95,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                   },
                 },
                 datalabels: {
-                  display: true,
+                  display: false,
                   color: '#FFFFFF', // ✅ White text for better contrast
                   align: 'top', // ✅ Align at top
                   anchor: 'center', // ✅ Center alignment
