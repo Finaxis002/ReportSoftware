@@ -182,21 +182,45 @@ export const generateBarChart = async ({ labels, revenue, expenses }) => {
           y: {
             beginAtZero: true,
             ticks: {
+              color: '#FFFFFF',
               callback: (value) => `${value.toLocaleString()}`
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)', // ✅ Light grid lines for visibility
+              drawBorder: true
+            },
+            border: {
+              color: '#FFFFFF', // ✅ White axis line
             }
           },
           x: {
             grid: {
-              display: false
+              display: false,
+              color: 'rgba(255, 255, 255, 0.3)', // ✅ Light white grid lines
+              drawBorder: true // ✅ Ensure the axis border is drawn
+            },
+            ticks: {
+              color: '#FFFFFF' // ✅ White ticks for better contrast
+            },
+            border: {
+              color: '#FFFFFF', // ✅ White axis line
             }
           }
         },
         plugins: {
           legend: {
             display: true,
-            position: 'bottom'
+            position: 'bottom',
+            labels: {
+              color: '#FFFFFF', // ✅ White legend text
+              font: {
+                size: 14,
+                weight: '500'
+              },
+            }
           }
-        }
+        },
+        backgroundColor: '#000000', 
       }
     });
 
