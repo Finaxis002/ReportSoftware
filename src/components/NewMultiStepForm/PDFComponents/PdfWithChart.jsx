@@ -1,233 +1,8 @@
 
-// import React, { useState, useEffect } from 'react';
-// import { Page, Text, View, Document, Image, StyleSheet } from '@react-pdf/renderer';
-// import { generateChart } from '../charts/chart'; // ✅ Import as named export
-
-// const MyDocument = ({ chartBase64, formData }) => (
-//   <Document>
-//     <Page size="A4" style={styles.page}>
-//       <View>
-//         <Text style={styles.title}>Direct Expense Break up</Text>
-//         {/* ✅ Render Pie Chart */}
-//         {chartBase64 && <Image src={chartBase64} style={styles.chart} />}
-//       </View>
-//     </Page>
-//   </Document>
-// );
-
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 20,
-//     flexDirection: 'column',
-//     backgroundColor: '#fff',
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//   },
-//   chart: {
-//     width: 400,
-//     height: 300,
-//     marginVertical: 20,
-//   },
-// });
-
-// const PdfWithChart = ({ formData }) => {
-//   const [chartBase64, setChartBase64] = useState(null);
-
-// //   useEffect(() => {
-// //     const generateChartData = async () => {
-// //       if (formData.Expenses  && formData.Expenses.directExpense) {
-// //         const labels = formData.Expenses.directExpense
-// //           .filter(item => item.isDirect)
-// //           .map(item => item.name);
-
-// //         const values = formData.Expenses.directExpense
-// //           .filter(item => item.isDirect)
-// //           .map(item => parseFloat(item.value) || 0);
-
-// //         if (labels.length > 0 && values.length > 0) {
-// //           // ✅ Generate Pie Chart using the renamed function
-// //           const base64 = await generateChart({ labels, values });
-// //           setChartBase64(base64);
-// //         }
-// //       }
-// //     };
-
-// //     generateChartData();
-// //   }, [formData.Expenses]);
-
-// useEffect(() => {
-//     const generateChartData = async () => {
-//       if (formData.Expenses && formData.Expenses.directExpense) {
-//         const labels = formData.Expenses.directExpense
-//           .filter(item => item.isDirect)
-//           .map(item => item.name);
-  
-//         const values = formData.Expenses.directExpense
-//           .filter(item => item.isDirect)
-//           .map(item => parseFloat(item.value) || 0);
-  
-//         // ✅ Add Total Expected Salary to Pie Chart
-//         const totalExpectedSalary = formData.Expenses.normalExpense
-//           ? formData.Expenses.normalExpense.reduce((total, form) => {
-//               const amount = parseFloat(form.amount) || 0;
-//               const quantity = parseFloat(form.quantity) || 0;
-//               return total + amount * quantity * 12;
-//             }, 0)
-//           : 0;
-  
-//         if (totalExpectedSalary > 0) {
-//           labels.push("Total Expected Salary");
-//           values.push(totalExpectedSalary);
-//         }
-  
-//         if (labels.length > 0 && values.length > 0) {
-//           // ✅ Generate Pie Chart using the renamed function
-//           const base64 = await generateChart({ labels, values });
-//           setChartBase64(base64);
-//         }
-//       }
-//     };
-  
-//     generateChartData();
-//   }, [formData.Expenses]);
-  
-//   console.log("formdata in pdf with chart",formData)
-
-//   return <MyDocument chartBase64={chartBase64} />;
-// };
-
-// export default PdfWithChart;
-
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////////
-
-
-// import React, { useState, useEffect } from 'react';
-// import { Page, Text, View, Document, Image, StyleSheet } from '@react-pdf/renderer';
-// import { generateChart } from '../charts/chart';
-
-
-// const MyDocument = ({ pieBase64, barBase64 }) => (
-//   <Document>
-//     <Page size="A4" style={styles.page}>
-//       {/* ✅ Pie Chart */}
-//       <View>
-//         <Text style={styles.title}>Direct Expense Break up</Text>
-//         {pieBase64 && <Image src={pieBase64} style={styles.chart} />}
-//       </View>
-
-//       {/* ✅ Revenue vs Expenses Chart */}
-//       <View>
-//         <Text style={styles.title}>Revenue V/s Expenses</Text>
-//         {barBase64 && <Image src={barBase64} style={styles.chart} />}
-//       </View>
-//     </Page>
-//   </Document>
-// );
-
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 20,
-//     flexDirection: 'column',
-//     backgroundColor: '#fff',
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//   },
-//   chart: {
-//     width: 400,
-//     height: 300,
-//     marginVertical: 20,
-//   },
-// });
-
-// const PdfWithChart = ({ formData , totalExpenses}) => {
-//   const [pieBase64, setPieBase64] = useState(null);
-//   const [barBase64, setBarBase64] = useState(null);
-//   // const [totalExpenses, setTotalExpenses] = useState([]);
-//   console.log("total expense values in pdf with charts", totalExpenses)
-
-//   // ✅ Callback function to receive expenses data from ProjectedExpenses.jsx
-//   // const handleTotalExpenseUpdate = (expenses) => {
-//   //   console.log("✅ Received total expenses from ProjectedExpenses:", expenses);
-//   //   setTotalExpenses(expenses);
-//   // };
-
-//   useEffect(() => {
-//     const generateChartData = async () => {
-//       if (formData?.Expenses?.directExpense) {
-//         const labels = formData.Expenses.directExpense
-//           .filter(item => item.isDirect)
-//           .map(item => item.name);
-
-//         const values = formData.Expenses.directExpense
-//           .filter(item => item.isDirect)
-//           .map(item => parseFloat(item.value) || 0);
-
-//         // ✅ Get Revenue Data
-//         const revenue = formData?.Revenue?.totalRevenueForOthers || [];
-//         console.log("revenue value in pdf with charts", revenue )
-
-//         // if (labels.length > 0 && values.length > 0 && totalExpenses.length > 0) {
-//         //   const { pieBase64, barBase64 } = await generateChart({ 
-//         //     labels, 
-//         //     values, 
-//         //     revenue, 
-//         //     expenses: totalExpenses
-//         //   });
-
-
-//         //   setPieBase64(pieBase64);
-//         //   setBarBase64(barBase64);
-//         // }
-//         if (revenue.length === totalExpenses.length) {
-//           const { pieBase64, barBase64 } = await generateChart({ 
-//             labels, 
-//             values, 
-//             revenue, 
-//             expenses: totalExpenses 
-//           });
-        
-//           setPieBase64(pieBase64);
-//           setBarBase64(barBase64);
-//         } else {
-//           console.error("🚨 Revenue and Expense lengths do not match!");
-//         }
-    
-//       }
-//     };
-
-//     generateChartData();
-//   }, [formData, totalExpenses]); // ✅ Trigger when expenses change
-
-//   return (
-//     <>
-    
-//       <MyDocument pieBase64={pieBase64} barBase64={barBase64} />
-//     </>
-//   );
-// };
-
-// export default PdfWithChart;
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-// src/PDFComponents/PdfWithChart.jsx
 import React, { useState, useEffect } from 'react';
 import { Page, Text, View, Document, Image, StyleSheet } from '@react-pdf/renderer';
 import { generateChart } from '../charts/chart';
 import { generateBarChart } from '../charts/barChart';
-
-
 
 const MyDocument = ({ pieBase64, barBase64 }) => (
   <Document>
@@ -241,13 +16,16 @@ const MyDocument = ({ pieBase64, barBase64 }) => (
       {/* ✅ Revenue vs Expense Chart */}
       <View  style={styles.chartContainer}>
         <Text style={styles.title}>Revenue vs Expenses</Text>
+
         {barBase64 && <Image src={barBase64} style={styles.barChart} />}
+
       </View>
     </Page>
   </Document>
 );
 
 const styles = StyleSheet.create({
+
   page: { padding: 20, flexDirection: 'column', backgroundColor: '#fff' },
   chartContainer: {
     display: 'flex',
@@ -302,6 +80,7 @@ const PdfWithChart = ({ formData, totalExpenses }) => {
           .map(item => parseFloat(item.value) || 0);
 
           //✅ Add Total Expected Salary to Pie Chart
+
         const totalExpectedSalary = formData.Expenses.normalExpense
           ? formData.Expenses.normalExpense.reduce((total, form) => {
               const amount = parseFloat(form.amount) || 0;
@@ -314,6 +93,7 @@ const PdfWithChart = ({ formData, totalExpenses }) => {
           labels.push("Total Expected Salary");
           values.push(totalExpectedSalary);
         }
+
 
         if (labels.length > 0 && values.length > 0) {
           const pie = await generateChart({ labels, values });
@@ -338,6 +118,7 @@ const PdfWithChart = ({ formData, totalExpenses }) => {
   }
 
   return <MyDocument pieBase64={pieBase64} barBase64={barBase64} />;
+
 };
 
 export default PdfWithChart;

@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import { Document, PDFViewer, BlobProvider } from "@react-pdf/renderer";
+import { Document, PDFViewer, BlobProvider, Text } from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
 
@@ -31,6 +31,7 @@ import RatioAnalysis from "./PDFComponents/RatioAnalysis";
 import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
+
 
 
 
@@ -59,9 +60,23 @@ Font.register({
 });
 
 
+import PdfWithChart from "./PDFComponents/PdfWithChart";
+import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
+import { generateChart } from "./charts/chart";
+// import {LineChart} from "./charts/LineChart";
+import LineChart from "./charts/LineChart";
+import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
+import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 
 const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
+  const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
+
+// import PdfWithChart from "./PDFComponents/PdfWithChart"
+// import { generateChart } from "./charts/chart";
+// const GeneratedPDF = React.memo(({}) => {
+//   const [chartBase64, setChartBase64] = useState(null);
+
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -102,6 +117,9 @@ const GeneratedPDF = React.memo(({}) => {
   const [assetsliabilities, setAssetsLiabilities] = useState([]);
 
   const [dscr, setDscr] = useState([]);
+
+  const [currentRatio, setCurrentRatio] = useState([]);
+  console.log("current ratio values", currentRatio);
 
   const [averageCurrentRatio, setAverageCurrentRatio] = useState([]);
 
@@ -205,6 +223,35 @@ const handleTotalExpenseUpdate = (expenses) => {
     fetchChart(); // ✅ Generate on component mount
   }, []);
 
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        console.log("🚀 Generating Chart...");
+        const base64 = await generateChart();
+        console.log("✅ Chart Base64:", base64);
+        setChartBase64(base64);
+      } catch (error) {
+        console.error("❌ Failed to generate chart:", error);
+      }
+    };
+
+    fetchChart(); // ✅ Generate on component mount
+  }, []);
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        console.log("🚀 Generating Chart...");
+        const base64 = await LineChart();
+        console.log("✅ Chart Base64:", base64);
+        setLineChartBase64(base64);
+      } catch (error) {
+        console.error("❌ Failed to generate chart:", error);
+      }
+    };
+    fetchChart();
+  }, []);
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -438,21 +485,19 @@ const handleTotalExpenseUpdate = (expenses) => {
     navigate,
   ]);
 
-  const businessName =
-    formData.AccountInformation.businessName || "Unknown Business";
-  const clientName = formData.AccountInformation.clientName || "Unknown Client";
+  // Example: Convert financial year to simple numeric labels
+  const financialYearLabelsforChart = Array.from(
+    { length: projectionYears },
+    (_, i) => i + 1
+  );
 
-  const fileName = `ProjectReport_${businessName.replace(
-    /[^a-zA-Z0-9]/g,
-    "_"
-  )}_${clientName.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+  
 
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
-
         <ProjectSynopsis
           formData={formData}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
@@ -468,7 +513,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
         />
-
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
@@ -476,14 +520,12 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
         />
-
         {/* cost of project table */}
         <CostOfProject
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
         />
-
         {/* Projected Salaries & Wages Table*/}
         <ProjectedSalaries
           localData={localData}
@@ -495,7 +537,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           formData={formData}
         />
-
         <ProjectedDepreciation
           formData={formData}
           localData={localData}
@@ -508,7 +549,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-
         {/* Projected Expense Table Direct and Indirect */}
         <ProjectedExpenses
           formData={formData}
@@ -526,9 +566,7 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           
         />
-
         {/* Projected Revenue/ Sales */}
-
         <ProjectedRevenue
           formData={formData}
           onTotalRevenueUpdate={setTotalRevenueReceipts}
@@ -536,7 +574,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
         />
-
         {/* Projected Profitability Statement */}
         <ProjectedProfitability
           formData={formData}
@@ -569,7 +606,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
         />
-
         {computedData.netProfitBeforeTax.length > 0 && (
           <IncomeTaxCalculation
             formData={formData}
@@ -598,7 +634,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
         />
-
         <ProjectedBalanceSheet
           formData={formData}
           localData={localData}
@@ -621,7 +656,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
         />
-
         <CurrentRatio
           formData={formData}
           financialYearLabels={financialYearLabels}
@@ -630,8 +664,8 @@ const handleTotalExpenseUpdate = (expenses) => {
           sendAverageCurrentRation={setAverageCurrentRatio}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          sendCurrentRatio={setCurrentRatio}
         />
-
         <BreakEvenPoint
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -644,7 +678,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pdfType={pdfType}
         />
-
         <DebtServiceCoverageRatio
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -657,7 +690,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-
         <RatioAnalysis
           formData={formData}
           localData={localData}
@@ -682,7 +714,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-
         <Assumptions
           formData={formData}
           financialYearLabels={financialYearLabels}
@@ -692,20 +723,23 @@ const handleTotalExpenseUpdate = (expenses) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-
         <PromoterDetails
           formData={formData}
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
 
-
-
-        <PdfWithChart 
+          <PdfWithChart 
         formData={formData}
 
         chartBase64={chartBase64}
         totalExpenses={totalExpense}/>
+
+        <PdfWithCombinedCharts
+          labels={financialYearLabelsforChart || []}
+          dscr={dscr?.DSCR || []}
+          currentRatio={currentRatio?.currentRatio || []}
+        />
 
       </Document>
     );
@@ -722,6 +756,7 @@ const handleTotalExpenseUpdate = (expenses) => {
     averageCurrentRatio,
     breakEvenPointPercentage,
     assetsliabilities,
+    lineChartBase64,
   ]);
 
   // for filling the form data silently

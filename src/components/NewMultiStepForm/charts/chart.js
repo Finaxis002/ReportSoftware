@@ -1,8 +1,8 @@
 
-//////////////////////////////////////////////////////////////////////////////////////////
 
 
 import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
+
 
 // ✅ Register controllers and elements
 Chart.register(...registerables,ArcElement, Tooltip, Legend);
@@ -64,11 +64,13 @@ export const generateChart = async (data) => {
           data: data.values,
           backgroundColor: backgroundColors,
           borderColor: borderColors,
+
           borderWidth: 2, 
           hoverOffset: 12,
           
           borderJoinStyle: 'round',
           spacing: 2
+
         }]
       },
       options: {
@@ -118,5 +120,5 @@ export const generateChart = async (data) => {
   }
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+
 

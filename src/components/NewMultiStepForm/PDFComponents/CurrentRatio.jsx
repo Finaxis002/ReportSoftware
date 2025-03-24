@@ -28,6 +28,7 @@ const CurrentRatio = ({
   sendAverageCurrentRation,
   pdfType,
   receivedtotalRevenueReceipts,
+  sendCurrentRatio
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
@@ -82,6 +83,17 @@ const CurrentRatio = ({
     // console.log("sending average current ratio : ", averageCurrentRatio)
   }, [JSON.stringify(averageCurrentRatio)]);
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
+
+
+  useEffect(() => {
+    if(currentRatio.length>0){
+      sendCurrentRatio((prev) => ({
+        ...prev,
+        currentRatio
+      }))
+    }
+  }, [JSON.stringify(currentRatio)]);
 
   return (
     <Page
