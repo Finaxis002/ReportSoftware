@@ -436,6 +436,7 @@ const GeneratedPDF = React.memo(({}) => {
   );
 
   
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
@@ -688,7 +689,7 @@ const GeneratedPDF = React.memo(({}) => {
         /> */}
 
         <PdfWithCombinedCharts
-          labels={financialYearLabelsforChart|| []}
+          labels={financialYearLabelsforChart || []}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
         />
