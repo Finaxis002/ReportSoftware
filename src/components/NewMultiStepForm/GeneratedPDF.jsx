@@ -38,31 +38,31 @@ import PromoterDetails from "./PDFComponents/PromoterDetails";
 import PdfWithChart from "./PDFComponents/PdfWithChart"
 import { generateChart } from "./charts/chart";
 
-import DirectExpenseBreakUp from "./PDFComponents/Graphs/DirectExpenseBreakUp";
-
-Font.register({
-  family: "TimesNewRoman",
-  fonts: [
-    {
-      src: require("./Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-    {
-      src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
-      fontWeight: "bold",
-      fontStyle: "italic",
-    },
-  ],
-});
 
 
-import PdfWithChart from "./PDFComponents/PdfWithChart";
+// Font.register({
+//   family: "TimesNewRoman",
+//   fonts: [
+//     {
+//       src: require("./Assets/Fonts/times-new-roman.ttf"),
+//       fontWeight: "normal",
+//     },
+//     {
+//       src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
+//       fontWeight: "bold",
+//     },
+//     {
+//       src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
+//       fontWeight: "bold",
+//       fontStyle: "italic",
+//     },
+//   ],
+// });
+
+
+
 import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
-import { generateChart } from "./charts/chart";
+
 // import {LineChart} from "./charts/LineChart";
 import LineChart from "./charts/LineChart";
 import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
@@ -72,10 +72,6 @@ const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
 
-// import PdfWithChart from "./PDFComponents/PdfWithChart"
-// import { generateChart } from "./charts/chart";
-// const GeneratedPDF = React.memo(({}) => {
-//   const [chartBase64, setChartBase64] = useState(null);
 
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
