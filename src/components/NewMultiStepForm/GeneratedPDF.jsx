@@ -37,26 +37,26 @@ import PromoterDetails from "./PDFComponents/PromoterDetails";
 import PdfWithChart from "./PDFComponents/PdfWithChart"
 import { generateChart } from "./charts/chart";
 
+import DirectExpenseBreakUp from "./PDFComponents/Graphs/DirectExpenseBreakUp";
 
-
-// Font.register({
-//   family: "TimesNewRoman",
-//   fonts: [
-//     {
-//       src: require("./Assets/Fonts/times-new-roman.ttf"),
-//       fontWeight: "normal",
-//     },
-//     {
-//       src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
-//       fontWeight: "bold",
-//     },
-//     {
-//       src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
-//       fontWeight: "bold",
-//       fontStyle: "italic",
-//     },
-//   ],
-// });
+Font.register({
+  family: "TimesNewRoman",
+  fonts: [
+    {
+      src: require("./Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
 
 
 
@@ -703,8 +703,10 @@ const handleTotalExpenseUpdate = (expenses) => {
 
         <PdfWithChart 
         formData={formData}
+
         chartBase64={chartBase64}
         totalExpenses={totalExpense}/>
+
       </Document>
     );
   }, [
