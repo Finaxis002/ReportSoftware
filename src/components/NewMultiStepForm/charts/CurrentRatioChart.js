@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart, registerables } from 'chart.js';
-import html2canvas from 'html2canvas';
-import ReactDOM from 'react-dom/client';
+import React, { useEffect } from "react";
+import { Line } from "react-chartjs-2";
+import { Chart, registerables } from "chart.js";
+import html2canvas from "html2canvas";
+import ReactDOM from "react-dom/client";
 
 Chart.register(...registerables);
 
@@ -13,14 +13,14 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
         // ✅ Create container for rendering chart
-        const container = document.createElement('div');
-        container.style.width = '400px';
-        container.style.height = '300px';
-        container.style.position = 'fixed';
-        container.style.left = '-9999px';
-        container.style.backgroundColor = '#FFFFFF'; // ✅ White background
-        container.style.padding = '10px';
-        container.style.border = '1px solid #ccc';
+        const container = document.createElement("div");
+        container.style.width = "400px";
+        container.style.height = "300px";
+        container.style.position = "fixed";
+        container.style.left = "-9999px";
+        container.style.backgroundColor = "#FFFFFF"; // ✅ White background
+        container.style.padding = "10px";
+        container.style.border = "1px solid #ccc";
         document.body.appendChild(container);
 
         // ✅ Destroy existing chart if any
@@ -36,13 +36,13 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
               labels,
               datasets: [
                 {
-                  label: 'Current Ratio',
+                  label: "Current Ratio",
                   data: values,
-                  borderColor: '#4A90E2', // ✅ Blue line color
-                  backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  borderColor: "#4A90E2", // ✅ Blue line color
+                  backgroundColor: "rgba(74, 144, 226, 0.2)",
                   fill: true,
                   tension: 0.4,
-                  pointBackgroundColor: '#4A90E2',
+                  pointBackgroundColor: "#4A90E2",
                   pointRadius: 5, // ✅ Larger Points
                   pointHoverRadius: 7, // ✅ Hover Effect
                 },
@@ -55,40 +55,53 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
                 legend: {
                   display: true,
                   labels: {
-                    color: '#000', // ✅ Black legend text
+                    color: "#000", // ✅ Black legend text
                   },
                 },
                 tooltip: {
                   enabled: true,
                 },
+                // ✅ Show values on data points
+                datalabels: {
+                  display: true,
+                  color: "#000", // ✅ White text for better contrast
+                  align: "top", // ✅ Position at top of point
+                  anchor: "center", // ✅ Keep it centered on the point
+                  font: {
+                    size: 10, // ✅ Increase size for better visibility
+                    weight: "bold",
+                  },
+                  // formatter: (value) => value.toFixed(2), // ✅ Format to two decimal points
+                },
               },
+
               scales: {
                 x: {
                   title: {
                     display: true,
-                    text: 'Years',
-                    color: '#000', // ✅ Black axis label
+                    text: "Years",
+                    color: "#000", // ✅ Black axis label
                   },
                   ticks: {
-                    color: '#000', // ✅ Black axis text
+                    color: "#000", // ✅ Black axis text
                     stepSize: 1, // ✅ Display whole numbers like 1, 2, 3...
                     maxTicksLimit: labels.length, // ✅ Ensure all years are shown
                   },
                   grid: {
-                    color: 'rgba(0, 0, 0, 0.1)', // ✅ Light gridlines
+                    color: "rgba(0, 0, 0, 0.1)", // ✅ Light gridlines
                   },
                 },
                 y: {
                   title: {
                     display: true,
-                    text: 'Value',
-                    color: '#000', // ✅ Black axis label
+                    text: "Value",
+                    color: "#000", // ✅ Black axis label
                   },
                   ticks: {
-                    color: '#000', // ✅ Black axis text
+                    color: "#000", // ✅ Black axis text
                   },
                   grid: {
-                    color: 'rgba(0, 0, 0, 0.1)', // ✅ Light gridlines
+                    color: "rgba(0, 0, 0, 0.1)", // ✅ Light gridlines
                   },
                 },
               },
@@ -102,17 +115,17 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         );
 
         // ✅ Allow chart to render before capturing
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // ✅ Capture chart using html2canvas
         const canvas = await html2canvas(container, {
           scale: 2,
           useCORS: true,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: "#FFFFFF",
         });
 
         // ✅ Convert to base64
-        const base64Image = canvas.toDataURL('image/png');
+        const base64Image = canvas.toDataURL("image/png");
 
         console.log("✅ Current Ratio Chart Base64:", base64Image);
 

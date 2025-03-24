@@ -32,7 +32,6 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
-
 import PdfWithChart from "./PDFComponents/PdfWithChart";
 import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 import { generateChart } from "./charts/chart";
@@ -45,10 +44,10 @@ const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
 
-// import PdfWithChart from "./PDFComponents/PdfWithChart"
-// import { generateChart } from "./charts/chart";
-// const GeneratedPDF = React.memo(({}) => {
-//   const [chartBase64, setChartBase64] = useState(null);
+  // import PdfWithChart from "./PDFComponents/PdfWithChart"
+  // import { generateChart } from "./charts/chart";
+  // const GeneratedPDF = React.memo(({}) => {
+  //   const [chartBase64, setChartBase64] = useState(null);
 
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
@@ -115,12 +114,10 @@ const GeneratedPDF = React.memo(({}) => {
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
-  
-
-const handleTotalExpenseUpdate = (expenses) => {
-  console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
-  setTotalExpense(expenses); // ✅ Update state
-};
+  const handleTotalExpenseUpdate = (expenses) => {
+    console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
+    setTotalExpense(expenses); // ✅ Update state
+  };
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -129,8 +126,6 @@ const handleTotalExpenseUpdate = (expenses) => {
       setPdfType(storedPdfType);
     }
   }, []);
-
- 
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -180,7 +175,6 @@ const handleTotalExpenseUpdate = (expenses) => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-
   useEffect(() => {
     const fetchChart = async () => {
       try {
@@ -195,7 +189,6 @@ const handleTotalExpenseUpdate = (expenses) => {
 
     fetchChart(); // ✅ Generate on component mount
   }, []);
-
 
   useEffect(() => {
     const fetchChart = async () => {
@@ -464,8 +457,6 @@ const handleTotalExpenseUpdate = (expenses) => {
     (_, i) => i + 1
   );
 
-  
-
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
@@ -485,6 +476,19 @@ const handleTotalExpenseUpdate = (expenses) => {
           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
+        />
+
+        {/* Graphs  */}
+        <PdfWithChart
+          formData={formData}
+          chartBase64={chartBase64}
+          totalExpenses={totalExpense}
+        />
+
+        <PdfWithCombinedCharts
+          labels={financialYearLabelsforChart || []}
+          dscr={dscr?.DSCR || []}
+          currentRatio={currentRatio?.currentRatio || []}
         />
         {/* Means of Finance Table */}
         <MeansOfFinance
@@ -537,7 +541,6 @@ const handleTotalExpenseUpdate = (expenses) => {
           onTotalExpenseSend={handleTotalExpenseUpdate}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
-          
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -702,18 +705,7 @@ const handleTotalExpenseUpdate = (expenses) => {
           formatNumber={formatNumber}
         />
 
-          <PdfWithChart 
-        formData={formData}
-
-        chartBase64={chartBase64}
-        totalExpenses={totalExpense}/>
-
-        <PdfWithCombinedCharts
-          labels={financialYearLabelsforChart || []}
-          dscr={dscr?.DSCR || []}
-          currentRatio={currentRatio?.currentRatio || []}
-        />
-
+       
       </Document>
     );
   }, [
