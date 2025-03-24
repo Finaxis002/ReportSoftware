@@ -465,6 +465,7 @@ const handleTotalExpenseUpdate = (expenses) => {
   );
 
   
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
@@ -708,7 +709,7 @@ const handleTotalExpenseUpdate = (expenses) => {
         totalExpenses={totalExpense}/>
 
         <PdfWithCombinedCharts
-          labels={financialYearLabelsforChart|| []}
+          labels={financialYearLabelsforChart || []}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
         />
