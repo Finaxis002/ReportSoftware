@@ -165,6 +165,18 @@ const FourthStepPRS = ({
         value: "",
         isCustom: true,
       },
+      MembershipNumber: {
+        name: "Membership Number",
+        id: "MembershipNumber",
+        value: "",
+        isCustom: false,
+      },
+      MobileNumber: {
+        name: "Mobile Number",
+        id: "MobileNumber",
+        value: "",
+        isCustom: false,
+      },
       // ✅ New Object for Bank Details
       BankDetails: {
         Bank: {
@@ -213,6 +225,21 @@ const FourthStepPRS = ({
     },
     ...(formData?.ProjectReportSetting || {}), // Merging formData if available
   }));
+
+  const CA_DETAILS = {
+    "Anunay Sharda": {
+      membershipNumber: "441497",
+      mobileNumber: "+91-79870 21896",
+    },
+    "Anugrah Sharda": {
+      membershipNumber: "254584",
+      mobileNumber: "+91-5427896512",
+    },
+    "Shradha Sharda": {
+      membershipNumber: "488858",
+      mobileNumber: "+91-1234567894",
+    },
+  };
 
   // ✅ Populate `localData` from `formData.ProjectReportSetting` on mount
   useEffect(() => {
@@ -275,24 +302,161 @@ const FourthStepPRS = ({
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
+
+  // Handle change for any field including ProjectionYears
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   const keys = name.split("."); // Handle nested objects
+
+  //   setLocalData((prevData) => {
+  //     if (keys.length === 2) {
+  //       // For nested objects like BankDetails.Bank
+  //       const [parentKey, childKey] = keys;
+  //       return {
+  //         ...prevData,
+  //         [parentKey]: {
+  //           ...prevData[parentKey],
+  //           [childKey]: {
+  //             ...prevData[parentKey][childKey],
+  //             value: value, // ✅ Update value inside object
+  //           },
+  //         },
+  //       };
+  //     } else {
+  //       // For non-nested fields
+  //       return {
+  //         ...prevData,
+  //         [name]: {
+  //           ...prevData[name],
+  //           value: value,
+  //         },
+  //       };
+  //     }
+  //   });
+
+  //   // ✅ Update parent state (onFormDataChange)
+  //   onFormDataChange((prevData) => {
+  //     if (keys.length === 2) {
+  //       const [parentKey, childKey] = keys;
+  //       return {
+  //         ...prevData,
+  //         ProjectReportSetting: {
+  //           ...prevData.ProjectReportSetting,
+  //           [parentKey]: {
+  //             ...prevData.ProjectReportSetting[parentKey],
+  //             [childKey]: {
+  //               ...prevData.ProjectReportSetting[parentKey][childKey],
+  //               value: value,
+  //             },
+  //           },
+  //         },
+  //       };
+  //     } else {
+  //       return {
+  //         ...prevData,
+  //         ProjectReportSetting: {
+  //           ...prevData.ProjectReportSetting,
+  //           [name]: {
+  //             ...prevData.ProjectReportSetting[name],
+  //             value: value,
+  //           },
+  //         },
+  //       };
+  //     }
+  //   });
+  // };
+  //////////////////////
+
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   setLocalData((prevData) => {
+  //     let updatedData = {
+  //       ...prevData,
+  //       [name]: {
+  //         ...prevData[name],
+  //         value: value,
+  //       },
+  //     };
+
+  //     // ✅ Auto-fill logic when CA Name is selected
+  //     if (name === "CAName" && CA_DETAILS[value]) {
+  //       updatedData = {
+  //         ...updatedData,
+  //         MembershipNumber: {
+  //           ...prevData.MembershipNumber,
+  //           value: CA_DETAILS[value].membershipNumber,
+  //         },
+  //         MobileNumber: {
+  //           ...prevData.MobileNumber,
+  //           value: CA_DETAILS[value].mobileNumber,
+  //         },
+  //       };
+  //     }
+
+  //     return updatedData;
+  //   });
+
+  //   // ✅ Update parent component state using onFormDataChange
+  //   onFormDataChange((prevData) => ({
+  //     ...prevData,
+  //     ProjectReportSetting: {
+  //       ...prevData.ProjectReportSetting,
+  //       [name]: {
+  //         ...prevData.ProjectReportSetting[name],
+  //         value: value,
+  //       },
+  //       ...(name === "CAName" && CA_DETAILS[value]
+  //         ? {
+  //             MembershipNumber: {
+  //               ...prevData.ProjectReportSetting.MembershipNumber,
+  //               value: CA_DETAILS[value].membershipNumber,
+  //             },
+  //             MobileNumber: {
+  //               ...prevData.ProjectReportSetting.MobileNumber,
+  //               value: CA_DETAILS[value].mobileNumber,
+  //             },
+  //           }
+  //         : {}),
+  //     },
+  //   }));
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const [key, subKey] = name.split(".");
-  
+
     setLocalData((prevData) => {
-      if (subKey) {
-        // ✅ Use `.value` for nested fields under BankDetails and advanced fields
+      // ✅ Handle CA Name selection
+      if (name === "CAName" && CA_DETAILS[value]) {
         return {
           ...prevData,
-          [key]: {
-            ...prevData[key],
-            [subKey]: {
-              ...prevData[key][subKey],
-              value: value, // ✅ Use .value for advance fields
+          CAName: { ...prevData.CAName, value },
+          MembershipNumber: {
+            ...prevData.MembershipNumber,
+            value: CA_DETAILS[value].membershipNumber,
+          },
+          MobileNumber: {
+            ...prevData.MobileNumber,
+            value: CA_DETAILS[value].mobileNumber,
+          },
+        };
+      } else if (name.includes(".")) {
+        // ✅ For nested fields like BankDetails.Bank
+        const keys = name.split(".");
+        return {
+          ...prevData,
+          [keys[0]]: {
+            ...prevData[keys[0]],
+            [keys[1]]: {
+              ...prevData[keys[0]][keys[1]],
+              value: value,
+
             },
           },
         };
       } else {
+
         // ✅ Direct value update for other fields
         const isAdvancedField =
           name === "UDINNumber" ||
@@ -304,43 +468,112 @@ const FourthStepPRS = ({
           [name]: isAdvancedField
             ? { ...prevData[name], value: value } // ✅ Use .value for advance fields
             : value, // ✅ Directly update value for normal fields
+
         };
       }
     });
   
     // ✅ Update parent state (onFormDataChange) with nested values
-    onFormDataChange((prevData) => {
-      if (subKey) {
-        return {
-          ...prevData,
-          ProjectReportSetting: {
-            ...prevData.ProjectReportSetting,
-            [key]: {
-              ...prevData.ProjectReportSetting[key],
-              [subKey]: {
-                ...prevData.ProjectReportSetting[key]?.[subKey],
-                value: value, // ✅ Use .value for advance fields
-              },
-            },
-          },
-        };
-      } else {
-        const isAdvancedField =
-          name === "UDINNumber" ||
-          name === "CAName" ||
-          name.startsWith("BankDetails.");
+//     onFormDataChange((prevData) => {
+
+//       if (name === "CAName" && CA_DETAILS[value]) {
+
+//         return {
+//           ...prevData,
+//           ProjectReportSetting: {
+//             ...prevData.ProjectReportSetting,
+
+//             CAName: {
+//               ...prevData.ProjectReportSetting.CAName,
+//               value,
+//             },
+//             MembershipNumber: {
+//               ...prevData.ProjectReportSetting.MembershipNumber,
+//               value: CA_DETAILS[value].membershipNumber,
+//             },
+//             MobileNumber: {
+//               ...prevData.ProjectReportSetting.MobileNumber,
+//               value: CA_DETAILS[value].mobileNumber,
+// },
+//             [key]:subKey ?{
+//               ...prevData.ProjectReportSetting[key],
+//               [subKey]: {
+//                 ...prevData.ProjectReportSetting[key]?.[subKey],
+//                 value: value, // ✅ Use .value for advance fields
+//               },
+
+            
+//           },
+//         };
+//       } else {
+//         const isAdvancedField =
+//           name === "UDINNumber" ||
+//           name === "CAName" ||
+//           name.startsWith("BankDetails.");
   
-        return {
-          ...prevData,
-          ProjectReportSetting: {
-            ...prevData.ProjectReportSetting,
-            [name]: isAdvancedField
-              ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advance fields
-              : value, // ✅ Directly update value for normal fields
-          },
-        };
-      }
-    });
+//         return {
+//           ...prevData,
+//           ProjectReportSetting: {
+//             ...prevData.ProjectReportSetting,
+// [name]: isAdvancedField
+//     ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
+//     : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
+
+//           },
+//         };
+//       }
+//     });
+onFormDataChange((prevData) => {
+  if (name === "CAName" && CA_DETAILS[value]) {
+    return {
+      ...prevData,
+      ProjectReportSetting: {
+        ...prevData.ProjectReportSetting,
+
+        CAName: {
+          ...prevData.ProjectReportSetting.CAName,
+          value,
+        },
+        MembershipNumber: {
+          ...prevData.ProjectReportSetting.MembershipNumber,
+          value: CA_DETAILS[value].membershipNumber,
+        },
+        MobileNumber: {
+          ...prevData.ProjectReportSetting.MobileNumber,
+          value: CA_DETAILS[value].mobileNumber,
+        },
+
+        ...(key && subKey
+          ? {
+              [key]: {
+                ...prevData.ProjectReportSetting[key],
+                [subKey]: {
+                  ...prevData.ProjectReportSetting[key]?.[subKey],
+                  value: value, // ✅ Use .value for advance fields
+                },
+              },
+            }
+          : {}),
+      },
+    };
+  } else {
+    const isAdvancedField =
+      name === "UDINNumber" ||
+      name === "CAName" ||
+      name.startsWith("BankDetails.");
+
+    return {
+      ...prevData,
+      ProjectReportSetting: {
+        ...prevData.ProjectReportSetting,
+        [name]: isAdvancedField
+          ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
+          : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
+      },
+    };
+  }
+});
+
   
     // ✅ Handle ProjectionYears and RateOfExpense Separately
     if (name === "ProjectionYears") {
@@ -717,7 +950,66 @@ const FourthStepPRS = ({
                 </div>
               </div>
 
-              {/* ✅ Fix Nested Objects for BankDetails */}
+
+              {/* <div className="col-6">
+                <div className="input">
+                  <input
+                    id="MembershipNumber"
+                    name="MembershipNumber"
+                    type="text"
+                    value={localData?.MembershipNumber?.value || ""}
+                    readOnly
+                  />
+                  <label htmlFor="MembershipNumber">
+                    Membership Number (M. No.)
+                  </label>
+                </div>
+              </div>
+
+              
+              <div className="col-6">
+                <div className="input">
+                  <input
+                    id="MobileNumber"
+                    name="MobileNumber"
+                    type="text"
+                    value={localData?.MobileNumber?.value || ""}
+                    readOnly
+                  />
+                  <label htmlFor="MobileNumber">Mobile Number (Mob. No.)</label>
+                </div>
+              </div> */}
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="MembershipNumber"
+                    name="MembershipNumber"
+                    type="text"
+                    placeholder="Membership Number"
+                    value={localData?.MembershipNumber?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="MembershipNumber">Membership Number</label>
+                </div>
+              </div>
+
+              <div className="col-4 mt-3">
+                <div className="input">
+                  <input
+                    id="MobileNumber"
+                    name="MobileNumber"
+                    type="text"
+                    placeholder="Mobile Number"
+                    value={localData?.MobileNumber?.value || ""}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="MobileNumber">Mobile Number</label>
+                </div>
+              </div>
+
+
+
+
               {/* Bank */}
               <div className="col-4 mt-3">
                 <div className="input">

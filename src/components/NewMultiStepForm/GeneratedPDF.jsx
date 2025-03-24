@@ -32,6 +32,7 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
+
 import PdfWithChart from "./PDFComponents/PdfWithChart";
 import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 import { generateChart } from "./charts/chart";
@@ -43,6 +44,12 @@ import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
+
+// import PdfWithChart from "./PDFComponents/PdfWithChart"
+// import { generateChart } from "./charts/chart";
+// const GeneratedPDF = React.memo(({}) => {
+//   const [chartBase64, setChartBase64] = useState(null);
+
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
 
@@ -108,7 +115,12 @@ const GeneratedPDF = React.memo(({}) => {
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
-  console.log("📥 Received PDF Data:", pdfData);
+  
+
+const handleTotalExpenseUpdate = (expenses) => {
+  console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
+  setTotalExpense(expenses); // ✅ Update state
+};
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -118,7 +130,7 @@ const GeneratedPDF = React.memo(({}) => {
     }
   }, []);
 
-  console.log("pdf type", pdfType);
+ 
 
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
@@ -167,6 +179,23 @@ const GeneratedPDF = React.memo(({}) => {
 
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
+
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        console.log("🚀 Generating Chart...");
+        const base64 = await generateChart();
+        console.log("✅ Chart Base64:", base64);
+        setChartBase64(base64);
+      } catch (error) {
+        console.error("❌ Failed to generate chart:", error);
+      }
+    };
+
+    fetchChart(); // ✅ Generate on component mount
+  }, []);
+
 
   useEffect(() => {
     const fetchChart = async () => {
@@ -505,9 +534,10 @@ const GeneratedPDF = React.memo(({}) => {
           directExpenses={directExpenses}
           projectionYears={projectionYears}
           totalDirectExpensesArray={totalDirectExpensesArray}
-          onTotalExpenseSend={setTotalExpense}
+          onTotalExpenseSend={handleTotalExpenseUpdate}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
+          
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -671,28 +701,19 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
-        <PdfWithChart formData={formData} chartBase64={chartBase64} />
-        {/* <PdfWithLineChart
-          chartBase64={lineChartBase64}
-          dscr={dscr}
-          financialYearLabels={financialYearLabels}
-        /> */}
-        {/* ✅ Include Line Chart in PDF */}
-        {/* <PdfWithLineChart
-          dscr={dscr?.DSCR || []}
-          labels={financialYearLabelsforChart || []}
-        />
 
-        <PdfWithCurrentRatioChart
-          currentRatio={currentRatio?.currentRatio || []}
-          labels={financialYearLabelsforChart || []}
-        /> */}
+          <PdfWithChart 
+        formData={formData}
+
+        chartBase64={chartBase64}
+        totalExpenses={totalExpense}/>
 
         <PdfWithCombinedCharts
           labels={financialYearLabelsforChart || []}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
         />
+
       </Document>
     );
   }, [
