@@ -218,9 +218,12 @@ export const generateBarChart = async ({ labels, revenue, expenses }) => {
                 weight: '500'
               },
             }
-          }
+          },
+          datalabels: {
+            display: false, // ✅ Enable datalabels properly
+          },
         },
-        backgroundColor: '#000000', 
+        backgroundColor: '#0000x00', 
       }
     });
 

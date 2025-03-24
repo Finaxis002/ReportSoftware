@@ -96,7 +96,10 @@ export const generateChart = async (data) => {
           },
           tooltip: {
             enabled: true,
-          }
+          },
+          datalabels: {
+            display: false, // ✅ Enable datalabels properly
+          },
           
         },
         animation: {
