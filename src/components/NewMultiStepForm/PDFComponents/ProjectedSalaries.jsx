@@ -240,6 +240,7 @@ const ProjectedSalaries = ({
                 borderBottomWidth: "1px",
                 fontSize: "10px",
                 paddingVertical: "6px",
+                width:"80%"
               },
             ]}
           >
@@ -252,12 +253,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.boldText,
-              styles.Total,
-              {
-                borderTopWidth: "1px",
-                borderBottomWidth: "1px",
-                paddingVertical: "6px",
-              },
+              { borderTop: "1px solid #000", borderBottom: "1px solid #000" },
             ]}
           >
             {" "}

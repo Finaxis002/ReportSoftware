@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faDownload } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faTrash,
+  faDownload,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import ReportEditModal from "./ReportEditModal";
 import MenuBar from "../MenuBar";
 import Header from "../Header";
@@ -124,118 +129,162 @@ const Reports = ({ sendPdfData }) => {
       <div className="flex flex-col w-full px-6 py-4 gap-8">
         <Header />
         <div className="overflow-x-auto shadow-md rounded-xl border border-gray-200 bg-white">
-          <table className="min-w-full border-collapse rounded-lg overflow-hidden">
-            {/* ✅ Table Header */}
-            <thead className="bg-teal-400 text-white">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">
-                  Business Name
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">
-                  Name of Owner
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">
-                  Author
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">
-                  Date Created
-                </th>
-                <th className="px-6 py-4 text-center text-sm font-semibold">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-
-            {/* ✅ Table Body */}
-            <tbody className="divide-y divide-gray-200">
-              {/* Show loading spinner if data is still being fetched */}
-              {isLoading ? (
+          <div className="w-[70rem] h-[70vh] overflow-x-auto  whitespace-nowrap">
+            {" "}
+            {/* Wrapper for horizontal scrolling */}{" "}
+            {/* Wrapper for horizontal scrolling with padding */}
+            <table className="min-w-full table-auto border-collapse rounded-lg shadow-md overflow-hidden">
+              {/* ✅ Table Header */}
+              <thead className="bg-teal-400 text-white">
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center">
-                    <LoadingSpinner />
-                  </td>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Business Name
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Name of Owner
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Author
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Date Created
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Description
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Term Loan
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Working Capital Loan
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold">
+                    Actions
+                  </th>
                 </tr>
-              ) : (
-                reports.map((report, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-100 transition duration-200"
-                  >
-                    {/* ✅ Business Name */}
-                    <td className="px-6 py-4 text-gray-700 font-medium">
-                      {report.AccountInformation?.businessName || "N/A"}
-                    </td>
+              </thead>
 
-                    {/* ✅ Name of Owner */}
-                    <td className="px-6 py-4 text-gray-700">
-                      {report.AccountInformation?.clientName || "N/A"}
-                    </td>
-
-                    {/* ✅ Author */}
-                    <td className="px-6 py-4 text-gray-700">
-                      {report.AccountInformation?.userRole || "N/A"}
-                    </td>
-
-                    {/* ✅ Date Created */}
-                    <td className="px-6 py-4 text-gray-700">
-                      {report?.AccountInformation?.createdAt
-                        ? new Date(
-                            report.AccountInformation.createdAt
-                          ).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-
-                    {/* ✅ Actions */}
-                    <td className="px-6 py-4 flex justify-center gap-4">
-                      {/* ✅ Download Button */}
-                      <button
-                        className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
-                          localStorage.getItem("userRole") === "employee"
-                            ? "bg-gray-400 cursor-not-allowed" // ✅ Disabled styling
-                            : "bg-green-500 hover:bg-green-600 text-white"
-                        }`}
-                        onClick={() => handleDownload(report.sessionId)}
-                        disabled={
-                          localStorage.getItem("userRole") === "employee"
-                        } // ✅ Disable for employees
-                      >
-                        <FontAwesomeIcon icon={faDownload} />
-                        Download
-                      </button>
-
-                      {/* ✅ Delete Button */}
-                      <button
-                        className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
-                          localStorage.getItem("userRole") === "employee"
-                            ? "bg-gray-400 cursor-not-allowed" // ✅ Disabled styling
-                            : "bg-red-500 hover:bg-red-600 text-white"
-                        }`}
-                        onClick={() => handleDelete(report._id)}
-                        disabled={
-                          localStorage.getItem("userRole") === "employee"
-                        } // ✅ Disable for employees
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                        Delete
-                      </button>
+              {/* ✅ Table Body */}
+              <tbody className="divide-y divide-gray-200">
+                {/* Show loading spinner if data is still being fetched */}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-4 text-center">
+                      <LoadingSpinner />
                     </td>
                   </tr>
-                ))
-              )}
+                ) : (
+                  reports.map((report, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-100 transition-all duration-200 ease-in-out"
+                    >
+                      {/* ✅ Business Name */}
+                      <td className="px-6 py-4 text-gray-700 font-medium">
+                        {report.AccountInformation?.businessName || "N/A"}
+                      </td>
 
-              {/* ✅ No Reports Found */}
-              {reports.length === 0 && !isLoading && (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    No reports found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      {/* ✅ Name of Owner */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report.AccountInformation?.clientName || "N/A"}
+                      </td>
+
+                      {/* ✅ Author */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report.AccountInformation?.userRole || "N/A"}
+                      </td>
+
+                      {/* ✅ Date Created */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report?.AccountInformation?.createdAt
+                          ? new Date(
+                              report.AccountInformation.createdAt
+                            ).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+
+                      {/* ✅ Description */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report.AccountInformation?.businessDescription ||
+                          "No description available"}
+                      </td>
+
+                      {/* ✅ Term Loan */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report.MeansOfFinance?.termLoan?.termLoan ||
+                          "No Term Loan Info"}
+                      </td>
+
+                      {/* ✅ Working Capital Loan */}
+                      <td className="px-6 py-4 text-gray-700">
+                        {report.MeansOfFinance?.workingCapital?.termLoan ||
+                          "No Working Capital Loan Info"}
+                      </td>
+
+                      {/* ✅ Actions */}
+                      <td className="px-6 py-4 flex justify-center gap-4">
+                        {/* Conditional rendering of buttons based on user role */}
+                        <div className="flex gap-4">
+                          {/* ✅ Download Button for non-employees */}
+                          <button
+                            className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
+                              localStorage.getItem("userRole") === "employee"
+                                ? "hidden" // Hide the button if user is employee
+                                : "bg-green-500 hover:bg-green-600 text-white"
+                            }`}
+                            onClick={() => handleDownload(report.sessionId)}
+                          >
+                            <FontAwesomeIcon icon={faDownload} />
+                            Download
+                          </button>
+
+                          {/* ✅ Delete Button for non-employees */}
+                          <button
+                            className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
+                              localStorage.getItem("userRole") === "employee"
+                                ? "hidden" // Hide the button if user is employee
+                                : "bg-red-500 hover:bg-red-600 text-white"
+                            }`}
+                            onClick={() => handleDelete(report._id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                            Delete
+                          </button>
+
+                          {/* ✅ Create Button for employees */}
+                          <button
+                            onClick={() => {
+                              navigate("/MultestepForm", {
+                                state: {
+                                  isCreateReportWithExistingClicked: true,
+                                  reportData: report, // Passing the report data to the form
+                                },
+                              });
+                            }}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                          >
+                            Create new from this
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+
+                {/* ✅ No Reports Found */}
+                {reports.length === 0 && !isLoading && (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      No reports found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

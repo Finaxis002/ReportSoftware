@@ -345,36 +345,44 @@ const GeneratedPDF = React.memo(({}) => {
     projectionYears
   );
 
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-  //   if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+    if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
 
-  //   switch (formatType) {
-  //     case "1": // Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
 
-  //     case "2": // USD Format (1,123,456.00)
-  //       return new Intl.NumberFormat("en-US", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
+      case "2": // USD Format (1,123,456.00)
+        return new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
 
-  //     case "3": // Generic Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
+      case "3": // Generic Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
 
-  //     default: // Default to Indian Format with 2 decimal places
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-  //   }
-  // };
+      default: // Default to Indian Format with 2 decimal places
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+    }
+  };
+
+
+  
+  
+  
+  
+
+  
 
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -397,6 +405,7 @@ const GeneratedPDF = React.memo(({}) => {
         return new Intl.NumberFormat("en-IN").format(integerPart);
     }
   };
+
 
   useEffect(() => {
     console.log("🔄 GeneratedPDF is re-rendering");

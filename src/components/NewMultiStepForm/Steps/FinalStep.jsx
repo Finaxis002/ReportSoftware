@@ -332,7 +332,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
       </p>
 
       {/* ✅ Dropdown Selection */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">
           Select PDF Type:
         </label>
@@ -359,7 +359,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           <option value="Finaxis">Finaxis</option>
         </select>
 
-        {/* ✅ Error Message */}
+        
         {showError && (
           <div className="mt-2 text-red-600">
             <p>UDIN number is not available.</p>
@@ -371,7 +371,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
             </button>
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="flex gap-5">
         {/* ✅ Generate PDF Button */}

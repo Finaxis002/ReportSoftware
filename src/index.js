@@ -33,6 +33,7 @@ import CheckProfit from "./components/NewMultiStepForm/CheckProfit.jsx";
 import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx";
 import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
+import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 
 
 // Initialize query client
@@ -205,6 +206,10 @@ const App = () => {
             <Route
               path="/reports"
               element={<Reports sendPdfData={setPdfData} />}
+            />
+             <Route
+              path="/clients"
+              element={<Clients />}
             />
           </Routes>
         </BrowserRouter>
