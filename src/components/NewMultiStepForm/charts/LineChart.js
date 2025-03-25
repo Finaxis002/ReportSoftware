@@ -564,18 +564,18 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
               tooltip: {
                 enabled: true
               },
-              datalabels: {
-                display: true, // Show data labels
-                color: '#FFFFFF', // White color for the labels
-                font: { size: 12, weight: 'bold' },
-                formatter: (value) => value.toFixed(2), // Show value with decimals
-                align: 'top',
-                anchor: 'end',
-                offset: 8,  // Adjust offset to prevent overlap
-                // Position data labels at each point
-                padding: 5, // Padding from point
-                clip: true // Prevent overlap outside chart area
-              }
+              // datalabels: {
+              //   display: true, // Show data labels
+              //   color: '#FFFFFF', // White color for the labels
+              //   font: { size: 12, weight: 'bold' },
+              //   formatter: (value) => value.toFixed(2), // Show value with decimals
+              //   align: 'top',
+              //   anchor: 'end',
+              //   offset: 8,  // Adjust offset to prevent overlap
+              //   // Position data labels at each point
+              //   padding: 5, // Padding from point
+              //   clip: true // Prevent overlap outside chart area
+              // }
             }
           }
         });
