@@ -878,7 +878,7 @@ const DebtServiceCoverageRatio = ({
                   ]}
                 >
                   {yearIndex === centerIndex
-                    ? formatNumber(parseFloat(averageDSCR).toFixed(2)) // ✅ Display only in the center cell
+                    ? (parseFloat(averageDSCR).toFixed(2)) // ✅ Display only in the center cell
                     : ""}
                 </Text>
               );

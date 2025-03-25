@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   particularsCell: {
-    width: "30%",
+    width: "40%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: "10px",
   },
   detailsCell: {
-    width: "65%",
+    width: "55%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   particularsCellsDetail: {
-    width: "30%",
+    width: "40%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "10px",
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
-    width: "65%",
+    width: "55%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "10px",
@@ -387,7 +387,7 @@ const stylesCOP = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   particularsCellsDetail: {
-    width: "30%",
+    width: "40%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "10px",
@@ -404,7 +404,7 @@ const stylesCOP = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
-    width: "65%",
+    width: "55%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "10px",
@@ -428,7 +428,7 @@ const stylesCOP = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   extraWidth: {
-    width: "60%",
+    width: "55%",
     fontFamily:"TimesNewRoman",
   },
   verticalPadding: {

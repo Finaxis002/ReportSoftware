@@ -351,60 +351,63 @@ const GeneratedPDF = React.memo(({}) => {
     projectionYears
   );
 
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-  //   if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
-
-  //   switch (formatType) {
-  //     case "1": // Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     case "2": // USD Format (1,123,456.00)
-  //       return new Intl.NumberFormat("en-US", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     case "3": // Generic Indian Format (1,23,456.00)
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-
-  //     default: // Default to Indian Format with 2 decimal places
-  //       return new Intl.NumberFormat("en-IN", {
-  //         minimumFractionDigits: 2,
-  //         maximumFractionDigits: 2,
-  //       }).format(value);
-  //   }
-  // };
-
-
-
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-  
-    // ✅ Use Math.trunc to remove decimals without rounding
-    const integerPart = Math.trunc(value);
-  
+    if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
+
     switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(integerPart);
-  
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(integerPart);
-  
-      case "3": // Generic Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(integerPart);
-  
-      default: // Default to Indian Format
-        return new Intl.NumberFormat("en-IN").format(integerPart);
+      case "1": // Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      case "2": // USD Format (1,123,456.00)
+        return new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      case "3": // Generic Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      default: // Default to Indian Format with 2 decimal places
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
     }
   };
+
+
+
+  // const formatNumber = (value) => {
+  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+  
+  //   // ✅ Remove decimal part for display WITHOUT affecting calculation
+  //   const displayValue = Math.trunc(value);
+  
+  //   switch (formatType) {
+  //     case "1": // Indian Format (1,23,456)
+  //       return new Intl.NumberFormat("en-IN").format(displayValue);
+  
+  //     case "2": // USD Format (1,123,456)
+  //       return new Intl.NumberFormat("en-US").format(displayValue);
+  
+  //     case "3": // Generic Indian Format (1,23,456)
+  //       return new Intl.NumberFormat("en-IN").format(displayValue);
+  
+  //     default: // Default to Indian Format
+  //       return new Intl.NumberFormat("en-IN").format(displayValue);
+  //   }
+  // };
+  
+  
+  
   
   
 
