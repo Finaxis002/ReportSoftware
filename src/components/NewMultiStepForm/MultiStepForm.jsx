@@ -30,7 +30,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   const [error, setError] = useState("");
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
-  const isCreateReportWithExistingClicked =
+  const {isCreateReportWithExistingClicked , reportData} =
     location.state?.isCreateReportWithExistingClicked || false;
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
@@ -56,6 +56,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   //   MoreDetails: {},
   // });
 
+
   const [formData, setFormData] = useState({
     AccountInformation: {},
     MeansOfFinance: {},
@@ -66,6 +67,15 @@ const MultiStepForm = ({ userRole, userName }) => {
     MoreDetails: {},
     generatedPDF: {},
   });
+
+
+  useEffect(() => {
+    if (isCreateReportWithExistingClicked && reportData) {
+      // Pre-fill the form data when creating new from existing report
+      const preFilledData = { ...reportData }; // Clone the report data
+      setFormData(preFilledData);
+    }
+  }, [isCreateReportWithExistingClicked, reportData]);
 
   // Store data in localStorage whenever formData changes
   useEffect(() => {

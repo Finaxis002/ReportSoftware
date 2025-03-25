@@ -123,6 +123,9 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
+
+  
+
   return (
     <div className="app-container bg-gray-50 min-h-screen">
       {renderMenuBar()}
