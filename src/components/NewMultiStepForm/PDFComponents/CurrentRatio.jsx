@@ -28,7 +28,7 @@ const CurrentRatio = ({
   sendAverageCurrentRation,
   pdfType,
   receivedtotalRevenueReceipts,
-  sendCurrentRatio
+  sendCurrentRatio,
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
@@ -84,14 +84,12 @@ const CurrentRatio = ({
   }, [JSON.stringify(averageCurrentRatio)]);
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
-
-
   useEffect(() => {
-    if(currentRatio.length>0){
+    if (currentRatio.length > 0) {
       sendCurrentRatio((prev) => ({
         ...prev,
-        currentRatio
-      }))
+        currentRatio,
+      }));
     }
   }, [JSON.stringify(currentRatio)]);
 
@@ -346,7 +344,7 @@ const CurrentRatio = ({
             </Text>
 
             {/* ✅ Display the Average Current Ratio in JSX */}
-            <Text
+            {/* <Text
               style={[
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
@@ -361,7 +359,40 @@ const CurrentRatio = ({
               ]}
             >
               {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
-            </Text>
+            </Text> */}
+
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => {
+                const visibleLabels = financialYearLabels.slice(
+                  hideFirstYear ? 1 : 0
+                );
+                const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
+
+                return (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                        fontFamily: "Roboto",
+                        textAlign: "center",
+                        borderLeftWidth:0,
+                        borderRightWidth:0
+                      },
+                    ]}
+                  >
+                    {yearIndex === centerIndex
+                      ? averageCurrentRatio !== "-"
+                        ? `${averageCurrentRatio}`
+                        : "0"
+                      : ""}{" "}
+                    {/* ✅ Display only in the center */}
+                  </Text>
+                );
+              })}
           </View>
         </View>
       </View>

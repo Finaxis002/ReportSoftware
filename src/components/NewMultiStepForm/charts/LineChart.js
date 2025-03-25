@@ -142,6 +142,8 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                   fill: true,
                   tension: 0.4,
                   pointBackgroundColor: '#4A90E2', // ✅ Blue Points
+                  pointBorderColor:"#fff",
+                  pointBorderWidth:1,
                   pointRadius: 5, // ✅ Larger Points
                   pointHoverRadius: 7, // ✅ Hover Effect
                 },
