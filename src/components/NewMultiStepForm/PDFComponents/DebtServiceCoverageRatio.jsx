@@ -853,25 +853,36 @@ const DebtServiceCoverageRatio = ({
           </Text>
 
           {/* ✅ Value - Dynamic Width Based on Financial Years */}
-          <Text
-            style={[
-              stylesCOP.particularsCellsDetail,
-              stylesCOP.boldText,
-              styleExpenses.fontSmall,
-              {
-                width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
-                fontSize: "10px",
-                fontFamily: "Roboto",
-                fontWeight: "extrabold",
-                textAlign: "center",
-                borderBottomWidth: "0px",
-                borderWidth: "1px",
-              },
-            ]}
-          >
-            {formatNumber(parseFloat(averageDSCR).toFixed(2))}
-            {/* ✅ Display Rounded Value */}
-          </Text>
+
+          {financialYearLabels
+            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .map((yearLabel, yearIndex) => {
+              const visibleLabels = financialYearLabels.slice(
+                hideFirstYear ? 1 : 0
+              );
+              const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
+
+              return (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    {
+                      fontWeight: "bold",
+                      fontFamily: "Roboto",
+                      textAlign: "center",
+                      borderLeftWidth: 0,
+                      borderRightWidth: 0,
+                    },
+                  ]}
+                >
+                  {yearIndex === centerIndex
+                    ? formatNumber(parseFloat(averageDSCR).toFixed(2)) // ✅ Display only in the center cell
+                    : ""}
+                </Text>
+              );
+            })}
         </View>
       </View>
       {/* businees name and Client Name  */}

@@ -732,7 +732,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {value.toLocaleString("en-IN")}
+                  {formatNumber(value)}
                 </Text>
               ))}
             </View>
@@ -795,7 +795,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {value.toLocaleString("en-IN")}
+                  {formatNumber(value)}
                 </Text>
               ))}
             </View>
@@ -823,7 +823,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {balance ? balance.toLocaleString("en-IN") : "0"}
+                  {formatNumber(balance)}
                 </Text>
               ))}
             </View>

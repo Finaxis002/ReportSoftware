@@ -23,7 +23,6 @@ const Repayment = ({
   onInterestCalculated,
   onPrincipalRepaymentCalculated,
   onMarchClosingBalanceCalculated, // New callback prop for March balances
-  formatNumber,
 }) => {
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
@@ -205,6 +204,42 @@ const Repayment = ({
 
   let yearCounter = 1; // ✅ Separate counter for valid years
   // ─────────────────────────────────────────────────────────────────────────
+
+
+
+
+    const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+    if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      case "2": // USD Format (1,123,456.00)
+        return new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      case "3": // Generic Indian Format (1,23,456.00)
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+
+      default: // Default to Indian Format with 2 decimal places
+        return new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+    }
+  };
+
+
 
   return (
     <>
@@ -444,13 +479,13 @@ const Repayment = ({
               let repaymentStopped = false;
 
               for (const entry of yearData) {
-                // ✅ Stop processing if closing balance is zero
-                if (entry.principalClosingBalance === 0) {
+                // ✅ Include the row even if repayment has stopped (if principal closing balance = 0)
+                if (entry.principalClosingBalance === 0 && !repaymentStopped) {
                   repaymentStopped = true;
                 }
 
-                // ✅ Skip row if principal repayment is ≤ 0
-                if (entry.principalRepayment > 0 && !repaymentStopped) {
+                // ✅ Include row if principal repayment > 0 or repaymentStopped is not triggered
+                if (entry.principalRepayment > 0 || !repaymentStopped) {
                   filteredYearData.push(entry);
                 }
               }
@@ -502,7 +537,7 @@ const Repayment = ({
                       },
                     ]}
                   >
-                    {/* Year Row */}
+                    {/* ✅ Year Row */}
                     <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
                         style={[
@@ -530,57 +565,21 @@ const Repayment = ({
                         {(financialYear + yearIndex + 1).toString().slice(-2)}
                       </Text>
 
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            paddingTop: "5px",
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            paddingTop: "5px",
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            paddingTop: "5px",
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            paddingTop: "5px",
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%" },
-                        ]}
-                      ></Text>
+                      {/* Empty columns for alignment */}
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Text
+                          key={idx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            {
+                              textAlign: "center",
+                              width: "15.35%",
+                              paddingTop: "5px",
+                            },
+                          ]}
+                        />
+                      ))}
                     </View>
 
                     {/* ✅ Render Only Valid Months */}
@@ -687,6 +686,31 @@ const Repayment = ({
                           },
                         ]}
                       ></Text>
+                        <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                          },
+                        ]}
+                      ></Text>
+
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          styleExpenses.fontBold,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
+                        ]}
+                      >
+                        {formatNumber(totalPrincipalRepayment)}
+                      </Text>
 
                       <Text
                         style={[
@@ -711,27 +735,6 @@ const Repayment = ({
                           },
                         ]}
                       >
-                        {formatNumber(totalPrincipalRepayment)}
-                      </Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          { textAlign: "center", width: "15.35%" },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          styleExpenses.fontBold,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderTopWidth: 1,
-                          },
-                        ]}
-                      >
                         {formatNumber(totalInterestLiability)}
                       </Text>
                       <Text
@@ -742,14 +745,12 @@ const Repayment = ({
                           {
                             textAlign: "center",
                             width: "15.35%",
-                            borderRightWidth: 1,
                             borderTopWidth: 1,
                           },
                         ]}
                       >
                         {formatNumber(totalRepayment)}
                       </Text>
-                     
                     </View>
                   </View>
                 </>
