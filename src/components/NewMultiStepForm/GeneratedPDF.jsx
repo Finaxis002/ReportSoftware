@@ -377,36 +377,6 @@ const GeneratedPDF = React.memo(({}) => {
   };
 
 
-  
-  
-  
-  
-
-  
-
-  const formatNumber = (value) => {
-    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-    // ✅ Use Math.trunc to remove decimals without rounding
-    const integerPart = Math.trunc(value);
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(integerPart);
-
-      case "2": // USD Format (1,123,456)
-        return new Intl.NumberFormat("en-US").format(integerPart);
-
-      case "3": // Generic Indian Format (1,23,456)
-        return new Intl.NumberFormat("en-IN").format(integerPart);
-
-      default: // Default to Indian Format
-        return new Intl.NumberFormat("en-IN").format(integerPart);
-    }
-  };
-
-
   useEffect(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
