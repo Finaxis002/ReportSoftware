@@ -26,7 +26,7 @@ Chart.register(shadowPlugin);
 const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
   useEffect(() => {
     let mounted = true;
-
+ console.log("current ratio value in current ratio chart", values)
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
         // ✅ Create a canvas for chart rendering
@@ -46,6 +46,14 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
         gradient.addColorStop(1, 'rgba(74, 144, 226, 0.1)');
 
+        const lastYearValue = values[values.length - 1] || 0;
+        let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
+        
+        // Calculate the yInterval and ensure it's a number
+        let yInterval = maxYValue / 4;
+        yInterval = parseFloat(yInterval.toFixed(2)); // Fix the interval calculation to have decimal points.
+
+        maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
         // ✅ Create Chart Instance
         new Chart(ctx, {
           type: 'line',
@@ -107,6 +115,9 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
                 }
               },
               y: {
+                beginAtZero: true,
+                min: 0,
+                max: maxYValue,
                 title: {
                   display: true,
                   text: 'Value',
@@ -117,7 +128,11 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
                   }
                 },
                 ticks: {
-                  color: '#000'
+                  color: '#000',
+                  stepSize: parseFloat(yInterval), // ✅ Divide into 4 equal parts
+                  callback: (value) => {
+                    return value.toFixed(2); // Ensuring decimal precision in y-axis ticks
+                  }
                 },
                 grid: {
                   color: 'rgba(0, 0, 0, 0.1)'
