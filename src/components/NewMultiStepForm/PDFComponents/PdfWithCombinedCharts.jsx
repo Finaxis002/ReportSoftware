@@ -8,6 +8,11 @@ const PdfWithCombinedCharts = ({
   currentRatio = [],
   dscr = [],
 }) => {
+  if (!labels.length || !dscr.length) {
+    console.warn("❌ Missing data for DSCR chart");
+    return null;
+  }
+
   return (
     <Page size="A4" style={styles.page}>
       <View style={styles.chartContainer}>
@@ -30,10 +35,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   chartContainer: {
-    // flexDirection: "row", // ✅ Display charts side by side
     justifyContent: "space-between", // ✅ Add space between charts
     alignItems: "center", // ✅ Align charts vertically
-    gap: 10, // ✅ Add gap between charts (supported by @react-pdf/renderer)
+    gap: 10,
   },
   chartWrapper: {
     // width: "48%", // ✅ Each chart will take up 48% of the width
