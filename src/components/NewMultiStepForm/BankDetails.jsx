@@ -105,8 +105,8 @@ const BankDetails = () => {
 
         // ✅ Fetch from both APIs concurrently
         const [response1, response2] = await Promise.all([
-          fetch("http://localhost:5000/api/get-bank-details"),
-          fetch("http://localhost:5000/api/bank-details"),
+          fetch("https://backend-three-pink.vercel.app/api/get-bank-details"),
+          fetch("https://backend-three-pink.vercel.app/api/bank-details"),
         ]);
 
         if (!response1.ok || !response2.ok) {
@@ -189,7 +189,7 @@ const BankDetails = () => {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/bank-filters");
+        const response = await fetch("https://backend-three-pink.vercel.app/api/bank-filters");
         if (!response.ok) throw new Error("Failed to fetch filter options");
 
         const data = await response.json();
@@ -300,7 +300,7 @@ const BankDetails = () => {
       console.log("📤 Sending Payload:", payload); // ✅ Debugging
 
       const response = await fetch(
-        "http://localhost:5000/api/add-bank-details",
+        "https://backend-three-pink.vercel.app/api/add-bank-details",
         {
           method: "POST",
           headers: {
