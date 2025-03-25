@@ -141,7 +141,9 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-export const generateBarChart = async ({ labels, revenue, expenses }) => {
+export const generateBarChart = async ({ labels, revenue, expenses,formData }) => {
+
+  console.log("form data in bar chart", formData)
   try {
     const canvas = document.createElement('canvas');
     canvas.width = 600;
@@ -153,6 +155,24 @@ export const generateBarChart = async ({ labels, revenue, expenses }) => {
     }
 
     const labels = Array.from({ length: revenue.length }, (_, i) => (i + 1).toString());
+
+    // ✅ Get the last year's revenue
+    const lastYearRevenue = formData?.Revenue?.totalRevenueForOthers
+  ? formData.Revenue.totalRevenueForOthers[formData.Revenue.totalRevenueForOthers.length - 1]
+  : 0;
+
+
+    // ✅ Set max value as last year revenue + 50% of last year revenue
+    const maxYValue = lastYearRevenue + lastYearRevenue * 0.5;
+
+    // ✅ Set interval by dividing into 4 parts
+    const yInterval = Math.round(maxYValue / 4);
+
+    if (!formData?.Revenue?.totalRevenueForOthers || formData.Revenue.totalRevenueForOthers.length === 0) {
+      console.error("❌ Revenue data is missing or empty");
+      return null;
+    }
+    
 
     new Chart(ctx, {
       type: 'bar',
@@ -181,8 +201,10 @@ export const generateBarChart = async ({ labels, revenue, expenses }) => {
         scales: {
           y: {
             beginAtZero: true,
+            max: maxYValue, 
             ticks: {
               color: '#FFFFFF',
+              stepSize: yInterval,
               callback: (value) => `${value.toLocaleString()}`
             },
             grid: {
@@ -230,8 +252,7 @@ export const generateBarChart = async ({ labels, revenue, expenses }) => {
     // ✅ Convert to Base64
     await new Promise((resolve) => setTimeout(resolve, 100));
     const base64 = canvas.toDataURL('image/png');
-    console.log("✅ Bar Chart generated:", base64);
-
+    // console.log("✅ Bar Chart generated:", base64);
     return base64;
   } catch (error) {
     console.error("❌ Error generating bar chart:", error);

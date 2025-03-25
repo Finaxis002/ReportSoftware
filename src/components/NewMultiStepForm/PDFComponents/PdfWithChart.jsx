@@ -61,10 +61,11 @@ const styles = StyleSheet.create({
 });
 
 const PdfWithChart = ({ formData, totalExpenses }) => {
+  
   const [pieBase64, setPieBase64] = useState(null);
   const [barBase64, setBarBase64] = useState(null);
   const [loading, setLoading] = useState(true);
-
+ console.log("form data in pdf with charts", formData)
 
   useEffect(() => {
     const generateCharts = async () => {
@@ -103,7 +104,7 @@ const PdfWithChart = ({ formData, totalExpenses }) => {
         const revenue = formData?.Revenue?.totalRevenueForOthers || [];
 
         if (revenue.length > 0 && totalExpenses.length === revenue.length) {
-          const bar = await generateBarChart({ labels, revenue, expenses: totalExpenses });
+          const bar = await generateBarChart({ labels, revenue, expenses: totalExpenses,formData });
           setBarBase64(bar);
         }
       }

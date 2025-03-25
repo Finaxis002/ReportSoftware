@@ -35,8 +35,6 @@ import PromoterDetails from "./PDFComponents/PromoterDetails";
 import PdfWithChart from "./PDFComponents/PdfWithChart";
 import { generateChart } from "./charts/chart";
 
-
-
 // Font.register({
 //   family: "TimesNewRoman",
 //   fonts: [
@@ -56,8 +54,6 @@ import { generateChart } from "./charts/chart";
 //   ],
 // });
 
-
-
 import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 
 // import {LineChart} from "./charts/LineChart";
@@ -68,8 +64,6 @@ import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 const GeneratedPDF = React.memo(({}) => {
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
-
-
 
   const [directExpenses, setDirectExpenses] = useState([]);
   const [totalDirectExpensesArray, setTotalDirectExpensesArray] = useState([]);
@@ -383,35 +377,35 @@ const GeneratedPDF = React.memo(({}) => {
   };
 
 
-
-  // const formatNumber = (value) => {
-  //   const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-  //   if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-  
-  //   // ✅ Remove decimal part for display WITHOUT affecting calculation
-  //   const displayValue = Math.trunc(value);
-  
-  //   switch (formatType) {
-  //     case "1": // Indian Format (1,23,456)
-  //       return new Intl.NumberFormat("en-IN").format(displayValue);
-  
-  //     case "2": // USD Format (1,123,456)
-  //       return new Intl.NumberFormat("en-US").format(displayValue);
-  
-  //     case "3": // Generic Indian Format (1,23,456)
-  //       return new Intl.NumberFormat("en-IN").format(displayValue);
-  
-  //     default: // Default to Indian Format
-  //       return new Intl.NumberFormat("en-IN").format(displayValue);
-  //   }
-  // };
-  
   
   
   
   
 
   
+
+  const formatNumber = (value) => {
+    const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
+    if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
+
+    // ✅ Use Math.trunc to remove decimals without rounding
+    const integerPart = Math.trunc(value);
+
+    switch (formatType) {
+      case "1": // Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(integerPart);
+
+      case "2": // USD Format (1,123,456)
+        return new Intl.NumberFormat("en-US").format(integerPart);
+
+      case "3": // Generic Indian Format (1,23,456)
+        return new Intl.NumberFormat("en-IN").format(integerPart);
+
+      default: // Default to Indian Format
+        return new Intl.NumberFormat("en-IN").format(integerPart);
+    }
+  };
+
 
   useEffect(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
@@ -543,6 +537,7 @@ const GeneratedPDF = React.memo(({}) => {
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
         />
+
         {/* Means of Finance Table */}
         <MeansOfFinance
           formData={formData}
@@ -757,8 +752,6 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
           formatNumber={formatNumber}
         />
-
-       
       </Document>
     );
   }, [

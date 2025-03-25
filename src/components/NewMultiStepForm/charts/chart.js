@@ -115,7 +115,7 @@ export const generateChart = async (data) => {
 
     // ✅ Convert canvas to Base64 using `toDataURL`
     const base64 = canvas.toDataURL('image/png');
-    console.log("✅ Pie Chart generated:", base64);
+    // console.log("✅ Pie Chart generated:", base64);
     return base64;
   } catch (error) {
     console.error("❌ Error generating pie chart:", error);
