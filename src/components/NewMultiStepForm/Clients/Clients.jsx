@@ -27,8 +27,8 @@ const Clients = () => {
     const fetchClientsAndFormData = async () => {
       try {
         const [clientsResponse, formDataResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/clients"),
-          axios.get("http://localhost:5000/api/formdatas"),
+          axios.get("https://backend-three-pink.vercel.app/api/clients"),
+          axios.get("https://backend-three-pink.vercel.app/api/formdatas"),
         ]);
         console.log("Clients Data:", clientsResponse.data);
         console.log("Form Data:", formDataResponse.data);
@@ -53,7 +53,7 @@ const Clients = () => {
   useEffect(() => {
     const fetchClientsAndFormData = async () => {
       try {
-        const [clientsResponse] = await Promise.all([axios.get("http://localhost:5000/api/client-filetrs")]);
+        const [clientsResponse] = await Promise.all([axios.get("https://backend-three-pink.vercel.app/api/client-filetrs")]);
         console.log("Client Data:", clientsResponse.data.clientOptions);
   
         // Add "All" to the client options as an object with label and value
@@ -121,7 +121,7 @@ const Clients = () => {
   const handleAddClient = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/clients",
+        "https://backend-three-pink.vercel.app/api/clients",
         newClientDetails
       );
       console.log(response.data);
