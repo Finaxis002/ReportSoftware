@@ -52,13 +52,15 @@ const IncomeTaxCalculation = ({
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears > 7
+        formData.ProjectReportSetting.ProjectionYears > 6
           ? "landscape"
           : "portrait"
       }
       style={[{ padding: "20px" }]}
+      wrap
+      break
     >
-      {pdfType &&
+      {/* {pdfType &&
         pdfType !== "select option" &&
         (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
           <View
@@ -82,7 +84,7 @@ const IncomeTaxCalculation = ({
               }}
             />
           </View>
-        )}
+        )} */}
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -128,17 +130,17 @@ const IncomeTaxCalculation = ({
         <View style={[styles.table]}>
           {/* table header  */}
           <View style={styles.tableHeader}>
+            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
+              Sr. No.
+            </Text>
             <Text
               style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
+                styles.detailsCell,
+                styleExpenses.particularWidth,
                 styleExpenses.fontBold,
-                { paddingHorizontal: "5px", textAlign: "center" },
+                { textAlign: "center" },
               ]}
             >
-              S. No.
-            </Text>
-            <Text style={[styles.detailsCell, styleExpenses.particularWidth , styleExpenses.fontBold, {textAlign:"center"}]}>
               Particulars
             </Text>
 
@@ -159,16 +161,7 @@ const IncomeTaxCalculation = ({
           {/* Net Profit Before Tax */}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                  paddingVertical: "10px",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -208,15 +201,7 @@ const IncomeTaxCalculation = ({
           {/* depreciation */}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -253,15 +238,7 @@ const IncomeTaxCalculation = ({
           {/* total */}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -305,16 +282,7 @@ const IncomeTaxCalculation = ({
           {/* depreciation (As per ITA , 1961)*/}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                  paddingVertical: "5px",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             >
               Less
             </Text>
@@ -356,16 +324,7 @@ const IncomeTaxCalculation = ({
           {/* Net Profit (/loss) */}
           <View style={[styles.tableRow, styles.table]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                  paddingVertical: "8px",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -409,15 +368,7 @@ const IncomeTaxCalculation = ({
           {/* Taxable Profit */}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -457,15 +408,7 @@ const IncomeTaxCalculation = ({
           {/* Tax at 30% */}
           <View style={[styles.tableRow]}>
             <Text
-              style={[
-                styles.serialNoCell,
-                styleExpenses.sno,
-                {
-                  borderRight: "1px",
-                  paddingHorizontal: "20px",
-                  textAlign: "center",
-                },
-              ]}
+              style={stylesCOP.serialNoCellDetail}
             ></Text>
             <Text
               style={[
@@ -511,13 +454,14 @@ const IncomeTaxCalculation = ({
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
+            marginBottom:"5px"
           },
         ]}
       >
         <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+        <Text style={[styles.FinancialYear, { fontSize: "10px"  , marginBottom:0}]}>
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>

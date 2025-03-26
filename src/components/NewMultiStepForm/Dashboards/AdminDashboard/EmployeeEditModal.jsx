@@ -13,6 +13,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
       updateReport: employee?.permissions?.updateReport || false,
       createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
       downloadPDF: employee?.permissions?.downloadPDF || false,
+      exportData: employee?.permissions?.exportData || false,
     },
   });
 
@@ -33,6 +34,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
         updateReport: employee?.permissions?.updateReport || false,
         createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
         downloadPDF: employee?.permissions?.downloadPDF || false,
+        exportData: employee?.permissions?.exportData || false,
       },
     });
   }, [employee]);
@@ -220,6 +222,16 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
                   className="mr-2"
                 />
                 Download PDF
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="exportData"
+                  checked={formData.permissions.exportData}
+                  onChange={handleCheckboxChange}
+                  className="mr-2"
+                />
+               Export Report Data
               </label>
             </div>
           </div>

@@ -75,7 +75,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
       <View style={[styles.table, { paddingBottom: 0 }]}>
         <View style={styles.tableHeader}>
-          <Text style={styles.serialNoCell}>S.No.</Text>
+          <Text style={[styles.serialNoCell , {width:50}]}>S.No.</Text>
           <Text style={styles.detailsCell}>Particulars</Text>
           <Text style={styles.particularsCell}>Amount</Text>
         </View>
@@ -89,7 +89,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             .map(([key, field], index) => (
               <View key={key} style={styles.tableRow}>
                 {/* ✅ Serial No. based on filtered data */}
-                <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
+                <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>{index + 1}</Text>
                 <Text style={stylesCOP.detailsCellDetail}>
                   {field?.name || "N/A"}
                 </Text>
@@ -119,7 +119,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         {/* ✅ Show Working Capital Row */}
         {formData?.MeansOfFinance?.totalWorkingCapital && (
           <View style={styles.tableRow}>
-            <Text style={stylesCOP.serialNoCellDetail}>
+            <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>
               {Object.keys(formData.CostOfProject).length - 1 + 1}
             </Text>
             <Text
@@ -141,7 +141,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
         {/* ✅ Total Cost Row (Including Working Capital) */}
         <View style={stylesCOP.totalHeader}>
-          <Text style={stylesCOP.serialNoCellDetail}></Text>
+          <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}></Text>
           <View
             style={[
               stylesCOP.detailsCellDetail,
@@ -265,7 +265,7 @@ export default CostOfProject;
 
 //       <View style={styles.table}>
 //         <View style={styles.tableHeader}>
-//           <Text style={styles.serialNoCell}>S.No.</Text>
+//           <Text style={[styles.serialNoCell , {width:50}]}>S.No.</Text>
 //           <Text style={styles.detailsCell}>Particulars</Text>
 //           <Text style={styles.particularsCell}>Amount</Text>
 //         </View>
@@ -274,7 +274,7 @@ export default CostOfProject;
 //         {formData?.CostOfProject && Object.keys(formData.CostOfProject).length > 0 ? (
 //           Object.entries(formData.CostOfProject).map(([key, field], index) => (
 //             <View key={key} style={styles.tableRow}>
-//               <Text style={stylesCOP.serialNoCellDetail}>{index + 1}</Text>
+//               <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>{index + 1}</Text>
 //               <Text style={stylesCOP.detailsCellDetail}>{field?.name || "N/A"}</Text>
 //               <Text style={stylesCOP.particularsCellsDetail}>
 //                 {formatNumber(field?.amount || 0)}
@@ -291,7 +291,7 @@ export default CostOfProject;
 
 //         {/* ✅ Total Cost Row */}
 //         <View style={stylesCOP.totalHeader}>
-//           <Text style={stylesCOP.serialNoCellDetail}></Text>
+//           <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}></Text>
 //           <Text style={[stylesCOP.detailsCellDetail, stylesCOP.boldText]}>
 //             Total Cost of Project
 //           </Text>

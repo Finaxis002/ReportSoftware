@@ -205,10 +205,7 @@ const Repayment = ({
   let yearCounter = 1; // ✅ Separate counter for valid years
   // ─────────────────────────────────────────────────────────────────────────
 
-
-
-
-    const formatNumber = (value) => {
+  const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
     if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
 
@@ -238,8 +235,6 @@ const Repayment = ({
         }).format(value);
     }
   };
-
-
 
   return (
     <>
@@ -474,203 +469,203 @@ const Repayment = ({
 
             {/* Table Body */}
             {data.map((yearData, yearIndex) => {
-  let filteredYearData = [];
-  let repaymentStopped = false;
-  let previousEntryHadZeroClosingBalance = false;
+              let filteredYearData = [];
+              let repaymentStopped = false;
+              let previousEntryHadZeroClosingBalance = false;
 
-  for (const entry of yearData) {
-    // ✅ If previous entry had zero closing balance, stop adding rows
-    if (previousEntryHadZeroClosingBalance) {
-      break;
-    }
+              for (const entry of yearData) {
+                // ✅ If previous entry had zero closing balance, stop adding rows
+                if (previousEntryHadZeroClosingBalance) {
+                  break;
+                }
 
-    // ✅ If closing balance becomes zero, allow one additional row
-    if (entry.principalClosingBalance === 0) {
-      if (repaymentStopped) {
-        previousEntryHadZeroClosingBalance = true; // ✅ Stop after next row
-      }
-      repaymentStopped = true;
-    }
+                // ✅ If closing balance becomes zero, allow one additional row
+                if (entry.principalClosingBalance === 0) {
+                  if (repaymentStopped) {
+                    previousEntryHadZeroClosingBalance = true; // ✅ Stop after next row
+                  }
+                  repaymentStopped = true;
+                }
 
-    // ✅ Include row if repayment hasn't fully stopped
-    filteredYearData.push(entry);
-  }
+                // ✅ Include row if repayment hasn't fully stopped
+                filteredYearData.push(entry);
+              }
 
-  // ✅ Skip rendering this year if there are no valid months
-  if (filteredYearData.length === 0) {
-    return null;
-  }
+              // ✅ Skip rendering this year if there are no valid months
+              if (filteredYearData.length === 0) {
+                return null;
+              }
 
-  // ✅ Compute total values for the year
-  let totalPrincipalRepayment = filteredYearData.reduce(
-    (sum, entry) => sum + entry.principalRepayment,
-    0
-  );
-  let totalInterestLiability = filteredYearData.reduce(
-    (sum, entry) =>
-      entry.principalRepayment === 0
-        ? sum // If principal repayment is 0, don't add interest liability
-        : sum + entry.interestLiability,
-    0
-  );
-  let totalRepayment = filteredYearData.reduce(
-    (sum, entry) => sum + entry.totalRepayment,
-    0
-  );
+              // ✅ Compute total values for the year
+              let totalPrincipalRepayment = filteredYearData.reduce(
+                (sum, entry) => sum + entry.principalRepayment,
+                0
+              );
+              let totalInterestLiability = filteredYearData.reduce(
+                (sum, entry) =>
+                  entry.principalRepayment === 0
+                    ? sum // If principal repayment is 0, don't add interest liability
+                    : sum + entry.interestLiability,
+                0
+              );
+              let totalRepayment = filteredYearData.reduce(
+                (sum, entry) => sum + entry.totalRepayment,
+                0
+              );
 
-  // ✅ If all interest liabilities & repayments are 0, do not render the total row
-  if (
-    totalPrincipalRepayment === 0 &&
-    totalInterestLiability === 0 &&
-    totalRepayment === 0
-  ) {
-    return null;
-  }
+              // ✅ If all interest liabilities & repayments are 0, do not render the total row
+              if (
+                totalPrincipalRepayment === 0 &&
+                totalInterestLiability === 0 &&
+                totalRepayment === 0
+              ) {
+                return null;
+              }
 
-  return (
-    <>
-      <View
-        key={yearIndex}
-        wrap={false}
-        style={[
-          { borderLeftWidth: 0 },
-          {
-            position: "relative",
-            zIndex: 1,
-            borderLeftWidth: 1,
-            borderTopWidth: 1,
-          },
-        ]}
-      >
-        {/* ✅ Year Row */}
-        <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
-          <Text
-            style={[
-              styles.serialNumberCellStyle,
-              { width: "8%", paddingTop: "5px" },
-            ]}
-          >
-            {yearIndex + 1}
-          </Text>
+              return (
+                <>
+                  <View
+                    key={yearIndex}
+                    wrap={false}
+                    style={[
+                      { borderLeftWidth: 0 },
+                      {
+                        position: "relative",
+                        zIndex: 1,
+                        borderLeftWidth: 1,
+                        borderTopWidth: 1,
+                      },
+                    ]}
+                  >
+                    {/* ✅ Year Row */}
+                    <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
+                      <Text
+                        style={[
+                          styles.serialNumberCellStyle,
+                          { width: "8%", paddingTop: "5px" },
+                        ]}
+                      >
+                        {yearIndex + 1}
+                      </Text>
 
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.bordernone,
-              styleExpenses.fontBold,
-              {
-                textAlign: "center",
-                width: "15.35%",
-                borderLeftWidth: 1,
-                paddingTop: "5px",
-              },
-            ]}
-          >
-            {financialYear + yearIndex}-{" "}
-            {(financialYear + yearIndex + 1).toString().slice(-2)}
-          </Text>
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.bordernone,
+                          styleExpenses.fontBold,
+                          {
+                            textAlign: "left",
+                            width: "15.35%",
+                            borderLeftWidth: 1,
+                            paddingTop: "5px",
+                          },
+                        ]}
+                      >
+                        {financialYear + yearIndex}-{" "}
+                        {(financialYear + yearIndex + 1).toString().slice(-2)}
+                      </Text>
 
-          {/* Empty columns for alignment */}
-          {Array.from({ length: 5 }).map((_, idx) => (
-            <Text
-              key={idx}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                {
-                  textAlign: "center",
-                  width: "15.35%",
-                  paddingTop: "5px",
-                },
-              ]}
-            />
-          ))}
-        </View>
+                      {/* Empty columns for alignment */}
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Text
+                          key={idx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            {
+                              textAlign: "center",
+                              width: "15.35%",
+                              paddingTop: "5px",
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
 
-        {/* ✅ Render Only Valid Months */}
-        {filteredYearData.map((entry, monthIndex) => (
-          <View
-            key={monthIndex}
-            style={[
-              stylesMOF.row,
-              styles.tableRow,
-              { borderBottomWidth: 0, borderTopWidth: 0 },
-            ]}
-          >
-            <Text
-              style={[
-                styles.serialNumberCellStyle,
-                { width: "8%" },
-              ]}
-            ></Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-                {
-                  textAlign: "center",
-                  width: "15.35%",
-                  borderLeftWidth: 1,
-                },
-              ]}
-            >
-              {entry.month}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center", width: "15.35%" },
-              ]}
-            >
-              {formatNumber(entry.principalOpeningBalance)}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center", width: "15.35%" },
-              ]}
-            >
-              {formatNumber(entry.principalRepayment)}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center", width: "15.35%" },
-              ]}
-            >
-              {formatNumber(entry.principalClosingBalance)}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center", width: "15.35%" },
-              ]}
-            >
-              {formatNumber(
-                entry.principalRepayment === 0
-                  ? 0
-                  : entry.interestLiability
-              )}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center", width: "15.35%" },
-              ]}
-            >
-              {formatNumber(entry.totalRepayment)}
-            </Text>
-          </View>
-        ))}
+                    {/* ✅ Render Only Valid Months */}
+                    {filteredYearData.map((entry, monthIndex) => (
+                      <View
+                        key={monthIndex}
+                        style={[
+                          stylesMOF.row,
+                          styles.tableRow,
+                          { borderBottomWidth: 0, borderTopWidth: 0 },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.serialNumberCellStyle,
+                            { width: "8%" },
+                          ]}
+                        ></Text>
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                            {
+                              textAlign: "left",
+                              width: "15.35%",
+                              borderLeftWidth: 1,
+                            },
+                          ]}
+                        >
+                          {entry.month}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.principalOpeningBalance)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.principalRepayment)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.principalClosingBalance)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(
+                            entry.principalRepayment === 0
+                              ? 0
+                              : entry.interestLiability
+                          )}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.totalRepayment)}
+                        </Text>
+                      </View>
+                    ))}
 
-          {/* ✅ Total Row for the Year */}
-          <View
+                    {/* ✅ Total Row for the Year */}
+                    <View
                       style={[
                         stylesMOF.row,
                         styles.tableRow,
@@ -691,7 +686,7 @@ const Repayment = ({
                           },
                         ]}
                       ></Text>
-                        <Text
+                      <Text
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
@@ -757,11 +752,10 @@ const Repayment = ({
                         {formatNumber(totalRepayment)}
                       </Text>
                     </View>
-      </View>
-    </>
-  );
-})}
-
+                  </View>
+                </>
+              );
+            })}
           </View>
 
           {/* businees name and Client Name  */}

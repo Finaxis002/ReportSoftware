@@ -167,6 +167,9 @@ const ProjectSynopsis = React.memo(
           )
         : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
 
+   const subsidyName = formData?.ProjectReportSetting?.subsidyName;
+
+    
     return (
       <>
         <Page size="A4" style={styles.page}>
@@ -194,7 +197,7 @@ const ProjectSynopsis = React.memo(
 
             <View style={styles.table}>
               {/* ✅ Table Header */}
-              <View style={[styles.tableHeader]}> 
+              <View style={[styles.tableHeader]}>
                 <Text
                   style={[
                     styles.serialNoCell,
@@ -223,117 +226,100 @@ const ProjectSynopsis = React.memo(
                   :
                 </Text>
                 <Text
-                  style={[styles.detailsCell,  styleExpenses.fontBold, { padding: "8px", width: "55%" }]}
+                  style={[
+                    styles.detailsCell,
+                    styleExpenses.fontBold,
+                    { padding: "8px", width: "55%" },
+                  ]}
                 >
                   Details
                 </Text>
               </View>
 
               {/* ✅ Map Only Required Fields */}
-              {requiredFields.map((field, index) => {
-                let value = " ";
+              {(() => {
+                let visibleIndex = 0; // Counter for visible rows only
 
-                // ✅ Dynamically fetching data from AccountInformation or ProjectReportSetting
-                if (field.source === "AccountInformation") {
-                  value = formData?.AccountInformation?.[field.key] || " ";
-                } else if (field.source === "ProjectReportSetting") {
-                  value = formData?.ProjectReportSetting?.[field.key] || " ";
-                }
-                // ✅ Fetch data dynamically based on the source
-                if (field.source === "AccountInformation") {
-                  // ✅ Special handling for Aadhaar/ PAN Number
-                  if (field.key === "aadhaarOrPAN") {
-                    const aadhaar = formData?.AccountInformation?.adhaarNumber;
-                    const pan = formData?.AccountInformation?.PANNumber;
+                return requiredFields.map((field, index) => {
+                  let value = " ";
 
-                    // ✅ Prioritize Aadhaar, fallback to PAN
-                    if (aadhaar) {
-                      value = ` ${aadhaar}`;
-                    } else if (pan) {
-                      value = `${pan}`;
+                  // ✅ Dynamically fetching data from AccountInformation or ProjectReportSetting
+                  if (field.source === "AccountInformation") {
+                    if (field.key === "aadhaarOrPAN") {
+                      const aadhaar =
+                        formData?.AccountInformation?.adhaarNumber;
+                      const pan = formData?.AccountInformation?.PANNumber;
+                      value = aadhaar || pan || "";
+                    } else if (field.key === "receiptsRevenue") {
+                      value = getFirstNonZeroRevenue(
+                        receivedtotalRevenueReceipts
+                      );
                     } else {
-                      value = " ";
+                      value = formData?.AccountInformation?.[field.key] || " ";
                     }
-                  } else {
-                    value = formData?.AccountInformation?.[field.key] || " ";
+                  } else if (field.source === "ProjectReportSetting") {
+                    value = formData?.ProjectReportSetting?.[field.key] || " ";
                   }
-                } else if (field.source === "ProjectReportSetting") {
-                  value = formData?.ProjectReportSetting?.[field.key] || " ";
-                }
 
-                // ✅ Special Formatting for Repayment Period (Convert Months to Years and Months)
-                if (field.key === "RepaymentMonths" && value !== " ") {
-                  const months = parseInt(value);
-                  const years = Math.floor(months / 12);
-                  const remainingMonths = months % 12;
-                  value = `${years} Years ${remainingMonths} Months`;
-                }
-
-                // ✅ Special Formatting for Moratorium Period
-                if (field.key === "MoratoriumPeriod" && value !== " ") {
-                  value = `${value} Months`;
-                }
-
-                // ✅ Special Formatting for Financial Year
-                if (field.key === "FinancialYear" && value !== " ") {
-                  value = `${value}-${parseInt(value) + 1}`;
-                }
-
-                if (field.source === "AccountInformation") {
-                  if (field.key === "receiptsRevenue") {
-                    // ✅ Use the function to get the first valid revenue
-                    value = getFirstNonZeroRevenue(
-                      receivedtotalRevenueReceipts
-                    );
-                  } else {
-                    value = formData?.AccountInformation?.[field.key] || " ";
+                  // ✅ Special formatting
+                  if (field.key === "RepaymentMonths" && value !== " ") {
+                    const months = parseInt(value);
+                    if (!isNaN(months)) {
+                      value = convertMonthsToYearsAndMonths(months);
+                    }
                   }
-                } else if (field.source === "ProjectReportSetting") {
-                  value = formData?.ProjectReportSetting?.[field.key] || " ";
-                }
 
-                // ✅ Check if the field requires special formatting for Repayment Months
-                if (field.key === "RepaymentMonths" && value !== " ") {
-                  value = convertMonthsToYearsAndMonths(parseInt(value));
-                }
+                  if (field.key === "MoratoriumPeriod" && value !== " ") {
+                    value = `${value} Months`;
+                  }
 
-                return (
-                  <View style={[styles.tableRow]} key={index}>
-                    <Text
-                      style={[
-                        styles.serialNoCellDetail,
-                        { padding: "8px", width: "10%" },
-                      ]}
-                    >
-                      {index + 1}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.particularsCellsDetail,
-                        { padding: "8px", width: "45%", textAlign: "left" },
-                      ]}
-                    >
-                      {field.label}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.separatorCellDetail,
-                        { padding: "8px", textAlign: "center", width: "5%" },
-                      ]}
-                    >
-                      :
-                    </Text>
-                    <Text
-                      style={[
-                        styles.detailsCellDetail,
-                        { padding: "8px", width: "55%" },
-                      ]}
-                    >
-                      {value}
-                    </Text>
-                  </View>
-                );
-              })}
+                  if (field.key === "FinancialYear" && value !== " ") {
+                    value = `${value}-${parseInt(value) + 1}`;
+                  }
+
+                  // ✅ Skip row if value is empty or whitespace only
+                  if (!value || value.trim() === "") return null;
+
+                  visibleIndex++; // ✅ Increment visible index
+
+                  return (
+                    <View style={[styles.tableRow]} key={index}>
+                      <Text
+                        style={[
+                          styles.serialNoCellDetail,
+                          { padding: "8px", width: "10%" },
+                        ]}
+                      >
+                        {visibleIndex}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.particularsCellsDetail,
+                          { padding: "8px", width: "45%", textAlign: "left" },
+                        ]}
+                      >
+                        {field.label}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.separatorCellDetail,
+                          { padding: "8px", textAlign: "center", width: "5%" },
+                        ]}
+                      >
+                        :
+                      </Text>
+                      <Text
+                        style={[
+                          styles.detailsCellDetail,
+                          { padding: "8px", width: "55%" },
+                        ]}
+                      >
+                        {value}
+                      </Text>
+                    </View>
+                  );
+                });
+              })()}
 
               {/* Manpower Requirement  */}
               <View>
@@ -378,7 +364,7 @@ const ProjectSynopsis = React.memo(
                   <Text
                     style={[
                       styles.detailsCell,
-                      styleExpenses.fontBold, 
+                      styleExpenses.fontBold,
                       { padding: "8px", width: "27.5%", textAlign: "center" },
                     ]}
                   >
@@ -1219,7 +1205,6 @@ const ProjectSynopsis = React.memo(
                   } Years Average)`}
                 </Text>
               </View>
-
               {/* Current Ratio */}
               <View
                 style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
@@ -1262,7 +1247,6 @@ const ProjectSynopsis = React.memo(
                   } Years Average)`}
                 </Text>
               </View>
-
               {/* Breakeven Point */}
               <View
                 style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
@@ -1301,48 +1285,49 @@ const ProjectSynopsis = React.memo(
                   {`${firstNonZeroValue}% (In the ${fromWhichYearWeReceivedValue} Year itself)`}
                 </Text>
               </View>
-
               {/* Subsidy Scheme */}
-              <View
-                style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
-                key={16}
-              >
-                <Text
-                  style={[
-                    styles.serialNoCellDetail,
-                    { padding: "8px", width: "10%" },
-                  ]}
+             
+              {subsidyName && (
+                <View
+                  style={[styles.tableRow, { borderTopWidth: 0.6 }]}
+                  key={16}
                 >
-                  19
-                </Text>
-                <Text
-                  style={[
-                    styles.particularsCellsDetail,
-                    { padding: "8px", width: "45%", textAlign: "left" },
-                  ]}
-                >
-                  Subsidy Scheme
-                </Text>
-                <Text
-                  style={[
-                    styles.separatorCellDetail,
-                    { padding: "8px", textAlign: "center", width: "5%" },
-                  ]}
-                >
-                  :
-                </Text>
-                <Text
-                  style={[
-                    styles.detailsCellDetail,
-                    { padding: "8px", paddingLeft: "20px", width: "55%" },
-                  ]}
-                >
-                  {formData?.ProjectReportSetting?.subsidyName || " "}
-                </Text>
-              </View>
-
-                 {/* partner details */}
-                 {formData?.AccountInformation?.allPartners?.length > 1 && (
+                  <Text
+                    style={[
+                      styles.serialNoCellDetail,
+                      { padding: 8, width: "10%" },
+                    ]}
+                  >
+                    19
+                  </Text>
+                  <Text
+                    style={[
+                      styles.particularsCellsDetail,
+                      { padding: 8, width: "45%", textAlign: "left" },
+                    ]}
+                  >
+                    Subsidy Scheme
+                  </Text>
+                  <Text
+                    style={[
+                      styles.separatorCellDetail,
+                      { padding: 8, textAlign: "center", width: "5%" },
+                    ]}
+                  >
+                    :
+                  </Text>
+                  <Text
+                    style={[
+                      styles.detailsCellDetail,
+                      { padding: 8, paddingLeft: 20, width: "55%" },
+                    ]}
+                  >
+                    {subsidyName}
+                  </Text>
+                </View>
+              )}
+              {/* partner details */}
+              {formData?.AccountInformation?.allPartners?.length > 1 && (
                 <View>
                   {/* Header */}
                   <View style={[styles.tableHeader]}>
@@ -1351,9 +1336,11 @@ const ProjectSynopsis = React.memo(
                         styles.serialNoCell,
                         { padding: "8px", width: "10%" },
                       ]}
-                    >20</Text>
+                    >
+                      20
+                    </Text>
                     <Text
-                       style={[
+                      style={[
                         styles.particularsCell,
                         styleExpenses.fontBold,
                         { padding: "8px", width: "45%" },
@@ -1371,11 +1358,11 @@ const ProjectSynopsis = React.memo(
                       :
                     </Text>
                     <Text
-                     style={[
-                      styles.detailsCell,
-                      styleExpenses.fontBold,
-                      { padding: "8px", width: "27.5%", textAlign: "center" },
-                    ]}
+                      style={[
+                        styles.detailsCell,
+                        styleExpenses.fontBold,
+                        { padding: "8px", width: "27.5%", textAlign: "center" },
+                      ]}
                     >
                       Aadhar No. of Partner
                     </Text>
@@ -1395,7 +1382,7 @@ const ProjectSynopsis = React.memo(
                     (partner, index) => (
                       <View key={index} style={styles.tableRow}>
                         <Text
-                           style={[
+                          style={[
                             styles.serialNoCellDetail,
                             { padding: "8px", width: "10%" },
                           ]}
@@ -1404,7 +1391,7 @@ const ProjectSynopsis = React.memo(
                         </Text>
 
                         <Text
-                           style={[
+                          style={[
                             styles.particularsCellsDetail,
                             { padding: "8px", width: "45%", textAlign: "left" },
                           ]}
@@ -1413,9 +1400,13 @@ const ProjectSynopsis = React.memo(
                         </Text>
 
                         <Text
-                           style={[
+                          style={[
                             styles.separatorCellDetail,
-                            { padding: "8px", textAlign: "center", width: "5%" },
+                            {
+                              padding: "8px",
+                              textAlign: "center",
+                              width: "5%",
+                            },
                           ]}
                         >
                           :
@@ -1424,14 +1415,18 @@ const ProjectSynopsis = React.memo(
                         <Text
                           style={[
                             styles.detailsCellDetail,
-                            { padding: "8px", width: "27.5%", textAlign: "center" },
+                            {
+                              padding: "8px",
+                              width: "27.5%",
+                              textAlign: "center",
+                            },
                           ]}
                         >
                           {partner.partnerAadhar || "N/A"}
                         </Text>
 
                         <Text
-                           style={[
+                          style={[
                             styles.detailsCellDetail,
                             {
                               padding: "8px",

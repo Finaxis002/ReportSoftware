@@ -203,7 +203,7 @@ const DebtServiceCoverageRatio = ({
     <Page
       size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting?.ProjectionYears > 7
+        formData.ProjectReportSetting?.ProjectionYears > 6
           ? "landscape"
           : "portrait"
       }

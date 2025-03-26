@@ -16,7 +16,8 @@ const Reports = ({ sendPdfData }) => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
-  const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
+  // const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch reports when the component mounts
 
@@ -123,174 +124,152 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-
-  
+  const filteredReports = reports.filter((report) => {
+    const name = report?.AccountInformation?.businessName?.toLowerCase() || "";
+    const desc =
+      report?.AccountInformation?.businessDescription?.toLowerCase() || "";
+    return name.includes(searchTerm) || desc.includes(searchTerm);
+  });
 
   return (
-    <div className="app-container bg-gray-50 min-h-screen">
+    <div className="flex h-[100vh] overflow-hidden">
       {renderMenuBar()}
-      <div className="flex flex-col w-full px-6 py-4 gap-8">
+      <div className="app-content p-4">
         <Header />
-        <div className="overflow-x-auto shadow-md rounded-xl border border-gray-200 bg-white">
-          <div className="w-[70rem] h-[70vh] overflow-x-auto  whitespace-nowrap">
-            {" "}
-            {/* Wrapper for horizontal scrolling */}{" "}
-            {/* Wrapper for horizontal scrolling with padding */}
-            <table className="min-w-full table-auto border-collapse rounded-lg shadow-md overflow-hidden">
-              {/* ✅ Table Header */}
-              <thead className="bg-teal-400 text-white">
+          {/* ✅ Search Bar */}
+          {/* ✅ Enhanced Search Bar */}
+          <div className="flex justify-end items-center mb-6 p-4">
+            <div className="relative  max-w-md ">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search by Keyword..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition duration-150 ease-in-out"
+              />
+            </div>
+          </div>
+
+
+          {/* ✅ Better Structured Table */}
+          <div className="w-full h-[80vh] overflow-x-auto">
+          <table className="  table-fixed border-collapse  ">
+            <thead className="bg-teal-500 text-white text-sm">
+              <tr>
+                <th className="border px-4 py-2 text-left w-1/6">
+                  Business Name
+                </th>
+                <th className="border px-4 py-2 text-left w-1/6">Owner</th>
+                <th className="border px-4 py-2 text-left w-1/12">Author</th>
+                <th className="border px-4 py-2 text-left w-1/12">Created</th>
+                <th className="border px-4 py-2 text-left w-1/4">
+                  Description
+                </th>
+                <th className="border px-4 py-2 text-left w-1/12">Term Loan</th>
+                <th className="border px-4 py-2 text-left w-1/12">
+                  Working Capital
+                </th>
+                <th className="border px-4 py-2 text-center w-1/6">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm divide-y divide-gray-200">
+              {isLoading ? (
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Business Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Name of Owner
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Author
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Date Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Description
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Term Loan
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Working Capital Loan
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold">
-                    Actions
-                  </th>
+                  <td colSpan="8" className="text-center py-4">
+                    <LoadingSpinner />
+                  </td>
                 </tr>
-              </thead>
-
-              {/* ✅ Table Body */}
-              <tbody className="divide-y divide-gray-200">
-                {/* Show loading spinner if data is still being fetched */}
-                {isLoading ? (
-                  <tr>
-                    <td colSpan="8" className="px-6 py-4 text-center">
-                      <LoadingSpinner />
+              ) : filteredReports.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-4 text-gray-500">
+                    No reports found.
+                  </td>
+                </tr>
+              ) : (
+                filteredReports.map((report, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition duration-200"
+                  >
+                    <td className="border px-4 py-2 font-medium text-gray-800">
+                      {report.AccountInformation?.businessName || "N/A"}
                     </td>
-                  </tr>
-                ) : (
-                  reports.map((report, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-100 transition-all duration-200 ease-in-out"
-                    >
-                      {/* ✅ Business Name */}
-                      <td className="px-6 py-4 text-gray-700 font-medium">
-                        {report.AccountInformation?.businessName || "N/A"}
-                      </td>
-
-                      {/* ✅ Name of Owner */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report.AccountInformation?.clientName || "N/A"}
-                      </td>
-
-                      {/* ✅ Author */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report.AccountInformation?.userRole || "N/A"}
-                      </td>
-
-                      {/* ✅ Date Created */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report?.AccountInformation?.createdAt
-                          ? new Date(
-                              report.AccountInformation.createdAt
-                            ).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-
-                      {/* ✅ Description */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report.AccountInformation?.businessDescription ||
-                          "No description available"}
-                      </td>
-
-                      {/* ✅ Term Loan */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report.MeansOfFinance?.termLoan?.termLoan ||
-                          "No Term Loan Info"}
-                      </td>
-
-                      {/* ✅ Working Capital Loan */}
-                      <td className="px-6 py-4 text-gray-700">
-                        {report.MeansOfFinance?.workingCapital?.termLoan ||
-                          "No Working Capital Loan Info"}
-                      </td>
-
-                      {/* ✅ Actions */}
-                      <td className="px-6 py-4 flex justify-center gap-4">
-                        {/* Conditional rendering of buttons based on user role */}
-                        <div className="flex gap-4">
-                          {/* ✅ Download Button for non-employees */}
-                          <button
-                            className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
-                              localStorage.getItem("userRole") === "employee"
-                                ? "hidden" // Hide the button if user is employee
-                                : "bg-green-500 hover:bg-green-600 text-white"
-                            }`}
-                            onClick={() => handleDownload(report.sessionId)}
-                          >
-                            <FontAwesomeIcon icon={faDownload} />
-                            Download
-                          </button>
-
-                          {/* ✅ Delete Button for non-employees */}
-                          <button
-                            className={`px-4 py-2 rounded-md shadow-sm transition duration-300 flex items-center gap-2 ${
-                              localStorage.getItem("userRole") === "employee"
-                                ? "hidden" // Hide the button if user is employee
-                                : "bg-red-500 hover:bg-red-600 text-white"
-                            }`}
-                            onClick={() => handleDelete(report._id)}
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                            Delete
-                          </button>
-
-                          {/* ✅ Create Button for employees */}
-                          <button
-                            onClick={() => {
+                    <td className="border px-4 py-2 text-gray-700">
+                      {report.AccountInformation?.clientName || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2 text-gray-700">
+                      {report.AccountInformation?.userRole || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2 text-gray-700">
+                      {report.AccountInformation?.createdAt
+                        ? new Date(
+                            report.AccountInformation.createdAt
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td className="border px-4 py-2 text-gray-700 truncate max-w-xs">
+                      {report.AccountInformation?.businessDescription ||
+                        "No description available"}
+                    </td>
+                    <td className="border px-4 py-2 text-gray-700">
+                      {report.MeansOfFinance?.termLoan?.termLoan || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2 text-gray-700">
+                      {report.MeansOfFinance?.workingCapital?.termLoan || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      <div className="flex justify-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => handleDownload(report.sessionId)}
+                          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs"
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleDelete(report._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs"
+                        >
+                          Delete
+                        </button>
+                        {/* <button
+                            onClick={() =>
                               navigate("/MultestepForm", {
                                 state: {
                                   isCreateReportWithExistingClicked: true,
-                                  reportData: report, // Passing the report data to the form
+                                  reportData: report,
                                 },
-                              });
-                            }}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                              })
+                            }
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs"
                           >
-                            Create new from this
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-
-                {/* ✅ No Reports Found */}
-                {reports.length === 0 && !isLoading && (
-                  <tr>
-                    <td
-                      colSpan="8"
-                      className="px-6 py-4 text-center text-gray-500"
-                    >
-                      No reports found.
+                            Clone
+                          </button> */}
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
           </div>
         </div>
       </div>
-    </div>
+    
   );
 };
 

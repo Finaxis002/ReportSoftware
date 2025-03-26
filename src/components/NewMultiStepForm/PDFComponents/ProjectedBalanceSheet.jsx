@@ -275,7 +275,7 @@ const ProjectedBalanceSheet = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 7 ? "landscape" : "portrait"}
+      orientation={projectionYears > 6 ? "landscape" : "portrait"}
       wrap={false}
       break
       style={[{ padding: "20px" }]}
@@ -1038,21 +1038,23 @@ const ProjectedBalanceSheet = ({
           </View>
 
           <View
-            style={{ display: "flex", flexDirection: "column", gap: "80px" }}
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "60px",
+              },
+            ]}
           >
-            {/* ✅ Business Name */}
-            {formData?.AccountInformation?.businessName ? (
-              <Text style={[styles.businessName, { fontSize: "14px" }]}>
-                {formData?.AccountInformation?.businessName}
-              </Text>
-            ) : null}
-
-            {/* ✅ Business Owner */}
-            {formData?.AccountInformation?.businessOwner ? (
-              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-                {formData?.AccountInformation?.businessOwner}
-              </Text>
-            ) : null}
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
           </View>
         </View>
       </View>
