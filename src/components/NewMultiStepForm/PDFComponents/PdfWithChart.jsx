@@ -9,7 +9,7 @@ const MyDocument = ({ pieBase64, barBase64 }) => (
     <Page size="A4" style={styles.page}>
       {/* ✅ Pie Chart */}
       <View  style={styles.chartContainer}>
-        <Text style={styles.title}>Direct Expense Breakdown</Text>
+        <Text style={styles.title}>Direct Expense Break up</Text>
         {pieBase64 && <Image src={pieBase64} style={styles.pieChart} />}
       </View>
 
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   barChart: {
-    width: 500,
-    height: 400,
+    width: 400,
+    height: 300,
     borderColor: '#ccc',
     backgroundColor: '#000000' // ✅ BLACK background for bar chart
   }

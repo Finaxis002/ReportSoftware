@@ -6,7 +6,7 @@ const MyDocument = ({ chartBase64 }) => (
   <Document>
     <View >
       <View>
-        <Text style={styles.title}>Current Ratio Chart</Text>
+        <Text style={styles.title}>Current Ratio</Text>
         {chartBase64 ? (
           <Image src={chartBase64} style={styles.chart} />
         ) : (
@@ -29,8 +29,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   chart: {
-    width: 300,
-    height: 200,
+    width: 400,
+    height: 250,
     marginVertical: 20,
   },
   loading: {
