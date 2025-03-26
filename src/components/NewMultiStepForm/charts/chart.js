@@ -29,7 +29,7 @@ export const generateChart = async (data) => {
   try {
     // Create a hidden canvas for chart rendering
     const canvas = document.createElement('canvas');
-    canvas.width = 500;
+    canvas.width = 450;
     canvas.height = 400;
     const ctx = canvas.getContext('2d');
     const backgroundColors = [
@@ -54,6 +54,8 @@ export const generateChart = async (data) => {
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
     }
+
+    Chart.defaults.font.family = 'Times New Roman';
 
     // ✅ Create Pie Chart
     new Chart(ctx, {
@@ -80,19 +82,17 @@ export const generateChart = async (data) => {
           legend: {
             display: true,
             position: 'bottom',
+           
             labels: {
               color: '#000', // ✅ Black legend color
               font: {
                 size: 12,
                 weight: 'bold',
               },
-              usePointStyle: true, // ✅ Circular legend points
+              usePointStyle: true,
+              boxWidth: 8,
+              padding: 20, 
             },
-          },
-          title: {
-            display: true,
-            text: 'Direct Expense Break up',
-            font: { size: 16, weight: 'bold' }
           },
           tooltip: {
             enabled: true,
@@ -111,7 +111,7 @@ export const generateChart = async (data) => {
     });
 
     // ✅ Wait for chart rendering to finish
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // ✅ Convert canvas to Base64 using `toDataURL`
     const base64 = canvas.toDataURL('image/png');

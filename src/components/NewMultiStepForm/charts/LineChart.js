@@ -437,7 +437,7 @@ import { Chart, registerables } from 'chart.js';
 import html2canvas from 'html2canvas';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-Chart.register(...registerables, ChartDataLabels);
+Chart.register(...registerables);
 
 const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
   useEffect(() => {
@@ -449,8 +449,8 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
 
         // ✅ Create a canvas dynamically
         const canvas = document.createElement('canvas');
-        canvas.width = 500;
-        canvas.height = 400;
+        canvas.width = 600;
+        canvas.height = 500;
         canvas.style.backgroundColor = '#000000'; // ✅ Black background
         const ctx = canvas.getContext('2d');
 
@@ -477,6 +477,9 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
         console.log('✅ Last Year Value:', lastYearValue);
         console.log('✅ Max Y Value:', maxYValue);
         console.log('✅ Y Interval:', yInterval);
+
+        Chart.defaults.font.family = 'Times New Roman';
+
         // ✅ Create Chart Instance
         new Chart(ctx, {
           type: 'line',
@@ -490,8 +493,8 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                 backgroundColor: gradient,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: '#4A90E2',
-                pointBorderColor: '#FFFFFF',
+                pointBackgroundColor: 'rgba(255, 205, 86, 0.5)',
+                pointBorderColor: 'rgb(255, 205, 86)',
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8,
@@ -509,7 +512,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                   text: 'Years',
                   color: '#FFFFFF', // ✅ White x-axis label
                   font: {
-                    size: 14,
+                    size: 10,
                     weight: 'bold'
                   }
                 },
@@ -532,7 +535,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                   text: 'Value',
                   color: '#FFFFFF', // ✅ White y-axis label
                   font: {
-                    size: 14,
+                    size: 10,
                     weight: 'bold'
                   }
                 },
@@ -554,9 +557,9 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
                 position: 'top',
                 labels: {
                   color: '#FFFFFF', // ✅ White legend text
-                  padding: 16,
+                  padding: 10,
                   font: {
-                    size: 14,
+                    size: 10,
                     weight: 'bold'
                   }
                 }

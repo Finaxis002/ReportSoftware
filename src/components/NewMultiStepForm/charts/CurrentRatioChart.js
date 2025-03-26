@@ -54,6 +54,9 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         yInterval = parseFloat(yInterval.toFixed(2)); // Fix the interval calculation to have decimal points.
 
         maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
+
+        Chart.defaults.font.family = 'Times New Roman';
+        
         // ✅ Create Chart Instance
         new Chart(ctx, {
           type: 'line',
@@ -66,8 +69,8 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
               backgroundColor: gradient,
               borderWidth: 3,
               tension: 0.4,
-              pointBackgroundColor: '#4A90E2',
-              pointBorderColor: '#FFFFFF',
+              pointBackgroundColor: 'rgba(255, 205, 86, 0.5)',
+              pointBorderColor: 'rgb(255, 205, 86)',
               pointBorderWidth: 2,
               pointRadius: 6,
               pointHoverRadius: 8,

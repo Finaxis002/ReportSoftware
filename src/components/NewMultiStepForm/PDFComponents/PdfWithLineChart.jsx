@@ -80,7 +80,7 @@ import LineChart from '../charts/LineChart';
 
 const MyDocument = ({ chartBase64 }) => (
   <View>
-    <Text style={styles.title}>DSCR Chart</Text>
+    <Text style={styles.title}>DSCR</Text>
     {chartBase64 ? (
       <Image src={chartBase64} style={styles.chart} />
     ) : (
