@@ -111,7 +111,7 @@ export const generateChart = async (data) => {
     });
 
     // ✅ Wait for chart rendering to finish
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // ✅ Convert canvas to Base64 using `toDataURL`
     const base64 = canvas.toDataURL('image/png');

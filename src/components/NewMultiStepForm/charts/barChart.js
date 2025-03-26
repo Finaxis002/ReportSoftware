@@ -193,14 +193,14 @@ export const generateBarChart = async ({
           {
             label: "Revenue",
             data: revenue,
-            backgroundColor: " rgba(54, 162, 235, 0.2)",
+            backgroundColor: " rgba(54, 162, 235, 0.5)",
             borderColor: "rgb(54, 162, 235)",
             borderWidth: 1,
           },
           {
             label: "Expenses",
             data: expenses,
-            backgroundColor: "rgba(255, 205, 86, 0.2)",
+            backgroundColor: "rgba(255, 205, 86, 0.5)",
             borderColor: "rgb(255, 205, 86)",
             borderWidth: 1,
           },
@@ -296,7 +296,7 @@ export const generateBarChart = async ({
     });
 
     // ✅ Convert to Base64
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 200));
     const base64 = canvas.toDataURL("image/png");
     // console.log("✅ Bar Chart generated:", base64);
     return base64;
