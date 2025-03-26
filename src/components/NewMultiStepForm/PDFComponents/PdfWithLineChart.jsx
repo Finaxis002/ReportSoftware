@@ -80,7 +80,9 @@ import LineChart from '../charts/LineChart';
 
 const MyDocument = ({ chartBase64 }) => (
   <View>
+     <View style={styles.centeredTextContainer}>
     <Text style={styles.title}>DSCR</Text>
+    </View>
     {chartBase64 ? (
       <Image src={chartBase64} style={styles.chart} />
     ) : (
@@ -90,6 +92,10 @@ const MyDocument = ({ chartBase64 }) => (
 );
 
 const styles = StyleSheet.create({
+  centeredTextContainer: {
+    width: '100%',
+    alignItems: 'center',   // ✅ Center children horizontally
+  },
   title: {
     fontSize: 18,
     marginBottom: 10,

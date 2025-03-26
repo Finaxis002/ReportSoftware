@@ -6,7 +6,9 @@ const MyDocument = ({ chartBase64 }) => (
   <Document>
     <View >
       <View>
+      <View style={styles.centeredTextContainer}>
         <Text style={styles.title}>Current Ratio</Text>
+        </View>
         {chartBase64 ? (
           <Image src={chartBase64} style={styles.chart} />
         ) : (
@@ -23,10 +25,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#fff',
   },
+  centeredTextContainer: {
+    width: '100%',
+    alignItems: 'center',   // ✅ Center children horizontally
+  },
   title: {
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   chart: {
     width: 400,
