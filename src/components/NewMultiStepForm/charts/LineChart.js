@@ -464,8 +464,8 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
 
         // ✅ Create gradient for line chart
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
-        gradient.addColorStop(1, 'rgba(74, 144, 226, 0.1)');
+        gradient.addColorStop(0, 'rgba(75, 192, 192, 0.5)');
+        gradient.addColorStop(1, 'rgba(75, 192, 192, 0.2)');
 
         console.log("values in line chart.js ", values)
         // ✅ Calculate Y-axis range based on last year's value
@@ -487,14 +487,14 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
             labels,
             datasets: [
               {
-                
+                label: "DSCR",
                 data: values,
-                borderColor: '#4A90E2', // ✅ Blue line color
+                borderColor: 'rgba(75, 192, 192, 0.6)', // ✅ Blue line color
                 backgroundColor: gradient,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: 'rgba(255, 205, 86, 0.5)',
-                pointBorderColor: 'rgb(255, 205, 86)',
+                pointBackgroundColor: 'rgba(255, 159, 64, 0.2)',
+                pointBorderColor: 'rgb(255, 159, 64)',
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8,

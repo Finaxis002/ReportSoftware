@@ -33,12 +33,12 @@ export const generateChart = async (data) => {
     canvas.height = 400;
     const ctx = canvas.getContext('2d');
     const backgroundColors = [
-        '#7CB9E8', 
-        '#00308F',
-        '#72A0C1', 
-        '#0066b2',
-        '#89CFF0', 
-        '#318CE7', 
+        'rgba(115, 210, 210)', 
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(255, 180, 100)',
+        'rgba(35, 120, 120)', 
+        'rgba(220, 130, 40)', 
+        'rgba(255, 159, 64, 0.9)', 
       ];
 
     const borderColors = backgroundColors.map(color =>
