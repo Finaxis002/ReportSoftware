@@ -35,7 +35,6 @@ import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 
-
 // Initialize query client
 const queryClient = new QueryClient();
 
@@ -47,7 +46,7 @@ const App = () => {
   const [generatePDfData, setGeneratedPDFData] = useState({});
 
   const [pdfData, setPdfData] = useState();
-  console.log("pdfData", pdfData );
+  console.log("pdfData", pdfData);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -199,7 +198,13 @@ const App = () => {
             {/* ✅ Correctly Placed Routes */}
             <Route
               path="/generated-pdf"
-              element={<GeneratedPDF pdfData={pdfData} />}
+              element={
+                <GeneratedPDF
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                  pdfData={pdfData}
+                />
+              }
             />
             <Route path="/checkprofit" element={<CheckProfit />} />
 
@@ -207,10 +212,7 @@ const App = () => {
               path="/reports"
               element={<Reports sendPdfData={setPdfData} />}
             />
-             <Route
-              path="/clients"
-              element={<Clients />}
-            />
+            <Route path="/clients" element={<Clients />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

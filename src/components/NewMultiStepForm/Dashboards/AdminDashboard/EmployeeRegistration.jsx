@@ -15,6 +15,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
       updateReport: false,
       createNewWithExisting: false,
       downloadPDF: false,
+      exportData: false,
     },
   });
   
@@ -195,6 +196,18 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
                 className="mr-2"
               />
               Download PDF
+            </label>
+
+
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                name="exportData"
+                checked={formData.permissions.exportData}
+                onChange={handleCheckboxChange}
+                className="mr-2"
+              />
+              Export Report Data
             </label>
           </div>
         </div>

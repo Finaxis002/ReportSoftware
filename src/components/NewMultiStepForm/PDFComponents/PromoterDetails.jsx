@@ -112,7 +112,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 : "Mr."}{" "}
               {formData?.AccountInformation?.clientName || "Client Name"} is a
               resident of{" "}
-              {formData?.AccountInformation?.location ||
+              {formData?.AccountInformation?.location||
                 "Business Address Not Available"}
               .{" "}
               {formData?.AccountInformation?.gender?.toLowerCase() === "female"
@@ -229,7 +229,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.location}
+              {formData?.AccountInformation?.businessAddress}
             </Text>
           </View>
 

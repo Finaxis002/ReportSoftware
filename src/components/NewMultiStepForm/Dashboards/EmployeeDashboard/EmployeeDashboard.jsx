@@ -57,13 +57,13 @@ const EmployeeDashboard = ({ userRole }) => {
   }, [navigate]);
 
   return (
-    <div className="flex h-[100vh]">
+    <div className="flex h-[100vh] overflow-hidden">
       <MenuBar userRole={"employee"} />
 
       <div className="app-content">
         <Header dashboardType="Employee Dashboard" />
 
-        <div>
+        <div className="overflow-d">
           {/* ✅ Show loader while fetching data */}
           {isLoading ? (
             <div className="loader-container">
@@ -73,7 +73,7 @@ const EmployeeDashboard = ({ userRole }) => {
             <>
               {/* ✅ Display Logged-In Employee Details */}
               {employeeData ? (
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-8 " >
                   <div className="w-full max-w-4xl bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                     <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white text-center py-2">
                       <h2 className="text-xl font-semibold">

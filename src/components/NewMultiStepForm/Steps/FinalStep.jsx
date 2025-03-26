@@ -2,7 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
-const FinalStep = ({ formData, setCurrentStep }) => {
+const FinalStep = ({ formData, userName , userRole}) => {
+  const [permissions, setPermissions] = useState({
+     createReport: false,
+     updateReport: false,
+     createNewWithExisting: false,
+     downloadPDF: false,
+     exportData: false, // ✅ Add this
+   });
+
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -55,8 +63,6 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }, 10000);
   };
 
-
-
   // const handleExportData = () => {
   //   const data = formData; // Assuming formData contains your data
 
@@ -80,7 +86,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const newKey = parentKey ? `${parentKey}.${key}` : key;
-  
+
         if (Array.isArray(obj[key])) {
           // ✅ If it's an array (like years), keep as an array for row-wise format
           result[newKey] = obj[key];
@@ -100,29 +106,30 @@ const FinalStep = ({ formData, setCurrentStep }) => {
     }
     return result;
   };
-  
+
   const handleExportData = () => {
     if (!formData) return;
-  
+
     // ✅ Flatten the object for easy processing
     const flattenedData = flattenObject(formData);
-  
+
     // ✅ Split data into separate components (sheets)
     const sections = {
       "Account Information": {},
       "Means of Finance": {},
       "Cost of Project": {},
-      "Expenses": {},
-      "Revenue": {},
+      Expenses: {},
+      Revenue: {},
       "More Details": {},
       "Other Data": {},
     };
-  
+
     // ✅ Categorize data based on prefix (like "AccountInformation")
     Object.keys(flattenedData).forEach((key) => {
       if (key.startsWith("AccountInformation")) {
-        sections["Account Information"][key.replace("AccountInformation.", "")] =
-          flattenedData[key];
+        sections["Account Information"][
+          key.replace("AccountInformation.", "")
+        ] = flattenedData[key];
       } else if (key.startsWith("MeansOfFinance")) {
         sections["Means of Finance"][key.replace("MeansOfFinance.", "")] =
           flattenedData[key];
@@ -130,8 +137,7 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         sections["Cost of Project"][key.replace("CostOfProject.", "")] =
           flattenedData[key];
       } else if (key.startsWith("Expenses")) {
-        sections["Expenses"][key.replace("Expenses.", "")] =
-          flattenedData[key];
+        sections["Expenses"][key.replace("Expenses.", "")] = flattenedData[key];
       } else if (key.startsWith("Revenue")) {
         sections["Revenue"][key.replace("Revenue.", "")] = flattenedData[key];
       } else if (key.startsWith("MoreDetails")) {
@@ -141,14 +147,14 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         sections["Other Data"][key] = flattenedData[key];
       }
     });
-  
+
     // ✅ Create workbook
     const workbook = XLSX.utils.book_new();
-  
+
     // ✅ Function to format key-value pairs into a worksheet
     const addKeyValueSheet = (data, sheetName) => {
       const rows = [["Key", "Value"]]; // Header row
-  
+
       Object.keys(data).forEach((key) => {
         if (Array.isArray(data[key])) {
           // ✅ If it's an array (like years), format row-wise
@@ -157,155 +163,109 @@ const FinalStep = ({ formData, setCurrentStep }) => {
           rows.push([key, data[key]]);
         }
       });
-  
+
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     };
-  
+
     // ✅ Function to format array-based data in a structured table format
     const addArraySheet = (data, sheetName) => {
-      const headerRow = ["Parameter", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"];
+      const headerRow = [
+        "Parameter",
+        "Year 1",
+        "Year 2",
+        "Year 3",
+        "Year 4",
+        "Year 5",
+      ];
       const rows = [headerRow];
-  
+
       Object.keys(data).forEach((key) => {
         if (Array.isArray(data[key])) {
           rows.push([key, ...data[key]]);
         }
       });
-  
+
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     };
-  
+
     // ✅ Add individual sheets for each section
     if (Object.keys(sections["Account Information"]).length > 0) {
       addKeyValueSheet(sections["Account Information"], "Account Info");
     }
-  
+
     if (Object.keys(sections["Means of Finance"]).length > 0) {
       addKeyValueSheet(sections["Means of Finance"], "Means of Finance");
     }
-  
+
     if (Object.keys(sections["Cost of Project"]).length > 0) {
       addKeyValueSheet(sections["Cost of Project"], "Cost of Project");
     }
-  
+
     if (Object.keys(sections["Expenses"]).length > 0) {
       addArraySheet(sections["Expenses"], "Expenses");
     }
-  
+
     if (Object.keys(sections["Revenue"]).length > 0) {
       addArraySheet(sections["Revenue"], "Revenue");
     }
-  
+
     if (Object.keys(sections["More Details"]).length > 0) {
       addKeyValueSheet(sections["More Details"], "More Details");
     }
-  
+
     if (Object.keys(sections["Other Data"]).length > 0) {
       addKeyValueSheet(sections["Other Data"], "Other Data");
     }
-  
+
     // ✅ Save the file
     XLSX.writeFile(workbook, "exported-data.xlsx");
   };
 
-
-
-
-
-
-  // new handle check proifit
-
-  // const handleCheckProfit = () => {
-  //   console.log("🚀 Triggering PDF Load...");
-  //   setIsPDFLoaded(false);
-  //   setIsLoading(true);
-  
-  //   // ✅ Open the tab immediately (to avoid browser popup blocking)
-  //   const newTab = window.open("checkprofit", "_blank"); 
-  
-  //   if (iframeRef.current) {
-  //     iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-  
-  //     // ✅ Fallback timeout after 15 seconds
-  //     timeoutId.current = setTimeout(() => {
-  //       if (isComponentMounted.current && newTab) {
-  //         console.log("⏳ Navigating to checkprofit after timeout...");
-  //         setIsPDFLoaded(true);
-  //         setIsLoading(false);
-  //         newTab.location.href = "/checkprofit"; // ✅ Update URL in new tab
-  //       }
-  //     }, 15000);
-  
-  //     // ✅ Handle load event for early completion
-  //     iframeRef.current.onload = () => {
-  //       if (!isComponentMounted.current) return;
-  //       console.log("✅ PDF Loaded Successfully");
-  
-  //       clearTimeout(timeoutId.current);
-  //       timeoutId.current = null;
-  //       setIsPDFLoaded(true);
-  //       setIsLoading(false);
-  
-  //       // ✅ Open /checkprofit in the new tab
-  //       setTimeout(() => {
-  //         if (isComponentMounted.current && newTab) {
-  //           console.log("🚀 Opening /checkprofit in new tab...");
-  //           newTab.location.href = "/checkprofit"; // ✅ Navigate in opened tab
-  //         }
-  //       }, 3000);
-  //     };
-  //   }
-  
-  //   // ✅ Save last step to localStorage
-  //   localStorage.setItem("lastStep", 8);
-  // };
-  
-  
   const handleCheckProfit = () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
-  
+
     // ✅ Open the popup window with specific size and position
     const popup = window.open(
       "",
       "popupWindow",
       "width=800,height=600,left=200,top=200,resizable=no,scrollbars=yes"
     );
-  
+
     if (!popup) {
       alert("Popup blocked. Please allow popups for this site.");
       return;
     }
-  
+
     if (iframeRef.current) {
       // ✅ Load the generated PDF
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-  
+
       // ✅ Fallback timeout after 15 seconds
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
           console.log("⏳ Navigating to checkprofit after timeout...");
           setIsPDFLoaded(true);
           setIsLoading(false);
-  
+
           // ✅ Open checkprofit in the popup window
           popup.location.href = "/checkprofit";
         }
       }, 15000);
-  
+
       // ✅ Handle iframe load for early completion
       iframeRef.current.onload = () => {
         if (!isComponentMounted.current) return;
         console.log("✅ PDF Loaded Successfully");
-  
+
         clearTimeout(timeoutId.current);
         timeoutId.current = null;
         setIsPDFLoaded(true);
         setIsLoading(false);
-  
+
         // ✅ Navigate the popup window after PDF load
         setTimeout(() => {
           if (isComponentMounted.current && popup) {
@@ -315,12 +275,71 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         }, 3000);
       };
     }
-  
+
     // ✅ Save last step to localStorage
     localStorage.setItem("lastStep", 8);
   };
-  
-  
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        // Fetching all employees
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees"
+        );
+
+        // Check if the response is successful
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+
+        const result = await response.json();
+        console.log("✅ Fetched Employees Data:", result);
+
+        const employees = Array.isArray(result) ? result : [];
+
+        // Assign permissions based on userRole
+        if (userRole === "admin") {
+          setPermissions({
+            createReport: true,
+            updateReport: true,
+            createNewWithExisting: true,
+            downloadPDF: true,
+          });
+          console.log("✅ Admin permissions granted");
+        } else if (userRole === "employee") {
+          // Normalize the userName to lowercase and trim spaces
+          const normalizedUserName = userName?.trim().toLowerCase();
+
+          // Find the employee based on name, email, or employeeId
+          const employee = employees.find(
+            (emp) =>
+              emp.name?.trim().toLowerCase() === normalizedUserName ||
+              emp.email?.trim().toLowerCase() === normalizedUserName ||
+              emp.employeeId?.trim().toLowerCase() === normalizedUserName
+          );
+
+          // Set permissions if employee is found
+          if (employee && employee.permissions) {
+            setPermissions(employee.permissions);
+            console.log(
+              "✅ Permissions fetched for employee:",
+              employee.permissions
+            );
+          } else {
+            console.warn(
+              "⚠️ No matching employee found or permissions missing"
+            );
+          }
+        }
+      } catch (err) {
+        console.error("🔥 Error fetching permissions:", err.message);
+      }
+    };
+
+    // Fetch permissions when the component mounts or when userRole/userName changes
+    fetchPermissions();
+  }, [userRole, userName]);
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
@@ -391,12 +410,14 @@ const FinalStep = ({ formData, setCurrentStep }) => {
         </button>
 
         {/* ✅ New Export Data Button */}
-        <button
-          onClick={handleExportData}
-          className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
-        >
-          Export Data
-        </button>
+        {(userRole === "admin" || permissions.exportData) && (
+          <button
+            onClick={handleExportData}
+            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          >
+            Export Data
+          </button>
+        )}
       </div>
 
       {/* ✅ Hidden Iframe */}

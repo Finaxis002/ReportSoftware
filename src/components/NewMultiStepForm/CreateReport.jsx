@@ -3,12 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import MenuBar from "./MenuBar";
 
 const CreateReport = ({ userRole, userName }) => {
-  const [permissions, setPermissions] = useState({
-    createReport: false,
-    updateReport: false,
-    createNewWithExisting: false,
-    downloadPDF: false,
-  });
+
+
+   const [permissions, setPermissions] = useState({
+      createReport: false,
+      updateReport: false,
+      createNewWithExisting: false,
+      downloadPDF: false,
+      exportData: false, // ✅ Add this
+    });
 
   const navigate = useNavigate();
 

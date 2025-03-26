@@ -422,7 +422,7 @@ const RatioAnalysis = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 7 ? "landscape" : "portrait"}
+      orientation={projectionYears > 6 ? "landscape" : "portrait"}
       wrap={false}
       break
       style={[{ padding: "20px" }]}

@@ -342,7 +342,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       case 8:
         return (
           <FinalStep formData={formData} setCurrentStep={setCurrentStep} 
-          currentStep={currentStep || 1} />
+          currentStep={currentStep || 1} userRole={userRole} userName={userName}/>
         );
       default:
         return null;

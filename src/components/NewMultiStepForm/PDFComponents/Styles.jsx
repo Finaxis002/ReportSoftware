@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   serialNoCell: {
-    width: "20%",
+    width: "25%",
     padding: 3,
     fontSize: "10px",
     textAlign:"center",
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   serialNoCellDetail: {
-    width: "20%",
+    width: "25%",
     padding: 3,
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
@@ -289,12 +289,13 @@ const stylesMOF = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   Snocell: {
-    padding: 4,
+    padding: 3,
     borderRight: "1px solid #000",
     fontSize: "10px",
-    paddingHorizontal: 20,
-    width: 50,
+    // paddingHorizontal: 20,
+    width: "25%",
     fontFamily:"TimesNewRoman",
+    textAlign:"center"
   },
   boldCell: {
     fontWeight: "bold",
@@ -379,7 +380,7 @@ const stylesCOP = StyleSheet.create({
   },
 
   serialNoCellDetail: {
-    width: "20%",
+    width: "25%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "10px",
@@ -455,16 +456,16 @@ const styleExpenses = StyleSheet.create({
   },
 
   particularWidth: {
-    width: 600,
+    width: 500,
     fontFamily:"TimesNewRoman",
   },
   sno: {
     width: 100,
     fontSize: "10px",
-    paddingLeft: 10,
+    // paddingLeft: 10,
     paddingTop: 5,
     textAlign:"center",
-    width:"20%",
+    width:"25%",
     fontFamily:"TimesNewRoman",
   },
   bordernone: {
@@ -486,7 +487,7 @@ const styleExpenses = StyleSheet.create({
 });
 
 const columnWidths = {
-  serialNo: { width: "20%", textAlign: "center" }, // ✅ Fixed width for Serial No.
+  serialNo: { width: "25%", textAlign: "center" }, // ✅ Fixed width for Serial No.
   yearQuarter: { width: "120px", textAlign: "center" },
   openingBalance: { width: "120px", textAlign: "center" },
   principalRepayment: { width: "120px", textAlign: "center" },

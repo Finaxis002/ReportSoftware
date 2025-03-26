@@ -243,7 +243,7 @@ const ProjectedExpenses = ({
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears > 7
+        formData.ProjectReportSetting.ProjectionYears > 6
           ? "landscape"
           : "portrait"
       }
@@ -252,7 +252,7 @@ const ProjectedExpenses = ({
       style={[{ padding: "20px" }]}
     >
       {/* watermark  */}
-      {pdfType &&
+      {/* {pdfType &&
         pdfType !== "select option" &&
         (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
           <View
@@ -276,7 +276,7 @@ const ProjectedExpenses = ({
               }}
             />
           </View>
-        )}
+        )} */}
 
       {/* businees name and financial year  */}
       <View>

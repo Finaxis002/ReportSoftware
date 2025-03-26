@@ -35,25 +35,6 @@ import PromoterDetails from "./PDFComponents/PromoterDetails";
 import PdfWithChart from "./PDFComponents/PdfWithChart";
 import { generateChart } from "./charts/chart";
 
-// Font.register({
-//   family: "TimesNewRoman",
-//   fonts: [
-//     {
-//       src: require("./Assets/Fonts/times-new-roman.ttf"),
-//       fontWeight: "normal",
-//     },
-//     {
-//       src: require("./Assets/Fonts/times-new-roman-bold.ttf"),
-//       fontWeight: "bold",
-//     },
-//     {
-//       src: require("./Assets/Fonts/times-new-roman-bold-italic.ttf"),
-//       fontWeight: "bold",
-//       fontStyle: "italic",
-//     },
-//   ],
-// });
-
 import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 
 // import {LineChart} from "./charts/LineChart";
@@ -61,7 +42,18 @@ import LineChart from "./charts/LineChart";
 import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
 import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 
-const GeneratedPDF = React.memo(({}) => {
+const GeneratedPDF = ({ userRole ,   userName }) => {
+
+
+  const [permissions, setPermissions] = useState({
+    createReport: false,
+    updateReport: false,
+    createNewWithExisting: false,
+    downloadPDF: false,
+    exportData: false, // ✅ Add this
+  });
+
+
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
 
@@ -115,7 +107,7 @@ const GeneratedPDF = React.memo(({}) => {
 
   const [totalExpense, setTotalExpense] = useState([]);
 
-  const [userRole, setUserRole] = useState("");
+  // const [userRole, setUserRole] = useState("");
 
   const [pdfType, setPdfType] = useState("");
 
@@ -124,6 +116,8 @@ const GeneratedPDF = React.memo(({}) => {
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
+
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
@@ -376,7 +370,6 @@ const GeneratedPDF = React.memo(({}) => {
     }
   };
 
-
   useEffect(() => {
     console.log("🔄 GeneratedPDF is re-rendering");
   });
@@ -474,6 +467,67 @@ const GeneratedPDF = React.memo(({}) => {
     (_, i) => i + 1
   );
 
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        // Fetching all employees
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees"
+        );
+
+        // Check if the response is successful
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+
+        const result = await response.json();
+        console.log("✅ Fetched Employees Data:", result);
+
+        const employees = Array.isArray(result) ? result : [];
+
+        // Assign permissions based on userRole
+        if (userRole === "admin") {
+          setPermissions({
+            createReport: true,
+            updateReport: true,
+            createNewWithExisting: true,
+            downloadPDF: true,
+          });
+          console.log("✅ Admin permissions granted");
+        } else if (userRole === "employee") {
+          // Normalize the userName to lowercase and trim spaces
+          const normalizedUserName = userName?.trim().toLowerCase();
+
+          // Find the employee based on name, email, or employeeId
+          const employee = employees.find(
+            (emp) =>
+              emp.name?.trim().toLowerCase() === normalizedUserName ||
+              emp.email?.trim().toLowerCase() === normalizedUserName ||
+              emp.employeeId?.trim().toLowerCase() === normalizedUserName
+          );
+
+          // Set permissions if employee is found
+          if (employee && employee.permissions) {
+            setPermissions(employee.permissions);
+            console.log(
+              "✅ Permissions fetched for employee:",
+              employee.permissions
+            );
+          } else {
+            console.warn(
+              "⚠️ No matching employee found or permissions missing"
+            );
+          }
+        }
+      } catch (err) {
+        console.error("🔥 Error fetching permissions:", err.message);
+      }
+    };
+
+    // Fetch permissions when the component mounts or when userRole/userName changes
+    fetchPermissions();
+  }, [userRole, userName]);
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
@@ -506,6 +560,12 @@ const GeneratedPDF = React.memo(({}) => {
           labels={financialYearLabelsforChart || []}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
+        />
+
+        <PromoterDetails
+          formData={formData}
+          pdfType={pdfType}
+          formatNumber={formatNumber}
         />
 
         {/* Means of Finance Table */}
@@ -717,11 +777,6 @@ const GeneratedPDF = React.memo(({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-        <PromoterDetails
-          formData={formData}
-          pdfType={pdfType}
-          formatNumber={formatNumber}
-        />
       </Document>
     );
   }, [
@@ -769,6 +824,10 @@ const GeneratedPDF = React.memo(({}) => {
     };
   }, []);
 
+  console.log(
+    "userRole" , userRole , " permissions" , permissions?.downloadPDF
+  );
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       {/* ✅ Loader Section */}
@@ -805,11 +864,19 @@ const GeneratedPDF = React.memo(({}) => {
           }
           return !isPDFLoading ? (
             <>
+              {/* <PDFViewer
+                  width="100%"
+                  height="800"
+                  style={{ overflow: "hidden" }}
+                  // showToolbar={userRole === "admin" || permissions.downloadPDF}
+                >
+                  {memoizedPDF}
+                </PDFViewer> */}
               <PDFViewer
                 width="100%"
                 height="800"
                 style={{ overflow: "hidden" }}
-                showToolbar={userRole !== "client" && userRole !== "employee"}
+                showToolbar={userRole === "admin" || permissions.downloadPDF}
               >
                 {memoizedPDF}
               </PDFViewer>
@@ -822,6 +889,6 @@ const GeneratedPDF = React.memo(({}) => {
       </BlobProvider>
     </div>
   );
-});
+};
 
 export default GeneratedPDF;

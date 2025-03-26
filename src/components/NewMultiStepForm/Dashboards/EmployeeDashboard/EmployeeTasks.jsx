@@ -152,7 +152,7 @@ const EmployeeTasks = ({ employeeId }) => {
   
 
   return (
-    <div className="mt-8 w-[80%] mx-auto max-h-[500px] overflow-y-auto">
+    <div className="mt-8 w-[80%] mx-auto max-h-[500px]">
       <h3 className="text-2xl font-semibold text-gray-800 mb-4">Assigned Reports</h3>
       {loading ? (
         <p className="text-center text-gray-600">Loading tasks...</p>

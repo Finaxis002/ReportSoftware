@@ -431,7 +431,7 @@ const ProjectedProfitability = ({
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears > 7
+        formData.ProjectReportSetting.ProjectionYears > 6
           ? "landscape"
           : "portrait"
       }
@@ -524,6 +524,58 @@ const ProjectedProfitability = ({
             )}
           </View>
 
+          {/* Blank Row  */}
+          <View
+            style={[
+              stylesMOF.row,
+              styles.tableRow,
+              styles.Total,
+              {
+                fontWeight: "black",
+                border: 0,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+                styles.Total,
+              ]}
+            >
+              
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                styles.Total,
+                { fontWeight: "extrabold" },
+              ]}
+            >
+              
+            </Text>
+
+            {/* ✅ Display revenue values based on projectionYears */}
+            {totalRevenueReceipts.slice(0, projectionYears).map(
+              (totalYearValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  >
+                   
+                  </Text>
+                )
+            )}
+          </View>
+
           {/* ✅ Display Total Revenue Receipt Row */}
           <View
             style={[
@@ -533,7 +585,6 @@ const ProjectedProfitability = ({
               {
                 fontWeight: "black",
                 border: 0,
-                marginTop: "10px",
               },
             ]}
           >
@@ -921,8 +972,60 @@ const ProjectedProfitability = ({
             )}
           </View>
 
+            {/* Blank Row  */}
+            <View
+            style={[
+              stylesMOF.row,
+              styles.tableRow,
+              styles.Total,
+              {
+                fontWeight: "black",
+                border: 0,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+                styles.Total,
+              ]}
+            >
+              
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                styles.Total,
+                { fontWeight: "extrabold" },
+              ]}
+            >
+              
+            </Text>
+
+            {/* ✅ Display revenue values based on projectionYears */}
+            {totalRevenueReceipts.slice(0, projectionYears).map(
+              (totalYearValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  >
+                   
+                  </Text>
+                )
+            )}
+          </View>
+
           {/* Gross Profit Calculation */}
-          <View style={[stylesMOF.row, styles.tableRow, { marginTop: "12px" }]}>
+          <View style={[stylesMOF.row, styles.tableRow]}>
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -1613,64 +1716,82 @@ const ProjectedProfitability = ({
           },
         ]}
       >
-        
-
         <View
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop : 100 ,
+            paddingTop: 100,
           }}
         >
           {/* ✅ CA Name (Conditional Display) */}
           {formData?.ProjectReportSetting?.CAName?.value ? (
-            <Text style={[styles.caName, { fontSize: "10px", fontFamily: "Roboto", 
-              fontWeight: "bold" }]}>
+            <Text
+              style={[
+                styles.caName,
+                { fontSize: "10px", fontFamily: "Roboto", fontWeight: "bold" },
+              ]}
+            >
               CA {formData?.ProjectReportSetting?.CAName?.value}
             </Text>
           ) : null}
 
           {/* ✅ Membership Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
-            <Text style={[styles.membershipNumber, { fontSize: "10px",fontFamily: "Roboto"
-              }]}>
+            <Text
+              style={[
+                styles.membershipNumber,
+                { fontSize: "10px", fontFamily: "Roboto" },
+              ]}
+            >
               M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
             </Text>
           ) : null}
 
           {/* ✅ UDIN Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.UDINNumber?.value ? (
-            <Text style={[styles.udinNumber, { fontSize: "10px",fontFamily: "Roboto"
-              }]}>
+            <Text
+              style={[
+                styles.udinNumber,
+                { fontSize: "10px", fontFamily: "Roboto" },
+              ]}
+            >
               UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
             </Text>
           ) : null}
 
           {/* ✅ Mobile Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.MobileNumber?.value ? (
-            <Text style={[styles.mobileNumber, { fontSize: "10px",fontFamily: "Roboto"
-              }]}>
+            <Text
+              style={[
+                styles.mobileNumber,
+                { fontSize: "10px", fontFamily: "Roboto" },
+              ]}
+            >
               Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
             </Text>
           ) : null}
         </View>
 
-
-        <View style={{ display: "flex", flexDirection: "column" ,gap: "80px",}}>
-          {/* ✅ Business Name */}
-          {formData?.AccountInformation?.businessName ? (
-            <Text style={[styles.businessName, { fontSize: "14px" }]}>
-              {formData?.AccountInformation?.businessName}
-            </Text>
-          ) : null}
-
-          {/* ✅ Business Owner */}
-          {formData?.AccountInformation?.businessOwner ? (
-            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessOwner}
-            </Text>
-          ) : null}
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "30px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
         </View>
       </View>
     </Page>
@@ -1678,6 +1799,3 @@ const ProjectedProfitability = ({
 };
 
 export default React.memo(ProjectedProfitability);
-
-
-

@@ -53,7 +53,7 @@ const Assumptions = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 7 ? "landscape" : "portrait"}
+      orientation={projectionYears > 6 ? "landscape" : "portrait"}
       style={[
         {
           paddingVertical: "70px",
