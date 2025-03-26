@@ -42,8 +42,9 @@ import LineChart from "./charts/LineChart";
 import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
 import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 
-const GeneratedPDF = ({ userRole ,   userName }) => {
-
+const GeneratedPDF = ({}) => {
+  const [userRole, setUserRole] = useState("");
+  const [userName, setUserName] = useState("");
 
   const [permissions, setPermissions] = useState({
     createReport: false,
@@ -52,7 +53,6 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
     downloadPDF: false,
     exportData: false, // ✅ Add this
   });
-
 
   const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
@@ -470,12 +470,20 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
+        const storedRole = localStorage.getItem("userRole");
+        const storedName = localStorage.getItem("userName");
+
+        // ✅ Set fallback if either is missing
+        if (!storedRole || !storedName) {
+          console.warn("User role or name not found in localStorage.");
+          return;
+        }
+
         // Fetching all employees
         const response = await fetch(
           "https://backend-three-pink.vercel.app/api/employees"
         );
 
-        // Check if the response is successful
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
         }
@@ -485,20 +493,18 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
 
         const employees = Array.isArray(result) ? result : [];
 
-        // Assign permissions based on userRole
-        if (userRole === "admin") {
+        if (storedRole === "admin") {
           setPermissions({
             createReport: true,
             updateReport: true,
             createNewWithExisting: true,
             downloadPDF: true,
+            exportData: true, // Add if admin has export too
           });
           console.log("✅ Admin permissions granted");
-        } else if (userRole === "employee") {
-          // Normalize the userName to lowercase and trim spaces
-          const normalizedUserName = userName?.trim().toLowerCase();
+        } else if (storedRole === "employee") {
+          const normalizedUserName = storedName.trim().toLowerCase();
 
-          // Find the employee based on name, email, or employeeId
           const employee = employees.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
@@ -506,7 +512,6 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
 
-          // Set permissions if employee is found
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
             console.log(
@@ -524,9 +529,8 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
       }
     };
 
-    // Fetch permissions when the component mounts or when userRole/userName changes
     fetchPermissions();
-  }, [userRole, userName]);
+  }, []);
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -824,9 +828,7 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
     };
   }, []);
 
-  console.log(
-    "userRole" , userRole , " permissions" , permissions?.downloadPDF
-  );
+  console.log("userRole", userRole, " permissions", permissions?.downloadPDF);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -864,22 +866,22 @@ const GeneratedPDF = ({ userRole ,   userName }) => {
           }
           return !isPDFLoading ? (
             <>
+             <PDFViewer
+                width="100%"
+                height="800"
+                style={{ overflow: "hidden" }}
+                showToolbar={userRole !== "client" && userRole !== "employee"}
+              >
+                {memoizedPDF}
+              </PDFViewer>
               {/* <PDFViewer
-                  width="100%"
-                  height="800"
-                  style={{ overflow: "hidden" }}
-                  // showToolbar={userRole === "admin" || permissions.downloadPDF}
-                >
-                  {memoizedPDF}
-                </PDFViewer> */}
-              <PDFViewer
                 width="100%"
                 height="800"
                 style={{ overflow: "hidden" }}
                 showToolbar={userRole === "admin" || permissions.downloadPDF}
               >
                 {memoizedPDF}
-              </PDFViewer>
+              </PDFViewer> */}
 
               {/* ✅ Custom Download Button */}
               <section className="h-[100vh]"></section>

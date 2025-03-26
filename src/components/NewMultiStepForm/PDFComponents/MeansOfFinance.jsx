@@ -88,7 +88,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             <Text style={[stylesMOF.cell, stylesMOF.boldCell]}>
               Particulars
             </Text>
-            <Text style={stylesMOF.cell}></Text>
+            <Text style={[stylesMOF.cell , {width:"20%"}]}></Text>
             <Text
               style={[
                 stylesMOF.cell,
@@ -116,7 +116,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}>a.</Text>
             <Text style={[stylesMOF.cell  ]}>Promoter's Contribution</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" ,width:"20%"}]}>
               {`${
                 formData?.MeansOfFinance?.TLPromoterContributionPercent || 0
               }%`}
@@ -131,7 +131,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}>b.</Text>
             <Text style={[stylesMOF.cell  ]}>Term Loan from Bank</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" ,width:"20%"}]}>
               {`${formData?.MeansOfFinance?.TLTermLoanPercent || 0}%`}
             </Text>
             <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
@@ -142,7 +142,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total ]}>Total</Text>
+            <Text style={[stylesMOF.cell, stylesMOF.total , {textAlign:"center" , width:"20%"}]}>Total</Text>
             <Text
               style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
             >
@@ -153,7 +153,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           {/* Blank Row  */}
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
-            <Text style={[stylesMOF.cell ]}></Text>
+            <Text style={[stylesMOF.cell , {width:"20%"}]}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}></Text>
             <Text
               style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
@@ -177,7 +177,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}>a.</Text>
             <Text style={stylesMOF.cell}>Promoter's Contribution</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" , width:"20%"}]}>
               {`${
                 formData?.MeansOfFinance?.WCPromoterContributionPercent || 0
               }%`}
@@ -193,7 +193,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}>b.</Text>
             <Text style={stylesMOF.cell}>Loan from Bank</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" ,width:"20%"}]}>
               {`${formData?.MeansOfFinance?.WCTermLoanPercent || 0}%`}
             </Text>
             <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
@@ -206,7 +206,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell , {textAlign:"center" , width:"20%"}]}>
               Total
             </Text>
             <Text
@@ -219,7 +219,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           {/* Blank Row  */}
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
-            <Text style={stylesMOF.cell}></Text>
+            <Text style={[stylesMOF.cell , {width:"20%"}]}></Text>
             <Text style={[stylesMOF.cell, stylesMOF.total]}></Text>
             <Text
               style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
@@ -241,7 +241,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
             <Text style={stylesMOF.cell}>Total Promoter's Contribution</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" , width:"20%"}]}>
               {`${
                 formData?.MeansOfFinance?.TotalPromoterContributionPercent || 0
               }%`}
@@ -254,7 +254,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
             <Text style={stylesMOF.cell}>Total Bank Loan</Text>
-            <Text style={stylesMOF.cell}>
+            <Text style={[stylesMOF.cell , {textAlign:"center" ,width:"20%"}]}>
               {`${formData?.MeansOfFinance?.TotalTermLoanPercent || 0}%`}
             </Text>
             <Text style={[stylesMOF.cell, { textAlign: "right" }]}>
@@ -265,7 +265,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           <View style={[[stylesMOF.row, styles.noBorder], stylesMOF.totalRow]}>
             <Text style={[stylesMOF.Snocell , {width:50}]}></Text>
             <Text style={stylesMOF.cell}></Text>
-            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell]}>
+            <Text style={[stylesMOF.cell, stylesMOF.total, stylesMOF.boldCell , {textAlign:"center" , width:"20%"}]}>
               Total
             </Text>
             <Text
