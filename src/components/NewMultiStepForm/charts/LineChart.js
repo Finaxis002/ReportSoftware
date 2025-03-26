@@ -487,7 +487,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
             labels,
             datasets: [
               {
-                label: 'DSCR',
+                
                 data: values,
                 borderColor: '#4A90E2', // ✅ Blue line color
                 backgroundColor: gradient,
