@@ -843,97 +843,92 @@ const ProjectedProfitability = ({
 
           {/* Direct Expenses */}
           {directExpense
-            .filter((expense) => {
-              // ✅ Filter out rows where all year values are zero
-              const isAllYearsZero = Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
-              }).every((_, yearIndex) => {
-                const adjustedYearIndex = hideFirstYear
-                  ? yearIndex + 1
-                  : yearIndex;
-                let expenseValue;
+  .filter((expense) => {
+    const isAllYearsZero = Array.from({
+      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    }).every((_, yearIndex) => {
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      let expenseValue;
 
-                if (
-                  expense.name.trim() === "Raw Material Expenses / Purchases" &&
-                  String(expense.value).trim().endsWith("%")
-                ) {
-                  expenseValue =
-                    (parseFloat(expense.value) / 100) *
-                    receivedtotalRevenueReceipts[adjustedYearIndex];
-                } else {
-                  expenseValue = Number(expense.value) * 12 || 0;
-                }
+      if (
+        expense.name.trim() === "Raw Material Expenses / Purchases" &&
+        String(expense.value).trim().endsWith("%")
+      ) {
+        expenseValue =
+          (parseFloat(expense.value) / 100) *
+          receivedtotalRevenueReceipts[adjustedYearIndex];
+      } else {
+        expenseValue = Number(expense.value) * 12 || 0;
+      }
 
-                // ✅ Check if the value is zero for this year
-                return expenseValue === 0;
-              });
+      return expenseValue === 0;
+    });
 
-              return expense.type === "direct" && !isAllYearsZero; // ✅ Filter out if all year values are zero
-            })
-            .map((expense, index) => {
-              const isRawMaterial =
-                expense.name.trim() === "Raw Material Expenses / Purchases";
+    return expense.type === "direct" && !isAllYearsZero;
+  })
+  .map((expense, index) => {
+    const isRawMaterial =
+      expense.name.trim() === "Raw Material Expenses / Purchases";
 
-              return (
-                <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                  {/* ✅ Adjust index for filtered data */}
-                  <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {expense.name}
-                  </Text>
+    const displayName = isRawMaterial
+      ? "Purchases / RM Expenses"
+      : expense.name;
 
-                  {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
-                  }).map((_, yearIndex) => {
-                    let expenseValue;
+    return (
+      <View key={index} style={[styles.tableRow, styles.totalRow]}>
+        <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
+        <Text
+          style={[
+            stylesCOP.detailsCellDetail,
+            styleExpenses.particularWidth,
+            styleExpenses.bordernone,
+          ]}
+        >
+          {displayName}
+        </Text>
 
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+        {Array.from({
+          length: hideFirstYear ? projectionYears - 1 : projectionYears,
+        }).map((_, yearIndex) => {
+          let expenseValue;
+          const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
 
-                    if (
-                      isRawMaterial &&
-                      String(expense.value).trim().endsWith("%")
-                    ) {
-                      expenseValue =
-                        (parseFloat(expense.value) / 100) *
-                        receivedtotalRevenueReceipts[adjustedYearIndex];
-                    } else {
-                      expenseValue = Number(expense.value) * 12 || 0;
-                    }
+          if (
+            isRawMaterial &&
+            String(expense.value).trim().endsWith("%")
+          ) {
+            expenseValue =
+              (parseFloat(expense.value) / 100) *
+              receivedtotalRevenueReceipts[adjustedYearIndex];
+          } else {
+            expenseValue = Number(expense.value) * 12 || 0;
+          }
 
-                    const formattedExpense = isRawMaterial
-                      ? formatNumber(expenseValue.toFixed(2))
-                      : formatNumber(
-                          calculateExpense(
-                            expenseValue,
-                            adjustedYearIndex
-                          ).toFixed(2)
-                        );
-
-                    return (
-                      <Text
-                        key={yearIndex}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formattedExpense}
-                      </Text>
-                    );
-                  })}
-                </View>
+          const formattedExpense = isRawMaterial
+            ? formatNumber(expenseValue.toFixed(2))
+            : formatNumber(
+                calculateExpense(
+                  expenseValue,
+                  adjustedYearIndex
+                ).toFixed(2)
               );
-            })}
+
+          return (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {formattedExpense}
+            </Text>
+          );
+        })}
+      </View>
+    );
+  })}
+
 
           {/* direct Expenses total  */}
           <View style={[styles.tableRow, styles.totalRow]}>

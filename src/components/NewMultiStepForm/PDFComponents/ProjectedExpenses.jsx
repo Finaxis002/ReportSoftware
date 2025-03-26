@@ -235,7 +235,6 @@ const ProjectedExpenses = ({
       onTotalExpenseSend(totalExpensesArray);
     }
   }, [JSON.stringify(totalExpensesArray), onTotalExpenseSend]);
-  
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -439,7 +438,6 @@ const ProjectedExpenses = ({
           {/* Direct Expenses */}
           {directExpense
             .filter((expense) => {
-              // ✅ Filter out rows where all year values are zero
               const isAllYearsZero = Array.from({
                 length: hideFirstYear ? projectionYears - 1 : projectionYears,
               }).every((_, yearIndex) => {
@@ -459,19 +457,21 @@ const ProjectedExpenses = ({
                   expenseValue = Number(expense.value) * 12 || 0;
                 }
 
-                // ✅ Check if the value is zero for this year
                 return expenseValue === 0;
               });
 
-              return expense.type === "direct" && !isAllYearsZero; // ✅ Filter out if all year values are zero
+              return expense.type === "direct" && !isAllYearsZero;
             })
             .map((expense, index) => {
               const isRawMaterial =
                 expense.name.trim() === "Raw Material Expenses / Purchases";
 
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
+
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                  {/* ✅ Adjust index for filtered data */}
                   <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
                   <Text
                     style={[
@@ -480,7 +480,7 @@ const ProjectedExpenses = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    {expense.name}
+                    {displayName}
                   </Text>
 
                   {Array.from({
@@ -489,7 +489,6 @@ const ProjectedExpenses = ({
                       : projectionYears,
                   }).map((_, yearIndex) => {
                     let expenseValue;
-
                     const adjustedYearIndex = hideFirstYear
                       ? yearIndex + 1
                       : yearIndex;
