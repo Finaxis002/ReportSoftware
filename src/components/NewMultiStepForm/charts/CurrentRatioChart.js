@@ -63,7 +63,7 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
           data: {
             labels,
             datasets: [{
-              label: 'Current Ratio',
+             
               data: values,
               borderColor: '#4A90E2',
               backgroundColor: gradient,
