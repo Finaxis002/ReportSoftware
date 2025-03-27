@@ -128,20 +128,17 @@ const DebtServiceCoverageRatio = ({
   const totalA = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, yearIndex) => {
-    if (yearIndex === 0) {
-      return 0; // ✅ Set first year's total to 0
-    } else {
-      return (
-        (netProfitAfterTax[yearIndex] || 0) +
-        (totalDepreciationPerYear[yearIndex] || 0) +
-        (yearlyInterestLiabilities[yearIndex] || 0) +
-        (calculateInterestOnWorkingCapital(
-          interestOnWorkingCapital[yearIndex] || 0,
-          yearIndex
-        ) || 0) // ✅ Correctly calling the function
-      );
-    }
+    return (
+      (netProfitAfterTax[yearIndex] || 0) +
+      (totalDepreciationPerYear[yearIndex] || 0) +
+      (yearlyInterestLiabilities[yearIndex] || 0) +
+      (calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[yearIndex] || 0,
+        yearIndex
+      ) || 0)
+    );
   });
+  
 
   // ✅ Compute Total (B) for Each Year
   const totalB = Array.from({

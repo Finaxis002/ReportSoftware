@@ -20,7 +20,7 @@ Font.register({
   ],
 });
 
-const BreakEvenPoint = ({
+const test = ({
   formData,
   yearlyInterestLiabilities = [], // ✅ Default Empty Array
   totalDepreciationPerYear = [], // ✅ Default Empty Array
@@ -37,8 +37,8 @@ const BreakEvenPoint = ({
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
 
-    
-  const months = [
+  // ✅ Months Array for Indexing
+  const monthMap = [
     "April",
     "May",
     "June",
@@ -53,27 +53,10 @@ const BreakEvenPoint = ({
     "March",
   ];
 
-  // ✅ Months Array for Indexing
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
   const selectedMonth =
     formData?.ProjectReportSetting?.SelectStartingMonth || "April";
   const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
-  
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
@@ -101,7 +84,6 @@ const BreakEvenPoint = ({
     return monthsArray;
   };
 
-
   const monthsPerYear = calculateMonthsPerYear();
 
   const calculateExpense = (annualExpense, yearIndex) => {
@@ -120,7 +102,6 @@ const BreakEvenPoint = ({
     }
     return (incrementedExpense / 12) * monthsInYear;
   };
-
 
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
@@ -162,10 +143,10 @@ const BreakEvenPoint = ({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
-    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+    const closingStock = formData?.MoreDetails?.closingStock?.[yearIndex] || 0;
+    const openingStock = formData?.MoreDetails?.openingStock?.[yearIndex] || 0;
 
-    return totalRevenue + ClosingStock - OpeningStock; // ✅ Final computation
+    return totalRevenue + closingStock - openingStock; // ✅ Final computation
   });
 
   const { Expenses = {} } = formData;
@@ -214,65 +195,60 @@ const BreakEvenPoint = ({
     }
   );
 
-  console.log("Total Expenses for Each Year:", totalVariableExpenses);
+  // console.log("Total Expenses for Each Year:", totalVariableExpenses);
 
   // ✅ Compute Contribution for Each Year
   const contribution = adjustedRevenueValues.map(
     (value, index) => value - totalVariableExpenses[index]
   );
 
-// ✅ Compute Total Fixed Expenses for Each Year with Correct Handling
-const totalFixedExpenses = Array.from({ length: projectionYears }).map(
-  (_, yearIndex) => {
-    // ✅ Calculate Salary & Wages using `calculateExpense`
-    const salaryAndWages = calculateExpense(
-      Number(fringAndAnnualCalculation) || 0,
-      yearIndex // Pass the yearIndex to apply any year-specific logic
-    );
+  // ✅ Compute Total Fixed Expenses for Each Year with Correct First-Year Handling
+  const totalFixedExpenses = Array.from({ length: projectionYears }).map(
+    (_, yearIndex) => {
+      if (yearIndex === 0) {
+        // ✅ Year 1 should display 0 for all fixed expenses
+        return 0;
+      }
 
-    // ✅ Extract Interest on Term Loan
-    const interestOnTermLoan = parseFloat(
-      (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
-    );
+      // ✅ Compute Salary & Wages with Annual Growth from Year 2 onwards
+      const salaryAndWages = parseFloat(
+        (
+          fringAndAnnualCalculation *
+          Math.pow(
+            1 + formData.ProjectReportSetting.rateOfExpense / 100,
+            yearIndex - 1 // Subtract 1 since first year is zero
+          )
+        ).toFixed(2)
+      );
 
-    // ✅ Extract Interest on Working Capital
-    const interestExpenseOnWorkingCapital =  calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[yearIndex] || 0,
-      yearIndex
-    );
+      // ✅ Extract Interest on Term Loan
+      const interestOnTermLoan = parseFloat(
+        (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
+      );
 
-    // ✅ Extract Depreciation
-    const depreciationExpense = parseFloat(
-      (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
-    );
+      // ✅ Extract Interest on Working Capital
+      const interestExpenseOnWorkingCapital = parseFloat(
+        (interestOnWorkingCapital[yearIndex] || 0).toFixed(2)
+      );
 
-    // ✅ Sum Total Fixed Expenses for the Year
-    const totalExpense = parseFloat(
-      (
-        salaryAndWages +
-        interestOnTermLoan +
-        interestExpenseOnWorkingCapital +
-        depreciationExpense
-      ).toFixed(2)
-    );
+      // ✅ Extract Depreciation
+      const depreciationExpense = parseFloat(
+        (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
+      );
 
-    // Log the individual values for each year
-    console.log(`Year ${yearIndex + 1}:`);
-    console.log(`Salary & Wages: ${salaryAndWages}`);
-    console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
-    console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
-    console.log(`Depreciation: ${depreciationExpense}`);
-    console.log(`Total Fixed Expenses: ${totalExpense}`);
-    console.log('------------------------');
+      // ✅ Sum Total Fixed Expenses for the Year
+      const totalExpense = parseFloat(
+        (
+          salaryAndWages +
+          interestOnTermLoan +
+          interestExpenseOnWorkingCapital +
+          depreciationExpense
+        ).toFixed(2)
+      );
 
-    return totalExpense;
-  }
-);
-
-console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
-
-
-
+      return totalExpense;
+    }
+  );
 
   // ✅ Compute Break Even Point (in %) for Each Year
   const breakEvenPointPercentage = Array.from({ length: projectionYears }).map(
@@ -502,14 +478,14 @@ console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
               (_, index) =>
                 (!hideFirstYear || index !== 0) && (
                   <Text
-                    key={`ClosingStock-${index}`}
+                    key={`closingStock-${index}`}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                     ]}
                   >
                     {formatNumber(
-                      formData.MoreDetails.ClosingStock?.[index] ?? 0
+                      formData.MoreDetails.closingStock?.[index] ?? 0
                     )}
                   </Text>
                 )
@@ -537,14 +513,14 @@ console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
               (_, index) =>
                 (!hideFirstYear || index !== 0) && (
                   <Text
-                    key={`OpeningStock-${index}`}
+                    key={`openingStock-${index}`}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                     ]}
                   >
                     {formatNumber(
-                      formData.MoreDetails.OpeningStock?.[index] ?? 0
+                      formData.MoreDetails.openingStock?.[index] ?? 0
                     )}
                   </Text>
                 )
@@ -918,7 +894,7 @@ console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
                   {formatNumber(
                     calculateExpense(
                       Number(fringAndAnnualCalculation) || 0,
-                      hideFirstYear ? yearIndex - 1 : yearIndex // Shift index when skipping the first year
+                      hideFirstYear ? yearIndex + 1 : yearIndex // Shift index when skipping the first year
                     ).toFixed(2)
                   )}
                 </Text>
@@ -1186,4 +1162,4 @@ console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
   );
 };
 
-export default React.memo(BreakEvenPoint);
+export default React.memo(test);
