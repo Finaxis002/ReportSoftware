@@ -32,7 +32,7 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         // ✅ Create a canvas for chart rendering
         const canvas = document.createElement("canvas");
         canvas.width = 600;
-        canvas.height = 600;
+        canvas.height = 500;
         canvas.style.backgroundColor = "#ffffff";
         canvas.style.width = "300px";
         canvas.style.height = "250px";
