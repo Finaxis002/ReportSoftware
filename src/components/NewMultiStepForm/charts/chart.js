@@ -27,8 +27,8 @@ export const generateChart = async (data) => {
   try {
     // Create a hidden canvas for chart rendering
     const canvas = document.createElement('canvas');
-    canvas.width = 450;
-    canvas.height = 400;
+    canvas.width = 500;
+    canvas.height = 500;
     const ctx = canvas.getContext('2d');
     const backgroundColors = [
         'rgba(115, 210, 210)', 
@@ -76,10 +76,11 @@ export const generateChart = async (data) => {
       options: {
         responsive: false,
         maintainAspectRatio: false,
+        
         plugins: {
           legend: {
             display: true,
-            position: 'bottom',
+            position: 'right',
            
             labels: {
               color: '#000', // ✅ Black legend color
@@ -104,8 +105,18 @@ export const generateChart = async (data) => {
             animateRotate: true,
             animateScale: true
           },
+          // layout: {
+          //   padding: {
+          //     left: 0, 
+          //     right: 120, // ✅ Increase this to move labels further to the right
+          //     top: 0, 
+          //     bottom: 0
+          //   }
+          // },
          
-      }
+      },
+      
+      
     });
 
     // ✅ Wait for chart rendering to finish
