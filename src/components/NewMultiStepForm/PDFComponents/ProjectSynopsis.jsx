@@ -167,7 +167,7 @@ const ProjectSynopsis = React.memo(
           )
         : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
 
-   const subsidyName = formData?.ProjectReportSetting?.subsidyName;
+    const subsidyName = formData?.ProjectReportSetting?.subsidyName;
 
     
     return (
@@ -1282,7 +1282,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", paddingLeft: "20px", width: "55%" },
                   ]}
                 >
-                  {`${firstNonZeroValue}% (In the ${fromWhichYearWeReceivedValue} Year itself)`}
+                  {`${firstNonZeroValue}% (In the I Year itself)`}
                 </Text>
               </View>
               {/* Subsidy Scheme */}

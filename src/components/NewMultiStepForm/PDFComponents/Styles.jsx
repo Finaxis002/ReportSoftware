@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   serialNoCell: {
     width: "25%",
     padding: 3,
-    fontSize: "10px",
+    fontSize: "9px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
     textAlign:"center"
   },
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     width: "5%",
     padding: 3,
     fontFamily:"TimesNewRoman",
-    fontSize: "10px",
+    fontSize: "9px",
   },
   detailsCell: {
     width: "55%",
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     width: "25%",
     padding: 3,
     borderLeft: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     color: "#fff",
     fontFamily:"TimesNewRoman",
   },
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     padding: 3,
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: "40%",
     padding: 3,
     borderBottom: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
     textAlign:"center",
   },
@@ -216,14 +216,14 @@ const styles = StyleSheet.create({
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
     width: "55%",
     padding: 3,
     borderBottom: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   partnerCellDetail: {
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   pdfViewer: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: "10px",
     margin: "1px 0", // ✅ Space between rows
     fontWeight: "bold", // ✅ Makes numbers more readable
-    fontSize: "10px", // ✅ Optimized for PDF readability
+    fontSize: "9px", // ✅ Optimized for PDF readability
     fontFamily: "TimesNewRoman",
 
   },
@@ -285,13 +285,13 @@ const stylesMOF = StyleSheet.create({
     flex: 1,
     padding: 4,
     borderRight: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   Snocell: {
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     // paddingHorizontal: 20,
     width: "25%",
     fontFamily:"TimesNewRoman",
@@ -383,7 +383,7 @@ const stylesCOP = StyleSheet.create({
     width: "25%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     textAlign:"center",
     fontFamily:"TimesNewRoman",
   },
@@ -391,7 +391,7 @@ const stylesCOP = StyleSheet.create({
     width: "40%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
     textAlign:"center"
   },
@@ -401,14 +401,14 @@ const stylesCOP = StyleSheet.create({
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   detailsCellDetail: {
     width: "55%",
     padding: 3,
     borderRight: "1px solid #000",
-    fontSize: "10px",
+    fontSize: "9px",
     paddingLeft: 10,
     fontFamily:"TimesNewRoman",
     fontSize:"10px"
@@ -461,7 +461,7 @@ const styleExpenses = StyleSheet.create({
   },
   sno: {
     width: 100,
-    fontSize: "10px",
+    fontSize: "9px",
     // paddingLeft: 10,
     paddingTop: 5,
     textAlign:"center",
@@ -473,7 +473,7 @@ const styleExpenses = StyleSheet.create({
     fontFamily:"TimesNewRoman",
   },
   fontSmall: {
-    fontSize: "10px",
+    fontSize: "9px",
     fontFamily:"TimesNewRoman",
   },
   paddingx: {
