@@ -1,6 +1,4 @@
 
-
-
 import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
 
 

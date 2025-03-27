@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfWithLineChart = ({ labels = [], dscr = [] }) => {
+const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);
 
   useEffect(() => {
@@ -133,6 +133,7 @@ const PdfWithLineChart = ({ labels = [], dscr = [] }) => {
         onBase64Generated={(base64) => {
           console.log('✅ Chart generated successfully');
           setChartBase64(base64);
+          if (onDscrReady) onDscrReady(base64)
         }}
       />
       <MyDocument chartBase64={chartBase64} />

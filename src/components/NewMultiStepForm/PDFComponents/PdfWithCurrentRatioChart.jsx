@@ -47,16 +47,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] }) => {
+const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRatioReady}) => {
   const [chartBase64, setChartBase64] = useState(null);
 
   const handleBase64Generated = (base64) => {
     setChartBase64(base64);
+    if(onCurrentRatioReady) onCurrentRatioReady(base64);
   };
 
   useEffect(() => {
     if (labels?.length > 0 && currentRatio?.length > 0) {
       console.log("📊 Generating Current Ratio Chart...");
+      
     }
   }, [labels, currentRatio]);
 
