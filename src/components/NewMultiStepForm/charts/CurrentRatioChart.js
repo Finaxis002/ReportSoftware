@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
-import html2canvas from 'html2canvas';
+import React, { useEffect } from "react";
+import { Chart, registerables, ArcElement, Tooltip, Legend } from "chart.js";
+import html2canvas from "html2canvas";
 
 Chart.register(...registerables, ArcElement, Tooltip, Legend);
 
 // ✅ Shadow Plugin for Depth Effect
 const shadowPlugin = {
-  id: 'shadowPlugin',
+  id: "shadowPlugin",
   beforeDraw: (chart) => {
     const ctx = chart.ctx;
     ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
     ctx.shadowBlur = 10;
     ctx.shadowOffsetX = 4;
     ctx.shadowOffsetY = 4;
@@ -18,7 +18,7 @@ const shadowPlugin = {
   afterDraw: (chart) => {
     const ctx = chart.ctx;
     ctx.restore(); // ✅ Reset shadow settings after draw
-  }
+  },
 };
 
 Chart.register(shadowPlugin);
@@ -26,14 +26,18 @@ Chart.register(shadowPlugin);
 const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
   useEffect(() => {
     let mounted = true;
- console.log("current ratio value in current ratio chart", values)
+    console.log("current ratio value in current ratio chart", values);
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
         // ✅ Create a canvas for chart rendering
-        const canvas = document.createElement('canvas');
-        canvas.width = 500;
-        canvas.height = 400;
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        canvas.width = 600;
+        canvas.height = 600;
+        canvas.style.backgroundColor = "#ffffff";
+        canvas.style.width = "300px";
+        canvas.style.height = "250px";
+
+        const ctx = canvas.getContext("2d");
         document.body.appendChild(canvas);
 
         // ✅ Ensure existing chart instance is destroyed
@@ -43,79 +47,87 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
 
         // ✅ Create Gradient Background
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(75, 192, 192, 0.5)');
-        gradient.addColorStop(1, 'rgba(75, 192, 192, 0.2)');
+        gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
+        gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
 
         const lastYearValue = values[values.length - 1] || 0;
-        let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
-        
+        let maxYValue = lastYearValue + lastYearValue * 0.5 + 1; 
+        // let maxYValue = lastYearValue + lastYearValue * 0.2;
+
+       
+// maxYValue = Math.ceil(maxYValue / 0.1) * 0.1;
         // Calculate the yInterval and ensure it's a number
         let yInterval = maxYValue / 4;
         yInterval = parseFloat(yInterval.toFixed(2)); // Fix the interval calculation to have decimal points.
 
         maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
 
-        Chart.defaults.font.family = 'Times New Roman';
-        
+        Chart.defaults.font.family = "Times New Roman";
+
         // ✅ Create Chart Instance
         new Chart(ctx, {
-          type: 'line',
+          type: "line",
           data: {
             labels,
-            datasets: [{
-              label: "CurrentRatio",
-              data: values,
-              borderColor: 'rgba(75, 192, 192, 0.6)',
-              backgroundColor: gradient,
-              borderWidth: 3,
-              tension: 0.4,
-              pointBackgroundColor: 'rgba(255, 159, 64, 0.2)',
-              pointBorderColor: 'rgb(255, 159, 64)',
-              pointBorderWidth: 2,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-              fill: true
-            }]
+            datasets: [
+              {
+                label: "CurrentRatio",
+                data: values,
+                borderColor: "rgba(75, 192, 192, 0.8)",
+                backgroundColor: gradient,
+                borderWidth: 3,
+                tension: 0.4,
+                pointBackgroundColor: "rgba(255, 159, 64, 0.5)",
+                pointBorderColor: "rgb(255, 159, 64)",
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                fill: true,
+              },
+            ],
           },
           options: {
             responsive: false,
             maintainAspectRatio: false,
+            layout: {
+              padding: { top: 40, left: 0, right: 0, bottom: 20 }  // Adjust padding to avoid clipping
+            },
             plugins: {
               legend: {
                 display: true,
-                position: 'top',
+                position: "top",
                 labels: {
-                  color: '#000',
+                  color: "#000",
                   padding: 16,
                   font: {
                     size: 14,
-                    weight: 'bold'
-                  }
-                }
+                    weight: "bold",
+                  },
+                },
               },
               tooltip: {
-                enabled: true
-              }
+                enabled: true,
+              },
             },
             scales: {
               x: {
                 title: {
                   display: true,
-                  text: 'Years',
-                  color: '#000',
+                  text: "Years",
+                  color: "#000",
                   font: {
                     size: 14,
-                    weight: 'bold'
-                  }
+                    weight: "bold",
+                  },
                 },
                 ticks: {
-                  color: '#000',
+                  color: "#000",
                   stepSize: 1,
-                  maxTicksLimit: labels.length
+                  maxTicksLimit: labels.length,
                 },
                 grid: {
-                  color: 'rgba(0, 0, 0, 0.1)'
-                }
+                  color: "rgba(0, 0, 0, 0.1)",
+                },
               },
               y: {
                 beginAtZero: true,
@@ -123,33 +135,33 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
                 max: maxYValue,
                 title: {
                   display: true,
-                  text: 'Value',
-                  color: '#000',
+                  text: "Value",
+                  color: "#000",
                   font: {
                     size: 14,
-                    weight: 'bold'
-                  }
+                    weight: "bold",
+                  },
                 },
                 ticks: {
-                  color: '#000',
+                  color: "#000",
                   stepSize: parseFloat(yInterval), // ✅ Divide into 4 equal parts
                   callback: (value) => {
                     return value.toFixed(2); // Ensuring decimal precision in y-axis ticks
-                  }
+                  },
                 },
                 grid: {
-                  color: 'rgba(0, 0, 0, 0.1)'
-                }
-              }
-            }
-          }
+                  color: "rgba(0, 0, 0, 0.1)",
+                },
+              },
+            },
+          },
         });
 
         // ✅ Allow time for rendering to complete
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // ✅ Capture chart using html2canvas
-        const base64Image = canvas.toDataURL('image/png');
+        const base64Image = canvas.toDataURL("image/png");
 
         console.log("✅ Current Ratio Chart Base64:", base64Image);
 
@@ -173,11 +185,6 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
 };
 
 export default CurrentRatioChart;
-
-
-
-
-
 
 // import React, { useEffect } from 'react';
 // import { Line } from 'react-chartjs-2';

@@ -193,14 +193,14 @@ export const generateBarChart = async ({
           {
             label: "Revenue",
             data: revenue,
-            backgroundColor: " rgba(75, 192, 192, 0.2)",
+            backgroundColor: " rgba(75, 192, 192, 0.8)",
             borderColor: "rgb(75, 192, 192)",
             borderWidth: 1,
           },
           {
             label: "Expenses",
             data: expenses,
-            backgroundColor: "rgba(255, 159, 64, 0.2)",
+            backgroundColor: "rgba(255, 159, 64, 0.8)",
             borderColor: "rgb(255, 159, 64)",
             borderWidth: 1,
           },
@@ -216,14 +216,14 @@ export const generateBarChart = async ({
             title: {
               display: true,
               text: "Value",
-              color: "#FFFFFF",
+              color: "#000",
               font: {
                 size: 12,
                 weight: "normal",
               },
             },
             ticks: {
-              color: "#FFFFFF",
+              color: "#000000",
               stepSize: yInterval,
               // callback: (value) => `${value.toLocaleString()}`,
               callback: (value) => {
@@ -244,10 +244,10 @@ export const generateBarChart = async ({
               drawBorder: true,
             },
             border: {
-              color: "#FFFFFF", // ✅ White axis line
+              color: "#000000", // ✅ White axis line
             },
             labels: {
-              color: "#FFFFFF", // ✅ White legend text
+              color: "#000000", // ✅ White legend text
               font: {
                 size: 10,
                 weight: "400",
@@ -261,13 +261,13 @@ export const generateBarChart = async ({
               drawBorder: true,
             },
             ticks: {
-              color: "#FFFFFF",
+              color: "#000000",
               font: {
                 size: 12,
               },
             },
             border: {
-              color: "#FFFFFF",
+              color: "#000000",
             },
             font: {
               size: 12,
@@ -280,7 +280,7 @@ export const generateBarChart = async ({
             display: true,
             position: "bottom",
             labels: {
-              color: "#FFFFFF",
+              color: "#000000",
               font: {
                 size: 12,
                 weight: "normal",
@@ -291,7 +291,7 @@ export const generateBarChart = async ({
             display: false, // ✅ Enable datalabels properly
           },
         },
-        backgroundColor: "#0000x00",
+       
       },
     });
 

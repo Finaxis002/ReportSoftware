@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     width: 400,
     height: 300,
     borderColor: '#ccc',
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
   },
 });
 
