@@ -41,6 +41,7 @@ import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
 import LineChart from "./charts/LineChart";
 import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
 import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
+import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 const GeneratedPDF = ({}) => {
   const [userRole, setUserRole] = useState("");
@@ -189,9 +190,9 @@ const GeneratedPDF = ({}) => {
     const fetchChart = async () => {
       try {
         console.log("🚀 Generating Chart...");
-        const base64 = await generateChart();
-        console.log("✅ Chart Base64:", base64);
-        setChartBase64(base64);
+        // const base64 = await generateChart();
+        // console.log("✅ Chart Base64:", base64);
+        // setChartBase64(base64);
       } catch (error) {
         console.error("❌ Failed to generate chart:", error);
       }
@@ -200,28 +201,28 @@ const GeneratedPDF = ({}) => {
     fetchChart(); // ✅ Generate on component mount
   }, []);
 
+  // useEffect(() => {
+  //   const fetchChart = async () => {
+  //     try {
+  //       console.log("🚀 Generating Chart...");
+  //       const base64 = await generateChart();
+  //       console.log("✅ Chart Base64:", base64);
+  //       setChartBase64(base64);
+  //     } catch (error) {
+  //       console.error("❌ Failed to generate chart:", error);
+  //     }
+  //   };
+
+  //   fetchChart(); // ✅ Generate on component mount
+  // }, []);
+
   useEffect(() => {
     const fetchChart = async () => {
       try {
         console.log("🚀 Generating Chart...");
-        const base64 = await generateChart();
-        console.log("✅ Chart Base64:", base64);
-        setChartBase64(base64);
-      } catch (error) {
-        console.error("❌ Failed to generate chart:", error);
-      }
-    };
-
-    fetchChart(); // ✅ Generate on component mount
-  }, []);
-
-  useEffect(() => {
-    const fetchChart = async () => {
-      try {
-        console.log("🚀 Generating Chart...");
-        const base64 = await LineChart();
-        console.log("✅ Chart Base64:", base64);
-        setLineChartBase64(base64);
+        // const base64 = await LineChart();
+        // console.log("✅ Chart Base64:", base64);
+        // setLineChartBase64(base64);
       } catch (error) {
         console.error("❌ Failed to generate chart:", error);
       }
@@ -554,7 +555,7 @@ const GeneratedPDF = ({}) => {
         />
 
         {/* Graphs  */}
-        <PdfWithChart
+        {/* <PdfWithChart
           formData={formData}
           chartBase64={chartBase64}
           totalExpenses={totalExpense}
@@ -562,6 +563,13 @@ const GeneratedPDF = ({}) => {
 
         <PdfWithCombinedCharts
           labels={financialYearLabelsforChart || []}
+          dscr={dscr?.DSCR || []}
+          currentRatio={currentRatio?.currentRatio || []}
+        /> */}
+        <PdfAllChartsWrapper
+          formData={formData}
+          totalExpenses={totalExpense}
+          labels={financialYearLabelsforChart}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
         />
@@ -866,7 +874,7 @@ const GeneratedPDF = ({}) => {
           }
           return !isPDFLoading ? (
             <>
-             <PDFViewer
+              <PDFViewer
                 width="100%"
                 height="800"
                 style={{ overflow: "hidden" }}
