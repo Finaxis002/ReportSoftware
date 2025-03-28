@@ -53,15 +53,17 @@ const Clients = () => {
   useEffect(() => {
     const fetchClientsAndFormData = async () => {
       try {
-        const [clientsResponse] = await Promise.all([axios.get("https://backend-three-pink.vercel.app/api/client-filetrs")]);
+        const [clientsResponse] = await Promise.all([
+          axios.get("https://backend-three-pink.vercel.app/api/client-filetrs"),
+        ]);
         console.log("Client Data:", clientsResponse.data.clientOptions);
-  
+
         // Add "All" to the client options as an object with label and value
         const names = clientsResponse.data.clientOptions.map((client) => ({
           label: client.label, // Client name for display
           value: client.value, // Client email for selection
         }));
-  
+
         // Set the client options with "All" as an object
         setClientNames([{ label: "All", value: "All" }, ...names]); // Add "All" to filter all clients
         setClients(clientsResponse.data.clientOptions);
@@ -70,10 +72,9 @@ const Clients = () => {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchClientsAndFormData();
   }, []);
-  
 
   const handleClientFilterChange = (selectedOption) => {
     const selectedClientEmail = selectedOption ? selectedOption.value : "All";
@@ -140,7 +141,7 @@ const Clients = () => {
   };
 
   return (
-    <div className="flex h-[100vh] bg-gray-100">
+    <div className="flex h-[100vh] bg-gray-100 dark:bg">
       {renderMenuBar()}
       <div className="app-content p-8 w-full">
         <Header dashboardType="Admin Dashboard" />
@@ -156,39 +157,53 @@ const Clients = () => {
             </button>
           </div>
 
-          <h2 className="text-3xl font-semibold text-gray-800 mb-6">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-white dark:text-gray-100 mb-6">
             Clients List
           </h2>
 
-          {/* Filter Dropdown */}
-          {/* <div className="mb-4 w-1/3">
-            <Select
-              options={clientNames} // Make sure you're passing the correct array of objects
-              value={clientNames.find(
-                (option) => option.value === selectedClient
-              )} // Set the selected client
-              onChange={handleClientFilterChange} // Update the selected client
-              placeholder="Select Client"
-              isClearable
-            />
-          </div> */}
-
           {/* Clients Card Layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 px-4 py-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-3 gap-8 px-4 py-6">
             {clients.length > 0 ? (
               clients.map((client) => (
                 <div
                   key={client._id}
-                  className="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                  className="relative bg-white/5 dark:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
                 >
-                  {/* Client Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {client.clientName}
-                    </h3>
-                    <p className="text-sm text-gray-600">{client.contactNo}</p>
-                    <p className="text-sm text-gray-600">{client.emailId}</p>
-                    <p className="text-sm text-gray-600">{client.address}</p>
+                  {/* Header with Avatar & Name */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-teal-400 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                      {client.clientName?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {client.clientName}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Client Profile
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-3 text-[15px]">
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-blue-500 dark:text-blue-300">
+                        📞
+                      </span>
+                      <span>{client.contactNo || "Not Available"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-green-500 dark:text-green-300">
+                        📧
+                      </span>
+                      <span>{client.emailId || "Not Available"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-red-400 dark:text-red-300">📍</span>
+                      <span>{client.address || "Not Provided"}</span>
+                    </div>
                   </div>
                 </div>
               ))
@@ -202,18 +217,40 @@ const Clients = () => {
               formData.map((data, index) => (
                 <div
                   key={index}
-                  className="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                  className="relative bg-white/5 dark:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
                 >
-                  {/* Form Data Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {data.clientName}
-                    </h3>
-                    <p className="text-sm text-gray-600">{data.clientEmail}</p>
-                    <p className="text-sm text-gray-600">{data.clientPhone}</p>
-                    <p className="text-sm text-gray-600">
-                      {data.businessDescription || "No description available"}
-                    </p>
+                  {/* Header with Avatar & Name */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr  from-blue-500 to-teal-400 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                      {data.clientName?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {data.clientName || "Unknown"}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Client Entry
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-3 text-[15px]">
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-green-500 dark:text-green-300">
+                        📧
+                      </span>
+                      <span>{data.clientEmail || "Email not provided"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-blue-500 dark:text-blue-300">
+                        📞
+                      </span>
+                      <span>{data.clientPhone || "Phone not available"}</span>
+                    </div>
+
+                  
                   </div>
                 </div>
               ))
@@ -227,8 +264,8 @@ const Clients = () => {
           {/* Add Client Modal */}
           {showAddModal && (
             <div className="fixed inset-0 bg-gray-900 bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50">
-              <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-lg">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+              <div className=" rounded-xl shadow-xl p-8 w-full max-w-lg">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
                   Add New Client
                 </h2>
 

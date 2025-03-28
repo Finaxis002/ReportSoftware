@@ -10,6 +10,7 @@ import "./View.css";
 import { Document, PDFViewer, BlobProvider, Text } from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
+import { saveAs } from "file-saver"; // install this via `npm i file-saver`
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -44,8 +45,12 @@ import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 const GeneratedPDF = ({}) => {
-  const [userRole, setUserRole] = useState("");
-  const [userName, setUserName] = useState("");
+
+  const userRole = localStorage.getItem("userRole");
+  const userName = localStorage.getItem("employeeName");
+  
+  console.log("userRole:", userRole, "userName:", userName);
+  
 
   const [permissions, setPermissions] = useState({
     createReport: false,
@@ -124,6 +129,12 @@ const GeneratedPDF = ({}) => {
   const stableLocation = useMemo(() => location, []);
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
+
+  // Your download handler
+  const handleDownloadPDF = async () => {
+    const blob = await pdf(memoizedPDF).toBlob();
+    saveAs(blob, "Report.pdf");
+  };
 
   const handleTotalExpenseUpdate = (expenses) => {
     console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
@@ -471,20 +482,12 @@ const GeneratedPDF = ({}) => {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const storedRole = localStorage.getItem("userRole");
-        const storedName = localStorage.getItem("userName");
-
-        // ✅ Set fallback if either is missing
-        if (!storedRole || !storedName) {
-          console.warn("User role or name not found in localStorage.");
-          return;
-        }
-
         // Fetching all employees
         const response = await fetch(
           "https://backend-three-pink.vercel.app/api/employees"
         );
 
+        // Check if the response is successful
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
         }
@@ -494,18 +497,20 @@ const GeneratedPDF = ({}) => {
 
         const employees = Array.isArray(result) ? result : [];
 
-        if (storedRole === "admin") {
+        // Assign permissions based on userRole
+        if (userRole === "admin") {
           setPermissions({
             createReport: true,
             updateReport: true,
             createNewWithExisting: true,
             downloadPDF: true,
-            exportData: true, // Add if admin has export too
           });
           console.log("✅ Admin permissions granted");
-        } else if (storedRole === "employee") {
-          const normalizedUserName = storedName.trim().toLowerCase();
+        } else if (userRole === "employee") {
+          // Normalize the userName to lowercase and trim spaces
+          const normalizedUserName = userName?.trim().toLowerCase();
 
+          // Find the employee based on name, email, or employeeId
           const employee = employees.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
@@ -513,6 +518,7 @@ const GeneratedPDF = ({}) => {
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
 
+          // Set permissions if employee is found
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
             console.log(
@@ -530,8 +536,9 @@ const GeneratedPDF = ({}) => {
       }
     };
 
+    // Fetch permissions when the component mounts or when userRole/userName changes
     fetchPermissions();
-  }, []);
+  }, [userRole, userName]);
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -732,7 +739,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           sendCurrentRatio={setCurrentRatio}
         />
-      
+
         <DebtServiceCoverageRatio
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -769,7 +776,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
-          <BreakEvenPoint
+        <BreakEvenPoint
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
           totalDepreciationPerYear={totalDepreciation}
@@ -837,7 +844,7 @@ const GeneratedPDF = ({}) => {
     };
   }, []);
 
-  console.log("userRole", userRole, " permissions", permissions?.downloadPDF);
+  console.log(permissions)
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -875,19 +882,33 @@ const GeneratedPDF = ({}) => {
           }
           return !isPDFLoading ? (
             <>
+             {(userRole === "admin" || permissions.downloadPDF) && (
+              <div className="flex w-full justify-start items-center p-1 pr-4 bg-black">
+             
+                <button
+                  onClick={handleDownloadPDF}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-sm"
+                >
+                  Download PDF
+                </button>
+                
+              </div>
+              )}
+
               <PDFViewer
                 width="100%"
                 height="800"
+                showToolbar = {false}
                 style={{ overflow: "hidden" }}
-                showToolbar={userRole !== "client" && userRole !== "employee"}
               >
                 {memoizedPDF}
               </PDFViewer>
+
               {/* <PDFViewer
                 width="100%"
                 height="800"
                 style={{ overflow: "hidden" }}
-                showToolbar={userRole === "admin" || permissions.downloadPDF}
+                showToolbar={userRole !== "client" && userRole !== "employee"}
               >
                 {memoizedPDF}
               </PDFViewer> */}
