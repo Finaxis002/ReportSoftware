@@ -246,43 +246,17 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 import React, { useEffect, useState } from "react";
-import moment from 'moment';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
+
+
 
 const EmployeeNotifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
-    // const fetchNotifications = async () => {
-    //   try {
-    //     // ✅ Get user role from localStorage
-    //     const role = localStorage.getItem("userRole");
-    //     setUserRole(role);
-
-    //     let url = "";
-    //     if (role === "admin") {
-    //       url = "https://backend-three-pink.vercel.app/api/admin/notifications";
-    //     } else if (role === "employee") {
-    //       const employeeId = localStorage.getItem("employeeId");
-    //       if (!employeeId) {
-    //         console.error("Employee ID not found in localStorage");
-    //         return;
-    //       }
-    //       url = `https://backend-three-pink.vercel.app/api/notifications/employee?employeeId=${employeeId}`;
-    //     }
-
-    //     if (url) {
-    //       const response = await fetch(url);
-    //       if (!response.ok) {
-    //         throw new Error("Failed to fetch notifications");
-    //       }
-    //       const data = await response.json();
-    //       setNotifications(data);
-    //     }
-    //   } catch (err) {
-    //     console.error("Failed to load notifications:", err);
-    //   }
-    // };
+    
 
     const fetchNotifications = async () => {
       try {
@@ -330,7 +304,13 @@ const EmployeeNotifications = () => {
   return (
     <div className="mt-4">
       {/* ✅ Dynamic Title */}
-      <h3 className="text-lg font-bold mb-2">
+      <h3 className="text-lg font-bold mb-2 text-white" 
+      style={{
+        WebkitBackgroundClip: 'text', 
+        backgroundClip: 'text', 
+        color: 'transparent', 
+        WebkitTextStroke: '1px green'
+      }}>
         {userRole === "admin"
           ? "Admin Notifications"
           : "Employee Notifications"}
@@ -349,11 +329,22 @@ const EmployeeNotifications = () => {
           ))}
         </ul>
       )} */}
-      <ul className="list-disc ml-4">
+      <ul className="list-none ml-4">
         {Array.isArray(notifications) && notifications.length > 0 ? (
           notifications.map((notification) => (
-            <li key={notification._id} className="text-gray-700 mb-1">
+            <li key={notification._id} 
+            className="notification-item p-2 mb-2 rounded-xl border-1 border-green-300 bg-gradient-to-r from-green-100 to-white hover:from-green-200 hover:to-white transition duration-300 max-w-max">
+              
+              
+              <div className="notification-content flex justify-between items-center">
+              <FontAwesomeIcon
+                icon={faBell}
+                className="text-green-500 mr-3 text-xl"
+              />
+              <div className="notification-message flex-1 text-gray-700 text-sm font-medium">
               {notification.message}
+              </div>
+              </div>
               {/* <span className="text-gray-500 ml-2">
                 ({moment(notification.createdAt).format("DD-MM-YYYY")})
               </span> */}

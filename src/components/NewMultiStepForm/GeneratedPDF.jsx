@@ -533,6 +533,8 @@ const GeneratedPDF = ({}) => {
     fetchPermissions();
   }, []);
 
+  
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document>
