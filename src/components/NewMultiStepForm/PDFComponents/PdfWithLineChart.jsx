@@ -80,7 +80,9 @@ import LineChart from '../charts/LineChart';
 
 const MyDocument = ({ chartBase64 }) => (
   <View>
-    <Text style={styles.title}>DSCR Chart</Text>
+     <View style={styles.centeredTextContainer}>
+    <Text style={styles.title}>DSCR</Text>
+    </View>
     {chartBase64 ? (
       <Image src={chartBase64} style={styles.chart} />
     ) : (
@@ -90,6 +92,10 @@ const MyDocument = ({ chartBase64 }) => (
 );
 
 const styles = StyleSheet.create({
+  centeredTextContainer: {
+    width: '100%',
+    alignItems: 'center',   // ✅ Center children horizontally
+  },
   title: {
     fontSize: 18,
     marginBottom: 10,
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfWithLineChart = ({ labels = [], dscr = [] }) => {
+const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);
 
   useEffect(() => {
@@ -127,6 +133,7 @@ const PdfWithLineChart = ({ labels = [], dscr = [] }) => {
         onBase64Generated={(base64) => {
           console.log('✅ Chart generated successfully');
           setChartBase64(base64);
+          if (onDscrReady) onDscrReady(base64)
         }}
       />
       <MyDocument chartBase64={chartBase64} />

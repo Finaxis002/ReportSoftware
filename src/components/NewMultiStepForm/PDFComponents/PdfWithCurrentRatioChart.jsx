@@ -6,7 +6,9 @@ const MyDocument = ({ chartBase64 }) => (
   <Document>
     <View >
       <View>
-        <Text style={styles.title}>Current Ratio Chart</Text>
+      <View style={styles.centeredTextContainer}>
+        <Text style={styles.title}>Current Ratio</Text>
+        </View>
         {chartBase64 ? (
           <Image src={chartBase64} style={styles.chart} />
         ) : (
@@ -23,14 +25,19 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#fff',
   },
+  centeredTextContainer: {
+    width: '100%',
+    alignItems: 'center',   // ✅ Center children horizontally
+  },
   title: {
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   chart: {
-    width: 300,
-    height: 200,
+    width: 400,
+    height: 250,
     marginVertical: 20,
   },
   loading: {
@@ -40,16 +47,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] }) => {
+const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRatioReady}) => {
   const [chartBase64, setChartBase64] = useState(null);
 
   const handleBase64Generated = (base64) => {
     setChartBase64(base64);
+    if(onCurrentRatioReady) onCurrentRatioReady(base64);
   };
 
   useEffect(() => {
     if (labels?.length > 0 && currentRatio?.length > 0) {
       console.log("📊 Generating Current Ratio Chart...");
+      
     }
   }, [labels, currentRatio]);
 

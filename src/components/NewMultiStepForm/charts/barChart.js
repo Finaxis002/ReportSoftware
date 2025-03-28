@@ -26,7 +26,6 @@
 //     if (Chart.getChart(ctx)) {
 //           Chart.getChart(ctx).destroy();
 //            }
-    
 
 //     // ✅ Create Pie Chart for Direct Expenses
 //     new Chart(ctx, {
@@ -124,7 +123,6 @@
 
 //     // ✅ Convert Revenue vs Expense Chart to Base64
 //     const barBase64 = canvas2.toDataURL('image/png');
-    
 
 //     return { pieBase64, barBase64 };
 //   } catch (error) {
@@ -133,34 +131,43 @@
 //   }
 // };
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // src/charts/barChart.js
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
-export const generateBarChart = async ({ labels, revenue, expenses,formData }) => {
-
-  console.log("form data in bar chart", formData)
+export const generateBarChart = async ({
+  labels,
+  revenue,
+  expenses,
+  formData,
+}) => {
+  console.log("form data in bar chart", formData);
   try {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = 600;
-    canvas.height = 400;
-    const ctx = canvas.getContext('2d');
+    canvas.height = 500;
+    canvas.style.width = "300px";
+    canvas.style.height = "250px";
+
+    const ctx = canvas.getContext("2d");
 
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
     }
 
-    const labels = Array.from({ length: revenue.length }, (_, i) => (i + 1).toString());
+    const labels = Array.from({ length: revenue.length }, (_, i) =>
+      (i + 1).toString()
+    );
 
     // ✅ Get the last year's revenue
     const lastYearRevenue = formData?.Revenue?.totalRevenueForOthers
-  ? formData.Revenue.totalRevenueForOthers[formData.Revenue.totalRevenueForOthers.length - 1]
-  : 0;
-
+      ? formData.Revenue.totalRevenueForOthers[
+          formData.Revenue.totalRevenueForOthers.length - 1
+        ]
+      : 0;
 
     // ✅ Set max value as last year revenue + 50% of last year revenue
     const maxYValue = lastYearRevenue + lastYearRevenue * 0.5;
@@ -168,32 +175,36 @@ export const generateBarChart = async ({ labels, revenue, expenses,formData }) =
     // ✅ Set interval by dividing into 4 parts
     const yInterval = Math.round(maxYValue / 4);
 
-    if (!formData?.Revenue?.totalRevenueForOthers || formData.Revenue.totalRevenueForOthers.length === 0) {
+    if (
+      !formData?.Revenue?.totalRevenueForOthers ||
+      formData.Revenue.totalRevenueForOthers.length === 0
+    ) {
       console.error("❌ Revenue data is missing or empty");
       return null;
     }
-    
+
+    Chart.defaults.font.family = "Times New Roman";
 
     new Chart(ctx, {
-      type: 'bar',
+      type: "bar",
       data: {
         labels,
         datasets: [
           {
-            label: 'REVENUE',
+            label: "Revenue",
             data: revenue,
-            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: " rgba(75, 192, 192, 0.8)",
+            borderColor: "rgb(75, 192, 192)",
             borderWidth: 1,
           },
           {
-            label: 'EXPENSES',
+            label: "Expenses",
             data: expenses,
-            backgroundColor: 'rgba(201, 203, 207, 0.8)',
-            borderColor: 'rgba(201, 203, 207, 1)',
+            backgroundColor: "rgba(255, 159, 64, 0.8)",
+            borderColor: "rgb(255, 159, 64)",
             borderWidth: 1,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: false,
@@ -201,57 +212,92 @@ export const generateBarChart = async ({ labels, revenue, expenses,formData }) =
         scales: {
           y: {
             beginAtZero: true,
-            max: maxYValue, 
+            max: maxYValue,
+            title: {
+              display: true,
+              text: "Value",
+              color: "#000",
+              font: {
+                size: 12,
+                weight: "normal",
+              },
+            },
             ticks: {
-              color: '#FFFFFF',
+              color: "#000000",
               stepSize: yInterval,
-              callback: (value) => `${value.toLocaleString()}`
+              // callback: (value) => `${value.toLocaleString()}`,
+              callback: (value) => {
+                if (value >= 10000000)
+                  return (value / 10000000).toFixed(1) + " Cr";
+                if (value >= 100000) return (value / 100000).toFixed(1) + " L";
+                if (value >= 1000) return (value / 1000).toFixed(1) + " K";
+                return value.toLocaleString();
+              },
+              font: {
+                size: 12,
+              },
+              padding: 0,
+              align: "end",
             },
             grid: {
-              color: 'rgba(255, 255, 255, 0.1)', // ✅ Light grid lines for visibility
-              drawBorder: true
+              color: "rgba(255, 255, 255, 0.1)", // ✅ Light grid lines for visibility
+              drawBorder: true,
             },
             border: {
-              color: '#FFFFFF', // ✅ White axis line
-            }
+              color: "#000000", // ✅ White axis line
+            },
+            labels: {
+              color: "#000000", // ✅ White legend text
+              font: {
+                size: 10,
+                weight: "400",
+              },
+            },
           },
           x: {
             grid: {
               display: false,
-              color: 'rgba(255, 255, 255, 0.3)', // ✅ Light white grid lines
-              drawBorder: true // ✅ Ensure the axis border is drawn
+              color: "rgba(255, 255, 255, 0.3)",
+              drawBorder: true,
             },
             ticks: {
-              color: '#FFFFFF' // ✅ White ticks for better contrast
+              color: "#000000",
+              font: {
+                size: 12,
+              },
             },
             border: {
-              color: '#FFFFFF', // ✅ White axis line
-            }
-          }
+              color: "#000000",
+            },
+            font: {
+              size: 12,
+              weight: "bold",
+            },
+          },
         },
         plugins: {
           legend: {
             display: true,
-            position: 'bottom',
+            position: "bottom",
             labels: {
-              color: '#FFFFFF', // ✅ White legend text
+              color: "#000000",
               font: {
-                size: 14,
-                weight: '500'
+                size: 12,
+                weight: "normal",
               },
-            }
+            },
           },
           datalabels: {
             display: false, // ✅ Enable datalabels properly
           },
         },
-        backgroundColor: '#0000x00', 
-      }
+       
+      },
     });
 
     // ✅ Convert to Base64
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const base64 = canvas.toDataURL('image/png');
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const base64 = canvas.toDataURL("image/png");
     // console.log("✅ Bar Chart generated:", base64);
     return base64;
   } catch (error) {

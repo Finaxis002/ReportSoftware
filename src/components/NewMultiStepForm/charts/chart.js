@@ -1,6 +1,4 @@
 
-
-
 import { Chart, registerables, ArcElement, Tooltip, Legend } from 'chart.js';
 
 
@@ -30,15 +28,15 @@ export const generateChart = async (data) => {
     // Create a hidden canvas for chart rendering
     const canvas = document.createElement('canvas');
     canvas.width = 500;
-    canvas.height = 400;
+    canvas.height = 500;
     const ctx = canvas.getContext('2d');
     const backgroundColors = [
-        '#7CB9E8', 
-        '#00308F',
-        '#72A0C1', 
-        '#0066b2',
-        '#89CFF0', 
-        '#318CE7', 
+        'rgba(115, 210, 210)', 
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(255, 180, 100)',
+        'rgba(35, 120, 120)', 
+        'rgba(220, 130, 40)', 
+        'rgba(255, 159, 64, 0.9)', 
       ];
 
     const borderColors = backgroundColors.map(color =>
@@ -54,6 +52,8 @@ export const generateChart = async (data) => {
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
     }
+
+    Chart.defaults.font.family = 'Times New Roman';
 
     // ✅ Create Pie Chart
     new Chart(ctx, {
@@ -76,23 +76,22 @@ export const generateChart = async (data) => {
       options: {
         responsive: false,
         maintainAspectRatio: false,
+        
         plugins: {
           legend: {
             display: true,
-            position: 'bottom',
+            position: 'right',
+           
             labels: {
               color: '#000', // ✅ Black legend color
               font: {
                 size: 12,
                 weight: 'bold',
               },
-              usePointStyle: true, // ✅ Circular legend points
+              usePointStyle: true,
+              boxWidth: 8,
+              padding: 20, 
             },
-          },
-          title: {
-            display: true,
-            text: 'Direct Expense Break up',
-            font: { size: 16, weight: 'bold' }
           },
           tooltip: {
             enabled: true,
@@ -106,12 +105,22 @@ export const generateChart = async (data) => {
             animateRotate: true,
             animateScale: true
           },
+          // layout: {
+          //   padding: {
+          //     left: 0, 
+          //     right: 120, // ✅ Increase this to move labels further to the right
+          //     top: 0, 
+          //     bottom: 0
+          //   }
+          // },
          
-      }
+      },
+      
+      
     });
 
     // ✅ Wait for chart rendering to finish
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // ✅ Convert canvas to Base64 using `toDataURL`
     const base64 = canvas.toDataURL('image/png');
