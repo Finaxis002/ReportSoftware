@@ -273,11 +273,7 @@ const ProjectedProfitability = ({
       if (setInterestOnWorkingCapital) {
         setInterestOnWorkingCapital(computedInterest);
       }
-    } else {
-      console.error(
-        "❌ Missing working capital loan or interest rate in formData"
-      );
-    }
+    } 
   }, [workingCapitalLoan, interestRate, projectionYears, repaymentStartMonth]);
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering

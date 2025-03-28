@@ -120,7 +120,7 @@ const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
 
   useEffect(() => {
     if (dscr.length > 0 && labels.length > 0) {
-      console.log('✅ Generating DSCR Chart...');
+      // console.log('✅ Generating DSCR Chart...');
       setChartBase64(null);
     }
   }, [labels, dscr]);
@@ -131,7 +131,7 @@ const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
         labels={labels}
         values={dscr.map(value => Number(value.toFixed(2)))}
         onBase64Generated={(base64) => {
-          console.log('✅ Chart generated successfully');
+          // console.log('✅ Chart generated successfully');
           setChartBase64(base64);
           if (onDscrReady) onDscrReady(base64)
         }}

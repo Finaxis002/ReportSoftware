@@ -195,7 +195,7 @@ const PdfWithChart = ({ formData, totalExpenses, onPieChartReady, onBarChartRead
       if (labels.length > 0 && values.length > 0) {
         const pie = await generateChart({ labels, values });
         setPieBase64(pie);
-        console.log("✅ Pie Chart Base64:", pie);
+        // console.log("✅ Pie Chart Base64:", pie);
         if (onPieChartReady) onPieChartReady(pie);
       }
       

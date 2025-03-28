@@ -15,7 +15,7 @@ const ProjectedExpenses = ({
   onTotalExpenseSend,
   pdfType,
 }) => {
-   console.log("Received total depreciation", yearlyInterestLiabilities)
+  //  console.log("Received total depreciation", yearlyInterestLiabilities)
 
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;

@@ -27,9 +27,19 @@ const ProjectSynopsis = React.memo(
     const convertMonthsToYearsAndMonths = (months) => {
       const years = Math.floor(months / 12);
       const remainingMonths = months % 12;
-      return `${years} Year${years !== 1 ? "s" : ""} ${remainingMonths} Month${
-        remainingMonths !== 1 ? "s" : ""
-      }`;
+
+      if (months === 0) return "0 Years";
+
+      if (remainingMonths === 0)
+        return `${years} ${years === 1 ? "Year" : "Years"}`;
+
+      return `${
+        years > 0 ? `${years} ${years === 1 ? "Year" : "Years"}` : ""
+      } ${
+        remainingMonths > 0
+          ? `${remainingMonths} ${remainingMonths === 1 ? "Month" : "Months"}`
+          : ""
+      }`.trim();
     };
 
     // ✅ Define specific fields to display with their corresponding keys and sources
@@ -169,7 +179,6 @@ const ProjectSynopsis = React.memo(
 
     const subsidyName = formData?.ProjectReportSetting?.subsidyName;
 
-    
     return (
       <>
         <Page size="A4" style={styles.page}>
@@ -789,65 +798,66 @@ const ProjectSynopsis = React.memo(
                   </Text>
                 </View>
               )}
-
               {/* working capital  */}
-              <View style={styles.tableRow}>
-                <Text
-                  style={[
-                    styles.serialNoCellDetail,
-                    {
-                      padding: "8px",
-                      width: "10%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
-                    },
-                  ]}
-                ></Text>
-                <Text
-                  style={[
-                    styles.particularsCellsDetail,
-                    {
-                      padding: "8px",
-                      width: "45%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
-                    },
-                  ]}
-                ></Text>
-                <Text
-                  style={[
-                    styles.separatorCellDetail,
-                    {
-                      padding: "8px",
-                      textAlign: "left",
-                      width: "5%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
-                    },
-                  ]}
-                ></Text>
-                <Text
-                  style={[
-                    styles.detailsCellDetail,
-                    { padding: "8px", width: "35%", textAlign: "left" },
-                  ]}
-                >
-                  Working Capital Required
-                </Text>
-                <Text
-                  style={[
-                    styles.detailsCellDetail,
-                    {
-                      padding: "8px",
-                      width: "20%",
-                      textAlign: "center",
-                      borderLeftWidth: "1px",
-                    },
-                  ]}
-                >
-                  {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
-                </Text>
-              </View>
+              {formData?.MeansOfFinance?.totalWorkingCapital && (
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      styles.serialNoCellDetail,
+                      {
+                        padding: "8px",
+                        width: "10%",
+                        borderBottomWidth: "0px",
+                        borderTopWidth: "0px",
+                      },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      styles.particularsCellsDetail,
+                      {
+                        padding: "8px",
+                        width: "45%",
+                        borderBottomWidth: "0px",
+                        borderTopWidth: "0px",
+                      },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      styles.separatorCellDetail,
+                      {
+                        padding: "8px",
+                        textAlign: "left",
+                        width: "5%",
+                        borderBottomWidth: "0px",
+                        borderTopWidth: "0px",
+                      },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      styles.detailsCellDetail,
+                      { padding: "8px", width: "35%", textAlign: "left" },
+                    ]}
+                  >
+                    Working Capital Required
+                  </Text>
+                  <Text
+                    style={[
+                      styles.detailsCellDetail,
+                      {
+                        padding: "8px",
+                        width: "20%",
+                        textAlign: "center",
+                        borderLeftWidth: "1px",
+                      },
+                    ]}
+                  >
+                    {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
+                  </Text>
+                </View>
+              )}
 
               {/* total  */}
               <View style={styles.tableRow}>
@@ -1286,7 +1296,7 @@ const ProjectSynopsis = React.memo(
                 </Text>
               </View>
               {/* Subsidy Scheme */}
-             
+
               {subsidyName && (
                 <View
                   style={[styles.tableRow, { borderTopWidth: 0.6 }]}

@@ -57,7 +57,7 @@ const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRa
 
   useEffect(() => {
     if (labels?.length > 0 && currentRatio?.length > 0) {
-      console.log("📊 Generating Current Ratio Chart...");
+      // console.log("📊 Generating Current Ratio Chart...");
       
     }
   }, [labels, currentRatio]);
