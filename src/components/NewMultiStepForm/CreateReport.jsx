@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import MenuBar from "./MenuBar";
+import Header from "./Header";
 
 const CreateReport = ({ userRole, userName }) => {
 
@@ -102,7 +103,8 @@ const CreateReport = ({ userRole, userName }) => {
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App md:w-[80%] mx-auto shadow-xl rounded-2xl pb-2 bg-white">
+      <div className="App mx-auto shadow-xl rounded-2xl pb-2">
+        <Header />
         <div className="container horizontal mt-5"></div>
 
         <div className="my-5"></div>
