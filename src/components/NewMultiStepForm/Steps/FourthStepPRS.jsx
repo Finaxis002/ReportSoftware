@@ -788,7 +788,7 @@ onFormDataChange((prevData) => {
                   type="number"
                   placeholder="Increasing Rate of Expenses"
                   required
-                  value={localData.rateOfExpense.value}
+                  value={localData.rateOfExpense}
                   onChange={handleChange}
                 />
                 <label htmlFor="rateOfExpense">

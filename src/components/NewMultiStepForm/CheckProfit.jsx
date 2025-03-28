@@ -21,7 +21,7 @@ const CheckProfit = () => {
     console.log(`🔄 Navigating back to step: ${lastStep}`);
     navigate(`/MultistepForm?step=${lastStep}`);
   };
-  
+
   useEffect(() => {
     try {
       const retrievedData = localStorage.getItem("storedGeneratedPdfData");
@@ -108,10 +108,10 @@ const CheckProfit = () => {
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     const totalRevenue = storedData?.totalRevenueReceipts?.[yearIndex] ?? 0; // Ensure safe access
-    const closingStock = formData?.MoreDetails?.closingStock?.[yearIndex] ?? 0;
-    const openingStock = formData?.MoreDetails?.openingStock?.[yearIndex] ?? 0;
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] ?? 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] ?? 0;
 
-    return totalRevenue + closingStock - openingStock;
+    return totalRevenue + ClosingStock - OpeningStock;
   });
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
@@ -363,19 +363,15 @@ const CheckProfit = () => {
   const totalA = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, yearIndex) => {
-    if (yearIndex === 0) {
-      return 0; // ✅ Set first year's total to 0
-    } else {
-      return (
-        (netProfitAfterTax[yearIndex] || 0) +
-        (storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0) +
-        (storedData?.yearlyInterestLiabilities[yearIndex] || 0) +
-        (calculateInterestOnWorkingCapital(
-          interestOnWorkingCapital[yearIndex] || 0,
-          yearIndex
-        ) || 0) // ✅ Correctly calling the function
-      );
-    }
+    return (
+      (netProfitAfterTax[yearIndex] || 0) +
+      (storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0) +
+      (storedData?.yearlyInterestLiabilities[yearIndex] || 0) +
+      (calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[yearIndex] || 0,
+        yearIndex
+      ) || 0) // ✅ Correctly calling the function
+    );
   });
 
   // ✅ Compute Total (B) for Each Year
@@ -533,7 +529,10 @@ const CheckProfit = () => {
         0
       );
 
-      const termLoan = Number(storedData?.marchClosingBalances?.[index] || 0);
+      const marchBalance = storedData?.marchClosingBalances[index] || 0;
+      const repaymentValue = repaymentValueswithin12months?.[index] || 0;
+
+      const termLoan = marchBalance - repaymentValue;
 
       // ✅ Ensure correct bankLoanPayableWithinNext12Months mapping
       const mappedIndex = index + 1; // Shift to next year's value
@@ -579,13 +578,13 @@ const CheckProfit = () => {
     }
   );
 
+  const hideFirstYear = storedData?.totalRevenueReceipts?.[0] === 0;
+
   return (
     <div className="p-2 w-full">
       {/* ✅ Corrected inline styles using spread operator */}
       <div className="p-20 pt-4 flex flex-col items-center w-full">
-        <div className="">
-         
-        </div>
+        <div className=""></div>
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
 
         <div className="w-full">
@@ -606,39 +605,48 @@ const CheckProfit = () => {
                 <th className="border border-black px-1 py-2 text-left font-normal text-[11px]">
                   Particulars
                 </th>
-                {financialYearLabels.map((yearLabel, yearIndex) => (
-                  <th
-                    key={yearIndex}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {yearLabel}
-                  </th>
-                ))}
+                {financialYearLabels
+                  .map((yearLabel, yearIndex) => ({ yearLabel, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ yearLabel, yearIndex }) => (
+                    <th
+                      key={yearIndex}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {yearLabel}
+                    </th>
+                  ))}
               </tr>
             </thead>
 
             <tbody>
               {/* Revenue Receipt  */}
-              <tr className=" font-normal text-[11px] border-0 mt-2">
+              <tr className="font-normal text-[11px] border-0 mt-2">
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   A
                 </td>
-                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left font-normal text-[11px]">
+                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left">
                   Total Revenue Receipt
                 </td>
 
-                {/* ✅ Display revenue values based on projectionYears */}
                 {storedData?.totalRevenueReceipts
                   ?.slice(0, projectionYears)
-                  .map((totalYearValue, yearIndex) => (
+                  .map((value, yearIndex) => ({ value, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
                     <td
-                      key={yearIndex}
+                      key={`revenue-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {formatNumber(totalYearValue)}
+                      {formatNumber(value)}
                     </td>
                   ))}
               </tr>
+
               {/* Closing Stock / Inventory */}
               <tr className="font-normal text-[11px] border-0 mt-2">
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
@@ -648,20 +656,22 @@ const CheckProfit = () => {
                   Add: Closing Stock / Inventory
                 </td>
 
-                {Array.from({
-                  length:
-                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                    0,
-                }).map((_, index) => (
-                  <td
-                    key={`closingStock-${index}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(
-                      formData.MoreDetails.closingStock?.[index] ?? 0
-                    )}
-                  </td>
-                ))}
+                {Array.from({ length: projectionYears })
+                  .map((_, yearIndex) => ({
+                    value: formData.MoreDetails.ClosingStock?.[yearIndex] ?? 0,
+                    yearIndex,
+                  }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
+                    <td
+                      key={`ClosingStock-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(value)}
+                    </td>
+                  ))}
               </tr>
 
               {/* Opening Stock / Inventory */}
@@ -671,35 +681,42 @@ const CheckProfit = () => {
                   Less: Opening Stock / Inventory
                 </td>
 
-                {Array.from({
-                  length:
-                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                    0,
-                }).map((_, index) => (
-                  <td
-                    key={`openingStock-${index}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(
-                      formData.MoreDetails.openingStock?.[index] ?? 0
-                    )}
-                  </td>
-                ))}
+                {Array.from({ length: projectionYears })
+                  .map((_, yearIndex) => ({
+                    value: formData.MoreDetails.OpeningStock?.[yearIndex] ?? 0,
+                    yearIndex,
+                  }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
+                    <td
+                      key={`OpeningStock-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(value)}
+                    </td>
+                  ))}
               </tr>
-              {/* Computation of Total Revenue, Adding Closing Stock, and Subtracting Opening Stock */}
+
+              {/* Computation of Total Revenue */}
               <tr className="font-normal text-[11px] border-0 mt-2">
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
                 <td className="border border-black px-1 py-2 font-extrabold text-left w-1/3"></td>
 
-                {/* ✅ Display Computed Adjusted Revenue Values */}
-                {adjustedRevenueValues?.map((finalValue, yearIndex) => (
-                  <td
-                    key={`finalValue-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-extrabold font-roboto"
-                  >
-                    {formatNumber(finalValue)}
-                  </td>
-                ))}
+                {adjustedRevenueValues
+                  ?.map((value, yearIndex) => ({ value, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
+                    <td
+                      key={`finalValue-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-extrabold font-roboto"
+                    >
+                      {formatNumber(value)}
+                    </td>
+                  ))}
               </tr>
 
               {/* direct expenses heading  */}
@@ -724,12 +741,16 @@ const CheckProfit = () => {
                     <td className="border border-black px-1 py-2  text-left w-1/3">
                       Salary and Wages
                     </td>
-
-                    {Array.from({ length: projectionYears }).map(
-                      (_, yearIndex) => (
+                    {Array.from({ length: projectionYears })
+                      .map((_, yearIndex) => ({
+                        yearIndex,
+                        isHidden: hideFirstYear && yearIndex === 0,
+                      }))
+                      .filter(({ isHidden }) => !isHidden)
+                      .map(({ yearIndex }) => (
                         <td
                           key={yearIndex}
-                          className="border border-black px-1 py-2 text-center  font-roboto"
+                          className="border border-black px-1 py-2 text-center font-roboto"
                         >
                           {formatNumber(
                             calculateExpense(
@@ -738,8 +759,7 @@ const CheckProfit = () => {
                             )
                           )}
                         </td>
-                      )
-                    )}
+                      ))}
                   </tr>
                 );
               })}
@@ -747,10 +767,47 @@ const CheckProfit = () => {
               {directExpense
                 ?.filter((expense) => expense.type === "direct")
                 ?.map((expense, index) => {
-                  // ✅ Check if this is the "Raw Material Expenses / Purchases" field
                   const isRawMaterial =
                     expense.name.trim() === "Raw Material Expenses / Purchases";
 
+                  // ✅ Step 1: Compute values for all years
+                  const valuesPerYear = Array.from({
+                    length: projectionYears,
+                  }).map((_, yearIndex) => {
+                    let expenseValue;
+
+                    if (
+                      isRawMaterial &&
+                      String(expense.value).trim().endsWith("%")
+                    ) {
+                      expenseValue =
+                        (parseFloat(expense.value) / 100) *
+                        storedData?.totalRevenueReceipts[yearIndex];
+                    } else {
+                      expenseValue = Number(expense.value) * 12 || 0;
+                    }
+
+                    return isRawMaterial
+                      ? parseFloat(expenseValue.toFixed(2))
+                      : parseFloat(
+                          calculateExpense(expenseValue, yearIndex).toFixed(2)
+                        );
+                  });
+
+                  // ✅ Step 2: Filter out values if hideFirstYear is true
+                  const filteredValues = valuesPerYear.filter(
+                    (_, i) => !(hideFirstYear && i === 0)
+                  );
+
+                  // ✅ Step 3: Check if all visible values are 0
+                  const allValuesZero = filteredValues.every(
+                    (val) => val === 0
+                  );
+
+                  // ✅ Step 4: Skip rendering this row if all values are 0
+                  if (allValuesZero) return null;
+
+                  // ✅ Step 5: Render the row
                   return (
                     <tr
                       key={`directExpense-${index}`}
@@ -763,43 +820,18 @@ const CheckProfit = () => {
                         {expense.name}
                       </td>
 
-                      {Array.from({ length: projectionYears }).map(
-                        (_, yearIndex) => {
-                          let expenseValue;
+                      {valuesPerYear.map((val, yearIndex) => {
+                        if (hideFirstYear && yearIndex === 0) return null;
 
-                          if (
-                            isRawMaterial &&
-                            String(expense.value).trim().endsWith("%")
-                          ) {
-                            // ✅ If "Raw Material Expenses / Purchases" contains `%`, calculate based on revenue
-                            expenseValue =
-                              (parseFloat(expense.value) / 100) *
-                              storedData?.totalRevenueReceipts[yearIndex];
-                          } else {
-                            // ✅ Otherwise, use the normal numeric calculation
-                            expenseValue = Number(expense.value) * 12 || 0;
-                          }
-
-                          // ✅ Apply calculateExpense only if it's NOT a raw material expense
-                          const formattedExpense = isRawMaterial
-                            ? formatNumber(expenseValue.toFixed(2)) // Directly format raw material expense
-                            : formatNumber(
-                                calculateExpense(
-                                  expenseValue,
-                                  yearIndex
-                                ).toFixed(2)
-                              );
-
-                          return (
-                            <td
-                              key={`directExpense-${index}-year-${yearIndex}`}
-                              className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                            >
-                              {formattedExpense}
-                            </td>
-                          );
-                        }
-                      )}
+                        return (
+                          <td
+                            key={`directExpense-${index}-year-${yearIndex}`}
+                            className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                          >
+                            {formatNumber(val)}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}
@@ -811,14 +843,19 @@ const CheckProfit = () => {
                   Total
                 </td>
                 {/* ✅ Display Precomputed Total Direct Expenses */}
-                {totalDirectExpensesArray.map((grandTotal, yearIndex) => (
-                  <td
-                    key={yearIndex}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(grandTotal)}
-                  </td>
-                ))}
+                {totalDirectExpensesArray
+                  .map((grandTotal, yearIndex) => ({ grandTotal, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ grandTotal, yearIndex }) => (
+                    <td
+                      key={yearIndex}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(grandTotal)}
+                    </td>
+                  ))}
               </tr>
 
               {/* Gross Profit  */}
@@ -831,14 +868,19 @@ const CheckProfit = () => {
                 </td>
 
                 {/* ✅ Display Precomputed Gross Profit Values */}
-                {grossProfitValues.map((grossProfit, yearIndex) => (
-                  <td
-                    key={`grossProfit-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
-                  >
-                    {formatNumber(grossProfit)}
-                  </td>
-                ))}
+                {grossProfitValues
+                  .map((grossProfit, yearIndex) => ({ grossProfit, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ grossProfit, yearIndex }) => (
+                    <td
+                      key={`grossProfit-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                    >
+                      {formatNumber(grossProfit)}
+                    </td>
+                  ))}
               </tr>
 
               {/* Less: Indirect Expenses Heading */}
@@ -853,90 +895,92 @@ const CheckProfit = () => {
 
               {/* Interest On Term Loan */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   1
                 </td>
-
-                {/* Particular Name */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Interest On Term Loan
                 </td>
 
-                {/* Projection Yearly Values */}
                 {Array.from({
                   length:
                     parseInt(formData.ProjectReportSetting.ProjectionYears) ||
                     0,
-                }).map((_, index) => (
-                  <td
-                    key={`interestLoan-${index}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(
-                      storedData?.yearlyInterestLiabilities?.[index] ?? 0
-                    )}
-                  </td>
-                ))}
+                })
+                  .map((_, yearIndex) => ({
+                    value:
+                      storedData?.yearlyInterestLiabilities?.[yearIndex] ?? 0,
+                    yearIndex,
+                  }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
+                    <td
+                      key={`interestLoan-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(value)}
+                    </td>
+                  ))}
               </tr>
 
-              {/* Interest on Working Capital */}
+              {/* Interest On Working Capital */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   2
                 </td>
-
-                {/* Particular Name */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Interest On Working Capital
                 </td>
 
-                {/* Projection Yearly Values */}
                 {Array.from({
                   length:
                     parseInt(formData.ProjectReportSetting.ProjectionYears) ||
                     0,
-                }).map((_, yearIndex) => {
-                  const calculatedInterest = calculateInterestOnWorkingCapital(
-                    interestOnWorkingCapital?.[yearIndex] || 0,
-                    yearIndex
-                  );
-
-                  return (
+                })
+                  .map((_, yearIndex) => {
+                    const value = calculateInterestOnWorkingCapital(
+                      interestOnWorkingCapital?.[yearIndex] || 0,
+                      yearIndex
+                    );
+                    return { value, yearIndex };
+                  })
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
                     <td
                       key={`workingCapitalInterest-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {formatNumber(calculatedInterest)}
+                      {formatNumber(value)}
                     </td>
-                  );
-                })}
+                  ))}
               </tr>
 
-              {/* Depreciation Row */}
+              {/* Depreciation */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   3
                 </td>
-
-                {/* Particular Name */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Depreciation
                 </td>
 
-                {/* Depreciation Values for Each Year */}
-                {storedData?.computedData1?.totalDepreciationPerYear?.map(
-                  (depreciationValue, yearIndex) => (
+                {storedData?.computedData1?.totalDepreciationPerYear
+                  ?.map((value, yearIndex) => ({ value, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ value, yearIndex }) => (
                     <td
                       key={`depreciation-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {formatNumber(depreciationValue)}
+                      {formatNumber(value)}
                     </td>
-                  )
-                )}
+                  ))}
               </tr>
 
               {/* Indirect Expenses Rows */}
@@ -945,39 +989,51 @@ const CheckProfit = () => {
                 .map((expense, index) => {
                   const baseValue = Number(expense.value) || 0;
 
+                  // ✅ Step 1: Precompute all values
+                  const yearlyValues = Array.from({
+                    length:
+                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                      0,
+                  }).map(
+                    (_, yearIndex) =>
+                      calculateIndirectExpense(baseValue, yearIndex) * 12
+                  );
+
+                  // ✅ Step 2: Filter values based on hideFirstYear
+                  const filteredValues = yearlyValues.filter(
+                    (_, yearIndex) => !(hideFirstYear && yearIndex === 0)
+                  );
+
+                  // ✅ Step 3: Check if all visible values are 0
+                  const allValuesZero = filteredValues.every(
+                    (val) => val === 0
+                  );
+
+                  // ✅ Step 4: Skip rendering this row if all values are zero
+                  if (allValuesZero) return null;
+
+                  // ✅ Step 5: Render row
                   return (
                     <tr
                       key={`indirect-expense-${index}`}
                       className="font-normal text-[11px] border-0 mt-2"
                     >
-                      {/* Serial Number */}
                       <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                         {index + 4}
                       </td>
-
-                      {/* Expense Name */}
                       <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                         {expense.name}
                       </td>
 
-                      {/* Loop through Projection Years */}
-                      {Array.from({
-                        length:
-                          parseInt(
-                            formData.ProjectReportSetting.ProjectionYears
-                          ) || 0,
-                      }).map((_, yearIndex) => {
-                        const calculatedValue = calculateIndirectExpense(
-                          baseValue,
-                          yearIndex
-                        );
+                      {yearlyValues.map((val, yearIndex) => {
+                        if (hideFirstYear && yearIndex === 0) return null;
 
                         return (
                           <td
                             key={`indirectExpense-${index}-${yearIndex}`}
                             className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                           >
-                            {formatNumber(calculatedValue * 12)}
+                            {formatNumber(val)}
                           </td>
                         );
                       })}
@@ -995,203 +1051,219 @@ const CheckProfit = () => {
                   Total
                 </td>
 
-                {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
-                {totalIndirectExpensesArray.map((totalValue, yearIndex) => (
-                  <td
-                    key={`totalIndirectExpenses-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(totalValue)}
-                  </td>
-                ))}
+                {/* ✅ Display the filtered totalIndirectExpensesArray */}
+                {totalIndirectExpensesArray
+                  .map((totalValue, yearIndex) => ({ totalValue, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ totalValue, yearIndex }) => (
+                    <td
+                      key={`totalIndirectExpenses-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(totalValue)}
+                    </td>
+                  ))}
               </tr>
 
               {/* ✅ Net Profit Before Tax (NPBT) Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black px-1 py-2 text-center font-bold text-[11px]">
                   F
                 </td>
-
-                {/* Label: Net Profit Before Tax */}
                 <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
                   Net Profit Before Tax
                 </td>
 
-                {/* ✅ Display Precomputed NPBT Values */}
-                {netProfitBeforeTax.map((npbt, yearIndex) => (
-                  <td
-                    key={`netProfitBeforeTax-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
-                  >
-                    {formatNumber(npbt)}
-                  </td>
-                ))}
+                {netProfitBeforeTax
+                  .map((npbt, yearIndex) => ({ npbt, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ npbt, yearIndex }) => (
+                    <td
+                      key={`netProfitBeforeTax-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                    >
+                      {formatNumber(npbt)}
+                    </td>
+                  ))}
               </tr>
 
               {/* ✅ Income Tax Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black border-b-black px-1 py-2 text-center font-normal text-[11px]">
                   Less
                 </td>
-
-                {/* Label: Income Tax @ % */}
                 <td className="border border-black border-b-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Income Tax @ {formData.ProjectReportSetting.incomeTax} %
                 </td>
 
-                {/* ✅ Display Precomputed Income Tax Values */}
-                {incomeTaxCalculation.map((tax, yearIndex) => (
-                  <td
-                    key={`incomeTax-${yearIndex}`}
-                    className="border border-black border-b-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(tax)}
-                  </td>
-                ))}
+                {incomeTaxCalculation
+                  .map((tax, yearIndex) => ({ tax, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ tax, yearIndex }) => (
+                    <td
+                      key={`incomeTax-${yearIndex}`}
+                      className="border border-black border-b-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(tax)}
+                    </td>
+                  ))}
               </tr>
+
               {/* ✅ Net Profit After Tax (NPAT) Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Serial Number */}
                 <td className="border border-black px-1 py-2 text-center font-bold text-[11px]">
                   G
                 </td>
-
-                {/* Label: Net Profit After Tax */}
                 <td className="border border-black px-1 py-2 font-bold text-[11px] text-left w-1/3">
                   Net Profit After Tax
                 </td>
 
-                {/* ✅ Display Precomputed NPAT Values */}
-                {netProfitAfterTax.map((npat, yearIndex) => (
-                  <td
-                    key={`netProfitAfterTax-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-bold text-[11px]"
-                  >
-                    {formatNumber(npat)}
-                  </td>
-                ))}
+                {netProfitAfterTax
+                  .map((npat, yearIndex) => ({ npat, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ npat, yearIndex }) => (
+                    <td
+                      key={`netProfitAfterTax-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-bold text-[11px]"
+                    >
+                      {formatNumber(npat)}
+                    </td>
+                  ))}
               </tr>
 
               {/* ✅ Withdrawals During the Year Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
-
-                {/* Label: Withdrawals During the Year */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Withdrawals during the year
                 </td>
 
-                {/* ✅ Display Precomputed Withdrawals Values */}
                 {Array.from({
                   length:
                     parseInt(formData.ProjectReportSetting.ProjectionYears) ||
                     0,
-                }).map((_, yearIndex) => {
-                  const amount =
-                    formData.MoreDetails.withdrawals?.[yearIndex] ?? 0; // Ensure safe data access
-
-                  return (
+                })
+                  .map((_, yearIndex) => ({
+                    amount: formData.MoreDetails.withdrawals?.[yearIndex] ?? 0,
+                    yearIndex,
+                  }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ amount, yearIndex }) => (
                     <td
                       key={`withdrawals-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
                       {formatNumber(amount)}
                     </td>
-                  );
-                })}
+                  ))}
               </tr>
+
               {/* ✅ Balance Trf. To Balance Sheet Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
-
-                {/* Label: Balance Trf. To Balance Sheet */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Balance Trf. To Balance Sheet
                 </td>
 
-                {/* ✅ Display Precomputed Balance Transferred Values */}
-                {balanceTransferred.map((amount, yearIndex) => {
-                  const roundedValue =
-                    amount - Math.floor(amount) <= 0.5
-                      ? Math.floor(amount)
-                      : Math.ceil(amount); // Rounding logic
-
-                  return (
+                {Array.from({
+                  length:
+                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                    0,
+                })
+                  .map((_, yearIndex) => ({
+                    amount:
+                      formData.MoreDetails.balanceTrfToBalanceSheet?.[
+                        yearIndex
+                      ] ?? 0,
+                    yearIndex,
+                  }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ amount, yearIndex }) => (
                     <td
-                      key={`balanceTransferred-${yearIndex}`}
+                      key={`balanceTrf-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
-                      {formatNumber(roundedValue)}
+                      {formatNumber(amount)}
                     </td>
-                  );
-                })}
+                  ))}
               </tr>
 
               {/* ✅ Cumulative Balance Trf. To Balance Sheet Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
-
-                {/* Label: Cumulative Balance Trf. To Balance Sheet */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Cumulative Balance Trf. To Balance Sheet
                 </td>
 
-                {/* ✅ Display Cumulative Balance Transferred Values */}
-                {cumulativeBalanceTransferred.map((amount, yearIndex) => {
-                  const adjustedAmount = Math.max(amount, 0); // Convert negative values to 0
-                  const roundedValue =
-                    adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                      ? Math.floor(adjustedAmount)
-                      : Math.ceil(adjustedAmount); // Rounding logic
+                {cumulativeBalanceTransferred
+                  .map((amount, yearIndex) => ({ amount, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ amount, yearIndex }) => {
+                    const adjustedAmount = Math.max(amount, 0);
+                    const roundedValue =
+                      adjustedAmount - Math.floor(adjustedAmount) <= 0.5
+                        ? Math.floor(adjustedAmount)
+                        : Math.ceil(adjustedAmount);
 
-                  return (
-                    <td
-                      key={`cumulativeBalance-${yearIndex}`}
-                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                    >
-                      {formatNumber(roundedValue)}
-                    </td>
-                  );
-                })}
+                    return (
+                      <td
+                        key={`cumulativeBalance-${yearIndex}`}
+                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                      >
+                        {formatNumber(roundedValue)}
+                      </td>
+                    );
+                  })}
               </tr>
 
               {/* ✅ Cash Profit (NPAT + Dep.) Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]"></td>
-
-                {/* Label: Cash Profit (NPAT + Dep.) */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Cash Profit (NPAT + Dep.)
                 </td>
 
-                {/* ✅ Display Computed Cash Profit */}
-                {netProfitAfterTax.map((npat, yearIndex) => {
-                  const depreciation =
-                    storedData?.computedData1?.totalDepreciationPerYear[
-                      yearIndex
-                    ] || 0;
-                  const cashProfit = npat + depreciation;
+                {netProfitAfterTax
+                  .map((npat, yearIndex) => {
+                    const depreciation =
+                      storedData?.computedData1?.totalDepreciationPerYear?.[
+                        yearIndex
+                      ] || 0;
+                    const cashProfit = npat + depreciation;
+                    return { yearIndex, cashProfit };
+                  })
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ yearIndex, cashProfit }) => {
+                    const roundedValue =
+                      cashProfit - Math.floor(cashProfit) <= 0.5
+                        ? Math.floor(cashProfit)
+                        : Math.ceil(cashProfit);
 
-                  const roundedValue =
-                    cashProfit - Math.floor(cashProfit) <= 0.5
-                      ? Math.floor(cashProfit)
-                      : Math.ceil(cashProfit); // Rounding logic
-
-                  return (
-                    <td
-                      key={`cashProfit-${yearIndex}`}
-                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                    >
-                      {formatNumber(roundedValue)}
-                    </td>
-                  );
-                })}
+                    return (
+                      <td
+                        key={`cashProfit-${yearIndex}`}
+                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                      >
+                        {formatNumber(roundedValue)}
+                      </td>
+                    );
+                  })}
               </tr>
 
               {/* Dscr Table header  */}
@@ -1207,92 +1279,103 @@ const CheckProfit = () => {
                 </th>
 
                 {/* Dynamic Year Headers */}
-                {financialYearLabels.map((yearLabel, yearIndex) => (
-                  <th
-                    key={`yearHeader-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center"
-                  >
-                    {yearLabel}
-                  </th>
-                ))}
+                {financialYearLabels
+                  .map((yearLabel, yearIndex) => ({ yearLabel, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ yearLabel, yearIndex }) => (
+                    <th
+                      key={`yearHeader-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center"
+                    >
+                      {yearLabel}
+                    </th>
+                  ))}
               </tr>
+
               {/* ✅ DSCR Ratio Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   2
                 </td>
-
-                {/* Label: DSCR (A/B) */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   DSCR Ratio
                 </td>
 
-                {/* ✅ Display Computed DSCR Values for Each Year */}
-                {DSCR.map((totalValue, yearIndex) => (
-                  <td
-                    key={`dscr-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {formatNumber(parseFloat(totalValue).toFixed(2))}
-                  </td>
-                ))}
+                {DSCR.map((totalValue, yearIndex) => ({
+                  totalValue,
+                  yearIndex,
+                }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ totalValue, yearIndex }) => (
+                    <td
+                      key={`dscr-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(parseFloat(totalValue).toFixed(2))}
+                    </td>
+                  ))}
               </tr>
+
               {/* ✅ Average DSCR Row */}
               <tr className="font-bold text-[11px] border-black border-2">
-                {/* Empty Serial Number Column */}
                 <td
                   className="border border-black px-1 py-2 text-center"
                   style={{ width: "85px" }}
                 ></td>
-
-                {/* Label: Average DSCR */}
                 <td
                   className="border border-black px-1 py-2 text-left w-1/3"
                   style={{ borderRight: "0" }}
                 >
                   Average DSCR
                 </td>
-
-                {/* ✅ Display Computed Average DSCR Value Across All Financial Year Columns */}
                 <td
                   className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
-                  colSpan={financialYearLabels.length} // Dynamically spans across financial years
+                  colSpan={
+                    hideFirstYear
+                      ? financialYearLabels.length - 1
+                      : financialYearLabels.length
+                  }
                 >
                   {formatNumber(parseFloat(averageDSCR).toFixed(2))}
                 </td>
               </tr>
+
               {/* ✅ Current Ratio Row */}
               <tr className="font-normal text-[11px] border-0 mt-2">
-                {/* Empty Serial Number Column */}
                 <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
                   3
                 </td>
 
-                {/* Label: Current Ratio */}
                 <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                   Current Ratio
                 </td>
 
-                {/* ✅ Display Computed Current Ratio for Each Year */}
-                {currentRatio.map((ratio, yearIndex) => (
-                  <td
-                    key={`current-ratio-${yearIndex}`}
-                    className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                  >
-                    {ratio !== "-" ? ratio : "0"}
-                  </td>
-                ))}
+                {currentRatio
+                  .map((ratio, yearIndex) => ({ ratio, yearIndex }))
+                  .filter(
+                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                  )
+                  .map(({ ratio, yearIndex }) => (
+                    <td
+                      key={`current-ratio-${yearIndex}`}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {ratio !== "-" ? ratio : "0"}
+                    </td>
+                  ))}
               </tr>
+
               {/* ✅ Average Current Ratio Row */}
               <tr className="font-bold text-[11px] border-black border-2">
-                {/* Empty Serial Number Column */}
                 <td
                   className="border border-black px-1 py-2 text-center"
                   style={{ width: "85px" }}
                 ></td>
 
-                {/* Label: Average Current Ratio */}
                 <td
                   className="border border-black px-1 py-2 text-left w-1/3"
                   style={{ borderRight: "0" }}
@@ -1300,10 +1383,13 @@ const CheckProfit = () => {
                   Average Current Ratio
                 </td>
 
-                {/* ✅ Display Computed Average Current Ratio Across All Financial Year Columns */}
                 <td
                   className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
-                  colSpan={financialYearLabels.length} // Dynamically spans across financial years
+                  colSpan={
+                    hideFirstYear
+                      ? financialYearLabels.length - 1
+                      : financialYearLabels.length
+                  }
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
                 </td>
@@ -1424,7 +1510,11 @@ const CheckProfit = () => {
 
                 {/* ✅ Display Bank Loan Balances */}
                 {Array.from({ length: projectionYears }).map((_, index) => {
-                  const balance = storedData?.marchClosingBalances[index] || 0;
+                  const marchBalance =
+                    storedData?.marchClosingBalances[index] || 0;
+                  const repaymentValue =
+                    repaymentValueswithin12months?.[index] || 0;
+                  const balance = marchBalance - repaymentValue;
                   return (
                     <td
                       key={`bankLoan-${index}`}
@@ -1485,8 +1575,25 @@ const CheckProfit = () => {
               {/* ✅ Liabilities from More Details (Dynamically Aligned with Projection Years) */}
               {formData?.MoreDetails?.currentLiabilities?.map(
                 (liabilities, idx) => {
-                  let cumulativeSum = 0; // Initialize cumulative sum
+                  let cumulativeSum = 0;
 
+                  // ✅ Step 1: Precompute cumulative values
+                  const cumulativeValues = Array.from({
+                    length: projectionYears,
+                  }).map((_, yearIndex) => {
+                    cumulativeSum += Number(liabilities.years[yearIndex]) || 0;
+                    return cumulativeSum;
+                  });
+
+                  // ✅ Step 2: Check if all values are zero
+                  const allValuesZero = cumulativeValues.every(
+                    (val) => val === 0
+                  );
+
+                  // ✅ Step 3: Skip rendering if all values are zero
+                  if (allValuesZero) return null;
+
+                  // ✅ Step 4: Render row
                   return (
                     <tr
                       className="font-normal text-[11px] border-0 mt-2"
@@ -1497,27 +1604,20 @@ const CheckProfit = () => {
                         {idx + 6}
                       </td>
 
-                      {/* Label: Particular Liability Name */}
+                      {/* Liability Name */}
                       <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                         {liabilities.particular}
                       </td>
 
-                      {/* ✅ Display Liabilities for Each Year with Cumulative Rule Applied */}
-                      {Array.from({ length: projectionYears }).map(
-                        (_, yearIndex) => {
-                          cumulativeSum +=
-                            Number(liabilities.years[yearIndex]) || 0; // Apply cumulative sum logic
-
-                          return (
-                            <td
-                              key={`liability-${idx}-${yearIndex}`}
-                              className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                            >
-                              {formatNumber(cumulativeSum)}
-                            </td>
-                          );
-                        }
-                      )}
+                      {/* Display cumulative values */}
+                      {cumulativeValues.map((val, yearIndex) => (
+                        <td
+                          key={`liability-${idx}-${yearIndex}`}
+                          className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                        >
+                          {formatNumber(val)}
+                        </td>
+                      ))}
                     </tr>
                   );
                 }
@@ -1636,7 +1736,25 @@ const CheckProfit = () => {
 
               {/* ✅ Current Assets from More Details */}
               {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
-                let cumulativeSum = 0; // Initialize cumulative sum
+                let cumulativeSum = 0;
+
+                // ✅ Step 1: Precompute cumulative values
+                const cumulativeValues = Array.from({
+                  length: projectionYears,
+                }).map((_, yearIndex) => {
+                  cumulativeSum += Number(assets.years[yearIndex]) || 0;
+                  return cumulativeSum;
+                });
+
+                // ✅ Step 2: Check if all values are zero
+                const allValuesZero = cumulativeValues.every(
+                  (val) => val === 0
+                );
+
+                // ✅ Step 3: Skip rendering if all values are zero
+                if (allValuesZero) return null;
+
+                // ✅ Step 4: Render the row
                 return (
                   <tr
                     className="font-normal text-[11px] border-0 mt-2"
@@ -1648,19 +1766,14 @@ const CheckProfit = () => {
                     <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
                       {assets.particular}
                     </td>
-                    {Array.from({ length: projectionYears }).map(
-                      (_, yearIndex) => {
-                        cumulativeSum += Number(assets.years[yearIndex]) || 0;
-                        return (
-                          <td
-                            key={`currentAsset-${index}-${yearIndex}`}
-                            className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                          >
-                            {formatNumber(cumulativeSum)}
-                          </td>
-                        );
-                      }
-                    )}
+                    {cumulativeValues.map((val, yearIndex) => (
+                      <td
+                        key={`currentAsset-${index}-${yearIndex}`}
+                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                      >
+                        {formatNumber(val)}
+                      </td>
+                    ))}
                   </tr>
                 );
               })}

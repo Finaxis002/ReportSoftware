@@ -128,7 +128,8 @@ const AdminList = () => {
 
       <div className="flex flex-col w-full px-4 gap-8">
         <Header dashboardType="Admin Dashboard" />
-        <h2 style={styles.header}>List of Chartered Accountants (Admin)</h2>
+        <h2 className="text-gray-800 dark:text-gray-50 text-lg"
+        >List of Chartered Accountants (Admin)</h2>
 
         <div style={styles.cardContainer}>
           {admins.map((admin) => (

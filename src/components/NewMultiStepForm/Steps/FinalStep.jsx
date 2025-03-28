@@ -63,24 +63,6 @@ const FinalStep = ({ formData, userName , userRole}) => {
     }, 10000);
   };
 
-  // const handleExportData = () => {
-  //   const data = formData; // Assuming formData contains your data
-
-  //   // Convert data to JSON format
-  //   const jsonData = JSON.stringify(data, null, 2);
-  //   const blob = new Blob([jsonData], { type: "application/json" });
-
-  //   // Create a link and trigger download
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = "exported-data.json"; // File name for download
-  //   link.click();
-
-  //   // Cleanup
-  //   URL.revokeObjectURL(url);
-  // };
-
   // ✅ Utility function to flatten nested objects
   const flattenObject = (obj, parentKey = "", result = {}) => {
     for (const key in obj) {
@@ -340,6 +322,8 @@ const FinalStep = ({ formData, userName , userRole}) => {
     // Fetch permissions when the component mounts or when userRole/userName changes
     fetchPermissions();
   }, [userRole, userName]);
+
+  console.log(permissions)
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">

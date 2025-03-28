@@ -73,9 +73,17 @@ const App = () => {
     }
   };
 
+  useEffect(() => {
+    const theme = localStorage.getItem("theme") || "light"; // fallback to light
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
+  
+  
+
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
+        
         <BrowserRouter>
           <Routes>
             <Route
