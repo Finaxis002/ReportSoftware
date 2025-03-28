@@ -1654,7 +1654,8 @@ const ProjectedProfitability = ({
       </View>
 
       <view>
-        <Text
+
+      {formData?.ProjectReportSetting?.CAName?.value ? ( <Text
           style={[
             {
               fontSize: "8px",
@@ -1676,7 +1677,8 @@ const ProjectedProfitability = ({
           the accuracy of the same, as actual results are likely to be different
           from the forecast since anticipated events might not occur as
           expected, and the variation might be material.
-        </Text>
+        </Text>): null}
+
       </view>
 
       {/* businees name and Client Name  */}
