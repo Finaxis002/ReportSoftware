@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import { Document, PDFViewer, BlobProvider, Text } from "@react-pdf/renderer";
+import { Document, PDFViewer, BlobProvider, Text , pdf } from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
