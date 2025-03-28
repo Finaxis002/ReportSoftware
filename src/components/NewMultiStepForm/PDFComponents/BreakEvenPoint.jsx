@@ -214,7 +214,7 @@ const BreakEvenPoint = ({
     }
   );
 
-  console.log("Total Expenses for Each Year:", totalVariableExpenses);
+  // console.log("Total Expenses for Each Year:", totalVariableExpenses);
 
   // ✅ Compute Contribution for Each Year
   const contribution = adjustedRevenueValues.map(
@@ -257,19 +257,19 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     );
 
     // Log the individual values for each year
-    console.log(`Year ${yearIndex + 1}:`);
-    console.log(`Salary & Wages: ${salaryAndWages}`);
-    console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
-    console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
-    console.log(`Depreciation: ${depreciationExpense}`);
-    console.log(`Total Fixed Expenses: ${totalExpense}`);
-    console.log('------------------------');
+    // console.log(`Year ${yearIndex + 1}:`);
+    // console.log(`Salary & Wages: ${salaryAndWages}`);
+    // console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
+    // console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
+    // console.log(`Depreciation: ${depreciationExpense}`);
+    // console.log(`Total Fixed Expenses: ${totalExpense}`);
+    // console.log('------------------------');
 
     return totalExpense;
   }
 );
 
-console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
+// console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
 
 
 

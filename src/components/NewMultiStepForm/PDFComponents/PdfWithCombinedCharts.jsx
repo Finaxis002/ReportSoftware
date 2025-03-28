@@ -9,7 +9,7 @@ const PdfWithCombinedCharts = ({
   dscr = [],
 }) => {
   if (!labels.length || !dscr.length) {
-    console.warn("❌ Missing data for DSCR chart");
+    // console.warn("❌ Missing data for DSCR chart");
     return null;
   }
 

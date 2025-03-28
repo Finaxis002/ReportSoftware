@@ -27,23 +27,6 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
     }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const formData = new FormData();
-  //   formData.append('username', username);
-  //   formData.append('password', password);
-  //   if (caSign) {
-  //     formData.append('caSign', caSign);
-  //   }
-
-  //   try {
-  //     await addAdmin(username, password);
-  //     onSuccess(); // Refresh the list after adding
-  //   } catch (error) {
-  //     setError(error.response?.data?.message || 'Failed to create admin');
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -159,35 +142,7 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
   );
 };
 
-// const styles = {
-//   container: {
-//     marginTop: '20px',
-//     padding: '20px',
-//     border: '1px solid #ddd',
-//     borderRadius: '5px',
-//   },
-//   form: {
-//     display: 'flex',
-//     flexDirection: 'column',
-//   },
-//   input: {
-//     padding: '10px',
-//     marginBottom: '10px',
-//     fontSize: '16px',
-//     borderRadius: '4px',
-//     border: '1px solid #ccc',
-//   },
-//   button: {
-//     padding: '10px',
-//     backgroundColor: '#4CAF50',
-//     color: '#fff',
-//     border: 'none',
-//     cursor: 'pointer',
-//   },
-//   error: {
-//     color: 'red',
-//   },
-// };
+
 const styles = {
   container: {
     marginTop: "20px",

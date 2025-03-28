@@ -26,7 +26,7 @@ Chart.register(shadowPlugin);
 const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
   useEffect(() => {
     let mounted = true;
-    console.log("current ratio value in current ratio chart", values);
+    // console.log("current ratio value in current ratio chart", values);
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
         // ✅ Create a canvas for chart rendering
@@ -163,7 +163,7 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         // ✅ Capture chart using html2canvas
         const base64Image = canvas.toDataURL("image/png");
 
-        console.log("✅ Current Ratio Chart Base64:", base64Image);
+        // console.log("✅ Current Ratio Chart Base64:", base64Image);
 
         if (mounted && onBase64Generated) {
           onBase64Generated(base64Image);

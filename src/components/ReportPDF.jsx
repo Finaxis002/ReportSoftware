@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { safeText } from "../utils/safeText";
+
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import Step1 from './formComponents/Step1';
 
@@ -28,7 +30,7 @@ const ReportPDF = ({ report }) => {
                     <Text>Company Name</Text>
                 </View>
                 <View style={styles.section}>
-                    <Text>{JSON.stringify(report)}</Text>
+                    <Text>{safeText(JSON.stringify(report))}</Text>
                 </View>
             </Page> */}
             <Page size="A4" style={styles.page}>

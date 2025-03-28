@@ -7,10 +7,17 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import { Document, PDFViewer, BlobProvider, Text , pdf } from "@react-pdf/renderer";
+import {
+  Document,
+  PDFViewer,
+  BlobProvider,
+  Text,
+  pdf,
+} from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
+import { FiDownload } from "react-icons/fi"; // npm i react-icons
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -33,24 +40,13 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
-import PdfWithChart from "./PDFComponents/PdfWithChart";
-import { generateChart } from "./charts/chart";
-
-import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
-
-// import {LineChart} from "./charts/LineChart";
-import LineChart from "./charts/LineChart";
-import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
-import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 const GeneratedPDF = ({}) => {
-
   const userRole = localStorage.getItem("userRole");
   const userName = localStorage.getItem("employeeName");
-  
-  console.log("userRole:", userRole, "userName:", userName);
-  
+
+  // console.log("userRole:", userRole, "userName:", userName);
 
   const [permissions, setPermissions] = useState({
     createReport: false,
@@ -60,7 +56,6 @@ const GeneratedPDF = ({}) => {
     exportData: false, // ✅ Add this
   });
 
-  const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
 
   const [directExpenses, setDirectExpenses] = useState([]);
@@ -105,7 +100,7 @@ const GeneratedPDF = ({}) => {
   const [dscr, setDscr] = useState([]);
 
   const [currentRatio, setCurrentRatio] = useState([]);
-  console.log("current ratio values", currentRatio);
+  // console.log("current ratio values", currentRatio);
 
   const [averageCurrentRatio, setAverageCurrentRatio] = useState([]);
 
@@ -123,21 +118,15 @@ const GeneratedPDF = ({}) => {
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
 
-  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
+  const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
-  // Your download handler
-  const handleDownloadPDF = async () => {
-    const blob = await pdf(memoizedPDF).toBlob();
-    saveAs(blob, "Report.pdf");
-  };
-
   const handleTotalExpenseUpdate = (expenses) => {
-    console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
+    // console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
     setTotalExpense(expenses); // ✅ Update state
   };
 
@@ -200,7 +189,7 @@ const GeneratedPDF = ({}) => {
   useEffect(() => {
     const fetchChart = async () => {
       try {
-        console.log("🚀 Generating Chart...");
+        // console.log("🚀 Generating Chart...");
         // const base64 = await generateChart();
         // console.log("✅ Chart Base64:", base64);
         // setChartBase64(base64);
@@ -210,35 +199,6 @@ const GeneratedPDF = ({}) => {
     };
 
     fetchChart(); // ✅ Generate on component mount
-  }, []);
-
-  // useEffect(() => {
-  //   const fetchChart = async () => {
-  //     try {
-  //       console.log("🚀 Generating Chart...");
-  //       const base64 = await generateChart();
-  //       console.log("✅ Chart Base64:", base64);
-  //       setChartBase64(base64);
-  //     } catch (error) {
-  //       console.error("❌ Failed to generate chart:", error);
-  //     }
-  //   };
-
-  //   fetchChart(); // ✅ Generate on component mount
-  // }, []);
-
-  useEffect(() => {
-    const fetchChart = async () => {
-      try {
-        console.log("🚀 Generating Chart...");
-        // const base64 = await LineChart();
-        // console.log("✅ Chart Base64:", base64);
-        // setLineChartBase64(base64);
-      } catch (error) {
-        console.error("❌ Failed to generate chart:", error);
-      }
-    };
-    fetchChart();
   }, []);
 
   useEffect(() => {
@@ -252,7 +212,7 @@ const GeneratedPDF = ({}) => {
         }
         return prev + 1;
       });
-    }, 5000);
+    });
 
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
@@ -493,7 +453,7 @@ const GeneratedPDF = ({}) => {
         }
 
         const result = await response.json();
-        console.log("✅ Fetched Employees Data:", result);
+        // console.log("✅ Fetched Employees Data:", result);
 
         const employees = Array.isArray(result) ? result : [];
 
@@ -505,7 +465,7 @@ const GeneratedPDF = ({}) => {
             createNewWithExisting: true,
             downloadPDF: true,
           });
-          console.log("✅ Admin permissions granted");
+          // console.log("✅ Admin permissions granted");
         } else if (userRole === "employee") {
           // Normalize the userName to lowercase and trim spaces
           const normalizedUserName = userName?.trim().toLowerCase();
@@ -521,10 +481,10 @@ const GeneratedPDF = ({}) => {
           // Set permissions if employee is found
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
-            console.log(
-              "✅ Permissions fetched for employee:",
-              employee.permissions
-            );
+            // console.log(
+            //   "✅ Permissions fetched for employee:",
+            //   employee.permissions
+            // );
           } else {
             console.warn(
               "⚠️ No matching employee found or permissions missing"
@@ -540,11 +500,48 @@ const GeneratedPDF = ({}) => {
     fetchPermissions();
   }, [userRole, userName]);
 
-  
+  useEffect(() => {
+    if (
+      dscr.length > 0 &&
+      currentRatio.currentRatio?.length > 0 &&
+      formData?.AccountInformation?.businessName &&
+      formData?.AccountInformation?.businessOwner
+    ) {
+      setIsPdfReadyToDownload(true);
+    }
+  }, [dscr, currentRatio, formData]);
+
+  const handleDownloadPDF = async () => {
+    if (!isPdfReadyToDownload) {
+      alert("Please wait, PDF is still loading...");
+      return;
+    }
+
+    try {
+      const businessName =
+        formData?.AccountInformation?.businessName || "Report";
+      const businessOwner =
+        formData?.AccountInformation?.businessOwner || "Owner";
+
+      const safeName = `${businessName} (${businessOwner})`
+        .replace(/[/\\?%*:|"<>]/g, "-")
+        .trim();
+
+      const blob = await pdf(memoizedPDF).toBlob();
+      saveAs(blob, `${safeName}.pdf`);
+    } catch (err) {
+      console.error("❌ Error during PDF download:", err);
+      alert("Something went wrong while generating the PDF.");
+    }
+  };
 
   const memoizedPDF = useMemo(() => {
     return (
-      <Document>
+      <Document
+      onRender={() => {
+        console.log("✅ PDF fully rendered");
+        setIsPDFLoading(false); // Turn off loader reliably
+      }}>
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         <ProjectSynopsis
@@ -563,18 +560,6 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
         />
 
-        {/* Graphs  */}
-        {/* <PdfWithChart
-          formData={formData}
-          chartBase64={chartBase64}
-          totalExpenses={totalExpense}
-        />
-
-        <PdfWithCombinedCharts
-          labels={financialYearLabelsforChart || []}
-          dscr={dscr?.DSCR || []}
-          currentRatio={currentRatio?.currentRatio || []}
-        /> */}
         <PdfAllChartsWrapper
           formData={formData}
           totalExpenses={totalExpense}
@@ -824,8 +809,7 @@ const GeneratedPDF = ({}) => {
     const sessionId = location.state?.sessionId;
 
     if (reportData && sessionId) {
-      console.log("📥 Received Data from Report:", reportData);
-
+      // console.log("📥 Received Data from Report:", reportData);
       // // ✅ Simulate form population
       // populateForm(reportData);
     }
@@ -845,8 +829,6 @@ const GeneratedPDF = ({}) => {
       document.head.removeChild(style);
     };
   }, []);
-
-  console.log(permissions)
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -877,48 +859,61 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
-        {({ blob, url, loading }) => {
-          if (!loading) {
-            // ✅ Update state when PDF is fully loaded
-            setTimeout(() => setIsPDFLoading(false), 5000);
-          }
-          return !isPDFLoading ? (
+        {({ blob, url, loading, error }) => {
+          // Check if the blob is ready
+          const handleDownloadPDF = () => {
+            if (loading || !url) {
+              alert("Please wait, PDF is still loading...");
+              return;
+            }
+
+            const businessName =
+              formData?.AccountInformation?.businessName || "Report";
+            const businessOwner =
+              formData?.AccountInformation?.businessOwner || "Owner";
+            const safeName = `${businessName} (${businessOwner})`
+              .replace(/[/\\?%*:|"<>]/g, "-")
+              .trim();
+
+            saveAs(url, `${safeName}.pdf`);
+          };
+
+          return (
             <>
-             {(userRole === "admin" || permissions.downloadPDF) && (
-              <div className="flex w-full justify-start items-center p-1 pr-4 bg-black">
-             
-                <button
-                  onClick={handleDownloadPDF}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-sm"
-                >
-                  Download PDF
-                </button>
-                
-              </div>
+              {/* Toolbar */}
+              {(userRole === "admin" || permissions.downloadPDF) && (
+                <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
+                  <div className="text-white font-normal text-sm px-4 tracking-wide">
+                    📄 PDF Report Viewer
+                  </div>
+
+                  <div className="flex gap-2 px-4">
+                    <button
+                      onClick={handleDownloadPDF}
+                      className={`flex items-center gap-2 ${
+                        loading
+                          ? "bg-gray-300 cursor-not-allowed"
+                          : "bg-white hover:bg-indigo-100"
+                      } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
+                      disabled={loading}
+                    >
+                      <FiDownload size={16} />
+                      Download PDF
+                    </button>
+                  </div>
+                </div>
               )}
 
               <PDFViewer
                 width="100%"
                 height="800"
-                showToolbar = {false}
+                showToolbar={false}
                 style={{ overflow: "hidden" }}
               >
                 {memoizedPDF}
               </PDFViewer>
-
-              {/* <PDFViewer
-                width="100%"
-                height="800"
-                style={{ overflow: "hidden" }}
-                showToolbar={userRole !== "client" && userRole !== "employee"}
-              >
-                {memoizedPDF}
-              </PDFViewer> */}
-
-              {/* ✅ Custom Download Button */}
-              <section className="h-[100vh]"></section>
             </>
-          ) : null;
+          );
         }}
       </BlobProvider>
     </div>
