@@ -724,18 +724,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           sendCurrentRatio={setCurrentRatio}
         />
-        <BreakEvenPoint
-          formData={formData}
-          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-          totalDepreciationPerYear={totalDepreciation}
-          totalRevenueReceipts={totalRevenueReceipts}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          financialYearLabels={financialYearLabels}
-          formatNumber={formatNumber}
-          sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          pdfType={pdfType}
-        />
+      
         <DebtServiceCoverageRatio
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -771,6 +760,18 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+        />
+          <BreakEvenPoint
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          totalDepreciationPerYear={totalDepreciation}
+          totalRevenueReceipts={totalRevenueReceipts}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+          sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pdfType={pdfType}
         />
         <Assumptions
           formData={formData}

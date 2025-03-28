@@ -108,10 +108,10 @@ const CheckProfit = () => {
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
     const totalRevenue = storedData?.totalRevenueReceipts?.[yearIndex] ?? 0; // Ensure safe access
-    const closingStock = formData?.MoreDetails?.closingStock?.[yearIndex] ?? 0;
-    const openingStock = formData?.MoreDetails?.openingStock?.[yearIndex] ?? 0;
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] ?? 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] ?? 0;
 
-    return totalRevenue + closingStock - openingStock;
+    return totalRevenue + ClosingStock - OpeningStock;
   });
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
@@ -363,9 +363,7 @@ const CheckProfit = () => {
   const totalA = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, yearIndex) => {
-    if (yearIndex === 0) {
-      return 0; // ✅ Set first year's total to 0
-    } else {
+    
       return (
         (netProfitAfterTax[yearIndex] || 0) +
         (storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0) +
@@ -375,7 +373,6 @@ const CheckProfit = () => {
           yearIndex
         ) || 0) // ✅ Correctly calling the function
       );
-    }
   });
 
   // ✅ Compute Total (B) for Each Year
@@ -533,7 +530,11 @@ const CheckProfit = () => {
         0
       );
 
-      const termLoan = Number(storedData?.marchClosingBalances?.[index] || 0);
+      const marchBalance = storedData?.marchClosingBalances[index] || 0;
+      const repaymentValue =
+      repaymentValueswithin12months?.[index] || 0;
+     
+      const termLoan = marchBalance - repaymentValue;
 
       // ✅ Ensure correct bankLoanPayableWithinNext12Months mapping
       const mappedIndex = index + 1; // Shift to next year's value
@@ -654,11 +655,11 @@ const CheckProfit = () => {
                     0,
                 }).map((_, index) => (
                   <td
-                    key={`closingStock-${index}`}
+                    key={`ClosingStock-${index}`}
                     className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                   >
                     {formatNumber(
-                      formData.MoreDetails.closingStock?.[index] ?? 0
+                      formData.MoreDetails.ClosingStock?.[index] ?? 0
                     )}
                   </td>
                 ))}
@@ -677,11 +678,11 @@ const CheckProfit = () => {
                     0,
                 }).map((_, index) => (
                   <td
-                    key={`openingStock-${index}`}
+                    key={`OpeningStock-${index}`}
                     className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                   >
                     {formatNumber(
-                      formData.MoreDetails.openingStock?.[index] ?? 0
+                      formData.MoreDetails.OpeningStock?.[index] ?? 0
                     )}
                   </td>
                 ))}
@@ -1424,7 +1425,10 @@ const CheckProfit = () => {
 
                 {/* ✅ Display Bank Loan Balances */}
                 {Array.from({ length: projectionYears }).map((_, index) => {
-                  const balance = storedData?.marchClosingBalances[index] || 0;
+                  const marchBalance = storedData?.marchClosingBalances[index] || 0;
+                  const repaymentValue =
+                  repaymentValueswithin12months?.[index] || 0;
+                  const balance =  marchBalance - repaymentValue;
                   return (
                     <td
                       key={`bankLoan-${index}`}
