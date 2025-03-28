@@ -162,15 +162,39 @@ export const generateBarChart = async ({
       (i + 1).toString()
     );
 
-    // ✅ Get the last year's revenue
-    const lastYearRevenue = formData?.Revenue?.totalRevenueForOthers
-      ? formData.Revenue.totalRevenueForOthers[
-          formData.Revenue.totalRevenueForOthers.length - 1
-        ]
-      : 0;
+    const revenueType = formData?.Revenue?.formType ; 
+    console.log("revenue type from bar chart",revenueType )
+    let selectedRevenue = [];
+    if (revenueType === "Monthly" && formData?.Revenue?.totalRevenue) {
+      selectedRevenue = formData.Revenue.totalRevenue;
+      console.log("this is selected revenue from monthly ",selectedRevenue)
+    } else if (
+      revenueType === "Others" &&
+      formData?.Revenue?.totalRevenueForOthers
+    ) {
+      selectedRevenue = formData.Revenue.totalRevenueForOthers;
+      console.log("this is selected revenue from others ",selectedRevenue)
+    }
 
+    if (selectedRevenue.length === 0) {
+      console.error("❌ No revenue data available for the selected type.");
+      return null;
+    }
+
+
+    // ✅ Get the last year's revenue
+    // const lastYearRevenue = formData?.Revenue?.totalRevenueForOthers
+    //   ? formData.Revenue.totalRevenueForOthers[
+    //       formData.Revenue.totalRevenueForOthers.length - 1
+    //     ]
+    //   : 0;
+      const lastYearRevenue = selectedRevenue[selectedRevenue.length - 1] || 0;
+      console.log("revenue from bar chart",lastYearRevenue)
     // ✅ Set max value as last year revenue + 50% of last year revenue
     const maxYValue = lastYearRevenue + lastYearRevenue * 0.5;
+
+    
+   
 
     // ✅ Set interval by dividing into 4 parts
     const yInterval = Math.round(maxYValue / 4);
@@ -192,7 +216,7 @@ export const generateBarChart = async ({
         datasets: [
           {
             label: "Revenue",
-            data: revenue,
+            data: selectedRevenue,
             backgroundColor: " rgba(75, 192, 192, 0.8)",
             borderColor: "rgb(75, 192, 192)",
             borderWidth: 1,
