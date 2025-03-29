@@ -449,12 +449,11 @@ const FinalStep = ({ formData, userRole }) => {
           <option value="Other">Other</option>
         </select>
 
-        {/* ✅ Show UDIN warning for CA Certified */}
         {showError && (
           <div className="mt-2 text-red-600">
             <p>UDIN number is not available.</p>
             <button
-              onClick={() => setCurrentStep(4)}
+              // onClick={() => setCurrentStep(4)}
               className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               Go to Project Report Settings
