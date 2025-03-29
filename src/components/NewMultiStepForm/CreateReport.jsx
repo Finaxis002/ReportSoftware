@@ -163,31 +163,29 @@ const CreateReport = ({ userRole }) => {
           </div>
 
           {/* ✅ Update Report Card */}
-          {userRole === "admin" &&
-            (!localStorage.getItem("adminName") ||
-              permissions.updateReport) && (
-              <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <h3 className="text-xl font-semibold text-center">
+          {((userRole === "admin" &&
+            (!localStorage.getItem("adminName") || permissions.updateReport)) ||
+            (userRole === "employee" && permissions.updateReport)) && (
+            <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-semibold text-center">
+                Update Report
+              </h3>
+              <p className="text-center mt-4">
+                Edit or update an existing report.
+              </p>
+              <Link to="/MultestepForm" state={{ isUpdateReportClicked: true }}>
+                <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
                   Update Report
-                </h3>
-                <p className="text-center mt-4">
-                  Edit or update an existing report.
-                </p>
-                <Link
-                  to="/MultestepForm"
-                  state={{ isUpdateReportClicked: true }}
-                >
-                  <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
-                    Update Report
-                  </button>
-                </Link>
-              </div>
-            )}
+                </button>
+              </Link>
+            </div>
+          )}
 
           {/* ✅ Create New with Existing Card */}
-          {userRole === "admin" &&
+          {((userRole === "admin" &&
             (!localStorage.getItem("adminName") ||
-              permissions.createNewWithExisting) && (
+              permissions.createNewWithExisting)) ||
+            (userRole === "employee" && permissions.createNewWithExisting)) && (
             <div className="bg-green-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">
                 Create New with Existing
