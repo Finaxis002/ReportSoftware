@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import MenuBar from "./MenuBar";
 import Header from "./Header";
-import { availableMemory } from "process";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
 const CreateReport = ({ userRole }) => {
   const userName =
@@ -15,6 +17,7 @@ const CreateReport = ({ userRole }) => {
     downloadPDF: false,
     exportData: false, // ✅ Add this
   });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const navigate = useNavigate();
 
@@ -103,7 +106,8 @@ const CreateReport = ({ userRole }) => {
     if (userRole && userName) {
       fetchPermissions();
     }
-  }, [userRole, userName]);
+  }, [userRole, userName, refreshKey]);
+
 
   console.log("✅ User Role:", userRole);
   console.log("✅ User Name:", userName);
@@ -139,11 +143,19 @@ const CreateReport = ({ userRole }) => {
       {renderMenuBar()}
       <div className="App mx-auto shadow-xl rounded-2xl pb-2 w-full">
         <Header />
-        <div className=" w-full container horizontal mt-5"></div>
-
         {/* ✅ Cards Section */}
+        {/* 🔄 Refresh Button */}
+        <div className="flex justify-start items-center px-5 pt-4">
+          <button
+            onClick={() => setRefreshKey((prev) => prev + 1)}
+            className="flex items-center gap-2 text-sm text-teal-700 hover:text-teal-900 transition-all"
+            title="Refresh Permissions & Cards"
+          >
+            <FontAwesomeIcon icon={faSyncAlt} className="text-lg" />
+            Refresh
+          </button>
+        </div>
         <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
-          {/* ✅ Create Report Card */}
           {/* ✅ New Report Card - show if permission.createReport is true */}
 
           <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
