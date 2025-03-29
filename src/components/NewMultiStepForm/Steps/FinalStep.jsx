@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
@@ -20,6 +23,7 @@ const FinalStep = ({ formData, userRole }) => {
   const [selectedOption, setSelectedOption] = useState("select option");
   const [selectedColor, setSelectedColor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
@@ -266,67 +270,6 @@ const FinalStep = ({ formData, userRole }) => {
     localStorage.setItem("lastStep", 8);
   };
 
-  // useEffect(() => {
-  //   const fetchPermissions = async () => {
-  //     try {
-  //       // Fetching all employees
-  //       const response = await fetch(
-  //         "https://backend-three-pink.vercel.app/api/employees"
-  //       );
-
-  //       // Check if the response is successful
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch employees");
-  //       }
-
-  //       const result = await response.json();
-  //       console.log("✅ Fetched Employees Data:", result);
-
-  //       const employees = Array.isArray(result) ? result : [];
-
-  //       // Assign permissions based on userRole
-  //       if (userRole === "admin") {
-  //         setPermissions({
-  //           createReport: true,
-  //           updateReport: true,
-  //           createNewWithExisting: true,
-  //           downloadPDF: true,
-  //         });
-  //         console.log("✅ Admin permissions granted");
-  //       } else if (userRole === "employee") {
-  //         // Normalize the userName to lowercase and trim spaces
-  //         const normalizedUserName = userName?.trim().toLowerCase();
-
-  //         // Find the employee based on name, email, or employeeId
-  //         const employee = employees.find(
-  //           (emp) =>
-  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
-  //         );
-
-  //         // Set permissions if employee is found
-  //         if (employee && employee.permissions) {
-  //           setPermissions(employee.permissions);
-  //           console.log(
-  //             "✅ Permissions fetched for employee:",
-  //             employee.permissions
-  //           );
-  //         } else {
-  //           console.warn(
-  //             "⚠️ No matching employee found or permissions missing"
-  //           );
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error("🔥 Error fetching permissions:", err.message);
-  //     }
-  //   };
-
-  //   // Fetch permissions when the component mounts or when userRole/userName changes
-  //   fetchPermissions();
-  // }, [userRole, userName]);
-
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
@@ -412,7 +355,7 @@ const FinalStep = ({ formData, userRole }) => {
     if (userRole && userName) {
       fetchPermissions();
     }
-  }, [userRole, userName]);
+  }, [userRole, userName, refreshKey]);
 
   console.log(permissions);
 
@@ -433,6 +376,17 @@ const FinalStep = ({ formData, userRole }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
+      {/* 🔄 Refresh Button */}
+      <div className="flex justify-start items-center px-5 pt-4">
+        <button
+          onClick={() => setRefreshKey((prev) => prev + 1)}
+          className="flex items-center gap-2 text-sm text-teal-700 hover:text-teal-900 transition-all"
+          title="Refresh Permissions & Cards"
+        >
+          <FontAwesomeIcon icon={faSyncAlt} className="text-lg" />
+          Refresh
+        </button>
+      </div>
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
         Final Step: Generate PDF
       </h2>
