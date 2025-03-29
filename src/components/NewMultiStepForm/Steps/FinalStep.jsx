@@ -4,7 +4,6 @@ import * as XLSX from "xlsx"; // ✅ Import xlsx library
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
-
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
     generateReport: false,
@@ -357,7 +356,6 @@ const FinalStep = ({ formData, userRole }) => {
   //   }
   // }, [userRole, userName, refreshKey]);
 
-  
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
@@ -365,19 +363,19 @@ const FinalStep = ({ formData, userRole }) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-  
+
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch data");
         }
-  
+
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-  
+
         const normalizedUserName = userName?.trim().toLowerCase();
-  
+
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-  
+
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -389,16 +387,16 @@ const FinalStep = ({ formData, userRole }) => {
             });
             return;
           }
-  
+
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (admin?.permissions) setPermissions(admin.permissions);
         }
-  
+
         if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
@@ -406,27 +404,22 @@ const FinalStep = ({ formData, userRole }) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
         console.error("Error fetching permissions:", err.message);
       }
     };
-  
+
     // 🔁 Initial fetch
     fetchPermissions();
-  
+
     // 🔁 Poll every 15 seconds
     const interval = setInterval(fetchPermissions, 100);
-  
+
     return () => clearInterval(interval); // Cleanup
-  }, [userRole, userName , refreshKey]);
-  
-
-
-
-  console.log(permissions);
+  }, [userRole, userName, refreshKey]);
 
   const getColorHex = (color) => {
     const colorMap = {
@@ -445,7 +438,6 @@ const FinalStep = ({ formData, userRole }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
-
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
         Final Step: Generate PDF
       </h2>
@@ -461,10 +453,17 @@ const FinalStep = ({ formData, userRole }) => {
         <select
           value={selectedOption}
           onChange={(e) => {
-            setSelectedOption(e.target.value);
+            const option = e.target.value;
+            setSelectedOption(option);
+
+            // ✅ Remove selectedColor if "Other" is unselected
+            if (option !== "Other") {
+              setSelectedColor("");
+              localStorage.removeItem("selectedColor");
+            }
 
             if (
-              e.target.value === "CA Certified" &&
+              option === "CA Certified" &&
               !formData?.ProjectReportSetting?.UDINNumber
             ) {
               setShowError(true);

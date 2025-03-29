@@ -10,6 +10,7 @@ const FirstStepBasicDetails = ({
   userRole,
   userName,
 }) => {
+  const [showError , setShowError] = useState();
   const [localData, setLocalData] = useState({
     clientName: formData?.AccountInformation?.clientName || "",
     gender: formData?.AccountInformation?.gender || "",
@@ -207,8 +208,14 @@ const FirstStepBasicDetails = ({
                 placeholder="e.g., John Doe"
                 value={localData.clientName || ""}
                 onChange={handleChange}
-                required
+                required // ✅ This ensures the field can't be left empty
               />
+              {showError && !localData.clientName && (
+                <p className="text-red-600 text-sm mt-1">
+                  Client Name is required
+                </p>
+              )}
+
               <label htmlFor="clientName">Client Name</label>
             </div>
 
