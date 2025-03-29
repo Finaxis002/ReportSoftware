@@ -34,7 +34,7 @@ import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx
 import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -79,17 +79,15 @@ const App = () => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, []);
 
-
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const role = localStorage.getItem("userRole");
-  
+
     if (isLoggedIn && role) {
       setIsAuthenticated(true);
       setUserRole(role);
     }
   }, []);
-  
 
   return (
     <Provider store={store}>
@@ -217,25 +215,10 @@ const App = () => {
                 />
 
                 {/* ✅ Correctly Placed Routes */}
-                <Route
-                  path="/generated-pdf"
-                  element={
-                    <GeneratedPDF
-                      userRole={userRole}
-                      userName={userRole === "employee" ? userName : null}
-                      pdfData={pdfData}
-                    />
-                  }
-                />
-                <Route path="/checkprofit" element={<CheckProfit />} />
 
                 <Route
                   path="/reports"
-                  element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                      <Reports sendPdfData={setPdfData} />
-                    </PrivateRoute>
-                  }
+                  element={<Reports sendPdfData={setPdfData} />}
                 />
 
                 <Route path="/clients" element={<Clients />} />
@@ -243,6 +226,20 @@ const App = () => {
             ) : (
               <Route path="*" element={<Navigate to="/login" replace />} />
             )}
+
+            <Route
+              path="/generated-pdf"
+              element={
+                <ProtectedRoute>
+                  <GeneratedPDF
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                    pdfData={pdfData}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/checkprofit" element={<CheckProfit />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
