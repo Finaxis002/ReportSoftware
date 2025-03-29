@@ -450,20 +450,19 @@ const GeneratedPDF = ({}) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-
+  
         if (!empRes.ok || !adminRes.ok) {
-          throw new Error("Failed to fetch employee or admin data");
+          throw new Error("Failed to fetch data");
         }
-
+  
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-
+  
         const normalizedUserName = userName?.trim().toLowerCase();
-
+  
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-
-          // ✅ If no specific admin name, assume full permissions (super admin)
+  
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -473,62 +472,42 @@ const GeneratedPDF = ({}) => {
               exportData: true,
               createReport: true,
             });
-            console.log("✅ Super Admin - All permissions granted");
             return;
           }
-
-          // ✅ Check if this admin exists
+  
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-
-          if (admin && admin.permissions) {
-            setPermissions(admin.permissions);
-            console.log("✅ Admin permissions set from DB:", admin.permissions);
-          } else {
-            setPermissions({
-              generateReport: true,
-              updateReport: true,
-              createNewWithExisting: true,
-              downloadPDF: true,
-              exportData: true,
-              createReport: true,
-            });
-            console.warn(
-              "⚠️ Admin found but no permissions set. Using default full access."
-            );
-          }
+  
+          if (admin?.permissions) setPermissions(admin.permissions);
         }
-
-        // ✅ Handle Employee Permissions
-        else if (userRole === "employee") {
+  
+        if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-
-          if (employee && employee.permissions) {
-            setPermissions(employee.permissions);
-            console.log("✅ Employee permissions set:", employee.permissions);
-          } else {
-            console.warn(
-              "⚠️ No matching employee found or permissions missing"
-            );
-          }
+  
+          if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
-        console.error("🔥 Error fetching permissions:", err.message);
+        console.error("Error fetching permissions:", err.message);
       }
     };
-
-    if (userRole && userName) {
-      fetchPermissions();
-    }
-  }, [userRole, userName]);
+  
+    // 🔁 Initial fetch
+    fetchPermissions();
+  
+    // 🔁 Poll every 15 seconds
+    const interval = setInterval(fetchPermissions, 100);
+  
+    return () => clearInterval(interval); // Cleanup
+  }, [userRole, userName ]);
+  
 
   useEffect(() => {
     if (
