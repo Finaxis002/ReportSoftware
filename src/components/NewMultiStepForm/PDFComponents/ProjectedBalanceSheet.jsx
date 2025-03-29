@@ -143,7 +143,7 @@ const ProjectedBalanceSheet = ({
     let mappedIndex = index + 1; // ✅ Shift to next year
 
     return mappedIndex < formData.ProjectReportSetting.ProjectionYears
-      ? Math.round(yearlyPrincipalRepayment[mappedIndex] || 0) // ✅ Fetch next year's value
+      ? yearlyPrincipalRepayment[mappedIndex] || 0 // ✅ Fetch next year's value
       : 0; // ✅ Ensure last year's value is explicitly set to 0
   });
 
@@ -209,7 +209,7 @@ const ProjectedBalanceSheet = ({
       const mappedIndex = index + 1;
       const bankLoanPayableWithinNext12Months =
         mappedIndex < projectionYears
-          ? Math.round(yearlyPrincipalRepayment[mappedIndex] || 0)
+          ? yearlyPrincipalRepayment[mappedIndex] || 0
           : 0;
   
       const workingCapitalLoan = Number(cumulativeLoanForPreviousYears?.[index] || 0);
@@ -460,9 +460,7 @@ const ProjectedBalanceSheet = ({
                   // Convert negative values to 0 and round appropriately
                   const adjustedAmount = Math.max(amount, 0);
                   const roundedValue =
-                    adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                      ? Math.floor(adjustedAmount) // Round down if decimal part is ≤ 0.5
-                      : Math.ceil(adjustedAmount); // Round up if decimal part is > 0.5
+                    adjustedAmount 
 
                   return (
                     <Text
@@ -650,7 +648,7 @@ const ProjectedBalanceSheet = ({
                     },
                   ]}
                 >
-                  {formatNumber(Math.round(total))}{" "}
+                  {formatNumber(total)}{" "}
                   {/* ✅ Display Correct Total */}
                 </Text>
               ))}
@@ -901,7 +899,7 @@ const ProjectedBalanceSheet = ({
                     },
                   ]}
                 >
-                  {formatNumber(Math.round(total))}
+                  {formatNumber(total)}
                 </Text>
               ))}
             </View>

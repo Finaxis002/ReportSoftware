@@ -16,7 +16,7 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
     createFromExisting: false,
     updateReport: false,
     generateReport: false,
-    checkPDF: false,
+    exportData: false,
   });
 
   // ✅ Handle checkbox changes
@@ -124,10 +124,10 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
           <label style={styles.checkboxLabel}>
             <input
               type="checkbox"
-              checked={roles.checkPDF}
-              onChange={() => handleRoleChange("checkPDF")}
+              checked={roles.exportData}
+              onChange={() => handleRoleChange("exportData")}
             />
-            Check PDF
+            Export Data
           </label>
         </div>
         {error && <p style={styles.error}>{error}</p>}

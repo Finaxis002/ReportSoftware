@@ -113,10 +113,11 @@ body.dark .input {
 
 .form-scroll {
   overflow-y: scroll;
-  height: 55vh;
+  height: 52vh;
   background-color: #f3f6fd;
   padding: 2%;
   border-radius: 8px;
+  width: 180vh;
 }
 
 .nextBtn {
@@ -393,10 +394,6 @@ body.dark .input {
 } */
 
 /* Table container with smooth scrolling */
-.form-scroll {
-  overflow-x: auto;
-  max-height: 60vh; /* Adjust the height as needed */
-}
 
 /* Button adjustments */
 .btn {

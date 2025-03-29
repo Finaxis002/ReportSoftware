@@ -2,12 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAdmins, deleteAdmin, updateAdmin } from "../../../api/adminAPI";
 import AddAdminForm from "./AddAdminForm";
 import MenuBar from "../MenuBar";
-import {
-  faEye,
-  faEyeSlash,
-  faEdit,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Header from "../Header";
 
@@ -18,12 +13,12 @@ const AdminList = () => {
   const [updatedName, setUpdatedName] = useState("");
   const [updatedPassword, setUpdatedPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [roles, setRoles] = useState({
+  const [permissions, setRoles] = useState({
     createNew: false,
     createFromExisting: false,
     updateReport: false,
     generateReport: false,
-    checkPDF: false,
+    exportData: false,
   });
   const [caSign, setCaSign] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,12 +34,12 @@ const AdminList = () => {
       setAdmins(
         data.map((admin) => ({
           ...admin,
-          roles: admin.roles || {
+          permissions: admin.permissions || {
             createNew: false,
             createFromExisting: false,
             updateReport: false,
             generateReport: false,
-            checkPDF: false,
+            exportData: false,
           },
         }))
       );
@@ -54,14 +49,14 @@ const AdminList = () => {
   };
 
   const handleAdminAdded = () => {
-    fetchAdmins(); // Reload admins after adding new one
+    fetchAdmins();
     setShowForm(false);
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteAdmin(id);
-      fetchAdmins(); // Refresh admin list after delete
+      fetchAdmins();
     } catch (error) {
       console.error("Failed to delete admin:", error);
     }
@@ -69,53 +64,39 @@ const AdminList = () => {
 
   const handleEdit = async (id) => {
     try {
-      await updateAdmin(
-        id,
-        updatedName,
-        updatedPassword,
-        caSign,
-        roles // Pass roles directly as an object
-      );
+      await updateAdmin(id, updatedName, updatedPassword, caSign, permissions);
       setEditingAdmin(null);
-      fetchAdmins(); // Refresh admin list after update
+      fetchAdmins();
       setIsModalOpen(false);
+      setUpdatedPassword(""); // ← this clears the input for safety after opening modal
+
     } catch (error) {
       console.error("Failed to update admin:", error);
     }
+    if (updatedPassword.trim() === "") {
+      const confirm = window.confirm("Password field is empty. Do you want to keep the old password?");
+      if (!confirm) return;
+    }
+    
   };
 
   const handleOpenEdit = (admin) => {
     setEditingAdmin(admin._id);
     setUpdatedName(admin.username);
-    setRoles(
-      admin.roles || {
-        createNew: false,
-        createFromExisting: false,
-        updateReport: false,
-        generateReport: false,
-        checkPDF: false,
-      }
-    );
+    setRoles(admin.permissions || {});
     setIsModalOpen(true);
     setUpdatedPassword("");
-    // setCaSign(admin.caSign ? `https://backend-three-pink.vercel.app/${admin.caSign}` : null);
-    setRoles(admin.roles || {});
 
     if (admin.caSign) {
-      // setCaSign(`http://localhost:5000${admin.caSign}`);
-
-      setCaSign(
-        `https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`
-      );
-
-      setFileName(admin.caSign.split("/").pop()); // ✅ Set file name from path
+      setCaSign(`https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`);
+      setFileName(admin.caSign.split("/").pop());
     } else {
-      setFileName(""); // If no file exists
+      setFileName("");
     }
   };
 
   const handleCheckboxChange = (e) => {
-    setRoles({ ...roles, [e.target.name]: e.target.checked });
+    setRoles({ ...permissions, [e.target.name]: e.target.checked });
   };
 
   const handleCloseForm = () => {
@@ -123,173 +104,140 @@ const AdminList = () => {
   };
 
   return (
-    <div className="app-container" style={styles.scrollContainer}>
+    <div className="flex h-[100vh]">
       <MenuBar userRole="admin" />
-
       <div className="flex flex-col w-full px-4 gap-8">
         <Header dashboardType="Admin Dashboard" />
-        <h2 style={styles.header}>List of Chartered Accountants (Admin)</h2>
-
-        <div style={styles.cardContainer}>
+        <div className="flex justify-between">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">List of Chartered Accountants (Admin)</h2>
+        <div className="flex justify-center">
+          <button onClick={() => setShowForm(true)} className="px-4 py-1 bg-green-600 text-white text-lg rounded-md">
+            + Add CA
+          </button>
+        </div>
+        </div>
+        <div className=" h-[80vh] flex flex-col gap-4 overflow-auto">
+       
+        <div className="flex flex-wrap gap-5 items-stretch ">
           {admins.map((admin) => (
-            <div key={admin._id} style={styles.card}>
-              {/* Header */}
-              <div style={styles.cardHeader}>
-                {/* ✅ Show CA Sign if available, otherwise show initials */}
+            <div key={admin._id} className="bg-gray-100 rounded-xl p-5 shadow-md transition-transform w-[350px] max-w-[350px] flex-1">
+              <div className="flex items-center mb-4">
                 {admin.caSign ? (
                   <img
                     src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
                     alt="CA Sign"
-                    style={styles.profileIcon}
+                    className="w-[70px] h-[70px] rounded-lg object-cover border-2 border-gray-300 mr-4"
                   />
                 ) : (
-                  <div style={styles.profileIcon}>
+                  <div className="w-[70px] h-[70px] bg-blue-500 text-white rounded-lg flex items-center justify-center text-2xl font-bold mr-4 border-2 border-gray-300">
                     {admin.username.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <div style={styles.name}>{admin.username}</div>
-                  <div style={styles.designation}>Administrator</div>
+                  <div className="text-xl font-semibold text-gray-800">{admin.username}</div>
+                  <div className="text-sm text-gray-500">Administrator</div>
                 </div>
               </div>
-
-              {/* ✅ Action Buttons */}
-              <div style={styles.actionButtons}>
+              <div className="flex justify-between mt-3">
                 <button
                   onClick={() => handleOpenEdit(admin)}
-                  onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#14B7FF")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#0CAFFF")
-                  }
-                  style={styles.editButton}
+                  className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
-                  <FontAwesomeIcon icon={faEdit} style={styles.buttonIcon} />
+                  <FontAwesomeIcon icon={faEdit} className="text-lg" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(admin._id)}
-                  onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#c0392b")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#e74c3c")
-                  }
-                  style={styles.deleteButton}
+                  className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
-                  <FontAwesomeIcon icon={faTrash} style={styles.buttonIcon} />
+                  <FontAwesomeIcon icon={faTrash} className="text-lg" />
                   Delete
                 </button>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Add Admin Button */}
-        <div className="flex align-middle justify-center">
-        <button onClick={() => setShowForm(true)} style={styles.addButton}>
-          + Add CA
-        </button>
         </div>
 
-        {/* AddAdminForm Component */}
-        {/* {showForm && <AddAdminForm onSuccess={handleAdminAdded} />} */}
+       
+
         {showForm && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.modalContent}>
+          <div className="fixed inset-0 bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-xl w-[420px] shadow-xl">
               <AddAdminForm
                 onSuccess={() => {
                   handleAdminAdded();
-                  handleCloseForm(); // ✅ Close modal after submission
+                  handleCloseForm();
                 }}
-                onCancel={handleCloseForm} // ✅ Close modal on cancel
+                onCancel={handleCloseForm}
               />
             </div>
           </div>
         )}
 
         {isModalOpen && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.modalContent}>
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-xl w-[420px] shadow-xl flex flex-col gap-4">
               <input
                 type="text"
                 value={updatedName}
                 onChange={(e) => setUpdatedName(e.target.value)}
                 placeholder="Username"
-                style={styles.input}
+                className="p-3 rounded-lg border border-gray-300 w-full"
               />
-              <div style={styles.fileInputWrapper}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  // onChange={(e) => setCaSign(e.target.files[0])}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      setCaSign(file);
-                      setFileName(file.name); // ✅ Set file name on new upload
-                    }
-                  }}
-                  style={styles.input}
-                />
-                {fileName && <span style={styles.fileName}>{fileName}</span>}
-
-                {caSign && (
-                  <div style={styles.filePreview}>
-                    {typeof caSign === "string" ? (
-                      <img
-                        src={caSign}
-                        alt="CA Sign"
-                        style={styles.previewImage}
-                      />
-                    ) : (
-                      <span>{caSign.name}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ position: "relative" }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setCaSign(file);
+                    setFileName(file.name);
+                  }
+                }}
+                className="p-3 rounded-lg border border-gray-300 w-full"
+              />
+              {fileName && <span className="text-xs">{fileName}</span>}
+              {caSign && (
+                <div className="mt-2 flex items-center gap-3">
+                  {typeof caSign === "string" ? (
+                    <img src={caSign} alt="CA Sign" className="w-12 h-12 object-cover rounded border" />
+                  ) : (
+                    <span>{caSign.name}</span>
+                  )}
+                </div>
+              )}
+              <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={updatedPassword}
                   onChange={(e) => setUpdatedPassword(e.target.value)}
                   placeholder="New password"
-                  style={styles.input}
+                  className="p-3 rounded-lg border border-gray-300 w-full"
                 />
                 <FontAwesomeIcon
                   icon={showPassword ? faEyeSlash : faEye}
                   onClick={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
                 />
               </div>
-
-              {/* Checkbox for Roles */}
-              <div style={styles.checkboxContainer}>
-                {Object.keys(roles).map((role) => (
-                  <label key={role}>
+              <div className="flex flex-col gap-2 text-left">
+                {Object.keys(permissions).map((role) => (
+                  <label key={role} className="flex items-center gap-2 text-gray-700">
                     <input
                       type="checkbox"
                       name={role}
-                      checked={roles[role]}
+                      checked={permissions[role]}
                       onChange={handleCheckboxChange}
                     />
                     {role}
                   </label>
                 ))}
               </div>
-
-              <button
-                onClick={() => handleEdit(editingAdmin)}
-                style={styles.saveButton}
-              >
+              <button onClick={() => handleEdit(editingAdmin)} className="bg-green-600 text-white p-3 rounded-lg mt-2 font-medium">
                 Save
               </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                style={styles.cancelButton}
-              >
+              <button onClick={() => setIsModalOpen(false)} className="bg-gray-200 text-gray-800 p-3 rounded-lg mt-2 font-medium">
                 Cancel
               </button>
             </div>
@@ -298,341 +246,6 @@ const AdminList = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "20px",
-    maxWidth: "800px",
-    margin: "0 auto",
-    textAlign: "center",
-  },
-  header: {
-    fontSize: "24px",
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: "20px",
-  },
-  adminList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    maxHeight: "400px",
-    overflowY: "auto", // Enable Y-axis scrolling
-    paddingRight: "5px",
-  },
-  adminCard: {
-    backgroundColor: "#f9f9f9",
-    padding: "12px 20px",
-    borderRadius: "8px",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    transition: "transform 0.2s",
-  },
-  adminCardHover: {
-    transform: "scale(1.02)",
-  },
-  adminDetails: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  adminName: {
-    fontSize: "18px",
-    color: "#333",
-    fontWeight: "500",
-  },
-  actionButtons: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  editContainer: {
-    display: "flex",
-    gap: "10px",
-    alignItems: "center",
-    width: "100%",
-  },
-  input: {
-    padding: "8px",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    width: "40%",
-    fontSize: "14px",
-  },
-  saveButton: {
-    backgroundColor: "#4caf50",
-    color: "#fff",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
-  cancelButton: {
-    backgroundColor: "#ccc",
-    color: "#333",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
-  addButton: {
-    marginTop: "20px",
-    padding: "10px 20px",
-    backgroundColor: "#4CAF50",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "16px",
-    borderRadius: "5px",
-    transition: "background-color 0.2s",
-    width: "20rem",
-  },
-  passwordWrapper: {
-    position: "relative",
-    width: "40%",
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: "8px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    cursor: "pointer",
-    fontSize: "18px",
-  },
-  scrollContainer: {
-    overflowY: "auto",
-  },
-  caSign: {
-    width: "40px", // Adjust size as needed
-    height: "40px", // Adjust size as needed
-    borderRadius: "50%", // Makes it circular
-    objectFit: "cover", // Ensures the image doesn't get distorted
-    marginRight: "10px",
-    border: "1px solid #ccc",
-  },
-  checkboxContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-    marginBottom: "10px",
-  },
-  modalOverlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: "30px",
-    borderRadius: "12px",
-    width: "420px",
-    boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    fontFamily: "'Poppins', sans-serif",
-  },
-  input: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    fontSize: "16px",
-    width: "100%",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s ease",
-    outline: "none",
-  },
-  inputFocus: {
-    borderColor: "#4CAF50",
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: "12px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    cursor: "pointer",
-    fontSize: "18px",
-    color: "#888",
-    transition: "color 0.2s ease",
-  },
-  eyeIconHover: {
-    color: "#4CAF50",
-  },
-  checkboxContainer: {
-    display: "flex", // ✅ Correct camelCase
-    flexDirection: "column", // ✅ Correct camelCase
-    gap: "8px",
-    marginTop: "10px", // ✅ Correct camelCase
-    textAlign: "left", // ✅ Correct camelCase
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    color: "#555",
-    transition: "color 0.2s ease",
-  },
-  saveButton: {
-    backgroundColor: "#4CAF50",
-    color: "#fff",
-    padding: "12px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    transition: "background-color 0.2s ease",
-    marginTop: "10px",
-    fontWeight: "500",
-  },
-  cancelButton: {
-    backgroundColor: "#eee",
-    color: "#333",
-    padding: "12px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    transition: "background-color 0.2s ease",
-    marginTop: "10px",
-    fontWeight: "500",
-  },
-  saveButtonHover: {
-    backgroundColor: "#45a049",
-  },
-  cancelButtonHover: {
-    backgroundColor: "#ddd",
-  },
-  filePreview: {
-    marginTop: "8px",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-
-  previewImage: {
-    width: "50px",
-    height: "50px",
-    objectFit: "cover",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-  },
-  fileName: {
-    fontSize: "10px",
-  },
-  cardContainer: {
-    display: "flex",
-    flexWrap: "wrap", // ✅ Allow wrapping to next row
-    gap: "20px", // ✅ Space between cards
-    alignItems: "stretch", // ✅ Stretch items vertically to match height
-  },
-
-  card: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: "16px",
-    padding: "20px",
-    boxShadow: "0 6px 12px rgba(0,0,0,0.1)",
-    transition: "transform 0.2s ease",
-    width: "350px", // ✅ Adjust width so that two cards fit in one row
-    maxWidth: "350px", // ✅ Prevent overflow
-    flex: "0 0 calc(50% - 20px)", // ✅ Ensure 2 cards in 1 row
-  },
-
-  cardHeader: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "16px",
-  },
-
-  // ✅ Square Shape for Profile Icon and CA Sign
-  profileIcon: {
-    width: "70px", // ✅ Larger icon size
-    height: "70px",
-    backgroundColor: "#3498db",
-    color: "#ffffff",
-    borderRadius: "12px", // ✅ Square shape with rounded edges
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "24px",
-    fontWeight: "bold",
-    marginRight: "14px",
-    objectFit: "cover",
-    border: "2px solid #ddd", // ✅ Slight border for separation
-  },
-
-  name: {
-    fontSize: "20px",
-    fontWeight: "600", // ✅ Bolder font for better visibility
-    color: "#333",
-  },
-
-  designation: {
-    fontSize: "14px",
-    color: "#7f8c8d",
-  },
-
-  actionButtons: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "12px",
-  },
-
-  // ✅ Styling for Buttons with Icons
-  editButton: {
-    backgroundColor: "#0CAFFF",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px", // ✅ Increased padding for better touch area
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px", // ✅ Space between icon and text
-    transition: "background-color 0.2s ease",
-  },
-
-  deleteButton: {
-    backgroundColor: "#FF474D",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px", // ✅ Increased padding for better touch area
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px", // ✅ Space between icon and text
-    transition: "background-color 0.2s ease",
-  },
-
-  buttonIcon: {
-    fontSize: "18px", // ✅ Larger icon for better visibility
-  },
-
-  // editButtonHover: {
-  //   backgroundColor: "#0CAFFF",
-  // },
-
-  // deleteButtonHover: {
-  //   backgroundColor: "#FF474D",
-  // },
 };
 
 export default AdminList;

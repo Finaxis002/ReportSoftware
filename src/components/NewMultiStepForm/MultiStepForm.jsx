@@ -1,6 +1,7 @@
 
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
+import Header from "./Header"
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
 import StepperControl from "./StepperControl";
@@ -460,11 +461,11 @@ const MultiStepForm = ({ userRole, userName }) => {
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App md:w-[85%] shadow-xl rounded-2xl pb-2 bg-white">
-        {/* Step Content */}
+      <div className="App w-full shadow-xl rounded-2xl pb-2">
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
 
           {/* Stepper Component */}
-          <div className="container horizontal my-[3.5rem]">
+          <div className="container horizontal mb-[3.5rem]">
             <Stepper steps={steps} currentStep={currentStep} />
           </div>
 
@@ -478,7 +479,9 @@ const MultiStepForm = ({ userRole, userName }) => {
               <ReportDropdown onBusinessSelect={handleBusinessSelect} />
             </div>
           )}
+          <div>
           {stepContent}
+          </div>
           <StepperControl
             handleNext={handleNext}
             handleBack={handleBack}

@@ -120,6 +120,9 @@ const GeneratedPDF = ({}) => {
 
   const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
 
+  const [pageNumber, setPageNumber] = useState(1);
+  const [numPages, setNumPages] = useState(null);
+
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
 
@@ -538,10 +541,12 @@ const GeneratedPDF = ({}) => {
   const memoizedPDF = useMemo(() => {
     return (
       <Document
-      onRender={() => {
-        console.log("✅ PDF fully rendered");
-        setIsPDFLoading(false); // Turn off loader reliably
-      }}>
+        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+        onRender={() => {
+          console.log("✅ PDF fully rendered");
+          setIsPDFLoading(false); // Turn off loader reliably
+        }}
+      >
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         <ProjectSynopsis
@@ -558,6 +563,7 @@ const GeneratedPDF = ({}) => {
           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
 
         <PdfAllChartsWrapper
@@ -566,12 +572,14 @@ const GeneratedPDF = ({}) => {
           labels={financialYearLabelsforChart}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
+          pageNumber={pageNumber}
         />
 
         <PromoterDetails
           formData={formData}
           pdfType={pdfType}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
 
         {/* Means of Finance Table */}
@@ -580,12 +588,14 @@ const GeneratedPDF = ({}) => {
           localData={localData}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {/* cost of project table */}
         <CostOfProject
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
         {/* Projected Salaries & Wages Table*/}
         <ProjectedSalaries
@@ -597,6 +607,7 @@ const GeneratedPDF = ({}) => {
           fringeCalculation={fringeCalculation}
           formatNumber={formatNumber}
           formData={formData}
+          pageNumber={pageNumber}
         />
         <ProjectedDepreciation
           formData={formData}
@@ -609,6 +620,7 @@ const GeneratedPDF = ({}) => {
           }}
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
         {/* Projected Expense Table Direct and Indirect */}
         <ProjectedExpenses
@@ -625,6 +637,7 @@ const GeneratedPDF = ({}) => {
           onTotalExpenseSend={handleTotalExpenseUpdate}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -633,6 +646,7 @@ const GeneratedPDF = ({}) => {
           financialYearLabels={financialYearLabels}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {/* Projected Profitability Statement */}
         <ProjectedProfitability
@@ -655,6 +669,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           onComputedDataToProfit={setComputedDataToProfit}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <Repayment
           formData={formData}
@@ -665,6 +680,7 @@ const GeneratedPDF = ({}) => {
           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {computedData.netProfitBeforeTax.length > 0 && (
           <IncomeTaxCalculation
@@ -675,6 +691,7 @@ const GeneratedPDF = ({}) => {
             formatNumber={formatNumber}
             pdfType={pdfType}
             receivedtotalRevenueReceipts={totalRevenueReceipts}
+            pageNumber={pageNumber}
           />
         )}
         <ProjectedCashflow
@@ -693,6 +710,7 @@ const GeneratedPDF = ({}) => {
           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <ProjectedBalanceSheet
           formData={formData}
@@ -715,6 +733,7 @@ const GeneratedPDF = ({}) => {
           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <CurrentRatio
           formData={formData}
@@ -725,6 +744,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           sendCurrentRatio={setCurrentRatio}
+          pageNumber={pageNumber}
         />
 
         <DebtServiceCoverageRatio
@@ -738,6 +758,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
         <RatioAnalysis
           formData={formData}
@@ -762,6 +783,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
         <BreakEvenPoint
           formData={formData}
@@ -774,6 +796,7 @@ const GeneratedPDF = ({}) => {
           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <Assumptions
           formData={formData}
@@ -783,6 +806,7 @@ const GeneratedPDF = ({}) => {
           receiveTotalExpense={totalExpense}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
       </Document>
     );
@@ -883,10 +907,19 @@ const GeneratedPDF = ({}) => {
               {/* Toolbar */}
               {(userRole === "admin" || permissions.downloadPDF) && (
                 <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
+                  {/* Title */}
                   <div className="text-white font-normal text-sm px-4 tracking-wide">
                     📄 PDF Report Viewer
                   </div>
 
+                  {/* Page Counter */}
+                  {numPages && (
+                    <div className="text-white text-xs">
+                      Page {pageNumber} / {numPages}
+                    </div>
+                  )}
+
+                  {/* Download Button */}
                   <div className="flex gap-2 px-4">
                     <button
                       onClick={handleDownloadPDF}
