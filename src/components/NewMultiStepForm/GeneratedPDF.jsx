@@ -443,7 +443,6 @@ const GeneratedPDF = ({}) => {
     (_, i) => i + 1
   );
 
-
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
@@ -933,9 +932,10 @@ const GeneratedPDF = ({}) => {
           return (
             <>
               {/* Toolbar */}
-              {userRole === "admin" &&
-            (!localStorage.getItem("adminName") ||
-              permissions.downloadPDF) && (
+              {((userRole === "admin" &&
+                (!localStorage.getItem("adminName") ||
+                  permissions.downloadPDF)) ||
+                (userRole === "employee" && permissions.downloadPDF)) && (
                 <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
                   {/* Title */}
                   <div className="text-white font-normal text-sm px-4 tracking-wide">

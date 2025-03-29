@@ -562,15 +562,16 @@ const FinalStep = ({ formData, userRole }) => {
 
       <div className="flex gap-5">
         {/* ✅ Generate PDF Button */}
-        {userRole === "admin" &&
-          (!localStorage.getItem("adminName") ||
-            permissions.generateReport) && (
-            <Link to="/generated-pdf" target="_blank" rel="noopener noreferrer">
-              <button className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Generate PDF
-              </button>
-            </Link>
-          )}
+        {((userRole === "admin" &&
+          (!localStorage.getItem("adminName") || permissions.generateReport)) ||
+          (userRole === "employee" && permissions.generateReport)) && (
+          <Link to="/generated-pdf" target="_blank" rel="noopener noreferrer">
+            <button className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              Generate PDF
+            </button>
+          </Link>
+        )}
+
         {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
@@ -580,15 +581,16 @@ const FinalStep = ({ formData, userRole }) => {
         </button>
 
         {/* ✅ New Export Data Button */}
-        {userRole === "admin" &&
-          (!localStorage.getItem("adminName") || permissions.exportData) && (
-            <button
-              onClick={handleExportData}
-              className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            >
-              Export Data
-            </button>
-          )}
+        {((userRole === "admin" &&
+          (!localStorage.getItem("adminName") || permissions.exportData)) ||
+          (userRole === "employee" && permissions.exportData)) && (
+          <button
+            onClick={handleExportData}
+            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          >
+            Export Data
+          </button>
+        )}
       </div>
 
       {/* ✅ Hidden Iframe */}
