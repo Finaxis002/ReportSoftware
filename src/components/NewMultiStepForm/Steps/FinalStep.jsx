@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
 const FinalStep = ({ formData, userRole }) => {
@@ -334,19 +334,19 @@ const FinalStep = ({ formData, userRole }) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-  
+
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch employee or admin data");
         }
-  
+
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-  
+
         const normalizedUserName = userName?.trim().toLowerCase();
-  
+
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-  
+
           // ✅ If no specific admin name, assume full permissions (super admin)
           if (!storedAdminName) {
             setPermissions({
@@ -360,14 +360,14 @@ const FinalStep = ({ formData, userRole }) => {
             console.log("✅ Super Admin - All permissions granted");
             return;
           }
-  
+
           // ✅ Check if this admin exists
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (admin && admin.permissions) {
             setPermissions(admin.permissions);
             console.log("✅ Admin permissions set from DB:", admin.permissions);
@@ -385,7 +385,7 @@ const FinalStep = ({ formData, userRole }) => {
             );
           }
         }
-  
+
         // ✅ Handle Employee Permissions
         else if (userRole === "employee") {
           const employee = employeeList.find(
@@ -394,24 +394,26 @@ const FinalStep = ({ formData, userRole }) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
             console.log("✅ Employee permissions set:", employee.permissions);
           } else {
-            console.warn("⚠️ No matching employee found or permissions missing");
+            console.warn(
+              "⚠️ No matching employee found or permissions missing"
+            );
           }
         }
       } catch (err) {
         console.error("🔥 Error fetching permissions:", err.message);
       }
     };
-  
+
     if (userRole && userName) {
       fetchPermissions();
     }
   }, [userRole, userName]);
-  
+
   console.log(permissions);
 
   const getColorHex = (color) => {
@@ -561,16 +563,14 @@ const FinalStep = ({ formData, userRole }) => {
       <div className="flex gap-5">
         {/* ✅ Generate PDF Button */}
         {userRole === "admin" &&
-            (!localStorage.getItem("adminName") ||
-              permissions.generateReport) && (
-          <button
-            onClick={() => window.open("/generated-pdf", "_blank")}
-            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            Generate PDF
-          </button>
-        )}
-
+          (!localStorage.getItem("adminName") ||
+            permissions.generateReport) && (
+            <Link to="/generated-pdf" target="_blank" rel="noopener noreferrer">
+              <button className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                Generate PDF
+              </button>
+            </Link>
+          )}
         {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
@@ -581,15 +581,14 @@ const FinalStep = ({ formData, userRole }) => {
 
         {/* ✅ New Export Data Button */}
         {userRole === "admin" &&
-            (!localStorage.getItem("adminName") ||
-              permissions.exportData) && (
-          <button
-            onClick={handleExportData}
-            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
-          >
-            Export Data
-          </button>
-        )}
+          (!localStorage.getItem("adminName") || permissions.exportData) && (
+            <button
+              onClick={handleExportData}
+              className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            >
+              Export Data
+            </button>
+          )}
       </div>
 
       {/* ✅ Hidden Iframe */}

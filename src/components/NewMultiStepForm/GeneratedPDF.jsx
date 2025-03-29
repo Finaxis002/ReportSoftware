@@ -44,7 +44,8 @@ import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 const GeneratedPDF = ({}) => {
   const userRole = localStorage.getItem("userRole");
-  const userName = localStorage.getItem("employeeName");
+  const userName =
+    localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
   // console.log("userRole:", userRole, "userName:", userName);
 
@@ -442,52 +443,78 @@ const GeneratedPDF = ({}) => {
     (_, i) => i + 1
   );
 
+
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        // Fetching all employees
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
-        );
+        const [empRes, adminRes] = await Promise.all([
+          fetch("https://backend-three-pink.vercel.app/api/employees"),
+          fetch("https://backend-three-pink.vercel.app/api/admins"),
+        ]);
 
-        // Check if the response is successful
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees");
+        if (!empRes.ok || !adminRes.ok) {
+          throw new Error("Failed to fetch employee or admin data");
         }
 
-        const result = await response.json();
-        // console.log("✅ Fetched Employees Data:", result);
+        const employeeList = await empRes.json();
+        const adminList = await adminRes.json();
 
-        const employees = Array.isArray(result) ? result : [];
+        const normalizedUserName = userName?.trim().toLowerCase();
 
-        // Assign permissions based on userRole
         if (userRole === "admin") {
-          setPermissions({
-            createReport: true,
-            updateReport: true,
-            createNewWithExisting: true,
-            downloadPDF: true,
-          });
-          // console.log("✅ Admin permissions granted");
-        } else if (userRole === "employee") {
-          // Normalize the userName to lowercase and trim spaces
-          const normalizedUserName = userName?.trim().toLowerCase();
+          const storedAdminName = localStorage.getItem("adminName");
 
-          // Find the employee based on name, email, or employeeId
-          const employee = employees.find(
+          // ✅ If no specific admin name, assume full permissions (super admin)
+          if (!storedAdminName) {
+            setPermissions({
+              generateReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+              exportData: true,
+              createReport: true,
+            });
+            console.log("✅ Super Admin - All permissions granted");
+            return;
+          }
+
+          // ✅ Check if this admin exists
+          const admin = adminList.find(
+            (a) =>
+              a.username?.trim().toLowerCase() === normalizedUserName ||
+              a.adminId?.trim().toLowerCase() === normalizedUserName
+          );
+
+          if (admin && admin.permissions) {
+            setPermissions(admin.permissions);
+            console.log("✅ Admin permissions set from DB:", admin.permissions);
+          } else {
+            setPermissions({
+              generateReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+              exportData: true,
+              createReport: true,
+            });
+            console.warn(
+              "⚠️ Admin found but no permissions set. Using default full access."
+            );
+          }
+        }
+
+        // ✅ Handle Employee Permissions
+        else if (userRole === "employee") {
+          const employee = employeeList.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
 
-          // Set permissions if employee is found
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
-            // console.log(
-            //   "✅ Permissions fetched for employee:",
-            //   employee.permissions
-            // );
+            console.log("✅ Employee permissions set:", employee.permissions);
           } else {
             console.warn(
               "⚠️ No matching employee found or permissions missing"
@@ -499,8 +526,9 @@ const GeneratedPDF = ({}) => {
       }
     };
 
-    // Fetch permissions when the component mounts or when userRole/userName changes
-    fetchPermissions();
+    if (userRole && userName) {
+      fetchPermissions();
+    }
   }, [userRole, userName]);
 
   useEffect(() => {
@@ -905,7 +933,9 @@ const GeneratedPDF = ({}) => {
           return (
             <>
               {/* Toolbar */}
-              {(userRole === "admin" || permissions.downloadPDF) && (
+              {userRole === "admin" &&
+            (!localStorage.getItem("adminName") ||
+              permissions.downloadPDF) && (
                 <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
                   {/* Title */}
                   <div className="text-white font-normal text-sm px-4 tracking-wide">
