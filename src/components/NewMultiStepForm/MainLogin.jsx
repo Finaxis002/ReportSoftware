@@ -8,6 +8,10 @@ const MainLogin = ({ onLogin }) => {
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+
+
+  
   const navigate = useNavigate();
 
   // Fixed credentials for Admin & Client

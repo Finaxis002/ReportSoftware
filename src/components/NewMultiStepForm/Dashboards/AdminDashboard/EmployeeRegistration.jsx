@@ -11,7 +11,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
     designation: "",
     password: "",
     permissions: {
-      createReport: false,
+      generateReport: false,
       updateReport: false,
       createNewWithExisting: false,
       downloadPDF: false,
@@ -57,7 +57,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
         designation: "",
         password: "",
         permissions: {
-          createReport: false,
+          generateReport: false,
           updateReport: false,
           createNewWithExisting: false,
           downloadPDF: false,
@@ -154,12 +154,12 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
             <label className="flex items-center">
               <input
                 type="checkbox"
-                name="createReport"
-                checked={formData.permissions.createReport}
+                name="generateReport"
+                checked={formData.permissions.generateReport}
                 onChange={handleCheckboxChange}
                 className="mr-2"
               />
-              Create Report
+              Generate Report
             </label>
   
             {/* Update Report */}

@@ -21,7 +21,6 @@ const CreateReport = ({ userRole }) => {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        // Fetch both employees and admins
         const [empRes, adminRes] = await Promise.all([
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
@@ -37,7 +36,23 @@ const CreateReport = ({ userRole }) => {
         const normalizedUserName = userName?.trim().toLowerCase();
 
         if (userRole === "admin") {
-          // ✅ Check if this admin exists in adminList
+          const storedAdminName = localStorage.getItem("adminName");
+
+          // ✅ If no specific admin name, assume full permissions (super admin)
+          if (!storedAdminName) {
+            setPermissions({
+              generateReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+              exportData: true,
+              createReport: true,
+            });
+            console.log("✅ Super Admin - All permissions granted");
+            return;
+          }
+
+          // ✅ Check if this admin exists
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
@@ -46,20 +61,24 @@ const CreateReport = ({ userRole }) => {
 
           if (admin && admin.permissions) {
             setPermissions(admin.permissions);
-            console.log("✅ Admin permissions set:", admin.permissions);
+            console.log("✅ Admin permissions set from DB:", admin.permissions);
           } else {
-            // fallback
             setPermissions({
-              createReport: true,
+              generateReport: true,
               updateReport: true,
               createNewWithExisting: true,
               downloadPDF: true,
+              exportData: true,
+              createReport: true,
             });
             console.warn(
-              "⚠️ Admin found but no permissions set, using defaults."
+              "⚠️ Admin found but no permissions set. Using default full access."
             );
           }
-        } else if (userRole === "employee") {
+        }
+
+        // ✅ Handle Employee Permissions
+        else if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
@@ -122,47 +141,53 @@ const CreateReport = ({ userRole }) => {
         <Header />
         <div className=" w-full container horizontal mt-5"></div>
 
-
         {/* ✅ Cards Section */}
         <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
           {/* ✅ Create Report Card */}
           {/* ✅ New Report Card - show if permission.createReport is true */}
 
-            <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-semibold text-center">New Report</h3>
-              <p className="text-center mt-4">
-                Create a fresh report from scratch.
-              </p>
-              <Link
-                to="/MultestepForm"
-                onClick={handleCreateReportClick}
-                state={{ isCreateReportClicked: true }}
-              >
-                <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg w-full">
-                  Create Report
-                </button>
-              </Link>
-            </div>
+          <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-xl font-semibold text-center">New Report</h3>
+            <p className="text-center mt-4">
+              Create a fresh report from scratch.
+            </p>
+            <Link
+              to="/MultestepForm"
+              onClick={handleCreateReportClick}
+              state={{ isCreateReportClicked: true }}
+            >
+              <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg w-full">
+                Create Report
+              </button>
+            </Link>
+          </div>
 
           {/* ✅ Update Report Card */}
-          {permissions.updateReport && (
-            <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-semibold text-center">
-                Update Report
-              </h3>
-              <p className="text-center mt-4">
-                Edit or update an existing report.
-              </p>
-              <Link to="/MultestepForm" state={{ isUpdateReportClicked: true }}>
-                <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
+          {userRole === "admin" &&
+            (!localStorage.getItem("adminName") ||
+              permissions.updateReport) && (
+              <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <h3 className="text-xl font-semibold text-center">
                   Update Report
-                </button>
-              </Link>
-            </div>
-          )}
+                </h3>
+                <p className="text-center mt-4">
+                  Edit or update an existing report.
+                </p>
+                <Link
+                  to="/MultestepForm"
+                  state={{ isUpdateReportClicked: true }}
+                >
+                  <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
+                    Update Report
+                  </button>
+                </Link>
+              </div>
+            )}
 
           {/* ✅ Create New with Existing Card */}
-          {permissions.createNewWithExisting && (
+          {userRole === "admin" &&
+            (!localStorage.getItem("adminName") ||
+              permissions.createNewWithExisting) && (
             <div className="bg-green-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">
                 Create New with Existing
