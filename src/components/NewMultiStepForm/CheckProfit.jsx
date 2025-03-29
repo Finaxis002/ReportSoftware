@@ -512,7 +512,7 @@ const CheckProfit = () => {
     let mappedIndex = index + 1; // ✅ Shift to next year
 
     return mappedIndex < formData.ProjectReportSetting.ProjectionYears
-      ? Math.round(storedData?.yearlyPrincipalRepayment[mappedIndex] || 0) // ✅ Fetch next year's value
+      ? storedData?.yearlyPrincipalRepayment[mappedIndex] || 0 // ✅ Fetch next year's value
       : 0; // ✅ Ensure last year's value is explicitly set to 0
   });
 
@@ -538,7 +538,7 @@ const CheckProfit = () => {
       const mappedIndex = index + 1; // Shift to next year's value
       let bankLoanPayableWithinNext12Months =
         mappedIndex < projectionYears
-          ? Math.round(storedData?.yearlyPrincipalRepayment[mappedIndex] || 0)
+          ? storedData?.yearlyPrincipalRepayment[mappedIndex] || 0
           : 0; // ✅ Set last year's value to 0
 
       const workingCapitalLoan = Number(
@@ -1214,10 +1214,8 @@ const CheckProfit = () => {
                   )
                   .map(({ amount, yearIndex }) => {
                     const adjustedAmount = Math.max(amount, 0);
-                    const roundedValue =
-                      adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                        ? Math.floor(adjustedAmount)
-                        : Math.ceil(adjustedAmount);
+                    const roundedValue = adjustedAmount;
+
 
                     return (
                       <td
@@ -1251,10 +1249,7 @@ const CheckProfit = () => {
                   )
                   .map(({ yearIndex, cashProfit }) => {
                     const roundedValue =
-                      cashProfit - Math.floor(cashProfit) <= 0.5
-                        ? Math.floor(cashProfit)
-                        : Math.ceil(cashProfit);
-
+                      cashProfit
                     return (
                       <td
                         key={`cashProfit-${yearIndex}`}
@@ -1480,9 +1475,7 @@ const CheckProfit = () => {
                   (amount, yearIndex) => {
                     const adjustedAmount = Math.max(amount, 0);
                     const roundedValue =
-                      adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                        ? Math.floor(adjustedAmount)
-                        : Math.ceil(adjustedAmount);
+                      adjustedAmount
 
                     return (
                       <td
@@ -1640,7 +1633,7 @@ const CheckProfit = () => {
                     className="border border-black px-1 py-2 text-center font-bold text-[11px]"
                     style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }} // ✅ Adds thick borders to highlight total
                   >
-                    {formatNumber(Math.round(total))}
+                    {formatNumber(total)}
                   </td>
                 ))}
               </tr>
@@ -1790,7 +1783,7 @@ const CheckProfit = () => {
                     className="border border-black px-1 py-2 text-center font-bold text-[11px]"
                     style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
                   >
-                    {formatNumber(Math.round(total))}
+                    {formatNumber(total)}
                   </td>
                 ))}
               </tr>

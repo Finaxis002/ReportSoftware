@@ -133,10 +133,16 @@ const Reports = ({ sendPdfData }) => {
 
   const filteredReports = reports.filter((report) => {
     const name = report?.AccountInformation?.businessName?.toLowerCase() || "";
-    const desc =
-      report?.AccountInformation?.businessDescription?.toLowerCase() || "";
-    return name.includes(searchTerm) || desc.includes(searchTerm);
+    const desc = report?.AccountInformation?.businessDescription?.toLowerCase() || "";
+    const owner = report?.AccountInformation?.clientName?.toLowerCase() || "";
+  
+    return (
+      name.includes(searchTerm) ||
+      desc.includes(searchTerm) ||
+      owner.includes(searchTerm)
+    );
   });
+  
 
   const fetchReports = async () => {
     setIsLoading(true); // Show loading during refresh too

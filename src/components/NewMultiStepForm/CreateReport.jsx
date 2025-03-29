@@ -2,63 +2,78 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import MenuBar from "./MenuBar";
 import Header from "./Header";
+import { availableMemory } from "process";
 
-const CreateReport = ({ userRole, userName }) => {
+const CreateReport = ({ userRole }) => {
+  const userName =
+    localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
-
-   const [permissions, setPermissions] = useState({
-      createReport: false,
-      updateReport: false,
-      createNewWithExisting: false,
-      downloadPDF: false,
-      exportData: false, // ✅ Add this
-    });
+  const [permissions, setPermissions] = useState({
+    createReport: false,
+    updateReport: false,
+    createNewWithExisting: false,
+    downloadPDF: false,
+    exportData: false, // ✅ Add this
+  });
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        // Fetching all employees
-        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
-        
-        // Check if the response is successful
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees");
+        // Fetch both employees and admins
+        const [empRes, adminRes] = await Promise.all([
+          fetch("https://backend-three-pink.vercel.app/api/employees"),
+          fetch("https://backend-three-pink.vercel.app/api/admins"),
+        ]);
+
+        if (!empRes.ok || !adminRes.ok) {
+          throw new Error("Failed to fetch employee or admin data");
         }
-        
-        const result = await response.json();
-        console.log("✅ Fetched Employees Data:", result);
-        
-        const employees = Array.isArray(result) ? result : [];
 
-        // Assign permissions based on userRole
+        const employeeList = await empRes.json();
+        const adminList = await adminRes.json();
+
+        const normalizedUserName = userName?.trim().toLowerCase();
+
         if (userRole === "admin") {
-          setPermissions({
-            createReport: true,
-            updateReport: true,
-            createNewWithExisting: true,
-            downloadPDF: true,
-          });
-          console.log("✅ Admin permissions granted");
-        } else if (userRole === "employee") {
-          // Normalize the userName to lowercase and trim spaces
-          const normalizedUserName = userName?.trim().toLowerCase();
-
-          // Find the employee based on name, email, or employeeId
-          const employee = employees.find(
-            (emp) =>
-              (emp.name?.trim().toLowerCase() === normalizedUserName) ||
-              (emp.email?.trim().toLowerCase() === normalizedUserName) ||
-              (emp.employeeId?.trim().toLowerCase() === normalizedUserName)
+          // ✅ Check if this admin exists in adminList
+          const admin = adminList.find(
+            (a) =>
+              a.username?.trim().toLowerCase() === normalizedUserName ||
+              a.adminId?.trim().toLowerCase() === normalizedUserName
           );
 
-          // Set permissions if employee is found
+          if (admin && admin.permissions) {
+            setPermissions(admin.permissions);
+            console.log("✅ Admin permissions set:", admin.permissions);
+          } else {
+            // fallback
+            setPermissions({
+              createReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+            });
+            console.warn(
+              "⚠️ Admin found but no permissions set, using defaults."
+            );
+          }
+        } else if (userRole === "employee") {
+          const employee = employeeList.find(
+            (emp) =>
+              emp.name?.trim().toLowerCase() === normalizedUserName ||
+              emp.email?.trim().toLowerCase() === normalizedUserName ||
+              emp.employeeId?.trim().toLowerCase() === normalizedUserName
+          );
+
           if (employee && employee.permissions) {
             setPermissions(employee.permissions);
-            console.log("✅ Permissions fetched for employee:", employee.permissions);
+            console.log("✅ Employee permissions set:", employee.permissions);
           } else {
-            console.warn("⚠️ No matching employee found or permissions missing");
+            console.warn(
+              "⚠️ No matching employee found or permissions missing"
+            );
           }
         }
       } catch (err) {
@@ -66,14 +81,14 @@ const CreateReport = ({ userRole, userName }) => {
       }
     };
 
-    // Fetch permissions when the component mounts or when userRole/userName changes
-    fetchPermissions();
+    if (userRole && userName) {
+      fetchPermissions();
+    }
   }, [userRole, userName]);
 
   console.log("✅ User Role:", userRole);
   console.log("✅ User Name:", userName);
   console.log("✅ Permissions:", permissions);
-  
 
   // ✅ Render the menu bar based on user role
   const renderMenuBar = () => {
@@ -103,16 +118,16 @@ const CreateReport = ({ userRole, userName }) => {
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App mx-auto shadow-xl rounded-2xl pb-2">
+      <div className="App mx-auto shadow-xl rounded-2xl pb-2 w-full">
         <Header />
-        <div className="container horizontal mt-5"></div>
+        <div className=" w-full container horizontal mt-5"></div>
 
-        <div className="my-5"></div>
 
         {/* ✅ Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+        <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
           {/* ✅ Create Report Card */}
-          {(userRole === "admin" || permissions.createReport) && (
+          {/* ✅ New Report Card - show if permission.createReport is true */}
+          {permissions.createReport && (
             <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">New Report</h3>
               <p className="text-center mt-4">
@@ -131,7 +146,7 @@ const CreateReport = ({ userRole, userName }) => {
           )}
 
           {/* ✅ Update Report Card */}
-          {(userRole === "admin" || permissions.updateReport) && (
+          {permissions.updateReport && (
             <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">
                 Update Report
@@ -139,10 +154,7 @@ const CreateReport = ({ userRole, userName }) => {
               <p className="text-center mt-4">
                 Edit or update an existing report.
               </p>
-              <Link
-                to="/MultestepForm"
-                state={{ isUpdateReportClicked: true }}
-              >
+              <Link to="/MultestepForm" state={{ isUpdateReportClicked: true }}>
                 <button className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg w-full">
                   Update Report
                 </button>
@@ -151,7 +163,7 @@ const CreateReport = ({ userRole, userName }) => {
           )}
 
           {/* ✅ Create New with Existing Card */}
-          {(userRole === "admin" || permissions.createNewWithExisting) && (
+          {permissions.createNewWithExisting && (
             <div className="bg-green-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">
                 Create New with Existing

@@ -339,9 +339,7 @@ const ProjectedProfitability = ({
     const cashProfit = npat + depreciation;
 
     // ✅ Round values correctly
-    return cashProfit - Math.floor(cashProfit) <= 0.5
-      ? Math.floor(cashProfit)
-      : Math.ceil(cashProfit);
+    return cashProfit 
   });
 
   useEffect(() => {
@@ -1532,9 +1530,7 @@ const ProjectedProfitability = ({
             {balanceTransferred.map((amount, yearIndex) => {
               if (hideFirstYear && yearIndex === 0) return null;
               const roundedValue =
-                amount - Math.floor(amount) <= 0.5
-                  ? Math.floor(amount) // Round down if decimal part is ≤ 0.5
-                  : Math.ceil(amount); // Round up if decimal part is > 0.5
+                amount 
 
               return (
                 <Text
@@ -1574,9 +1570,7 @@ const ProjectedProfitability = ({
               const adjustedAmount = Math.max(amount, 0);
 
               const roundedValue =
-                adjustedAmount - Math.floor(adjustedAmount) <= 0.5
-                  ? Math.floor(adjustedAmount) // Round down if decimal part is ≤ 0.5
-                  : Math.ceil(adjustedAmount); // Round up if decimal part is > 0.5
+                adjustedAmount 
 
               return (
                 <Text
@@ -1625,10 +1619,7 @@ const ProjectedProfitability = ({
 
               // ✅ Round values correctly
               const roundedValue =
-                cashProfit - Math.floor(cashProfit) <= 0.5
-                  ? Math.floor(cashProfit) // Round down if decimal part is ≤ 0.5
-                  : Math.ceil(cashProfit); // Round up if decimal part is > 0.5
-
+                cashProfit 
               return (
                 <Text
                   key={`cashProfit-${yearIndex}`}
