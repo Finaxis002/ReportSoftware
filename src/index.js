@@ -34,6 +34,7 @@ import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx
 import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -77,13 +78,22 @@ const App = () => {
     const theme = localStorage.getItem("theme") || "light"; // fallback to light
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, []);
+
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const role = localStorage.getItem("userRole");
   
+    if (isLoggedIn && role) {
+      setIsAuthenticated(true);
+      setUserRole(role);
+    }
+  }, []);
   
 
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        
         <BrowserRouter>
           <Routes>
             <Route
@@ -107,120 +117,132 @@ const App = () => {
               path="/login"
               element={
                 isAuthenticated ? (
-                  <Navigate to="/login" replace />
+                  <Navigate to="/" replace />
                 ) : (
                   <MainLogin onLogin={handleLogin} />
                 )
               }
             />
-            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-            <Route
-              path="/MultistepForm"
-              element={
-                <MultiStepForm
-                  receivedGeneratedPDFData={generatePDfData}
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
+
+            {isAuthenticated ? (
+              <>
+                <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+                <Route
+                  path="/MultistepForm"
+                  element={
+                    <MultiStepForm
+                      receivedGeneratedPDFData={generatePDfData}
+                      userRole={userRole}
+                      userName={userRole === "employee" ? userName : null}
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/employees" element={<Employees />} />
-            <Route path="/admin" element={<AdminList />} />
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/clientData" element={<ClientData />} />
-            <Route path="/tasks/:taskId" element={<Tasks />} />
-            <Route path="/bank-details" element={<BankDetails />} />
-            {/* Protect MongoDB route */}
-            <Route
-              path="/database"
-              element={
-                isAuthenticated ? (
-                  <MongoDB />
-                ) : (
-                  <DatabaseLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/createreport"
-              element={
-                <CreateReport
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
+                <Route path="/employees" element={<Employees />} />
+                <Route path="/admin" element={<AdminList />} />
+                <Route path="/notifications" element={<Notification />} />
+                <Route path="/clientData" element={<ClientData />} />
+                <Route path="/tasks/:taskId" element={<Tasks />} />
+                <Route path="/bank-details" element={<BankDetails />} />
+                {/* Protect MongoDB route */}
+                <Route
+                  path="/database"
+                  element={
+                    isAuthenticated ? (
+                      <MongoDB />
+                    ) : (
+                      <DatabaseLogin onLogin={handleLogin} />
+                    )
+                  }
                 />
-              }
-            />
-
-            {/* ✅ Correctly Placed Routes */}
-            <Route path="/generated-pdf" element={<GeneratedPDF />} />
-            <Route path="/checkprofit" element={<CheckProfit />} />
-
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-            <Route
-              path="/MultestepForm"
-              element={
-                <MultiStepForm
-                  receivedGeneratedPDFData={generatePDfData}
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
+                <Route
+                  path="/createreport"
+                  element={
+                    <CreateReport
+                      userRole={userRole}
+                      userName={userRole === "employee" ? userName : null}
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/employees" element={<Employees />} />
 
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/clientData" element={<ClientData />} />
-            <Route path="/tasks/:taskId" element={<Tasks />} />
+                {/* ✅ Correctly Placed Routes */}
+                <Route path="/generated-pdf" element={<GeneratedPDF />} />
+                <Route path="/checkprofit" element={<CheckProfit />} />
 
-            {/* Protect MongoDB route */}
-            <Route
-              path="/database"
-              element={
-                isAuthenticated ? (
-                  <MongoDB />
-                ) : (
-                  <DatabaseLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/createreport"
-              element={
-                <CreateReport
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
+                <Route
+                  path="/login"
+                  element={
+                    isAuthenticated ? (
+                      <Navigate to="/login" replace />
+                    ) : (
+                      <MainLogin onLogin={handleLogin} />
+                    )
+                  }
                 />
-              }
-            />
-
-            {/* ✅ Correctly Placed Routes */}
-            <Route
-              path="/generated-pdf"
-              element={
-                <GeneratedPDF
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                  pdfData={pdfData}
+                <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+                <Route
+                  path="/MultestepForm"
+                  element={
+                    <MultiStepForm
+                      receivedGeneratedPDFData={generatePDfData}
+                      userRole={userRole}
+                      userName={userRole === "employee" ? userName : null}
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/checkprofit" element={<CheckProfit />} />
+                <Route path="/employees" element={<Employees />} />
 
-            <Route
-              path="/reports"
-              element={<Reports sendPdfData={setPdfData} />}
-            />
-            <Route path="/clients" element={<Clients />} />
+                <Route path="/notifications" element={<Notification />} />
+                <Route path="/clientData" element={<ClientData />} />
+                <Route path="/tasks/:taskId" element={<Tasks />} />
+
+                {/* Protect MongoDB route */}
+                <Route
+                  path="/database"
+                  element={
+                    isAuthenticated ? (
+                      <MongoDB />
+                    ) : (
+                      <DatabaseLogin onLogin={handleLogin} />
+                    )
+                  }
+                />
+                <Route
+                  path="/createreport"
+                  element={
+                    <CreateReport
+                      userRole={userRole}
+                      userName={userRole === "employee" ? userName : null}
+                    />
+                  }
+                />
+
+                {/* ✅ Correctly Placed Routes */}
+                <Route
+                  path="/generated-pdf"
+                  element={
+                    <GeneratedPDF
+                      userRole={userRole}
+                      userName={userRole === "employee" ? userName : null}
+                      pdfData={pdfData}
+                    />
+                  }
+                />
+                <Route path="/checkprofit" element={<CheckProfit />} />
+
+                <Route
+                  path="/reports"
+                  element={
+                    <PrivateRoute isAuthenticated={isAuthenticated}>
+                      <Reports sendPdfData={setPdfData} />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route path="/clients" element={<Clients />} />
+              </>
+            ) : (
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            )}
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

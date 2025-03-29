@@ -109,9 +109,9 @@ const AdminList = () => {
       <div className="flex flex-col w-full px-4 gap-8">
         <Header dashboardType="Admin Dashboard" />
         <div className="flex justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">List of Chartered Accountants (Admin)</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">List of Chartered Accountants (Admin)</h2>
         <div className="flex justify-center">
-          <button onClick={() => setShowForm(true)} className="px-6 py-3 bg-green-600 text-white text-lg rounded-md w-80">
+          <button onClick={() => setShowForm(true)} className="px-4 py-1 bg-green-600 text-white text-lg rounded-md">
             + Add CA
           </button>
         </div>

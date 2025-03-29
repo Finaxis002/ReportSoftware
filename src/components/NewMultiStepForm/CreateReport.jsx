@@ -9,7 +9,7 @@ const CreateReport = ({ userRole }) => {
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
   const [permissions, setPermissions] = useState({
-    createReport: false,
+    generateReport: false,
     updateReport: false,
     createNewWithExisting: false,
     downloadPDF: false,
@@ -127,7 +127,7 @@ const CreateReport = ({ userRole }) => {
         <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
           {/* ✅ Create Report Card */}
           {/* ✅ New Report Card - show if permission.createReport is true */}
-          {permissions.createReport && (
+
             <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">New Report</h3>
               <p className="text-center mt-4">
@@ -143,7 +143,6 @@ const CreateReport = ({ userRole }) => {
                 </button>
               </Link>
             </div>
-          )}
 
           {/* ✅ Update Report Card */}
           {permissions.updateReport && (

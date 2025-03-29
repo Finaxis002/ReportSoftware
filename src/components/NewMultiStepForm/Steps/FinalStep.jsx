@@ -4,7 +4,7 @@ import * as XLSX from "xlsx"; // ✅ Import xlsx library
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
-    createReport: false,
+    generateReport: false,
     updateReport: false,
     createNewWithExisting: false,
     downloadPDF: false,
@@ -359,7 +359,7 @@ const FinalStep = ({ formData, userRole }) => {
           } else {
             // fallback
             setPermissions({
-              createReport: true,
+              generateReport: true,
               updateReport: true,
               createNewWithExisting: true,
               downloadPDF: true,
@@ -544,12 +544,14 @@ const FinalStep = ({ formData, userRole }) => {
 
       <div className="flex gap-5">
         {/* ✅ Generate PDF Button */}
-        <button
-          onClick={() => window.open("/generated-pdf", "_blank")}
-          className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Generate PDF
-        </button>
+        {permissions.generateReport && (
+          <button
+            onClick={() => window.open("/generated-pdf", "_blank")}
+            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            Generate PDF
+          </button>
+        )}
 
         {/* ✅ Check Profit Button */}
         <button
