@@ -362,12 +362,22 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
-            ? "Rs" // ✅ Convert "rupees" to "Rs"
-            : formData?.ProjectReportSetting?.AmountIn?.value}
-          .)
-        </Text>
+                  (Amount In{" "}
+                  {
+                    formData?.ProjectReportSetting?.AmountIn === "rupees"
+                      ? "Rs." // Show "Rupees" if "rupees" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                      ? "Thousands" // Show "Thousands" if "thousand" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "crores"
+                      ? "Crores" // Show "Crores" if "crores" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "millions"
+                      ? "Millions" // Show "Millions" if "millions" is selected
+                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                  }
+                  )
+                </Text>
       </View>
 
       <View style={[styleExpenses?.paddingx, { paddingBottom: "30px" }]}>
