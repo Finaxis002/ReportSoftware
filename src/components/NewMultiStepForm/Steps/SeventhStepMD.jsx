@@ -143,13 +143,11 @@ const SeventhStepMD = ({
   };
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <form>
-        <div className="position-relative w-100">
           <div
             // className="form-scroll"
-            style={{ paddingBottom: "12%" }}
-            className="form-scroll google-sheet-container"
+            className="form-scroll"
           >
             {/* Stock Table */}
             <h5 className="text-start text-primary mt-4 mb-0">Stock Details</h5>
@@ -289,7 +287,6 @@ const SeventhStepMD = ({
               </div>
             ))}
           </div>
-        </div>
       </form>
     </div>
   );

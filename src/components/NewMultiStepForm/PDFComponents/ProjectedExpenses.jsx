@@ -15,7 +15,7 @@ const ProjectedExpenses = ({
   onTotalExpenseSend,
   pdfType,
 }) => {
-  //  console.log("Received total depreciation", totalDepreciationPerYear)
+  //  console.log("Received total depreciation", yearlyInterestLiabilities)
 
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -24,7 +24,7 @@ const ProjectedExpenses = ({
   );
 
   const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 20;
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 5;
 
   // Month Mapping
   const monthMap = {

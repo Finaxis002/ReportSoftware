@@ -442,7 +442,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
 
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
-        console.log("✅ Generating DSCR Chart...");
+        // console.log("✅ Generating DSCR Chart...");
 
         // ✅ Create a canvas dynamically
         const canvas = document.createElement("canvas");
@@ -467,15 +467,15 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
         gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
         gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
 
-        console.log("values in line chart.js ", values);
+        // console.log("values in line chart.js ", values);
         // ✅ Calculate Y-axis range based on last year's value
         const lastYearValue = values[values.length - 1] || 0;
         let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
         const yInterval = Number((maxYValue / 4).toFixed(2)); // ✅ Divide into 4 equal parts with decimals
 
-        console.log("✅ Last Year Value:", lastYearValue);
-        console.log("✅ Max Y Value:", maxYValue);
-        console.log("✅ Y Interval:", yInterval);
+        // console.log("✅ Last Year Value:", lastYearValue);
+        // console.log("✅ Max Y Value:", maxYValue);
+        // console.log("✅ Y Interval:", yInterval);
 
         Chart.defaults.font.family = "Times New Roman";
 
@@ -585,7 +585,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         try {
-          console.log("✅ Capturing chart with html2canvas...");
+          // console.log("✅ Capturing chart with html2canvas...");
 
           // ✅ Capture chart using html2canvas
           const canvasImage = await html2canvas(canvas, {
@@ -596,14 +596,14 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
 
           // ✅ Convert to base64
           const base64Image = canvasImage.toDataURL("image/png");
-          console.log("✅ DSCR Chart Base64:", base64Image);
+          // console.log("✅ DSCR Chart Base64:", base64Image);
 
           // ✅ Pass Base64 to parent component
           if (mounted && onBase64Generated) {
             onBase64Generated(base64Image);
           }
         } catch (error) {
-          console.error("❌ Error capturing chart:", error);
+          // console.error("❌ Error capturing chart:", error);
         } finally {
           // ✅ Cleanup: remove canvas from DOM
           document.body.removeChild(canvas);

@@ -1,4 +1,11 @@
 /* color: #673AB7; */
+
+body.dark {
+  background-color: #1a202c;
+  color: #f9f9f9;
+}
+
+
 .customModal {
   background: #b2dbbf;
   max-width: 500px;
@@ -13,6 +20,10 @@
   font-size: 16px;
   margin-bottom: 25px;
   background-color: #f3f6fd;
+}
+
+body.dark .input {
+  background-color: #2d3748;
 }
 
 /* =Normal state */
@@ -102,10 +113,11 @@
 
 .form-scroll {
   overflow-y: scroll;
-  height: 55vh;
+  height: 52vh;
   background-color: #f3f6fd;
   padding: 2%;
   border-radius: 8px;
+  width: 180vh;
 }
 
 .nextBtn {
@@ -382,10 +394,6 @@
 } */
 
 /* Table container with smooth scrolling */
-.form-scroll {
-  overflow-x: auto;
-  max-height: 60vh; /* Adjust the height as needed */
-}
 
 /* Button adjustments */
 .btn {

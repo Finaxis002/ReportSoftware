@@ -266,7 +266,7 @@ const ProjectedCashflow = ({
         index
       );
       const withdrawals = parseFloat(
-        formData?.MoreDetails?.withdrawals?.[index] || 0
+        formData?.MoreDetails?.Withdrawals?.[index] || 0
       );
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
 
@@ -1036,7 +1036,7 @@ const ProjectedCashflow = ({
                   ]}
                 >
                   {formatNumber(
-                    formData.MoreDetails?.withdrawals?.[index] || "-"
+                    formData.MoreDetails?.Withdrawals?.[index] || "-"
                   )}
                 </Text>
               ))}

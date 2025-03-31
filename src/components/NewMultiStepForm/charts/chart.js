@@ -76,6 +76,7 @@ export const generateChart = async (data) => {
       options: {
         responsive: false,
         maintainAspectRatio: false,
+        responsive: false,
         
         plugins: {
           legend: {
@@ -127,7 +128,7 @@ export const generateChart = async (data) => {
     // console.log("✅ Pie Chart generated:", base64);
     return base64;
   } catch (error) {
-    console.error("❌ Error generating pie chart:", error);
+    // console.error("❌ Error generating pie chart:", error);
     return null;
   }
 };

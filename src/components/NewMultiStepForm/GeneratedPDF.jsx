@@ -7,9 +7,17 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import { Document, PDFViewer, BlobProvider, Text } from "@react-pdf/renderer";
+import {
+  Document,
+  PDFViewer,
+  BlobProvider,
+  Text,
+  pdf,
+} from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
+import { saveAs } from "file-saver"; // install this via `npm i file-saver`
+import { FiDownload } from "react-icons/fi"; // npm i react-icons
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -32,20 +40,14 @@ import CurrentRatio from "./PDFComponents/CurrentRatio";
 import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
-import PdfWithChart from "./PDFComponents/PdfWithChart";
-import { generateChart } from "./charts/chart";
-
-import PdfWithLineChart from "./PDFComponents/PdfWithLineChart";
-
-// import {LineChart} from "./charts/LineChart";
-import LineChart from "./charts/LineChart";
-import PdfWithCurrentRatioChart from "./PDFComponents/PdfWithCurrentRatioChart";
-import PdfWithCombinedCharts from "./PDFComponents/PdfWithCombinedCharts";
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 const GeneratedPDF = ({}) => {
-  const [userRole, setUserRole] = useState("");
-  const [userName, setUserName] = useState("");
+  const userRole = localStorage.getItem("userRole");
+  const userName =
+    localStorage.getItem("adminName") || localStorage.getItem("employeeName");
+
+  // console.log("userRole:", userRole, "userName:", userName);
 
   const [permissions, setPermissions] = useState({
     createReport: false,
@@ -55,7 +57,6 @@ const GeneratedPDF = ({}) => {
     exportData: false, // ✅ Add this
   });
 
-  const [chartBase64, setChartBase64] = useState(null);
   const [lineChartBase64, setLineChartBase64] = useState(null); // ✅ Line chart state
 
   const [directExpenses, setDirectExpenses] = useState([]);
@@ -100,7 +101,7 @@ const GeneratedPDF = ({}) => {
   const [dscr, setDscr] = useState([]);
 
   const [currentRatio, setCurrentRatio] = useState([]);
-  console.log("current ratio values", currentRatio);
+  // console.log("current ratio values", currentRatio);
 
   const [averageCurrentRatio, setAverageCurrentRatio] = useState([]);
 
@@ -118,7 +119,10 @@ const GeneratedPDF = ({}) => {
 
   const [isPDFLoading, setIsPDFLoading] = useState(true);
 
-  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
+  const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const [numPages, setNumPages] = useState(null);
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
@@ -126,7 +130,7 @@ const GeneratedPDF = ({}) => {
   const pdfData = location.state?.reportData; // ✅ Get report data from state
 
   const handleTotalExpenseUpdate = (expenses) => {
-    console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
+    // console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
     setTotalExpense(expenses); // ✅ Update state
   };
 
@@ -189,7 +193,7 @@ const GeneratedPDF = ({}) => {
   useEffect(() => {
     const fetchChart = async () => {
       try {
-        console.log("🚀 Generating Chart...");
+        // console.log("🚀 Generating Chart...");
         // const base64 = await generateChart();
         // console.log("✅ Chart Base64:", base64);
         // setChartBase64(base64);
@@ -199,35 +203,6 @@ const GeneratedPDF = ({}) => {
     };
 
     fetchChart(); // ✅ Generate on component mount
-  }, []);
-
-  // useEffect(() => {
-  //   const fetchChart = async () => {
-  //     try {
-  //       console.log("🚀 Generating Chart...");
-  //       const base64 = await generateChart();
-  //       console.log("✅ Chart Base64:", base64);
-  //       setChartBase64(base64);
-  //     } catch (error) {
-  //       console.error("❌ Failed to generate chart:", error);
-  //     }
-  //   };
-
-  //   fetchChart(); // ✅ Generate on component mount
-  // }, []);
-
-  useEffect(() => {
-    const fetchChart = async () => {
-      try {
-        console.log("🚀 Generating Chart...");
-        // const base64 = await LineChart();
-        // console.log("✅ Chart Base64:", base64);
-        // setLineChartBase64(base64);
-      } catch (error) {
-        console.error("❌ Failed to generate chart:", error);
-      }
-    };
-    fetchChart();
   }, []);
 
   useEffect(() => {
@@ -241,7 +216,7 @@ const GeneratedPDF = ({}) => {
         }
         return prev + 1;
       });
-    }, 5000);
+    });
 
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
@@ -471,73 +446,113 @@ const GeneratedPDF = ({}) => {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const storedRole = localStorage.getItem("userRole");
-        const storedName = localStorage.getItem("userName");
-
-        // ✅ Set fallback if either is missing
-        if (!storedRole || !storedName) {
-          console.warn("User role or name not found in localStorage.");
-          return;
+        const [empRes, adminRes] = await Promise.all([
+          fetch("https://backend-three-pink.vercel.app/api/employees"),
+          fetch("https://backend-three-pink.vercel.app/api/admins"),
+        ]);
+  
+        if (!empRes.ok || !adminRes.ok) {
+          throw new Error("Failed to fetch data");
         }
-
-        // Fetching all employees
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees");
+  
+        const employeeList = await empRes.json();
+        const adminList = await adminRes.json();
+  
+        const normalizedUserName = userName?.trim().toLowerCase();
+  
+        if (userRole === "admin") {
+          const storedAdminName = localStorage.getItem("adminName");
+  
+          if (!storedAdminName) {
+            setPermissions({
+              generateReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+              exportData: true,
+              createReport: true,
+            });
+            return;
+          }
+  
+          const admin = adminList.find(
+            (a) =>
+              a.username?.trim().toLowerCase() === normalizedUserName ||
+              a.adminId?.trim().toLowerCase() === normalizedUserName
+          );
+  
+          if (admin?.permissions) setPermissions(admin.permissions);
         }
-
-        const result = await response.json();
-        console.log("✅ Fetched Employees Data:", result);
-
-        const employees = Array.isArray(result) ? result : [];
-
-        if (storedRole === "admin") {
-          setPermissions({
-            createReport: true,
-            updateReport: true,
-            createNewWithExisting: true,
-            downloadPDF: true,
-            exportData: true, // Add if admin has export too
-          });
-          console.log("✅ Admin permissions granted");
-        } else if (storedRole === "employee") {
-          const normalizedUserName = storedName.trim().toLowerCase();
-
-          const employee = employees.find(
+  
+        if (userRole === "employee") {
+          const employee = employeeList.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-
-          if (employee && employee.permissions) {
-            setPermissions(employee.permissions);
-            console.log(
-              "✅ Permissions fetched for employee:",
-              employee.permissions
-            );
-          } else {
-            console.warn(
-              "⚠️ No matching employee found or permissions missing"
-            );
-          }
+  
+          if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
-        console.error("🔥 Error fetching permissions:", err.message);
+        console.error("Error fetching permissions:", err.message);
       }
     };
-
-    fetchPermissions();
-  }, []);
-
   
+    // 🔁 Initial fetch
+    fetchPermissions();
+  
+    // 🔁 Poll every 15 seconds
+    const interval = setInterval(fetchPermissions, 100);
+  
+    return () => clearInterval(interval); // Cleanup
+  }, [userRole, userName ]);
+  
+
+  useEffect(() => {
+    if (
+      dscr.length > 0 &&
+      currentRatio.currentRatio?.length > 0 &&
+      formData?.AccountInformation?.businessName &&
+      formData?.AccountInformation?.businessOwner
+    ) {
+      setIsPdfReadyToDownload(true);
+    }
+  }, [dscr, currentRatio, formData]);
+
+  const handleDownloadPDF = async () => {
+    if (!isPdfReadyToDownload) {
+      alert("Please wait, PDF is still loading...");
+      return;
+    }
+
+    try {
+      const businessName =
+        formData?.AccountInformation?.businessName || "Report";
+      const businessOwner =
+        formData?.AccountInformation?.businessOwner || "Owner";
+
+      const safeName = `${businessName} (${businessOwner})`
+        .replace(/[/\\?%*:|"<>]/g, "-")
+        .trim();
+
+      const blob = await pdf(memoizedPDF).toBlob();
+      saveAs(blob, `${safeName}.pdf`);
+    } catch (err) {
+      console.error("❌ Error during PDF download:", err);
+      alert("Something went wrong while generating the PDF.");
+    }
+  };
 
   const memoizedPDF = useMemo(() => {
     return (
-      <Document>
+      <Document
+        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+        onRender={() => {
+          console.log("✅ PDF fully rendered");
+          setIsPDFLoading(false); // Turn off loader reliably
+        }}
+      >
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         <ProjectSynopsis
@@ -554,32 +569,23 @@ const GeneratedPDF = ({}) => {
           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
 
-        {/* Graphs  */}
-        {/* <PdfWithChart
-          formData={formData}
-          chartBase64={chartBase64}
-          totalExpenses={totalExpense}
-        />
-
-        <PdfWithCombinedCharts
-          labels={financialYearLabelsforChart || []}
-          dscr={dscr?.DSCR || []}
-          currentRatio={currentRatio?.currentRatio || []}
-        /> */}
         <PdfAllChartsWrapper
           formData={formData}
           totalExpenses={totalExpense}
           labels={financialYearLabelsforChart}
           dscr={dscr?.DSCR || []}
           currentRatio={currentRatio?.currentRatio || []}
+          pageNumber={pageNumber}
         />
 
         <PromoterDetails
           formData={formData}
           pdfType={pdfType}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
 
         {/* Means of Finance Table */}
@@ -588,12 +594,14 @@ const GeneratedPDF = ({}) => {
           localData={localData}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {/* cost of project table */}
         <CostOfProject
           formData={formData}
           localData={localData}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
         {/* Projected Salaries & Wages Table*/}
         <ProjectedSalaries
@@ -605,6 +613,7 @@ const GeneratedPDF = ({}) => {
           fringeCalculation={fringeCalculation}
           formatNumber={formatNumber}
           formData={formData}
+          pageNumber={pageNumber}
         />
         <ProjectedDepreciation
           formData={formData}
@@ -617,6 +626,7 @@ const GeneratedPDF = ({}) => {
           }}
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
         {/* Projected Expense Table Direct and Indirect */}
         <ProjectedExpenses
@@ -633,6 +643,7 @@ const GeneratedPDF = ({}) => {
           onTotalExpenseSend={handleTotalExpenseUpdate}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
+          pageNumber={pageNumber}
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -641,6 +652,7 @@ const GeneratedPDF = ({}) => {
           financialYearLabels={financialYearLabels}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {/* Projected Profitability Statement */}
         <ProjectedProfitability
@@ -663,6 +675,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           onComputedDataToProfit={setComputedDataToProfit}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <Repayment
           formData={formData}
@@ -673,6 +686,7 @@ const GeneratedPDF = ({}) => {
           onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         {computedData.netProfitBeforeTax.length > 0 && (
           <IncomeTaxCalculation
@@ -683,6 +697,7 @@ const GeneratedPDF = ({}) => {
             formatNumber={formatNumber}
             pdfType={pdfType}
             receivedtotalRevenueReceipts={totalRevenueReceipts}
+            pageNumber={pageNumber}
           />
         )}
         <ProjectedCashflow
@@ -701,6 +716,7 @@ const GeneratedPDF = ({}) => {
           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <ProjectedBalanceSheet
           formData={formData}
@@ -723,6 +739,7 @@ const GeneratedPDF = ({}) => {
           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
           formatNumber={formatNumber}
           pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <CurrentRatio
           formData={formData}
@@ -733,19 +750,9 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           sendCurrentRatio={setCurrentRatio}
+          pageNumber={pageNumber}
         />
-        <BreakEvenPoint
-          formData={formData}
-          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-          totalDepreciationPerYear={totalDepreciation}
-          totalRevenueReceipts={totalRevenueReceipts}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          financialYearLabels={financialYearLabels}
-          formatNumber={formatNumber}
-          sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          pdfType={pdfType}
-        />
+
         <DebtServiceCoverageRatio
           formData={formData}
           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -757,6 +764,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
         <RatioAnalysis
           formData={formData}
@@ -781,6 +789,20 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
+        />
+        <BreakEvenPoint
+          formData={formData}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          totalDepreciationPerYear={totalDepreciation}
+          totalRevenueReceipts={totalRevenueReceipts}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+          sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pdfType={pdfType}
+          pageNumber={pageNumber}
         />
         <Assumptions
           formData={formData}
@@ -790,6 +812,7 @@ const GeneratedPDF = ({}) => {
           receiveTotalExpense={totalExpense}
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
         />
       </Document>
     );
@@ -816,8 +839,7 @@ const GeneratedPDF = ({}) => {
     const sessionId = location.state?.sessionId;
 
     if (reportData && sessionId) {
-      console.log("📥 Received Data from Report:", reportData);
-
+      // console.log("📥 Received Data from Report:", reportData);
       // // ✅ Simulate form population
       // populateForm(reportData);
     }
@@ -837,8 +859,6 @@ const GeneratedPDF = ({}) => {
       document.head.removeChild(style);
     };
   }, []);
-
-  console.log("userRole", userRole, " permissions", permissions?.downloadPDF);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -869,34 +889,73 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
-        {({ blob, url, loading }) => {
-          if (!loading) {
-            // ✅ Update state when PDF is fully loaded
-            setTimeout(() => setIsPDFLoading(false), 5000);
-          }
-          return !isPDFLoading ? (
+        {({ blob, url, loading, error }) => {
+          // Check if the blob is ready
+          const handleDownloadPDF = () => {
+            if (loading || !url) {
+              alert("Please wait, PDF is still loading...");
+              return;
+            }
+
+            const businessName =
+              formData?.AccountInformation?.businessName || "Report";
+            const businessOwner =
+              formData?.AccountInformation?.businessOwner || "Owner";
+            const safeName = `${businessName} (${businessOwner})`
+              .replace(/[/\\?%*:|"<>]/g, "-")
+              .trim();
+
+            saveAs(url, `${safeName}.pdf`);
+          };
+
+          return (
             <>
+              {/* Toolbar */}
+              {((userRole === "admin" &&
+                (!localStorage.getItem("adminName") ||
+                  permissions.downloadPDF)) ||
+                (userRole === "employee" && permissions.downloadPDF)) && (
+                <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
+                  {/* Title */}
+                  <div className="text-white font-normal text-sm px-4 tracking-wide">
+                    📄 PDF Report Viewer
+                  </div>
+
+                  {/* Page Counter */}
+                  {numPages && (
+                    <div className="text-white text-xs">
+                      Page {pageNumber} / {numPages}
+                    </div>
+                  )}
+
+                  {/* Download Button */}
+                  <div className="flex gap-2 px-4">
+                    <button
+                      onClick={handleDownloadPDF}
+                      className={`flex items-center gap-2 ${
+                        loading
+                          ? "bg-gray-300 cursor-not-allowed"
+                          : "bg-white hover:bg-indigo-100"
+                      } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
+                      disabled={loading}
+                    >
+                      <FiDownload size={16} />
+                      Download PDF
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <PDFViewer
                 width="100%"
                 height="800"
+                showToolbar={false}
                 style={{ overflow: "hidden" }}
-                showToolbar={userRole !== "client" && userRole !== "employee"}
               >
                 {memoizedPDF}
               </PDFViewer>
-              {/* <PDFViewer
-                width="100%"
-                height="800"
-                style={{ overflow: "hidden" }}
-                showToolbar={userRole === "admin" || permissions.downloadPDF}
-              >
-                {memoizedPDF}
-              </PDFViewer> */}
-
-              {/* ✅ Custom Download Button */}
-              <section className="h-[100vh]"></section>
             </>
-          ) : null;
+          );
         }}
       </BlobProvider>
     </div>

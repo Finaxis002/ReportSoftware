@@ -16,7 +16,7 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
     createFromExisting: false,
     updateReport: false,
     generateReport: false,
-    checkPDF: false,
+    exportData: false,
   });
 
   // ✅ Handle checkbox changes
@@ -27,23 +27,6 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
     }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const formData = new FormData();
-  //   formData.append('username', username);
-  //   formData.append('password', password);
-  //   if (caSign) {
-  //     formData.append('caSign', caSign);
-  //   }
-
-  //   try {
-  //     await addAdmin(username, password);
-  //     onSuccess(); // Refresh the list after adding
-  //   } catch (error) {
-  //     setError(error.response?.data?.message || 'Failed to create admin');
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -141,10 +124,10 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
           <label style={styles.checkboxLabel}>
             <input
               type="checkbox"
-              checked={roles.checkPDF}
-              onChange={() => handleRoleChange("checkPDF")}
+              checked={roles.exportData}
+              onChange={() => handleRoleChange("exportData")}
             />
-            Check PDF
+            Export Data
           </label>
         </div>
         {error && <p style={styles.error}>{error}</p>}
@@ -159,35 +142,7 @@ const AddAdminForm = ({ onSuccess, onCancel }) => {
   );
 };
 
-// const styles = {
-//   container: {
-//     marginTop: '20px',
-//     padding: '20px',
-//     border: '1px solid #ddd',
-//     borderRadius: '5px',
-//   },
-//   form: {
-//     display: 'flex',
-//     flexDirection: 'column',
-//   },
-//   input: {
-//     padding: '10px',
-//     marginBottom: '10px',
-//     fontSize: '16px',
-//     borderRadius: '4px',
-//     border: '1px solid #ccc',
-//   },
-//   button: {
-//     padding: '10px',
-//     backgroundColor: '#4CAF50',
-//     color: '#fff',
-//     border: 'none',
-//     cursor: 'pointer',
-//   },
-//   error: {
-//     color: 'red',
-//   },
-// };
+
 const styles = {
   container: {
     marginTop: "20px",

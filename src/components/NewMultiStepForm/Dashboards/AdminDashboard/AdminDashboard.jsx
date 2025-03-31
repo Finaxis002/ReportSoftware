@@ -104,21 +104,21 @@ const AdminDashboard = () => {
           <>
             {/* ✅ Dashboard Cards */}
             <div className="mt-8">
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition duration-300">
-                <div className="flex flex-wrap  items-center gap-8">
+              <div className="p-6 rounded-lg shadow-md border border-gray-900 dark:border-gray-900 dark:bg-gray-800 hover:shadow-lg transition duration-300">
+                <div className="flex flex-wrap items-center gap-8">
                   {/* ✅ Total Reports */}
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-blue-100 text-blue-600 flex items-center justify-center rounded-lg">
+                    <div className="w-16 h-16 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center rounded-lg">
                       📊
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600">
+                      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
                         Total Reports
                       </h3>
-                      <p className="text-3xl font-bold text-gray-800">
+                      <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {reports.length}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Last Report:{" "}
                         {reports.length > 0
                           ? new Date(
@@ -131,17 +131,17 @@ const AdminDashboard = () => {
 
                   {/* ✅ Total Employees */}
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-green-100 text-green-600 flex items-center justify-center rounded-lg">
+                    <div className="w-16 h-16 bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 flex items-center justify-center rounded-lg">
                       👨‍💼
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600">
+                      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
                         Total Employees
                       </h3>
-                      <p className="text-3xl font-bold text-gray-800">
+                      <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {employees.length}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Active: {employees.filter((emp) => emp.isActive).length}
                       </p>
                     </div>
@@ -151,7 +151,6 @@ const AdminDashboard = () => {
             </div>
           </>
         )}
-
       </div>
     </div>
   );

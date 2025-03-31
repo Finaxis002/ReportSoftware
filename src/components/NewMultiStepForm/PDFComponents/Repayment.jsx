@@ -23,6 +23,7 @@ const Repayment = ({
   onInterestCalculated,
   onPrincipalRepaymentCalculated,
   onMarchClosingBalanceCalculated, // New callback prop for March balances
+  onInterestLiabilityUpdate,
 }) => {
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
@@ -139,63 +140,95 @@ const Repayment = ({
   }, []);
 
   // ✅ Store Year-Wise Interest Liability
-  data.forEach((yearData) => {
-    let totalInterestLiability = yearData.reduce(
-      (sum, entry) => sum + entry.interestLiability,
-      0
-    );
-    yearlyInterestLiabilities.push(totalInterestLiability);
-  });
+  // data.forEach((yearData) => {
+  //   let totalInterestLiability = yearData.reduce(
+  //     (sum, entry) => sum + entry.interestLiability,
+  //     0
+  //   );
+  //   yearlyInterestLiabilities.push(totalInterestLiability);
+  // });
 
+  // useEffect(() => {
+  //   // ✅ Compute Yearly Interest Liabilities Same as Displayed
+  //   const correctYearlyInterestLiabilities = data.map((yearData) => {
+  //     let totalPrincipalRepayment = yearData.reduce(
+  //       (sum, entry) => sum + entry.principalRepayment,
+  //       0
+  //     );
+  //     let totalInterestLiability = yearData.reduce(
+  //       (sum, entry) => sum + entry.interestLiability,
+  //       0
+  //     );
+  //     let totalRepayment = yearData.reduce(
+  //       (sum, entry) => sum + entry.totalRepayment,
+  //       0
+  //     );
+
+  //     // ✅ Set other totals to 0 if principal repayment is 0
+  //     if (totalPrincipalRepayment === 0) {
+  //       totalInterestLiability = 0;
+  //       totalRepayment = 0;
+  //     }
+
+  //     return totalInterestLiability; // ✅ Only return interest liabilities
+  //   });
+
+  //   // ✅ Set state with the correct computed interest liabilities
+  //   setYearlyInterestLiabilities(correctYearlyInterestLiabilities);
+  //   console.log("correctYearlyInterestLiabilities",correctYearlyInterestLiabilities)
+
+  //   // ✅ Send the correct values to the parent component
+  //   if (onInterestCalculated) {
+  //     onInterestCalculated(correctYearlyInterestLiabilities);
+  //   }
+
+  //   // ✅ Console log to verify the correct values
+  //   //  console.log("Correct Yearly Interest Liabilities Sent to Parent:", correctYearlyInterestLiabilities);
+  // }, [JSON.stringify(data)]); // Trigger when data changes
+
+  // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
   useEffect(() => {
-    // ✅ Compute Yearly Interest Liabilities Same as Displayed
-    const correctYearlyInterestLiabilities = data.map((yearData) => {
-      let totalPrincipalRepayment = yearData.reduce(
-        (sum, entry) => sum + entry.principalRepayment,
-        0
-      );
-      let totalInterestLiability = yearData.reduce(
-        (sum, entry) => sum + entry.interestLiability,
-        0
-      );
-      let totalRepayment = yearData.reduce(
-        (sum, entry) => sum + entry.totalRepayment,
-        0
-      );
+    if (!Array.isArray(data)) return;
 
-      // ✅ Set other totals to 0 if principal repayment is 0
+    const yearlyInterestLiabilities = [];
+
+    data.forEach((yearData) => {
+      let totalPrincipalRepayment = 0;
+      let totalInterestLiability = 0;
+      let totalRepayment = 0;
+
+      yearData.forEach((entry) => {
+        if (entry?.principalRepayment > 0) {
+          totalPrincipalRepayment += entry.principalRepayment;
+          totalInterestLiability += entry.interestLiability;
+          totalRepayment += entry.totalRepayment;
+        }
+      });
+
+      // ✅ If principal repayment is 0 for the year, ignore interest
       if (totalPrincipalRepayment === 0) {
         totalInterestLiability = 0;
         totalRepayment = 0;
       }
 
-      return totalInterestLiability; // ✅ Only return interest liabilities
+      yearlyInterestLiabilities.push(totalInterestLiability);
     });
 
-    // ✅ Set state with the correct computed interest liabilities
-    setYearlyInterestLiabilities(correctYearlyInterestLiabilities);
+    setYearlyInterestLiabilities(yearlyInterestLiabilities);
+    // console.log("correctYearlyInterestLiabilities", yearlyInterestLiabilities);
 
-    // ✅ Send the correct values to the parent component
     if (onInterestCalculated) {
-      onInterestCalculated(correctYearlyInterestLiabilities);
+      onInterestCalculated(yearlyInterestLiabilities);
     }
+  }, [JSON.stringify(data)]);
 
-    // ✅ Console log to verify the correct values
-    //  console.log("Correct Yearly Interest Liabilities Sent to Parent:", correctYearlyInterestLiabilities);
-  }, [JSON.stringify(data)]); // Trigger when data changes
-
-  // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
   useEffect(() => {
-    const marchClosingBalances = data.reduce((acc, yearData) => {
+    const marchClosingBalances = data.map((yearData) => {
       const marchEntry = yearData.find((entry) => entry.month === "March");
-      // Only add if there's a March entry and its principal repayment is not 0
-      if (marchEntry && marchEntry.principalRepayment !== 0) {
-        acc.push(marchEntry.principalClosingBalance);
-      }
-      return acc;
-    }, []);
+      return marchEntry ? marchEntry.principalClosingBalance : 0;
+    });
 
-    // console.log("Filtered March Principal Closing Balances:", marchClosingBalances);
+    // console.log("Original March Principal Closing Balances:", marchClosingBalances);
 
     if (onMarchClosingBalanceCalculated) {
       onMarchClosingBalanceCalculated(marchClosingBalances);
@@ -513,77 +546,76 @@ const Repayment = ({
                 0
               );
 
-              // ✅ If all interest liabilities & repayments are 0, do not render the total row
-              if (
-                totalPrincipalRepayment === 0 &&
-                totalInterestLiability === 0 &&
-                totalRepayment === 0
-              ) {
-                return null;
-              }
-
               return (
-                <>
-                  <View
-                    key={yearIndex}
-                    wrap={false}
-                    style={[
-                      { borderLeftWidth: 0 },
-                      {
-                        position: "relative",
-                        zIndex: 1,
-                        borderLeftWidth: 1,
-                        borderTopWidth: 1,
-                      },
-                    ]}
-                  >
-                    {/* ✅ Year Row */}
-                    <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
-                      <Text
-                        style={[
-                          styles.serialNumberCellStyle,
-                          { width: "8%", paddingTop: "5px" },
-                        ]}
-                      >
-                        {yearIndex + 1}
-                      </Text>
+                <View
+                  key={yearIndex}
+                  wrap={false}
+                  style={[
+                    { borderLeftWidth: 0 },
+                    {
+                      position: "relative",
+                      zIndex: 1,
+                      borderLeftWidth: 1,
+                      borderTopWidth: 1,
+                    },
+                  ]}
+                >
+                  {/* ✅ Year Row */}
+                  <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
+                    <Text
+                      style={[
+                        styles.serialNumberCellStyle,
+                        { width: "8%", paddingTop: "5px" },
+                      ]}
+                    >
+                      {yearIndex + 1}
+                    </Text>
 
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.bordernone,
+                        styleExpenses.fontBold,
+                        {
+                          textAlign: "left",
+                          width: "15.35%",
+                          borderLeftWidth: 1,
+                          paddingTop: "5px",
+                        },
+                      ]}
+                    >
+                      {financialYear + yearIndex}-{" "}
+                      {(financialYear + yearIndex + 1).toString().slice(-2)}
+                    </Text>
+
+                    {/* Empty columns for alignment */}
+                    {Array.from({ length: 5 }).map((_, idx) => (
                       <Text
+                        key={idx}
                         style={[
-                          stylesCOP.detailsCellDetail,
-                          styleExpenses.bordernone,
-                          styleExpenses.fontBold,
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
                           {
-                            textAlign: "left",
+                            textAlign: "center",
                             width: "15.35%",
-                            borderLeftWidth: 1,
                             paddingTop: "5px",
                           },
                         ]}
-                      >
-                        {financialYear + yearIndex}-{" "}
-                        {(financialYear + yearIndex + 1).toString().slice(-2)}
-                      </Text>
+                      />
+                    ))}
+                  </View>
 
-                      {/* Empty columns for alignment */}
-                      {Array.from({ length: 5 }).map((_, idx) => (
-                        <Text
-                          key={idx}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                            {
-                              textAlign: "center",
-                              width: "15.35%",
-                              paddingTop: "5px",
-                            },
-                          ]}
-                        />
-                      ))}
-                    </View>
+                  {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
+                  {filteredYearData.map((entry, monthIndex) => {
+                    // Skip the row if Principal Repayment or Interest Liability is less than or equal to 0
+                    if (
+                      entry.principalRepayment <= 0 ||
+                      entry.interestLiability <= 0
+                    ) {
+                      return null;
+                    }
 
-                    {/* ✅ Render Only Valid Months */}
-                    {filteredYearData.map((entry, monthIndex) => (
+                    return (
                       <View
                         key={monthIndex}
                         style={[
@@ -597,7 +629,10 @@ const Repayment = ({
                             styles.serialNumberCellStyle,
                             { width: "8%" },
                           ]}
-                        ></Text>
+                        >
+                          {"\u00A0"}
+                        </Text>
+
                         <Text
                           style={[
                             stylesCOP.detailsCellDetail,
@@ -662,98 +697,98 @@ const Repayment = ({
                           {formatNumber(entry.totalRepayment)}
                         </Text>
                       </View>
-                    ))}
+                    );
+                  })}
 
-                    {/* ✅ Total Row for the Year */}
-                    <View
+                  {/* ✅ Total Row for the Year */}
+                  <View
+                    style={[
+                      stylesMOF.row,
+                      styles.tableRow,
+                      { borderTopWidth: 0 },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.serialNumberCellStyle, { width: "8%" }]}
+                    ></Text>
+                    <Text
                       style={[
-                        stylesMOF.row,
-                        styles.tableRow,
-                        { borderTopWidth: 0 },
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                          borderLeftWidth: 1,
+                        },
+                      ]}
+                    ></Text>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                        },
+                      ]}
+                    ></Text>
+
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        styleExpenses.fontBold,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                          borderTopWidth: 1,
+                        },
                       ]}
                     >
-                      <Text
-                        style={[styles.serialNumberCellStyle, { width: "8%" }]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderLeftWidth: 1,
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                          },
-                        ]}
-                      ></Text>
+                      {formatNumber(totalPrincipalRepayment)}
+                    </Text>
 
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          styleExpenses.fontBold,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderTopWidth: 1,
-                          },
-                        ]}
-                      >
-                        {formatNumber(totalPrincipalRepayment)}
-                      </Text>
-
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderLeftWidth: 1,
-                          },
-                        ]}
-                      ></Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          styleExpenses.fontBold,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderTopWidth: 1,
-                          },
-                        ]}
-                      >
-                        {formatNumber(totalInterestLiability)}
-                      </Text>
-                      <Text
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          styleExpenses.fontBold,
-                          {
-                            textAlign: "center",
-                            width: "15.35%",
-                            borderTopWidth: 1,
-                          },
-                        ]}
-                      >
-                        {formatNumber(totalRepayment)}
-                      </Text>
-                    </View>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                          borderLeftWidth: 1,
+                        },
+                      ]}
+                    ></Text>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        styleExpenses.fontBold,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                          borderTopWidth: 1,
+                        },
+                      ]}
+                    >
+                      {formatNumber(totalInterestLiability)}
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        styleExpenses.fontBold,
+                        {
+                          textAlign: "center",
+                          width: "15.35%",
+                          borderTopWidth: 1,
+                        },
+                      ]}
+                    >
+                      {formatNumber(totalRepayment)}
+                    </Text>
                   </View>
-                </>
+                </View>
               );
             })}
           </View>
