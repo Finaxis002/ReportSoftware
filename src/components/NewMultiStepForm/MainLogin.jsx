@@ -37,41 +37,38 @@ const MainLogin = ({ onLogin }) => {
   
   const handleAdminLogin = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      const response = await fetch("https://backend-three-pink.vercel.app/api/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: inputUsername,
-          password: inputPassword,  // sending plain password to compare with hashed one in DB
-         
+          password: inputPassword,
         }),
       });
   
       const data = await response.json();
-
   
       if (response.ok) {
         console.log("✅ Admin Login Successful (Database):", data);
   
-        // Store token and userRole in localStorage
+        // ✅ Store token and userRole in localStorage
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
-        localStorage.setItem("employeeId", data.employeeId);
-  
+        localStorage.setItem("employeeId", data.employeeId)
+
         onLogin(true, "admin");
-        navigate("/");  // Navigate to the desired page after login
-        return;  // Exit if login is successful
+        navigate("/");
+        return; // ✅ Exit if database login succeeds
       }
     } catch (error) {
-      console.error("🔥 Error during login:", error);
-      setError("Failed to log in. Please try again.");
+      console.error("🔥 Error during database login:", error);
     }
   
-    // If login fails, check hardcoded admin credentials (fallback)
+    // ✅ If database login fails, check hardcoded admin credentials
     if (
       inputUsername === hardcodedAdminCredentials.username &&
       inputPassword === hardcodedAdminCredentials.password
@@ -80,15 +77,14 @@ const MainLogin = ({ onLogin }) => {
   
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userRole", "admin");
-      localStorage.setItem("token", "hardcoded-token");
+      localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
   
       onLogin(true, "admin");
-      navigate("/");  // Navigate to the desired page after login
+      navigate("/");
     } else {
       setError("Invalid Admin Credentials!");
     }
   };
-  
   
 
   
