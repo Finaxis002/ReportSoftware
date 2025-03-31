@@ -10,6 +10,7 @@ const Header = ({ dashboardType }) => {
   const navigate = useNavigate();
 
   const logoutUser = () => {
+    localStorage.clear();
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userId");

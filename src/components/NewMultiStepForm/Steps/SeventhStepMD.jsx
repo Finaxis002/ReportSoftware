@@ -9,7 +9,7 @@ const SeventhStepMD = ({
   formData,
 }) => {
   const projectionYears =
-    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 5; // ✅ Ensure Projection Years are correctly set
   const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
   // Initialize local data with default values or from props
   const [localData, setLocalData] = useState(() =>
