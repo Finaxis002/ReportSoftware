@@ -74,16 +74,16 @@ const EmployeeDashboard = ({ userRole }) => {
               {/* ✅ Display Logged-In Employee Details */}
               {employeeData ? (
                 <div className="flex justify-center mt-8 " >
-                  <div className="w-full max-w-4xl bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
-                    <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white text-center py-2">
+                  <div className="w-full max-w-4xl shadow-sm rounded-lg overflow-hidden border border-gray-200">
+                    <div className="bg-gradient-to-r bg-teal-600  text-white text-center py-2">
                       <h2 className="text-xl font-semibold">
                         Employee Details
                       </h2>
                     </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700">
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700 dark:text-white">
                       {/* ✅ Employee ID */}
                       <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 uppercase font-semibold">
+                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                           Employee ID
                         </p>
                         <p className="text-sm capitalize font-medium">
@@ -93,7 +93,7 @@ const EmployeeDashboard = ({ userRole }) => {
 
                       {/* ✅ Name */}
                       <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 uppercase font-semibold">
+                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                           Name
                         </p>
                         <p className="text-sm capitalize font-medium">
@@ -103,7 +103,7 @@ const EmployeeDashboard = ({ userRole }) => {
 
                       {/* ✅ Email */}
                       <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 uppercase font-semibold">
+                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                           Email
                         </p>
                         <p className="text-sm capitalize font-medium">
@@ -113,7 +113,7 @@ const EmployeeDashboard = ({ userRole }) => {
 
                       {/* ✅ Designation */}
                       <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 uppercase font-semibold">
+                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                           Designation
                         </p>
                         <p className="text-sm capitalize font-medium">
@@ -124,7 +124,7 @@ const EmployeeDashboard = ({ userRole }) => {
                       {/* ✅ Phone (Optional) */}
                       {employeeData?.phone && (
                         <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 uppercase font-semibold">
+                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                             Phone
                           </p>
                           <p className="text-sm capitalize font-medium">
@@ -136,7 +136,7 @@ const EmployeeDashboard = ({ userRole }) => {
                       {/* ✅ Date of Joining */}
                       {employeeData?.dateOfJoining && (
                         <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 uppercase font-semibold">
+                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                             Date of Joining
                           </p>
                           <p className="text-sm capitalize font-medium">
@@ -150,7 +150,7 @@ const EmployeeDashboard = ({ userRole }) => {
                       {/* ✅ Status */}
                       {employeeData && employeeData.status !== undefined ? (
                         <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 uppercase font-semibold">
+                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
                             Status
                           </p>
                           <p
@@ -164,7 +164,7 @@ const EmployeeDashboard = ({ userRole }) => {
                           </p>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-white">
                           Status not available
                         </p>
                       )}
@@ -172,7 +172,7 @@ const EmployeeDashboard = ({ userRole }) => {
                   </div>
                 </div>
               ) : (
-                <p className="text-center text-gray-500 mt-4">
+                <p className="text-center text-gray-500 dark:text-white mt-4">
                   No employee details found.
                 </p>
               )}
@@ -182,8 +182,7 @@ const EmployeeDashboard = ({ userRole }) => {
           {/* Assigned Tasks */}
           <div
             style={{
-              overflowY: "scroll",
-              height: "400px", // ✅ Set fixed height
+            
               paddingBottom:"5rem"
             }}
           >
