@@ -50,69 +50,7 @@ const EmployeeTasks = ({ employeeId }) => {
   }, []);  // Empty dependency array to run only once on mount
   
 
-  
-  // const handleStatusChange = async (taskId, newStatus) => {
-  //   try {
-  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ status: newStatus }),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update task status");
-  //     }
-  
-  //     const updatedTask = await response.json();
-  
-  //     // ✅ Update state correctly
-  //     setTasks((prevTasks) =>
-  //       prevTasks.map((task) =>
-  //         task._id === taskId
-  //           ? { ...task, status: updatedTask.task.status }
-  //           : task
-  //       )
-  //     );
-  //   } catch (err) {
-  //     console.error("Error updating status:", err);
-  //     setError("Failed to update task status");
-  //   }
-  // };
-  // const handleStatusChange = async (taskId, newStatus) => {
-  //   try {
-  //     const employeeId = localStorage.getItem("employeeId"); // Get employeeId from storage
-  //     const task = tasks.find((task) => task._id === taskId);
-  
-  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         status: newStatus,
-  //         employeeId, // ✅ Pass employeeId to generate notification
-  //         taskTitle: task.taskTitle, // ✅ Pass taskTitle for notification message
-  //       }),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update task status");
-  //     }
-  
-  //     const updatedTask = await response.json();
-  
-  //     // ✅ Update task list after successful status change
-  //     setTasks((prevTasks) =>
-  //       prevTasks.map((task) =>
-  //         task._id === taskId ? updatedTask.task : task
-  //       )
-  //     );
-  //   } catch (err) {
-  //     console.error("Error updating status:", err);
-  //   }
-  // };
+
   
   const handleStatusChange = async (taskId, newStatus) => {
     try {
@@ -152,32 +90,32 @@ const EmployeeTasks = ({ employeeId }) => {
   
 
   return (
-    <div className="mt-8 w-[80%] mx-auto max-h-[500px]">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-4">Assigned Reports</h3>
+    <div className="mt-8 w-[80%] mx-auto max-h-[500px] overflow-auto">
+      <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Assigned Reports</h3>
       {loading ? (
-        <p className="text-center text-gray-600">Loading tasks...</p>
+        <p className="text-center text-gray-600 dark:text-white">Loading tasks...</p>
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : tasks.length === 0 ? (
-        <p className="text-center text-gray-600">No tasks assigned.</p>
+        <p className="text-center text-gray-600 dark:text-white">No tasks assigned.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
           {tasks.map((task) => (
             <div
               key={task.taskId || task._id}
-              className="bg-white p-4 rounded-md shadow border border-gray-200 transition hover:shadow-md"
+              className=" p-4 rounded-md shadow border border-gray-200 transition hover:shadow-md"
             >
-              <h4 className="text-xl font-medium text-gray-800 capitalize">{task.taskTitle}</h4>
-              <p className="mt-2 text-gray-700">{task.taskDescription}</p>
-              <p className="mt-3 text-gray-600 text-sm">
+              <h4 className="text-xl font-medium text-gray-800 dark:text-white capitalize">{task.taskTitle}</h4>
+              <p className="mt-2 text-gray-700 dark:text-white ">{task.taskDescription}</p>
+              <p className="mt-3 text-gray-600 dark:text-white text-sm">
                 <span className="font-semibold">Due Date:</span>{" "}
                 {new Date(task.dueDate).toLocaleDateString()}
               </p>
               <div className="mt-3">
-                <label className="font-semibold text-gray-600 text-sm mr-2">Status:</label>
+                <label className="font-semibold text-gray-600 dark:text-white text-sm mr-2">Status:</label>
                 <select
                   className="border border-gray-300 p-1 rounded-md"
-                  value={task.status || "Ongoing"}
+                  value={task.status}
                   onChange={(e) => handleStatusChange(task.taskId || task._id, e.target.value)}
                 >
                   <option value="Ongoing">Ongoing</option>
