@@ -6,7 +6,8 @@ import {
   faTasks,
   faIdCard,
   faLock,
-  faUser
+  faUser,
+  faSync,
 } from "@fortawesome/free-solid-svg-icons";
 import EmployeeEditModal from "./EmployeeEditModal";
 import AssignTaskModal from "./AssignTaskModal";
@@ -28,14 +29,16 @@ const EmployeeDetailsList = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
-        
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees"
+        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }
 
         const data = await response.json();
-        
+
         // Log the whole response for debugging
         console.log("Fetched Employees Data:", data);
 
@@ -120,11 +123,49 @@ const EmployeeDetailsList = () => {
     setSelectedEmployeeId(null);
   };
 
+  const fetchEmployees = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        "https://backend-three-pink.vercel.app/api/employees"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      const data = await response.json();
+      console.log("📦 Employees Response:", data);
+
+      // ✅ Assuming the API returns a plain array of employees
+      if (Array.isArray(data)) {
+        setEmployees(data);
+      } else {
+        console.error("❌ Unexpected response structure:", data);
+      }
+    } catch (err) {
+      console.error("🔥 Network or server error:", err.message || err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchEmployees();
+  };
+
   return (
     <div className="flex flex-col h-[100vh]">
       {/* ✅ Header */}
       <div className="flex justify-between items-center my-4">
-        <h2 className="text-xl font-semibold text-black">Employee List</h2>
+        <div className="flex justify-end items-center mb-2 px-2">
+          <button
+            onClick={handleRefresh}
+            className="flex items-center gap-1 text-sm text-teal-700 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+          >
+            <FontAwesomeIcon icon={faSync} className="text-lg" />
+          </button>
+        </div>
+        <h2 className="text-xl font-semibold dark:text-gray-50">Employee List</h2>
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300"
           onClick={() => setShowForm(true)}
@@ -153,94 +194,95 @@ const EmployeeDetailsList = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
               {employees.map((employee) => (
                 <div
-                  key={employee.employeeId}
-                  className="bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden transition transform hover:scale-100"
-                >
-                  {/* Employee Header */}
-                  <div className="flex items-center gap-4 px-6 py-3 border-b bg-gradient-to-r from-blue-100 to-blue-200 shadow-sm">
-                    <div className="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full">
-                      <FontAwesomeIcon icon={faUser} className="text-xl" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 leading-snug">
-                        {employee.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 font-medium">
-                        {employee.designation}
-                      </p>
-                    </div>
+                key={employee.employeeId}
+                className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow-lg rounded-lg overflow-hidden transition transform hover:scale-100"
+              >
+                {/* Employee Header */}
+                <div className="flex items-center gap-4 px-6 py-3 border-b border-gray-300 dark:border-slate-700 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-black dark:to-blue-950 shadow-sm">
+                  <div className="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full">
+                    <FontAwesomeIcon icon={faUser} className="text-xl" />
                   </div>
-
-                  {/* Employee Details */}
-                  <div className="p-6 bg-gray-50 rounded-lg shadow-md border border-gray-200">
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Employee ID */}
-                      <div className="flex items-center gap-3">
-                        <span className="inline-block bg-blue-100 text-blue-500 p-2 rounded-md">
-                          <FontAwesomeIcon icon={faIdCard} />
-                        </span>
-                        <div>
-                          <p className="text-sm text-gray-500 uppercase font-medium tracking-wide">
-                            Employee ID
-                          </p>
-                          <p className="text-sm font-normal text-gray-800">
-                            {employee.employeeId}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Password */}
-                      <div className="flex items-center gap-3">
-                        <span className="inline-block bg-yellow-100 text-yellow-500 p-2 rounded-md">
-                          <FontAwesomeIcon icon={faLock} />
-                        </span>
-                        <div>
-                          <p className="text-sm text-gray-500 uppercase font-medium tracking-wide">
-                            Password
-                          </p>
-                          <p className="text-sm font-normal text-gray-800">
-                            {employee.password}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Employee Actions */}
-                  <div className="flex flex-wrap justify-start gap-3 px-6 py-4 bg-gray-50 border-t">
-                    <button
-                      className="flex items-center gap-2 bg-white text-green-500 hover:text-green-600 px-4 py-2 rounded-md shadow-md transition duration-300"
-                      onClick={() => handleAssign(employee.employeeId)}
-                    >
-                      <FontAwesomeIcon icon={faTasks} />
-                      <span>Assign Task</span>
-                    </button>
-
-                    <button
-                      className="flex items-center gap-2 bg-white text-blue-500 hover:bg-blue-100 hover:text-blue-600 px-4 py-2 rounded-md shadow-md transition duration-300"
-                      onClick={() => handleViewAndAssign(employee.employeeId)}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                      <span>View Details</span>
-                    </button>
-
-                    <button
-                      className="flex items-center gap-2 bg-white  text-yellow-500 hover:bg-yellow-100 hover:text-yellow-600 px-4 py-2 rounded-md shadow-md transition duration-300"
-                      onClick={() => handleEdit(employee.employeeId)}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                      <span>Edit</span>
-                    </button>
-
-                    <button
-                      className="flex items-center gap-2 bg-white  text-red-500 hover:bg-red-100 hover:text-red-600 px-4 py-2 rounded-md shadow-md transition duration-300"
-                      onClick={() => handleDelete(employee.employeeId)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                      <span>Delete</span>
-                    </button>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white leading-snug">
+                      {employee.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-300 font-medium">
+                      {employee.designation}
+                    </p>
                   </div>
                 </div>
+              
+                {/* Employee Details */}
+                <div className="p-6 bg-gray-50 dark:bg-black  shadow-md border-gray-200">
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Employee ID */}
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block bg-blue-100 text-blue-500 p-2 rounded-md">
+                        <FontAwesomeIcon icon={faIdCard} />
+                      </span>
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-300 uppercase font-medium tracking-wide">
+                          Employee ID
+                        </p>
+                        <p className="text-sm font-normal text-gray-800 dark:text-white">
+                          {employee.employeeId}
+                        </p>
+                      </div>
+                    </div>
+              
+                    {/* Password */}
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block bg-yellow-100 text-yellow-500 p-2 rounded-md">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-300 uppercase font-medium tracking-wide">
+                          Password
+                        </p>
+                        <p className="text-sm font-normal text-gray-800 dark:text-white">
+                          {employee.password}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                {/* Employee Actions */}
+                <div className="flex flex-wrap justify-start gap-3 px-6 py-4 bg-gray-50 dark:bg-black  dark:border-slate-600">
+                  <button
+                    className="flex items-center gap-2  dark:bg-slate-900 text-green-500 hover:text-green-600 dark:hover:bg-gray-950 px-4 py-2 rounded-md shadow-md transition duration-300"
+                    onClick={() => handleAssign(employee.employeeId)}
+                  >
+                    <FontAwesomeIcon icon={faTasks} />
+                    <span>Assign Task</span>
+                  </button>
+              
+                  <button
+                    className="flex items-center gap-2  dark:bg-slate-900 text-blue-500 hover:bg-blue-100 dark:hover:bg-gray-950 hover:text-blue-600 px-4 py-2 rounded-md shadow-md transition duration-300"
+                    onClick={() => handleViewAndAssign(employee.employeeId)}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                    <span>View Details</span>
+                  </button>
+              
+                  <button
+                    className="flex items-center gap-2  dark:bg-slate-900 text-yellow-500 hover:bg-yellow-100 dark:hover:bg-gray-950 hover:text-yellow-600 px-4 py-2 rounded-md shadow-md transition duration-300"
+                    onClick={() => handleEdit(employee.employeeId)}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                    <span>Edit</span>
+                  </button>
+              
+                  <button
+                    className="flex items-center gap-2  dark:bg-slate-900 text-red-500 hover:bg-red-100 dark:hover:bg-gray-950 hover:text-red-600 px-4 py-2 rounded-md shadow-md transition duration-300"
+                    onClick={() => handleDelete(employee.employeeId)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+              
               ))}
             </div>
           </div>

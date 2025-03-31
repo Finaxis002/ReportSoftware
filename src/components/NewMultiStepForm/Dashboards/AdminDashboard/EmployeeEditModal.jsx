@@ -9,7 +9,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
     designation: employee.designation || "",
     password: employee.password || "",
     permissions: {
-      createReport: employee?.permissions?.createReport || false,
+      generateReport: employee?.permissions?.generateReport || false,
       updateReport: employee?.permissions?.updateReport || false,
       createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
       downloadPDF: employee?.permissions?.downloadPDF || false,
@@ -30,7 +30,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
       designation: employee.designation || "",
       password: employee.password || "",
       permissions: {
-        createReport: employee?.permissions?.createReport || false,
+        generateReport: employee?.permissions?.generateReport || false,
         updateReport: employee?.permissions?.updateReport || false,
         createNewWithExisting: employee?.permissions?.createNewWithExisting || false,
         downloadPDF: employee?.permissions?.downloadPDF || false,
@@ -180,12 +180,12 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  name="createReport"
-                  checked={formData.permissions.createReport}
+                  name="generateReport"
+                  checked={formData.permissions.generateReport}
                   onChange={handleCheckboxChange}
                   className="mr-2"
                 />
-                Create Report
+                Generate Report
               </label>
 
               {/* Update Report */}

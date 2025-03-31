@@ -1,21 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
-const FinalStep = ({ formData, userName , userRole}) => {
+const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
-     createReport: false,
-     updateReport: false,
-     createNewWithExisting: false,
-     downloadPDF: false,
-     exportData: false, // ✅ Add this
-   });
+    generateReport: false,
+    updateReport: false,
+    createNewWithExisting: false,
+    downloadPDF: false,
+    exportData: false, // ✅ Add this
+  });
+
+  const userName =
+    localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
   const navigate = useNavigate();
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
+  const [selectedColor, setSelectedColor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
@@ -55,31 +62,13 @@ const FinalStep = ({ formData, userName , userRole}) => {
     setIsPDFLoaded(true);
     setIsLoading(false);
 
-    timeoutId.current = setTimeout(() => {
-      if (isComponentMounted.current) {
-        console.log("✅ Navigating to /checkprofit after delay...");
-        navigate("/checkprofit");
-      }
-    }, 10000);
+    // timeoutId.current = setTimeout(() => {
+    //   if (isComponentMounted.current) {
+    //     console.log("✅ Navigating to /checkprofit after delay...");
+    //     navigate("/checkprofit");
+    //   }
+    // }, 10000);
   };
-
-  // const handleExportData = () => {
-  //   const data = formData; // Assuming formData contains your data
-
-  //   // Convert data to JSON format
-  //   const jsonData = JSON.stringify(data, null, 2);
-  //   const blob = new Blob([jsonData], { type: "application/json" });
-
-  //   // Create a link and trigger download
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = "exported-data.json"; // File name for download
-  //   link.click();
-
-  //   // Cleanup
-  //   URL.revokeObjectURL(url);
-  // };
 
   // ✅ Utility function to flatten nested objects
   const flattenObject = (obj, parentKey = "", result = {}) => {
@@ -280,66 +269,172 @@ const FinalStep = ({ formData, userName , userRole}) => {
     localStorage.setItem("lastStep", 8);
   };
 
+  // useEffect(() => {
+  //   const fetchPermissions = async () => {
+  //     try {
+  //       const [empRes, adminRes] = await Promise.all([
+  //         fetch("https://backend-three-pink.vercel.app/api/employees"),
+  //         fetch("https://backend-three-pink.vercel.app/api/admins"),
+  //       ]);
+
+  //       if (!empRes.ok || !adminRes.ok) {
+  //         throw new Error("Failed to fetch employee or admin data");
+  //       }
+
+  //       const employeeList = await empRes.json();
+  //       const adminList = await adminRes.json();
+
+  //       const normalizedUserName = userName?.trim().toLowerCase();
+
+  //       if (userRole === "admin") {
+  //         const storedAdminName = localStorage.getItem("adminName");
+
+  //         // ✅ If no specific admin name, assume full permissions (super admin)
+  //         if (!storedAdminName) {
+  //           setPermissions({
+  //             generateReport: true,
+  //             updateReport: true,
+  //             createNewWithExisting: true,
+  //             downloadPDF: true,
+  //             exportData: true,
+  //             createReport: true,
+  //           });
+  //           console.log("✅ Super Admin - All permissions granted");
+  //           return;
+  //         }
+
+  //         // ✅ Check if this admin exists
+  //         const admin = adminList.find(
+  //           (a) =>
+  //             a.username?.trim().toLowerCase() === normalizedUserName ||
+  //             a.adminId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (admin && admin.permissions) {
+  //           setPermissions(admin.permissions);
+  //           console.log("✅ Admin permissions set from DB:", admin.permissions);
+  //         } else {
+  //           setPermissions({
+  //             generateReport: true,
+  //             updateReport: true,
+  //             createNewWithExisting: true,
+  //             downloadPDF: true,
+  //             exportData: true,
+  //             createReport: true,
+  //           });
+  //           console.warn(
+  //             "⚠️ Admin found but no permissions set. Using default full access."
+  //           );
+  //         }
+  //       }
+
+  //       // ✅ Handle Employee Permissions
+  //       else if (userRole === "employee") {
+  //         const employee = employeeList.find(
+  //           (emp) =>
+  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (employee && employee.permissions) {
+  //           setPermissions(employee.permissions);
+  //           console.log("✅ Employee permissions set:", employee.permissions);
+  //         } else {
+  //           console.warn(
+  //             "⚠️ No matching employee found or permissions missing"
+  //           );
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("🔥 Error fetching permissions:", err.message);
+  //     }
+  //   };
+
+  //   if (userRole && userName) {
+  //     fetchPermissions();
+  //   }
+  // }, [userRole, userName, refreshKey]);
+
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        // Fetching all employees
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
-        );
+        const [empRes, adminRes] = await Promise.all([
+          fetch("https://backend-three-pink.vercel.app/api/employees"),
+          fetch("https://backend-three-pink.vercel.app/api/admins"),
+        ]);
 
-        // Check if the response is successful
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees");
+        if (!empRes.ok || !adminRes.ok) {
+          throw new Error("Failed to fetch data");
         }
 
-        const result = await response.json();
-        console.log("✅ Fetched Employees Data:", result);
+        const employeeList = await empRes.json();
+        const adminList = await adminRes.json();
 
-        const employees = Array.isArray(result) ? result : [];
+        const normalizedUserName = userName?.trim().toLowerCase();
 
-        // Assign permissions based on userRole
         if (userRole === "admin") {
-          setPermissions({
-            createReport: true,
-            updateReport: true,
-            createNewWithExisting: true,
-            downloadPDF: true,
-          });
-          console.log("✅ Admin permissions granted");
-        } else if (userRole === "employee") {
-          // Normalize the userName to lowercase and trim spaces
-          const normalizedUserName = userName?.trim().toLowerCase();
+          const storedAdminName = localStorage.getItem("adminName");
 
-          // Find the employee based on name, email, or employeeId
-          const employee = employees.find(
+          if (!storedAdminName) {
+            setPermissions({
+              generateReport: true,
+              updateReport: true,
+              createNewWithExisting: true,
+              downloadPDF: true,
+              exportData: true,
+              createReport: true,
+            });
+            return;
+          }
+
+          const admin = adminList.find(
+            (a) =>
+              a.username?.trim().toLowerCase() === normalizedUserName ||
+              a.adminId?.trim().toLowerCase() === normalizedUserName
+          );
+
+          if (admin?.permissions) setPermissions(admin.permissions);
+        }
+
+        if (userRole === "employee") {
+          const employee = employeeList.find(
             (emp) =>
               emp.name?.trim().toLowerCase() === normalizedUserName ||
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
 
-          // Set permissions if employee is found
-          if (employee && employee.permissions) {
-            setPermissions(employee.permissions);
-            console.log(
-              "✅ Permissions fetched for employee:",
-              employee.permissions
-            );
-          } else {
-            console.warn(
-              "⚠️ No matching employee found or permissions missing"
-            );
-          }
+          if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
-        console.error("🔥 Error fetching permissions:", err.message);
+        console.error("Error fetching permissions:", err.message);
       }
     };
 
-    // Fetch permissions when the component mounts or when userRole/userName changes
+    // 🔁 Initial fetch
     fetchPermissions();
-  }, [userRole, userName]);
+
+    // 🔁 Poll every 15 seconds
+    const interval = setInterval(fetchPermissions, 100);
+
+    return () => clearInterval(interval); // Cleanup
+  }, [userRole, userName, refreshKey]);
+
+  const getColorHex = (color) => {
+    const colorMap = {
+      Red: "#ef4444", // Tailwind red-500 (vibrant)
+      Blue: "#3b82f6", // Tailwind blue-500
+      Green: "#22c55e", // Tailwind green-500
+      Purple: "#8b5cf6", // Tailwind purple-500
+      SkyBlue: "#0ea5e9", // Tailwind sky-500
+      Orange: "#f97316", // Tailwind orange-500
+      Pink: "#ec4899", // Tailwind pink-500
+      Teal: "#14b8a6", // Tailwind teal-500
+    };
+
+    return colorMap[color] || "#172554"; // default fallback (dark blue)
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
@@ -350,20 +445,26 @@ const FinalStep = ({ formData, userName , userRole}) => {
         Review the information and click the button below to proceed.
       </p>
 
-      {/* ✅ Dropdown Selection */}
-      {/* <div className="mb-4">
+      {/* ✅ PDF Type Dropdown */}
+      <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">
           Select PDF Type:
         </label>
         <select
           value={selectedOption}
           onChange={(e) => {
-            setSelectedOption(e.target.value);
+            const option = e.target.value;
+            setSelectedOption(option);
+
+            // ✅ Remove selectedColor if "Other" is unselected
+            if (option !== "Other") {
+              setSelectedColor("");
+              localStorage.removeItem("selectedColor");
+            }
 
             if (
-              e.target.value === "CA Certified" &&
-              (!formData?.ProjectReportSetting?.UDINNumber ||
-                formData?.ProjectReportSetting?.UDINNumber.trim() === "")
+              option === "CA Certified" &&
+              !formData?.ProjectReportSetting?.UDINNumber
             ) {
               setShowError(true);
             } else {
@@ -376,30 +477,112 @@ const FinalStep = ({ formData, userName , userRole}) => {
           <option value="Sharda Associates">Sharda Associates</option>
           <option value="CA Certified">CA Certified</option>
           <option value="Finaxis">Finaxis</option>
+          <option value="Other">Other</option>
         </select>
 
-        
         {showError && (
           <div className="mt-2 text-red-600">
             <p>UDIN number is not available.</p>
             <button
-              onClick={() => setCurrentStep(4)}
+              // onClick={() => setCurrentStep(4)}
               className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               Go to Project Report Settings
             </button>
           </div>
         )}
-      </div> */}
+      </div>
+
+      {selectedOption === "Other" && (
+        <div>
+          {/* Color Selection - Horizontal Layout */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Select Color:
+            </label>
+
+            <div className="flex flex-wrap gap-4">
+              {[
+                "Red",
+                "Blue",
+                "Green",
+                "Purple",
+                "SkyBlue",
+                "Orange",
+                "Teal",
+              ].map((color) => (
+                <label
+                  key={color}
+                  className={`flex items-center gap-1 px-1 py-1 rounded-md border transition cursor-pointer 
+                 ${
+                   selectedColor === color
+                     ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
+                     : "border border-gray-300"
+                 } hover:shadow-sm`}
+                  onDoubleClick={() => {
+                    if (selectedColor === color) {
+                      setSelectedColor("");
+                      localStorage.removeItem("selectedColor");
+                    }
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="selectedColor"
+                    value={color}
+                    checked={selectedColor === color}
+                    onChange={(e) => {
+                      const selected = e.target.value;
+                      if (selectedColor === selected) {
+                        setSelectedColor("");
+                        localStorage.removeItem("selectedColor");
+                      } else {
+                        setSelectedColor(selected);
+                        localStorage.setItem("selectedColor", selected);
+                      }
+                    }}
+                    className="hidden"
+                  />
+
+                  <div
+                    className={`relative w-6 h-6 rounded-full border border-gray-300`}
+                    style={{ backgroundColor: getColorHex(color) }}
+                  >
+                    {selectedColor === color && (
+                      <svg
+                        className="absolute top-0 left-0 w-full h-full text-white p-1"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium">
+                    {color === "SkyBlue" ? "Sky Blue" : color}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-5">
         {/* ✅ Generate PDF Button */}
-        <button
-          onClick={() => window.open("/generated-pdf", "_blank")}
-          className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Generate PDF
-        </button>
+        {((userRole === "admin" &&
+          (!localStorage.getItem("adminName") || permissions.generateReport)) ||
+          (userRole === "employee" && permissions.generateReport)) && (
+          <Link to="/generated-pdf" target="_blank" rel="noopener noreferrer">
+            <button className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              Generate PDF
+            </button>
+          </Link>
+        )}
 
         {/* ✅ Check Profit Button */}
         <button
@@ -410,7 +593,9 @@ const FinalStep = ({ formData, userName , userRole}) => {
         </button>
 
         {/* ✅ New Export Data Button */}
-        {(userRole === "admin" || permissions.exportData) && (
+        {((userRole === "admin" &&
+          (!localStorage.getItem("adminName") || permissions.exportData)) ||
+          (userRole === "employee" && permissions.exportData)) && (
           <button
             onClick={handleExportData}
             className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"

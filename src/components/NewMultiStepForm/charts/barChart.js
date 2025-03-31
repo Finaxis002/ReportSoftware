@@ -144,7 +144,7 @@ export const generateBarChart = async ({
   expenses,
   formData,
 }) => {
-  console.log("form data in bar chart", formData);
+  // console.log("form data in bar chart", formData);
   try {
     const canvas = document.createElement("canvas");
     canvas.width = 600;
@@ -163,21 +163,21 @@ export const generateBarChart = async ({
     );
 
     const revenueType = formData?.Revenue?.formType ; 
-    console.log("revenue type from bar chart",revenueType )
+    // console.log("revenue type from bar chart",revenueType )
     let selectedRevenue = [];
     if (revenueType === "Monthly" && formData?.Revenue?.totalRevenue) {
       selectedRevenue = formData.Revenue.totalRevenue;
-      console.log("this is selected revenue from monthly ",selectedRevenue)
+      // console.log("this is selected revenue from monthly ",selectedRevenue)
     } else if (
       revenueType === "Others" &&
       formData?.Revenue?.totalRevenueForOthers
     ) {
       selectedRevenue = formData.Revenue.totalRevenueForOthers;
-      console.log("this is selected revenue from others ",selectedRevenue)
+      // console.log("this is selected revenue from others ",selectedRevenue)
     }
 
     if (selectedRevenue.length === 0) {
-      console.error("❌ No revenue data available for the selected type.");
+      // console.error("❌ No revenue data available for the selected type.");
       return null;
     }
 
@@ -189,7 +189,7 @@ export const generateBarChart = async ({
     //     ]
     //   : 0;
       const lastYearRevenue = selectedRevenue[selectedRevenue.length - 1] || 0;
-      console.log("revenue from bar chart",lastYearRevenue)
+      // console.log("revenue from bar chart",lastYearRevenue)
     // ✅ Set max value as last year revenue + 50% of last year revenue
     const maxYValue = lastYearRevenue + lastYearRevenue * 0.5;
 
@@ -203,7 +203,7 @@ export const generateBarChart = async ({
       !formData?.Revenue?.totalRevenueForOthers ||
       formData.Revenue.totalRevenueForOthers.length === 0
     ) {
-      console.error("❌ Revenue data is missing or empty");
+      // console.error("❌ Revenue data is missing or empty");
       return null;
     }
 

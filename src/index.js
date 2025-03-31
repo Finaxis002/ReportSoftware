@@ -34,6 +34,7 @@ import FourthStepPRS from "./components/NewMultiStepForm/Steps/FourthStepPRS.jsx
 import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -73,6 +74,21 @@ const App = () => {
     }
   };
 
+  useEffect(() => {
+    const theme = localStorage.getItem("theme") || "light"; // fallback to light
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const role = localStorage.getItem("userRole");
+
+    if (isLoggedIn && role) {
+      setIsAuthenticated(true);
+      setUserRole(role);
+    }
+  }, []);
+
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
@@ -99,29 +115,20 @@ const App = () => {
               path="/login"
               element={
                 isAuthenticated ? (
-                  <Navigate to="/login" replace />
+                  <Navigate to="/" replace />
                 ) : (
                   <MainLogin onLogin={handleLogin} />
                 )
               }
             />
-            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-            <Route
-              path="/MultistepForm"
-              element={
-                <MultiStepForm
-                  receivedGeneratedPDFData={generatePDfData}
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
-              }
-            />
-            <Route path="/employees" element={<Employees />} />
-            <Route path="/admin" element={<AdminList />} />
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/clientData" element={<ClientData />} />
-            <Route path="/tasks/:taskId" element={<Tasks />} />
-            <Route path="/bank-details" element={<BankDetails />} />
+
+        
+            <Route path="/employees" element={<ProtectedRoute ><Employees /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute ><AdminList /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute ><Notification /></ProtectedRoute>} />
+            <Route path="/clientData" element={<ProtectedRoute ><ClientData /></ProtectedRoute>} />
+            <Route path="/tasks/:taskId" element={<ProtectedRoute ><Tasks /></ProtectedRoute>} />
+            <Route path="/bank-details" element={<ProtectedRoute ><BankDetails /></ProtectedRoute>} />
             {/* Protect MongoDB route */}
             <Route
               path="/database"
@@ -136,16 +143,15 @@ const App = () => {
             <Route
               path="/createreport"
               element={
+                <ProtectedRoute >
                 <CreateReport
                   userRole={userRole}
                   userName={userRole === "employee" ? userName : null}
                 />
+                </ProtectedRoute>
               }
             />
 
-            {/* ✅ Correctly Placed Routes */}
-            <Route path="/generated-pdf" element={<GeneratedPDF />} />
-            <Route path="/checkprofit" element={<CheckProfit />} />
 
             <Route
               path="/login"
@@ -161,18 +167,41 @@ const App = () => {
             <Route
               path="/MultestepForm"
               element={
-                <MultiStepForm
-                  receivedGeneratedPDFData={generatePDfData}
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
+                <ProtectedRoute>
+                  <MultiStepForm
+                    receivedGeneratedPDFData={generatePDfData}
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                  />
+                </ProtectedRoute>
               }
             />
             <Route path="/employees" element={<Employees />} />
 
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/clientData" element={<ClientData />} />
-            <Route path="/tasks/:taskId" element={<Tasks />} />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientData"
+              element={
+                <ProtectedRoute>
+                  <ClientData />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tasks/:taskId"
+              element={
+                <ProtectedRoute>
+                  <Tasks />{" "}
+                </ProtectedRoute>
+              }
+            />
 
             {/* Protect MongoDB route */}
             <Route
@@ -188,31 +217,50 @@ const App = () => {
             <Route
               path="/createreport"
               element={
-                <CreateReport
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
+                <ProtectedRoute>
+                  <CreateReport
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                  />
+                </ProtectedRoute>
               }
             />
 
             {/* ✅ Correctly Placed Routes */}
-            <Route
-              path="/generated-pdf"
-              element={
-                <GeneratedPDF
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                  pdfData={pdfData}
-                />
-              }
-            />
-            <Route path="/checkprofit" element={<CheckProfit />} />
 
             <Route
               path="/reports"
-              element={<Reports sendPdfData={setPdfData} />}
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <Reports sendPdfData={setPdfData} />
+                </ProtectedRoute>
+              }
             />
+
             <Route path="/clients" element={<Clients />} />
+
+            <Route
+              path="/generated-pdf"
+              element={
+                <ProtectedRoute>
+                  <GeneratedPDF
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                    pdfData={pdfData}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkprofit"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CheckProfit />{" "}
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

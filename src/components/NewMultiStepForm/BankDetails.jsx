@@ -189,7 +189,9 @@ const BankDetails = () => {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/api/bank-filters");
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/bank-filters"
+        );
         if (!response.ok) throw new Error("Failed to fetch filter options");
 
         const data = await response.json();
@@ -431,12 +433,12 @@ const BankDetails = () => {
         <Header dashboardType="Admin Dashboard" />
 
         <div className="max-w-7xl w-full pt-4 h-[600px] overflow-auto">
-          <h2 className="text-2xl font-extrabold text-gray-500 mb-8 text-center tracking-wide">
+          <h2 className="text-2xl font-extrabold text-gray-500 dark:text-white mb-8 text-center tracking-wide">
             Bank Details
           </h2>
 
           {/* ✅ Filter Section */}
-          <div className="flex flex-wrap gap-6 justify-between items-center mb-6 bg-gray-50 p-2 rounded-md shadow-md">
+          <div className="flex flex-wrap gap-6 justify-between items-center mb-6 bg-gray-50 dark:bg-gray-800 p-2 rounded-md shadow-md">
             {/* ✅ Add New Button */}
             <button
               className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-blue-700 active:scale-95"
@@ -446,7 +448,7 @@ const BankDetails = () => {
             </button>
             {/* ✅ Bank Name Filter */}
             <div className="w-full sm:w-1/3">
-              <label className="block text-gray-800 font-medium mb-2">
+             <label className="block text-gray-800 dark:text-gray-200 font-medium mb-2">
                 Bank Name (IFSC)
               </label>
               <Select
@@ -458,11 +460,12 @@ const BankDetails = () => {
                 onChange={(option) => setSelectedBank(option?.value)}
                 placeholder="Select Bank"
                 isClearable
+                className="dark:bg-black"
               />
             </div>
             {/* ✅ Manager Name Filter */}
             <div className="w-full sm:w-1/3">
-              <label className="block text-gray-800 font-medium mb-2">
+             <label className="block text-gray-800 dark:text-gray-200 font-medium mb-2">
                 Manager Name
               </label>
               <Select
@@ -504,10 +507,11 @@ const BankDetails = () => {
               {filteredData.map((detail, index) => (
                 <div
                   key={index}
-                  className="bg-white/60 backdrop-blur-lg shadow-xl border border-gray-200 rounded-xl overflow-hidden transform transition duration-300  hover:shadow-2xl"
+                  className="bg-white/60 dark:bg-gray-800 backdrop-blur-lg shadow-xl border border-gray-200 rounded-xl overflow-hidden transform transition duration-300  hover:shadow-2xl"
                 >
                   {/* Header */}
                   <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white text-center py-3">
+
                     <h3 className="text-lg font-semibold tracking-wide">
                       {detail.clientName || "N/A"}
                     </h3>
@@ -516,80 +520,88 @@ const BankDetails = () => {
                   {/* Content */}
                   <div className="p-6 space-y-4">
                     {/* Business name */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faUniversity}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Business:</span>{" "}
                       {detail.businessName || "N/A"}
                     </p>
 
                     {/* Bank */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faUniversity}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Bank:</span>{" "}
                       {detail.bankDetails.Bank || "N/A"}
                     </p>
 
                     {/* Manager */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faUserTie}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Manager:</span>{" "}
                       {detail.bankDetails.BankManagerName || "N/A"}
                     </p>
 
                     {/* Post */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faBriefcase}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Post:</span>{" "}
                       {detail.bankDetails.Post || "N/A"}
                     </p>
 
                     {/* Contact */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faPhone}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Contact:</span>{" "}
                       {detail.bankDetails.ContactNo || "N/A"}
                     </p>
 
                     {/* Email */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faEnvelope}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">Email:</span>{" "}
                       {detail.bankDetails.EmailId || "N/A"}
                     </p>
 
                     {/* IFSC Code */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faHashtag}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">IFSC:</span>{" "}
                       {detail.bankDetails.IFSCCode || "N/A"}
                     </p>
 
                     {/* City */}
-                    <p className="text-gray-700 flex items-center">
+                    <p className="text-gray-700 dark:text-gray-100 flex items-center">
+
                       <FontAwesomeIcon
                         icon={faMapMarkerAlt}
-                        className="h-3 w-3 text-gray-500 mr-3"
+                        className="h-3 w-3 text-gray-500 dark:text-gray-50 mr-3"
                       />
                       <span className="font-semibold w-40">City:</span>{" "}
                       {detail.bankDetails.City || "N/A"}

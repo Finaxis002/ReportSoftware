@@ -1,6 +1,5 @@
-
-
 import React, { useState, useCallback, useMemo, useEffect } from "react";
+import Header from "./Header";
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
 import StepperControl from "./StepperControl";
@@ -30,7 +29,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   const [error, setError] = useState("");
 
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
-  const {isCreateReportWithExistingClicked , reportData} =
+  const { isCreateReportWithExistingClicked, reportData } =
     location.state?.isCreateReportWithExistingClicked || false;
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
@@ -56,7 +55,6 @@ const MultiStepForm = ({ userRole, userName }) => {
   //   MoreDetails: {},
   // });
 
-
   const [formData, setFormData] = useState({
     AccountInformation: {},
     MeansOfFinance: {},
@@ -67,7 +65,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     MoreDetails: {},
     generatedPDF: {},
   });
-
 
   useEffect(() => {
     if (isCreateReportWithExistingClicked && reportData) {
@@ -82,7 +79,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
 
-  
   const steps = [
     "Account Information",
     "Means Of Finance",
@@ -341,8 +337,13 @@ const MultiStepForm = ({ userRole, userName }) => {
         );
       case 8:
         return (
-          <FinalStep formData={formData} setCurrentStep={setCurrentStep} 
-          currentStep={currentStep || 1} userRole={userRole} userName={userName}/>
+          <FinalStep
+            formData={formData}
+            setCurrentStep={setCurrentStep}
+            currentStep={currentStep || 1}
+            userRole={userRole}
+            userName={userName}
+          />
         );
       default:
         return null;
@@ -455,44 +456,47 @@ const MultiStepForm = ({ userRole, userName }) => {
     setCurrentStep(lastStep);
     navigate(`/MultistepForm?step=${lastStep}`, { replace: true }); // ✅ Update URL to last step
   };
-  
 
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App md:w-[85%] shadow-xl rounded-2xl pb-2 bg-white">
-        {/* Step Content */}
+      <div className="App w-full shadow-xl rounded-2xl pb-2">
+        <Header
+          dashboardType={
+            userRole === "admin" ? "Admin Dashboard" : "Employee Dashboard"
+          }
+        />
 
-          {/* Stepper Component */}
-          <div className="container horizontal my-[3.5rem]">
-            <Stepper steps={steps} currentStep={currentStep} />
-          </div>
+        {/* Stepper Component */}
+        <div className="container horizontal mb-[3.5rem]">
+          <Stepper steps={steps} currentStep={currentStep} />
+        </div>
 
-          {/* ✅ Dropdown placed outside steps to persist selection */}
-          {!isCreateReportClicked && userRole !== "client" && (
-            <div className="">
-              {/* <ClientNameDropdown
+        {/* ✅ Dropdown placed outside steps to persist selection */}
+        {!isCreateReportClicked && userRole !== "client" && (
+          <div className="">
+            {/* <ClientNameDropdown
               onClientSelect={() => { }}
               onBusinessSelect={handleBusinessSelect}
             /> */}
-              <ReportDropdown onBusinessSelect={handleBusinessSelect} />
-            </div>
-          )}
-          {stepContent}
-          <StepperControl
-            handleNext={handleNext}
-            handleBack={handleBack}
-            handleSave={handleSaveData}
-            handleUpdate={handleUpdate}
-            currentStep={currentStep}
-            totalSteps={steps.length}
-            isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
-            handleCreateNewFromExisting={handleCreateNewFromExisting}
-            handleNextStep={handleNextStep}
-            stepData={formData}
-            disableNext={!!error}
-            goToLastStep={goToLastStep} // ✅ Pass goToLastStep to StepperControl
-          />
+            <ReportDropdown onBusinessSelect={handleBusinessSelect} />
+          </div>
+        )}
+        <div>{stepContent}</div>
+        <StepperControl
+          handleNext={handleNext}
+          handleBack={handleBack}
+          handleSave={handleSaveData}
+          handleUpdate={handleUpdate}
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
+          handleCreateNewFromExisting={handleCreateNewFromExisting}
+          handleNextStep={handleNextStep}
+          stepData={formData}
+          disableNext={!!error}
+          goToLastStep={goToLastStep} // ✅ Pass goToLastStep to StepperControl
+        />
 
         {/* Stepper Control Buttons */}
       </div>

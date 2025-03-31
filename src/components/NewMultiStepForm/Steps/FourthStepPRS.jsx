@@ -104,9 +104,9 @@ const FourthStepPRS = ({
         isCustom: false,
       },
 
-      increasingRateOfRevenue: {
-        name: "Increasing Rate of Revenue",
-        id: "increasingRateOfRevenue",
+      increasingRateOfExpenses: {
+        name: "Increasing Rate of Expenses",
+        id: "increasingRateOfExpenses",
         value: "",
         isCustom: false,
       },
@@ -786,13 +786,13 @@ onFormDataChange((prevData) => {
                   id="rateOfExpense" // ✅ Updated ID
                   name="rateOfExpense" // ✅ Updated Name
                   type="number"
-                  placeholder="Increasing Rate of Revenue"
+                  placeholder="Increasing Rate of Expenses"
                   required
-                  value={localData.rateOfExpense.value}
+                  value={localData.rateOfExpense}
                   onChange={handleChange}
                 />
                 <label htmlFor="rateOfExpense">
-                  Increasing Rate of Revenue
+                  Increasing Rate of Expenses
                 </label>
               </div>
             </div>
