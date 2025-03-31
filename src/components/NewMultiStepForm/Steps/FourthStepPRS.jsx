@@ -30,202 +30,247 @@ const FourthStepPRS = ({
     "December",
   ];
 
-  const [localData, setLocalData] = useState(() => ({
-    ...{
-      RepaymentMonths: {
-        name: "Repayment Months",
-        id: "RepaymentMonths",
-        value: "",
-        isCustom: false,
-      },
-      ProjectionYears: {
-        name: "Projection Years",
-        id: "ProjectionYears",
-        value: "",
-        isCustom: false,
-      },
-      PurposeofReport: {
-        name: "Purpose of Report",
-        id: "PurposeofReport",
-        value: "",
-        isCustom: false,
-      },
-      MoratoriumPeriod: {
-        name: "Moratorium Period",
-        id: "MoratoriumPeriod",
-        value: "",
-        isCustom: false,
-      },
-      SelectRepaymentMethod: {
-        name: "Select Repayment Method",
-        id: "SelectRepaymentMethod",
-        value: "",
-        isCustom: false,
-      },
-      SelectStartingMonth: {
-        name: "Select Starting Month",
-        id: "SelectStartingMonth",
-        value: "",
-        isCustom: false,
-      },
-      FinancialYear: {
-        name: "Financial Year",
-        id: "FinancialYear",
-        value: "",
-        isCustom: false,
-      },
-      AmountIn: {
-        name: "Amount In",
-        id: "AmountIn",
-        value: "",
-        isCustom: false,
-      },
-      Currency: {
-        name: "Currency",
-        id: "Currency",
-        value: "",
-        isCustom: false,
-      },
-      Format: { name: "Format", id: "Format", value: "", isCustom: false },
-      interestOnTL: {
-        name: "Interest On Term Loan",
-        id: "interestOnTL",
-        value: "",
-        isCustom: false,
-      },
-      interestOnWC: {
-        name: "Interest On Working Capital",
-        id: "interestOnWC",
-        value: "",
-        isCustom: false,
-      },
-      rateOfInterest: {
-        name: "Rate of Interest",
-        id: "rateOfInterest",
-        value: "",
-        isCustom: false,
-      },
+  // const [localData, setLocalData] = useState(() => ({
+  //   ...{
+  //     RepaymentMonths: {
+  //       name: "Repayment Months",
+  //       id: "RepaymentMonths",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     ProjectionYears: {
+  //       name: "Projection Years",
+  //       id: "ProjectionYears",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     PurposeofReport: {
+  //       name: "Purpose of Report",
+  //       id: "PurposeofReport",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     MoratoriumPeriod: {
+  //       name: "Moratorium Period",
+  //       id: "MoratoriumPeriod",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     SelectRepaymentMethod: {
+  //       name: "Select Repayment Method",
+  //       id: "SelectRepaymentMethod",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     SelectStartingMonth: {
+  //       name: "Select Starting Month",
+  //       id: "SelectStartingMonth",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     FinancialYear: {
+  //       name: "Financial Year",
+  //       id: "FinancialYear",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     AmountIn: {
+  //       name: "Amount In",
+  //       id: "AmountIn",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     Currency: {
+  //       name: "Currency",
+  //       id: "Currency",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     Format: { name: "Format", id: "Format", value: "", isCustom: false },
+  //     interestOnTL: {
+  //       name: "Interest On Term Loan",
+  //       id: "interestOnTL",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     interestOnWC: {
+  //       name: "Interest On Working Capital",
+  //       id: "interestOnWC",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     rateOfInterest: {
+  //       name: "Rate of Interest",
+  //       id: "rateOfInterest",
+  //       value: "",
+  //       isCustom: false,
+  //     },
 
-      increasingRateOfExpenses: {
-        name: "Increasing Rate of Expenses",
-        id: "increasingRateOfExpenses",
-        value: "",
-        isCustom: false,
-      },
-      rateOfWorkingCapital: {
-        name: "Rate of Working Capital",
-        id: "rateOfWorkingCapital",
-        value: "",
-        isCustom: false,
-      },
-      incomeTax: {
-        name: "Income Tax",
-        id: "incomeTax",
-        value: 30,
-        isCustom: false,
-      },
-      rateOfExpense: {
-        name: "Rate of Expense",
-        id: "rateOfExpense",
-        value: "",
-        isCustom: false,
-      },
-      // ✅ Added Subsidy Fields
-      SubsidyName: {
-        name: "Subsidy Name",
-        id: "SubsidyName",
-        value: "Government Grant", // Default value
-        isCustom: false,
-      },
-      SubsidyPercentage: {
-        name: "Subsidy Percentage",
-        id: "SubsidyPercentage",
-        value: "15", // Default value (15%)
-        isCustom: false,
-      },
-      SubsidyAmount: {
-        name: "Subsidy Amount",
-        id: "SubsidyAmount",
-        value: "10", // Default value in Lakhs
-        isCustom: false,
-      },
-      SubsidyText: {
-        name: "Text for Subsidy",
-        id: "SubsidyText",
-        value: "Eligible for government subsidy under MSME scheme.", // Default text
-        isCustom: false,
-      },
-      UDINNumber: {
-        name: "UDIN Number",
-        id: "UDINNumber",
-        value: "",
-        isCustom: false,
-      },
-      CAName: {
-        name: "CA Name",
-        id: "CAName",
-        value: "",
-        isCustom: true,
-      },
-      MembershipNumber: {
-        name: "Membership Number",
-        id: "MembershipNumber",
-        value: "",
-        isCustom: false,
-      },
-      MobileNumber: {
-        name: "Mobile Number",
-        id: "MobileNumber",
-        value: "",
-        isCustom: false,
-      },
-      // ✅ New Object for Bank Details
-      BankDetails: {
-        Bank: {
-          name: "Bank",
-          id: "Bank",
-          value: "",
-          isCustom: false,
-        },
-        BankManagerName: {
-          name: "Bank Manager Name",
-          id: "BankManagerName",
-          value: "",
-          isCustom: false,
-        },
-        Post: {
-          name: "Post",
-          id: "Post",
-          value: "",
-          isCustom: false,
-        },
-        ContactNo: {
-          name: "Contact No.",
-          id: "ContactNo",
-          value: "",
-          isCustom: false,
-        },
-        EmailId: {
-          name: "Email ID",
-          id: "EmailId",
-          value: "",
-          isCustom: false,
-        },
-        IFSCCode: {
-          name: "IFSC Code",
-          id: "IFSCCode",
-          value: "",
-          isCustom: false,
-        },
-        City: {
-          name: "City",
-          id: "City",
-          value: "",
-          isCustom: false,
-        },
-      },
+  //     increasingRateOfExpenses: {
+  //       name: "Increasing Rate of Expenses",
+  //       id: "increasingRateOfExpenses",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     rateOfWorkingCapital: {
+  //       name: "Rate of Working Capital",
+  //       id: "rateOfWorkingCapital",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     incomeTax: {
+  //       name: "Income Tax",
+  //       id: "incomeTax",
+  //       value: 30,
+  //       isCustom: false,
+  //     },
+  //     rateOfExpense: {
+  //       name: "Rate of Expense",
+  //       id: "rateOfExpense",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     // ✅ Added Subsidy Fields
+  //     SubsidyName: {
+  //       name: "Subsidy Name",
+  //       id: "SubsidyName",
+  //       value: "Government Grant", // Default value
+  //       isCustom: false,
+  //     },
+  //     SubsidyPercentage: {
+  //       name: "Subsidy Percentage",
+  //       id: "SubsidyPercentage",
+  //       value: "15", // Default value (15%)
+  //       isCustom: false,
+  //     },
+  //     SubsidyAmount: {
+  //       name: "Subsidy Amount",
+  //       id: "SubsidyAmount",
+  //       value: "10", // Default value in Lakhs
+  //       isCustom: false,
+  //     },
+  //     SubsidyText: {
+  //       name: "Text for Subsidy",
+  //       id: "SubsidyText",
+  //       value: "Eligible for government subsidy under MSME scheme.", // Default text
+  //       isCustom: false,
+  //     },
+  //     UDINNumber: {
+  //       name: "UDIN Number",
+  //       id: "UDINNumber",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     CAName: {
+  //       name: "CA Name",
+  //       id: "CAName",
+  //       value: "",
+  //       isCustom: true,
+  //     },
+  //     MembershipNumber: {
+  //       name: "Membership Number",
+  //       id: "MembershipNumber",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     MobileNumber: {
+  //       name: "Mobile Number",
+  //       id: "MobileNumber",
+  //       value: "",
+  //       isCustom: false,
+  //     },
+  //     // ✅ New Object for Bank Details
+  //     BankDetails: {
+  //       Bank: {
+  //         name: "Bank",
+  //         id: "Bank",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       BankManagerName: {
+  //         name: "Bank Manager Name",
+  //         id: "BankManagerName",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       Post: {
+  //         name: "Post",
+  //         id: "Post",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       ContactNo: {
+  //         name: "Contact No.",
+  //         id: "ContactNo",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       EmailId: {
+  //         name: "Email ID",
+  //         id: "EmailId",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       IFSCCode: {
+  //         name: "IFSC Code",
+  //         id: "IFSCCode",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //       City: {
+  //         name: "City",
+  //         id: "City",
+  //         value: "",
+  //         isCustom: false,
+  //       },
+  //     },
+  //   },
+  //   ...(formData?.ProjectReportSetting || {}), // Merging formData if available
+  // }));
+  const [localData, setLocalData] = useState(() => ({
+    RepaymentMonths: "",
+    ProjectionYears: 5,
+    PurposeofReport: "Bank Loan",
+    MoratoriumPeriod: "",
+    SelectRepaymentMethod: "Monthly",
+    SelectStartingMonth: "",
+    FinancialYear: "2025",
+    AmountIn: "",
+    Currency: "",
+    Format: "",
+    interestOnTL: 10,
+    interestOnWC: "",
+    rateOfInterest: "",
+    increasingRateOfExpenses: 5,
+    rateOfWorkingCapital: "",
+    incomeTax: 30,
+    rateOfExpense: 5,
+
+    // Subsidy
+    SubsidyName: "Government Grant",
+    SubsidyPercentage: "15",
+    SubsidyAmount: "10",
+    SubsidyText: "Eligible for government subsidy under MSME scheme.",
+
+    // CA Details
+    UDINNumber: "",
+    CAName: "",
+    MembershipNumber: "",
+    MobileNumber: "",
+
+    // Bank Details
+    BankDetails: {
+      Bank: "",
+      BankManagerName: "",
+      Post: "",
+      ContactNo: "",
+      EmailId: "",
+      IFSCCode: "",
+      City: "",
     },
-    ...(formData?.ProjectReportSetting || {}), // Merging formData if available
+
+    // ✅ Override with pre-filled data if available
+    ...(formData?.ProjectReportSetting || {}),
   }));
 
   const CA_DETAILS = {
@@ -242,6 +287,18 @@ const FourthStepPRS = ({
       mobileNumber: "+91-1234567894",
     },
   };
+
+  useEffect(() => {
+    if (!localData?.incomeTax?.value) {
+      setLocalData((prev) => ({
+        ...prev,
+        incomeTax: {
+          ...prev.incomeTax,
+          value: 30,
+        },
+      }));
+    }
+  }, []);
 
   // ✅ Populate `localData` from `formData.ProjectReportSetting` on mount
   useEffect(() => {
@@ -304,290 +361,156 @@ const FourthStepPRS = ({
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
+  //   const handleChange = (e) => {
+  //     const { name, value } = e.target;
+  //     const [key, subKey] = name.split(".");
 
-  // Handle change for any field including ProjectionYears
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   const keys = name.split("."); // Handle nested objects
-
-  //   setLocalData((prevData) => {
-  //     if (keys.length === 2) {
-  //       // For nested objects like BankDetails.Bank
-  //       const [parentKey, childKey] = keys;
-  //       return {
-  //         ...prevData,
-  //         [parentKey]: {
-  //           ...prevData[parentKey],
-  //           [childKey]: {
-  //             ...prevData[parentKey][childKey],
-  //             value: value, // ✅ Update value inside object
+  //     setLocalData((prevData) => {
+  //       // ✅ Handle CA Name selection
+  //       if (name === "CAName" && CA_DETAILS[value]) {
+  //         return {
+  //           ...prevData,
+  //           CAName: { ...prevData.CAName, value },
+  //           MembershipNumber: {
+  //             ...prevData.MembershipNumber,
+  //             value: CA_DETAILS[value].membershipNumber,
   //           },
-  //         },
-  //       };
-  //     } else {
-  //       // For non-nested fields
-  //       return {
-  //         ...prevData,
-  //         [name]: {
-  //           ...prevData[name],
-  //           value: value,
-  //         },
-  //       };
-  //     }
-  //   });
-
-  //   // ✅ Update parent state (onFormDataChange)
-  //   onFormDataChange((prevData) => {
-  //     if (keys.length === 2) {
-  //       const [parentKey, childKey] = keys;
-  //       return {
-  //         ...prevData,
-  //         ProjectReportSetting: {
-  //           ...prevData.ProjectReportSetting,
-  //           [parentKey]: {
-  //             ...prevData.ProjectReportSetting[parentKey],
-  //             [childKey]: {
-  //               ...prevData.ProjectReportSetting[parentKey][childKey],
+  //           MobileNumber: {
+  //             ...prevData.MobileNumber,
+  //             value: CA_DETAILS[value].mobileNumber,
+  //           },
+  //         };
+  //       } else if (name.includes(".")) {
+  //         // ✅ For nested fields like BankDetails.Bank
+  //         const keys = name.split(".");
+  //         return {
+  //           ...prevData,
+  //           [keys[0]]: {
+  //             ...prevData[keys[0]],
+  //             [keys[1]]: {
+  //               ...prevData[keys[0]][keys[1]],
   //               value: value,
+
   //             },
   //           },
-  //         },
-  //       };
-  //     } else {
-  //       return {
-  //         ...prevData,
-  //         ProjectReportSetting: {
-  //           ...prevData.ProjectReportSetting,
-  //           [name]: {
-  //             ...prevData.ProjectReportSetting[name],
-  //             value: value,
-  //           },
-  //         },
-  //       };
-  //     }
-  //   });
-  // };
-  //////////////////////
+  //         };
+  //       } else {
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
+  //         // ✅ Direct value update for other fields
+  //         const isAdvancedField =
+  //           name === "UDINNumber" ||
+  //           name === "CAName" ||
+  //           name.startsWith("BankDetails.");
 
-  //   setLocalData((prevData) => {
-  //     let updatedData = {
+  //         return {
+  //           ...prevData,
+  //           [name]: isAdvancedField
+  //             ? { ...prevData[name], value: value } // ✅ Use .value for advance fields
+  //             : value, // ✅ Directly update value for normal fields
+
+  //         };
+  //       }
+  //     });
+
+  // onFormDataChange((prevData) => {
+  //   if (name === "CAName" && CA_DETAILS[value]) {
+  //     return {
   //       ...prevData,
-  //       [name]: {
-  //         ...prevData[name],
-  //         value: value,
-  //       },
-  //     };
+  //       ProjectReportSetting: {
+  //         ...prevData.ProjectReportSetting,
 
-  //     // ✅ Auto-fill logic when CA Name is selected
-  //     if (name === "CAName" && CA_DETAILS[value]) {
-  //       updatedData = {
-  //         ...updatedData,
+  //         CAName: {
+  //           ...prevData.ProjectReportSetting.CAName,
+  //           value,
+  //         },
   //         MembershipNumber: {
-  //           ...prevData.MembershipNumber,
+  //           ...prevData.ProjectReportSetting.MembershipNumber,
   //           value: CA_DETAILS[value].membershipNumber,
   //         },
   //         MobileNumber: {
-  //           ...prevData.MobileNumber,
+  //           ...prevData.ProjectReportSetting.MobileNumber,
   //           value: CA_DETAILS[value].mobileNumber,
   //         },
-  //       };
-  //     }
 
-  //     return updatedData;
-  //   });
-
-  //   // ✅ Update parent component state using onFormDataChange
-  //   onFormDataChange((prevData) => ({
-  //     ...prevData,
-  //     ProjectReportSetting: {
-  //       ...prevData.ProjectReportSetting,
-  //       [name]: {
-  //         ...prevData.ProjectReportSetting[name],
-  //         value: value,
+  //         ...(key && subKey
+  //           ? {
+  //               [key]: {
+  //                 ...prevData.ProjectReportSetting[key],
+  //                 [subKey]: {
+  //                   ...prevData.ProjectReportSetting[key]?.[subKey],
+  //                   value: value, // ✅ Use .value for advance fields
+  //                 },
+  //               },
+  //             }
+  //           : {}),
   //       },
-  //       ...(name === "CAName" && CA_DETAILS[value]
-  //         ? {
-  //             MembershipNumber: {
-  //               ...prevData.ProjectReportSetting.MembershipNumber,
-  //               value: CA_DETAILS[value].membershipNumber,
-  //             },
-  //             MobileNumber: {
-  //               ...prevData.ProjectReportSetting.MobileNumber,
-  //               value: CA_DETAILS[value].mobileNumber,
-  //             },
-  //           }
-  //         : {}),
-  //     },
-  //   }));
-  // };
+  //     };
+  //   } else {
+  //     const isAdvancedField =
+  //       name === "UDINNumber" ||
+  //       name === "CAName" ||
+  //       name.startsWith("BankDetails.");
+
+  //     return {
+  //       ...prevData,
+  //       ProjectReportSetting: {
+  //         ...prevData.ProjectReportSetting,
+  //         [name]: isAdvancedField
+  //           ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
+  //           : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
+  //       },
+  //     };
+  //   }
+  // });
+
+  //     // ✅ Handle ProjectionYears and RateOfExpense Separately
+  //     if (name === "ProjectionYears") {
+  //       setProjectionYears(value);
+  //       onProjectionYearChange(value); // Call the parent handler if necessary
+  //     }
+  //     if (name === "rateOfExpense") {
+  //       setRateOfExpense(value);
+  //     }
+  //   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const [key, subKey] = name.split(".");
 
-    setLocalData((prevData) => {
-      // ✅ Handle CA Name selection
-      if (name === "CAName" && CA_DETAILS[value]) {
-        return {
-          ...prevData,
-          CAName: { ...prevData.CAName, value },
-          MembershipNumber: {
-            ...prevData.MembershipNumber,
-            value: CA_DETAILS[value].membershipNumber,
-          },
-          MobileNumber: {
-            ...prevData.MobileNumber,
-            value: CA_DETAILS[value].mobileNumber,
-          },
-        };
-      } else if (name.includes(".")) {
-        // ✅ For nested fields like BankDetails.Bank
-        const keys = name.split(".");
-        return {
-          ...prevData,
-          [keys[0]]: {
-            ...prevData[keys[0]],
-            [keys[1]]: {
-              ...prevData[keys[0]][keys[1]],
-              value: value,
+    if (name.includes(".")) {
+      const [parentKey, childKey] = name.split(".");
+      setLocalData((prevData) => ({
+        ...prevData,
+        [parentKey]: {
+          ...prevData[parentKey],
+          [childKey]: value,
+        },
+      }));
+    } else {
+      setLocalData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
 
-            },
-          },
-        };
-      } else {
-
-        // ✅ Direct value update for other fields
-        const isAdvancedField =
-          name === "UDINNumber" ||
-          name === "CAName" ||
-          name.startsWith("BankDetails.");
-  
-        return {
-          ...prevData,
-          [name]: isAdvancedField
-            ? { ...prevData[name], value: value } // ✅ Use .value for advance fields
-            : value, // ✅ Directly update value for normal fields
-
-        };
-      }
-    });
-  
-    // ✅ Update parent state (onFormDataChange) with nested values
-//     onFormDataChange((prevData) => {
-
-//       if (name === "CAName" && CA_DETAILS[value]) {
-
-//         return {
-//           ...prevData,
-//           ProjectReportSetting: {
-//             ...prevData.ProjectReportSetting,
-
-//             CAName: {
-//               ...prevData.ProjectReportSetting.CAName,
-//               value,
-//             },
-//             MembershipNumber: {
-//               ...prevData.ProjectReportSetting.MembershipNumber,
-//               value: CA_DETAILS[value].membershipNumber,
-//             },
-//             MobileNumber: {
-//               ...prevData.ProjectReportSetting.MobileNumber,
-//               value: CA_DETAILS[value].mobileNumber,
-// },
-//             [key]:subKey ?{
-//               ...prevData.ProjectReportSetting[key],
-//               [subKey]: {
-//                 ...prevData.ProjectReportSetting[key]?.[subKey],
-//                 value: value, // ✅ Use .value for advance fields
-//               },
-
-            
-//           },
-//         };
-//       } else {
-//         const isAdvancedField =
-//           name === "UDINNumber" ||
-//           name === "CAName" ||
-//           name.startsWith("BankDetails.");
-  
-//         return {
-//           ...prevData,
-//           ProjectReportSetting: {
-//             ...prevData.ProjectReportSetting,
-// [name]: isAdvancedField
-//     ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
-//     : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
-
-//           },
-//         };
-//       }
-//     });
-onFormDataChange((prevData) => {
-  if (name === "CAName" && CA_DETAILS[value]) {
-    return {
-      ...prevData,
+    // Push to parent form
+    onFormDataChange((prev) => ({
+      ...prev,
       ProjectReportSetting: {
-        ...prevData.ProjectReportSetting,
-
-        CAName: {
-          ...prevData.ProjectReportSetting.CAName,
-          value,
-        },
-        MembershipNumber: {
-          ...prevData.ProjectReportSetting.MembershipNumber,
-          value: CA_DETAILS[value].membershipNumber,
-        },
-        MobileNumber: {
-          ...prevData.ProjectReportSetting.MobileNumber,
-          value: CA_DETAILS[value].mobileNumber,
-        },
-
-        ...(key && subKey
+        ...(prev.ProjectReportSetting || {}),
+        [name.includes(".") ? name.split(".")[0] : name]: name.includes(".")
           ? {
-              [key]: {
-                ...prevData.ProjectReportSetting[key],
-                [subKey]: {
-                  ...prevData.ProjectReportSetting[key]?.[subKey],
-                  value: value, // ✅ Use .value for advance fields
-                },
-              },
+              ...prev.ProjectReportSetting?.[name.split(".")[0]],
+              [name.split(".")[1]]: value,
             }
-          : {}),
+          : value,
       },
-    };
-  } else {
-    const isAdvancedField =
-      name === "UDINNumber" ||
-      name === "CAName" ||
-      name.startsWith("BankDetails.");
+    }));
 
-    return {
-      ...prevData,
-      ProjectReportSetting: {
-        ...prevData.ProjectReportSetting,
-        [name]: isAdvancedField
-          ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
-          : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
-      },
-    };
-  }
-});
-
-  
-    // ✅ Handle ProjectionYears and RateOfExpense Separately
     if (name === "ProjectionYears") {
       setProjectionYears(value);
-      onProjectionYearChange(value); // Call the parent handler if necessary
-    }
-    if (name === "rateOfExpense") {
-      setRateOfExpense(value);
+      onProjectionYearChange(value);
     }
   };
-  
-  
 
   return (
     <div>
@@ -617,6 +540,7 @@ onFormDataChange((prevData) => {
                   value={localData.ProjectionYears}
                   onChange={handleChange}
                 />
+
                 <label htmlFor="ProjectionYears">Projection Years</label>
               </div>
             </div>
@@ -681,7 +605,7 @@ onFormDataChange((prevData) => {
                   name="FinancialYear"
                   type="number"
                   placeholder="e.g. 2023"
-                  value={localData.FinancialYear}
+                  value={localData.FinancialYear || 2025}
                   onChange={handleChange}
                 />
                 <label htmlFor="FinancialYear">Financial Year</label>
@@ -768,13 +692,7 @@ onFormDataChange((prevData) => {
                   type="text"
                   placeholder="Interest On TL"
                   required
-                  value={
-                    typeof localData.interestOnTL === "object" ||
-                    localData.interestOnTL === null ||
-                    localData.interestOnTL === undefined
-                      ? ""
-                      : localData.interestOnTL || ""
-                  }
+                  value={localData.interestOnTL || 10}
                   onChange={handleChange}
                 />
 
@@ -790,7 +708,7 @@ onFormDataChange((prevData) => {
                   type="number"
                   placeholder="Increasing Rate of Expenses"
                   required
-                  value={localData.rateOfExpense}
+                  value={localData.rateOfExpense || 5}
                   onChange={handleChange}
                 />
                 <label htmlFor="rateOfExpense">
@@ -952,7 +870,6 @@ onFormDataChange((prevData) => {
                 </div>
               </div>
 
-
               {/* <div className="col-6">
                 <div className="input">
                   <input
@@ -1008,9 +925,6 @@ onFormDataChange((prevData) => {
                   <label htmlFor="MobileNumber">Mobile Number</label>
                 </div>
               </div>
-
-
-
 
               {/* Bank */}
               <div className="col-4 mt-3">
