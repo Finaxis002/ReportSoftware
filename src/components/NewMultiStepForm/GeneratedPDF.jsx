@@ -938,7 +938,8 @@ const GeneratedPDF = ({}) => {
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ otp: otpInput }),
+                  body: JSON.stringify({ otp: otpInput, email: "priyadiwaker2020@gmail.com" })
+
                 }
               );
 
