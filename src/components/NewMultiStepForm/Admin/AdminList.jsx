@@ -79,7 +79,38 @@ const AdminList = () => {
     }
     
   };
-
+  // const handleEdit = async () => {
+  //   try {
+  //     // Use the ID of the admin that is being edited (from the state)
+  //     const adminId = editingAdmin._id;
+  
+  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/admin/update/${adminId}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         username: updatedName,
+  //         password: updatedPassword,  // Ensure password is included
+  //         roles: roles, // Include roles directly as an object
+  //       }),
+  //     });
+  
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       console.log("Admin updated successfully:", data);
+  //       setEditingAdmin(null);
+  //       fetchAdmins(); // Refresh admin list
+  //       setIsModalOpen(false); // Close the modal
+  //     } else {
+  //       console.error("Error updating admin:", data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during update:", error);
+  //   }
+  // };
+  
+  
   const handleOpenEdit = (admin) => {
     setEditingAdmin(admin._id);
     setUpdatedName(admin.username);

@@ -114,10 +114,20 @@ const IncomeTaxCalculation = ({
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
           (Amount In{" "}
-          {formData?.ProjectReportSetting?.AmountIn?.value === "rupees"
-            ? "Rs" // ✅ Convert "rupees" to "Rs"
-            : formData?.ProjectReportSetting?.AmountIn?.value}
-          .)
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
         </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
@@ -160,9 +170,7 @@ const IncomeTaxCalculation = ({
 
           {/* Net Profit Before Tax */}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -200,9 +208,7 @@ const IncomeTaxCalculation = ({
 
           {/* depreciation */}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -237,9 +243,7 @@ const IncomeTaxCalculation = ({
 
           {/* total */}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -281,11 +285,7 @@ const IncomeTaxCalculation = ({
 
           {/* depreciation (As per ITA , 1961)*/}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            >
-              Less
-            </Text>
+            <Text style={stylesCOP.serialNoCellDetail}>Less</Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -323,9 +323,7 @@ const IncomeTaxCalculation = ({
 
           {/* Net Profit (/loss) */}
           <View style={[styles.tableRow, styles.table]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -367,9 +365,7 @@ const IncomeTaxCalculation = ({
 
           {/* Taxable Profit */}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -407,9 +403,7 @@ const IncomeTaxCalculation = ({
 
           {/* Tax at 30% */}
           <View style={[styles.tableRow]}>
-            <Text
-              style={stylesCOP.serialNoCellDetail}
-            ></Text>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -419,9 +413,10 @@ const IncomeTaxCalculation = ({
             >
               Tax {formData.ProjectReportSetting.incomeTax}%
             </Text>
-            {incomeTax.length > 0 ? (
+            {/* {incomeTax.length > 0 ? (
               incomeTax.map(
                 (tax, index) =>
+
                   (!hideFirstYear || index !== 0) && (
                     <Text
                       key={index}
@@ -440,6 +435,35 @@ const IncomeTaxCalculation = ({
               )
             ) : (
               <Text style={stylesCOP.particularsCellsDetail}>0</Text>
+            )} */}
+            {incomeTax.length > 0 ? (
+              incomeTax.map((tax, index) => {
+                // Corresponding Net Profit Before Tax (NPBT) for this year
+                const npbt = netProfitBeforeTax[index]; // Get NPBT for the current index
+
+                // If NPBT is negative, set the tax to zero
+                const taxAmount = npbt < 0 ? 0 : tax; // Set tax to 0 if NPBT is negative
+
+                return (
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          fontSize: "9px",
+                          paddingVertical: "8px",
+                        },
+                      ]}
+                    >
+                      {taxAmount ? formatNumber(taxAmount) : "0"}{" "}
+                      {/* Display calculated tax or "0" if NPBT is negative */}
+                    </Text>
+                  )
+                );
+              })
+            ) : (
+              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
             )}
           </View>
         </View>
@@ -454,14 +478,16 @@ const IncomeTaxCalculation = ({
             alignItems: "flex-end",
             justifyContent: "flex-end",
             marginTop: "60px",
-            marginBottom:"5px"
+            marginBottom: "5px",
           },
         ]}
       >
         <Text style={[styles.businessName, { fontSize: "10px" }]}>
           {formData?.AccountInformation?.businessName || "Business Name"}
         </Text>
-        <Text style={[styles.FinancialYear, { fontSize: "10px"  , marginBottom:0}]}>
+        <Text
+          style={[styles.FinancialYear, { fontSize: "10px", marginBottom: 0 }]}
+        >
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>

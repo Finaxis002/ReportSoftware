@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const MainLogin = ({ onLogin }) => {
   const [activeTab, setActiveTab] = useState("admin");
@@ -7,14 +8,19 @@ const MainLogin = ({ onLogin }) => {
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState(null);
+
 
   //for otp
   const [otpSent, setOtpSent] = useState(false);
   const [otpInput, setOtpInput] = useState("");
   const [emailForOtp, setEmailForOtp] = useState("");
 
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+  };
   // Fixed credentials for Admin & Client
   // const adminCredentials = { username: "admin", password: "admin123" };
   const clientCredentials = { username: "client", password: "client123" };
@@ -32,6 +38,7 @@ const MainLogin = ({ onLogin }) => {
       navigate("/");
     }
   }, [navigate, onLogin]);
+
 
   // const handleAdminLogin = async () => {
   //   try {
@@ -90,7 +97,9 @@ const MainLogin = ({ onLogin }) => {
         "https://backend-three-pink.vercel.app/api/admin/login",
         {
           method: "POST",
+
           headers: { "Content-Type": "application/json" },
+
           body: JSON.stringify({
             username: inputUsername,
             password: inputPassword,
@@ -101,23 +110,80 @@ const MainLogin = ({ onLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // ✅ Directly log in Admin (no OTP)
+
+        console.log("✅ Admin Login Successful (Database):", data);
+
+        // ✅ Store token and userRole in localStorage
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("adminName", data.username);
+        localStorage.setItem("employeeId", data.employeeId);
+
+
         onLogin(true, "admin");
         navigate("/");
       } else {
         setError("Invalid credentials");
       }
-    } catch (err) {
-      console.error("❌ Login error:", err);
+
+    } catch (error) {
+      console.error("🔥 Error during database login:", error);
       setError("Something went wrong.");
+    }
+
+    // ✅ If database login fails, check hardcoded admin credentials
+    if (
+      inputUsername === hardcodedAdminCredentials.username &&
+      inputPassword === hardcodedAdminCredentials.password
+    ) {
+      console.log("✅ Admin Login Successful (Hardcoded)");
+
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "admin");
+      localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
+
+      onLogin(true, "admin");
+      navigate("/");
+    } else {
+      setError("Invalid Admin Credentials!");
+
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+
+    if (!captchaValue) {
+      setError("Please complete the CAPTCHA.");
+      return;
+    }
+
+    try {
+      const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: captchaValue }),
+      });
+    
+      const verifyData = await verifyResponse.json();
+    
+      if (!verifyData.success) {
+        setError("CAPTCHA verification failed!");
+        return;
+      }
+    
+      console.log("✅ CAPTCHA verified successfully");
+    
+    } catch (err) {
+      console.error("🔥 CAPTCHA verification error:", err);
+      setError("CAPTCHA verification failed due to server error.");
+      return;
+    }
 
     if (activeTab === "admin") {
       await handleAdminLogin();
@@ -153,6 +219,7 @@ const MainLogin = ({ onLogin }) => {
         if (response.ok && data.success) {
           console.log("✅ Employee Login Success:", data);
 
+
           // ✅ Send OTP after successful credentials
           const email = data.employee.email;
           const name = data.employee.name; // ✅ add this
@@ -174,6 +241,20 @@ const MainLogin = ({ onLogin }) => {
           } else {
             setError("Failed to send OTP.");
           }
+
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("userRole", "employee");
+          localStorage.setItem("employeeName", data.employee.name);
+          localStorage.setItem("employeeId", data.employee.employeeId);
+
+          onLogin(true, "employee", {
+            employeeId: data.employee.employeeId,
+            employeeName: data.employee.name,
+            permissions: data.employee.permissions,
+          });
+
+          navigate("/");
+
         } else {
           setError(data.error || "Invalid Employee ID or Password!");
         }
@@ -304,6 +385,12 @@ const MainLogin = ({ onLogin }) => {
               {showPassword ? "🙈" : "👁"}
             </button>
           </div>
+
+          <ReCAPTCHA
+            sitekey="6LdqAgYrAAAAAMWSS3XNUV9yMPSgHwUHo3_VUduG"
+            onChange={handleCaptchaChange}
+            className="mb-4"
+          />
 
           <button
             type="submit"
