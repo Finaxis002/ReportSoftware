@@ -64,8 +64,8 @@ const EmployeeTasks = ({ employeeId }) => {
         },
         body: JSON.stringify({
           status: newStatus,
-          employeeId, // ✅ Pass employeeId only
-          employeeName, // ✅ Pass employeeName only
+          employeeId, 
+          employeeName, 
         }),
       });
   

@@ -41,6 +41,8 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
+import { FiIconName } from 'react-icons/fi';
+
 
 const GeneratedPDF = ({}) => {
   const userRole = localStorage.getItem("userRole");

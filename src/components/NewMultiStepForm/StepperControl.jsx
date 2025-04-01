@@ -153,6 +153,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+
 const StepperControl = ({
   handleUpdate,
   handleNext,
@@ -163,6 +164,7 @@ const StepperControl = ({
   handleNextStep,
   stepData,
   disableNext,
+  handleSubmitFirstStep,
 }) => {
   const [userRole, setUserRole] = useState("");
   const location = useLocation();
@@ -235,7 +237,14 @@ const StepperControl = ({
         // Hide this button if "Create Report With Existing" is clicked
         <button
         type="button"
-        onClick={handleNext}
+        // onClick={handleNext}
+        onClick={() => {
+          if (currentStep === 1) {
+            const isValid = handleSubmitFirstStep();
+            if (!isValid) return; 
+          }
+          handleNext(); // Go to next step
+        }}
         className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
           currentStep === 3 && disableNext ? "opacity-50 cursor-not-allowed" : ""
         }`}
