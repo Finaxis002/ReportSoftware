@@ -889,14 +889,16 @@ const GeneratedPDF = ({}) => {
         </div>
       )}
 
-      <BlobProvider document={memoizedPDF}>
-        {({ blob, url, loading }) => {
-          useEffect(() => {
-            if (blob && url) {
-              setBlobObject(blob);
-              setBlobUrl(url);
-            }
-          }, [blob, url]);
+<BlobProvider document={memoizedPDF}>
+  {(blobProps) => {
+    // Immediately assign values
+    if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
+      setBlobObject(blobProps.blob);
+      setBlobUrl(blobProps.url);
+    }
+
+    const { loading } = blobProps;
+
 
           // Check if the blob is ready
           const handleDownloadPDF = async () => {
