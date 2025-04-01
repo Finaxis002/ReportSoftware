@@ -27,7 +27,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   const [sessionId, setSessionId] = useState(null);
   const [projectionYears, setProjectionYears] = useState(0);
   const [error, setError] = useState("");
-
+  const [requiredFieldErrors, setRequiredFieldErrors] = useState({});
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const { isCreateReportWithExistingClicked, reportData } =
     location.state?.isCreateReportWithExistingClicked || false;
@@ -272,6 +272,32 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
+  const handleSubmitFirstStep = () => {
+    const errors = {};
+    const { clientName, businessOwner } = formData?.AccountInformation || {};
+  
+    if (!clientName || clientName.trim() === "") {
+      errors.clientName = "Client Name is required";
+    }
+  
+    if (!businessOwner || businessOwner.trim() === "") {
+      errors.businessOwner = "Business Owner is required";
+    }
+  
+    if (Object.keys(errors).length > 0) {
+      // 👇 Show alert
+      alert("Please fill the required fields: " + Object.keys(errors).join(", "));
+    }
+  
+    setRequiredFieldErrors(errors); // 👈 this sends the message to FirstStep
+  
+    return Object.keys(errors).length === 0;
+  };
+  
+  
+  
+
+  
   const stepContent = useMemo(() => {
     switch (currentStep) {
       case 1:
@@ -283,6 +309,7 @@ const MultiStepForm = ({ userRole, userName }) => {
             setSessionId={setSessionId}
             userRole={userRole}
             userName={userName}
+            requiredFieldErrors={requiredFieldErrors}
           />
         );
       case 2:
@@ -490,12 +517,13 @@ const MultiStepForm = ({ userRole, userName }) => {
           handleUpdate={handleUpdate}
           currentStep={currentStep}
           totalSteps={steps.length}
-          isUpdateMode={isUpdateMode} // ✅ Pass to StepperControl
+          isUpdateMode={isUpdateMode} 
           handleCreateNewFromExisting={handleCreateNewFromExisting}
           handleNextStep={handleNextStep}
           stepData={formData}
           disableNext={!!error}
-          goToLastStep={goToLastStep} // ✅ Pass goToLastStep to StepperControl
+          goToLastStep={goToLastStep} 
+          handleSubmitFirstStep={handleSubmitFirstStep}
         />
 
         {/* Stepper Control Buttons */}

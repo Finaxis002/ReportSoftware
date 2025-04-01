@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import deleteImg from "../delete.png";
 import axios from "axios";
+import {
+  validateAadhaarNumber,
+  validateEmail,
+  validateGSTIN,
+  validatePANNumber,
+  validatePhoneNumber,
+  validateTANNumber,
+  validateUDYAMNumber,
+} from "./validation";
 
 const FirstStepBasicDetails = ({
   formData,
@@ -9,8 +18,13 @@ const FirstStepBasicDetails = ({
   setSessionId,
   userRole,
   userName,
+  requiredFieldErrors = {},
 }) => {
-  const [showError , setShowError] = useState();
+  const [showError, setShowError] = useState();
+  const [validationErrors, setValidationErrors] = useState({});
+  const [requiredErrors, setRequiredErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
+
   const [localData, setLocalData] = useState({
     clientName: formData?.AccountInformation?.clientName || "",
     gender: formData?.AccountInformation?.gender || "",
@@ -88,10 +102,55 @@ const FirstStepBasicDetails = ({
     }
   }, [formData?.AccountInformation]); // ✅ Runs only when `formData.AccountInformation` changes
 
+  useEffect(() => {
+    setFieldErrors(requiredFieldErrors || {});
+  }, [requiredFieldErrors]);
+
   /** ✅ Handle input changes and update both localData & formData */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    let error = "";
+
+    switch (name) {
+      case "clientName":
+      case "businessName":
+        if (!value.trim())
+          error = `${
+            name === "clientName" ? "Client" : "Business"
+          } name is required`;
+        break;
+      case "clientPhone":
+      case "businessContactNumber":
+        if (!validatePhoneNumber(value)) error = "Invalid phone number";
+        break;
+      case "clientEmail":
+      case "businessEmail":
+        if (!validateEmail(value)) error = "Invalid email";
+        break;
+      case "adhaarNumber":
+        if (!validateAadhaarNumber(value)) error = "Invalid Aadhaar number";
+        break;
+      case "PANNumber":
+        if (!validatePANNumber(value)) error = "Invalid PAN number";
+        break;
+      case "TANNumber":
+        if (!validateTANNumber(value)) error = "Invalid TAN number";
+        break;
+      case "GSTIN":
+        if (!validateGSTIN(value)) error = "Invalid GSTIN";
+        break;
+      case "UDYAMNumber":
+        if (!validateUDYAMNumber(value)) error = "Invalid UDYAM Number";
+        break;
+      default:
+        break;
+    }
+
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
+    }));
     // Update local state
     setLocalData((prevData) => ({
       ...prevData,
@@ -192,6 +251,22 @@ const FirstStepBasicDetails = ({
     }));
   };
 
+  const checkRequiredFields = () => {
+    const errors = {};
+
+    if (!localData.clientName || localData.clientName.trim() === "") {
+      errors.clientName = "Client Name is required";
+    }
+
+    if (!localData.businessName || localData.businessName.trim() === "") {
+      errors.businessName = "Business Name is required";
+    }
+
+    setRequiredErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
   return (
     <div className="">
       <div className="form-scroll">
@@ -217,6 +292,11 @@ const FirstStepBasicDetails = ({
               )}
 
               <label htmlFor="clientName">Client Name</label>
+              {requiredFieldErrors.clientName && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.clientName}
+                </p>
+              )}
             </div>
 
             <div className="input w-full">
@@ -248,6 +328,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="clientEmail">Client Email</label>
+              {validationErrors.clientEmail && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.clientEmail}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -260,7 +345,13 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
+
               <label htmlFor="clientPhone">Client Phone</label>
+              {validationErrors.clientPhone && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.clientPhone}
+                </p>
+              )}
             </div>
             <div className="input">
               <input
@@ -285,6 +376,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="businessOwner">Business Owner</label>
+              {requiredFieldErrors.businessOwner && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.businessOwner}
+                </p>
+              )}
             </div>
             <div className="input">
               <input
@@ -297,6 +393,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="businessEmail">Business Email</label>
+              {validationErrors.businessEmail && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.businessEmail}
+                </p>
+              )}
             </div>
             <div className="input">
               <input
@@ -311,6 +412,11 @@ const FirstStepBasicDetails = ({
               <label htmlFor="businessContactNumber">
                 Business Contact Number
               </label>
+              {validationErrors.businessContactNumber && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.businessContactNumber}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -336,6 +442,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="adhaarNumber">Aadhaar Number</label>
+              {validationErrors.adhaarNumber && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.adhaarNumber}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -365,6 +476,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="businessName">Business Name</label>
+              {requiredFieldErrors.businessName && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.businessName}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -443,6 +559,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="PANNumber">PAN Number</label>
+              {validationErrors.PANNumber && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.PANNumber}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -456,6 +577,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="TANNumber">TAN Number</label>
+              {validationErrors.TANNumber && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.TANNumber}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -469,6 +595,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="UDYAMNumber">UDYAM Number</label>
+              {validationErrors.UDYAMNumber && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.UDYAMNumber}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -482,6 +613,11 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="GSTIN">GSTIN</label>
+              {validationErrors.GSTIN && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.GSTIN}
+                </p>
+              )}
             </div>
 
             <div className="input">
