@@ -109,23 +109,33 @@ const MainLogin = ({ onLogin }) => {
 
       const data = await response.json();
 
-      if (response.ok) {
-
-        console.log("✅ Admin Login Successful (Database):", data);
-
-        // ✅ Store token and userRole in localStorage
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("adminName", data.username);
-        localStorage.setItem("employeeId", data.employeeId);
-
-
-        onLogin(true, "admin");
-        navigate("/");
-      } else {
-        setError("Invalid credentials");
-      }
+      if (response.ok && data.success) {
+        console.log("✅ Employee Login Success:", data);
+      
+        const email = data.employee.email;
+        const name = data.employee.name;
+      
+        const otpRes = await fetch(
+          "https://backend-three-pink.vercel.app/api/send-otp",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name }),
+          }
+        );
+      
+        if (otpRes.ok) {
+          setEmailForOtp(email);
+          setOtpSent(true); // This will show OTP input field
+          localStorage.setItem("employeeId", data.employee.employeeId);
+          localStorage.setItem("employeeName", data.employee.name);
+          localStorage.setItem("employeeEmail", data.employee.email);
+      
+          // ❌ DO NOT set isLoggedIn or navigate here
+        } else {
+          setError("Failed to send OTP.");
+        }
+      }      
 
     } catch (error) {
       console.error("🔥 Error during database login:", error);
