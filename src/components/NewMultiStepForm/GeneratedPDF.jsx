@@ -126,6 +126,16 @@ const GeneratedPDF = ({}) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(null);
 
+  //for otp
+
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [blobObject, setBlobObject] = useState(null);
+
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
 
@@ -452,19 +462,19 @@ const GeneratedPDF = ({}) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-  
+
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch data");
         }
-  
+
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-  
+
         const normalizedUserName = userName?.trim().toLowerCase();
-  
+
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-  
+
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -476,16 +486,16 @@ const GeneratedPDF = ({}) => {
             });
             return;
           }
-  
+
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (admin?.permissions) setPermissions(admin.permissions);
         }
-  
+
         if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
@@ -493,23 +503,22 @@ const GeneratedPDF = ({}) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
         console.error("Error fetching permissions:", err.message);
       }
     };
-  
+
     // 🔁 Initial fetch
     fetchPermissions();
-  
+
     // 🔁 Poll every 15 seconds
     const interval = setInterval(fetchPermissions, 100);
-  
+
     return () => clearInterval(interval); // Cleanup
-  }, [userRole, userName ]);
-  
+  }, [userRole, userName]);
 
   useEffect(() => {
     if (
@@ -521,30 +530,6 @@ const GeneratedPDF = ({}) => {
       setIsPdfReadyToDownload(true);
     }
   }, [dscr, currentRatio, formData]);
-
-  const handleDownloadPDF = async () => {
-    if (!isPdfReadyToDownload) {
-      alert("Please wait, PDF is still loading...");
-      return;
-    }
-
-    try {
-      const businessName =
-        formData?.AccountInformation?.businessName || "Report";
-      const businessOwner =
-        formData?.AccountInformation?.businessOwner || "Owner";
-
-      const safeName = `${businessName} (${businessOwner})`
-        .replace(/[/\\?%*:|"<>]/g, "-")
-        .trim();
-
-      const blob = await pdf(memoizedPDF).toBlob();
-      saveAs(blob, `${safeName}.pdf`);
-    } catch (err) {
-      console.error("❌ Error during PDF download:", err);
-      alert("Something went wrong while generating the PDF.");
-    }
-  };
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -834,6 +819,22 @@ const GeneratedPDF = ({}) => {
     lineChartBase64,
   ]);
 
+  const triggerPdfDownload = () => {
+    if (!blobUrl || !blobObject) {
+      alert("PDF not ready yet. Please wait...");
+      return;
+    }
+
+    const businessName = formData?.AccountInformation?.businessName || "Report";
+    const businessOwner =
+      formData?.AccountInformation?.businessOwner || "Owner";
+    const safeName = `${businessName} (${businessOwner})`
+      .replace(/[/\\?%*:|"<>]/g, "-")
+      .trim();
+
+    saveAs(blobObject, `${safeName}.pdf`);
+  };
+
   // for filling the form data silently
 
   useEffect(() => {
@@ -891,23 +892,67 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
-        {({ blob, url, loading, error }) => {
-          // Check if the blob is ready
-          const handleDownloadPDF = () => {
-            if (loading || !url) {
-              alert("Please wait, PDF is still loading...");
-              return;
+        {({ blob, url, loading }) => {
+          useEffect(() => {
+            if (blob && url) {
+              setBlobObject(blob);
+              setBlobUrl(url);
             }
+          }, [blob, url]);
 
-            const businessName =
-              formData?.AccountInformation?.businessName || "Report";
-            const businessOwner =
-              formData?.AccountInformation?.businessOwner || "Owner";
-            const safeName = `${businessName} (${businessOwner})`
-              .replace(/[/\\?%*:|"<>]/g, "-")
-              .trim();
+          // Check if the blob is ready
+          const handleDownloadPDF = async () => {
+            if (userRole === "employee") {
+              const employeeName =
+                localStorage.getItem("employeeName") || "Unknown";
+              try {
+                const res = await fetch(
+                  "http://localhost:5000/api/send-otp-download",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ employeeName }),
+                  }
+                );
 
-            saveAs(url, `${safeName}.pdf`);
+                if (res.ok) {
+                  setShowOTPModal(true);
+                  setIsOtpSent(true);
+                } else {
+                  alert("Failed to send OTP to admin.");
+                }
+              } catch (err) {
+                console.error("OTP send error:", err);
+              }
+            } else {
+              triggerPdfDownload(); // For admin or client
+            }
+          };
+
+          const handleVerifyOtpForDownload = async () => {
+            try {
+              const res = await fetch(
+                "http://localhost:5000/api/verify-otp-download",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ otp: otpInput }),
+                }
+              );
+
+              const result = await res.json();
+              if (res.ok) {
+                setShowOTPModal(false);
+                setIsOtpVerified(true);
+                setOtpInput(""); // Clear OTP input
+                setTimeout(() => triggerPdfDownload(), 100); // Now works
+              } else {
+                alert("❌ Invalid or expired OTP.");
+              }
+            } catch (err) {
+              console.error("OTP verify error:", err);
+              alert("OTP verification failed.");
+            }
           };
 
           return (
@@ -956,6 +1001,41 @@ const GeneratedPDF = ({}) => {
               >
                 {memoizedPDF}
               </PDFViewer>
+
+              {showOTPModal && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-40 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-xl w-full max-w-md">
+                    <h2 className="text-xl font-semibold mb-4 text-center">
+                      Admin OTP Verification
+                    </h2>
+                    <p className="text-sm text-gray-600 text-center mb-4">
+                      An OTP has been sent to the admin's email to approve your
+                      download.
+                    </p>
+                    <input
+                      type="text"
+                      value={otpInput}
+                      onChange={(e) => setOtpInput(e.target.value)}
+                      className="w-full border p-2 rounded mb-4"
+                      placeholder="Enter OTP received by admin"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        className="px-4 py-2 bg-gray-300 rounded"
+                        onClick={() => setShowOTPModal(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-green-600 text-white rounded"
+                        onClick={handleVerifyOtpForDownload}
+                      >
+                        Verify & Download
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           );
         }}
