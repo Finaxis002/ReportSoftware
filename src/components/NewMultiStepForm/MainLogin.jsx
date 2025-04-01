@@ -164,39 +164,78 @@ const MainLogin = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-
+  
+    // ✅ Verify reCAPTCHA first
     if (!captchaValue) {
       setError("Please complete the CAPTCHA.");
       return;
     }
-
+  
     try {
       const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: captchaValue }),
       });
-    
+  
       const verifyData = await verifyResponse.json();
-    
+  
       if (!verifyData.success) {
         setError("CAPTCHA verification failed!");
         return;
       }
-    
+  
       console.log("✅ CAPTCHA verified successfully");
-    
     } catch (err) {
       console.error("🔥 CAPTCHA verification error:", err);
       setError("CAPTCHA verification failed due to server error.");
       return;
     }
-
-    if (activeTab === "admin") {
-      await handleAdminLogin();
+  
+    // ✅ Proceed to role-based login
+    if (activeTab === "employee") {
+      try {
+        const response = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employeeId: inputUsername,
+            password: inputPassword,
+          }),
+        });
+  
+        const data = await response.json();
+        if (response.ok && data.success) {
+          console.log("✅ Employee credentials verified:", data);
+  
+          const email = data.employee.email;
+          const name = data.employee.name;
+  
+          // ✅ Send OTP to employee's email
+          const otpRes = await fetch("https://backend-three-pink.vercel.app/api/send-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name }),
+          });
+  
+          if (otpRes.ok) {
+            setEmailForOtp(email);
+            setOtpSent(true);
+            localStorage.setItem("employeeId", data.employee.employeeId);
+            localStorage.setItem("employeeName", name);
+            localStorage.setItem("employeeEmail", email);
+          } else {
+            setError("Failed to send OTP.");
+          }
+        } else {
+          setError(data.error || "Invalid Employee ID or Password!");
+        }
+      } catch (err) {
+        console.error("🔥 Error logging in employee:", err);
+        setError("Server error. Please try again later.");
+      }
+    } else if (activeTab === "admin") {
+      await handleAdminLogin(); // This should include its own flow
     } else if (activeTab === "client") {
       if (
         inputUsername === clientCredentials.username &&
@@ -209,98 +248,32 @@ const MainLogin = ({ onLogin }) => {
       } else {
         setError("Invalid Client Credentials!");
       }
-    } else if (activeTab === "employee") {
-      try {
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              employeeId: inputUsername,
-              password: inputPassword,
-            }),
-          }
-        );
-
-        const data = await response.json();
-        if (response.ok && data.success) {
-          console.log("✅ Employee Login Success:", data);
-
-
-          // ✅ Send OTP after successful credentials
-          const email = data.employee.email;
-          const name = data.employee.name; // ✅ add this
-          const otpRes = await fetch(
-            "https://backend-three-pink.vercel.app/api/send-otp",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, name }), // ✅ include name here
-            }
-          );
-
-          if (otpRes.ok) {
-            setEmailForOtp(email); // store email for OTP verification
-            setOtpSent(true); // show OTP input
-            localStorage.setItem("employeeId", data.employee.employeeId);
-            localStorage.setItem("employeeName", data.employee.name);
-            localStorage.setItem("employeeEmail", data.employee.email);
-          } else {
-            setError("Failed to send OTP.");
-          }
-
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("userRole", "employee");
-          localStorage.setItem("employeeName", data.employee.name);
-          localStorage.setItem("employeeId", data.employee.employeeId);
-
-          onLogin(true, "employee", {
-            employeeId: data.employee.employeeId,
-            employeeName: data.employee.name,
-            permissions: data.employee.permissions,
-          });
-
-          navigate("/");
-
-        } else {
-          setError(data.error || "Invalid Employee ID or Password!");
-        }
-      } catch (err) {
-        console.error("🔥 Error logging in employee:", err);
-        setError("Server error. Please try again later.");
-      }
     }
   };
-
+  
   const handleVerifyOtp = async () => {
     try {
-      const res = await fetch(
-        "https://backend-three-pink.vercel.app/api/verify-otp",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: emailForOtp,
-            otp: otpInput,
-          }),
-        }
-      );
-
+      const res = await fetch("https://backend-three-pink.vercel.app/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailForOtp,
+          otp: otpInput,
+        }),
+      });
+  
       const result = await res.json();
       if (res.ok) {
         console.log("✅ OTP verified");
-
+  
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "employee");
-
+  
         onLogin(true, "employee", {
           employeeId: localStorage.getItem("employeeId"),
           employeeName: localStorage.getItem("employeeName"),
         });
-
+  
         navigate("/");
       } else {
         setError("❌ Invalid or expired OTP");
@@ -310,7 +283,7 @@ const MainLogin = ({ onLogin }) => {
       setError("OTP verification failed.");
     }
   };
-
+  
   console.log("Logging in with password:", inputPassword);
 
   return (
