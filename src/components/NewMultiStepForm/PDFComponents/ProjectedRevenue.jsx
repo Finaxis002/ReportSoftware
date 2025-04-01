@@ -312,7 +312,7 @@ const ProjectedRevenue = ({
               style={[
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
-                { fontWeight: "extrabold", textAlign: "center" },
+                { textAlign: "center" },
               ]}
             >
               {

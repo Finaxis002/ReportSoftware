@@ -518,7 +518,7 @@ const DebtServiceCoverageRatio = ({
                 styleExpenses.bordernone,
                 {
                   fontWeight: "bold",
-                  fontFamily: "Roboto",
+                  
                   textAlign: "right",
                 },
               ]}
@@ -711,7 +711,7 @@ const DebtServiceCoverageRatio = ({
                 styleExpenses.bordernone,
                 {
                   fontWeight: "bold",
-                  fontFamily: "Roboto",
+                  
                   textAlign: "right",
                   paddingBottom: "20px",
                 },
@@ -757,7 +757,7 @@ const DebtServiceCoverageRatio = ({
               stylesCOP.detailsCellDetail,
               styleExpenses.particularWidth,
               styleExpenses.bordernone,
-              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "left" },
+              { fontWeight: "bold",  textAlign: "left" },
             ]}
           >
             DSCR (A/B)
@@ -806,7 +806,7 @@ const DebtServiceCoverageRatio = ({
               styleExpenses.bordernone,
               {
                 fontWeight: "bold",
-                fontFamily: "Roboto",
+                
                 textAlign: "left",
                 padding: "10px",
               },
@@ -853,7 +853,7 @@ const DebtServiceCoverageRatio = ({
               stylesCOP.detailsCellDetail,
               styleExpenses.particularWidth,
               styleExpenses.bordernone,
-              { fontWeight: "bold", fontFamily: "Roboto", textAlign: "left" },
+              { fontWeight: "bold",  textAlign: "left" },
             ]}
           >
             Average DSCR
@@ -877,7 +877,7 @@ const DebtServiceCoverageRatio = ({
                     styleExpenses.fontSmall,
                     {
                       fontWeight: "bold",
-                      fontFamily: "Roboto",
+                      
                       textAlign: "center",
                       borderLeftWidth: 0,
                       borderRightWidth: 0,

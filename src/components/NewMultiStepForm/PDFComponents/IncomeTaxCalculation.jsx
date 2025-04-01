@@ -191,7 +191,7 @@ const IncomeTaxCalculation = ({
                         styles.boldText,
                         {
                           fontSize: "9px",
-                          fontFamily: "Roboto",
+                          
                           fontWeight: "bold",
                           paddingVertical: "10px",
                         },
@@ -228,7 +228,7 @@ const IncomeTaxCalculation = ({
                         {
                           fontWeight: "light",
                           fontSize: "9px",
-                          fontFamily: "Roboto",
+                          
                         },
                       ]}
                     >
@@ -267,8 +267,8 @@ const IncomeTaxCalculation = ({
                           fontSize: "9px",
                           paddingVertical: "10px",
                           borderTopWidth: "2px",
-                          fontFamily: "Roboto",
-                          fontWeight: "extrabold",
+                          
+                          
                         },
                       ]}
                     >
@@ -346,8 +346,8 @@ const IncomeTaxCalculation = ({
                           fontSize: "9px",
                           borderTopWidth: "2px",
                           borderBottomWidth: "2px",
-                          fontFamily: "Roboto",
-                          fontWeight: "extrabold",
+                          
+                          
                           paddingVertical: "8px",
                         },
                       ]}

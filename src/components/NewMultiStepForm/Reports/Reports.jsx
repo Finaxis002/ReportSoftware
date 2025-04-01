@@ -183,7 +183,7 @@ const Reports = ({ sendPdfData }) => {
           <div className="flex w-full justify-between items-center mb-2 px-2">
             <button
               onClick={handleRefresh}
-              className="flex items-center gap-1 text-sm text-teal-700 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+              className="flex items-center gap-1 text-sm text-teal-900 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
             >
               <FontAwesomeIcon icon={faSync} className="text-lg" />
             </button>
@@ -217,30 +217,29 @@ const Reports = ({ sendPdfData }) => {
         {/* ✅ Better Structured Table */}
         <div className="w-[175vh] h-[80vh] overflow-x-auto">
           <table className="table-fixed border-collapse w-full">
-            <thead className="bg-teal-500 text-white text-sm">
+            <thead className="bg-teal-700 text-white text-sm">
               <tr>
-                <th className="border px-4 py-2 text-left w-[250px]">
+                <th className="border px-4 py-2 text-left font-medium w-[250px]">
                   Business Name
                 </th>
-                <th className="border px-4 py-2 text-left w-[180px]">Owner</th>
+                <th className="border px-4 py-2 text-left font-medium w-[180px]">Owner</th>
 
                 {/* Conditionally render Author column */}
                 {authRole !== "employee" && (
-                  <th className="border px-4 py-2 text-left w-[100px]">
+                  <th className="border px-4 py-2 text-left font-medium w-[100px]">
                     Author
                   </th>
                 )}
-
-                <th className="border px-4 py-2 text-left w-[120px]">
+                <th className="border px-4 py-2 text-left font-medium w-[120px]">
                   Created
                 </th>
-                <th className="border px-4 py-2 text-left w-[300px]">
+                <th className="border px-4 py-2 text-left font-medium w-[300px]">
                   Description
                 </th>
-                <th className="border px-4 py-2 text-left w-[130px]">
+                <th className="border px-4 py-2 text-left font-medium w-[130px]">
                   Term Loan
                 </th>
-                <th className="border px-4 py-2 text-left w-[150px]">
+                <th className="border px-4 py-2 text-left font-medium w-[150px]">
                   Working Capital
                 </th>
 

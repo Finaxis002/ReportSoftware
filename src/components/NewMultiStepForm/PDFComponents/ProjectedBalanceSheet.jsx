@@ -388,7 +388,7 @@ const ProjectedBalanceSheet = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -402,7 +402,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -635,7 +635,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -652,8 +652,6 @@ const ProjectedBalanceSheet = ({
                       fontSize: "9px",
                       borderTopWidth: "2px",
                       borderBottomWidth: "2px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
                       paddingVertical: "8px",
                     },
                   ]}
@@ -674,7 +672,7 @@ const ProjectedBalanceSheet = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -688,7 +686,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -886,7 +884,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -903,8 +901,6 @@ const ProjectedBalanceSheet = ({
                       fontSize: "9px",
                       borderTopWidth: "2px",
                       borderBottomWidth: "2px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
                       paddingVertical: "8px",
                     },
                   ]}
@@ -990,7 +986,7 @@ const ProjectedBalanceSheet = ({
                   styles.caName,
                   {
                     fontSize: "10px",
-                    fontFamily: "Roboto",
+                   
                     fontWeight: "bold",
                   },
                 ]}
@@ -1004,7 +1000,7 @@ const ProjectedBalanceSheet = ({
               <Text
                 style={[
                   styles.membershipNumber,
-                  { fontSize: "10px", fontFamily: "Roboto" },
+                  { fontSize: "10px" },
                 ]}
               >
                 M. No.:{" "}
@@ -1017,7 +1013,7 @@ const ProjectedBalanceSheet = ({
               <Text
                 style={[
                   styles.udinNumber,
-                  { fontSize: "10px", fontFamily: "Roboto" },
+                  { fontSize: "10px" },
                 ]}
               >
                 UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
@@ -1029,7 +1025,7 @@ const ProjectedBalanceSheet = ({
               <Text
                 style={[
                   styles.mobileNumber,
-                  { fontSize: "10px", fontFamily: "Roboto" },
+                  { fontSize: "10px" },
                 ]}
               >
                 Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}

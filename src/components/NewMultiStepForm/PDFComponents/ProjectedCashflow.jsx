@@ -541,7 +541,7 @@ const ProjectedCashflow = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -555,7 +555,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -788,7 +788,7 @@ const ProjectedCashflow = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                     textAlign: "right",
                   },
@@ -806,8 +806,8 @@ const ProjectedCashflow = ({
                       fontSize: "9px",
                       borderTopWidth: "1px",
                       borderBottomWidth: "1px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
+                      
+                      
                       paddingVertical: "8px",
                     },
                   ]}
@@ -826,7 +826,7 @@ const ProjectedCashflow = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -840,7 +840,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -1159,7 +1159,7 @@ const ProjectedCashflow = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                     textAlign: "right",
                   },
@@ -1177,8 +1177,8 @@ const ProjectedCashflow = ({
                       fontSize: "9px",
                       borderTopWidth: "1px",
                       borderBottomWidth: "1px",
-                      fontFamily: "Roboto",
-                      fontWeight: "extrabold",
+                      
+                      
                       paddingVertical: "8px",
                     },
                   ]}

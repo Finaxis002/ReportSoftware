@@ -446,8 +446,7 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
                         textTransform: "uppercase",
                       },
                     ]}
@@ -476,8 +475,8 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
+                        
                       },
                     ]}
                   >
@@ -493,8 +492,8 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
+                        
                       },
                     ]}
                   >
@@ -581,8 +580,8 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
+                        
                       },
                     ]}
                   ></Text>
@@ -608,8 +607,8 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
+                        
                       },
                     ]}
                   >
@@ -625,8 +624,8 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        fontFamily: "TimesNewRoman",
-                        fontWeight: "extrabold",
+                        
+                        
                       },
                     ]}
                   >
@@ -896,8 +895,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      fontFamily: "TimesNewRoman",
-                      fontWeight: "extrabold",
+                      
+                      
                       // fontSize: "9px",
                     },
                   ]}
@@ -912,8 +911,8 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      fontFamily: "TimesNewRoman",
-                      fontWeight: "extrabold",
+                      
+                      
                     },
                   ]}
                 >
@@ -1145,8 +1144,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      fontFamily: "TimesNewRoman",
-                      fontWeight: "extrabold",
+                      
+                      
                       // fontSize: "9px",
                       borderTop: "1px",
                     },
@@ -1162,8 +1161,8 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      fontFamily: "TimesNewRoman",
-                      fontWeight: "extrabold",
+                      
+                      
                       borderTop: "1px",
                     },
                   ]}

@@ -457,7 +457,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "extrabold", paddingVertical: "10px" },
+                {  paddingVertical: "10px" },
               ]}
             >
               Gross Receipts
@@ -474,8 +474,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        fontFamily: "Roboto",
-                        fontWeight: "extrabold",
+                        
+                        
                         borderLeftWidth: "0px",
                         paddingVertical: "10px",
                         borderTopWidth: 0,
@@ -577,7 +577,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "extrabold" },
+                { },
               ]}
             ></Text>
 
@@ -592,8 +592,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        fontFamily: "Roboto",
-                        fontWeight: "extrabold",
+                        
+                        
                         borderLeftWidth: "0px",
                       },
                     ]}
@@ -613,7 +613,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -625,7 +625,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -642,7 +642,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                     styleExpenses.fontSmall,
                     {
                       paddingVertical: "10px",
-                      fontFamily: "Roboto",
+                      
                       fontWeight: "bold",
                     },
                   ]}
@@ -775,7 +775,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     fontWeight: "bold",
-                    fontFamily: "Roboto",
+                    
                     textAlign: "right",
                     paddingBottom: "10px",
                   },
@@ -794,8 +794,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                         stylesCOP.particularsCellsDetail,
                         styleExpenses.fontSmall,
                         {
-                          fontFamily: "Roboto",
-                          fontWeight: "extrabold",
+                          
+                          
                           borderBottom: 0,
                           paddingBottom: "10px",
                           borderTopWidth: ".5px",
@@ -829,7 +829,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "extrabold", fontFamily: "Roboto" },
+                {  },
               ]}
             >
               Contribution
@@ -845,8 +845,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                       {
-                        fontWeight: "extrabold",
-                        fontFamily: "Roboto",
+                        
+                        
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
                       },
@@ -866,7 +866,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -878,7 +878,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -895,7 +895,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                     styleExpenses.fontSmall,
                     {
                       paddingVertical: "10px",
-                      fontFamily: "Roboto",
+                      
                       fontWeight: "bold",
                     },
                   ]}
@@ -1082,7 +1082,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     fontWeight: "bold",
-                    fontFamily: "Roboto",
+                    
                     textAlign: "right",
                   },
                 ]}
@@ -1100,7 +1100,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                         stylesCOP.particularsCellsDetail,
                         stylesCOP.boldText,
                         styleExpenses.fontSmall,
-                        { fontFamily: "Roboto", fontWeight: "extrabold" },
+                        {  },
                       ]}
                     >
                       {formatNumber(totalValue)}{" "}
@@ -1136,8 +1136,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                  fontWeight: "extrabold",
-                  fontFamily: "Roboto",
+                  
+                  
                   paddingVertical: "10px",
                 },
               ]}
@@ -1155,8 +1155,8 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                       {
-                        fontWeight: "extrabold",
-                        fontFamily: "Roboto",
+                        
+                        
                         borderWidth: "0px",
                         borderRightWidth: "1px",
                         paddingVertical: "10px",

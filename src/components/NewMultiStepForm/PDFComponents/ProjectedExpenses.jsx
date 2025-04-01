@@ -375,7 +375,7 @@ const ProjectedExpenses = ({
                 stylesCOP.serialNoCellDetail,
                 {
                   paddingVertical: "10px",
-                  fontFamily: "Roboto",
+                  
                   fontWeight: "bold",
                 },
               ]}
@@ -389,7 +389,7 @@ const ProjectedExpenses = ({
                 styleExpenses.bordernone,
                 {
                   paddingVertical: "10px",
-                  fontFamily: "Roboto",
+                  
                   fontWeight: "bold",
                 },
               ]}
@@ -406,7 +406,7 @@ const ProjectedExpenses = ({
                   styleExpenses.fontSmall,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
@@ -576,7 +576,7 @@ const ProjectedExpenses = ({
                 stylesCOP.serialNoCellDetail,
                 {
                   paddingVertical: "10px",
-                  fontFamily: "Roboto",
+                  
                   fontWeight: "bold",
                 },
               ]}
@@ -590,7 +590,7 @@ const ProjectedExpenses = ({
                 styleExpenses.bordernone,
                 {
                   paddingVertical: "10px",
-                  fontFamily: "Roboto",
+                  
                   fontWeight: "bold",
                 },
               ]}
@@ -607,7 +607,7 @@ const ProjectedExpenses = ({
                   styleExpenses.fontSmall,
                   {
                     paddingVertical: "10px",
-                    fontFamily: "Roboto",
+                    
                     fontWeight: "bold",
                   },
                 ]}
