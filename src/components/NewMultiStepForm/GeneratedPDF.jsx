@@ -909,7 +909,7 @@ const GeneratedPDF = ({}) => {
                 localStorage.getItem("employeeName") || "Unknown";
               try {
                 const res = await fetch(
-                  "http://localhost:5000/api/send-otp-download",
+                  "https://backend-three-pink.vercel.app/api/send-otp-download",
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -934,7 +934,7 @@ const GeneratedPDF = ({}) => {
           const handleVerifyOtpForDownload = async () => {
             try {
               const res = await fetch(
-                "http://localhost:5000/api/verify-otp-download",
+                "https://backend-three-pink.vercel.app/api/verify-otp-download",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
