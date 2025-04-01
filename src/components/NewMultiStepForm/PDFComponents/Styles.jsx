@@ -1,6 +1,7 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
 import { Font } from "@react-pdf/renderer";
+import { checkAndRegisterFont } from "../checkAndRegisterFont";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -36,6 +37,58 @@ Font.register({
   ],
 });
 
+
+Font.register({
+  family: "Times New Roman",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold-italic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+Font.register({
+  family: "Poppins",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Poppins-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Poppins-Bold.ttf"),
+      fontWeight: "bold",
+    },
+   
+  ],
+});
+
+
+Font.register({
+  family: "Open Sans",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/OpenSans/OpenSans-Regular.ttf"),
+      fontWeight: "normal", // or 400
+    },
+    {
+      src: require("../Assets/Fonts/OpenSans/OpenSans-Bold.ttf"),
+      fontWeight: "bold", // or 700
+    },
+  ],
+});
+
+
 // styles.jsx or in the same component file
 const colorMap = {
   Red: "#ef4444", // Tailwind red-500 (vibrant)
@@ -50,18 +103,33 @@ const colorMap = {
 };
 
 const storedColor = localStorage.getItem("selectedColor");
-const backgroundColor = colorMap[storedColor] || "#172554"; // fallback color
+// console.log("stored color" , storedColor)
+
+// If it's a predefined color in colorMap, use its hex
+// Otherwise, assume it's a custom HEX and use it directly
+const backgroundColor = colorMap[storedColor] || storedColor || "#172554";
+
+
+const selectedFont = localStorage.getItem("selectedFont") || "TimesNewRoman";
+
+
+console.log("Selected font:", selectedFont);
+console.log("Registered fonts:", Font.getRegisteredFonts?.());
+
+
+
+
 
 const styles = StyleSheet.create({
   Width60: {
     width: "60%",
   },
   text: {
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 
   italicText: {
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     fontStyle: "italic",
   },
 
@@ -70,29 +138,29 @@ const styles = StyleSheet.create({
   },
   FinancialYear: {
     fontSize: "11px",
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
     paddingVertical: "3px",
     paddingBottom: "20px",
   },
 
   AmountIn: {
     fontSize: "11px",
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
   },
 
   Total: {
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
   },
 
   businessName: {
     fontSize: "16px",
     paddingTop: 20,
     textTransform: "capitalize",
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
   },
   caName: {
     fontWeight: "bold",
@@ -111,7 +179,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   page: {
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     flexDirection: "column",
     backgroundColor: "#ffffff",
     paddingHorizontal: 30,
@@ -132,32 +200,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 4,
     backgroundColor: backgroundColor, // ✅ Dynamic,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   table: {
     width: "100%",
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableRow: {
     flexDirection: "row",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableHeader: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "#ffffff",
     textAlign: "left",
     flexDirection: "row",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   serialNoCell: {
     width: "25%",
     padding: 3,
     fontSize: "9px",
     textAlign: "center",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   particularsCell: {
     width: "40%",
@@ -166,13 +234,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     textAlign: "center",
   },
   separatorCell: {
     width: "5%",
     padding: 3,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     fontSize: "9px",
   },
   detailsCell: {
@@ -181,18 +249,18 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    fontFamily: "TimesNewRoman",
-    fontSize: "10px",
+    fontFamily: selectedFont,
+    fontSize: "9px",
   },
   partnersSection: {
     marginTop: 16,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   partnersTitle: {
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 8,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   partnerCell: {
     width: "25%",
@@ -200,7 +268,7 @@ const styles = StyleSheet.create({
     borderLeft: "1px solid #000",
     fontSize: "9px",
     color: "#fff",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   serialNoCellDetail: {
     width: "25%",
@@ -209,14 +277,14 @@ const styles = StyleSheet.create({
     borderBottom: "1px solid #000",
     fontSize: "9px",
     textAlign: "center",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   particularsCellsDetail: {
     width: "40%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     textAlign: "center",
   },
   separatorCellDetail: {
@@ -226,14 +294,14 @@ const styles = StyleSheet.create({
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   detailsCellDetail: {
     width: "55%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   partnerCellDetail: {
     width: "25%",
@@ -242,12 +310,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   pdfViewer: {
     border: "none",
     backgroundColor: "white",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   serialNumberCellStyle: {
     textAlign: "center",
@@ -257,7 +325,7 @@ const styles = StyleSheet.create({
     margin: "1px 0", // ✅ Space between rows
     fontWeight: "bold", // ✅ Makes numbers more readable
     fontSize: "9px", // ✅ Optimized for PDF readability
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 });
 
@@ -267,7 +335,7 @@ const stylesMOF = StyleSheet.create({
     height: "100%",
     padding: 8,
     backgroundColor: "white",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   sectionHeader: {
     textAlign: "center",
@@ -277,24 +345,24 @@ const stylesMOF = StyleSheet.create({
     padding: 4,
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   table: {
     width: "100%",
     marginBottom: 6,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   row: {
     flexDirection: "row",
     borderBottom: "1px solid #000",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   cell: {
     flex: 1,
     padding: 4,
     borderRight: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   Snocell: {
     padding: 3,
@@ -302,30 +370,30 @@ const stylesMOF = StyleSheet.create({
     fontSize: "9px",
     // paddingHorizontal: 20,
     width: "25%",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     textAlign: "center",
   },
   boldCell: {
     fontWeight: "bold",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   headerRow: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
     marginTop: 10,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   grayRow: {
     backgroundColor: "#E5E7EB",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   totalRow: {
     fontWeight: "bold",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   total: {
     border: "1px solid #000",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 });
 
@@ -334,7 +402,7 @@ const stylesCOP = StyleSheet.create({
     backgroundColor: "white",
     overflow: "hidden",
     padding: 20,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   heading: {
     textAlign: "center",
@@ -345,28 +413,28 @@ const stylesCOP = StyleSheet.create({
     marginBottom: 20,
     padding: 4,
     backgroundColor: backgroundColor, // ✅ Dynamic,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableContainer: {
     marginBottom: 6,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   table: {
     width: "100%",
     borderWidth: 1,
     borderColor: "#d1d5db",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableHeader: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableHeaderGray: {
     backgroundColor: "#f2f2f2",
     color: "#000",
     display: "flex",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 
   totalHeader: {
@@ -374,17 +442,17 @@ const stylesCOP = StyleSheet.create({
     textAlign: "left",
     flexDirection: "row",
     fontWeight: "bold",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   tableCell: {
     padding: 4,
     borderWidth: 1,
     borderColor: "black",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   totalCostRow: {
     fontWeight: "bold",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 
   serialNoCellDetail: {
@@ -393,14 +461,14 @@ const stylesCOP = StyleSheet.create({
     borderRight: "1px solid #000",
     fontSize: "9px",
     textAlign: "center",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   particularsCellsDetail: {
     width: "40%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
     textAlign: "center",
   },
   separatorCellDetail: {
@@ -410,7 +478,7 @@ const stylesCOP = StyleSheet.create({
     borderRight: "1px solid #000",
     borderBottom: "1px solid #000",
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   detailsCellDetail: {
     width: "55%",
@@ -418,15 +486,15 @@ const stylesCOP = StyleSheet.create({
     borderRight: "1px solid #000",
     fontSize: "9px",
     paddingLeft: 10,
-    fontFamily: "TimesNewRoman",
-    fontSize: "10px",
+    fontFamily: selectedFont,
+    fontSize: "9px",
   },
   boldText: {
     border: "1.2px solid #000",
     borderLeft: "none",
-    fontWeight: "extrabold",
-    fontSize: "10px",
-    fontFamily: "TimesNewRoman",
+    fontWeight: "bold",
+    fontSize: "9px",
+    fontFamily: selectedFont,
   },
 
   textCenter: {
@@ -434,19 +502,19 @@ const stylesCOP = StyleSheet.create({
     alignItems: "center",
     textAlign: "center",
     justifyContent: "center",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   extraWidth: {
     width: "55%",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   verticalPadding: {
     paddingVertical: 10,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   extraWidthExpenses: {
     width: "100%",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
 });
 
@@ -455,17 +523,17 @@ const styleExpenses = StyleSheet.create({
     backgroundColor: "#f2f2f2",
     color: "#000",
     marginTop: 10,
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
   },
   headingRow: {
-    fontFamily: "TimesNewRoman",
-    fontWeight: "extrabold",
+    fontFamily: selectedFont,
+    fontWeight: "bold",
   },
 
   particularWidth: {
     width: 500,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   sno: {
     width: 100,
@@ -474,23 +542,23 @@ const styleExpenses = StyleSheet.create({
     paddingTop: 5,
     textAlign: "center",
     width: "25%",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   bordernone: {
     borderBottom: "none",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   fontSmall: {
     fontSize: "9px",
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   paddingx: {
     paddingHorizontal: 6,
-    fontFamily: "TimesNewRoman",
+    fontFamily: selectedFont,
   },
   fontBold: {
-    fontWeight: "extrabold",
-    fontFamily: "TimesNewRoman",
+    fontWeight: "bold",
+    fontFamily: selectedFont,
   },
 });
 

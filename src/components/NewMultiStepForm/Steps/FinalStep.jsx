@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+import { Font } from "@react-pdf/renderer";
+import { checkAndRegisterFont } from "../checkAndRegisterFont";
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
@@ -16,17 +18,22 @@ const FinalStep = ({ formData, userRole }) => {
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
-  const navigate = useNavigate();
+
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
   const [selectedColor, setSelectedColor] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedFont, setSelectedFont] = useState(
+    localStorage.getItem("selectedFont") || "Roboto"
+  );
+
 
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
   let isComponentMounted = useRef(true);
+
 
   useEffect(() => {
     if (selectedOption !== "select option") {
@@ -269,93 +276,6 @@ const FinalStep = ({ formData, userRole }) => {
     localStorage.setItem("lastStep", 8);
   };
 
-  // useEffect(() => {
-  //   const fetchPermissions = async () => {
-  //     try {
-  //       const [empRes, adminRes] = await Promise.all([
-  //         fetch("https://backend-three-pink.vercel.app/api/employees"),
-  //         fetch("https://backend-three-pink.vercel.app/api/admins"),
-  //       ]);
-
-  //       if (!empRes.ok || !adminRes.ok) {
-  //         throw new Error("Failed to fetch employee or admin data");
-  //       }
-
-  //       const employeeList = await empRes.json();
-  //       const adminList = await adminRes.json();
-
-  //       const normalizedUserName = userName?.trim().toLowerCase();
-
-  //       if (userRole === "admin") {
-  //         const storedAdminName = localStorage.getItem("adminName");
-
-  //         // ✅ If no specific admin name, assume full permissions (super admin)
-  //         if (!storedAdminName) {
-  //           setPermissions({
-  //             generateReport: true,
-  //             updateReport: true,
-  //             createNewWithExisting: true,
-  //             downloadPDF: true,
-  //             exportData: true,
-  //             createReport: true,
-  //           });
-  //           console.log("✅ Super Admin - All permissions granted");
-  //           return;
-  //         }
-
-  //         // ✅ Check if this admin exists
-  //         const admin = adminList.find(
-  //           (a) =>
-  //             a.username?.trim().toLowerCase() === normalizedUserName ||
-  //             a.adminId?.trim().toLowerCase() === normalizedUserName
-  //         );
-
-  //         if (admin && admin.permissions) {
-  //           setPermissions(admin.permissions);
-  //           console.log("✅ Admin permissions set from DB:", admin.permissions);
-  //         } else {
-  //           setPermissions({
-  //             generateReport: true,
-  //             updateReport: true,
-  //             createNewWithExisting: true,
-  //             downloadPDF: true,
-  //             exportData: true,
-  //             createReport: true,
-  //           });
-  //           console.warn(
-  //             "⚠️ Admin found but no permissions set. Using default full access."
-  //           );
-  //         }
-  //       }
-
-  //       // ✅ Handle Employee Permissions
-  //       else if (userRole === "employee") {
-  //         const employee = employeeList.find(
-  //           (emp) =>
-  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
-  //         );
-
-  //         if (employee && employee.permissions) {
-  //           setPermissions(employee.permissions);
-  //           console.log("✅ Employee permissions set:", employee.permissions);
-  //         } else {
-  //           console.warn(
-  //             "⚠️ No matching employee found or permissions missing"
-  //           );
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error("🔥 Error fetching permissions:", err.message);
-  //     }
-  //   };
-
-  //   if (userRole && userName) {
-  //     fetchPermissions();
-  //   }
-  // }, [userRole, userName, refreshKey]);
-
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
@@ -436,6 +356,8 @@ const FinalStep = ({ formData, userRole }) => {
     return colorMap[color] || "#172554"; // default fallback (dark blue)
   };
 
+ 
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -456,11 +378,15 @@ const FinalStep = ({ formData, userRole }) => {
             const option = e.target.value;
             setSelectedOption(option);
 
-            // ✅ Remove selectedColor if "Other" is unselected
+            // ✅ Clear selected color and type from localStorage when changed
             if (option !== "Other") {
               setSelectedColor("");
               localStorage.removeItem("selectedColor");
+              localStorage.removeItem("selectedFont");
             }
+
+            // ✅ Remove previously selected type from localStorage
+            localStorage.removeItem("pdfType");
 
             if (
               option === "CA Certified" &&
@@ -514,11 +440,11 @@ const FinalStep = ({ formData, userRole }) => {
                 <label
                   key={color}
                   className={`flex items-center gap-1 px-1 py-1 rounded-md border transition cursor-pointer 
-                 ${
-                   selectedColor === color
-                     ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
-                     : "border border-gray-300"
-                 } hover:shadow-sm`}
+              ${
+                selectedColor === color
+                  ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
+                  : "border border-gray-300"
+              } hover:shadow-sm`}
                   onDoubleClick={() => {
                     if (selectedColor === color) {
                       setSelectedColor("");
@@ -533,19 +459,14 @@ const FinalStep = ({ formData, userRole }) => {
                     checked={selectedColor === color}
                     onChange={(e) => {
                       const selected = e.target.value;
-                      if (selectedColor === selected) {
-                        setSelectedColor("");
-                        localStorage.removeItem("selectedColor");
-                      } else {
-                        setSelectedColor(selected);
-                        localStorage.setItem("selectedColor", selected);
-                      }
+                      setSelectedColor(selected);
+                      localStorage.setItem("selectedColor", selected);
                     }}
                     className="hidden"
                   />
 
                   <div
-                    className={`relative w-6 h-6 rounded-full border border-gray-300`}
+                    className="relative w-6 h-6 rounded-full border border-gray-300"
                     style={{ backgroundColor: getColorHex(color) }}
                   >
                     {selectedColor === color && (
@@ -568,6 +489,64 @@ const FinalStep = ({ formData, userRole }) => {
                 </label>
               ))}
             </div>
+
+            {/* ✅ Hex Color Input */}
+            <div className="mt-4">
+              <label className="block text-gray-700 font-medium mb-1">
+                Or enter custom HEX code:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="#000000"
+                  maxLength={7}
+                  className="border border-gray-300 rounded-md px-2 py-1 w-32 focus:outline-none focus:ring focus:ring-indigo-200"
+                  value={selectedColor.startsWith("#") ? selectedColor : ""}
+                  onChange={(e) => {
+                    const hex = e.target.value;
+                    // Basic HEX validation
+                    if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(hex)) {
+                      setSelectedColor(hex);
+                      localStorage.setItem("selectedColor", hex);
+                    } else {
+                      setSelectedColor(hex); // still store the input for user to correct
+                    }
+                  }}
+                />
+                <div
+                  className="w-6 h-6 rounded-full border border-gray-400"
+                  style={{
+                    backgroundColor: selectedColor.startsWith("#")
+                      ? selectedColor
+                      : "#fff",
+                  }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ Font Dropdown */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Choose Font:
+            </label>
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={selectedFont}
+              onChange={(e) => {
+                const font = e.target.value;
+                setSelectedFont(font);
+                localStorage.setItem("selectedFont", font);
+              }}
+            >
+              {["Roboto", "Poppins", "Times New Roman", "Open Sans"].map(
+                (font) => (
+                  <option key={font} value={font} style={{ fontFamily: font }}>
+                    {font}
+                  </option>
+                )
+              )}
+            </select>
           </div>
         </div>
       )}

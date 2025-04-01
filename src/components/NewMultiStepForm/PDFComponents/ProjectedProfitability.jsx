@@ -525,7 +525,7 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-                fontWeight: "black",
+                
                 border: 0,
               },
             ]}
@@ -544,7 +544,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { fontWeight: "extrabold" },
+                { },
               ]}
             ></Text>
 
@@ -573,7 +573,7 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-                fontWeight: "black",
+               
                 border: 0,
               },
             ]}
@@ -594,7 +594,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { fontWeight: "extrabold" },
+                { },
               ]}
             >
               Total Revenue Receipt
@@ -611,7 +611,7 @@ const ProjectedProfitability = ({
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       styles.Total,
-                      { fontWeight: "extrabold", borderLeftWidth: "0px" },
+                      {  borderLeftWidth: "0px" },
                     ]}
                   >
                     {formatNumber(totalYearValue)}
@@ -725,7 +725,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "extrabold" },
+                { },
               ]}
             ></Text>
 
@@ -741,7 +741,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         fontFamily: "Roboto",
-                        fontWeight: "extrabold",
+                        
                         borderLeftWidth: "0px",
                       },
                     ]}
@@ -939,7 +939,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto", fontWeight: "extrabold" },
+                { fontFamily: "Roboto", },
               ]}
             >
               Total
@@ -969,7 +969,7 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-                fontWeight: "black",
+                
                 border: 0,
               },
             ]}
@@ -988,7 +988,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { fontWeight: "extrabold" },
+                { },
               ]}
             ></Text>
 
@@ -1019,7 +1019,7 @@ const ProjectedProfitability = ({
                 styleExpenses.bordernone,
                 {
                   fontFamily: "Roboto",
-                  fontWeight: "extrabold",
+                  
                 },
               ]}
             >
@@ -1030,7 +1030,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto", fontWeight: "extrabold" },
+                { fontFamily: "Roboto", },
               ]}
             >
               Gross Profit
@@ -1050,7 +1050,7 @@ const ProjectedProfitability = ({
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
                         fontFamily: "Roboto",
-                        // fontWeight: "extrabold",
+                        // 
                       },
                     ]}
                   >
@@ -1390,7 +1390,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                // { fontWeight: "extrabold" },
+                // { },
               ]}
             >
               Income Tax @ {formData.ProjectReportSetting.incomeTax} %

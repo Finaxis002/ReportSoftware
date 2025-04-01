@@ -123,7 +123,7 @@ const Assumptions = ({
           <Text>Assumption</Text>
         </View>
 
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           The entire projection is based on the assumption that the sales for
           {years} Years {months} Months will be:
         </Text>
@@ -186,7 +186,7 @@ const Assumptions = ({
       </View>
 
       <View style={{ marginTop: "10px" }}>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           Also the total expense for the firm during the projection years will
           be as follows:
         </Text>
@@ -251,7 +251,7 @@ const Assumptions = ({
         </View>
       </View>
 
-      <Text style={{ fontSize: 10 }}>Rate of Depreciation is as follows:</Text>
+      <Text style={{ fontSize: 9 }}>Rate of Depreciation is as follows:</Text>
       <View
         style={[
           styles.table,
@@ -303,36 +303,36 @@ const Assumptions = ({
       </View>
       {/* Notes Section */}
       <View style={[ styles.text , { marginTop: 20, marginLeft: 2 }]}>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           The Term Loan Repayment for {years} Years {months} Months is
           calculated at an interest rate of{" "}
           {formData.ProjectReportSetting.interestOnTL}% per annum.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           The Working Capital Loan Repayment is calculated at an interest rate
           of {formData.ProjectReportSetting.interestOnWC}% per annum.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           Cost of the land is based on the current rate.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           Cost of the building is based on the current rate.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           Cost of machinery is based on the quotation submitted by the supplier.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           Value of raw materials & utility charges are as per current market
           conditions.
         </Text>
-        <Text style={{ fontSize: 10 }}>
+        <Text style={{ fontSize: 9 }}>
           All other assumptions are based on the experience of the promoter and
           study of similar models.
         </Text>
       </View>
 
       <View style={{ color: "#172554" }}>
-        <Text style={{ marginTop: 20, fontSize: 10 }}>
+        <Text style={{ marginTop: 20, fontSize: 9 }}>
           This report is created using www.shardaassociates.in. Sharda
           Associates bears no financial responsibility on or behalf of any of
           the authorized signatories.

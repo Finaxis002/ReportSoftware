@@ -50,6 +50,14 @@ const App = () => {
   console.log("pdfData", pdfData);
 
   useEffect(() => {
+    // Clear font and color on page refresh
+    localStorage.removeItem("selectedColor");
+    localStorage.removeItem("selectedFont");
+    localStorage.removeItem("pdfType")
+  }, []);
+  
+
+  useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const role = localStorage.getItem("userRole");
     const storedEmployeeName = localStorage.getItem("employeeName");

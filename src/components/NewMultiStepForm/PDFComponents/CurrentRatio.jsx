@@ -297,7 +297,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold", fontFamily: "Roboto" },
+                { fontWeight: "bold",  },
               ]}
             >
               Current Ratio
@@ -314,7 +314,7 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        fontFamily: "Roboto",
+                        
                         textAlign: "center",
                       },
                     ]}
@@ -337,7 +337,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold", fontFamily: "Roboto", fontSize: "10px" },
+                { fontWeight: "bold",  fontSize: "10px" },
               ]}
             >
               Average Current Ratio
@@ -351,7 +351,7 @@ const CurrentRatio = ({
                 {
                   width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
                   fontWeight: "bold",
-                  fontFamily: "Roboto",
+                  ,
                   textAlign: "center",
                   borderRightWidth: 0,
                   fontSize: "10px",
@@ -377,7 +377,7 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        fontFamily: "Roboto",
+                        
                         textAlign: "center",
                         borderLeftWidth:0,
                         borderRightWidth:0

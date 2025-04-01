@@ -184,7 +184,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 borderTop: "1px solid #000",
                 borderBottomWidth: 0,
                 borderLeftWidth: 1,
-                fontFamily: "Roboto",
+              
                 fontWeight: "bold",
                 textAlign: "right",
               },
