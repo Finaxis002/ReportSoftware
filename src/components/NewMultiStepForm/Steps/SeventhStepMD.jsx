@@ -11,7 +11,7 @@ const SeventhStepMD = ({
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
   const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
-  // Initialize local data with default values or from props
+// Initialize local data with default values or from props
   const [localData, setLocalData] = useState(() =>
     MoreDetailsData && Object.keys(MoreDetailsData).length > 0
       ? MoreDetailsData
@@ -145,56 +145,120 @@ const SeventhStepMD = ({
   return (
     <div className="overflow-x-hidden">
       <form>
-          <div
-            // className="form-scroll"
-            className="form-scroll"
+        <div
+          // className="form-scroll"
+          className="form-scroll"
+        >
+          {/* Stock Table */}
+          <h5 className="text-start text-primary mt-4 mb-0">Stock Details</h5>
+          <hr className="mt-0 mb-1" />
+          {/* Stock Table */}
+          <table
+            // className="table"
+            className="table google-sheet-table"
           >
-            {/* Stock Table */}
-            <h5 className="text-start text-primary mt-4 mb-0">Stock Details</h5>
-            <hr className="mt-0 mb-1" />
-            {/* Stock Table */}
-            <table
-              // className="table"
-              className="table google-sheet-table"
-            >
-              <thead>
-                <tr>
-                  <th className="header-label">Particulars</th>
-                  {Array.from({ length: projectionYears }).map((_, index) => (
-                    <th key={index} className="header-label">
-                      Year {index + 1}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {["OpeningStock", "ClosingStock", "Withdrawals"].map(
-                  (stockType) => (
-                    <tr key={stockType}>
-                      <td
-                        // className="form-control border-r-0 border-none"
-                        className="google-sheet-input"
-                        style={{ width: "20rem", borderRadius: "0px" }}
-                        type="text"
-                      >
-                        {stockType.replace(/([A-Z])/g, " $1")}{" "}
-                        {/* Convert camelCase to readable text */}
-                      </td>
+            <thead>
+              <tr>
+                <th className="header-label">Particulars</th>
+                {Array.from({ length: projectionYears }).map((_, index) => (
+                  <th key={index} className="header-label">
+                    Year {index + 1}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {["OpeningStock", "ClosingStock", "Withdrawals"].map(
+                (stockType) => (
+                  <tr key={stockType}>
+                    <td
+                      // className="form-control border-r-0 border-none"
+                      className="google-sheet-input"
+                      style={{ width: "20rem", borderRadius: "0px" }}
+                      type="text"
+                    >
+                      {stockType.replace(/([A-Z])/g, " $1")}{" "}
+                      {/* Convert camelCase to readable text */}
+                    </td>
 
-                      {/* ✅ Make all input fields editable */}
+                    {/* ✅ Make all input fields editable */}
+                    {Array.from({ length: projectionYears }).map((_, index) => (
+                      <td key={index}>
+                        <input
+                          name="value"
+                          onChange={(event) =>
+                            handleStockChanges(
+                              stockType,
+                              index,
+                              event.target.value
+                            )
+                          }
+                          value={localData?.[stockType]?.[index] ?? ""}
+                          className="form-control text-end noBorder"
+                          type="number"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+
+          {/* Current Liabilities & Assets Tables */}
+          {["currentLiabilities", "currentAssets"].map((dataType) => (
+            <div key={dataType}>
+              <h5 className="text-start text-primary mt-4 mb-0">
+                {dataType === "currentLiabilities"
+                  ? "Current Liabilities"
+                  : "Current Assets"}
+              </h5>
+              <hr className="mt-0 mb-1" />
+              <table
+                // className="table"
+                className="table google-sheet-table"
+              >
+                <thead>
+                  <tr>
+                    <th className="header-label">Index</th>
+                    <th className="header-label">Particular</th>
+
+                    {/* Determine the max number of years dynamically */}
+                    {Array.from({ length: projectionYears }).map((_, index) => (
+                      <th key={index} className="header-label">
+                        Year {index + 1}
+                      </th>
+                    ))}
+                    {/* <th className="header-label"></th> */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(localData?.[dataType] ?? []).map((entry, i) => (
+                    <tr key={i}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <input
+                          name="particular"
+                          value={entry.particular}
+                          onChange={(event) =>
+                            handleFormChange(event, i, null, dataType)
+                          }
+                          // className="form-control text-center noBorder] bg-white p-0"
+                          className="google-sheet-input"
+                          style={{ width: "20rem" }}
+                          type="text"
+                          disabled={!entry.isCustom}
+                        />
+                      </td>
                       {Array.from({ length: projectionYears }).map(
                         (_, index) => (
                           <td key={index}>
                             <input
                               name="value"
+                              value={entry.years?.[index] ?? ""}
                               onChange={(event) =>
-                                handleStockChanges(
-                                  stockType,
-                                  index,
-                                  event.target.value
-                                )
+                                handleFormChange(event, i, index, dataType)
                               }
-                              value={localData?.[stockType]?.[index] ?? ""}
                               className="form-control text-end noBorder"
                               type="number"
                             />
@@ -202,91 +266,23 @@ const SeventhStepMD = ({
                         )
                       )}
                     </tr>
-                  )
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
 
-            {/* Current Liabilities & Assets Tables */}
-            {["currentLiabilities", "currentAssets"].map((dataType) => (
-              <div key={dataType}>
-                <h5 className="text-start text-primary mt-4 mb-0">
-                  {dataType === "currentLiabilities"
-                    ? "Current Liabilities"
-                    : "Current Assets"}
-                </h5>
-                <hr className="mt-0 mb-1" />
-                <table
-                  // className="table"
-                  className="table google-sheet-table"
-                >
-                  <thead>
-                    <tr>
-                      <th className="header-label">Index</th>
-                      <th className="header-label">Particular</th>
-
-                      {/* Determine the max number of years dynamically */}
-                      {Array.from({ length: projectionYears }).map(
-                        (_, index) => (
-                          <th key={index} className="header-label">
-                            Year {index + 1}
-                          </th>
-                        )
-                      )}
-                      {/* <th className="header-label"></th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(localData?.[dataType] ?? []).map((entry, i) => (
-                      <tr key={i}>
-                        <td>{i + 1}</td>
-                        <td>
-                          <input
-                            name="particular"
-                            value={entry.particular}
-                            onChange={(event) =>
-                              handleFormChange(event, i, null, dataType)
-                            }
-                            // className="form-control text-center noBorder] bg-white p-0"
-                            className="google-sheet-input"
-                            style={{ width: "20rem" }}
-                            type="text"
-                            disabled={!entry.isCustom}
-                          />
-                        </td>
-                        {Array.from({ length: projectionYears }).map(
-                          (_, index) => (
-                            <td key={index}>
-                              <input
-                                name="value"
-                                value={entry.years?.[index] ?? ""}
-                                onChange={(event) =>
-                                  handleFormChange(event, i, index, dataType)
-                                }
-                                className="form-control text-end noBorder"
-                                type="number"
-                              />
-                            </td>
-                          )
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <button
-                  className="btn btn-sm btn-success px-4"
-                  onClick={(event) => {
-                    event.preventDefault(); // Prevents form submission
-                    addFields(dataType);
-                  }}
-                >
-                  Add{" "}
-                  {dataType === "currentLiabilities" ? "Liability" : "Asset"} +
-                </button>
-              </div>
-            ))}
-          </div>
+              <button
+                className="btn btn-sm btn-success px-4"
+                onClick={(event) => {
+                  event.preventDefault(); // Prevents form submission
+                  addFields(dataType);
+                }}
+              >
+                Add {dataType === "currentLiabilities" ? "Liability" : "Asset"}{" "}
+                +
+              </button>
+            </div>
+          ))}
+        </div>
       </form>
     </div>
   );
