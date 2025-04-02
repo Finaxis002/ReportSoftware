@@ -504,61 +504,120 @@ const BankDetails = () => {
             <p className="text-center text-lg text-red-400">{error}</p>
           ) : filteredData.length > 0 ? (
             <div className="relative w-full max-w-full ">
-             <div className="w-[175vh] h-[55vh] overflow-x-auto border rounded-md">
-             <div className="min-w-full">
-              <table className="table-fixed min-w-full text-sm text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow-md rounded-lg overflow-hidden">
-                <thead className="bg-blue-600 text-white">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Client Name</th>
-                    <th className="px-4 py-2 text-left">Business</th>
-                    <th className="px-4 py-2 text-left">Bank</th>
-                    <th className="px-4 py-2 text-left">Manager</th>
-                    <th className="px-4 py-2 text-left">Post</th>
-                    <th className="px-4 py-2 text-left">Contact</th>
-                    <th className="px-4 py-2 text-left">Email</th>
-                    <th className="px-4 py-2 text-left">IFSC</th>
-                    <th className="px-4 py-2 text-left">City</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800">
-                  {filteredData.map((detail, index) => (
-                    <tr
-                      key={index}
-                      className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                    >
-                      <td className="px-4 py-3">
-                        {detail.clientName || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.businessName || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.Bank || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.BankManagerName || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.Post || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.ContactNo || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.EmailId || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.IFSCCode || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {detail.bankDetails?.City || "N/A"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="w-[175vh] h-[55vh] overflow-x-auto border rounded-md">
+                <div className="min-w-full">
+                  <table className="table-fixed min-w-full text-sm text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow-md rounded-lg overflow-hidden">
+                    <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[13px] font-semibold uppercase tracking-wider shadow-sm rounded-t-md">
+                      <tr>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-user mr-1"></i> Client Name
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-building mr-1"></i> Business
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-university mr-1"></i> Bank
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-user-tie mr-1"></i> Manager
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-briefcase mr-1"></i> Post
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-phone-alt mr-1"></i> Contact
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-envelope mr-1"></i> Email
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
+                          <i className="fas fa-code mr-1"></i> IFSC
+                        </th>
+                        <th className="px-6 py-3 text-left whitespace-nowrap">
+                          <i className="fas fa-city mr-1"></i> City
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className=" dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm">
+                      {filteredData.map((detail, index) => (
+                        <tr
+                          key={index}
+                          className={`transition duration-200 ${
+                            index % 2 === 0
+                              ? " dark:bg-gray-900"
+                              : "bg-gray-50 dark:bg-gray-800"
+                          } hover:bg-blue-50 dark:hover:bg-gray-700`}
+                        >
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.clientName}
+                          >
+                            <i className="fas fa-user mr-2 text-blue-500" />{" "}
+                            {detail.clientName || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.businessName}
+                          >
+                            <i className="fas fa-briefcase mr-2 text-indigo-500" />{" "}
+                            {detail.businessName || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.Bank}
+                          >
+                            <i className="fas fa-university mr-2 text-green-600" />{" "}
+                            {detail.bankDetails?.Bank || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.BankManagerName}
+                          >
+                            <i className="fas fa-user-tie mr-2 text-yellow-500" />{" "}
+                            {detail.bankDetails?.BankManagerName || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.Post}
+                          >
+                            <i className="fas fa-id-badge mr-2 text-cyan-500" />{" "}
+                            {detail.bankDetails?.Post || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.ContactNo}
+                          >
+                            <i className="fas fa-phone-alt mr-2 text-red-500" />{" "}
+                            {detail.bankDetails?.ContactNo || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.EmailId}
+                          >
+                            <i className="fas fa-envelope mr-2 text-orange-500" />{" "}
+                            {detail.bankDetails?.EmailId || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.IFSCCode}
+                          >
+                            <i className="fas fa-barcode mr-2 text-gray-600" />{" "}
+                            {detail.bankDetails?.IFSCCode || "N/A"}
+                          </td>
+                          <td
+                            className="px-6 py-3 whitespace-nowrap truncate"
+                            title={detail.bankDetails?.City}
+                          >
+                            <i className="fas fa-city mr-2 text-purple-500" />{" "}
+                            {detail.bankDetails?.City || "N/A"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
             </div>
           ) : (
             <p className="text-center text-lg text-gray-200">
@@ -568,7 +627,7 @@ const BankDetails = () => {
 
           {showAddModal && (
             <div className="fixed inset-0 bg-gray-900 bg-opacity-30 backdrop-blur-md flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl">
+              <div className=" rounded-2xl shadow-2xl p-8 w-full max-w-3xl">
                 {/* ✅ Title */}
                 <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
                   Add New Bank Details
