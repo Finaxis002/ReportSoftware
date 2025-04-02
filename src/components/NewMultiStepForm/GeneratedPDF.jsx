@@ -904,32 +904,9 @@ const GeneratedPDF = ({}) => {
 
           // Check if the blob is ready
           const handleDownloadPDF = async () => {
-            if (userRole === "employee") {
-              const employeeName =
-                localStorage.getItem("employeeName") || "Unknown";
-              try {
-                const res = await fetch(
-                  "https://backend-three-pink.vercel.app/api/send-otp-download",
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ employeeName }),
-                  }
-                );
-
-                if (res.ok) {
-                  setShowOTPModal(true);
-                  setIsOtpSent(true);
-                } else {
-                  alert("Failed to send OTP to admin.");
-                }
-              } catch (err) {
-                console.error("OTP send error:", err);
-              }
-            } else {
-              triggerPdfDownload(); // For admin or client
-            }
+            triggerPdfDownload(); // All roles (employee, admin, client) can directly download
           };
+          
 
           const handleVerifyOtpForDownload = async () => {
             try {
