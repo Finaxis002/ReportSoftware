@@ -167,7 +167,7 @@ const Clients = () => {
               clients.map((client) => (
                 <div
                   key={client._id}
-                  className="relative bg-white/5 dark:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
+                  className="relative /5 dark:/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
                 >
                   {/* Header with Avatar & Name */}
                   <div className="flex items-center gap-4 mb-4">
@@ -217,7 +217,7 @@ const Clients = () => {
               formData.map((data, index) => (
                 <div
                   key={index}
-                  className="relative bg-white/5 dark:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
+                  className="relative /5 dark:/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
                 >
                   {/* Header with Avatar & Name */}
                   <div className="flex items-center gap-4 mb-4">
@@ -263,90 +263,108 @@ const Clients = () => {
 
           {/* Add Client Modal */}
           {showAddModal && (
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50">
-              <div className=" rounded-xl shadow-xl p-8 w-full max-w-lg">
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
-                  Add New Client
-                </h2>
-
-                <div className="space-y-4">
-                  {/* Client Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Client Name
-                    </label>
+            <div className="fixed inset-0 dark:border-white bg-gray-900 bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+            <div className=" dark:bg-gray-900 bg-gray-50 dark:border-white border rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-fadeIn">
+              {/* Title */}
+              <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-8 border-b pb-4 flex items-center gap-2">
+                <i className="fas fa-user-plus text-indigo-600 text-xl" /> Add New Client
+              </h2>
+          
+              {/* Form Grid */}
+              <div className="space-y-5">
+                {/* Client Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Client Name
+                  </label>
+                  <div className="relative">
+                    <i className="fas fa-user absolute left-3 top-3 text-gray-400" />
                     <input
                       type="text"
                       name="clientName"
                       value={newClientDetails.clientName}
                       onChange={handleInputChange}
                       placeholder="Enter Client Name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
                     />
                   </div>
-
-                  {/* Contact Number */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Contact Number
-                    </label>
+                </div>
+          
+                {/* Contact Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Contact Number
+                  </label>
+                  <div className="relative">
+                    <i className="fas fa-phone-alt absolute left-3 top-3 text-gray-400" />
                     <input
                       type="text"
                       name="contactNo"
                       value={newClientDetails.contactNo}
                       onChange={handleInputChange}
                       placeholder="Enter Contact Number"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
                     />
                   </div>
-
-                  {/* Email ID */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email ID
-                    </label>
+                </div>
+          
+                {/* Email ID */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Email ID
+                  </label>
+                  <div className="relative">
+                    <i className="fas fa-envelope absolute left-3 top-3 text-gray-400" />
                     <input
                       type="email"
                       name="emailId"
                       value={newClientDetails.emailId}
                       onChange={handleInputChange}
                       placeholder="Enter Email ID"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
                     />
                   </div>
-
-                  {/* Address */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
-                    </label>
+                </div>
+          
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Address
+                  </label>
+                  <div className="relative">
+                    <i className="fas fa-map-marker-alt absolute left-3 top-3 text-gray-400" />
                     <input
                       type="text"
                       name="address"
                       value={newClientDetails.address}
                       onChange={handleInputChange}
                       placeholder="Enter Address"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
                     />
                   </div>
                 </div>
-
-                <div className="flex justify-end gap-4 mt-6">
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddClient}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-                  >
-                    Submit
-                  </button>
-                </div>
+              </div>
+          
+              {/* Buttons */}
+              <div className="flex justify-end gap-4 mt-8">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="px-6 py-2 text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition"
+                >
+                  <i className="fas fa-times mr-2" />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddClient}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md"
+                >
+                  <i className="fas fa-check mr-2" />
+                  Submit
+                </button>
               </div>
             </div>
+          </div>
+          
           )}
         </div>
       </div>
