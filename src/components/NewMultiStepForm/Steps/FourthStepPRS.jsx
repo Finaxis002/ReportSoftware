@@ -227,6 +227,7 @@ const FourthStepPRS = ({
   //   },
   //   ...(formData?.ProjectReportSetting || {}), // Merging formData if available
   // }));
+  
   const [localData, setLocalData] = useState(() => ({
     RepaymentMonths: "",
     ProjectionYears: 5,
@@ -235,7 +236,7 @@ const FourthStepPRS = ({
     SelectRepaymentMethod: "Monthly",
     SelectStartingMonth: "",
     FinancialYear: "2025",
-    AmountIn: "",
+    AmountIn: "Rupees",
     Currency: "",
     Format: "",
     interestOnTL: 10,
@@ -512,6 +513,18 @@ const FourthStepPRS = ({
     }
   };
 
+  useEffect(() => {
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
+        ...localData,
+      },
+    }));
+  }, [localData]);
+  
+
+
   return (
     <div>
       <div className="form-scroll">
@@ -636,7 +649,7 @@ const FourthStepPRS = ({
                   id="AmountIn"
                   name="AmountIn"
                   required
-                  value={localData.AmountIn}
+                  value={localData.AmountIn || Rupees}
                   onChange={handleChange}
                 >
                   <option value="rupees">Rupees</option>

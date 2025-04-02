@@ -539,7 +539,7 @@ const RatioAnalysis = ({
                   {yearLabel}
                 </Text>
               ))}
-            <Text style={[styles.particularsCell, stylesCOP.boldText]}>
+            <Text style={[styles.particularsCell, stylesCOP.boldText, ]}>
               Average Ratios
             </Text>
           </View>
