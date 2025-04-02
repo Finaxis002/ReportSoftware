@@ -649,7 +649,7 @@ const FourthStepPRS = ({
                   id="AmountIn"
                   name="AmountIn"
                   required
-                  value={localData.AmountIn || Rupees}
+                  value={localData.AmountIn || rupees}
                   onChange={handleChange}
                 >
                   <option value="rupees">Rupees</option>
