@@ -552,6 +552,15 @@ const FinalStep = ({ formData, userRole }) => {
       )}
 
       <div className="flex gap-5">
+
+        {/* ✅ Check Profit Button */}
+        <button
+          onClick={handleCheckProfit}
+          className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          {isLoading ? "Loading..." : "Check Profit"}
+        </button>
+        
         {/* ✅ Generate PDF Button */}
         {((userRole === "admin" &&
           (!localStorage.getItem("adminName") || permissions.generateReport)) ||
@@ -563,13 +572,7 @@ const FinalStep = ({ formData, userRole }) => {
           </Link>
         )}
 
-        {/* ✅ Check Profit Button */}
-        <button
-          onClick={handleCheckProfit}
-          className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          {isLoading ? "Loading..." : "Check Profit"}
-        </button>
+        
 
         {/* ✅ New Export Data Button */}
         {((userRole === "admin" &&
