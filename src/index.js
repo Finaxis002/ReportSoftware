@@ -39,6 +39,8 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // Initialize query client
 const queryClient = new QueryClient();
 
+
+
 const App = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,12 +51,18 @@ const App = () => {
   const [pdfData, setPdfData] = useState();
   console.log("pdfData", pdfData);
 
+
+  const location = useLocation(); // ✅ This is now inside the component
+
   useEffect(() => {
-    // Clear font and color on page refresh
-    localStorage.removeItem("selectedColor");
-    localStorage.removeItem("selectedFont");
-    localStorage.removeItem("pdfType")
-  }, []);
+    const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+    if (location.pathname === "/MultestepForm" && navigationType === "reload") {
+      localStorage.removeItem("selectedColor");
+      localStorage.removeItem("selectedFont");
+      localStorage.removeItem("pdfType");
+    }
+  }, [location.pathname]);
+
   
 
   useEffect(() => {
@@ -100,7 +108,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+       
           <Routes>
             <Route
               path="/"
@@ -270,7 +278,7 @@ const App = () => {
               }
             />
           </Routes>
-        </BrowserRouter>
+        
       </QueryClientProvider>
     </Provider>
   );
@@ -278,6 +286,10 @@ const App = () => {
 
 // Render the app
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
 
 ///////////////////////////////////////////////////////////////////////////////////////////

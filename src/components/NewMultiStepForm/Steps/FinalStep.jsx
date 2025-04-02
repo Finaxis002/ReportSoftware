@@ -18,7 +18,6 @@ const FinalStep = ({ formData, userRole }) => {
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
-
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
@@ -29,11 +28,9 @@ const FinalStep = ({ formData, userRole }) => {
     localStorage.getItem("selectedFont") || "Roboto"
   );
 
-
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
   let isComponentMounted = useRef(true);
-
 
   useEffect(() => {
     if (selectedOption !== "select option") {
@@ -356,8 +353,6 @@ const FinalStep = ({ formData, userRole }) => {
     return colorMap[color] || "#172554"; // default fallback (dark blue)
   };
 
- 
-
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -539,13 +534,26 @@ const FinalStep = ({ formData, userRole }) => {
                 localStorage.setItem("selectedFont", font);
               }}
             >
-              {["Roboto", "Poppins", "Times New Roman", "Open Sans"].map(
-                (font) => (
-                  <option key={font} value={font} style={{ fontFamily: font }}>
-                    {font}
-                  </option>
-                )
-              )}
+              {[
+                "Roboto",
+                "Poppins",
+                "Times New Roman",
+                "Open Sans",
+                "Inter",
+                "Montserrat",
+                "Lato",
+                "Nunito",
+                "Playfair Display",
+                "Raleway",
+                "Merriweather",
+                "Ubuntu",
+                "Oswald",
+                "Courier Prime",
+              ].map((font) => (
+                <option key={font} value={font} style={{ fontFamily: font }}>
+                  {font}
+                </option>
+              ))}
             </select>
           </div>
         </div>
