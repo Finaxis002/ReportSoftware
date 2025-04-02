@@ -44,16 +44,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   const handleProjectionYearChange = (newYears) => {
     setProjectionYears(newYears);
   };
-  // ✅ State to store business data when selected in ReportDropdown
-  // const [formData, setFormData] = useState({
-  //   AccountInformation: {},
-  //   MeansOfFinance: {},
-  //   CostOfProject: {},
-  //   ProjectReportSetting: {},
-  //   Expenses: {},
-  //   Revenue: {},
-  //   MoreDetails: {},
-  // });
+  
 
   const [formData, setFormData] = useState({
     AccountInformation: {},
@@ -295,8 +286,6 @@ const MultiStepForm = ({ userRole, userName }) => {
   };
   
   
-  
-
   
   const stepContent = useMemo(() => {
     switch (currentStep) {

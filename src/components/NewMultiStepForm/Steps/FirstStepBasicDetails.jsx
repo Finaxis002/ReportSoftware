@@ -291,7 +291,7 @@ const FirstStepBasicDetails = ({
                 </p>
               )}
 
-              <label htmlFor="clientName">Client Name</label>
+              <label htmlFor="clientName">Client Name <span className="text-red-600">*</span></label>
               {requiredFieldErrors.clientName && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.clientName}
@@ -375,7 +375,7 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessOwner">Business Owner</label>
+              <label htmlFor="businessOwner">Business Owner<span className="text-red-600">*</span> </label>
               {requiredFieldErrors.businessOwner && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.businessOwner}
