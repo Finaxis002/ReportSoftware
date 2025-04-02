@@ -626,171 +626,60 @@ const BankDetails = () => {
           )}
 
           {showAddModal && (
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-30 backdrop-blur-md flex items-center justify-center z-50">
-              <div className=" rounded-2xl shadow-2xl p-8 w-full max-w-3xl">
-                {/* ✅ Title */}
-                <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
-                  Add New Bank Details
-                </h2>
-
-                {/* ✅ Form Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* ✅ Business Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Business Name
-                    </label>
-                    <input
-                      type="text"
-                      name="businessName"
-                      value={newBankDetails.businessName}
-                      onChange={handleInputChange}
-                      placeholder="Enter Business Name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Client Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Client Name
-                    </label>
-                    <input
-                      type="text"
-                      name="clientName"
-                      value={newBankDetails.clientName}
-                      onChange={handleInputChange}
-                      placeholder="Enter Client Name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Bank Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bank Name
-                    </label>
-                    <input
-                      type="text"
-                      name="bankName"
-                      value={newBankDetails.bankName}
-                      onChange={handleInputChange}
-                      placeholder="Enter Bank Name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Manager Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Manager Name
-                    </label>
-                    <input
-                      type="text"
-                      name="managerName"
-                      value={newBankDetails.managerName}
-                      onChange={handleInputChange}
-                      placeholder="Enter Manager Name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Post */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Post
-                    </label>
-                    <input
-                      type="text"
-                      name="post"
-                      value={newBankDetails.post}
-                      onChange={handleInputChange}
-                      placeholder="Enter Post"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Contact Number */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Contact Number
-                    </label>
-                    <input
-                      type="text"
-                      name="contactNo"
-                      value={newBankDetails.contactNo}
-                      onChange={handleInputChange}
-                      placeholder="Enter Contact No"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="emailId"
-                      value={newBankDetails.emailId}
-                      onChange={handleInputChange}
-                      placeholder="Enter Email"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ IFSC Code */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      name="ifscCode"
-                      value={newBankDetails.ifscCode}
-                      onChange={handleInputChange}
-                      placeholder="Enter IFSC Code"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-
-                  {/* ✅ City */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={newBankDetails.city}
-                      onChange={handleInputChange}
-                      placeholder="Enter City"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                    />
-                  </div>
-                </div>
-
-                {/* ✅ Buttons */}
-                <div className="flex justify-end gap-4 mt-6">
-                  {/* ✅ Cancel Button */}
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="px-5 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 transition rounded-lg"
-                  >
-                    Cancel
-                  </button>
-
-                  {/* ✅ Submit Button */}
-                  <button
-                    onClick={handleAddBank}
-                    className="px-5 py-2 bg-blue-500 text-white hover:bg-blue-600 transition rounded-lg shadow-md"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </div>
-            </div>
+           <div className="fixed inset-0 bg-gray-900 bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+           <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-3xl animate-fadeIn">
+             {/* Modal Title */}
+             <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-8 border-b pb-4 flex items-center gap-2">
+               <i className="fas fa-university text-blue-600 text-xl"></i> Add New Bank Details
+             </h2>
+         
+             {/* Form Grid */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+               {[
+                 { label: "Business Name", name: "businessName", type: "text", placeholder: "Enter Business Name" },
+                 { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter Client Name" },
+                 { label: "Bank Name", name: "bankName", type: "text", placeholder: "Enter Bank Name" },
+                 { label: "Manager Name", name: "managerName", type: "text", placeholder: "Enter Manager Name" },
+                 { label: "Post", name: "post", type: "text", placeholder: "Enter Post" },
+                 { label: "Contact Number", name: "contactNo", type: "text", placeholder: "Enter Contact No" },
+                 { label: "Email", name: "emailId", type: "email", placeholder: "Enter Email" },
+                 { label: "IFSC Code", name: "ifscCode", type: "text", placeholder: "Enter IFSC Code" },
+                 { label: "City", name: "city", type: "text", placeholder: "Enter City" },
+               ].map((field, i) => (
+                 <div key={i}>
+                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                     {field.label}
+                   </label>
+                   <input
+                     type={field.type}
+                     name={field.name}
+                     value={newBankDetails[field.name]}
+                     onChange={handleInputChange}
+                     placeholder={field.placeholder}
+                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+                   />
+                 </div>
+               ))}
+             </div>
+         
+             {/* Buttons */}
+             <div className="flex justify-end gap-4 mt-8">
+               <button
+                 onClick={() => setShowAddModal(false)}
+                 className="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-lg transition"
+               >
+                 <i className="fas fa-times mr-2"></i> Cancel
+               </button>
+               <button
+                 onClick={handleAddBank}
+                 className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md"
+               >
+                 <i className="fas fa-paper-plane mr-2"></i> Submit
+               </button>
+             </div>
+           </div>
+         </div>
+         
           )}
         </div>
       </div>
