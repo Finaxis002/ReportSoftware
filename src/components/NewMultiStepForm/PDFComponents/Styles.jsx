@@ -62,14 +62,18 @@ Font.register({
   family: "Poppins",
   fonts: [
     {
-      src: require("../Assets/Fonts/Poppins-Regular.ttf"),
+      src: require("../Assets/Fonts/Poppins/Poppins-Regular.ttf"),
       fontWeight: "normal",
     },
     {
-      src: require("../Assets/Fonts/Poppins-Bold.ttf"),
+      src: require("../Assets/Fonts/Poppins/Poppins-Bold.ttf"),
       fontWeight: "bold",
     },
-   
+    {
+      src: require("../Assets/Fonts/Poppins/Poppins-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
   ],
 });
 
@@ -79,11 +83,212 @@ Font.register({
   fonts: [
     {
       src: require("../Assets/Fonts/OpenSans/OpenSans-Regular.ttf"),
-      fontWeight: "normal", // or 400
+      fontWeight: "normal",
     },
     {
       src: require("../Assets/Fonts/OpenSans/OpenSans-Bold.ttf"),
-      fontWeight: "bold", // or 700
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/OpenSans/OpenSans-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+Font.register({
+  family: "Nunito",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Nunito/Nunito-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Nunito/Nunito-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Nunito/Nunito-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+Font.register({
+  family: "Inter",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Inter/Inter_18pt-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Inter/Inter_18pt-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Inter/Inter_18pt-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+Font.register({
+  family: "Montserrat",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Montserrat/Montserrat-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Montserrat/Montserrat-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Montserrat/Montserrat-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+Font.register({
+  family: "Lato",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Lato/Lato-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Lato/Lato-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Lato/Lato-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+
+
+Font.register({
+  family: "Raleway",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Raleway/Raleway-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Raleway/Raleway-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Raleway/Raleway-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+Font.register({
+  family: "Playfair Display",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+Font.register({
+  family: "Merriweather",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Merriweather/Merriweather-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Merriweather/Merriweather-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Merriweather/Merriweather-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+Font.register({
+  family: "Ubuntu",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Ubuntu/Ubuntu-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Ubuntu/Ubuntu-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+Font.register({
+  family: "Oswald",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/Oswald/Oswald-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/Oswald/Oswald-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/Oswald/Oswald-Bold.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+Font.register({
+  family: "Courier Prime",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/CourierPrime/CourierPrime-Regular.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/CourierPrime/CourierPrime-Bold.ttf"),
+      fontWeight: "bold",
+    },
+    {
+      src: require("../Assets/Fonts/CourierPrime/CourierPrime-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
     },
   ],
 });
