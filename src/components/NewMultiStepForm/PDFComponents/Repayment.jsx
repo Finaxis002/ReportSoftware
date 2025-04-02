@@ -309,23 +309,23 @@ const Repayment = ({
               alignItems: "flex-end",
             }}
           >
-           <Text style={[styles.AmountIn, styles.italicText]}>
-                     (Amount In{" "}
-                     {
-                       formData?.ProjectReportSetting?.AmountIn === "rupees"
-                         ? "Rs." // Show "Rupees" if "rupees" is selected
-                         : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                         ? "Thousands" // Show "Thousands" if "thousand" is selected
-                         : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                         ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                         : formData?.ProjectReportSetting?.AmountIn === "crores"
-                         ? "Crores" // Show "Crores" if "crores" is selected
-                         : formData?.ProjectReportSetting?.AmountIn === "millions"
-                         ? "Millions" // Show "Millions" if "millions" is selected
-                         : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                     }
-                     )
-                   </Text>
+            <Text style={[styles.AmountIn, styles.italicText]}>
+              (Amount In{" "}
+              {
+                formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs." // Show "Rupees" if "rupees" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores" // Show "Crores" if "crores" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions" // Show "Millions" if "millions" is selected
+                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+              }
+              )
+            </Text>
           </View>
 
           <View>
@@ -532,6 +532,14 @@ const Repayment = ({
 
                 // ✅ Include row if repayment hasn't fully stopped
                 filteredYearData.push(entry);
+              }
+
+              // ✅ New logic: check if any month row is renderable
+              const visibleMonthRows = filteredYearData.filter(
+                (entry) => entry.interestLiability > 0
+              );
+              if (visibleMonthRows.length === 0) {
+                return null; // 🚫 Skip year block if no visible month
               }
 
               // ✅ Skip rendering this year if there are no valid months
