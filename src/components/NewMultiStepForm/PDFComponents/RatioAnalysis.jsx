@@ -480,23 +480,23 @@ const RatioAnalysis = ({
           alignItems: "flex-end",
         }}
       >
-       <Text style={[styles.AmountIn, styles.italicText]}>
-                 (Amount In{" "}
-                 {
-                   formData?.ProjectReportSetting?.AmountIn === "rupees"
-                     ? "Rs." // Show "Rupees" if "rupees" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                     ? "Thousands" // Show "Thousands" if "thousand" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                     ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "crores"
-                     ? "Crores" // Show "Crores" if "crores" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "millions"
-                     ? "Millions" // Show "Millions" if "millions" is selected
-                     : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                 }
-                 )
-               </Text>
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
         <View
@@ -1063,32 +1063,22 @@ const RatioAnalysis = ({
                 Total Cash Profit
               </Text>
 
-              {/* ✅ Display Total in a Single Cell */}
-              <Text
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  {
-                    fontWeight: "bold",
-                    fontFamily: "Roboto",
-                    textAlign: "center",
-                    borderRightWidth: 0,
-                    borderTopWidth: 1,
-                  },
-                ]}
-              >
-                {formatNumber(
-                  Array.isArray(cashProfitArray)
+              {financialYearLabels
+                .slice(hideFirstYear ? 1 : 0)
+                .map((yearLabel, yearIndex) => {
+                  const visibleLabels = financialYearLabels.slice(
+                    hideFirstYear ? 1 : 0
+                  );
+                  const centerIndex = Math.floor(visibleLabels.length / 2);
+
+                  const totalCashProfit = Array.isArray(cashProfitArray)
                     ? cashProfitArray.reduce(
                         (acc, value) => acc + Number(value || 0),
                         0
                       )
-                    : 0
-                )}
-              </Text>
-              {Array.from({ length: projectionYears - 1 }).map(
-                (_, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                    : 0;
+
+                  return (
                     <Text
                       key={yearIndex}
                       style={[
@@ -1098,18 +1088,23 @@ const RatioAnalysis = ({
                           fontWeight: "bold",
                           fontFamily: "Roboto",
                           textAlign: "center",
-                          borderWidth: "0px",
+                          borderRightWidth: 0,
                           borderTopWidth: 1,
                         },
                       ]}
-                    ></Text>
-                  )
-              )}
+                    >
+                      {yearIndex === centerIndex
+                        ? formatNumber(totalCashProfit)
+                        : ""}
+                    </Text>
+                  );
+                })}
+
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  {borderLeftWidth:1}
+                  { borderLeftWidth: 1 },
                 ]}
               ></Text>
             </View>
@@ -1120,7 +1115,13 @@ const RatioAnalysis = ({
           <View>
             <View style={[stylesMOF.row]}>
               <Text style={[styleExpenses.sno]}></Text>
-              <Text style={[stylesMOF.cell, styleExpenses.fontBold, { textAlign: "center" }]}>
+              <Text
+                style={[
+                  stylesMOF.cell,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
                 Calculation of Ratios
               </Text>
             </View>

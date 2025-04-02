@@ -11,6 +11,7 @@ const ProjectedRevenue = ({
   formatNumber,
   pdfType,
 }) => {
+  console.log("revenue", formData.Revenue);
   // ✅ Extract projection years and formType safely
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
@@ -54,13 +55,11 @@ const ProjectedRevenue = ({
     : financialYearLabels;
   // ✅ Remove first-year revenue if hiding is required
 
-
   const adjustedTotalRevenueForOthers = hideFirstYear
     ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
     : formData?.Revenue?.totalRevenueForOthers;
 
-
-    const adjustedTotalRevenueReceipts = hideFirstYear
+  const adjustedTotalRevenueReceipts = hideFirstYear
     ? totalRevenueReceipts.slice(1)
     : totalRevenueReceipts;
 
@@ -129,22 +128,22 @@ const ProjectedRevenue = ({
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
-                      ? "Millions" // Show "Millions" if "millions" is selected
-                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
 
       <View style={styleExpenses.paddingx}>
@@ -282,6 +281,46 @@ const ProjectedRevenue = ({
             );
           })}
         </View>
+
+        {/* ✅ Show No. of Months in each year column for Monthly form */}
+        {formType?.trim() === "Monthly" &&
+          Array.isArray(formData?.Revenue?.noOfMonths) && (
+            <View style={[stylesMOF.row, styleExpenses.totalRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  { borderBottomWidth: "0px", borderLeftWidth: "1px" },
+                ]}
+              ></Text>
+
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {  paddingLeft: 10 },
+                ]}
+              >
+                Number of Months
+              </Text>
+
+              {formData.Revenue.noOfMonths
+                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
+                .map((monthValue, yearIndex) => (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { textAlign: "center" },
+                    ]}
+                  >
+                    {monthValue}
+                  </Text>
+                ))}
+            </View>
+          )}
+
         {/* ✅ Compute & Display Revenue Based on formType */}
         <View style={[stylesMOF.row, styleExpenses.totalRow]}>
           <Text
