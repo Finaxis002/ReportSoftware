@@ -391,7 +391,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole");
-    console.log(authRole);
+    // console.log(authRole);
     if (!authRole) {
       navigate("/login");
       return null;

@@ -280,19 +280,19 @@ const FinalStep = ({ formData, userRole }) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-
+  
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch data");
         }
-
+  
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-
+  
         const normalizedUserName = userName?.trim().toLowerCase();
-
+  
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-
+  
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -304,16 +304,18 @@ const FinalStep = ({ formData, userRole }) => {
             });
             return;
           }
-
+  
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-
-          if (admin?.permissions) setPermissions(admin.permissions);
+  
+          if (admin?.permissions) {
+            setPermissions(admin.permissions);
+          }
         }
-
+  
         if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
@@ -321,22 +323,21 @@ const FinalStep = ({ formData, userRole }) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-
-          if (employee?.permissions) setPermissions(employee.permissions);
+  
+          if (employee?.permissions) {
+            setPermissions(employee.permissions);
+          }
         }
       } catch (err) {
         console.error("Error fetching permissions:", err.message);
       }
     };
+  
+    fetchPermissions(); // 🔁 Only fetch once when dependencies change
+  }, [userRole, userName]);
 
-    // 🔁 Initial fetch
-    fetchPermissions();
-
-    // 🔁 Poll every 15 seconds
-    const interval = setInterval(fetchPermissions, 100);
-
-    return () => clearInterval(interval); // Cleanup
-  }, [userRole, userName, refreshKey]);
+  console.log("user", userName);
+  console.log("permissions", permissions);
 
   const getColorHex = (color) => {
     const colorMap = {
