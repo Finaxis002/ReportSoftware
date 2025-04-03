@@ -366,7 +366,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
         {/* ✅ Display Total Expected Salary */}
         {normalExpenses.length > 0 && (
           <div className="d-flex justify-content-end mt-4">
-            <strong className="text-sm font-bold text-gray-900">
+            <strong className="text-sm font-bold text-gray-900 dark:text-gray-50 dark:font-medium">
               Total Expected Salary:{" "}
             </strong>
             <span className="ms-2">
@@ -454,7 +454,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                     <label htmlFor="type" className="form-label"></label>
                   )}
                   <select
-                    className="form-select mt-auto"
+                    className="form-select mt-auto dark:bg-gray-800 dark:text-gray-100"
                     style={{ width: "170px" }}
                     aria-label="Direct/Indirect"
                     name="type"
@@ -484,7 +484,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
         })}
 
         <div className="mt-6 flex justify-end items-center gap-4">
-          <strong className="text-sm font-bold text-gray-900">
+          <strong className="text-sm font-bold text-gray-900 dark:text-green-50">
             Total Projected Expenses:
           </strong>
           <span className="text-lg font-medium">

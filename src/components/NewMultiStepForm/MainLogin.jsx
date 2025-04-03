@@ -138,45 +138,45 @@ const MainLogin = ({ onLogin }) => {
       }
     } else if (activeTab === "employee") {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            employeeId: inputUsername,
-            password: inputPassword,
-          }),
-        });
-    
+        const response = await fetch(
+          "https://backend-three-pink.vercel.app/api/employees/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              employeeId: inputUsername,
+              password: inputPassword,
+            }),
+          }
+        );
+  
         const data = await response.json();
-    
-        if (response.status === 403) {
-          setError("This ID is already logged in from another device.");
-          return;
-        }
-    
         if (response.ok && data.success) {
+          console.log("✅ Employee Login Success:", data);
+  
           localStorage.setItem("isLoggedIn", "true");
           localStorage.setItem("userRole", "employee");
           localStorage.setItem("employeeName", data.employee.name);
-          localStorage.setItem("employeeId", data.employee.employeeId);
+          localStorage.setItem("employeeId", data.employee.employeeId)
           sessionStorage.setItem("justLoggedIn", "true");
-    
+  
           onLogin(true, "employee", {
             employeeId: data.employee.employeeId,
             employeeName: data.employee.name,
             permissions: data.employee.permissions,
           });
-    
+  
           navigate("/");
         } else {
-          setError(data.error || "Invalid credentials");
+          setError(data.error || "Invalid Employee ID or Password!");
         }
       } catch (err) {
-        console.error("Error logging in:", err);
+        console.error("🔥 Error logging in employee:", err);
         setError("Server error. Please try again later.");
       }
     }
-    
   };
 
 

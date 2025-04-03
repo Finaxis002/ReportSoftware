@@ -563,7 +563,7 @@ const handleFormChange = (event, index, field = null) => {
                           {/* Row Type Dropdown */}
                           <td>
                             <select
-                              className="form-control"
+                             
                               id="rowType"
                               name="rowType"
                               value={entry.rowType}
@@ -614,7 +614,7 @@ const handleFormChange = (event, index, field = null) => {
               <div className="position-relative w-100 overflow-y-scroll">
                 <div className="pt-3 total-div">
                   <div className="d-flex">
-                    <label htmlFor="" className="form-label w-25 fs-10 ">
+                    <label htmlFor="" className="form-label w-25 fs-10 dark:text-gray-950">
                       Total Revenue
                     </label>
                     <table className="table">
@@ -778,7 +778,7 @@ const handleFormChange = (event, index, field = null) => {
                 <div className="total-div pt-3 px-2">
                   {/* Total Monthly Revenue (Read-Only) */}
                   <div className="d-flex">
-                    <label className="form-label w-[15rem] fs-10">Total Monthly Revenue</label>
+                    <label className="form-label w-[15rem] fs-10 dark:text-gray-950">Total Monthly Revenue</label>
                     <table className="table mb-1">
                       <tbody>
                         <tr>
@@ -792,7 +792,7 @@ const handleFormChange = (event, index, field = null) => {
               
                   {/* Number of Months (Editable) */}
                   <div className="d-flex">
-                    <label className="form-label w-[15rem] fs-10">No. of Months</label>
+                    <label className="form-label w-[15rem] fs-10 dark:text-gray-950">No. of Months</label>
                     <table className="table mb-1">
                       <tbody>
                         <tr>
@@ -814,7 +814,7 @@ const handleFormChange = (event, index, field = null) => {
               
                   {/* Total Revenue = Monthly × Months */}
                   <div className="d-flex">
-                    <label className="form-label w-[20rem] fs-10 pe-8">Total Revenue</label>
+                    <label className="form-label w-[20rem] fs-10 pe-8 dark:text-gray-950">Total Revenue</label>
                     <table className="table">
                       <tbody>
                         <tr>
