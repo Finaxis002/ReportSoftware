@@ -35,6 +35,9 @@ import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -278,6 +281,19 @@ const App = () => {
               }
             />
           </Routes>
+
+          <ToastContainer 
+          position="top-right" 
+          autoClose={3000} 
+          hideProgressBar={false}
+          newestOnTop 
+          closeOnClick 
+          rtl={false} 
+          pauseOnFocusLoss 
+          draggable 
+          pauseOnHover 
+          theme="light"
+        />
         
       </QueryClientProvider>
     </Provider>
