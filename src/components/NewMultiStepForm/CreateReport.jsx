@@ -138,21 +138,23 @@ const CreateReport = ({ userRole }) => {
     localStorage.removeItem("FirstStepBasicDetails");
   };
 
+
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="App mx-auto shadow-xl rounded-2xl pb-2 w-full">
-        <Header />
+      <div className="app-content">
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+
         {/* ✅ Cards Section */}
         {/* 🔄 Refresh Button */}
         <div className="flex justify-start items-center px-5 pt-4">
           <button
             onClick={() => setRefreshKey((prev) => prev + 1)}
-            className="flex items-center gap-2 text-sm text-teal-700 hover:text-teal-900 transition-all"
+            className="flex items-center gap-2 text-sm  text-teal-700 dark:text-teal-200 hover:text-teal-900 transition-all"
             title="Refresh Permissions & Cards"
           >
             <FontAwesomeIcon icon={faSyncAlt} className="text-lg" />
-            Refresh
+           
           </button>
         </div>
         <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">

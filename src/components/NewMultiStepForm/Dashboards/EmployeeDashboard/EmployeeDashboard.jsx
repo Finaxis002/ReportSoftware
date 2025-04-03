@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import EmployeeTasks from "./EmployeeTasks";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import loading spinner
+import LimitedEmployeeTaskView from "./LimitedEmployeeTaskView";
 
 const EmployeeDashboard = ({ userRole }) => {
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
+  const [showDueDatePopup, setShowDueDatePopup] = useState(false);
+  const [dueTask, setDueTask] = useState(null);
 
   useEffect(() => {
     const authRole = localStorage.getItem("userRole");
@@ -45,6 +48,7 @@ const EmployeeDashboard = ({ userRole }) => {
           console.log("✅ Fetched Employee Data:", data);
 
           setEmployeeData(data);
+          fetchTasksAndCheckDueDate(data.employeeId); // call this after setting data
         } catch (err) {
           console.error("🔥 Error fetching employee details:", err.message);
         } finally {
@@ -52,9 +56,48 @@ const EmployeeDashboard = ({ userRole }) => {
         }
       };
 
-      fetchEmployeeData();
+      fetchEmployeeData(); // ✅ Move the call outside the function definition
     }
   }, [navigate]);
+
+  const fetchTasksAndCheckDueDate = async (empId) => {
+    const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+  
+    if (!justLoggedIn || !empId) return;
+  
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000); // ⏱️ 8s timeout
+  
+      const res = await fetch(
+        `https://backend-three-pink.vercel.app/api/tasks?employeeId=${empId}`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeout);
+  
+      const taskData = await res.json();
+      const now = new Date();
+  
+      const upcomingTasks = taskData.filter((task) => {
+        const due = new Date(task.dueDate);
+        return due > now;
+      });
+  
+      if (upcomingTasks.length > 0) {
+        setDueTask(upcomingTasks); // Pass array
+        setShowDueDatePopup(true);
+      }
+  
+      sessionStorage.removeItem("justLoggedIn");
+    } catch (err) {
+      if (err.name === "AbortError") {
+        console.error("⏱️ Request timed out!");
+      } else {
+        console.error("🔥 Error fetching tasks:", err.message);
+      }
+    }
+  };
+  
 
   return (
     <div className="flex h-[100vh] overflow-hidden">
@@ -63,7 +106,7 @@ const EmployeeDashboard = ({ userRole }) => {
       <div className="app-content">
         <Header dashboardType="Employee Dashboard" />
 
-        <div className="overflow-d">
+        <div className="overflow-y-auto flex flex-col items-center justify-center">
           {/* ✅ Show loader while fetching data */}
           {isLoading ? (
             <div className="loader-container">
@@ -73,7 +116,7 @@ const EmployeeDashboard = ({ userRole }) => {
             <>
               {/* ✅ Display Logged-In Employee Details */}
               {employeeData ? (
-                <div className="flex justify-center mt-8 " >
+                <div className="flex justify-center mt-8 ">
                   <div className="w-full max-w-4xl shadow-sm rounded-lg overflow-hidden border border-gray-200">
                     <div className="bg-gradient-to-r bg-teal-600  text-white text-center py-2">
                       <h2 className="text-xl font-semibold">
@@ -180,18 +223,50 @@ const EmployeeDashboard = ({ userRole }) => {
           )}
 
           {/* Assigned Tasks */}
-          <div
-            style={{
-            
-              paddingBottom:"5rem"
-            }}
-          >
-            {employeeData && (
-              <EmployeeTasks employeeId={employeeData.employeeId} />
-            )}
-          </div>
+
+          {employeeData && (
+            <LimitedEmployeeTaskView employeeId={employeeData.employeeId} />
+          )}
         </div>
       </div>
+
+      {showDueDatePopup && Array.isArray(dueTask) && dueTask.length > 0 && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex justify-center items-center z-50">
+          <div className="border bg-gray-50 dark:bg-black p-6 rounded-xl shadow-lg w-full max-w-md text-center">
+            <h2 className="text-xl font-bold mb-3 text-blue-700">
+              📢 Report Due Reminder
+            </h2>
+
+            <div className="text-left space-y-4">
+              {dueTask.map((task, index) => (
+                <div key={index} className="border-b pb-2">
+                  <p className="text-gray-700 dark:text-white mb-1">
+                    <strong>Task:</strong>{" "}
+                    {task.taskTitle || task.title || "Unnamed Task"}
+                  </p>
+                  <p className="text-gray-600 dark:text-white">
+                    <strong>Due Date:</strong>{" "}
+                    {task.dueDate && !isNaN(new Date(task.dueDate))
+                      ? new Date(task.dueDate).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Invalid or Missing Date"}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowDueDatePopup(false)}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -137,9 +137,9 @@ const AdminList = () => {
   return (
     <div className="flex h-[100vh]">
       <MenuBar userRole="admin" />
-      <div className="flex flex-col w-full px-4 gap-8">
+      <div className="app-content">
         <Header dashboardType="Admin Dashboard" />
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">List of Chartered Accountants (Admin)</h2>
         <div className="flex justify-center">
           <button onClick={() => setShowForm(true)} className="px-4 py-1 bg-green-600 text-white text-lg rounded-md">
