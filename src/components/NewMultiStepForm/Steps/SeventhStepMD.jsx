@@ -173,7 +173,7 @@ const SeventhStepMD = ({
                   <tr key={stockType}>
                     <td
                       // className="form-control border-r-0 border-none"
-                      className="google-sheet-input"
+                      className="google-sheet-input md-input"
                       style={{ width: "20rem", borderRadius: "0px" }}
                       type="text"
                     >
@@ -183,7 +183,7 @@ const SeventhStepMD = ({
 
                     {/* ✅ Make all input fields editable */}
                     {Array.from({ length: projectionYears }).map((_, index) => (
-                      <td key={index}>
+                      <td key={index} className="md-input">
                         <input
                           name="value"
                           onChange={(event) =>
@@ -235,8 +235,8 @@ const SeventhStepMD = ({
                 <tbody>
                   {(localData?.[dataType] ?? []).map((entry, i) => (
                     <tr key={i}>
-                      <td>{i + 1}</td>
-                      <td>
+                      <td className="md-input">{i + 1}</td>
+                      <td className="md-input">
                         <input
                           name="particular"
                           value={entry.particular}
@@ -244,7 +244,7 @@ const SeventhStepMD = ({
                             handleFormChange(event, i, null, dataType)
                           }
                           // className="form-control text-center noBorder] bg-white p-0"
-                          className="google-sheet-input"
+                          className="google-sheet-input "
                           style={{ width: "20rem" }}
                           type="text"
                           disabled={!entry.isCustom}
@@ -252,7 +252,7 @@ const SeventhStepMD = ({
                       </td>
                       {Array.from({ length: projectionYears }).map(
                         (_, index) => (
-                          <td key={index}>
+                          <td key={index} className="md-input">
                             <input
                               name="value"
                               value={entry.years?.[index] ?? ""}

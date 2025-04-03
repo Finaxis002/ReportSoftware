@@ -34,29 +34,58 @@ const Header = ({ dashboardType }) => {
     navigate("/login");
     window.location.reload();
   };
-  
 
+  
   const fetchUpcomingTasks = async () => {
     const employeeId = localStorage.getItem("employeeId");
-    if (!employeeId) return;
-
+  
+    if (!employeeId) {
+      console.warn("⚠️ No employee ID found in localStorage");
+      return;
+    }
+  
     try {
+      const controller = new AbortController(); // To support timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  
       const res = await fetch(
-        `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`
+        `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`,
+        { signal: controller.signal }
       );
+  
+      clearTimeout(timeoutId); // clear timeout on success
+  
+      if (!res.ok) {
+        console.error("❌ Response not OK:", res.status);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+  
       const taskData = await res.json();
-
+  
+      if (!Array.isArray(taskData)) {
+        console.error("❌ Invalid response format, expected array:", taskData);
+        return;
+      }
+  
       const now = new Date();
-      const futureTasks = taskData.filter(
-        (task) => new Date(task.dueDate) > now
-      );
-
+      const futureTasks = taskData.filter((task) => {
+        const dueDate = new Date(task.dueDate);
+        return dueDate > now && !isNaN(dueDate);
+      });
+  
       setUpcomingTasks(futureTasks);
       setShowReminderPopup(true);
+  
+      console.log("✅ Upcoming Tasks Fetched:", futureTasks);
     } catch (err) {
-      console.error("Failed to fetch reminders:", err.message);
+      if (err.name === "AbortError") {
+        console.error("⏱️ Fetch aborted due to timeout");
+      } else {
+        console.error("🔥 Failed to fetch reminders:", err.message);
+      }
     }
   };
+  
 
   return (
     <div className="app-content-header flex justify-between items-center p-4 dark:bg-gray-900 dark:text-white shadow-md transition-colors duration-300">
