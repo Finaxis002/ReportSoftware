@@ -92,7 +92,7 @@ const AdminDashboard = () => {
   return (
     <div className="flex h-[100vh]">
       <MenuBar userRole="admin" />
-      <div className="flex flex-col w-full px-4 gap-8">
+      <div className="app-content">
         <Header dashboardType="Admin Dashboard" />
 
         {/* ✅ Show loader while fetching data */}

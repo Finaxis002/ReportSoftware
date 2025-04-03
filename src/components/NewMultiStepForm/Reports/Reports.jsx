@@ -173,11 +173,15 @@ const Reports = ({ sendPdfData }) => {
     fetchReports(); // Re-fetch reports from the backend
   };
 
+    // Assume userRole is stored in localStorage after login.
+    const userRole = localStorage.getItem("userRole") || "admin";
+
   return (
-    <div className="flex h-[100vh] overflow-hidden">
+    <div className="flex h-[100vh]">
       {renderMenuBar()}
-      <div className="app-content p-4">
-        <Header />
+      <div className="app-content">
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+
         {/* ✅ Enhanced Search Bar */}
         <div className="w-full flex justify-end items-center mb-6 p-4">
           <div className="flex w-full justify-between items-center mb-2 px-2">
