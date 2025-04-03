@@ -539,7 +539,13 @@ const RatioAnalysis = ({
                   {yearLabel}
                 </Text>
               ))}
-            <Text style={[styles.particularsCell, stylesCOP.boldText, ]}>
+            <Text
+              style={[
+                styles.particularsCell,
+                stylesCOP.boldText,
+                { width: "25%" },
+              ]}
+            >
               Average Ratios
             </Text>
           </View>
@@ -594,6 +600,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -636,6 +643,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -680,6 +688,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -724,6 +733,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -769,6 +779,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -814,6 +825,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -859,6 +871,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -905,6 +918,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -950,6 +964,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -995,6 +1010,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -1041,6 +1057,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -1050,7 +1067,11 @@ const RatioAnalysis = ({
               style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
             >
               <Text
-                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  { width: "25%" },
+                ]}
               ></Text>
               <Text
                 style={[
@@ -1105,6 +1126,8 @@ const RatioAnalysis = ({
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
                   { borderLeftWidth: 1 },
+
+                  { width: "25%" },
                 ]}
               ></Text>
             </View>
@@ -1175,7 +1198,8 @@ const RatioAnalysis = ({
                       fontFamily: "Roboto",
                       fontWeight: "extrabold",
                       paddingTop: "20px",
-                    },
+                      
+                    },{width:"25%"}
                   ]}
                 >
                   {averageGrossProfitSalesRatio !== "-"
@@ -1226,6 +1250,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageOperatingProfitSalesRatio !== "-"
@@ -1275,6 +1300,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageProfitBeforeTaxSalesRatio !== "-"
@@ -1325,6 +1351,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageNetProfitSalesRatio !== "-"
@@ -1374,6 +1401,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageNetProfitNetWorthRatio !== "-"
@@ -1423,6 +1451,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageDebtEquityRatio !== "-"
@@ -1472,6 +1501,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageTotalOutsideLiabilitiesNetWorthRatio !== "-"
@@ -1521,6 +1551,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageNetWorthTotalLiabilitiesRatio !== "-"
@@ -1575,6 +1606,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageDebtServiceCoverageRatio !== "-"
@@ -1624,6 +1656,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "-"}
@@ -1671,6 +1704,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {width:"25%"}
                   ]}
                 >
                   {averageReturnOnInvestment !== "-"
