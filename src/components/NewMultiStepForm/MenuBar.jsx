@@ -9,6 +9,7 @@ const MenuBar = ({ userRole }) => {
   const nav = useNavigate();
   const location = useLocation();
   const [adminName, setAdminName] = useState("");
+  const [unseenCount, setUnseenCount] = useState(0);
 
   useEffect(() => {
     const storedAdminName = localStorage.getItem("adminName");
@@ -20,6 +21,28 @@ const MenuBar = ({ userRole }) => {
   const getLocation = (loc) => {
     return location.pathname === loc ? "active" : "";
   };
+
+  useEffect(() => {
+    const fetchUnseenNotifications = async () => {
+      const employeeId = localStorage.getItem("employeeId");
+      if (!employeeId) return;
+  
+      try {
+        const res = await fetch(
+          `https://backend-three-pink.vercel.app/api/notifications/unseen?employeeId=${employeeId}`
+        );
+        const data = await res.json();
+        setUnseenCount(data.length);
+  
+        console.log("🔴 Unseen Count:", data.length);
+      } catch (err) {
+        console.error("❌ Error fetching unseen notifications:", err.message);
+      }
+    };
+  
+    fetchUnseenNotifications();
+  }, [location]);
+  
 
   // Define menu items with roles
   const menuItems = [
@@ -256,7 +279,7 @@ const MenuBar = ({ userRole }) => {
           <h6>Sharda Associates</h6>
         </div>
       </div>
-      <ul className="sidebar-list">
+      {/* <ul className="sidebar-list">
         {visibleMenuItems.map((item, index) => (
           <li
             key={item.path || index} // Ensure unique keys
@@ -269,7 +292,28 @@ const MenuBar = ({ userRole }) => {
             </div>
           </li>
         ))}
-      </ul>
+      </ul> */}
+      <ul className="sidebar-list">
+  {visibleMenuItems.map((item, index) => (
+    <li
+      key={item.path || index}
+      className={`sidebar-list-item ${getLocation(item.path)}`}
+      onClick={() => nav(item.path)}
+    >
+      <div className="relative">
+        {item.icon}
+        <span>{item.label}</span>
+
+        {item.label === "Notifications" && unseenCount > 0 && (
+          <span className="absolute top-0 right-0 translate-x-2 -translate-y-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+            {unseenCount}
+          </span>
+        )}
+      </div>
+    </li>
+  ))}
+</ul>
+
       
       <div className="account-info">
         {userRole === 'admin' ? (
