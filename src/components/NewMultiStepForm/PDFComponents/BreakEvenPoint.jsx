@@ -37,7 +37,6 @@ const BreakEvenPoint = ({
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
 
-    
   const months = [
     "April",
     "May",
@@ -73,7 +72,6 @@ const BreakEvenPoint = ({
     formData?.ProjectReportSetting?.SelectStartingMonth || "April";
   const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
-  
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
@@ -101,7 +99,6 @@ const BreakEvenPoint = ({
     return monthsArray;
   };
 
-
   const monthsPerYear = calculateMonthsPerYear();
 
   const calculateExpense = (annualExpense, yearIndex) => {
@@ -120,7 +117,6 @@ const BreakEvenPoint = ({
     }
     return (incrementedExpense / 12) * monthsInYear;
   };
-
 
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
@@ -191,18 +187,23 @@ const BreakEvenPoint = ({
         const baseValue = Number(expense.value) || 0;
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
-        let expenseValue;
+        const isPercentage = String(expense.value).trim().endsWith("%");
 
-        if (isRawMaterial && String(expense.value).trim().endsWith("%")) {
-          // ✅ If "Raw Material Expenses / Purchases" is a percentage, calculate based on revenue
-          expenseValue =
+        let expenseValue = 0;
+
+        const ClosingStock =
+          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+        if (isRawMaterial && isPercentage) {
+          const baseValue =
             (parseFloat(expense.value) / 100) *
-            receivedtotalRevenueReceipts[yearIndex];
+            (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
-          // ✅ Otherwise, apply normal numeric calculation
-          expenseValue = baseValue * 12 || 0;
+          expenseValue = Number(expense.value) * 12 || 0;
         }
-
         // ✅ Apply growth calculation for normal expenses
         return (
           total +
@@ -221,58 +222,55 @@ const BreakEvenPoint = ({
     (value, index) => value - totalVariableExpenses[index]
   );
 
-// ✅ Compute Total Fixed Expenses for Each Year with Correct Handling
-const totalFixedExpenses = Array.from({ length: projectionYears }).map(
-  (_, yearIndex) => {
-    // ✅ Calculate Salary & Wages using `calculateExpense`
-    const salaryAndWages = calculateExpense(
-      Number(fringAndAnnualCalculation) || 0,
-      yearIndex // Pass the yearIndex to apply any year-specific logic
-    );
+  // ✅ Compute Total Fixed Expenses for Each Year with Correct Handling
+  const totalFixedExpenses = Array.from({ length: projectionYears }).map(
+    (_, yearIndex) => {
+      // ✅ Calculate Salary & Wages using `calculateExpense`
+      const salaryAndWages = calculateExpense(
+        Number(fringAndAnnualCalculation) || 0,
+        yearIndex // Pass the yearIndex to apply any year-specific logic
+      );
 
-    // ✅ Extract Interest on Term Loan
-    const interestOnTermLoan = parseFloat(
-      (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
-    );
+      // ✅ Extract Interest on Term Loan
+      const interestOnTermLoan = parseFloat(
+        (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
+      );
 
-    // ✅ Extract Interest on Working Capital
-    const interestExpenseOnWorkingCapital =  calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[yearIndex] || 0,
-      yearIndex
-    );
+      // ✅ Extract Interest on Working Capital
+      const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[yearIndex] || 0,
+        yearIndex
+      );
 
-    // ✅ Extract Depreciation
-    const depreciationExpense = parseFloat(
-      (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
-    );
+      // ✅ Extract Depreciation
+      const depreciationExpense = parseFloat(
+        (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
+      );
 
-    // ✅ Sum Total Fixed Expenses for the Year
-    const totalExpense = parseFloat(
-      (
-        salaryAndWages +
-        interestOnTermLoan +
-        interestExpenseOnWorkingCapital +
-        depreciationExpense
-      ).toFixed(2)
-    );
+      // ✅ Sum Total Fixed Expenses for the Year
+      const totalExpense = parseFloat(
+        (
+          salaryAndWages +
+          interestOnTermLoan +
+          interestExpenseOnWorkingCapital +
+          depreciationExpense
+        ).toFixed(2)
+      );
 
-    // Log the individual values for each year
-    // console.log(`Year ${yearIndex + 1}:`);
-    // console.log(`Salary & Wages: ${salaryAndWages}`);
-    // console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
-    // console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
-    // console.log(`Depreciation: ${depreciationExpense}`);
-    // console.log(`Total Fixed Expenses: ${totalExpense}`);
-    // console.log('------------------------');
+      // Log the individual values for each year
+      // console.log(`Year ${yearIndex + 1}:`);
+      // console.log(`Salary & Wages: ${salaryAndWages}`);
+      // console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
+      // console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
+      // console.log(`Depreciation: ${depreciationExpense}`);
+      // console.log(`Total Fixed Expenses: ${totalExpense}`);
+      // console.log('------------------------');
 
-    return totalExpense;
-  }
-);
+      return totalExpense;
+    }
+  );
 
-// console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
-
-
-
+  // console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
 
   // ✅ Compute Break Even Point (in %) for Each Year
   const breakEvenPointPercentage = Array.from({ length: projectionYears }).map(
@@ -362,22 +360,22 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
-                      ? "Millions" // Show "Millions" if "millions" is selected
-                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
 
       <View style={[styleExpenses?.paddingx, { paddingBottom: "30px" }]}>
@@ -457,7 +455,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {  paddingVertical: "10px" },
+                { paddingVertical: "10px" },
               ]}
             >
               Gross Receipts
@@ -474,8 +472,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        
-                        
                         borderLeftWidth: "0px",
                         paddingVertical: "10px",
                         borderTopWidth: 0,
@@ -577,7 +573,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { },
+                {},
               ]}
             ></Text>
 
@@ -592,8 +588,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        
-                        
                         borderLeftWidth: "0px",
                       },
                     ]}
@@ -613,7 +607,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -625,7 +619,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -642,7 +636,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                     styleExpenses.fontSmall,
                     {
                       paddingVertical: "10px",
-                      
+
                       fontWeight: "bold",
                     },
                   ]}
@@ -662,20 +656,24 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 }).every((_, yearIndex) => {
                   if (hideFirstYear && yearIndex === 0) return true; // Skip first year if hideFirstYear is true
 
-                  let expenseValue;
-
-                  if (
-                    isRawMaterial &&
-                    String(expense.value).trim().endsWith("%")
-                  ) {
-                    // ✅ If it's "Raw Material Expenses / Purchases" with percentage, calculate based on revenue
-                    expenseValue =
+                  let expenseValue = 0;
+                  const isRawMaterial =
+                    expense.name.trim() === "Raw Material Expenses / Purchases";
+                  const isPercentage = String(expense.value).trim().endsWith("%");
+                  const ClosingStock =
+                    formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                  const OpeningStock =
+                    formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+  
+                  if (isRawMaterial && isPercentage) {
+                    const baseValue =
                       (parseFloat(expense.value) / 100) *
-                      receivedtotalRevenueReceipts[yearIndex];
+                      (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+                    expenseValue = baseValue + ClosingStock - OpeningStock;
                   } else {
-                    // ✅ Otherwise, apply normal numeric calculation
                     expenseValue = Number(expense.value) * 12 || 0;
                   }
+  
 
                   return expenseValue === 0;
                 });
@@ -685,7 +683,11 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
               .map((expense, expenseIndex) => {
                 const baseValue = Number(expense.value) || 0;
                 const isRawMaterial =
-                  expense.name.trim() === "Raw Material Expenses / Purchases";
+                expense.name.trim() === "Raw Material Expenses / Purchases";
+              const isPercentage = String(expense.value).trim().endsWith("%");
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
 
                 return (
                   <View
@@ -715,20 +717,28 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       (_, yearIndex) => {
                         if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
 
-                        let expenseValue;
-
-                        if (
-                          isRawMaterial &&
-                          String(expense.value).trim().endsWith("%")
-                        ) {
-                          // ✅ If "Raw Material Expenses / Purchases" with percentage, calculate based on revenue
-                          expenseValue =
+                        let expenseValue = 0;
+                        const isRawMaterial =
+                          expense.name.trim() ===
+                          "Raw Material Expenses / Purchases";
+                        const isPercentage = String(expense.value)
+                          .trim()
+                          .endsWith("%");
+                        const ClosingStock =
+                          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                        const OpeningStock =
+                          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+    
+                        if (isRawMaterial && isPercentage) {
+                          const baseValue =
                             (parseFloat(expense.value) / 100) *
-                            receivedtotalRevenueReceipts[yearIndex];
+                            (receivedtotalRevenueReceipts?.[yearIndex] ||
+                              0);
+                          expenseValue = baseValue + ClosingStock - OpeningStock;
                         } else {
-                          // ✅ Otherwise, apply normal numeric calculation
-                          expenseValue = baseValue * 12 || 0;
+                          expenseValue = Number(expense.value) * 12 || 0;
                         }
+    
 
                         // ✅ Format the expense value correctly
                         const formattedExpense = isRawMaterial
@@ -775,7 +785,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     fontWeight: "bold",
-                    
+
                     textAlign: "right",
                     paddingBottom: "10px",
                   },
@@ -794,8 +804,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                         stylesCOP.particularsCellsDetail,
                         styleExpenses.fontSmall,
                         {
-                          
-                          
                           borderBottom: 0,
                           paddingBottom: "10px",
                           borderTopWidth: ".5px",
@@ -829,7 +837,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {  },
+                {},
               ]}
             >
               Contribution
@@ -845,8 +853,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                       {
-                        
-                        
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
                       },
@@ -866,7 +872,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -878,7 +884,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -895,7 +901,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                     styleExpenses.fontSmall,
                     {
                       paddingVertical: "10px",
-                      
+
                       fontWeight: "bold",
                     },
                   ]}
@@ -1082,7 +1088,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                   styleExpenses.bordernone,
                   {
                     fontWeight: "bold",
-                    
+
                     textAlign: "right",
                   },
                 ]}
@@ -1100,7 +1106,7 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                         stylesCOP.particularsCellsDetail,
                         stylesCOP.boldText,
                         styleExpenses.fontSmall,
-                        {  },
+                        {},
                       ]}
                     >
                       {formatNumber(totalValue)}{" "}
@@ -1136,8 +1142,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                  
-                  
                   paddingVertical: "10px",
                 },
               ]}
@@ -1155,8 +1159,6 @@ const totalFixedExpenses = Array.from({ length: projectionYears }).map(
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                       {
-                        
-                        
                         borderWidth: "0px",
                         borderRightWidth: "1px",
                         paddingVertical: "10px",
