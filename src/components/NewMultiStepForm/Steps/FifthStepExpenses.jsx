@@ -10,6 +10,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Raw Material Expenses / Purchases",
         key: "raw_material",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -18,6 +19,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Electricity Expenses",
         key: "electricity",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -26,6 +28,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Marketing Expenses",
         key: "marketing",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -34,6 +37,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Transportation Expenses",
         key: "transportation",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -42,6 +46,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Insurance Expenses",
         key: "insurance",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -50,6 +55,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Telephone and Internet Expenses",
         key: "telephone",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -58,6 +64,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Administrative Expenses",
         key: "administrative",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -66,6 +73,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Repairs and Maintenance",
         key: "repairs",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -74,6 +82,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Other Miscellaneous Expenses",
         key: "miscellaneous",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -82,6 +91,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Water Expenses",
         key: "water",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -90,6 +100,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Rent Expenses",
         key: "rent",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -98,6 +109,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "CRM Expenses",
         key: "crm",
+        total : 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -106,6 +118,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Annual Maintenance Charges",
         key: "maintenance",
+        total : 0,
         value: 0,
         isDirect: false,
         type: "direct",
@@ -114,26 +127,67 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     ];
 
     // ✅ Merge existing expenseData if available, otherwise use defaults
-    return expenseData && Object.keys(expenseData).length > 0
-      ? {
-          ...expenseData,
-          directExpense: expenseData.directExpense || defaultDirectExpenses,
-        }
-      : {
-          normalExpense: [
-            {
-              name: "",
-              key: "",
-              amount: 0,
-              quantity: 1,
-              value: 0,
-              type: "normal",
-              isCustom: true,
-            },
-          ],
-          directExpense: defaultDirectExpenses, // ✅ Set default direct expenses
-          totalExpense: 0,
+    // return expenseData && Object.keys(expenseData).length > 0
+    //   ? {
+    //       ...expenseData,
+    //       directExpense: expenseData.directExpense || defaultDirectExpenses,
+    //     }
+    //   : {
+    //       normalExpense: [
+    //         {
+    //           name: "",
+    //           key: "",
+    //           amount: 0,
+    //           quantity: 1,
+    //           value: 0,
+    //           type: "normal",
+    //           isCustom: true,
+    //         },
+    //       ],
+    //       directExpense: defaultDirectExpenses, // ✅ Set default direct expenses
+    //       totalExpense: 0,
+    //     };
+    if (expenseData && Object.keys(expenseData).length > 0) {
+      const updatedNormal = (expenseData.normalExpense || []).map((item) => {
+        const amount = parseFloat(item.amount) || 0;
+        const quantity = parseFloat(item.quantity) || 1;
+        return {
+          ...item,
+          value: item.value || (amount * quantity * 12).toFixed(2),
         };
+      });
+  
+      const updatedDirect = (expenseData.directExpense || defaultDirectExpenses).map((item) => {
+        const value = parseFloat(item.value) || 0;
+        return {
+          ...item,
+          total: item.total || (!String(item.value).includes("%") ? (value * 12).toFixed(2) : ""),
+        };
+      });
+  
+      return {
+        ...expenseData,
+        normalExpense: updatedNormal,
+        directExpense: updatedDirect,
+      };
+    }
+  
+    // ✅ Default fallback state if no data
+    return {
+      normalExpense: [
+        {
+          name: "",
+          key: "",
+          amount: 0,
+          quantity: 1,
+          value: 0,
+          type: "normal",
+          isCustom: true,
+        },
+      ],
+      directExpense: defaultDirectExpenses,
+      totalExpense: 0,
+    };
   });
 
   // Save data changes to localStorage
@@ -147,11 +201,62 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     onFormDataChange({ Expenses: localData });
   }, [localData]);
 
+  // const handleFormChange = (event, index, form, type) => {
+  //   const { name, value } = event.target;
+  //   setLocalData((prevData) => {
+  //     const updatedExpenseList = [...prevData[type]];
+  //     updatedExpenseList[index][name] = value;
+  //     return {
+  //       ...prevData,
+  //       [type]: updatedExpenseList,
+  //     };
+  //   });
+  // };
+
+  // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
     const { name, value } = event.target;
+
     setLocalData((prevData) => {
       const updatedExpenseList = [...prevData[type]];
-      updatedExpenseList[index][name] = value;
+      const updatedForm = { ...updatedExpenseList[index] };
+
+      const numericValue = parseFloat(value) || 0;
+      updatedForm[name] = value;
+
+      if (type === "normalExpense") {
+        const quantity = parseFloat(updatedForm.quantity) || 1;
+        const amount = parseFloat(updatedForm.amount) || 0;
+        const annual = parseFloat(updatedForm.value) || 0;
+
+        if (name === "amount") {
+          updatedForm.value = (numericValue * quantity * 12).toFixed(2);
+        }
+
+        if (name === "value") {
+          updatedForm.amount = (numericValue / (quantity * 12)).toFixed(2);
+        }
+
+        if (name === "quantity") {
+          updatedForm.value = (amount * numericValue * 12).toFixed(2);
+        }
+      }
+
+      if (type === "directExpense") {
+        const monthly = parseFloat(updatedForm.value) || 0;
+        const total = parseFloat(updatedForm.total) || 0;
+
+        if (name === "value") {
+          updatedForm.total = (numericValue * 12).toFixed(2);
+        }
+
+        if (name === "total") {
+          updatedForm.value = (numericValue / 12).toFixed(2);
+        }
+      }
+
+      updatedExpenseList[index] = updatedForm;
+
       return {
         ...prevData,
         [type]: updatedExpenseList,
@@ -159,7 +264,6 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     });
   };
 
-  // Ensure that at least empty arrays are provided
   const normalExpenses = localData?.normalExpense || [];
   const directExpenses = localData?.directExpense || [];
 
@@ -299,13 +403,13 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
               </div>
               <div>
                 {index === 0 && (
-                  <label htmlFor="amount" className="form-label">
+                  <label htmlFor="amount" className="form-label text-sm">
                     Monthly Salary
                   </label>
                 )}
                 <input
                   name="amount"
-                  placeholder={form.amount}
+                  placeholder="0"
                   onChange={(event) =>
                     handleFormChange(event, index, form, "normalExpense")
                   }
@@ -316,8 +420,8 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
               </div>
               <div>
                 {index === 0 && (
-                  <label htmlFor="quantity" className="form-label">
-                    Quantity
+                  <label htmlFor="quantity" className="form-label text-sm">
+                    No. of Employees
                   </label>
                 )}
                 <input
@@ -333,11 +437,11 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
               </div>
               <div>
                 {index === 0 && (
-                  <label htmlFor="value" className="form-label">
-                    Total Value
+                  <label htmlFor="value" className="form-label text-sm">
+                    Annual Salary
                   </label>
                 )}
-                <input
+                {/* <input
                   name="value"
                   placeholder={form.value}
                   value={
@@ -345,6 +449,16 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                     0
                   }
                   disabled
+                  className="form-control"
+                  type="text"
+                /> */}
+                <input
+                  name="value"
+                  placeholder="Annual Salary"
+                  value={form.value}
+                  onChange={(event) =>
+                    handleFormChange(event, index, form, "normalExpense")
+                  }
                   className="form-control"
                   type="text"
                 />
@@ -380,6 +494,18 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
             </span>
           </div>
         )}
+
+        <div>
+          {message && <p className="text-danger">{message}</p>}
+          <button
+            className="btn text-light btn-info px-4 mb-4"
+            onClick={addFields}
+            disabled={normalExpenses.length >= 10}
+          >
+            + Add Designation
+          </button>
+        </div>
+
         <hr />
 
         <h5 className="text-center text-light bg-secondary">
@@ -415,7 +541,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                 <div>
                   {index === 0 && (
                     <label htmlFor="value" className="form-label">
-                      Value
+                      Per Month
                     </label>
                   )}
                   <input
@@ -435,16 +561,28 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                   <div>
                     {index === 0 && (
                       <label htmlFor="total" className="form-label">
-                        Total
+                        Annually
                       </label>
                     )}
-                    <input
+                    {/* <input
                       name="total"
                       placeholder="0"
                       value={(parseFloat(form.value) || 0) * 12}
                       className="form-control"
                       type="text"
-                      readOnly
+                      onChange={(event) =>
+                        handleFormChange(event, index, form, "directExpense")
+                      }
+                    /> */}
+                    <input
+                      name="total"
+                      placeholder="Annual Value"
+                      value={form.total || ""}
+                      onChange={(event) =>
+                        handleFormChange(event, index, form, "directExpense")
+                      }
+                      className="form-control"
+                      type="text"
                     />
                   </div>
                 )}
@@ -494,7 +632,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       </form>
 
       <div className="my-2 d-flex gap-5 justify-content-end position-fixed">
-        <div>
+        {/* <div>
           {message && <p className="text-danger">{message}</p>}
           <button
             className="btn text-light btn-info px-4"
@@ -503,11 +641,11 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           >
             + Add Designation
           </button>
-        </div>
+        </div> */}
 
         <div>
           <button
-            className="btn btn-secondary px-4 me-auto"
+            className="btn btn-secondary px-4 me-auto ms-4"
             onClick={addDirectFields}
             disabled={directExpenses.length >= 15}
           >

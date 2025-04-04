@@ -30,6 +30,14 @@ export const generateChart = async (data) => {
     canvas.width = 500;
     canvas.height = 500;
     const ctx = canvas.getContext('2d');
+    // const storedColors = JSON.parse(localStorage.getItem("pieChartColors")) || [
+    //   'rgba(115, 210, 210)', 
+    //     'rgba(75, 192, 192, 0.5)',
+    //     'rgba(255, 180, 100)',
+    //     'rgba(35, 120, 120)', 
+    //     'rgba(220, 130, 40)', 
+    //     'rgba(255, 159, 64, 0.9)', 
+    // ];
     const backgroundColors = [
         'rgba(115, 210, 210)', 
         'rgba(75, 192, 192, 0.5)',
@@ -38,7 +46,7 @@ export const generateChart = async (data) => {
         'rgba(220, 130, 40)', 
         'rgba(255, 159, 64, 0.9)', 
       ];
-
+    // const backgroundColors = storedColors;
     const borderColors = backgroundColors.map(color =>
         color.replace('0.8', '1')
       );

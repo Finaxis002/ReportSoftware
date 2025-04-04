@@ -291,7 +291,7 @@ const FirstStepBasicDetails = ({
                 </p>
               )}
 
-              <label htmlFor="clientName">Client Name <span className="text-red-600">*</span></label>
+              <label htmlFor="clientName">Referred By <span className="text-red-600">*</span></label>
               {requiredFieldErrors.clientName && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.clientName}
@@ -713,8 +713,10 @@ const FirstStepBasicDetails = ({
             </div>
 
             {/* Add Partners Section */}
-            <div className=" text-center p-3 mb-4 flex flex-col gap-[2rem]">
-              <h5>Add Partners</h5>
+
+            <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[2rem]">
+              <h5>Add Partners / Director</h5>
+
               {localData.allPartners.map((partner, index) => (
                 <div
                   key={index}
@@ -776,7 +778,7 @@ const FirstStepBasicDetails = ({
                 className="btn btn-sm btn-primary mt-3"
                 onClick={addPartner}
               >
-                Add Partner
+                Add Partner / Director
               </button>
             </div>
           </div>
