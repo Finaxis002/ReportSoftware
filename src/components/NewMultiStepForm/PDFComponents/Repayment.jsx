@@ -534,13 +534,9 @@ const Repayment = ({
                 filteredYearData.push(entry);
               }
 
-              // ✅ New logic: check if any month row is renderable
-              const visibleMonthRows = filteredYearData.filter(
-                (entry) => entry.interestLiability > 0
+              const moratoriumPeriod = parseInt(
+                formData?.ProjectReportSetting?.MoratoriumPeriod || 0
               );
-              if (visibleMonthRows.length === 0) {
-                return null; // 🚫 Skip year block if no visible month
-              }
 
               // ✅ Skip rendering this year if there are no valid months
               if (filteredYearData.length === 0) {
@@ -559,21 +555,19 @@ const Repayment = ({
                     : sum + entry.interestLiability,
                 0
               );
-              const moratoriumPeriod = parseInt(
-                formData?.ProjectReportSetting?.MoratoriumPeriod || 0
-              ); // Make sure to get this from your formData
 
-              // Filter visible rows (same as before)
-              const visibleMonthRows1 = filteredYearData.filter(
-                (entry) =>
-                  entry.principalRepayment > 0 || entry.interestLiability > 0
+              // 🔥 Skip first N months from the beginning of the year (not from filtered entries)
+              const monthsToConsider = filteredYearData.filter(
+                (_, monthIndex) => {
+                  // ✅ Skip moratoriumPeriod only in the first year
+                  if (yearIndex === 0 && monthIndex < moratoriumPeriod) {
+                    return false;
+                  }
+                  return true;
+                }
               );
 
-              // 🔥 Exclude first N months based on moratorium
-              const monthsToConsider = visibleMonthRows1.slice(moratoriumPeriod);
-
-
-
+              // ✅ Then calculate totalRepayment from monthsToConsider
               let totalRepayment = monthsToConsider.reduce(
                 (sum, entry) => sum + entry.totalRepayment,
                 0
@@ -644,11 +638,8 @@ const Repayment = ({
 
                   {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
                   {filteredYearData.map((entry, monthIndex) => {
-                    // Skip the row if Principal Repayment or Interest Liability is less than or equal to 0
-                    if (
-                      entry.principalRepayment <= 0 ||
-                      entry.interestLiability <= 0
-                    ) {
+                    // ✅ Skip moratorium months for the first year only
+                    if (yearIndex === 0 && monthIndex < moratoriumPeriod) {
                       return null;
                     }
 
