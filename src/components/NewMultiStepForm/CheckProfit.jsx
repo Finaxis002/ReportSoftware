@@ -343,7 +343,7 @@ const CheckProfit = () => {
   // Precompute Balance Transferred to Balance Sheet
   const balanceTransferred = netProfitAfterTax.map(
     (npbt, yearIndex) =>
-      npbt - (formData.MoreDetails.withdrawals?.[yearIndex] || 0)
+      npbt - (formData.MoreDetails.Withdrawals?.[yearIndex] || 0)
   );
 
   // Precompute Cumulative Balance Transferred to Balance Sheet
@@ -1152,7 +1152,7 @@ const CheckProfit = () => {
                     0,
                 })
                   .map((_, yearIndex) => ({
-                    amount: formData.MoreDetails.withdrawals?.[yearIndex] ?? 0,
+                    amount: formData.MoreDetails.Withdrawals?.[yearIndex] ?? 0,
                     yearIndex,
                   }))
                   .filter(
@@ -1160,7 +1160,7 @@ const CheckProfit = () => {
                   )
                   .map(({ amount, yearIndex }) => (
                     <td
-                      key={`withdrawals-${yearIndex}`}
+                      key={`Withdrawals-${yearIndex}`}
                       className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                     >
                       {formatNumber(amount)}

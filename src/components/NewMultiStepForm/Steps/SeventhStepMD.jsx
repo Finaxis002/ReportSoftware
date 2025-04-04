@@ -11,7 +11,7 @@ const SeventhStepMD = ({
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || years; // ✅ Ensure Projection Years are correctly set
   const getEmptyArray = () => Array.from({ length: projectionYears }).fill(0);
-// Initialize local data with default values or from props
+  // Initialize local data with default values or from props
   const [localData, setLocalData] = useState(() =>
     MoreDetailsData && Object.keys(MoreDetailsData).length > 0
       ? MoreDetailsData
@@ -82,6 +82,7 @@ const SeventhStepMD = ({
           Withdrawals: getEmptyArray(),
         }
   );
+  const [overriddenOpeningStock, setOverriddenOpeningStock] = useState({});
 
   useEffect(() => {
     if (MoreDetailsData && Object.keys(MoreDetailsData).length > 0) {
@@ -127,18 +128,35 @@ const SeventhStepMD = ({
   };
 
   const handleStockChanges = (name, index, value) => {
-    setLocalData((prevData) => {
-      const updatedStock = [
-        ...(prevData[name] ?? Array.from({ length: years }).fill(0)),
-      ]; // Ensure it's an array
-      updatedStock[index] = Number(value); // Update value
+    const numericValue = Number(value);
 
-      // If it's closing stock, propagate value to opening stock of next year
-      if (name === "ClosingStock" && index < years - 1) {
-        updatedStock[index + 1] = Number(value);
+    setLocalData((prevData) => {
+      const updatedStock = {
+        ...(prevData[name] ?? Array.from({ length: projectionYears }).fill(0)),
+      };
+      updatedStock[index] = numericValue;
+
+      const newState = { ...prevData, [name]: updatedStock };
+
+      // Sync ClosingStock → OpeningStock (if not overridden)
+      if (name === "ClosingStock" && index < projectionYears - 1) {
+        if (!overriddenOpeningStock[index + 1]) {
+          newState.OpeningStock = {
+            ...(prevData.OpeningStock ?? getEmptyArray()),
+            [index + 1]: numericValue,
+          };
+        }
       }
 
-      return { ...prevData, [name]: updatedStock };
+      // If user is editing OpeningStock manually
+      if (name === "OpeningStock") {
+        setOverriddenOpeningStock((prev) => ({
+          ...prev,
+          [index]: true,
+        }));
+      }
+
+      return newState;
     });
   };
 
@@ -172,16 +190,11 @@ const SeventhStepMD = ({
                 (stockType) => (
                   <tr key={stockType}>
                     <td
-                      // className="form-control border-r-0 border-none"
                       className="google-sheet-input md-input"
-                      style={{ width: "20rem", borderRadius: "0px" }}
-                      type="text"
+                      style={{ width: "20rem" }}
                     >
-                      {stockType.replace(/([A-Z])/g, " $1")}{" "}
-                      {/* Convert camelCase to readable text */}
+                      {stockType.replace(/([A-Z])/g, " $1")}
                     </td>
-
-                    {/* ✅ Make all input fields editable */}
                     {Array.from({ length: projectionYears }).map((_, index) => (
                       <td key={index} className="md-input">
                         <input

@@ -248,10 +248,10 @@ const FourthStepPRS = ({
     rateOfExpense: 5,
 
     // Subsidy
-    SubsidyName: "Government Grant",
-    SubsidyPercentage: "15",
-    SubsidyAmount: "10",
-    SubsidyText: "Eligible for government subsidy under MSME scheme.",
+    SubsidyName: "",
+    SubsidyPercentage: "",
+    SubsidyAmount: "",
+    SubsidyText: "",
 
     // CA Details
     UDINNumber: "",
@@ -770,6 +770,8 @@ const FourthStepPRS = ({
               </div>
             </div>
           </div>
+
+          {/* Subsidy  */}
           <div className="row">
             {/* Name Field */}
             <div className="col-4">

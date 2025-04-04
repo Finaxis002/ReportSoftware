@@ -46,6 +46,13 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   };
 
   const [localData, setLocalData] = useState(defaultData);
+  const [meansOfFinanceSummary, setMeansOfFinanceSummary] = useState({
+    meansOfFinanceTotal: 0,
+    totalLoan: 0,
+    totalProjectCost: 0,
+    difference: 0,
+  });
+  const [infoMessage, setInfoMessage] = useState("");
 
   // ✅ Populate `localData` from `formData.CostOfProject` on mount
   useEffect(() => {
@@ -97,16 +104,43 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   const calculatedTotal =
     Object.values(localData).reduce((total, field) => total + field.amount, 0) +
     Number(formData.MeansOfFinance.totalWorkingCapital);
-
   useEffect(() => {
-    if (formData.MeansOfFinance.total !== calculatedTotal) {
+    const meansOfFinanceTotal = calculatedTotal;
+    const totalProjectCost = Number(
+      formData.ProjectReportSetting.totalProjectCost || 0
+    );
+    const totalLoan = Number(formData.MeansOfFinance.total || 0);
+
+    if (totalLoan !== meansOfFinanceTotal) {
       setError(
         "Total Amount should be equal to the Total Amount of the Means of Finance."
       );
     } else {
       setError("");
     }
-  }, [calculatedTotal, formData.MeansOfFinance.total, setError]);
+
+    // Set the informational message
+    
+    setInfoMessage(
+      `Means of Finance Total = ₹${formData.MeansOfFinance.total .toLocaleString(
+        "en-IN"
+      )}\nDifference = ${(formData.MeansOfFinance.total  - calculatedTotal).toLocaleString(
+        "en-IN"
+      )}`
+    );
+
+    setMeansOfFinanceSummary({
+      meansOfFinanceTotal,
+      totalLoan,
+      calculatedTotal,
+      difference: totalLoan - calculatedTotal,
+    });
+  }, [
+    calculatedTotal,
+    formData.MeansOfFinance.total,
+    formData.ProjectReportSetting.calculatedTotal,
+    setError,
+  ]);
 
   return (
     <div className="form-scroll">
@@ -133,7 +167,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                   placeholder={field.amount}
                   onChange={(e) => handleChange(e, key, "amount")}
                   value={field.amount}
-                  className="form-control"
+                  className="form-control no-spinner"
                   type="number"
                 />
               </div>
@@ -220,6 +254,14 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
           </div>
         </div>
         {error && <div className="text-danger mt-2 text-right">{error}</div>}
+        {infoMessage && (
+          <div
+            className="mt-2 text-secondary text-right whitespace-pre-line"
+            style={{ fontSize: "0.9rem" }}
+          >
+            {infoMessage}
+          </div>
+        )}
 
         <button
           className="btn btn-secondary px-4"
