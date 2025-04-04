@@ -164,7 +164,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
         >
           <Text
             style={{
-              fontFamily: "Roboto",
+              
               fontWeight: "extrabold",
               textDecoration: "underline",
               fontSize: "12px",

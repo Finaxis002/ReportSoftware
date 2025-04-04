@@ -186,7 +186,7 @@ const Assumptions = ({
       </View>
 
       <View style={{ marginTop: "10px" }}>
-        <Text style={{ fontSize: 9 }}>
+        <Text style={[styles.text,{ fontSize: 9 }]}>
           Also the total expense for the firm during the projection years will
           be as follows:
         </Text>
@@ -251,7 +251,7 @@ const Assumptions = ({
         </View>
       </View>
 
-      <Text style={{ fontSize: 9 }}>Rate of Depreciation is as follows:</Text>
+      <Text style={[styles.text,{ fontSize: 9 }]}>Rate of Depreciation is as follows:</Text>
       <View
         style={[
           styles.table,
