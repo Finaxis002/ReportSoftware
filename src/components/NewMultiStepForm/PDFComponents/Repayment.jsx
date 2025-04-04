@@ -351,7 +351,7 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                    fontFamily: "Roboto",
+                   
                   },
                 ]}
               >
@@ -364,7 +364,7 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                    fontFamily: "Roboto",
+                   
                   },
                 ]}
               >
@@ -377,7 +377,7 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                    fontFamily: "Roboto",
+                   
                   },
                 ]}
               >
@@ -390,7 +390,7 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                    fontFamily: "Roboto",
+                   
                   },
                 ]}
               >

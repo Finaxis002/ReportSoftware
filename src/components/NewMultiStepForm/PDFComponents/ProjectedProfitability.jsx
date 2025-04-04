@@ -771,7 +771,7 @@ const ProjectedProfitability = ({
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        fontFamily: "Roboto",
+                        
 
                         borderLeftWidth: "0px",
                       },
@@ -989,7 +989,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto" },
+                {  },
               ]}
             >
               Total
@@ -1067,7 +1067,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 {
-                  fontFamily: "Roboto",
+                  
                 },
               ]}
             >
@@ -1078,7 +1078,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto" },
+                {  },
               ]}
             >
               Gross Profit
@@ -1097,7 +1097,7 @@ const ProjectedProfitability = ({
                       {
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
-                        fontFamily: "Roboto",
+                        
                         //
                       },
                     ]}
@@ -1375,7 +1375,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 {
-                  fontFamily: "Roboto", // ✅ Ensure using the registered font
+                   // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1388,7 +1388,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                  fontFamily: "Roboto", // ✅ Ensure using the registered font
+                   // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1408,7 +1408,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         borderWidth: "1.2px",
-                        fontFamily: "Roboto",
+                        
                         fontWeight: "bold",
                         color: "#000",
                         borderLeftWidth: "0px",
@@ -1470,7 +1470,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 {
-                  fontFamily: "Roboto", // ✅ Ensure using the registered font
+                   // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1483,7 +1483,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                  fontFamily: "Roboto", // ✅ Ensure using the registered font
+                   // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1502,7 +1502,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         borderWidth: "1.2px",
-                        fontFamily: "Roboto",
+                        
                         fontWeight: "bold",
                         color: "#000",
                         borderLeftWidth: "0px",
@@ -1755,7 +1755,7 @@ const ProjectedProfitability = ({
             <Text
               style={[
                 styles.caName,
-                { fontSize: "10px", fontFamily: "Roboto", fontWeight: "bold" },
+                { fontSize: "10px",  fontWeight: "bold" },
               ]}
             >
               CA {formData?.ProjectReportSetting?.CAName?.value}
@@ -1767,7 +1767,7 @@ const ProjectedProfitability = ({
             <Text
               style={[
                 styles.membershipNumber,
-                { fontSize: "10px", fontFamily: "Roboto" },
+                { fontSize: "10px",  },
               ]}
             >
               M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
@@ -1779,7 +1779,7 @@ const ProjectedProfitability = ({
             <Text
               style={[
                 styles.udinNumber,
-                { fontSize: "10px", fontFamily: "Roboto" },
+                { fontSize: "10px",  },
               ]}
             >
               UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
@@ -1791,7 +1791,7 @@ const ProjectedProfitability = ({
             <Text
               style={[
                 styles.mobileNumber,
-                { fontSize: "10px", fontFamily: "Roboto" },
+                { fontSize: "10px",  },
               ]}
             >
               Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}

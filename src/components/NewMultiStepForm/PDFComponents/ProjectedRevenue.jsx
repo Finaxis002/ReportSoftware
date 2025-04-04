@@ -231,7 +231,7 @@ const ProjectedRevenue = ({
                   stylesMOF.row,
                   styleExpenses.tableRow,
                   isHeading && styleExpenses.headingRow,
-                  isBold && { fontFamily: "Roboto", fontWeight: "bold" },
+                  isBold && {  fontWeight: "bold" },
                   { borderBottomWidth: "0px" },
                 ]}
               >
@@ -264,9 +264,9 @@ const ProjectedRevenue = ({
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      isBold && { fontFamily: "Roboto", fontWeight: "bold" },
+                      isBold && {  fontWeight: "bold" },
                       isHeading && {
-                        fontFamily: "Roboto",
+                        
                         color: "black",
                         fontWeight: "bold",
                         textAlign: "center",

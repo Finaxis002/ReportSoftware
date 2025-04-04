@@ -586,7 +586,7 @@ const RatioAnalysis = ({
                         styleExpenses.fontSmall,
                         {
                           paddingTop: "20px",
-                          fontFamily: "Roboto",
+                          
                           fontWeight: "light",
                         },
                       ]}
@@ -1078,7 +1078,7 @@ const RatioAnalysis = ({
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  { fontWeight: "bold", fontFamily: "Roboto" },
+                  { fontWeight: "bold", },
                 ]}
               >
                 Total Cash Profit
@@ -1107,7 +1107,7 @@ const RatioAnalysis = ({
                         styleExpenses.fontSmall,
                         {
                           fontWeight: "bold",
-                          fontFamily: "Roboto",
+                          
                           textAlign: "center",
                           borderRightWidth: 0,
                           borderTopWidth: 1,
@@ -1195,7 +1195,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {
-                      fontFamily: "Roboto",
+                      
                       fontWeight: "extrabold",
                       paddingTop: "20px",
                       
@@ -1249,7 +1249,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1299,7 +1299,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1350,7 +1350,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1400,7 +1400,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1450,7 +1450,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1500,7 +1500,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1550,7 +1550,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1605,7 +1605,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1655,7 +1655,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
@@ -1703,7 +1703,7 @@ const RatioAnalysis = ({
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    { fontFamily: "Roboto", fontWeight: "extrabold" },
+                    {  fontWeight: "extrabold" },
                     {width:"25%"}
                   ]}
                 >
