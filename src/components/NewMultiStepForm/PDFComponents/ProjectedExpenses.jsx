@@ -147,40 +147,41 @@ const ProjectedExpenses = ({
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // ✅ Calculate total direct expenses including "Raw Material Expenses / Purchases"
     const totalDirectExpenses = directExpense
       .filter((expense) => expense.type === "direct")
       .reduce((sum, expense) => {
-        // ✅ Check if this is "Raw Material Expenses / Purchases"
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
-
+        const isPercentage = String(expense.value).trim().endsWith("%");
+  
         let expenseValue;
-        if (isRawMaterial && String(expense.value).trim().endsWith("%")) {
-          // ✅ Calculate as percentage of total revenue
+  
+        if (isRawMaterial && isPercentage) {
+          // ✅ Percentage-based raw material
           expenseValue =
             (parseFloat(expense.value) / 100) *
-            receivedtotalRevenueReceipts[yearIndex];
+            (receivedtotalRevenueReceipts[yearIndex] || 0);
         } else {
-          // ✅ Normal calculation for other expenses
+          // ✅ Fixed value (monthly) for either raw material or other expense
           expenseValue = Number(expense.value) * 12 || 0;
         }
-
-        // ✅ Apply calculateExpense only for non-raw material expenses
-        return (
-          sum +
-          (isRawMaterial
+  
+        // ✅ Apply calculation only to non-percentage values
+        const finalValue =
+          isRawMaterial && isPercentage
             ? expenseValue
-            : calculateExpense(expenseValue, yearIndex))
-        );
+            : calculateExpense(expenseValue, yearIndex);
+  
+        return sum + finalValue;
       }, 0);
-
+  
     // ✅ Add Salary & Wages Calculation
     const initialSalaryWages = Number(fringAndAnnualCalculation) || 0;
     const totalSalaryWages = calculateExpense(initialSalaryWages, yearIndex);
-
+  
     return totalDirectExpenses + totalSalaryWages;
   });
+  
 
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -305,22 +306,22 @@ const ProjectedExpenses = ({
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
-                      ? "Millions" // Show "Millions" if "millions" is selected
-                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
 
       <View style={[styleExpenses.paddingx]}>
@@ -375,7 +376,7 @@ const ProjectedExpenses = ({
                 stylesCOP.serialNoCellDetail,
                 {
                   paddingVertical: "10px",
-                  
+
                   fontWeight: "bold",
                 },
               ]}
@@ -389,7 +390,7 @@ const ProjectedExpenses = ({
                 styleExpenses.bordernone,
                 {
                   paddingVertical: "10px",
-                  
+
                   fontWeight: "bold",
                 },
               ]}
@@ -406,7 +407,7 @@ const ProjectedExpenses = ({
                   styleExpenses.fontSmall,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -446,7 +447,7 @@ const ProjectedExpenses = ({
             ))}
           </View>
           {/* Direct Expenses */}
-          {directExpense
+          {/* {directExpense
             .filter((expense) => {
               const isAllYearsZero = Array.from({
                 length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -537,6 +538,101 @@ const ProjectedExpenses = ({
                   })}
                 </View>
               );
+            })} */}
+
+          {directExpense
+            .filter((expense) => {
+              const isAllYearsZero = Array.from({
+                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              }).every((_, yearIndex) => {
+                const adjustedYearIndex = hideFirstYear
+                  ? yearIndex + 1
+                  : yearIndex;
+
+                // Determine actual value
+                let expenseValue = 0;
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
+                const isPercentage = String(expense.value).trim().endsWith("%");
+
+                if (isRawMaterial && isPercentage) {
+                  expenseValue =
+                    (parseFloat(expense.value) / 100) *
+                    (receivedtotalRevenueReceipts[adjustedYearIndex] || 0);
+                } else {
+                  expenseValue = Number(expense.value) * 12 || 0;
+                }
+
+                return expenseValue === 0;
+              });
+
+              return expense.type === "direct" && !isAllYearsZero;
+            })
+
+            .map((expense, index) => {
+              const isRawMaterial =
+                expense.name.trim() === "Raw Material Expenses / Purchases";
+              const isPercentage = String(expense.value).trim().endsWith("%");
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
+
+              return (
+                <View key={index} style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {displayName}
+                  </Text>
+
+                  {Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).map((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+
+                    let expenseValue = 0;
+
+                    if (isRawMaterial && isPercentage) {
+                      expenseValue =
+                        (parseFloat(expense.value) / 100) *
+                        (receivedtotalRevenueReceipts[adjustedYearIndex] || 0);
+                    } else {
+                      expenseValue = Number(expense.value) * 12 || 0;
+                    }
+
+                    const formattedExpense =
+                      isRawMaterial && isPercentage
+                        ? formatNumber(expenseValue.toFixed(2))
+                        : formatNumber(
+                            calculateExpense(
+                              expenseValue,
+                              adjustedYearIndex
+                            ).toFixed(2)
+                          );
+
+                    return (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formattedExpense}
+                      </Text>
+                    );
+                  })}
+                </View>
+              );
             })}
 
           {/* Total Direct Expenses */}
@@ -576,7 +672,7 @@ const ProjectedExpenses = ({
                 stylesCOP.serialNoCellDetail,
                 {
                   paddingVertical: "10px",
-                  
+
                   fontWeight: "bold",
                 },
               ]}
@@ -590,7 +686,7 @@ const ProjectedExpenses = ({
                 styleExpenses.bordernone,
                 {
                   paddingVertical: "10px",
-                  
+
                   fontWeight: "bold",
                 },
               ]}
@@ -607,7 +703,7 @@ const ProjectedExpenses = ({
                   styleExpenses.fontSmall,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}

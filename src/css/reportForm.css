@@ -4,6 +4,17 @@ body.dark {
   background-color: #1a202c;
   color: #f9f9f9;
 }
+/* Target only inputs with class 'no-spinner' */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield; /* Firefox */
+}
+
 
 
 .customModal {
