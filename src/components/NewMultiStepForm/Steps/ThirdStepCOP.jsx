@@ -7,12 +7,12 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
 
   const defaultData = {
     Land: { name: "Land", id: "Land", amount: 0, rate: 15, isCustom: false },
-    Building: { name: "Building", id: "Building", amount: 0, rate: 15 },
+    Building: { name: "Building", id: "Building", amount: 0, rate: 10 },
     FurnitureandFittings: {
       name: "Furniture and Fittings",
       id: "FurnitureandFittings",
       amount: 0,
-      rate: 15,
+      rate: 10,
       isCustom: false,
     },
     PlantMachinery: {
@@ -22,18 +22,25 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
       rate: 15,
       isCustom: false,
     },
+    FixedAssets: {
+      name: "Fixed Assets",
+      id: "FixedAssets",
+      amount: 0,
+      rate: 5,
+      isCustom: false,
+    },
     IntangibleAssets: {
       name: "Intangible Assets",
       id: "IntangibleAssets",
       amount: 0,
-      rate: 15,
+      rate: 25,
       isCustom: false,
     },
     ComputersPeripherals: {
       name: "Computer Peripherals",
       id: "ComputersPeripherals",
       amount: 0,
-      rate: 15,
+      rate: 40,
       isCustom: false,
     },
     Miscellaneous: {
@@ -120,13 +127,13 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     }
 
     // Set the informational message
-    
+
     setInfoMessage(
-      `Means of Finance Total = ₹${formData.MeansOfFinance.total .toLocaleString(
+      `Means of Finance Total = ₹${formData.MeansOfFinance.total.toLocaleString(
         "en-IN"
-      )}\nDifference = ${(formData.MeansOfFinance.total  - calculatedTotal).toLocaleString(
-        "en-IN"
-      )}`
+      )}\nDifference = ${(
+        formData.MeansOfFinance.total - calculatedTotal
+      ).toLocaleString("en-IN")}`
     );
 
     setMeansOfFinanceSummary({
@@ -164,9 +171,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                 {index === 0 && <label className="form-label">Amount</label>}
                 <input
                   name="amount"
-                  placeholder={field.amount}
+                  placeholder="0"
                   onChange={(e) => handleChange(e, key, "amount")}
-                  value={field.amount}
+                  value={field.amount || ""}
                   className="form-control no-spinner"
                   type="number"
                 />

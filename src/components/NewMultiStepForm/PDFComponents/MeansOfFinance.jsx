@@ -344,26 +344,32 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
         </View>
       </View>
       {formData?.ProjectReportSetting?.subsidyName && (
-        <View style={[styles.text, { marginTop:5, marginLeft: 2 }]}>
-          <Text style={{ fontSize: 9 }}>
-            *Inclusive of Subsidy {formData.ProjectReportSetting.subsidyName}
-            {formData.ProjectReportSetting.subsidyAmount &&
-              ` of Rs. ${formatNumber(
-                Number(formData.ProjectReportSetting.subsidyAmount)
-              )}`}
-            {formData.ProjectReportSetting.subsidyPercentage &&
-              ` i.e. ${Number(
-                formData.ProjectReportSetting.subsidyPercentage
-              )}%`}
-            {formData.MeansOfFinance?.total &&
-              formData.ProjectReportSetting.subsidyAmount &&
-              `. And thus the Net Bank Loan would be Rs. ${formatNumber(
-                Number(formData.MeansOfFinance.total) -
-                  Number(formData.ProjectReportSetting.subsidyAmount)
-              )}`}
-            .
-          </Text>
-        </View>
+       <View style={[styles.text, { marginTop: 5, marginLeft: 2 }]}>
+       <Text style={{ fontSize: 9 }}>
+         *Inclusive of Subsidy {formData.ProjectReportSetting.subsidyName}
+         {formData.ProjectReportSetting.subsidyAmount &&
+           ` of Rs. ${formatNumber(
+             Number(formData.ProjectReportSetting.subsidyAmount)
+           )}`}
+         {formData.ProjectReportSetting.subsidyPercentage &&
+           ` i.e. ${Number(formData.ProjectReportSetting.subsidyPercentage)}%`}
+         {formData.MeansOfFinance?.total &&
+           formData.ProjectReportSetting.subsidyAmount &&
+           `. And thus the Net Bank Loan would be Rs. ${formatNumber(
+             Number(formData.MeansOfFinance.total) -
+               Number(formData.ProjectReportSetting.subsidyAmount)
+           )}`}
+         .
+       </Text>
+     
+       {/* 👉 Display additional subsidy text on the next line */}
+       {formData?.ProjectReportSetting?.subsidyText && (
+         <Text style={{ fontSize: 9, marginTop: 2 }}>
+           {formData.ProjectReportSetting.subsidyText}
+         </Text>
+       )}
+     </View>
+     
       )}
 
       {/* businees name and Client Name  */}
