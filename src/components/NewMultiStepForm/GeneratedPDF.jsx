@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
+import "./generatedPdf.css"
 import {
   Document,
   PDFViewer,
@@ -41,8 +42,7 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
-import { FiIconName } from 'react-icons/fi';
-
+import { FiIconName } from "react-icons/fi";
 
 const GeneratedPDF = ({}) => {
   const userRole = localStorage.getItem("userRole");
@@ -462,19 +462,19 @@ const GeneratedPDF = ({}) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-  
+
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch data");
         }
-  
+
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-  
+
         const normalizedUserName = userName?.trim().toLowerCase();
-  
+
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-  
+
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -486,16 +486,16 @@ const GeneratedPDF = ({}) => {
             });
             return;
           }
-  
+
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (admin?.permissions) setPermissions(admin.permissions);
         }
-  
+
         if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
@@ -503,17 +503,16 @@ const GeneratedPDF = ({}) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (employee?.permissions) setPermissions(employee.permissions);
         }
       } catch (err) {
         console.error("Error fetching permissions:", err.message);
       }
     };
-  
+
     fetchPermissions(); // 🔁 Fetch once on mount or when userRole/userName changes
   }, [userRole, userName]);
-  
 
   useEffect(() => {
     if (
@@ -859,7 +858,10 @@ const GeneratedPDF = ({}) => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen overflow-y-hidden"
+      style={{ overflowY: "hidden" }}
+    >
       {/* ✅ Loader Section */}
       {isPDFLoading && (
         <div className="flex items-center justify-center">
@@ -886,22 +888,20 @@ const GeneratedPDF = ({}) => {
         </div>
       )}
 
-<BlobProvider document={memoizedPDF}>
-  {(blobProps) => {
-    // Immediately assign values
-    if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
-      setBlobObject(blobProps.blob);
-      setBlobUrl(blobProps.url);
-    }
+      <BlobProvider document={memoizedPDF}>
+        {(blobProps) => {
+          // Immediately assign values
+          if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
+            setBlobObject(blobProps.blob);
+            setBlobUrl(blobProps.url);
+          }
 
-    const { loading } = blobProps;
-
+          const { loading } = blobProps;
 
           // Check if the blob is ready
           const handleDownloadPDF = async () => {
             triggerPdfDownload(); // All roles (employee, admin, client) can directly download
           };
-        
 
           return (
             <>
@@ -949,8 +949,6 @@ const GeneratedPDF = ({}) => {
               >
                 {memoizedPDF}
               </PDFViewer>
-
-            
             </>
           );
         }}

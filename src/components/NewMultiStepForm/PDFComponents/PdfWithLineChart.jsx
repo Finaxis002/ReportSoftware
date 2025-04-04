@@ -1,100 +1,20 @@
-// import React, { useState, useEffect } from 'react';
-// import { Page, Text, View, Document, Image, StyleSheet } from '@react-pdf/renderer';
-// import LineChart from '../charts/LineChart';
-
-// const MyDocument = ({ chartBase64 }) => (
-//   <View>
-//     <Text style={styles.title}>DSCR Chart</Text>
-//     {chartBase64 ? (
-//       <Image src={chartBase64} style={styles.chart} />
-//     ) : (
-//       <Text style={styles.loading}>Generating Chart...</Text>
-//     )}
-//   </View>
-// );
-
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 20,
-//     flexDirection: 'column',
-//     backgroundColor: '#fff',
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//   },
-//   chart: {
-//     width: 300,
-//     height: 200,
-//     marginVertical: 20,
-//   },
-//   loading: {
-//     fontSize: 14,
-//     textAlign: 'center',
-//     color: '#999',
-//   },
-// });
-
-// const PdfWithLineChart = ({ labels = [], dscr = [] }) => {
-//   const [chartBase64, setChartBase64] = useState(null);
-//   const [formattedValues, setFormattedValues] = useState([]);
- 
-
-//   useEffect(() => {
-    
-//     if (dscr.length > 0) {
-//       // ✅ Format to 2 decimal points
-//       const newValues = dscr.map(value => Number(value.toFixed(2)));
-//       setFormattedValues(newValues);
-//     }
-   
-//   }, [dscr]);
-
-//   return (
-//     <>
-//       {labels.length > 0 && formattedValues.length > 0 && (
-//         <LineChart
-//           labels={labels}
-//           values={formattedValues}
-//           onBase64Generated={setChartBase64}
-//         />
-//       )}
-
-//       {chartBase64 && <MyDocument chartBase64={chartBase64} />}
-//     </>
-//   );
-// };
-
-// export default PdfWithLineChart;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import LineChart from '../charts/LineChart';
 
 const MyDocument = ({ chartBase64 }) => (
   <View>
-     <View style={styles.centeredTextContainer}>
-    <Text style={styles.title}>DSCR</Text>
+    <View style={styles.centeredTextContainer}>
+      <Text style={styles.title}>DSCR</Text>
     </View>
-    {chartBase64 ? (
-      <Image src={chartBase64} style={styles.chart} />
-    ) : (
-      <Text style={styles.loading}>Generating Chart...</Text>
-    )}
+    <Image src={chartBase64} style={styles.chart} />
   </View>
 );
 
 const styles = StyleSheet.create({
   centeredTextContainer: {
     width: '100%',
-    alignItems: 'center',   // ✅ Center children horizontally
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
@@ -118,25 +38,30 @@ const styles = StyleSheet.create({
 const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);
 
+  const formattedDSCR = dscr.map(value => Number(value.toFixed(2)));
+
   useEffect(() => {
-    if (dscr.length > 0 && labels.length > 0) {
-      // console.log('✅ Generating DSCR Chart...');
-      setChartBase64(null);
+    if (labels.length > 0 && formattedDSCR.length > 0) {
+      setChartBase64(null); // Reset chart until it regenerates
     }
   }, [labels, dscr]);
 
   return (
     <>
-      <LineChart
-        labels={labels}
-        values={dscr.map(value => Number(value.toFixed(2)))}
-        onBase64Generated={(base64) => {
-          // console.log('✅ Chart generated successfully');
-          setChartBase64(base64);
-          if (onDscrReady) onDscrReady(base64)
-        }}
-      />
-      <MyDocument chartBase64={chartBase64} />
+      {/* ✅ Render chart generation component */}
+      {labels.length > 0 && formattedDSCR.length > 0 && !chartBase64 && (
+        <LineChart
+          labels={labels}
+          values={formattedDSCR}
+          onBase64Generated={(base64) => {
+            setChartBase64(base64);
+            if (onDscrReady) onDscrReady(base64);
+          }}
+        />
+      )}
+
+      {/* ✅ Only render the chart in the PDF once it’s ready */}
+      {chartBase64 && <MyDocument chartBase64={chartBase64} />}
     </>
   );
 };
