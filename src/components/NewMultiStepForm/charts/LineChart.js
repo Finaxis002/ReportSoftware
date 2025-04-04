@@ -467,7 +467,19 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
         gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
         gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
 
-        // console.log("values in line chart.js ", values);
+        // const storedColors = JSON.parse(localStorage.getItem("dscrChartColors")) || [
+        //   "rgba(75, 192, 192, 0.5)", // fallback line + gradient start
+        //   "rgba(75, 192, 192, 0.2)"  // fallback point + gradient end
+        // ];
+        
+        // const [lineColor, pointColor] = storedColors;
+        
+        // // ✅ Create gradient using stored colors
+        // const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        // gradient.addColorStop(0, lineColor);   // Gradient start
+        // gradient.addColorStop(1, pointColor);  // Gradient end
+
+
         // ✅ Calculate Y-axis range based on last year's value
         const lastYearValue = values[values.length - 1] || 0;
         let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
@@ -488,11 +500,11 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
               {
                 label: "DSCR",
                 data: values,
-                borderColor: "rgba(75, 192, 192, 0.8)", // ✅ Blue line color
+                borderColor: "rgba(75, 192, 192, 0.8)", //lineColor // ✅ Blue line color
                 backgroundColor: gradient,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: "rgba(255, 159, 64, 0.5)",
+                pointBackgroundColor: "rgba(255, 159, 64, 0.5)",// pointColor,
                 pointBorderColor: "rgb(255, 159, 64)",
                 pointBorderWidth: 2,
                 pointRadius: 6,

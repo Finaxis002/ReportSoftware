@@ -133,7 +133,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// src/charts/barChart.js
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -208,6 +207,23 @@ export const generateBarChart = async ({
     }
 
     Chart.defaults.font.family = "Times New Roman";
+    const colors = JSON.parse(localStorage.getItem("barChartColors")) || {
+      revenue: "rgba(75, 192, 192, 0.8)",
+      expenses: "rgba(255, 159, 64, 0.8)",
+    };
+    // let storedColors = JSON.parse(localStorage.getItem("barChartColors"));
+
+    // if (Array.isArray(storedColors)) {
+    //   storedColors = {
+    //     revenue: storedColors[0] || "rgba(75, 192, 192, 0.8)",
+    //     expenses: storedColors[1] || "rgba(255, 159, 64, 0.8)"
+    //   };
+    // }
+    
+    // const colors = storedColors || {
+    //   revenue: "rgba(75, 192, 192, 0.8)",
+    //   expenses: "rgba(255, 159, 64, 0.8)",
+    // };
 
     new Chart(ctx, {
       type: "bar",
@@ -217,15 +233,15 @@ export const generateBarChart = async ({
           {
             label: "Revenue",
             data: selectedRevenue,
-            backgroundColor: " rgba(75, 192, 192, 0.8)",
-            borderColor: "rgb(75, 192, 192)",
+            backgroundColor:" rgba(75, 192, 192, 0.8)", //(colors.revenue)
+            borderColor: "rgb(75, 192, 192)",//(colors.revenue)
             borderWidth: 1,
           },
           {
             label: "Expenses",
             data: expenses,
-            backgroundColor: "rgba(255, 159, 64, 0.8)",
-            borderColor: "rgb(255, 159, 64)",
+            backgroundColor: "rgba(255, 159, 64, 0.8)", //colors.expenses
+            borderColor: "rgb(255, 159, 64)", //colors.expenses,
             borderWidth: 1,
           },
         ],

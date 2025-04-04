@@ -37,6 +37,6 @@ export const validateTANNumber = (tan) => {
 };
 
 export const validateUDYAMNumber = (udyam) => {
-    const udyamRegex = /^UDYAM-[A-Z]{2}-[0-9]{4}-[0-9]{11}$/; // UDYAM validation regex
+    const udyamRegex = /^UDYAM-[A-Z]{2}-[0-9]{2}-[0-9]{7}$/; // UDYAM validation regex
     return udyamRegex.test(udyam.trim());
   };
