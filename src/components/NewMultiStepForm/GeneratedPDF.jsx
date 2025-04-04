@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import "./generatedPdf.css"
+import "../generatedPdf.css"
 import {
   Document,
   PDFViewer,
@@ -857,11 +857,19 @@ const GeneratedPDF = ({}) => {
     };
   }, []);
 
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+  
+
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-screen overflow-y-hidden"
-      style={{ overflowY: "hidden" }}
-    >
+      className="flex flex-col items-center justify-center min-h-screen generatedpdf"
+      >
       {/* ✅ Loader Section */}
       {isPDFLoading && (
         <div className="flex items-center justify-center">
