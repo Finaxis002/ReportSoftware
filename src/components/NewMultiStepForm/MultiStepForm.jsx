@@ -20,8 +20,8 @@ import ReportDropdown from "./Dropdown/ReportDropdown";
 const MultiStepForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
-  const isUpdateMode = location.state?.isUpdateMode || false; // ✅ Check if navigated from Update Report
-  const [currentStep, setCurrentStep] = useState(1); // Manages step state
+  const isUpdateMode = location.state?.isUpdateMode || false; 
+  const [currentStep, setCurrentStep] = useState(1); 
 
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
@@ -473,6 +473,15 @@ const MultiStepForm = ({ userRole, userName }) => {
     navigate(`/MultistepForm?step=${lastStep}`, { replace: true }); // ✅ Update URL to last step
   };
 
+  const handleStepClick = (stepNumber) => {
+    if (currentStep === 1 && stepNumber > 1) {
+      const isValid = handleSubmitFirstStep();
+      if (!isValid) return; // Block navigation to step 2
+    }
+    console.log("Step clicked:", stepNumber);
+    setCurrentStep(stepNumber);
+  };
+
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
@@ -485,7 +494,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
         {/* Stepper Component */}
         <div className="container horizontal mb-[3.5rem]">
-          <Stepper steps={steps} currentStep={currentStep} />
+          <Stepper steps={steps} currentStep={currentStep} onStepClick={handleStepClick}/>
         </div>
 
         {/* ✅ Dropdown placed outside steps to persist selection */}
@@ -513,6 +522,7 @@ const MultiStepForm = ({ userRole, userName }) => {
           disableNext={!!error}
           goToLastStep={goToLastStep} 
           handleSubmitFirstStep={handleSubmitFirstStep}
+          onStepClick={handleStepClick}
         />
 
         {/* Stepper Control Buttons */}

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 import { Font } from "@react-pdf/renderer";
 import { checkAndRegisterFont } from "../checkAndRegisterFont";
+import ChartColorSelector from "./ChartColorSelector";
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
@@ -595,6 +596,12 @@ const FinalStep = ({ formData, userRole }) => {
           </button>
         )}
       </div>
+
+      {/* <ChartColorSelector chartType="pieChart" />
+<ChartColorSelector chartType="barChart" />
+<ChartColorSelector chartType="dscrChart" />
+<ChartColorSelector chartType="currentRatioChart" /> */}
+
 
       {/* ✅ Hidden Iframe */}
       <iframe
