@@ -153,35 +153,38 @@ const ProjectedExpenses = ({
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
         const isPercentage = String(expense.value).trim().endsWith("%");
-  
-        let expenseValue;
-  
+
+        let expenseValue = 0;
+
+        const ClosingStock =
+          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
         if (isRawMaterial && isPercentage) {
-          // ✅ Percentage-based raw material
-          expenseValue =
+          const baseValue =
             (parseFloat(expense.value) / 100) *
-            (receivedtotalRevenueReceipts[yearIndex] || 0);
+            (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
-          // ✅ Fixed value (monthly) for either raw material or other expense
           expenseValue = Number(expense.value) * 12 || 0;
         }
-  
+
         // ✅ Apply calculation only to non-percentage values
         const finalValue =
           isRawMaterial && isPercentage
             ? expenseValue
             : calculateExpense(expenseValue, yearIndex);
-  
+
         return sum + finalValue;
       }, 0);
-  
+
     // ✅ Add Salary & Wages Calculation
     const initialSalaryWages = Number(fringAndAnnualCalculation) || 0;
     const totalSalaryWages = calculateExpense(initialSalaryWages, yearIndex);
-  
+
     return totalDirectExpenses + totalSalaryWages;
   });
-  
 
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -554,11 +557,16 @@ const ProjectedExpenses = ({
                 const isRawMaterial =
                   expense.name.trim() === "Raw Material Expenses / Purchases";
                 const isPercentage = String(expense.value).trim().endsWith("%");
+                const ClosingStock =
+                  formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                const OpeningStock =
+                  formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
                 if (isRawMaterial && isPercentage) {
-                  expenseValue =
+                  const baseValue =
                     (parseFloat(expense.value) / 100) *
-                    (receivedtotalRevenueReceipts[adjustedYearIndex] || 0);
+                    (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
+                  expenseValue = baseValue + ClosingStock - OpeningStock;
                 } else {
                   expenseValue = Number(expense.value) * 12 || 0;
                 }
@@ -600,11 +608,23 @@ const ProjectedExpenses = ({
                       : yearIndex;
 
                     let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
                     if (isRawMaterial && isPercentage) {
-                      expenseValue =
+                      const baseValue =
                         (parseFloat(expense.value) / 100) *
-                        (receivedtotalRevenueReceipts[adjustedYearIndex] || 0);
+                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                          0);
+                      expenseValue = baseValue + ClosingStock - OpeningStock;
                     } else {
                       expenseValue = Number(expense.value) * 12 || 0;
                     }
