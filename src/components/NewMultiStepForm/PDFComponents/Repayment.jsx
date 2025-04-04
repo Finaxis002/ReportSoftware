@@ -559,10 +559,29 @@ const Repayment = ({
                     : sum + entry.interestLiability,
                 0
               );
-              let totalRepayment = filteredYearData.reduce(
+              const moratoriumPeriod = parseInt(
+                formData?.ProjectReportSetting?.MoratoriumPeriod || 0
+              ); // Make sure to get this from your formData
+
+              // Filter visible rows (same as before)
+              const visibleMonthRows1 = filteredYearData.filter(
+                (entry) =>
+                  entry.principalRepayment > 0 || entry.interestLiability > 0
+              );
+
+              // 🔥 Exclude first N months based on moratorium
+              const monthsToConsider = visibleMonthRows1.slice(moratoriumPeriod);
+
+
+
+              let totalRepayment = monthsToConsider.reduce(
                 (sum, entry) => sum + entry.totalRepayment,
                 0
               );
+
+              if (totalInterestLiability === 0) {
+                return null; // 🚫 Skip year block if no visible month
+              }
 
               return (
                 <View

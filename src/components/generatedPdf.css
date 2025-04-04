@@ -1,0 +1,12 @@
+/* Hide scrollbars for .generatedpdf and all its children */
+.generatedpdf,
+.generatedpdf * {
+  box-sizing: border-box;
+  overflow: hidden !important;
+  scrollbar-width: none; /* Firefox */
+}
+
+.generatedpdf::-webkit-scrollbar,
+.generatedpdf *::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}

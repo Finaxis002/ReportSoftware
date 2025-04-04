@@ -301,7 +301,7 @@ const FirstStepBasicDetails = ({
 
             <div className="input w-full">
               <select
-                className="form-control selectInput"
+                className="form-control dark selectInput"
                 id="gender"
                 name="gender"
                 value={localData.gender || ""}
@@ -713,8 +713,10 @@ const FirstStepBasicDetails = ({
             </div>
 
             {/* Add Partners Section */}
+
             <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[2rem]">
               <h5>Add Partners / Director</h5>
+
               {localData.allPartners.map((partner, index) => (
                 <div
                   key={index}

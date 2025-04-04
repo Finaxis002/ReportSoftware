@@ -66,7 +66,7 @@ const MainLogin = ({ onLogin }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
         localStorage.setItem("employeeId", data.employeeId)
-
+        sessionStorage.setItem("justLoggedIn", "true");
         onLogin(true, "admin");
         navigate("/");
         return; // ✅ Exit if database login succeeds
@@ -94,8 +94,6 @@ const MainLogin = ({ onLogin }) => {
   };
   
 
-  
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -162,6 +160,7 @@ const MainLogin = ({ onLogin }) => {
           localStorage.setItem("userRole", "employee");
           localStorage.setItem("employeeName", data.employee.name);
           localStorage.setItem("employeeId", data.employee.employeeId)
+          sessionStorage.setItem("justLoggedIn", "true");
   
           onLogin(true, "employee", {
             employeeId: data.employee.employeeId,
@@ -179,6 +178,8 @@ const MainLogin = ({ onLogin }) => {
       }
     }
   };
+
+
 
   console.log("Logging in with password:", inputPassword);
 

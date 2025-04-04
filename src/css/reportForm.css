@@ -4,6 +4,17 @@ body.dark {
   background-color: #1a202c;
   color: #f9f9f9;
 }
+/* Target only inputs with class 'no-spinner' */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield; /* Firefox */
+}
+
 
 
 .customModal {
@@ -22,9 +33,6 @@ body.dark {
   background-color: #f3f6fd;
 }
 
-body.dark .input {
-  background-color: #2d3748;
-}
 
 /* =Normal state */
 .input input {
@@ -43,6 +51,14 @@ body.dark .input {
   text-align: start;
 }
 
+/* Dark Mode (when .dark class is applied to parent, like <body>) */
+.dark .input input {
+  background-color: #1a202c;
+  color: #e2e8f0;
+  box-shadow: 0 0 0 1px #4a5568;
+}
+
+
 .input input::-webkit-input-placeholder {
   opacity: 0;
   transition: opacity 200ms;
@@ -60,6 +76,19 @@ body.dark .input {
   left: 16px;
   transition: all 200ms;
 }
+
+.dark .form-control{
+  background-color: #1a202c;
+  border: none;
+  color: #fff;
+}
+
+.dark .form-control:focus{
+  background-color: #000000;
+  border: none;
+  color: #fff;
+}
+
 
 /* =Focussed state  */
 .input input:focus {
@@ -84,6 +113,13 @@ body.dark .input {
   transform: translate3d(0, -22px, 0) scale(0.75);
   padding: 0 3%;
   border-radius: 5px;
+}
+
+/* ✅ Dark mode support */
+.dark .input input:focus ~ label,
+.dark .input input:not(:placeholder-shown) ~ label {
+  background-color: #1a1a1a; /* You can also use #000 if you want pure black */
+  color: #e2e8f0; /* Optional: light text for better contrast */
 }
 
 .input input:focus ~ label {
@@ -118,6 +154,11 @@ body.dark .input {
   padding: 2%;
   border-radius: 8px;
   width: 180vh;
+}
+
+.dark .form-scroll {
+  background-color: #1a202c; /* dark gray/blue */
+  color: #f0f0f0; /* optional text color */
 }
 
 .nextBtn {
@@ -573,6 +614,10 @@ body.dark .input {
   /* white-space: nowrap; */
 }
 
+.dark .google-sheet-table thead tr{
+  background-color: #1a1a1a;
+}
+
 /* ✅ Table Borders - Soft Gray */
 .google-sheet-table th,
 .google-sheet-table td {
@@ -618,6 +663,16 @@ body.dark .input {
 .google-sheet-container {
   overflow-x: auto;
   max-height: 500px;
+}
+
+.dark .google-sheet-input{
+  background-color: #1A202C;
+  color: #ffffff;
+}
+
+.dark .md-input{
+  background-color: #1A202C;
+  color: #ffffff;
 }
 
 /* ✅ Google Sheets Button Style */

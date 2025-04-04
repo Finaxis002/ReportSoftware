@@ -190,30 +190,36 @@ const ProjectedProfitability = ({
     const totalDirectExpenses = directExpense
       .filter((expense) => expense.type === "direct")
       .reduce((sum, expense) => {
-        // ✅ Check if this is "Raw Material Expenses / Purchases"
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
+        const isPercentage = String(expense.value).trim().endsWith("%");
 
-        let expenseValue;
-        if (isRawMaterial && String(expense.value).trim().endsWith("%")) {
-          // ✅ Calculate as percentage of total revenue
-          expenseValue =
+        let expenseValue = 0;
+
+        const ClosingStock =
+          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+        if (isRawMaterial && isPercentage) {
+          const baseValue =
             (parseFloat(expense.value) / 100) *
-            receivedtotalRevenueReceipts[yearIndex];
+            (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
-          // ✅ Normal calculation for other expenses
           expenseValue = Number(expense.value) * 12 || 0;
         }
 
-        // ✅ Apply calculateExpense only for non-raw material expenses
-        return (
-          sum +
-          (isRawMaterial
+        // ✅ Apply calculation only to non-percentage values
+        const finalValue =
+          isRawMaterial && isPercentage
             ? expenseValue
-            : calculateExpense(expenseValue, yearIndex))
-        );
+            : calculateExpense(expenseValue, yearIndex);
+
+        return sum + finalValue;
       }, 0);
 
+    // ✅ Add Salary & Wages Calculation
     const initialSalaryWages = Number(fringAndAnnualCalculation) || 0;
     const totalSalaryWages = calculateExpense(initialSalaryWages, yearIndex);
 
@@ -273,7 +279,7 @@ const ProjectedProfitability = ({
       if (setInterestOnWorkingCapital) {
         setInterestOnWorkingCapital(computedInterest);
       }
-    } 
+    }
   }, [workingCapitalLoan, interestRate, projectionYears, repaymentStartMonth]);
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
@@ -339,7 +345,7 @@ const ProjectedProfitability = ({
     const cashProfit = npat + depreciation;
 
     // ✅ Round values correctly
-    return cashProfit 
+    return cashProfit;
   });
 
   useEffect(() => {
@@ -470,32 +476,31 @@ const ProjectedProfitability = ({
       </View>
 
       <View
-              style={{
-                display: "flex",
-                alignContent: "flex-end",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-              }}
-            >
-              <Text style={[styles.AmountIn, styles.italicText]}>
-                        (Amount In{" "}
-                        {
-                          formData?.ProjectReportSetting?.AmountIn === "rupees"
-                            ? "Rs." // Show "Rupees" if "rupees" is selected
-                            : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                            ? "Thousands" // Show "Thousands" if "thousand" is selected
-                            : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                            ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                            : formData?.ProjectReportSetting?.AmountIn === "crores"
-                            ? "Crores" // Show "Crores" if "crores" is selected
-                            : formData?.ProjectReportSetting?.AmountIn === "millions"
-                            ? "Millions" // Show "Millions" if "millions" is selected
-                            : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                        }
-                        )
-                      </Text>
-            </View>
-      
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
+      </View>
 
       <View style={[styleExpenses.paddingx, { paddingBottom: "5px" }]}>
         <View
@@ -553,7 +558,6 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-                
                 border: 0,
               },
             ]}
@@ -572,7 +576,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { },
+                {},
               ]}
             ></Text>
 
@@ -601,7 +605,6 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-               
                 border: 0,
               },
             ]}
@@ -622,7 +625,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { },
+                {},
               ]}
             >
               Total Revenue Receipt
@@ -639,7 +642,7 @@ const ProjectedProfitability = ({
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       styles.Total,
-                      {  borderLeftWidth: "0px" },
+                      { borderLeftWidth: "0px" },
                     ]}
                   >
                     {formatNumber(totalYearValue)}
@@ -753,7 +756,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { },
+                {},
               ]}
             ></Text>
 
@@ -769,7 +772,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         fontFamily: "Roboto",
-                        
+
                         borderLeftWidth: "0px",
                       },
                     ]}
@@ -868,15 +871,22 @@ const ProjectedProfitability = ({
                 const adjustedYearIndex = hideFirstYear
                   ? yearIndex + 1
                   : yearIndex;
-                let expenseValue;
 
-                if (
-                  expense.name.trim() === "Raw Material Expenses / Purchases" &&
-                  String(expense.value).trim().endsWith("%")
-                ) {
-                  expenseValue =
+                // Determine actual value
+                let expenseValue = 0;
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
+                const isPercentage = String(expense.value).trim().endsWith("%");
+                const ClosingStock =
+                  formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                const OpeningStock =
+                  formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                if (isRawMaterial && isPercentage) {
+                  const baseValue =
                     (parseFloat(expense.value) / 100) *
-                    receivedtotalRevenueReceipts[adjustedYearIndex];
+                    (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
+                  expenseValue = baseValue + ClosingStock - OpeningStock;
                 } else {
                   expenseValue = Number(expense.value) * 12 || 0;
                 }
@@ -886,10 +896,11 @@ const ProjectedProfitability = ({
 
               return expense.type === "direct" && !isAllYearsZero;
             })
+
             .map((expense, index) => {
               const isRawMaterial =
                 expense.name.trim() === "Raw Material Expenses / Purchases";
-
+              const isPercentage = String(expense.value).trim().endsWith("%");
               const displayName = isRawMaterial
                 ? "Purchases / RM Expenses"
                 : expense.name;
@@ -912,30 +923,41 @@ const ProjectedProfitability = ({
                       ? projectionYears - 1
                       : projectionYears,
                   }).map((_, yearIndex) => {
-                    let expenseValue;
                     const adjustedYearIndex = hideFirstYear
                       ? yearIndex + 1
                       : yearIndex;
 
-                    if (
-                      isRawMaterial &&
-                      String(expense.value).trim().endsWith("%")
-                    ) {
-                      expenseValue =
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                    if (isRawMaterial && isPercentage) {
+                      const baseValue =
                         (parseFloat(expense.value) / 100) *
-                        receivedtotalRevenueReceipts[adjustedYearIndex];
+                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                          0);
+                      expenseValue = baseValue + ClosingStock - OpeningStock;
                     } else {
                       expenseValue = Number(expense.value) * 12 || 0;
                     }
 
-                    const formattedExpense = isRawMaterial
-                      ? formatNumber(expenseValue.toFixed(2))
-                      : formatNumber(
-                          calculateExpense(
-                            expenseValue,
-                            adjustedYearIndex
-                          ).toFixed(2)
-                        );
+                    const formattedExpense =
+                      isRawMaterial && isPercentage
+                        ? formatNumber(expenseValue.toFixed(2))
+                        : formatNumber(
+                            calculateExpense(
+                              expenseValue,
+                              adjustedYearIndex
+                            ).toFixed(2)
+                          );
 
                     return (
                       <Text
@@ -967,7 +989,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto", },
+                { fontFamily: "Roboto" },
               ]}
             >
               Total
@@ -997,7 +1019,6 @@ const ProjectedProfitability = ({
               styles.tableRow,
               styles.Total,
               {
-                
                 border: 0,
               },
             ]}
@@ -1016,7 +1037,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 styles.Total,
-                { },
+                {},
               ]}
             ></Text>
 
@@ -1047,7 +1068,6 @@ const ProjectedProfitability = ({
                 styleExpenses.bordernone,
                 {
                   fontFamily: "Roboto",
-                  
                 },
               ]}
             >
@@ -1058,7 +1078,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontFamily: "Roboto", },
+                { fontFamily: "Roboto" },
               ]}
             >
               Gross Profit
@@ -1078,7 +1098,7 @@ const ProjectedProfitability = ({
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
                         fontFamily: "Roboto",
-                        // 
+                        //
                       },
                     ]}
                   >
@@ -1557,8 +1577,7 @@ const ProjectedProfitability = ({
             {/* Display Precomputed Balance Transferred Values with Rounding */}
             {balanceTransferred.map((amount, yearIndex) => {
               if (hideFirstYear && yearIndex === 0) return null;
-              const roundedValue =
-                amount 
+              const roundedValue = amount;
 
               return (
                 <Text
@@ -1597,8 +1616,7 @@ const ProjectedProfitability = ({
               // Convert negative values to 0 and round appropriately
               const adjustedAmount = Math.max(amount, 0);
 
-              const roundedValue =
-                adjustedAmount 
+              const roundedValue = adjustedAmount;
 
               return (
                 <Text
@@ -1646,8 +1664,7 @@ const ProjectedProfitability = ({
               const cashProfit = npat + depreciation;
 
               // ✅ Round values correctly
-              const roundedValue =
-                cashProfit 
+              const roundedValue = cashProfit;
               return (
                 <Text
                   key={`cashProfit-${yearIndex}`}
@@ -1666,31 +1683,31 @@ const ProjectedProfitability = ({
       </View>
 
       <view>
-
-      {formData?.ProjectReportSetting?.CAName?.value ? ( <Text
-          style={[
-            {
-              fontSize: "8px",
-              paddingRight: "4px",
-              paddingLeft: "4px",
-              textAlign: "justify",
-            },
-          ]}
-        >
-          Guidance and assistance have been provided for the preparation of
-          these financial statements on the specific request of the promoter for
-          the purpose of availing finance for the business. These financial
-          statements are based on realistic market assumptions, proposed
-          estimates issued by an approved valuer, details provided by the
-          promoter, and rates prevailing in the market. Based on the examination
-          of the evidence supporting the assumptions, nothing has come to
-          attention that causes any belief that the assumptions do not provide a
-          reasonable basis for the forecast. These financials do not vouch for
-          the accuracy of the same, as actual results are likely to be different
-          from the forecast since anticipated events might not occur as
-          expected, and the variation might be material.
-        </Text>): null}
-
+        {formData?.ProjectReportSetting?.CAName?.value ? (
+          <Text
+            style={[
+              {
+                fontSize: "8px",
+                paddingRight: "4px",
+                paddingLeft: "4px",
+                textAlign: "justify",
+              },
+            ]}
+          >
+            Guidance and assistance have been provided for the preparation of
+            these financial statements on the specific request of the promoter
+            for the purpose of availing finance for the business. These
+            financial statements are based on realistic market assumptions,
+            proposed estimates issued by an approved valuer, details provided by
+            the promoter, and rates prevailing in the market. Based on the
+            examination of the evidence supporting the assumptions, nothing has
+            come to attention that causes any belief that the assumptions do not
+            provide a reasonable basis for the forecast. These financials do not
+            vouch for the accuracy of the same, as actual results are likely to
+            be different from the forecast since anticipated events might not
+            occur as expected, and the variation might be material.
+          </Text>
+        ) : null}
       </view>
 
       {/* businees name and Client Name  */}
