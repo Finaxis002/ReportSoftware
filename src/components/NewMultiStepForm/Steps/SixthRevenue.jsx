@@ -584,8 +584,8 @@ const handleFormChange = (event, index, field = null) => {
                 </table>
               </div>
 
-              <div className="position-relative w-100 overflow-y-scroll">
-                <div className="pt-3 total-div">
+              <div className="position-relative ">
+                <div className="total-div">
                   <div className="d-flex">
                     <label htmlFor="" className="form-label w-25 fs-10 dark:text-gray-950">
                       Total Revenue

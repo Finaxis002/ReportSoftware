@@ -513,15 +513,23 @@ body.dark {
 
 /* Total Revenue section styling */
 .total-div {
-  background-color: #f9f9f9; /* Light background like Google Sheets */
-  padding: 5px 10px;
+  background-color: #f9f9f9;
+  padding: 5px;
   font-weight: bold;
+  overflow: hidden;
+  overflow-x: auto;
+  display: flex;
+  align-items: normal;
+  justify-content: space-between;
+  flex-direction: column;
 }
 
 .total-div table {
   width: 100%;
   border-collapse: collapse; /* Merge borders like Google Sheets */
   border: 1px solid #ccc; /* Light gray border for the entire table */
+  display: flex;
+ align-items: center;
 }
 
 /* Remove input borders in Total Revenue */
@@ -549,6 +557,8 @@ body.dark {
   text-align: left;
   padding-right: 10px;
   width: 250px;
+  display: flex;
+  align-items: center;
 }
 
 /* Make table compact */
