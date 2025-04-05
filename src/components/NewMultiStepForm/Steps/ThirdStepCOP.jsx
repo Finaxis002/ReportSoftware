@@ -114,9 +114,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   useEffect(() => {
     const meansOfFinanceTotal = calculatedTotal;
     const totalProjectCost = Number(
-      formData.ProjectReportSetting.totalProjectCost || 0
+      formData?.ProjectReportSetting?.totalProjectCost || 0
     );
-    const totalLoan = Number(formData.MeansOfFinance.total || 0);
+    const totalLoan = Number(formData?.MeansOfFinance?.total || 0);
 
     if (totalLoan !== meansOfFinanceTotal) {
       setError(
@@ -144,8 +144,8 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     });
   }, [
     calculatedTotal,
-    formData.MeansOfFinance.total,
-    formData.ProjectReportSetting.calculatedTotal,
+    formData?.MeansOfFinance?.total,
+    formData?.ProjectReportSetting?.calculatedTotal,
     setError,
   ]);
 
