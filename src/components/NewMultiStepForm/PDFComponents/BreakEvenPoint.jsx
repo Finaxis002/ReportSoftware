@@ -200,7 +200,7 @@ const BreakEvenPoint = ({
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue + ClosingStock - OpeningStock;
+          expenseValue = baseValue - ClosingStock + OpeningStock;
         } else {
           expenseValue = Number(expense.value) * 12 || 0;
         }
@@ -669,7 +669,7 @@ const BreakEvenPoint = ({
                     const baseValue =
                       (parseFloat(expense.value) / 100) *
                       (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-                    expenseValue = baseValue + ClosingStock - OpeningStock;
+                    expenseValue = baseValue - ClosingStock + OpeningStock;
                   } else {
                     expenseValue = Number(expense.value) * 12 || 0;
                   }
@@ -734,7 +734,7 @@ const BreakEvenPoint = ({
                             (parseFloat(expense.value) / 100) *
                             (receivedtotalRevenueReceipts?.[yearIndex] ||
                               0);
-                          expenseValue = baseValue + ClosingStock - OpeningStock;
+                          expenseValue = baseValue - ClosingStock + OpeningStock;
                         } else {
                           expenseValue = Number(expense.value) * 12 || 0;
                         }
