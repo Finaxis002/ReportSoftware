@@ -73,7 +73,6 @@
     "react-to-pdf": "^1.0.1",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.1",
-    "socket.io-client": "^4.8.1",
     "stream-browserify": "^3.0.0",
     "three": "^0.174.0",
     "util": "^0.12.5",
