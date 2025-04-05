@@ -165,12 +165,12 @@ const EmployeeDetailsList = () => {
             <FontAwesomeIcon icon={faSync} className="text-lg" />
           </button>
         </div>
-        <h2 className="text-xl font-semibold dark:text-gray-50">Employee List</h2>
+        <h2 className="text-xl font-semibold dark:text-gray-50">User List</h2>
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300"
           onClick={() => setShowForm(true)}
         >
-          + Add Employee
+          + Add User
         </button>
       </div>
 
@@ -222,7 +222,7 @@ const EmployeeDetailsList = () => {
                       </span>
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-300 uppercase font-medium tracking-wide">
-                          Employee ID
+                          User ID
                         </p>
                         <p className="text-sm font-normal text-gray-800 dark:text-white">
                           {employee.employeeId}

@@ -143,7 +143,7 @@ const CreateReport = ({ userRole }) => {
     <div className="flex h-[100vh]">
       {renderMenuBar()}
       <div className="app-content">
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 
         {/* ✅ Cards Section */}
         {/* 🔄 Refresh Button */}

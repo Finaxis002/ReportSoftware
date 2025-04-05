@@ -180,7 +180,7 @@ const Reports = ({ sendPdfData }) => {
     <div className="flex h-[100vh]">
       {renderMenuBar()}
       <div className="app-content">
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 
         {/* ✅ Enhanced Search Bar */}
         <div className="w-full flex justify-end items-center mb-6 p-4">

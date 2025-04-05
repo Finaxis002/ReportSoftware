@@ -250,7 +250,7 @@ const ProjectedSalaries = ({
                 borderBottomWidth: "1px",
                 fontSize: "10px",
                 paddingVertical: "6px",
-                width:"80%"
+                width:"100%"
               },
             ]}
           >
@@ -259,12 +259,11 @@ const ProjectedSalaries = ({
           </Text>
 
           <Text
-            style={[
-              stylesCOP.particularsCellsDetail,
-              stylesCOP.textCenter,
-              stylesCOP.boldText,
-              { borderTop: "1px solid #000", borderBottom: "1px solid #000" },
-            ]}
+           style={[
+            stylesCOP.particularsCellsDetail,
+            stylesCOP.textCenter,
+            {borderTopWidth:1}
+          ]}
           >
             {" "}
             {formatNumber(fringAndAnnualCalculation)}

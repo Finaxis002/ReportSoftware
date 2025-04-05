@@ -345,7 +345,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                     0
                   }
                   disabled
-                  className="form-control"
+                  className="form-control no-spinner"
                   type="text"
                 />
               </div>
