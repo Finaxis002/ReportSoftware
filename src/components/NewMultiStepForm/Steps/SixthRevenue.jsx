@@ -66,20 +66,47 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   const [localData, setLocalData] = useState(() => {
     const safeProjectionYears = Number(projectionYears) || 1;
-  
-    const safeTotalRevenueForOthers = Array.isArray(revenueData?.totalRevenueForOthers)
-      ? revenueData.totalRevenueForOthers
-      : Array.from({ length: safeProjectionYears }, () => 0);
-  
+
+    if (revenueData && Object.keys(revenueData).length > 0) {
+      return {
+        ...revenueData,
+        formType: revenueData?.formType || "Others",
+        noOfMonths:
+          revenueData?.noOfMonths || Array(safeProjectionYears).fill(12), // Ensure default months
+        totalRevenue:
+          revenueData?.totalRevenue || Array(safeProjectionYears).fill(0), // Ensure default revenue
+      };
+    }
+
     return {
-      ...revenueData,
-      formType: revenueData?.formType || "Others",
-      noOfMonths: revenueData?.noOfMonths || Array(safeProjectionYears).fill(12),
-      totalRevenue: revenueData?.totalRevenue || Array(safeProjectionYears).fill(0),
-      totalRevenueForOthers: safeTotalRevenueForOthers,
+      formFields: [
+        {
+          particular: "p1",
+          years: Array.from({ length: safeProjectionYears }, () => 0),
+          amount: 0,
+          rowType: "0",
+          increaseBy: "",
+        },
+      ],
+      totalRevenueForOthers: Array.from(
+        { length: safeProjectionYears },
+        () => 0
+      ),
+      formFields2: [
+        {
+          particular: "p1",
+          years: Array.from({ length: safeProjectionYears }, () => 0),
+          amount: 0,
+          increaseBy: "",
+        },
+      ],
+      totalMonthlyRevenue: Array(safeProjectionYears).fill(0),
+      noOfMonths: Array(safeProjectionYears).fill(12), // ✅ Default to 12 months
+      totalRevenue: Array(safeProjectionYears).fill(0), // ✅ Initialize correctly
+      formType: "Others",
+      togglerType: false,
     };
   });
-  
 
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
   useEffect(() => {
@@ -137,6 +164,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       ...prevData,
       totalMonthlyRevenue: total,
     }));
+    // Auto-trim or pad revenue array to match projectionYears
+if (localData.totalRevenueForOthers?.length !== projectionYears) {
+  localData.totalRevenueForOthers = Array.from({ length: projectionYears }, (_, i) =>
+    localData.totalRevenueForOthers?.[i] ?? ""
+  );
+}
+
   }, [localData.formFields2, projectionYears]);
 
   // const [noOfMonths, setNoOfMonths] = useState(
@@ -309,6 +343,11 @@ const handleFormChange = (event, index, field = null) => {
   const handleTotalRevenueForOthersChange = (value, index) => {
     setLocalData((prevData) => {
       const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
+
+      // Expand the array if index is outside current range
+    while (updatedRevenue.length < projectionYears) {
+      updatedRevenue.push("");
+    }
       updatedRevenue[index] = value === "" ? "" : Number(value); // Prevent `NaN`
 
       return {
@@ -584,8 +623,8 @@ const handleFormChange = (event, index, field = null) => {
                 </table>
               </div>
 
-              <div className="position-relative ">
-                <div className="total-div">
+              <div className="position-relative w-100 overflow-y-scroll">
+                <div className="pt-3 total-div">
                   <div className="d-flex">
                     <label htmlFor="" className="form-label w-25 fs-10 dark:text-gray-950">
                       Total Revenue
