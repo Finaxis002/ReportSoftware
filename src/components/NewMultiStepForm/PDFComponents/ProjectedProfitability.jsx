@@ -591,7 +591,7 @@ const ProjectedProfitability = ({
                     { paddingVertical: "5px" },
                   ]}
                 >
-                  {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
+                  
                 </Text>
               ) : null
             )}
