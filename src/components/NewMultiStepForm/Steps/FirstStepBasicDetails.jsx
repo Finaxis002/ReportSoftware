@@ -475,12 +475,13 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessName">Business Name</label>
+              <label htmlFor="businessName">Business Name <span className="text-red-600">*</span></label>
               {requiredFieldErrors.businessName && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.businessName}
                 </p>
               )}
+              
             </div>
 
             <div className="input">
