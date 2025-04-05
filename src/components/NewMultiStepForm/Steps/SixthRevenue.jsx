@@ -137,6 +137,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       ...prevData,
       totalMonthlyRevenue: total,
     }));
+    // Auto-trim or pad revenue array to match projectionYears
+if (localData.totalRevenueForOthers?.length !== projectionYears) {
+  localData.totalRevenueForOthers = Array.from({ length: projectionYears }, (_, i) =>
+    localData.totalRevenueForOthers?.[i] ?? ""
+  );
+}
+
   }, [localData.formFields2, projectionYears]);
 
   // const [noOfMonths, setNoOfMonths] = useState(
@@ -309,6 +316,11 @@ const handleFormChange = (event, index, field = null) => {
   const handleTotalRevenueForOthersChange = (value, index) => {
     setLocalData((prevData) => {
       const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
+
+      // Expand the array if index is outside current range
+    while (updatedRevenue.length < projectionYears) {
+      updatedRevenue.push("");
+    }
       updatedRevenue[index] = value === "" ? "" : Number(value); // Prevent `NaN`
 
       return {

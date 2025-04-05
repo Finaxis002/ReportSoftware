@@ -91,18 +91,22 @@ const StepperControl = ({
     for (let i = 0; i < selectedRevenueArray.length; i++) {
       const raw = selectedRevenueArray[i];
   
-      // 👇 Use raw value to check for "filled" field
-      const isEmpty = raw === undefined || raw === null || raw === "" || isNaN(raw);
-      const isZeroOrLess = Number(raw) <= 0;
+      const isFilled = raw !== undefined && raw !== null && raw !== "" && !isNaN(raw) && Number(raw) > 0;
   
-      if (!isEmpty && Number(raw) > 0) {
+      if (isFilled) {
         foundNonZero = true;
-      } else if (foundNonZero && (isEmpty || isZeroOrLess)) {
+      } else if (foundNonZero) {
+        // If any non-zero revenue is found before, this one must be filled
         alert(`❌ Please fill revenue for Year ${i + 1} after a non-zero year.`);
         return false;
       }
     }
   
+    //debug
+    console.log("🚨 DEBUG Revenue Values:", selectedRevenueArray);
+selectedRevenueArray.forEach((val, idx) =>
+  console.log(`Year ${idx + 1}:`, val, typeof val)
+);
     return true;
   };
   
