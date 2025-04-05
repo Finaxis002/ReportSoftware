@@ -12,7 +12,7 @@ const FourthStepPRS = ({
   const [showAdvance, setShowAdvance] = useState(false);
   const [caList, setCaList] = useState([]);
 
-  console.log("form data in prs setting",formData)
+  console.log("form data in prs setting", formData);
 
   // ✅ Default data structure\
   const monthNames = [
@@ -30,204 +30,6 @@ const FourthStepPRS = ({
     "December",
   ];
 
-  // const [localData, setLocalData] = useState(() => ({
-  //   ...{
-  //     RepaymentMonths: {
-  //       name: "Repayment Months",
-  //       id: "RepaymentMonths",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     ProjectionYears: {
-  //       name: "Projection Years",
-  //       id: "ProjectionYears",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     PurposeofReport: {
-  //       name: "Purpose of Report",
-  //       id: "PurposeofReport",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     MoratoriumPeriod: {
-  //       name: "Moratorium Period",
-  //       id: "MoratoriumPeriod",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     SelectRepaymentMethod: {
-  //       name: "Select Repayment Method",
-  //       id: "SelectRepaymentMethod",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     SelectStartingMonth: {
-  //       name: "Select Starting Month",
-  //       id: "SelectStartingMonth",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     FinancialYear: {
-  //       name: "Financial Year",
-  //       id: "FinancialYear",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     AmountIn: {
-  //       name: "Amount In",
-  //       id: "AmountIn",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     Currency: {
-  //       name: "Currency",
-  //       id: "Currency",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     Format: { name: "Format", id: "Format", value: "", isCustom: false },
-  //     interestOnTL: {
-  //       name: "Interest On Term Loan",
-  //       id: "interestOnTL",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     interestOnWC: {
-  //       name: "Interest On Working Capital",
-  //       id: "interestOnWC",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     rateOfInterest: {
-  //       name: "Rate of Interest",
-  //       id: "rateOfInterest",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-
-  //     increasingRateOfExpenses: {
-  //       name: "Increasing Rate of Expenses",
-  //       id: "increasingRateOfExpenses",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     rateOfWorkingCapital: {
-  //       name: "Rate of Working Capital",
-  //       id: "rateOfWorkingCapital",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     incomeTax: {
-  //       name: "Income Tax",
-  //       id: "incomeTax",
-  //       value: 30,
-  //       isCustom: false,
-  //     },
-  //     rateOfExpense: {
-  //       name: "Rate of Expense",
-  //       id: "rateOfExpense",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     // ✅ Added Subsidy Fields
-  //     SubsidyName: {
-  //       name: "Subsidy Name",
-  //       id: "SubsidyName",
-  //       value: "Government Grant", // Default value
-  //       isCustom: false,
-  //     },
-  //     SubsidyPercentage: {
-  //       name: "Subsidy Percentage",
-  //       id: "SubsidyPercentage",
-  //       value: "15", // Default value (15%)
-  //       isCustom: false,
-  //     },
-  //     SubsidyAmount: {
-  //       name: "Subsidy Amount",
-  //       id: "SubsidyAmount",
-  //       value: "10", // Default value in Lakhs
-  //       isCustom: false,
-  //     },
-  //     SubsidyText: {
-  //       name: "Text for Subsidy",
-  //       id: "SubsidyText",
-  //       value: "Eligible for government subsidy under MSME scheme.", // Default text
-  //       isCustom: false,
-  //     },
-  //     UDINNumber: {
-  //       name: "UDIN Number",
-  //       id: "UDINNumber",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     CAName: {
-  //       name: "CA Name",
-  //       id: "CAName",
-  //       value: "",
-  //       isCustom: true,
-  //     },
-  //     MembershipNumber: {
-  //       name: "Membership Number",
-  //       id: "MembershipNumber",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     MobileNumber: {
-  //       name: "Mobile Number",
-  //       id: "MobileNumber",
-  //       value: "",
-  //       isCustom: false,
-  //     },
-  //     // ✅ New Object for Bank Details
-  //     BankDetails: {
-  //       Bank: {
-  //         name: "Bank",
-  //         id: "Bank",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       BankManagerName: {
-  //         name: "Bank Manager Name",
-  //         id: "BankManagerName",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       Post: {
-  //         name: "Post",
-  //         id: "Post",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       ContactNo: {
-  //         name: "Contact No.",
-  //         id: "ContactNo",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       EmailId: {
-  //         name: "Email ID",
-  //         id: "EmailId",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       IFSCCode: {
-  //         name: "IFSC Code",
-  //         id: "IFSCCode",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //       City: {
-  //         name: "City",
-  //         id: "City",
-  //         value: "",
-  //         isCustom: false,
-  //       },
-  //     },
-  //   },
-  //   ...(formData?.ProjectReportSetting || {}), // Merging formData if available
-  // }));
-  
   const [localData, setLocalData] = useState(() => ({
     RepaymentMonths: "",
     ProjectionYears: 5,
@@ -304,30 +106,45 @@ const FourthStepPRS = ({
   // ✅ Populate `localData` from `formData.ProjectReportSetting` on mount
   useEffect(() => {
     if (formData?.ProjectReportSetting) {
+      const raw = formData.ProjectReportSetting;
+  
+      // 🔁 Normalize all values: if it's an object with { value }, extract value
+      const normalizeValue = (val) =>
+        typeof val === "object" && val !== null && "value" in val ? val.value : val;
+  
+      const normalizedBankDetails = Object.fromEntries(
+        Object.entries(raw.BankDetails || {}).map(([key, val]) => [
+          key,
+          normalizeValue(val),
+        ])
+      );
+  
       const newData = {
         ...localData,
-        ...formData.ProjectReportSetting,
+        ...Object.fromEntries(
+          Object.entries(raw).map(([key, val]) => {
+            if (key === "BankDetails") return [key, normalizedBankDetails];
+            return [key, normalizeValue(val)];
+          })
+        ),
       };
-
+  
       // Prevent unnecessary updates
       if (
         !prevDataRef.current ||
         JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
       ) {
-        console.log("✅ Populating ProjectReportSetting data:", newData);
+        console.log("✅ Normalized and set ProjectReportSetting:", newData);
         setLocalData(newData);
         prevDataRef.current = newData;
-
-        // ✅ Log ProjectionYears immediately when populated
-        if (newData.ProjectionYears?.value) {
-          console.log(
-            "🚀 Populated Projection Year:",
-            newData.ProjectionYears.value
-          );
+  
+        if (newData.ProjectionYears) {
+          console.log("🚀 Projection Year after normalization:", newData.ProjectionYears);
         }
       }
     }
   }, [formData?.ProjectReportSetting]);
+  
 
   // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
   useEffect(() => {
@@ -362,121 +179,37 @@ const FourthStepPRS = ({
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
-  //   const handleChange = (e) => {
-  //     const { name, value } = e.target;
-  //     const [key, subKey] = name.split(".");
-
-  //     setLocalData((prevData) => {
-  //       // ✅ Handle CA Name selection
-  //       if (name === "CAName" && CA_DETAILS[value]) {
-  //         return {
-  //           ...prevData,
-  //           CAName: { ...prevData.CAName, value },
-  //           MembershipNumber: {
-  //             ...prevData.MembershipNumber,
-  //             value: CA_DETAILS[value].membershipNumber,
-  //           },
-  //           MobileNumber: {
-  //             ...prevData.MobileNumber,
-  //             value: CA_DETAILS[value].mobileNumber,
-  //           },
-  //         };
-  //       } else if (name.includes(".")) {
-  //         // ✅ For nested fields like BankDetails.Bank
-  //         const keys = name.split(".");
-  //         return {
-  //           ...prevData,
-  //           [keys[0]]: {
-  //             ...prevData[keys[0]],
-  //             [keys[1]]: {
-  //               ...prevData[keys[0]][keys[1]],
-  //               value: value,
-
-  //             },
-  //           },
-  //         };
-  //       } else {
-
-  //         // ✅ Direct value update for other fields
-  //         const isAdvancedField =
-  //           name === "UDINNumber" ||
-  //           name === "CAName" ||
-  //           name.startsWith("BankDetails.");
-
-  //         return {
-  //           ...prevData,
-  //           [name]: isAdvancedField
-  //             ? { ...prevData[name], value: value } // ✅ Use .value for advance fields
-  //             : value, // ✅ Directly update value for normal fields
-
-  //         };
-  //       }
-  //     });
-
-  // onFormDataChange((prevData) => {
-  //   if (name === "CAName" && CA_DETAILS[value]) {
-  //     return {
-  //       ...prevData,
-  //       ProjectReportSetting: {
-  //         ...prevData.ProjectReportSetting,
-
-  //         CAName: {
-  //           ...prevData.ProjectReportSetting.CAName,
-  //           value,
-  //         },
-  //         MembershipNumber: {
-  //           ...prevData.ProjectReportSetting.MembershipNumber,
-  //           value: CA_DETAILS[value].membershipNumber,
-  //         },
-  //         MobileNumber: {
-  //           ...prevData.ProjectReportSetting.MobileNumber,
-  //           value: CA_DETAILS[value].mobileNumber,
-  //         },
-
-  //         ...(key && subKey
-  //           ? {
-  //               [key]: {
-  //                 ...prevData.ProjectReportSetting[key],
-  //                 [subKey]: {
-  //                   ...prevData.ProjectReportSetting[key]?.[subKey],
-  //                   value: value, // ✅ Use .value for advance fields
-  //                 },
-  //               },
-  //             }
-  //           : {}),
-  //       },
-  //     };
-  //   } else {
-  //     const isAdvancedField =
-  //       name === "UDINNumber" ||
-  //       name === "CAName" ||
-  //       name.startsWith("BankDetails.");
-
-  //     return {
-  //       ...prevData,
-  //       ProjectReportSetting: {
-  //         ...prevData.ProjectReportSetting,
-  //         [name]: isAdvancedField
-  //           ? { ...prevData.ProjectReportSetting[name], value: value } // ✅ Use .value for advanced fields
-  //           : { ...prevData.ProjectReportSetting[name], value }, // ✅ Directly update value for normal fields
-  //       },
-  //     };
-  //   }
-  // });
-
-  //     // ✅ Handle ProjectionYears and RateOfExpense Separately
-  //     if (name === "ProjectionYears") {
-  //       setProjectionYears(value);
-  //       onProjectionYearChange(value); // Call the parent handler if necessary
-  //     }
-  //     if (name === "rateOfExpense") {
-  //       setRateOfExpense(value);
-  //     }
-  //   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+  
+    // ✅ Auto-fill CA details when CA is selected
+    if (name === "CAName") {
+      const selectedCA = CA_DETAILS[value];
+  
+      if (selectedCA) {
+        setLocalData((prevData) => ({
+          ...prevData,
+          CAName: value,
+          MembershipNumber: selectedCA.membershipNumber,
+          MobileNumber: selectedCA.mobileNumber,
+        }));
+  
+        // Update parent form too
+        onFormDataChange((prev) => ({
+          ...prev,
+          ProjectReportSetting: {
+            ...(prev.ProjectReportSetting || {}),
+            CAName: value,
+            MembershipNumber: selectedCA.membershipNumber,
+            MobileNumber: selectedCA.mobileNumber,
+          },
+        }));
+  
+        return; // ✅ Prevent further execution
+      }
+    }
+  
+    // ✅ For nested fields like BankDetails.X
     if (name.includes(".")) {
       const [parentKey, childKey] = name.split(".");
       setLocalData((prevData) => ({
@@ -486,33 +219,41 @@ const FourthStepPRS = ({
           [childKey]: value,
         },
       }));
+  
+      // Push to parent
+      onFormDataChange((prev) => ({
+        ...prev,
+        ProjectReportSetting: {
+          ...(prev.ProjectReportSetting || {}),
+          [parentKey]: {
+            ...prev.ProjectReportSetting?.[parentKey],
+            [childKey]: value,
+          },
+        },
+      }));
     } else {
+      // ✅ For normal fields
       setLocalData((prevData) => ({
         ...prevData,
         [name]: value,
       }));
+  
+      onFormDataChange((prev) => ({
+        ...prev,
+        ProjectReportSetting: {
+          ...(prev.ProjectReportSetting || {}),
+          [name]: value,
+        },
+      }));
     }
-
-    // Push to parent form
-    onFormDataChange((prev) => ({
-      ...prev,
-      ProjectReportSetting: {
-        ...(prev.ProjectReportSetting || {}),
-        [name.includes(".") ? name.split(".")[0] : name]: name.includes(".")
-          ? {
-              ...prev.ProjectReportSetting?.[name.split(".")[0]],
-              [name.split(".")[1]]: value,
-            }
-          : value,
-      },
-    }));
-
+  
+    // ✅ Special case for ProjectionYears
     if (name === "ProjectionYears") {
       setProjectionYears(value);
       onProjectionYearChange(value);
     }
   };
-
+  
   useEffect(() => {
     onFormDataChange((prev) => ({
       ...prev,
@@ -522,8 +263,6 @@ const FourthStepPRS = ({
       },
     }));
   }, [localData]);
-  
-
 
   return (
     <div>
@@ -865,13 +604,13 @@ const FourthStepPRS = ({
                 </div>
               </div>
 
-              {/* ✅ Fix CA Name */}
+              {/* ✅ CA Name Dropdown */}
               <div className="col-6">
                 <div className="input">
                   <select
                     id="CAName"
                     name="CAName"
-                    value={localData?.CAName?.value || ""}
+                    value={localData.CAName || ""}
                     onChange={handleChange}
                     className="form-control selectInput"
                   >
@@ -885,34 +624,7 @@ const FourthStepPRS = ({
                 </div>
               </div>
 
-              {/* <div className="col-6">
-                <div className="input">
-                  <input
-                    id="MembershipNumber"
-                    name="MembershipNumber"
-                    type="text"
-                    value={localData?.MembershipNumber?.value || ""}
-                    readOnly
-                  />
-                  <label htmlFor="MembershipNumber">
-                    Membership Number (M. No.)
-                  </label>
-                </div>
-              </div>
-
-              
-              <div className="col-6">
-                <div className="input">
-                  <input
-                    id="MobileNumber"
-                    name="MobileNumber"
-                    type="text"
-                    value={localData?.MobileNumber?.value || ""}
-                    readOnly
-                  />
-                  <label htmlFor="MobileNumber">Mobile Number (Mob. No.)</label>
-                </div>
-              </div> */}
+              {/* ✅ Membership Number */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -920,13 +632,14 @@ const FourthStepPRS = ({
                     name="MembershipNumber"
                     type="text"
                     placeholder="Membership Number"
-                    value={localData?.MembershipNumber?.value || ""}
+                    value={localData.MembershipNumber || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MembershipNumber">Membership Number</label>
                 </div>
               </div>
 
+              {/* ✅ Mobile Number */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -934,14 +647,14 @@ const FourthStepPRS = ({
                     name="MobileNumber"
                     type="text"
                     placeholder="Mobile Number"
-                    value={localData?.MobileNumber?.value || ""}
+                    value={localData.MobileNumber || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MobileNumber">Mobile Number</label>
                 </div>
               </div>
 
-              {/* Bank */}
+              {/* ✅ Bank Name */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -949,14 +662,14 @@ const FourthStepPRS = ({
                     name="BankDetails.Bank"
                     type="text"
                     placeholder="Enter Bank Name"
-                    value={localData?.BankDetails?.Bank?.value || ""}
+                    value={localData?.BankDetails?.Bank || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="Bank">Bank Name</label>
                 </div>
               </div>
 
-              {/* Bank Manager Name */}
+              {/* ✅ Bank Manager Name */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -964,14 +677,14 @@ const FourthStepPRS = ({
                     name="BankDetails.BankManagerName"
                     type="text"
                     placeholder="Enter Bank Manager Name"
-                    value={localData?.BankDetails?.BankManagerName?.value || ""}
+                    value={localData?.BankDetails?.BankManagerName || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="BankManagerName">Bank Manager Name</label>
                 </div>
               </div>
 
-              {/* Post */}
+              {/* ✅ Post */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -979,14 +692,14 @@ const FourthStepPRS = ({
                     name="BankDetails.Post"
                     type="text"
                     placeholder="Enter Post"
-                    value={localData?.BankDetails?.Post?.value || ""}
+                    value={localData?.BankDetails?.Post || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="Post">Post</label>
                 </div>
               </div>
 
-              {/* Contact No */}
+              {/* ✅ Contact No */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -994,14 +707,14 @@ const FourthStepPRS = ({
                     name="BankDetails.ContactNo"
                     type="text"
                     placeholder="Enter Contact No."
-                    value={localData?.BankDetails?.ContactNo?.value || ""}
+                    value={localData?.BankDetails?.ContactNo || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="ContactNo">Contact No.</label>
                 </div>
               </div>
 
-              {/* Email ID */}
+              {/* ✅ Email ID */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -1009,14 +722,14 @@ const FourthStepPRS = ({
                     name="BankDetails.EmailId"
                     type="email"
                     placeholder="Enter Email ID"
-                    value={localData?.BankDetails?.EmailId?.value || ""}
+                    value={localData?.BankDetails?.EmailId || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="EmailId">Email ID</label>
                 </div>
               </div>
 
-              {/* IFSC Code */}
+              {/* ✅ IFSC Code */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -1024,14 +737,14 @@ const FourthStepPRS = ({
                     name="BankDetails.IFSCCode"
                     type="text"
                     placeholder="Enter IFSC Code"
-                    value={localData?.BankDetails?.IFSCCode?.value || ""}
+                    value={localData?.BankDetails?.IFSCCode || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="IFSCCode">IFSC Code</label>
                 </div>
               </div>
 
-              {/* City */}
+              {/* ✅ City */}
               <div className="col-4 mt-3">
                 <div className="input">
                   <input
@@ -1039,7 +752,7 @@ const FourthStepPRS = ({
                     name="BankDetails.City"
                     type="text"
                     placeholder="Enter City"
-                    value={localData?.BankDetails?.City?.value || ""}
+                    value={localData?.BankDetails?.City || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="City">City</label>

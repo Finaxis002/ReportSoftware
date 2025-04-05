@@ -193,21 +193,198 @@ const FinalStep = ({ formData, userRole }) => {
       addKeyValueSheet(sections["Means of Finance"], "Means of Finance");
     }
 
-    if (Object.keys(sections["Cost of Project"]).length > 0) {
-      addKeyValueSheet(sections["Cost of Project"], "Cost of Project");
+    if (formData?.CostOfProject) {
+      const rows = [["Name", "Amount"]];
+    
+      Object.values(formData.CostOfProject).forEach((item) => {
+        if (item?.name && typeof item.amount === "number") {
+          rows.push([item.name, item.amount]);
+        }
+      });
+    
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Cost of Project");
     }
+    
 
-    if (Object.keys(sections["Expenses"]).length > 0) {
-      addArraySheet(sections["Expenses"], "Expenses");
+    if (formData?.Expenses) {
+      const worksheetData = [];
+    
+      // 1️⃣ Normal Expenses
+      if (Array.isArray(formData.Expenses.normalExpense)) {
+        worksheetData.push(["Normal Expenses"]); // Section heading
+        worksheetData.push(["Name", "Amount", "Quantity", "Value", "Type"]); // Headers
+    
+        formData.Expenses.normalExpense.forEach((item) => {
+          if (item?.name) {
+            worksheetData.push([
+              item.name,
+              item.amount ?? "",
+              item.quantity ?? "",
+              item.value ?? "",
+              item.type ?? "normal",
+            ]);
+          }
+        });
+    
+        worksheetData.push([]); // Spacer row
+      }
+    
+      // 2️⃣ Direct Expenses
+      if (Array.isArray(formData.Expenses.directExpense)) {
+        worksheetData.push(["Direct Expenses"]); // Section heading
+        worksheetData.push(["Name", "Value", "Type"]); // Headers
+    
+        formData.Expenses.directExpense.forEach((item) => {
+          if (item?.name) {
+            worksheetData.push([
+              item.name,
+              item.value ?? "",
+              item.type ?? "direct",
+            ]);
+          }
+        });
+      }
+    
+      // ✅ Create worksheet and add it
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
     }
+    
+    
 
-    if (Object.keys(sections["Revenue"]).length > 0) {
-      addArraySheet(sections["Revenue"], "Revenue");
+    if (formData?.Revenue) {
+      const revenueData = formData.Revenue;
+      const revenueSheet = [];
+    
+      // 1️⃣ Form Fields (if exists)
+      if (Array.isArray(revenueData.formFields)) {
+        revenueSheet.push(["Form Fields"]);
+        revenueSheet.push(["Index", "Particular", "Serial Number", "Row Type", "Increase By", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+    
+        revenueData.formFields.forEach((item, i) => {
+          revenueSheet.push([
+            i + 1,
+            item.particular ?? "",
+            item.serialNumber ?? "",
+            item.rowType ?? "",
+            item.increaseBy ?? "",
+            ...(Array.isArray(item.years) ? item.years.slice(0, 5) : []),
+          ]);
+        });
+    
+        revenueSheet.push([]);
+      }
+    
+      // 2️⃣ Form Fields 2 (if exists)
+      if (Array.isArray(revenueData.formFields2)) {
+        revenueSheet.push(["Form Fields 2"]);
+        revenueSheet.push(["Index", "Particular", "Amount", "Increase By", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+    
+        revenueData.formFields2.forEach((item, i) => {
+          revenueSheet.push([
+            i + 1,
+            item.particular ?? "",
+            item.amount ?? "",
+            item.increaseBy ?? "",
+            ...(Array.isArray(item.years) ? item.years.slice(0, 5) : []),
+          ]);
+        });
+    
+        revenueSheet.push([]);
+      }
+    
+      // 3️⃣ Total Revenue For Others
+      if (Array.isArray(revenueData.totalRevenueForOthers)) {
+        revenueSheet.push(["Total Revenue For Others"]);
+        revenueSheet.push(["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+        revenueSheet.push(revenueData.totalRevenueForOthers.slice(0, 5));
+        revenueSheet.push([]);
+      }
+    
+      // 4️⃣ Total Monthly Revenue
+      if (Array.isArray(revenueData.totalMonthlyRevenue)) {
+        revenueSheet.push(["Total Monthly Revenue"]);
+        revenueSheet.push(["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+        revenueSheet.push(revenueData.totalMonthlyRevenue.slice(0, 5));
+        revenueSheet.push([]);
+      }
+    
+      // 5️⃣ No. of Months
+      if (Array.isArray(revenueData.noOfMonths)) {
+        revenueSheet.push(["No. of Months"]);
+        revenueSheet.push(["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+        revenueSheet.push(revenueData.noOfMonths.slice(0, 5));
+        revenueSheet.push([]);
+      }
+    
+      // 6️⃣ Total Revenue
+      if (Array.isArray(revenueData.totalRevenue)) {
+        revenueSheet.push(["Total Revenue"]);
+        revenueSheet.push(["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
+        revenueSheet.push(revenueData.totalRevenue.slice(0, 5));
+        revenueSheet.push([]);
+      }
+    
+      // 7️⃣ Form Type
+      revenueSheet.push(["Form Type", revenueData.formType ?? ""]);
+    
+      // ✅ Create and append the worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(revenueSheet);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Revenue");
     }
-
-    if (Object.keys(sections["More Details"]).length > 0) {
-      addKeyValueSheet(sections["More Details"], "More Details");
+    
+    if (formData?.MoreDetails && Object.keys(formData.MoreDetails).length > 0) {
+      const moreDetails = formData.MoreDetails;
+      const rows = [];
+    
+      const addSectionHeader = (title) => {
+        rows.push([title]);
+        rows.push([]); // Empty row
+      };
+    
+      const addArrayTable = (label, array = []) => {
+        const header = ["Particular", ...array.map((_, i) => `Year ${i + 1}`)];
+        rows.push(header);
+        rows.push([label, ...array]);
+        rows.push([]);
+      };
+    
+      const addStructuredRows = (title, dataArray) => {
+        addSectionHeader(title);
+        if (Array.isArray(dataArray)) {
+          const yearCount =
+            dataArray.find((item) => Array.isArray(item?.years))?.years.length || 8;
+          const header = ["Particular", ...Array.from({ length: yearCount }, (_, i) => `Year ${i + 1}`)];
+          rows.push(header);
+    
+          dataArray.forEach((item) => {
+            if (item?.particular && Array.isArray(item.years)) {
+              rows.push([item.particular, ...item.years]);
+            }
+          });
+    
+          rows.push([]);
+        }
+      };
+    
+      // 👉 Export currentAssets and currentLiabilities
+      addStructuredRows("Current Assets", moreDetails.currentAssets || []);
+      addStructuredRows("Current Liabilities", moreDetails.currentLiabilities || []);
+    
+      // 👉 Export other raw arrays (openingStock, closingStock, withdrawals, etc.)
+      ["openingStock", "closingStock", "withdrawals", "Withdrawals", "OpeningStock", "ClosingStock"].forEach((key) => {
+        if (Array.isArray(moreDetails[key])) {
+          addArrayTable(key, moreDetails[key]);
+        }
+      });
+    
+      // 👉 Convert to sheet and append to workbook
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "More Details");
     }
+    
+    
 
     if (Object.keys(sections["Other Data"]).length > 0) {
       addKeyValueSheet(sections["Other Data"], "Other Data");
