@@ -30,6 +30,84 @@ const StepperControl = ({
     setUserRole(role);
   }, []);
 
+
+  // validatio for step 6
+  // const validateRevenueForStep6 = () => {
+  //   if (currentStep !== 6) return true; // ✅ Only validate on Step 6
+  
+  //   const revenueData = stepData?.Revenue;
+  //   if (!revenueData) return true;
+  
+  //   const monthlyRevenues = revenueData.totalRevenue || [];
+  //   const otherRevenues = revenueData.totalRevenueForOthers || [];
+  
+  //   const selectedRevenueArray = revenueData.formType === "Others"
+  //     ? otherRevenues
+  //     : monthlyRevenues;
+  
+  //   let foundNonZero = false;
+  
+  //   // for (let i = 0; i < selectedRevenueArray.length; i++) {
+  //   //   const val = parseFloat(selectedRevenueArray[i] || 0);
+  
+  //   //   if (val > 0) {
+  //   //     foundNonZero = true;
+  //   //   } else if (foundNonZero &&  (!raw || val <= 0 || isNaN(val))) {
+  //   //     alert(`❌ Please fill revenue for Year ${i + 1} after a non-zero year.`);
+  //   //     return false;
+  //   //   }
+  //   // }
+
+  //   for (let i = 0; i < selectedRevenueArray.length; i++) {
+  //     const raw = selectedRevenueArray[i];  // ✅ Declare raw here
+  //     const val = Number(raw);
+    
+  //     if (val > 0) {
+  //       foundNonZero = true;
+  //     } else if (foundNonZero && (!raw || val <= 0 || isNaN(val))) {
+  //       alert(`❌ Please fill revenue for Year ${i + 1} after a non-zero year.`);
+  //       return false;
+  //     }
+  //   }
+    
+  
+  //   return true;
+  // };
+
+  const validateRevenueForStep6 = () => {
+    if (currentStep !== 6) return true;
+  
+    const revenueData = stepData?.Revenue;
+    if (!revenueData) return true;
+  
+    const monthlyRevenues = revenueData.totalRevenue || [];
+    const otherRevenues = revenueData.totalRevenueForOthers || [];
+  
+    const selectedRevenueArray =
+      revenueData.formType === "Others" ? otherRevenues : monthlyRevenues;
+  
+    let foundNonZero = false;
+  
+    for (let i = 0; i < selectedRevenueArray.length; i++) {
+      const raw = selectedRevenueArray[i];
+  
+      // 👇 Use raw value to check for "filled" field
+      const isEmpty = raw === undefined || raw === null || raw === "" || isNaN(raw);
+      const isZeroOrLess = Number(raw) <= 0;
+  
+      if (!isEmpty && Number(raw) > 0) {
+        foundNonZero = true;
+      } else if (foundNonZero && (isEmpty || isZeroOrLess)) {
+        alert(`❌ Please fill revenue for Year ${i + 1} after a non-zero year.`);
+        return false;
+      }
+    }
+  
+    return true;
+  };
+  
+  
+
   return (
     <div className="container flex justify-end gap-4 mt-2 mb-2">
       {/* Back Button */}
@@ -77,7 +155,15 @@ const StepperControl = ({
       {isCreateReportWithExistingClicked ? (
         // Show this button if "Create Report With Existing" is clicked
         <button
-          onClick={() => handleNextStep(stepData)}
+          onClick={() => {
+            if (currentStep === 1) {
+              const isValid = handleSubmitFirstStep();
+              if (!isValid) return; 
+            }
+            if (currentStep === 6 && !validateRevenueForStep6()) {
+              return; // 🔴 Block next step if validation fails
+            }
+            handleNextStep(stepData)}}
           className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
             currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
           }`}
@@ -93,6 +179,9 @@ const StepperControl = ({
           if (currentStep === 1) {
             const isValid = handleSubmitFirstStep();
             if (!isValid) return; 
+          }
+          if (currentStep === 6 && !validateRevenueForStep6()) {
+            return; // 🔴 Block next step if validation fails
           }
           handleNext(); // Go to next step
         }}

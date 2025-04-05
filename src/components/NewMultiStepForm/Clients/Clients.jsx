@@ -50,31 +50,31 @@ const Clients = () => {
   }, []);
 
   // Fetch Clients and Form Data
-  useEffect(() => {
-    const fetchClientsAndFormData = async () => {
-      try {
-        const [clientsResponse] = await Promise.all([
-          axios.get("https://backend-three-pink.vercel.app/api/client-filetrs"),
-        ]);
-        console.log("Client Data:", clientsResponse.data.clientOptions);
+  // useEffect(() => {
+  //   const fetchClientsAndFormData = async () => {
+  //     try {
+  //       const [clientsResponse] = await Promise.all([
+  //         axios.get("https://backend-three-pink.vercel.app/api/client-filetrs"),
+  //       ]);
+  //       console.log("Client Data:", clientsResponse.data.clientOptions);
 
-        // Add "All" to the client options as an object with label and value
-        const names = clientsResponse.data.clientOptions.map((client) => ({
-          label: client.label, // Client name for display
-          value: client.value, // Client email for selection
-        }));
+  //       // Add "All" to the client options as an object with label and value
+  //       const names = clientsResponse.data.clientOptions.map((client) => ({
+  //         label: client.label, // Client name for display
+  //         value: client.value, // Client email for selection
+  //       }));
 
-        // Set the client options with "All" as an object
-        setClientNames([{ label: "All", value: "All" }, ...names]); // Add "All" to filter all clients
-        setClients(clientsResponse.data.clientOptions);
-        setFilteredClients(clientsResponse.data.clientOptions);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+  //       // Set the client options with "All" as an object
+  //       setClientNames([{ label: "All", value: "All" }, ...names]); // Add "All" to filter all clients
+  //       setClients(clientsResponse.data.clientOptions);
+  //       setFilteredClients(clientsResponse.data.clientOptions);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
 
-    fetchClientsAndFormData();
-  }, []);
+  //   fetchClientsAndFormData();
+  // }, []);
 
   const handleClientFilterChange = (selectedOption) => {
     const selectedClientEmail = selectedOption ? selectedOption.value : "All";

@@ -35,8 +35,8 @@ import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
 
 // Initialize query client
@@ -299,7 +299,7 @@ const App = () => {
             />
           </Routes>
 
-          <ToastContainer 
+          {/* <ToastContainer 
           position="top-right" 
           autoClose={3000} 
           hideProgressBar={false}
@@ -310,7 +310,7 @@ const App = () => {
           draggable 
           pauseOnHover 
           theme="light"
-        />
+        /> */}
         
       </QueryClientProvider>
     </Provider>
