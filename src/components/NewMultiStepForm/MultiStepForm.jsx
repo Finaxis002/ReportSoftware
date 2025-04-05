@@ -265,7 +265,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const handleSubmitFirstStep = () => {
     const errors = {};
-    const { clientName, businessOwner } = formData?.AccountInformation || {};
+    const { clientName, businessOwner , businessName} = formData?.AccountInformation || {};
   
     if (!clientName || clientName.trim() === "") {
       errors.clientName = "Client Name is required";
@@ -274,11 +274,26 @@ const MultiStepForm = ({ userRole, userName }) => {
     if (!businessOwner || businessOwner.trim() === "") {
       errors.businessOwner = "Business Owner is required";
     }
-  
-    if (Object.keys(errors).length > 0) {
-      // 👇 Show alert
-      alert("Please fill the required fields: " + Object.keys(errors).join(", "));
+
+    if (!businessName || businessName.trim() === "") {
+      errors.businessName = "Business Name is required";
     }
+  
+    // if (Object.keys(errors).length > 0) {
+    //   // 👇 Show alert
+    //   alert("Please fill the required fields: " + Object.keys(errors).join(", "));
+    // }
+    const friendlyFieldNames = {
+      clientName: "Client Name",
+      businessOwner: "Business Owner",
+      businessName: "Business Name",
+    };
+    
+    if (Object.keys(errors).length > 0) {
+      const missing = Object.keys(errors).map(k => friendlyFieldNames[k] || k);
+      alert("Please fill the required fields: " + missing.join(", "));
+    }
+    
   
     setRequiredFieldErrors(errors); // 👈 this sends the message to FirstStep
   
