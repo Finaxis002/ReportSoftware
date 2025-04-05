@@ -66,47 +66,20 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   const [localData, setLocalData] = useState(() => {
     const safeProjectionYears = Number(projectionYears) || 1;
-
-    if (revenueData && Object.keys(revenueData).length > 0) {
-      return {
-        ...revenueData,
-        formType: revenueData?.formType || "Others",
-        noOfMonths:
-          revenueData?.noOfMonths || Array(safeProjectionYears).fill(12), // Ensure default months
-        totalRevenue:
-          revenueData?.totalRevenue || Array(safeProjectionYears).fill(0), // Ensure default revenue
-      };
-    }
-
+  
+    const safeTotalRevenueForOthers = Array.isArray(revenueData?.totalRevenueForOthers)
+      ? revenueData.totalRevenueForOthers
+      : Array.from({ length: safeProjectionYears }, () => 0);
+  
     return {
-      formFields: [
-        {
-          particular: "p1",
-          years: Array.from({ length: safeProjectionYears }, () => 0),
-          amount: 0,
-          rowType: "0",
-          increaseBy: "",
-        },
-      ],
-      totalRevenueForOthers: Array.from(
-        { length: safeProjectionYears },
-        () => 0
-      ),
-      formFields2: [
-        {
-          particular: "p1",
-          years: Array.from({ length: safeProjectionYears }, () => 0),
-          amount: 0,
-          increaseBy: "",
-        },
-      ],
-      totalMonthlyRevenue: Array(safeProjectionYears).fill(0),
-      noOfMonths: Array(safeProjectionYears).fill(12), // ✅ Default to 12 months
-      totalRevenue: Array(safeProjectionYears).fill(0), // ✅ Initialize correctly
-      formType: "Others",
-      togglerType: false,
+      ...revenueData,
+      formType: revenueData?.formType || "Others",
+      noOfMonths: revenueData?.noOfMonths || Array(safeProjectionYears).fill(12),
+      totalRevenue: revenueData?.totalRevenue || Array(safeProjectionYears).fill(0),
+      totalRevenueForOthers: safeTotalRevenueForOthers,
     };
   });
+  
 
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
   useEffect(() => {

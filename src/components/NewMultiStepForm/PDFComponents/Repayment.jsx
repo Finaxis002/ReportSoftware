@@ -272,7 +272,7 @@ const Repayment = ({
   return (
     <>
       <Page
-        size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+
         // orientation={
         //   formData.ProjectReportSetting.ProjectionYears > 7
         //     ? "landscape"
@@ -538,10 +538,11 @@ const Repayment = ({
                 formData?.ProjectReportSetting?.MoratoriumPeriod || 0
               );
 
-              // ✅ Skip rendering this year if there are no valid months
-              if (filteredYearData.length === 0) {
-                return null;
-              }
+              // // ✅ Skip rendering this year if there are no valid months
+              // if (!filteredYearData || filteredYearData.length === 0) {
+              //   filteredYearData = yearData; // Fallback to full yearData if nothing was pushed
+              // }
+              
 
               // ✅ Compute total values for the year
               let totalPrincipalRepayment = filteredYearData.reduce(

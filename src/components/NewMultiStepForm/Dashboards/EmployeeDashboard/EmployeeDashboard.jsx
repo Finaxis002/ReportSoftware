@@ -104,7 +104,7 @@ const EmployeeDashboard = ({ userRole }) => {
       <MenuBar userRole={"employee"} />
 
       <div className="app-content">
-        <Header dashboardType="Employee Dashboard" />
+        <Header dashboardType="User Dashboard" />
 
         <div className="overflow-y-auto flex flex-col items-center justify-center">
           {/* ✅ Show loader while fetching data */}
@@ -120,14 +120,14 @@ const EmployeeDashboard = ({ userRole }) => {
                   <div className="w-full max-w-4xl shadow-sm rounded-lg overflow-hidden border border-gray-200">
                     <div className="bg-gradient-to-r bg-teal-600  text-white text-center py-2">
                       <h2 className="text-xl font-semibold">
-                        Employee Details
+                        User Details
                       </h2>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700 dark:text-white">
                       {/* ✅ Employee ID */}
                       <div className="flex flex-col">
                         <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                          Employee ID
+                          User ID
                         </p>
                         <p className="text-sm capitalize font-medium">
                           {employeeData?.employeeId || "N/A"}

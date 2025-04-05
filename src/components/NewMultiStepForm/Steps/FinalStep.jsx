@@ -550,7 +550,6 @@ const FinalStep = ({ formData, userRole }) => {
                 "Merriweather",
                 "Ubuntu",
                 "Oswald",
-                "Courier Prime",
               ].map((font) => (
                 <option key={font} value={font} style={{ fontFamily: font }}>
                   {font}

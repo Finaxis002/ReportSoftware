@@ -13,7 +13,7 @@ const Tasks = () => {
         <div className="app-container">
             <MenuBar userRole={"employee"} />
             <div className="app-content">
-                <Header dashboardType="Employee Dashboard" />
+                <Header dashboardType="User Dashboard" />
 
                 {/* Pass employeeId directly to EmployeeTasks */}
                 <EmployeeTasks employeeId={employeeId} />

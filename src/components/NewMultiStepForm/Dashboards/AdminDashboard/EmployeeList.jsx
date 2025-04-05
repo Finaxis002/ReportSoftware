@@ -88,10 +88,10 @@ const EmployeeList = () => {
       <thead className="bg-gray-100 sticky top-0">
         <tr>
           <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
-            Employee ID
+            User ID
           </th>
           <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
-            Employee Name
+            User Name
           </th>
           <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800 border-b">
             Email

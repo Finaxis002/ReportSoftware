@@ -152,7 +152,7 @@ const EmployeeNotifications = () => {
       <h3 className="text-lg mb-2 dark:text-white" style={{}}>
         {userRole === "admin"
           ? "Admin Notifications"
-          : "Employee Notifications"}
+          : "User Notifications"}
       </h3>
 
       <ul className="list-none ml-4 h-[70vh] overflow-y-auto">

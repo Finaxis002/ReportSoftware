@@ -581,21 +581,20 @@ const ProjectedProfitability = ({
             ></Text>
 
             {/* ✅ Display revenue values based on projectionYears */}
-            {totalRevenueReceipts
-              .slice(0, projectionYears)
-              .map(
-                (totalYearValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        { paddingVertical: "5px" },
-                      ]}
-                    ></Text>
-                  )
-              )}
+            {Array.from({ length: projectionYears }).map((_, yearIndex) =>
+              !hideFirstYear || yearIndex !== 0 ? (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { paddingVertical: "5px" },
+                  ]}
+                >
+                  {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
+                </Text>
+              ) : null
+            )}
           </View>
 
           {/* ✅ Display Total Revenue Receipt Row */}
@@ -632,22 +631,21 @@ const ProjectedProfitability = ({
             </Text>
 
             {/* ✅ Display revenue values based on projectionYears */}
-            {totalRevenueReceipts.slice(0, projectionYears).map(
-              (totalYearValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      stylesCOP.boldText,
-                      styleExpenses.fontSmall,
-                      styles.Total,
-                      { borderLeftWidth: "0px" },
-                    ]}
-                  >
-                    {formatNumber(totalYearValue)}
-                  </Text>
-                )
+            {Array.from({ length: projectionYears }).map((_, yearIndex) =>
+              !hideFirstYear || yearIndex !== 0 ? (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
+                  ]}
+                >
+                  {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
+                </Text>
+              ) : null
             )}
           </View>
 
@@ -771,8 +769,6 @@ const ProjectedProfitability = ({
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
                       {
-                        
-
                         borderLeftWidth: "0px",
                       },
                     ]}
@@ -989,7 +985,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {  },
+                {},
               ]}
             >
               Total
@@ -1042,21 +1038,20 @@ const ProjectedProfitability = ({
             ></Text>
 
             {/* ✅ Display revenue values based on projectionYears */}
-            {totalRevenueReceipts
-              .slice(0, projectionYears)
-              .map(
-                (totalYearValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        { paddingVertical: "5px" },
-                      ]}
-                    ></Text>
-                  )
-              )}
+            {Array.from({ length: projectionYears }).map((_, yearIndex) =>
+              !hideFirstYear || yearIndex !== 0 ? (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { paddingVertical: "5px" },
+                  ]}
+                >
+                  {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
+                </Text>
+              ) : null
+            )}
           </View>
 
           {/* Gross Profit Calculation */}
@@ -1066,9 +1061,7 @@ const ProjectedProfitability = ({
                 stylesCOP.serialNoCellDetail,
                 styleExpenses.sno,
                 styleExpenses.bordernone,
-                {
-                  
-                },
+                {},
               ]}
             >
               D
@@ -1078,7 +1071,7 @@ const ProjectedProfitability = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {  },
+                {},
               ]}
             >
               Gross Profit
@@ -1097,7 +1090,7 @@ const ProjectedProfitability = ({
                       {
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
-                        
+
                         //
                       },
                     ]}
@@ -1375,7 +1368,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 {
-                   // ✅ Ensure using the registered font
+                  // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1388,7 +1381,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                   // ✅ Ensure using the registered font
+                  // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1408,7 +1401,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         borderWidth: "1.2px",
-                        
+
                         fontWeight: "bold",
                         color: "#000",
                         borderLeftWidth: "0px",
@@ -1470,7 +1463,7 @@ const ProjectedProfitability = ({
                 styleExpenses.sno,
                 styleExpenses.bordernone,
                 {
-                   // ✅ Ensure using the registered font
+                  // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1483,7 +1476,7 @@ const ProjectedProfitability = ({
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
                 {
-                   // ✅ Ensure using the registered font
+                  // ✅ Ensure using the registered font
                   fontWeight: "bold", // ✅ Apply bold
                 },
               ]}
@@ -1502,7 +1495,7 @@ const ProjectedProfitability = ({
                       styleExpenses.fontSmall,
                       {
                         borderWidth: "1.2px",
-                        
+
                         fontWeight: "bold",
                         color: "#000",
                         borderLeftWidth: "0px",
@@ -1753,10 +1746,7 @@ const ProjectedProfitability = ({
           {/* ✅ CA Name (Conditional Display) */}
           {formData?.ProjectReportSetting?.CAName?.value ? (
             <Text
-              style={[
-                styles.caName,
-                { fontSize: "10px",  fontWeight: "bold" },
-              ]}
+              style={[styles.caName, { fontSize: "10px", fontWeight: "bold" }]}
             >
               CA {formData?.ProjectReportSetting?.CAName?.value}
             </Text>
@@ -1764,36 +1754,21 @@ const ProjectedProfitability = ({
 
           {/* ✅ Membership Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
-            <Text
-              style={[
-                styles.membershipNumber,
-                { fontSize: "10px",  },
-              ]}
-            >
+            <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
               M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
             </Text>
           ) : null}
 
           {/* ✅ UDIN Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.UDINNumber?.value ? (
-            <Text
-              style={[
-                styles.udinNumber,
-                { fontSize: "10px",  },
-              ]}
-            >
+            <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
               UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
             </Text>
           ) : null}
 
           {/* ✅ Mobile Number (Conditional Display) */}
           {formData?.ProjectReportSetting?.MobileNumber?.value ? (
-            <Text
-              style={[
-                styles.mobileNumber,
-                { fontSize: "10px",  },
-              ]}
-            >
+            <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
               Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
             </Text>
           ) : null}

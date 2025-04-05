@@ -96,7 +96,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-lg font-bold mb-4">Edit Employee</h2>
+        <h2 className="text-lg font-bold mb-4">Edit User</h2>
         {message && <p className="mb-4 text-green-500">{message}</p>}
         {error && <p className="mb-4 text-red-500">{error}</p>}
 

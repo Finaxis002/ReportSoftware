@@ -75,7 +75,7 @@ const Notification = () => {
      
       <div className="app-content">
       {/* <Header dashboardType="Employee Dashboard"/> */}
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "Employee Dashboard"} />
+      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 
       <div className="p-6">
         {/* <h2 className="text-2xl font-bold mb-4">Notifications</h2> */}

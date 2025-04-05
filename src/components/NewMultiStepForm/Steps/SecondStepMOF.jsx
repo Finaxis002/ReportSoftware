@@ -132,6 +132,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
               <div className="input">
                 <input
                   id="termLoan.promoterContribution"
+                  className="no-spinner"
                   name="termLoan.promoterContribution"
                   type="number"
                   placeholder="Promoter's Contribution"
@@ -148,6 +149,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
               <div className="input">
                 <input
                   id="TLPromoterContributionPercent"
+                  className="no-spinner"
                   name="TLPromoterContributionPercent"
                   type="text"
                   placeholder="Percentage %"
@@ -165,6 +167,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   id="termLoan.termLoan"
                   name="termLoan.termLoan"
                   type="number"
+                  className="no-spinner"
                   placeholder="Term Loan"
                   value={localData.termLoan.termLoan}
                   onChange={handleChange}
@@ -178,6 +181,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                 <input
                   id="TLTermLoanPercent"
                   name="TLTermLoanPercent"
+                  className="no-spinner"
                   type="text"
                   placeholder="Percentage %"
                   value={localData.TLTermLoanPercent}
@@ -216,6 +220,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.workingCapital.promoterContribution}
                   onChange={handleChange}
                   required
+                  className="no-spinner"
                 />
                 <label htmlFor="workingCapital.promoterContribution">
                   Promoter's Contribution
@@ -247,6 +252,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.workingCapital.termLoan}
                   onChange={handleChange}
                   required
+                  className="no-spinner"
                 />
                 <label htmlFor="workingCapital.termLoan">Term Loan</label>
               </div>
