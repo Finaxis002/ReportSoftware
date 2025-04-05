@@ -252,6 +252,7 @@ export const generateBarChart = async ({
         scales: {
           y: {
             beginAtZero: true,
+            min: 0,
             max: maxYValue,
             title: {
               display: true,
