@@ -165,7 +165,7 @@ const ProjectedExpenses = ({
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue + ClosingStock - OpeningStock;
+          expenseValue = baseValue - ClosingStock + OpeningStock;
         } else {
           expenseValue = Number(expense.value) * 12 || 0;
         }
@@ -566,7 +566,7 @@ const ProjectedExpenses = ({
                   const baseValue =
                     (parseFloat(expense.value) / 100) *
                     (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-                  expenseValue = baseValue + ClosingStock - OpeningStock;
+                  expenseValue = baseValue - ClosingStock + OpeningStock;
                 } else {
                   expenseValue = Number(expense.value) * 12 || 0;
                 }
@@ -624,7 +624,7 @@ const ProjectedExpenses = ({
                         (parseFloat(expense.value) / 100) *
                         (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
                           0);
-                      expenseValue = baseValue + ClosingStock - OpeningStock;
+                      expenseValue = baseValue - ClosingStock + OpeningStock;
                     } else {
                       expenseValue = Number(expense.value) * 12 || 0;
                     }

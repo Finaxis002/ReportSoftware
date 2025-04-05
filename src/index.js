@@ -105,6 +105,23 @@ const App = () => {
     }
   }, []);
 
+
+  // useEffect(() => {
+  //   const handleUnload = () => {
+  //     // Remove the keys on tab/browser close
+  //     localStorage.removeItem("pdfType");
+  //     localStorage.removeItem("selectedFont");
+  //     localStorage.removeItem("selectedColor");
+  //   };
+  
+  //   // ✅ Use unload for full tab/window close
+  //   window.addEventListener("unload", handleUnload);
+  
+  //   return () => {
+  //     window.removeEventListener("unload", handleUnload);
+  //   };
+  // }, []);
+
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
