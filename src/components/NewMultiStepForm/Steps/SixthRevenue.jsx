@@ -597,27 +597,20 @@ const handleFormChange = (event, index, field = null) => {
                               0, // Generate fields based on projection years
                           }).map((_, i) => (
                             <td key={i}>
-                              <input
-                                name={`value-${i}`} // Unique name for each input
-                                placeholder="Enter value"
-                                value={
-                                  localData.totalRevenueForOthers?.[i] ?? ""
-                                } // Handle empty fields
-                                onChange={(e) =>
-                                  handleTotalRevenueForOthersChange(
-                                    e.target.value,
-                                    i
-                                  )
-                                }
-                                // className="form-control text-end noBorder"
-
-                                className="total-revenue-input"
-                                type="number"
-                                style={{
-                                  padding: "5px",
-                                }}
-                              />
-                            </td>
+                            <input
+                              name={`value-${i}`} // Unique name
+                              placeholder="Enter value"
+                              value={formatNumberWithCommas(localData.totalRevenueForOthers?.[i] ?? "")}
+                              onChange={(event) => {
+                                const rawValue = removeCommas(event.target.value); // "12345" from "12,345"
+                                handleTotalRevenueForOthersChange(rawValue, i); // Pass only the value
+                              }}
+                              className="total-revenue-input"
+                              type="text" // ✅ Use text instead of number to allow commas
+                              style={{ padding: "5px" }}
+                            />
+                          </td>
+                          
                           ))}
                         </tr>
                       </tbody>
