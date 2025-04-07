@@ -38,7 +38,7 @@ const FourthStepPRS = ({
     SelectRepaymentMethod: "Monthly",
     SelectStartingMonth: "",
     FinancialYear: "2025",
-    AmountIn: "Rupees",
+    AmountIn: "rupees",
     Currency: "",
     Format: "",
     interestOnTL: 10,
@@ -110,7 +110,10 @@ const FourthStepPRS = ({
   
       // 🔁 Normalize all values: if it's an object with { value }, extract value
       const normalizeValue = (val) =>
-        typeof val === "object" && val !== null && "value" in val ? val.value : val;
+        typeof val === "object" && val !== null && "value" in val
+          ? val.value || "rupees" // 👈 Use "rupees" if value is empty string
+          : val;
+      
   
       const normalizedBankDetails = Object.fromEntries(
         Object.entries(raw.BankDetails || {}).map(([key, val]) => [
@@ -121,13 +124,21 @@ const FourthStepPRS = ({
   
       const newData = {
         ...localData,
-        ...Object.fromEntries(
-          Object.entries(raw).map(([key, val]) => {
-            if (key === "BankDetails") return [key, normalizedBankDetails];
-            return [key, normalizeValue(val)];
-          })
-        ),
+        ...Object.entries(raw).map(([key, val]) => {
+          if (key === "BankDetails") return [key, normalizedBankDetails];
+          
+          if (key === "AmountIn") {
+            const finalValue =
+              typeof val === "object" && val?.value
+                ? val.value
+                : "rupees";
+            return [key, finalValue];
+          }
+      
+          return [key, normalizeValue(val)];
+        })
       };
+      
   
       // Prevent unnecessary updates
       if (
@@ -192,6 +203,7 @@ const FourthStepPRS = ({
           CAName: value,
           MembershipNumber: selectedCA.membershipNumber,
           MobileNumber: selectedCA.mobileNumber,
+          [name]: name === "AmountIn" ? String(value) : value,
         }));
   
         // Update parent form too
@@ -202,6 +214,7 @@ const FourthStepPRS = ({
             CAName: value,
             MembershipNumber: selectedCA.membershipNumber,
             MobileNumber: selectedCA.mobileNumber,
+            [name]: name === "AmountIn" ? String(value) : value,
           },
         }));
   
@@ -263,6 +276,10 @@ const FourthStepPRS = ({
       },
     }));
   }, [localData]);
+
+
+  console.log("Incoming formData.AmountIn:", formData?.ProjectReportSetting?.AmountIn);
+
 
   return (
     <div>
@@ -391,6 +408,7 @@ const FourthStepPRS = ({
                   value={localData.AmountIn || "rupees"}
                   onChange={handleChange}
                 >
+                   <option value="select">Select Amount In</option>
                   <option value="rupees">Rupees</option>
                   <option value="thousand">Thousands</option>
                   <option value="lakhs">Lakhs</option>
