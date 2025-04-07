@@ -160,6 +160,15 @@ const SeventhStepMD = ({
     });
   };
 
+  const formatNumberWithCommas = (num) => {
+    const x = num.toString().replace(/,/g, "");
+    if (isNaN(Number(x))) return num;
+    return Number(x).toLocaleString("en-IN");
+  };
+
+  // Remove commas for raw value
+  const removeCommas = (str) => str.replace(/,/g, "");
+
   return (
     <div className="overflow-x-hidden">
       <form>
@@ -199,16 +208,19 @@ const SeventhStepMD = ({
                       <td key={index} className="md-input">
                         <input
                           name="value"
-                          onChange={(event) =>
-                            handleStockChanges(
-                              stockType,
-                              index,
-                              event.target.value
-                            )
-                          }
-                          value={localData?.[stockType]?.[index] ?? ""}
+                          value={formatNumberWithCommas(
+                            localData?.[stockType]?.[index] ?? ""
+                          )}
+                          onChange={(event) => {
+                            const rawValue = removeCommas(event.target.value); // Remove commas
+                            handleStockChanges(stockType, index, rawValue); // Pass raw number to state
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "," || e.key === "e")
+                              e.preventDefault(); // Prevent invalid characters
+                          }}
                           className="form-control text-end noBorder"
-                          type="number"
+                          type="text" // ✅ Use text to allow commas in display
                         />
                       </td>
                     ))}
@@ -268,12 +280,33 @@ const SeventhStepMD = ({
                           <td key={index} className="md-input">
                             <input
                               name="value"
-                              value={entry.years?.[index] ?? ""}
-                              onChange={(event) =>
-                                handleFormChange(event, i, index, dataType)
-                              }
+                              value={formatNumberWithCommas(
+                                entry.years?.[index] ?? ""
+                              )}
+                              onChange={(event) => {
+                                const rawValue = removeCommas(
+                                  event.target.value
+                                ); // remove commas from input
+                                const modifiedEvent = {
+                                  ...event,
+                                  target: {
+                                    ...event.target,
+                                    value: rawValue, // send raw value to handler
+                                  },
+                                };
+                                handleFormChange(
+                                  modifiedEvent,
+                                  i,
+                                  index,
+                                  dataType
+                                );
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "," || e.key === "e")
+                                  e.preventDefault(); // prevent invalid input
+                              }}
                               className="form-control text-end noBorder"
-                              type="number"
+                              type="text" // ✅ Use text to allow comma display
                             />
                           </td>
                         )

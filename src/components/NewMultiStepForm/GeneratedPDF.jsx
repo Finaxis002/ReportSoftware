@@ -900,13 +900,6 @@ const GeneratedPDF = ({}) => {
       <BlobProvider document={memoizedPDF}>
         {(blobProps) => {
           // Immediately assign values
-          useEffect(() => {
-            if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
-              setBlobObject(blobProps.blob);
-              setBlobUrl(blobProps.url);
-            }
-          }, [blobProps.blob, blobProps.url, blobObject, blobUrl]);
-          
 
           const { loading } = blobProps;
 

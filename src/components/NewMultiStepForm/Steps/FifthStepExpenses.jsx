@@ -376,6 +376,10 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     event.preventDefault();
     onFormDataChange({ Expenses: localData });
   };
+  
+
+
+  
 
   return (
     <div>
