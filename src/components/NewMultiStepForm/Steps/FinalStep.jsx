@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
-import { Font } from "@react-pdf/renderer";
-import { checkAndRegisterFont } from "../checkAndRegisterFont";
-import ChartColorSelector from "./ChartColorSelector";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+// import { Font } from "@react-pdf/renderer";
+// import { checkAndRegisterFont } from "../checkAndRegisterFont";
+// import ChartColorSelector from "./ChartColorSelector";
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
