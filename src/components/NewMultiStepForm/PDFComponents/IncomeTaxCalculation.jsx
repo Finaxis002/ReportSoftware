@@ -322,8 +322,8 @@ const IncomeTaxCalculation = ({
           </View>
 
           {/* Net Profit (/loss) */}
-          <View style={[styles.tableRow, styles.table]}>
-            <Text style={stylesCOP.serialNoCellDetail}></Text>
+          <View style={[styles.tableRow]}>
+          <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
