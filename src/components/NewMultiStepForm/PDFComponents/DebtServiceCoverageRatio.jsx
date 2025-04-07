@@ -793,25 +793,18 @@ const DebtServiceCoverageRatio = ({
           ]}
         >
           <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              styleExpenses.sno,
-              { padding: "20px" },
-            ]}
+            style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
           ></Text>
           <Text
             style={[
               stylesCOP.detailsCellDetail,
               styleExpenses.particularWidth,
               styleExpenses.bordernone,
-              {
-                fontWeight: "bold",
-                
-                textAlign: "left",
-                padding: "10px",
-              },
+              { fontWeight: "bold",  textAlign: "left" },
             ]}
-          ></Text>
+          >
+           
+          </Text>
 
           {/* ✅ Display Computed Total for Each Year */}
           {DSCR.map(

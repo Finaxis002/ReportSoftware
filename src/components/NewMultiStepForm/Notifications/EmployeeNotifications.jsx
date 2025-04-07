@@ -2,21 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
-// import io from 'socket.io-client';
-// import { ToastContainer, toast } from "react-toastify";
-// import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 
-
-// const socket = io("https://backend-three-pink.vercel.app");
-// const socket = io("http://localhost:5000");
-// const backendUrl =
-//   window.location.hostname === "localhost"
-//     ? "http://localhost:5000"
-//     : "https://backend-three-pink.vercel.app";
-
-// const socket = io(backendUrl, {
-//   transports: ["websocket"], // reduce polling fallback
-// });
 
 
 const EmployeeNotifications = () => {
@@ -97,54 +83,17 @@ const EmployeeNotifications = () => {
     fetchNotifications();
   }, []);
 
+  useEffect(() => {
+    const employeeId = localStorage.getItem("employeeId");
   
-  // useEffect(() => {
+    if (!employeeId) {
+      console.error("❌ No employeeId found in localStorage");
+      return; // Exit early to avoid fetch
+    }
+  
+    fetchNotifications(employeeId);
+  }, []);
 
-  //   const role = localStorage.getItem("userRole");
-
-  // if (role !== "employee") {
-  //   console.log("🔒 Not an employee. Skipping socket connection.");
-  //   return;
-  // }
-  //   const tryToJoinRoom = () => {
-  //     const employeeId = localStorage.getItem("employeeId");
-  
-  //     if (employeeId) {
-  //       console.log("✅ Joining room with employeeId:", employeeId);
-  //       socket.emit("join", employeeId); // ✅ Now correct
-  //     } else {
-  //       console.warn("⏳ employeeId not found in localStorage. Retrying in 300ms...");
-  //       setTimeout(tryToJoinRoom, 300); // Try again after 300ms
-  //     }
-  //   };
-  
-  //   tryToJoinRoom();
-  
-  //   socket.on("new-notification", (data) => {
-  //     console.log("🔔 New notification received:", data);
-  //     toast.info(`🔔 ${data.message}`);
-  //     console.log("✅ toast fired");
-  //     setNotifications((prev) => [data, ...prev]);
-
-  //     toast.success(data.message, {
-  //       position: "top-right",
-  //       autoClose: 3000, // 3 seconds
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //     });
-     
-  //       toast.success("🔥 Toast is working test!");
-    
-      
-  //   });
-  
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
   
   return (
     <div className="mt-4">
