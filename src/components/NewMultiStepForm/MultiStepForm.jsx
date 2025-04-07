@@ -20,8 +20,8 @@ import ReportDropdown from "./Dropdown/ReportDropdown";
 const MultiStepForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
-  const isUpdateMode = location.state?.isUpdateMode || false; 
-  const [currentStep, setCurrentStep] = useState(1); 
+  const isUpdateMode = location.state?.isUpdateMode || false;
+  const [currentStep, setCurrentStep] = useState(1);
 
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState(null);
@@ -29,8 +29,10 @@ const MultiStepForm = ({ userRole, userName }) => {
   const [error, setError] = useState("");
   const [requiredFieldErrors, setRequiredFieldErrors] = useState({});
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
-  const { isCreateReportWithExistingClicked, reportData } =
+  const isCreateReportWithExistingClicked =
     location.state?.isCreateReportWithExistingClicked || false;
+  const reportData = location.state?.reportData || null;
+
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
 
@@ -44,7 +46,6 @@ const MultiStepForm = ({ userRole, userName }) => {
   const handleProjectionYearChange = (newYears) => {
     setProjectionYears(newYears);
   };
-  
 
   const [formData, setFormData] = useState({
     AccountInformation: {},
@@ -265,12 +266,13 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const handleSubmitFirstStep = () => {
     const errors = {};
-    const { clientName, businessOwner , businessName} = formData?.AccountInformation || {};
-  
+    const { clientName, businessOwner, businessName } =
+      formData?.AccountInformation || {};
+
     if (!clientName || clientName.trim() === "") {
       errors.clientName = "Client Name is required";
     }
-  
+
     if (!businessOwner || businessOwner.trim() === "") {
       errors.businessOwner = "Business Owner is required";
     }
@@ -278,7 +280,7 @@ const MultiStepForm = ({ userRole, userName }) => {
     if (!businessName || businessName.trim() === "") {
       errors.businessName = "Business Name is required";
     }
-  
+
     // if (Object.keys(errors).length > 0) {
     //   // 👇 Show alert
     //   alert("Please fill the required fields: " + Object.keys(errors).join(", "));
@@ -288,20 +290,19 @@ const MultiStepForm = ({ userRole, userName }) => {
       businessOwner: "Business Owner",
       businessName: "Business Name",
     };
-    
+
     if (Object.keys(errors).length > 0) {
-      const missing = Object.keys(errors).map(k => friendlyFieldNames[k] || k);
+      const missing = Object.keys(errors).map(
+        (k) => friendlyFieldNames[k] || k
+      );
       alert("Please fill the required fields: " + missing.join(", "));
     }
-    
-  
+
     setRequiredFieldErrors(errors); // 👈 this sends the message to FirstStep
-  
+
     return Object.keys(errors).length === 0;
   };
-  
-  
-  
+
   const stepContent = useMemo(() => {
     switch (currentStep) {
       case 1:
@@ -509,7 +510,11 @@ const MultiStepForm = ({ userRole, userName }) => {
 
         {/* Stepper Component */}
         <div className="container horizontal mb-[3.5rem]">
-          <Stepper steps={steps} currentStep={currentStep} onStepClick={handleStepClick}/>
+          <Stepper
+            steps={steps}
+            currentStep={currentStep}
+            onStepClick={handleStepClick}
+          />
         </div>
 
         {/* ✅ Dropdown placed outside steps to persist selection */}
@@ -530,14 +535,15 @@ const MultiStepForm = ({ userRole, userName }) => {
           handleUpdate={handleUpdate}
           currentStep={currentStep}
           totalSteps={steps.length}
-          isUpdateMode={isUpdateMode} 
+          isUpdateMode={isUpdateMode}
           handleCreateNewFromExisting={handleCreateNewFromExisting}
           handleNextStep={handleNextStep}
           stepData={formData}
           disableNext={!!error}
-          goToLastStep={goToLastStep} 
+          goToLastStep={goToLastStep}
           handleSubmitFirstStep={handleSubmitFirstStep}
           onStepClick={handleStepClick}
+          isCreateReportWithExistingClicked={isCreateReportWithExistingClicked} // 👈 ADD THIS
         />
 
         {/* Stepper Control Buttons */}

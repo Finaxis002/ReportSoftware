@@ -255,7 +255,7 @@ const ProjectedExpenses = ({
       style={[{ padding: "20px" }]}
     >
       {/* watermark  */}
-      {/* {pdfType &&
+      {pdfType &&
         pdfType !== "select option" &&
         (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
           <View
@@ -279,7 +279,7 @@ const ProjectedExpenses = ({
               }}
             />
           </View>
-        )} */}
+        )}
 
       {/* businees name and financial year  */}
       <View>

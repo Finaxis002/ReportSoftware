@@ -71,38 +71,6 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     }));
   }, [localData.termLoan, localData.workingCapital]);
 
-  // Handle input change
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const [key, subKey] = name.split(".");
-
-    // Update data in MultiStepForm
-    onFormDataChange({
-      MeansOfFinance: {
-        ...formData.MeansOfFinance,
-        [name]: value, // Update only the changed field
-      },
-    });
-
-    setLocalData((prevData) => {
-      if (subKey) {
-        // Update nested objects
-        return {
-          ...prevData,
-          [key]: {
-            ...prevData[key],
-            [subKey]: value,
-          },
-        };
-      }
-      // Update simple values
-      return {
-        ...prevData,
-        [name]: value,
-      };
-    });
-  };
-
   
   useEffect(() => {
     // console.log("Updated formData:", formData);
@@ -117,6 +85,51 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     localData.totalTermLoan,
     localData.totalWorkingCapital,
   ]);
+
+
+  // Format number in Indian comma style
+const formatNumberWithCommas = (num) => {
+  const x = num.toString().replace(/,/g, "");
+  if (isNaN(Number(x))) return num;
+  return Number(x).toLocaleString("en-IN");
+};
+
+// Remove commas before storing
+const removeCommas = (str) => str.replace(/,/g, "");
+
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  const [key, subKey] = name.split(".");
+
+  const rawValue = removeCommas(value);
+
+  if (!/^\d*$/.test(rawValue)) return; // Allow only digits
+
+  // Update parent state
+  onFormDataChange({
+    MeansOfFinance: {
+      ...formData.MeansOfFinance,
+      [name]: rawValue,
+    },
+  });
+
+  setLocalData((prevData) => {
+    if (subKey) {
+      return {
+        ...prevData,
+        [key]: {
+          ...prevData[key],
+          [subKey]: rawValue,
+        },
+      };
+    }
+    return {
+      ...prevData,
+      [name]: rawValue,
+    };
+  });
+};
 
 
   return (
