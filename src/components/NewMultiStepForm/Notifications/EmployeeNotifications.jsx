@@ -83,17 +83,6 @@ const EmployeeNotifications = () => {
     fetchNotifications();
   }, []);
 
-  useEffect(() => {
-    const employeeId = localStorage.getItem("employeeId");
-  
-    if (!employeeId) {
-      console.error("❌ No employeeId found in localStorage");
-      return; // Exit early to avoid fetch
-    }
-  
-    fetchNotifications(employeeId);
-  }, []);
-
   
   return (
     <div className="mt-4">
