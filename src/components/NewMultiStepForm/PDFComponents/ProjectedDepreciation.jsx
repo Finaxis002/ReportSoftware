@@ -264,33 +264,31 @@ const ProjectedDepreciation = ({
     }
   }, [formData, years]);
 
-// useEffect(() => {
-//   if (formData && formData.CostOfProject) {
-//     const calculatedAssets = Array.from({ length: years }).map((_, yearIndex) => {
-//       return Object.entries(formData.CostOfProject).reduce((sum, [key, asset]) => {
-//         const assetAmount = asset.amount || 0;
-//         const depreciationArray = asset.depreciation || []; // <-- use local depreciation from formData
+  // useEffect(() => {
+  //   if (formData && formData.CostOfProject) {
+  //     const calculatedAssets = Array.from({ length: years }).map((_, yearIndex) => {
+  //       return Object.entries(formData.CostOfProject).reduce((sum, [key, asset]) => {
+  //         const assetAmount = asset.amount || 0;
+  //         const depreciationArray = asset.depreciation || []; // <-- use local depreciation from formData
 
-//         let currentValue = assetAmount;
+  //         let currentValue = assetAmount;
 
-//         for (let i = 0; i <= yearIndex - 1; i++) {
-//           const yearlyDepreciation = depreciationArray[i] || 0;
-//           currentValue -= yearlyDepreciation;
-//         }
+  //         for (let i = 0; i <= yearIndex - 1; i++) {
+  //           const yearlyDepreciation = depreciationArray[i] || 0;
+  //           currentValue -= yearlyDepreciation;
+  //         }
 
-//         return sum + currentValue;
-//       }, 0);
-//     });
+  //         return sum + currentValue;
+  //       }, 0);
+  //     });
 
-//     setGrossFixedAssetsPerYear(calculatedAssets);
+  //     setGrossFixedAssetsPerYear(calculatedAssets);
 
-//     if (onGrossFixedAssetsPerYearCalculated) {
-//       onGrossFixedAssetsPerYearCalculated(calculatedAssets);
-//     }
-//   }
-// }, [formData, years]); // ✅ NO depreciationValues here
-
-  
+  //     if (onGrossFixedAssetsPerYearCalculated) {
+  //       onGrossFixedAssetsPerYearCalculated(calculatedAssets);
+  //     }
+  //   }
+  // }, [formData, years]); // ✅ NO depreciationValues here
 
   useEffect(() => {
     setTotalDepreciation(totalDepreciationPerYear);
@@ -342,14 +340,15 @@ const ProjectedDepreciation = ({
     if (formData && formData.CostOfProject && depreciationValues.length > 0) {
       // Prepare an array to hold asset-wise yearly values
       const allAssetValues = [];
-  
+
       Object.values(formData.CostOfProject).forEach((asset, index) => {
         const assetAmount = asset.amount || 0;
-        const depreciationPerYear = depreciationValues[index]?.yearlyDepreciation || [];
-  
+        const depreciationPerYear =
+          depreciationValues[index]?.yearlyDepreciation || [];
+
         const assetValues = [];
         let currentValue = assetAmount;
-  
+
         for (let yearIndex = 0; yearIndex < years; yearIndex++) {
           if (yearIndex === 0) {
             assetValues.push(currentValue); // Year 1 – Original
@@ -359,33 +358,31 @@ const ProjectedDepreciation = ({
             assetValues.push(currentValue);
           }
         }
-  
+
         allAssetValues.push(assetValues); // Push asset's values year-wise
       });
-  
+
       // Calculate total per year
       const totalNetAssetValuesPerYear = [];
-  
+
       for (let yearIndex = 0; yearIndex < years; yearIndex++) {
         let yearTotal = 0;
-  
+
         allAssetValues.forEach((assetValues) => {
           yearTotal += assetValues[yearIndex] || 0;
         });
-  
+
         totalNetAssetValuesPerYear.push(yearTotal);
       }
-  
+
       // Finally set or return this total value
       setGrossFixedAssetsPerYear(totalNetAssetValuesPerYear);
-  
+
       if (onGrossFixedAssetsPerYearCalculated) {
         onGrossFixedAssetsPerYearCalculated(totalNetAssetValuesPerYear);
       }
     }
   }, [formData, years]);
-  
-  
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -441,32 +438,32 @@ const ProjectedDepreciation = ({
         </View>
 
         <View
-                style={{
-                  display: "flex",
-                  alignContent: "flex-end",
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={[styles.AmountIn, styles.italicText]}>
-                          (Amount In{" "}
-                          {
-                            formData?.ProjectReportSetting?.AmountIn === "rupees"
-                              ? "Rs." // Show "Rupees" if "rupees" is selected
-                              : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                              ? "Thousands" // Show "Thousands" if "thousand" is selected
-                              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                              : formData?.ProjectReportSetting?.AmountIn === "crores"
-                              ? "Crores" // Show "Crores" if "crores" is selected
-                              : formData?.ProjectReportSetting?.AmountIn === "millions"
-                              ? "Millions" // Show "Millions" if "millions" is selected
-                              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                          }
-                          )
-                        </Text>
-              </View>
-        
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
+
         {/* Heading */}
         <View style={stylesCOP.heading}>
           <Text>Projected Depreciation</Text>
@@ -477,50 +474,82 @@ const ProjectedDepreciation = ({
         <View style={styles.table}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
-              Sr. No.
+            <Text
+              style={[
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
+              S. No.
             </Text>
             <Text
               style={[
                 styles.detailsCell,
-                stylesCOP.boldText,
-                { width: "80%" },
-                { width: "80%" },
+                styleExpenses.particularWidth,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
               ]}
             >
               Particulars
             </Text>
+
             <Text
               style={[
-                stylesCOP.boldText,
-                { width: "15%", textAlign: "center" },
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center", borderRightWidth: 1 },
               ]}
             >
               Rate
             </Text>
 
             {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels.map((yearLabel, yearIndex) =>
-              // ✅ Conditionally hide the first year if hideFirstYear is true
-              hideFirstYear && yearIndex === 0 ? null : (
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
                   style={[styles.particularsCell, stylesCOP.boldText]}
                 >
                   {yearLabel}
                 </Text>
-              )
-            )}
+              ))}
           </View>
 
           <View style={[styles.tableHeader, { marginTop: "20px" }]}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>A</Text>
             <Text
-              style={[styles.detailsCell, stylesCOP.boldText, { width: "80%" }]}
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              A
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
             >
               Gross Fixed Assets
             </Text>
-            <Text style={[stylesCOP.boldText, { width: "15%" }]}></Text>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            ></Text>
 
             {/* ✅ Render values from grossFixedAssetsPerYear */}
             {grossFixedAssetsPerYear &&
@@ -530,8 +559,10 @@ const ProjectedDepreciation = ({
                     key={index}
                     style={[
                       stylesCOP.particularsCellsDetail,
-                      stylesCOP.boldText,
                       styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                      },
                     ]}
                   >
                     {formatNumber(value)}
@@ -581,18 +612,17 @@ const ProjectedDepreciation = ({
 
                     {/* Asset Name */}
                     <Text
-                      style={[stylesCOP.detailsCellDetail, { width: "80%" }]}
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
                     >
                       {asset.name}
                     </Text>
 
                     {/* Empty Column */}
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        { width: "15%" },
-                      ]}
-                    ></Text>
+                    <Text style={stylesCOP.serialNoCellDetail}></Text>
 
                     {/* Year-wise Values: Original for Year 1, Depreciated for others */}
                     {assetValues.map((value, yearIndex) =>
@@ -615,26 +645,55 @@ const ProjectedDepreciation = ({
           })()}
 
           {/* Depreciation Header */}
-          <View style={[styles.tableHeader]}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>B</Text>
+          <View style={[styles.tableHeader, ]}>
             <Text
-              style={[styles.detailsCell, stylesCOP.boldText, { width: "80%" }]}
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              B
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
             >
               Depreciation
             </Text>
-            <Text style={[{ width: "15%" }, stylesCOP.boldText]}></Text>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            ></Text>
 
-            {/* ✅ Display Precomputed Total Depreciation for Each Year */}
+            {/* ✅ Render values from grossFixedAssetsPerYear */}
             {totalDepreciationPerYear.map((total, yearIndex) =>
               hideFirstYear && yearIndex === 0 ? null : (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {formatNumber(total)}
-                </Text>
-              )
-            )}
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                      },
+                    ]}
+                  >
+                    {formatNumber(total)}
+                  </Text>
+                )
+              )}
           </View>
 
           {/* Display Depreciation Rates for Each Asset */}
@@ -666,18 +725,17 @@ const ProjectedDepreciation = ({
 
                     {/* Asset Name */}
                     <Text
-                      style={[stylesCOP.detailsCellDetail, { width: "80%" }]}
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
                     >
                       {asset.name}
                     </Text>
 
                     {/* Depreciation Rate */}
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        { width: "15%" },
-                      ]}
-                    >
+                    <Text style={stylesCOP.serialNoCellDetail}>
                       {asset.rate ? `${asset.rate}%` : " "}
                     </Text>
 
@@ -703,28 +761,57 @@ const ProjectedDepreciation = ({
 
           {/* Cumulative Depreciation */}
 
-          <View style={[styles.tableHeader]}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>C</Text>
+          
+
+          <View style={[styles.tableHeader, ]}>
             <Text
-              style={[styles.detailsCell, stylesCOP.boldText, { width: "80%" }]}
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              C
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
             >
               Cumulative Depreciation
             </Text>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            ></Text>
 
-            {/* Show Depreciation Rates */}
-            <Text style={[{ width: "15%" }, stylesCOP.boldText]}></Text>
-
-            {/* ✅ Display Cumulative Depreciation for Each Year in Header */}
+            {/* ✅ Render values from grossFixedAssetsPerYear */}
             {cumulativeDepreciationTotals.map((total, yearIndex) =>
               hideFirstYear && yearIndex === 0 ? null : (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {formatNumber(total)}
-                </Text>
-              )
-            )}
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                      },
+                    ]}
+                  >
+                    {formatNumber(total)}
+                  </Text>
+                )
+              )}
           </View>
 
           {/* ✅ Display Correct Cumulative Depreciation for Each Asset */}
@@ -753,18 +840,17 @@ const ProjectedDepreciation = ({
 
                     {/* Asset Name */}
                     <Text
-                      style={[stylesCOP.detailsCellDetail, { width: "80%" }]}
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
                     >
                       {asset.name}
                     </Text>
 
                     {/* Empty Column for Depreciation Rate */}
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        { width: "15%" },
-                      ]}
-                    ></Text>
+                    <Text style={stylesCOP.serialNoCellDetail}></Text>
 
                     {/* Display Cumulative Depreciation per year */}
                     {cumDep.map((value, yearIndex) =>
@@ -788,28 +874,55 @@ const ProjectedDepreciation = ({
 
           {/* Net Asset */}
 
-          <View style={[styles.tableHeader]}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>D</Text>
+          <View style={[styles.tableHeader, ]}>
             <Text
-              style={[styles.detailsCell, stylesCOP.boldText, { width: "80%" }]}
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            >
+              D
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
             >
               Net Asset
             </Text>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                {
+                  fontWeight: "bold",
+                },
+              ]}
+            ></Text>
 
-            {/* Show Depreciation Rates */}
-            <Text style={[{ width: "15%" }, stylesCOP.boldText]}></Text>
-
-            {/* ✅ Display Total Net Assets for Each Year in Header */}
+            {/* ✅ Render values from grossFixedAssetsPerYear */}
             {totalNetAssetValuesPerYear.map((total, yearIndex) =>
               hideFirstYear && yearIndex === 0 ? null : (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {formatNumber(total)}
-                </Text>
-              )
-            )}
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                      },
+                    ]}
+                  >
+                    {formatNumber(total)}
+                  </Text>
+                )
+              )}
           </View>
 
           {(() => {
@@ -836,13 +949,24 @@ const ProjectedDepreciation = ({
                   </Text>
 
                   {/* Asset Name */}
-                  <Text style={[stylesCOP.detailsCellDetail, { width: "80%" }]}>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
                     {asset.name}
                   </Text>
 
                   {/* Empty Column */}
                   <Text
-                    style={[stylesCOP.particularsCellsDetail, { width: "15%" }]}
+                     style={[
+                      stylesCOP.serialNoCellDetail,
+                      {
+                        fontWeight: "bold",
+                      },
+                    ]}
                   ></Text>
 
                   {/* Net Asset Values Per Year */}

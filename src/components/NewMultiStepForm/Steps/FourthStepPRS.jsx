@@ -91,17 +91,17 @@ const FourthStepPRS = ({
     },
   };
 
-  useEffect(() => {
-    if (!localData?.incomeTax?.value) {
-      setLocalData((prev) => ({
-        ...prev,
-        incomeTax: {
-          ...prev.incomeTax,
-          value: 30,
-        },
-      }));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!localData?.incomeTax?.value) {
+  //     setLocalData((prev) => ({
+  //       ...prev,
+  //       incomeTax: {
+  //         ...prev.incomeTax,
+  //         value: 30,
+  //       },
+  //     }));
+  //   }
+  // }, []);
 
   // ✅ Populate `localData` from `formData.ProjectReportSetting` on mount
   useEffect(() => {
@@ -141,18 +141,18 @@ const FourthStepPRS = ({
       
   
       // Prevent unnecessary updates
-      if (
-        !prevDataRef.current ||
-        JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
-      ) {
-        console.log("✅ Normalized and set ProjectReportSetting:", newData);
-        setLocalData(newData);
-        prevDataRef.current = newData;
+      // if (
+      //   !prevDataRef.current ||
+      //   JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
+      // ) {
+      //   console.log("✅ Normalized and set ProjectReportSetting:", newData);
+      //   setLocalData(newData);
+      //   prevDataRef.current = newData;
   
-        if (newData.ProjectionYears) {
-          console.log("🚀 Projection Year after normalization:", newData.ProjectionYears);
-        }
-      }
+      //   if (newData.ProjectionYears) {
+      //     console.log("🚀 Projection Year after normalization:", newData.ProjectionYears);
+      //   }
+      // }
     }
   }, [formData?.ProjectReportSetting]);
   
@@ -497,11 +497,7 @@ const FourthStepPRS = ({
                     placeholder="Income Tax (%)"
                     required
                     value={
-                      typeof localData.incomeTax === "object" ||
-                      localData.incomeTax === null ||
-                      localData.incomeTax === undefined
-                        ? ""
-                        : localData.incomeTax || ""
+                      localData.incomeTax || 30
                     }
                     onChange={handleChange}
                   />

@@ -182,6 +182,21 @@ const ProjectSynopsis = React.memo(
     return (
       <>
         <Page size="A4" style={styles.page}>
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Bame"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2025-26"}
+            </Text>
+          </View>
           {/* watermark  */}
           <View style={{ position: "absolute", left: 70, top: 0, zIndex: -1 }}>
             {/* ✅ Conditionally Render Watermark */}
@@ -446,7 +461,7 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        
+
                         textTransform: "uppercase",
                       },
                     ]}
@@ -475,8 +490,6 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        
-                        
                       },
                     ]}
                   >
@@ -492,8 +505,6 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        
-                        
                       },
                     ]}
                   >
@@ -580,8 +591,6 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        
-                        
                       },
                     ]}
                   ></Text>
@@ -607,8 +616,6 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        
-                        
                       },
                     ]}
                   >
@@ -624,8 +631,6 @@ const ProjectSynopsis = React.memo(
                         width: "27.5%",
                         textAlign: "center",
                         borderLeftWidth: "1px",
-                        
-                        
                       },
                     ]}
                   >
@@ -895,8 +900,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      
-                      
+
                       // fontSize: "9px",
                     },
                   ]}
@@ -911,8 +915,6 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      
-                      
                     },
                   ]}
                 >
@@ -1144,8 +1146,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      
-                      
+
                       // fontSize: "9px",
                       borderTop: "1px",
                     },
@@ -1161,8 +1162,7 @@ const ProjectSynopsis = React.memo(
                       width: "20%",
                       textAlign: "center",
                       borderLeftWidth: "1px",
-                      
-                      
+
                       borderTop: "1px",
                     },
                   ]}

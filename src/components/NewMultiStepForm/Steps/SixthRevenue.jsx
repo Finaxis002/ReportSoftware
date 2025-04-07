@@ -377,30 +377,6 @@ const handleFormChange = (event, index, field = null) => {
     // Handle form submission here
     console.log("Form submitted", localData);
   };
-  const formatNumber = (value, formatType) => {
-    // Ensure valid number
-    if (value === undefined || value === null || isNaN(value)) return "0.00";
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456.00)
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      case "2": // USD Format (1,123,456.00)
-        return new Intl.NumberFormat("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      default: // Default to Indian Format
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-    }
-  };
 
   return (
     <>

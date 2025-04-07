@@ -546,7 +546,7 @@ const RatioAnalysis = ({
                 { width: "25%" },
               ]}
             >
-              Average Ratios
+             AR
             </Text>
           </View>
 
@@ -1182,7 +1182,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { paddingTop: "20px" },
+                          { paddingTop: "20px"  , paddingHorizontal:0},
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}{" "}
@@ -1239,6 +1239,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1289,6 +1290,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1340,6 +1342,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1390,6 +1393,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1440,6 +1444,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}` : ratio}
@@ -1490,6 +1495,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio}
@@ -1540,6 +1546,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio}
@@ -1645,6 +1652,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {ratio}
@@ -1693,6 +1701,7 @@ const RatioAnalysis = ({
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
+                          {paddingHorizontal:0}
                         ]}
                       >
                         {roi === "-" ? roi : `${roi}%`}
