@@ -72,7 +72,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-      <h2 className="text-lg font-bold mb-4">Add Employee</h2>
+      <h2 className="text-lg font-bold mb-4">Add User</h2>
       {message && <p className="mb-4 text-green-600">{message}</p>}
       {error && <p className="mb-4 text-red-500">{error}</p>}
       <form onSubmit={handleSubmit}>
@@ -80,7 +80,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
         <input
           type="text"
           name="employeeId"
-          placeholder="Employee ID"
+          placeholder="User ID"
           value={formData.employeeId}
           onChange={handleInputChange}
           className="w-full p-2 mb-2 border rounded"

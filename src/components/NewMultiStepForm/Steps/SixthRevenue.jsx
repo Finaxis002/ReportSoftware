@@ -17,12 +17,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   );
 
-  // Update totalRevenue dynamically when noOfMonths or totalMonthlyRevenue changes
-  // useEffect(() => {
-  //   setTotalRevenue(
-  //     noOfMonths.map((months, i) => months * (totalMonthlyRevenue[i] || 0))
-  //   );
-  // }, [noOfMonths, totalMonthlyRevenue]);
+
 
   useEffect(() => {
     const updatedTotalRevenue = Array.from(
@@ -164,13 +159,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       ...prevData,
       totalMonthlyRevenue: total,
     }));
-    // Auto-trim or pad revenue array to match projectionYears
-if (localData.totalRevenueForOthers?.length !== projectionYears) {
-  localData.totalRevenueForOthers = Array.from({ length: projectionYears }, (_, i) =>
-    localData.totalRevenueForOthers?.[i] ?? ""
-  );
-}
-
   }, [localData.formFields2, projectionYears]);
 
   // const [noOfMonths, setNoOfMonths] = useState(
@@ -343,11 +331,6 @@ const handleFormChange = (event, index, field = null) => {
   const handleTotalRevenueForOthersChange = (value, index) => {
     setLocalData((prevData) => {
       const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
-
-      // Expand the array if index is outside current range
-    while (updatedRevenue.length < projectionYears) {
-      updatedRevenue.push("");
-    }
       updatedRevenue[index] = value === "" ? "" : Number(value); // Prevent `NaN`
 
       return {
@@ -393,30 +376,6 @@ const handleFormChange = (event, index, field = null) => {
     e.preventDefault();
     // Handle form submission here
     console.log("Form submitted", localData);
-  };
-  const formatNumber = (value, formatType) => {
-    // Ensure valid number
-    if (value === undefined || value === null || isNaN(value)) return "0.00";
-
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456.00)
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      case "2": // USD Format (1,123,456.00)
-        return new Intl.NumberFormat("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      default: // Default to Indian Format
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-    }
   };
 
   return (
@@ -638,27 +597,20 @@ const handleFormChange = (event, index, field = null) => {
                               0, // Generate fields based on projection years
                           }).map((_, i) => (
                             <td key={i}>
-                              <input
-                                name={`value-${i}`} // Unique name for each input
-                                placeholder="Enter value"
-                                value={
-                                  localData.totalRevenueForOthers?.[i] ?? ""
-                                } // Handle empty fields
-                                onChange={(e) =>
-                                  handleTotalRevenueForOthersChange(
-                                    e.target.value,
-                                    i
-                                  )
-                                }
-                                // className="form-control text-end noBorder"
-
-                                className="total-revenue-input"
-                                type="number"
-                                style={{
-                                  padding: "5px",
-                                }}
-                              />
-                            </td>
+                            <input
+                              name={`value-${i}`} // Unique name
+                              placeholder="Enter value"
+                              value={formatNumberWithCommas(localData.totalRevenueForOthers?.[i] ?? "")}
+                              onChange={(event) => {
+                                const rawValue = removeCommas(event.target.value); // "12345" from "12,345"
+                                handleTotalRevenueForOthersChange(rawValue, i); // Pass only the value
+                              }}
+                              className="total-revenue-input"
+                              type="text" // ✅ Use text instead of number to allow commas
+                              style={{ padding: "5px" }}
+                            />
+                          </td>
+                          
                           ))}
                         </tr>
                       </tbody>

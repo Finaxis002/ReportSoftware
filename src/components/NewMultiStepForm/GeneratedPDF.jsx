@@ -135,6 +135,7 @@ const GeneratedPDF = ({}) => {
 
   const [blobUrl, setBlobUrl] = useState(null);
   const [blobObject, setBlobObject] = useState(null);
+  
 
   const location = useLocation();
   const stableLocation = useMemo(() => location, []);
@@ -899,10 +900,6 @@ const GeneratedPDF = ({}) => {
       <BlobProvider document={memoizedPDF}>
         {(blobProps) => {
           // Immediately assign values
-          if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
-            setBlobObject(blobProps.blob);
-            setBlobUrl(blobProps.url);
-          }
 
           const { loading } = blobProps;
 

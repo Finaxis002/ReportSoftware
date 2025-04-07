@@ -156,7 +156,7 @@ selectedRevenueArray.forEach((val, idx) =>
           </button>
         )}
       {/* Next Button */}
-      {isCreateReportWithExistingClicked ? (
+      {/* {isCreateReportWithExistingClicked ? (
         // Show this button if "Create Report With Existing" is clicked
         <button
           onClick={() => {
@@ -174,8 +174,8 @@ selectedRevenueArray.forEach((val, idx) =>
         >
           Save & Next
         </button>
-      ) : (
-        // Hide this button if "Create Report With Existing" is clicked
+      ) : ( */}
+      
         <button
         type="button"
         // onClick={handleNext}
@@ -200,7 +200,7 @@ selectedRevenueArray.forEach((val, idx) =>
         Next
       </button>
       
-      )}
+      {/* )} */}
 
     </div>
   );

@@ -197,7 +197,7 @@ const FirstStepBasicDetails = ({
       onFormDataChange({
         AccountInformation: {
           ...formData.AccountInformation,
-          logoOfBusiness: response.data.filePath, // ✅ Save returned filePath
+          // logoOfBusiness: response.data.filePath, // ✅ Save returned filePath
         },
       });
 
@@ -291,7 +291,9 @@ const FirstStepBasicDetails = ({
                 </p>
               )}
 
-              <label htmlFor="clientName">Referred By <span className="text-red-600">*</span></label>
+              <label htmlFor="clientName">
+                Referred By <span className="text-red-600">*</span>
+              </label>
               {requiredFieldErrors.clientName && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.clientName}
@@ -375,7 +377,9 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessOwner">Business Owner<span className="text-red-600">*</span> </label>
+              <label htmlFor="businessOwner">
+                Business Owner<span className="text-red-600">*</span>{" "}
+              </label>
               {requiredFieldErrors.businessOwner && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.businessOwner}
@@ -475,13 +479,14 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessName">Business Name <span className="text-red-600">*</span></label>
+              <label htmlFor="businessName">
+                Business Name <span className="text-red-600">*</span>
+              </label>
               {requiredFieldErrors.businessName && (
                 <p className="text-red-600 text-sm mt-1">
                   {requiredFieldErrors.businessName}
                 </p>
               )}
-              
             </div>
 
             <div className="input">
@@ -647,7 +652,20 @@ const FirstStepBasicDetails = ({
               <label htmlFor="logoOfBusiness">Logo of Business</label>
 
               {/* ✅ Show Uploaded File Path */}
-              {formData.AccountInformation.logoOfBusiness && (
+              {/* {formData?.AccountInformation?.logoOfBusiness && (
+                <p>
+                  Uploaded File:
+                  <a
+                    href={`https://backend-three-pink.vercel.app${formData.AccountInformation.logoOfBusiness}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {formData.AccountInformation.logoOfBusiness}
+                  </a>
+                </p>
+              )} */}
+
+              {formData?.AccountInformation?.logoOfBusiness && (
                 <p>
                   Uploaded File:
                   <a

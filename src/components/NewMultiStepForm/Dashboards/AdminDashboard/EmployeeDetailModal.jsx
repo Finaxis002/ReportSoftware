@@ -37,7 +37,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
     {/* Header */}
     <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 px-6 py-4 border-b dark:border-gray-700 sticky top-0">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-        Employee Profile
+        User Profile
       </h2>
       <button
         className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors text-3xl"
@@ -58,7 +58,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
         </h3>
         <div className="p-6 grid grid-cols-2 gap-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
           {[
-            { label: "Employee ID", value: employee.employeeId },
+            { label: "User ID", value: employee.employeeId },
             { label: "Name", value: employee.name },
             { label: "Email", value: employee.email },
             { label: "Designation", value: employee.designation },

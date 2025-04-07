@@ -140,8 +140,15 @@ const IncomeTaxCalculation = ({
         <View style={[styles.table]}>
           {/* table header  */}
           <View style={styles.tableHeader}>
-            <Text style={[styles.serialNoCell, stylesCOP.boldText]}>
-              Sr. No.
+            <Text
+              style={[
+                styles.serialNoCell,
+                styleExpenses.sno,
+                styleExpenses.fontBold,
+                { textAlign: "center" },
+              ]}
+            >
+              S. No.
             </Text>
             <Text
               style={[
@@ -155,17 +162,16 @@ const IncomeTaxCalculation = ({
             </Text>
 
             {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels.map(
-              (yearLabel, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
-                  <Text
-                    key={yearIndex}
-                    style={[styles.particularsCell, stylesCOP.boldText]}
-                  >
-                    {yearLabel}
-                  </Text>
-                )
-            )}
+            {financialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .map((yearLabel, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
           </View>
 
           {/* Net Profit Before Tax */}
@@ -191,7 +197,7 @@ const IncomeTaxCalculation = ({
                         styles.boldText,
                         {
                           fontSize: "9px",
-                          
+
                           fontWeight: "bold",
                           paddingVertical: "10px",
                         },
@@ -228,7 +234,6 @@ const IncomeTaxCalculation = ({
                         {
                           fontWeight: "light",
                           fontSize: "9px",
-                          
                         },
                       ]}
                     >
@@ -267,8 +272,6 @@ const IncomeTaxCalculation = ({
                           fontSize: "9px",
                           paddingVertical: "10px",
                           borderTopWidth: "2px",
-                          
-                          
                         },
                       ]}
                     >
@@ -322,7 +325,7 @@ const IncomeTaxCalculation = ({
           </View>
 
           {/* Net Profit (/loss) */}
-          <View style={[styles.tableRow, styles.table]}>
+          <View style={[styles.tableRow]}>
             <Text style={stylesCOP.serialNoCellDetail}></Text>
             <Text
               style={[
@@ -346,8 +349,7 @@ const IncomeTaxCalculation = ({
                           fontSize: "9px",
                           borderTopWidth: "2px",
                           borderBottomWidth: "2px",
-                          
-                          
+
                           paddingVertical: "8px",
                         },
                       ]}

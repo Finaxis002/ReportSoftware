@@ -328,18 +328,22 @@ console.log("Registered fonts:", Font.getRegisteredFonts?.());
 const styles = StyleSheet.create({
   Width60: {
     width: "60%",
+    wrap: false,
   },
   text: {
     fontFamily: selectedFont,
+    wrap: false,
   },
 
   italicText: {
     fontFamily: selectedFont,
     fontStyle: "italic",
+    wrap: false,
   },
 
   noBorder: {
     border: "0px",
+    wrap: false,
   },
   FinancialYear: {
     fontSize: "11px",
@@ -347,17 +351,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingVertical: "3px",
     paddingBottom: "20px",
+    wrap: false,
   },
 
   AmountIn: {
     fontSize: "11px",
     fontFamily: selectedFont,
     fontWeight: "bold",
+    wrap: false,
   },
 
   Total: {
     fontFamily: selectedFont,
     fontWeight: "bold",
+    wrap: false,
   },
 
   businessName: {
@@ -366,22 +373,27 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
     fontFamily: selectedFont,
     fontWeight: "bold",
+    wrap: false,
   },
   caName: {
     fontWeight: "bold",
     textAlign: "right",
+    wrap: false,
   },
   membershipNumber: {
     fontWeight: "normal",
     textAlign: "right",
+    wrap: false,
   },
   udinNumber: {
     fontWeight: "normal",
     textAlign: "right",
+    wrap: false,
   },
   mobileNumber: {
     fontWeight: "normal",
     textAlign: "right",
+    wrap: false,
   },
   page: {
     fontFamily: selectedFont,
@@ -389,11 +401,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     paddingHorizontal: 30,
     paddingVertical: 10,
+    wrap: false,
   },
   clientName: {
     fontSize: "16px",
     padding: 20,
     textTransform: "capitalize",
+    wrap: false,
   },
 
   title: {
@@ -406,6 +420,7 @@ const styles = StyleSheet.create({
     padding: 4,
     backgroundColor: backgroundColor, // ✅ Dynamic,
     fontFamily: selectedFont,
+    wrap: false,
   },
   table: {
     width: "100%",
@@ -413,10 +428,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000",
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableRow: {
     flexDirection: "row",
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableHeader: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
@@ -424,6 +441,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     flexDirection: "row",
     fontFamily: selectedFont,
+    wrap: false,
   },
   serialNoCell: {
     width: "25%",
@@ -431,9 +449,10 @@ const styles = StyleSheet.create({
     fontSize: "9px",
     textAlign: "center",
     fontFamily: selectedFont,
+    wrap: false,
   },
   particularsCell: {
-    width: "40%",
+    width: "50%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
@@ -441,31 +460,36 @@ const styles = StyleSheet.create({
     fontSize: "9px",
     fontFamily: selectedFont,
     textAlign: "center",
+    wrap: false,
   },
   separatorCell: {
     width: "5%",
     padding: 3,
     fontFamily: selectedFont,
     fontSize: "9px",
+    wrap: false,
   },
   detailsCell: {
-    width: "55%",
+    width: "65%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
     fontFamily: selectedFont,
     fontSize: "9px",
+    wrap: false,
   },
   partnersSection: {
     marginTop: 16,
     fontFamily: selectedFont,
+    wrap: false,
   },
   partnersTitle: {
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 8,
     fontFamily: selectedFont,
+    wrap: false,
   },
   partnerCell: {
     width: "25%",
@@ -474,6 +498,7 @@ const styles = StyleSheet.create({
     fontSize: "9px",
     color: "#fff",
     fontFamily: selectedFont,
+    wrap: false,
   },
   serialNoCellDetail: {
     width: "25%",
@@ -483,14 +508,16 @@ const styles = StyleSheet.create({
     fontSize: "9px",
     textAlign: "center",
     fontFamily: selectedFont,
+    wrap: false,
   },
   particularsCellsDetail: {
-    width: "40%",
+    width: "50%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
     textAlign: "center",
+    wrap: false,
   },
   separatorCellDetail: {
     width: "5%",
@@ -500,13 +527,15 @@ const styles = StyleSheet.create({
     borderBottom: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   detailsCellDetail: {
-    width: "55%",
+    width: "65%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   partnerCellDetail: {
     width: "25%",
@@ -516,11 +545,13 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   pdfViewer: {
     border: "none",
     backgroundColor: "white",
     fontFamily: selectedFont,
+    wrap: false,
   },
   serialNumberCellStyle: {
     textAlign: "center",
@@ -531,6 +562,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold", // ✅ Makes numbers more readable
     fontSize: "9px", // ✅ Optimized for PDF readability
     fontFamily: selectedFont,
+    wrap: false,
   },
 });
 
@@ -541,6 +573,7 @@ const stylesMOF = StyleSheet.create({
     padding: 8,
     backgroundColor: "white",
     fontFamily: selectedFont,
+    wrap: false,
   },
   sectionHeader: {
     textAlign: "center",
@@ -551,16 +584,19 @@ const stylesMOF = StyleSheet.create({
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
     fontFamily: selectedFont,
+    wrap: false,
   },
   table: {
     width: "100%",
     marginBottom: 6,
     fontFamily: selectedFont,
+    wrap: false,
   },
   row: {
     flexDirection: "row",
     borderBottom: "1px solid #000",
     fontFamily: selectedFont,
+    wrap: false,
   },
   cell: {
     flex: 1,
@@ -568,6 +604,7 @@ const stylesMOF = StyleSheet.create({
     borderRight: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   Snocell: {
     padding: 3,
@@ -577,28 +614,34 @@ const stylesMOF = StyleSheet.create({
     width: "25%",
     fontFamily: selectedFont,
     textAlign: "center",
+    wrap: false,
   },
   boldCell: {
     fontWeight: "bold",
     fontFamily: selectedFont,
+    wrap: false,
   },
   headerRow: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
     marginTop: 10,
     fontFamily: selectedFont,
+    wrap: false,
   },
   grayRow: {
     backgroundColor: "#E5E7EB",
     fontFamily: selectedFont,
+    wrap: false,
   },
   totalRow: {
     fontWeight: "bold",
     fontFamily: selectedFont,
+    wrap: false,
   },
   total: {
     border: "1px solid #000",
     fontFamily: selectedFont,
+    wrap: false,
   },
 });
 
@@ -608,6 +651,7 @@ const stylesCOP = StyleSheet.create({
     overflow: "hidden",
     padding: 20,
     fontFamily: selectedFont,
+    wrap: false,
   },
   heading: {
     textAlign: "center",
@@ -619,27 +663,32 @@ const stylesCOP = StyleSheet.create({
     padding: 4,
     backgroundColor: backgroundColor, // ✅ Dynamic,
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableContainer: {
     marginBottom: 6,
     fontFamily: selectedFont,
+    wrap: false,
   },
   table: {
     width: "100%",
     borderWidth: 1,
     borderColor: "#d1d5db",
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableHeader: {
     backgroundColor: backgroundColor, // ✅ Dynamic,
     color: "white",
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableHeaderGray: {
     backgroundColor: "#f2f2f2",
     color: "#000",
     display: "flex",
     fontFamily: selectedFont,
+    wrap: false,
   },
 
   totalHeader: {
@@ -648,16 +697,19 @@ const stylesCOP = StyleSheet.create({
     flexDirection: "row",
     fontWeight: "bold",
     fontFamily: selectedFont,
+    wrap: false,
   },
   tableCell: {
     padding: 4,
     borderWidth: 1,
     borderColor: "black",
     fontFamily: selectedFont,
+    wrap: false,
   },
   totalCostRow: {
     fontWeight: "bold",
     fontFamily: selectedFont,
+    wrap: false,
   },
 
   serialNoCellDetail: {
@@ -667,13 +719,15 @@ const stylesCOP = StyleSheet.create({
     fontSize: "9px",
     textAlign: "center",
     fontFamily: selectedFont,
+    wrap: false,
   },
   particularsCellsDetail: {
-    width: "40%",
+    width: "50%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
     textAlign: "center",
   },
   separatorCellDetail: {
@@ -684,14 +738,16 @@ const stylesCOP = StyleSheet.create({
     borderBottom: "1px solid #000",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   detailsCellDetail: {
-    width: "55%",
+    width: "65%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "9px",
     paddingLeft: 10,
     fontFamily: selectedFont,
+    wrap: false,
     fontSize: "9px",
   },
   boldText: {
@@ -700,6 +756,7 @@ const stylesCOP = StyleSheet.create({
     fontWeight: "bold",
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
 
   textCenter: {
@@ -708,18 +765,22 @@ const stylesCOP = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
     fontFamily: selectedFont,
+    wrap: false,
   },
   extraWidth: {
-    width: "55%",
+    width: "65%",
     fontFamily: selectedFont,
+    wrap: false,
   },
   verticalPadding: {
     paddingVertical: 10,
     fontFamily: selectedFont,
+    wrap: false,
   },
   extraWidthExpenses: {
     width: "100%",
     fontFamily: selectedFont,
+    wrap: false,
   },
 });
 
@@ -729,16 +790,19 @@ const styleExpenses = StyleSheet.create({
     color: "#000",
     marginTop: 10,
     fontFamily: selectedFont,
+    wrap: false,
     fontWeight: "bold",
   },
   headingRow: {
     fontFamily: selectedFont,
+    wrap: false,
     fontWeight: "bold",
   },
 
   particularWidth: {
     width: 500,
     fontFamily: selectedFont,
+    wrap: false,
   },
   sno: {
     width: 100,
@@ -748,33 +812,38 @@ const styleExpenses = StyleSheet.create({
     textAlign: "center",
     width: "25%",
     fontFamily: selectedFont,
+    wrap: false,
   },
   bordernone: {
     borderBottom: "none",
     fontFamily: selectedFont,
+    wrap: false,
   },
   fontSmall: {
     fontSize: "9px",
     fontFamily: selectedFont,
+    wrap: false,
   },
   paddingx: {
     paddingHorizontal: 6,
     fontFamily: selectedFont,
+    wrap: false,
   },
   fontBold: {
     fontWeight: "bold",
     fontFamily: selectedFont,
+    wrap: false,
   },
 });
 
 const columnWidths = {
-  serialNo: { width: "25%", textAlign: "center" }, // ✅ Fixed width for Serial No.
-  yearQuarter: { width: "120px", textAlign: "center" },
-  openingBalance: { width: "120px", textAlign: "center" },
-  principalRepayment: { width: "120px", textAlign: "center" },
-  closingBalance: { width: "120px", textAlign: "center" },
-  interestLiability: { width: "120px", textAlign: "center" },
-  totalRepayment: { width: "120px", textAlign: "center" },
+  serialNo: { width: "25%", textAlign: "center" , wrap: false, }, // ✅ Fixed width for Serial No.
+  yearQuarter: { width: "120px", textAlign: "center" , wrap: false, },
+  openingBalance: { width: "120px", textAlign: "center" , wrap: false, },
+  principalRepayment: { width: "120px", textAlign: "center" , wrap: false, },
+  closingBalance: { width: "120px", textAlign: "center" , wrap: false, },
+  interestLiability: { width: "120px", textAlign: "center" , wrap: false, },
+  totalRepayment: { width: "120px", textAlign: "center" , wrap: false, },
 };
 
 const stylesRepayment = {

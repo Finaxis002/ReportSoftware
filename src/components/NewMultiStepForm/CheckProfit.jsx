@@ -205,15 +205,19 @@ const CheckProfit = () => {
         // ✅ Check if this is "Raw Material Expenses / Purchases"
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
+        const isPercentage = String(expense.value).trim().endsWith("%");
+        let expenseValue = 0;
 
-        let expenseValue;
-        if (isRawMaterial && String(expense.value).trim().endsWith("%")) {
-          // ✅ Calculate as percentage of total revenue
-          expenseValue =
+        const ClosingStock =
+          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+        if (isRawMaterial && isPercentage) {
+          const baseValue =
             (parseFloat(expense.value) / 100) *
-            storedData?.totalRevenueReceipts[yearIndex];
+            (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
+          expenseValue = baseValue - ClosingStock + OpeningStock;
         } else {
-          // ✅ Normal calculation for other expenses
           expenseValue = Number(expense.value) * 12 || 0;
         }
 
@@ -769,28 +773,50 @@ const CheckProfit = () => {
                 ?.map((expense, index) => {
                   const isRawMaterial =
                     expense.name.trim() === "Raw Material Expenses / Purchases";
+                  const isPercentage = String(expense.value)
+                    .trim()
+                    .endsWith("%");
+
+                  const ClosingStock =
+                    Number(formData?.MoreDetails?.ClosingStock?.[index]) || 0;
+                  const OpeningStock =
+                    Number(formData?.MoreDetails?.OpeningStock?.[index]) || 0;
+
+                  let expenseValue = 0; // ✅ Declare it here
+
+                  if (isRawMaterial && isPercentage) {
+                    const baseValue =
+                      (parseFloat(expense.value) / 100) *
+                      (storedData?.totalRevenueReceipts?.[index] || 0);
+                    expenseValue = baseValue - ClosingStock + OpeningStock;
+                  } else {
+                    expenseValue = Number(expense.value) * 12 || 0;
+                  }
 
                   // ✅ Step 1: Compute values for all years
                   const valuesPerYear = Array.from({
                     length: projectionYears,
                   }).map((_, yearIndex) => {
-                    let expenseValue;
+                    let yearlyExpenseValue = expenseValue;
 
-                    if (
-                      isRawMaterial &&
-                      String(expense.value).trim().endsWith("%")
-                    ) {
-                      expenseValue =
-                        (parseFloat(expense.value) / 100) *
-                        storedData?.totalRevenueReceipts[yearIndex];
-                    } else {
-                      expenseValue = Number(expense.value) * 12 || 0;
-                    }
+                    // if (
+                    //   isRawMaterial &&
+                    //   String(expense.value).trim().endsWith("%")
+                    // ) {
+                    //   yearlyExpenseValue =
+                    //     (parseFloat(expense.value) / 100) *
+                    //     (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
+                    // } else {
+                    //   yearlyExpenseValue = Number(expense.value) * 12 || 0;
+                    // }
 
                     return isRawMaterial
-                      ? parseFloat(expenseValue.toFixed(2))
+                      ? parseFloat(yearlyExpenseValue.toFixed(2))
                       : parseFloat(
-                          calculateExpense(expenseValue, yearIndex).toFixed(2)
+                          calculateExpense(
+                            yearlyExpenseValue,
+                            yearIndex
+                          ).toFixed(2)
                         );
                   });
 
@@ -1216,7 +1242,6 @@ const CheckProfit = () => {
                     const adjustedAmount = Math.max(amount, 0);
                     const roundedValue = adjustedAmount;
 
-
                     return (
                       <td
                         key={`cumulativeBalance-${yearIndex}`}
@@ -1248,8 +1273,7 @@ const CheckProfit = () => {
                     ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
                   )
                   .map(({ yearIndex, cashProfit }) => {
-                    const roundedValue =
-                      cashProfit
+                    const roundedValue = cashProfit;
                     return (
                       <td
                         key={`cashProfit-${yearIndex}`}
@@ -1474,8 +1498,7 @@ const CheckProfit = () => {
                 {storedData?.receivedData?.cumulativeBalanceTransferred?.map(
                   (amount, yearIndex) => {
                     const adjustedAmount = Math.max(amount, 0);
-                    const roundedValue =
-                      adjustedAmount
+                    const roundedValue = adjustedAmount;
 
                     return (
                       <td

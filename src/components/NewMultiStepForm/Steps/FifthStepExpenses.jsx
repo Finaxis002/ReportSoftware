@@ -269,11 +269,11 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
   const addFields = () => {
     setLocalData((prevData) => {
-      if (prevData.normalExpense.length >= 10) {
-        setMessage("You can only add up to 10 fields.");
+      if (prevData.normalExpense.length >= 25) {
+        setMessage("You can only add up to 25 fields.");
         return prevData;
       }
-
+  
       setMessage("");
       return {
         ...prevData,
@@ -292,10 +292,11 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       };
     });
   };
+  
 
   const addDirectFields = () => {
     setLocalData((prevData) => {
-      if (prevData.directExpense.length >= 15) {
+      if (prevData.directExpense.length >= 25) {
         setMessage("You can only add up to 15 fields.");
         return prevData;
       }
@@ -375,6 +376,10 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     event.preventDefault();
     onFormDataChange({ Expenses: localData });
   };
+  
+
+
+  
 
   return (
     <div>
@@ -449,7 +454,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                     0
                   }
                   disabled
-                  className="form-control"
+                  className="form-control no-spinner"
                   type="text"
                 /> */}
                 <input
@@ -647,7 +652,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           <button
             className="btn btn-secondary px-4 me-auto ms-4"
             onClick={addDirectFields}
-            disabled={directExpenses.length >= 15}
+            disabled={directExpenses.length >= 28}
           >
             + Add Expense
           </button>

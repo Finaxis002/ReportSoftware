@@ -71,38 +71,6 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
     }));
   }, [localData.termLoan, localData.workingCapital]);
 
-  // Handle input change
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const [key, subKey] = name.split(".");
-
-    // Update data in MultiStepForm
-    onFormDataChange({
-      MeansOfFinance: {
-        ...formData.MeansOfFinance,
-        [name]: value, // Update only the changed field
-      },
-    });
-
-    setLocalData((prevData) => {
-      if (subKey) {
-        // Update nested objects
-        return {
-          ...prevData,
-          [key]: {
-            ...prevData[key],
-            [subKey]: value,
-          },
-        };
-      }
-      // Update simple values
-      return {
-        ...prevData,
-        [name]: value,
-      };
-    });
-  };
-
   
   useEffect(() => {
     // console.log("Updated formData:", formData);
@@ -119,6 +87,51 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
   ]);
 
 
+  // Format number in Indian comma style
+const formatNumberWithCommas = (num) => {
+  const x = num.toString().replace(/,/g, "");
+  if (isNaN(Number(x))) return num;
+  return Number(x).toLocaleString("en-IN");
+};
+
+// Remove commas before storing
+const removeCommas = (str) => str.replace(/,/g, "");
+
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  const [key, subKey] = name.split(".");
+
+  const rawValue = removeCommas(value);
+
+  if (!/^\d*$/.test(rawValue)) return; // Allow only digits
+
+  // Update parent state
+  onFormDataChange({
+    MeansOfFinance: {
+      ...formData.MeansOfFinance,
+      [name]: rawValue,
+    },
+  });
+
+  setLocalData((prevData) => {
+    if (subKey) {
+      return {
+        ...prevData,
+        [key]: {
+          ...prevData[key],
+          [subKey]: rawValue,
+        },
+      };
+    }
+    return {
+      ...prevData,
+      [name]: rawValue,
+    };
+  });
+};
+
+
   return (
     <div>
       <div className="form-scroll">
@@ -132,6 +145,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
               <div className="input">
                 <input
                   id="termLoan.promoterContribution"
+                  className="no-spinner"
                   name="termLoan.promoterContribution"
                   type="number"
                   placeholder="Promoter's Contribution"
@@ -148,6 +162,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
               <div className="input">
                 <input
                   id="TLPromoterContributionPercent"
+                  className="no-spinner"
                   name="TLPromoterContributionPercent"
                   type="text"
                   placeholder="Percentage %"
@@ -165,6 +180,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   id="termLoan.termLoan"
                   name="termLoan.termLoan"
                   type="number"
+                  className="no-spinner"
                   placeholder="Term Loan"
                   value={localData.termLoan.termLoan}
                   onChange={handleChange}
@@ -178,6 +194,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                 <input
                   id="TLTermLoanPercent"
                   name="TLTermLoanPercent"
+                  className="no-spinner"
                   type="text"
                   placeholder="Percentage %"
                   value={localData.TLTermLoanPercent}
@@ -216,6 +233,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.workingCapital.promoterContribution}
                   onChange={handleChange}
                   required
+                  className="no-spinner"
                 />
                 <label htmlFor="workingCapital.promoterContribution">
                   Promoter's Contribution
@@ -247,6 +265,7 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
                   value={localData.workingCapital.termLoan}
                   onChange={handleChange}
                   required
+                  className="no-spinner"
                 />
                 <label htmlFor="workingCapital.termLoan">Term Loan</label>
               </div>
