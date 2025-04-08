@@ -403,13 +403,14 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             const trimmed = String(val).trim();
             return trimmed === "" ? "" : Number(val);
           });
-
+      
         while (values.length < projectionYears) {
           values.push(""); // fill missing years with blank instead of 0
         }
-
+      
         return values;
       };
+      
 
       if (formType) {
         // ✅ OTHERS MODE
@@ -426,49 +427,26 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         );
 
         const importedTotalRevenue = totalRevenueRow
-          ? getYearValues(totalRevenueRow, 2)
-          : Array(projectionYears).fill(0);
+        ? getYearValues(totalRevenueRow, 2)
+        : Array(projectionYears).fill(0);
         const formFields = rows
-          .filter(
-            (row) =>
-              !String(row[0] || "")
-                .toLowerCase()
-                .includes("total revenue from operations") &&
-              !String(row[1] || "")
-                .toLowerCase()
-                .includes("total revenue from operations")
-          )
-          .map((row) => {
-            let particular = (row[1] ?? "").trim();
-            let rowType = "0"; // default: Normal
-
-            if (particular.startsWith("#")) {
-              rowType = "1"; // Heading
-              particular = particular.replace(/^#\s*/, "");
-            } else if (
-              particular.startsWith("__**") &&
-              particular.endsWith("**__")
-            ) {
-              rowType = "3"; // Bold + Underline
-              particular = particular
-                .replace(/^__\*\*/, "")
-                .replace(/\*\*__$/, "");
-            } else if (
-              particular.startsWith("**") &&
-              particular.endsWith("**")
-            ) {
-              rowType = "2"; // Bold
-              particular = particular.replace(/^\*\*/, "").replace(/\*\*$/, "");
-            }
-
-            return {
-              serialNumber: row[0] ?? "",
-              particular,
-              years: getYearValues(row, 2),
-              rowType,
-              increaseBy: "",
-            };
-          });
+        
+        .filter(
+          (row) =>
+            !String(row[0] || "")
+              .toLowerCase()
+              .includes("total revenue from operations") &&
+            !String(row[1] || "")
+              .toLowerCase()
+              .includes("total revenue from operations")
+        )
+          .map((row) => ({
+            serialNumber: row[0] ?? "",
+            particular: row[1] ?? "",
+            years: getYearValues(row, 2),
+            rowType: "0",
+            increaseBy: "",
+          }));
 
         setLocalData((prev) => ({
           ...prev,
@@ -501,22 +479,22 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
     reader.readAsBinaryString(file);
   };
+  
 
   const handleDownloadTemplate = () => {
     const businessName =
       formData?.AccountInformation?.businessName || "Template";
-
-    const projectionYears = parseInt(
-      formData?.ProjectReportSetting?.ProjectionYears || 5
-    );
-
+  
+    const projectionYears =
+      parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+  
     const headers = ["S.No", "Particular"];
     for (let i = 1; i <= projectionYears; i++) {
       headers.push(`Year ${i}`);
     }
-
+  
     const data = [headers];
-
+  
     // Use either Others or Monthly format
     if (formType && localData?.formFields?.length > 0) {
       // Others Template
@@ -525,12 +503,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           item.serialNumber ?? "",
           item.particular ?? "",
           ...(item.years ?? []).slice(0, projectionYears),
-          rowTypeToLabel(item.rowType), // ➕ Add Row Type as last column
+          rowTypeToLabel(item.rowType) // ➕ Add Row Type as last column
         ];
         while (row.length < 2 + projectionYears + 1) row.push(""); // ➕ Adjust for extra column
         data.push(row);
       });
-
+      
+  
       // Add Total Row
       const totalRow = [
         "",
@@ -554,18 +533,16 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       // Add one blank row if no data available
       data.push(["1", "Sample Entry", ...Array(projectionYears).fill("")]);
     }
-
+  
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Template");
-
-    const fileName = `${businessName.replace(
-      /[/\\?%*:|"<>]/g,
-      "-"
-    )}_Template.xlsx`;
-
+  
+    const fileName = `${businessName.replace(/[/\\?%*:|"<>]/g, "-")}_Template.xlsx`;
+  
     XLSX.writeFile(wb, fileName);
   };
+  
 
   return (
     <>
