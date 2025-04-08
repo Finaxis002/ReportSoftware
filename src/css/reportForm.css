@@ -538,7 +538,7 @@ body.dark {
   width: 80px; /* Adjust input width */
   height: 22px; /* Compact height */
   font-size: 14px;
-  padding: 2px;
+  padding: 10px;
   text-align: left;
   border: none; /* Remove borders */
   background-color: transparent; /* Transparent background */
@@ -581,6 +581,7 @@ body.dark {
   min-width: 80px;
   max-width: 80px;
   text-align: left;
+  padding: 5px;
 }
 
 .total-div td, 
