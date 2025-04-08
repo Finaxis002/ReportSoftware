@@ -93,10 +93,16 @@ const CurrentRatio = ({
     }
   }, [JSON.stringify(currentRatio)]);
 
+  const orientation =
+  hideFirstYear
+    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+
+
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 6 ? "landscape" : "portrait"}
+      orientation={orientation}
       style={[{ padding: "20px", paddingVertical: "40px" }]}
       //   wrap={false}
       //   break

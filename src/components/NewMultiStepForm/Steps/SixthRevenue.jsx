@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 
 const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
+  const [excelFile, setExcelFile] = useState(null);
+
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
 
   // const [totalRevenue, setTotalRevenue] = useState(
@@ -377,63 +379,118 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     console.log("Form submitted", localData);
   };
 
-  const handleImportExcel = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+  const handleImportExcel = (file) => {
     const reader = new FileReader();
-
+  
     reader.onload = (evt) => {
       const data = evt.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
-
-      const sheetName = workbook.SheetNames[0]; // We’ll assume only 1 sheet
+  
+      const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Get 2D array
-
-      if (!formType) {
-        // 🟢 Monthly Table (formFields2)
-        const [header, ...rows] = json;
-      
-        const importedData = rows.map((row) => ({
-          particular: row[0] ?? "",
-          years: row.slice(1, 1 + projectionYears).map((val) => Number(val || 0)),
-          amount: 0,
-          increaseBy: row[1 + projectionYears] ?? "",
-        }));
-      
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // 2D array
+  
+      const [header, ...rows] = json;
+  
+      if (formType) {
+        // ✅ OTHERS MODE
+        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+  
+        // Extract total revenue row (assuming it's the last row)
+        const totalRevenueRow = rows.find((row) =>
+          String(row[0] || "").toLowerCase().includes("total")
+        );
+  
+        const importedTotalRevenue = totalRevenueRow
+          ? totalRevenueRow.slice(2, 2 + projectionYears).map((val) => Number(val || 0))
+          : Array(projectionYears).fill(0); // default fallback
+  
+        // Extract regular rows
+        const formFields = rows
+          .filter((row) => !String(row[0] || "").toLowerCase().includes("total")) // exclude "Total Revenue" row
+          .map((row) => ({
+            serialNumber: row[0] ?? "",
+            particular: row[1] ?? "",
+            years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
+            rowType: "0",
+            increaseBy: "",
+          }));
+  
         setLocalData((prev) => ({
           ...prev,
-          formFields2: importedData,
+          formFields,
+          totalRevenueForOthers: importedTotalRevenue,
         }));
       } else {
-        // 🟣 Others Table (formFields)
-        const [header, ...rows] = json;
-      
-        const importedData = rows.map((row) => ({
-          serialNumber: row[0] ?? "",
+        // ✅ MONTHLY MODE
+        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+        const monthlyRows = rows.filter((row) => !String(row[0] || "").toLowerCase().includes("total"));
+  
+        const formFields2 = monthlyRows.map((row) => ({
           particular: row[1] ?? "",
           years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
-          rowType: row[2 + projectionYears] ?? "0",
-          increaseBy: row[3 + projectionYears] ?? "",
+          amount: 0,
+          increaseBy: "",
         }));
-      
+  
         setLocalData((prev) => ({
           ...prev,
-          formFields: importedData,
+          formFields2,
         }));
       }
-      
-     
     };
-
+  
     reader.readAsBinaryString(file);
   };
+  
 
   return (
     <>
       <div className="form-scroll">
         {/* ✅ Toggle Section */}
+
+        <div className="flex items-center gap-4 ">
+          <label
+            htmlFor="excel-upload"
+            className="cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white shadow-sm hover:bg-gray-100 transition duration-150 text-sm"
+          >
+            📁 Choose Excel File
+          </label>
+
+          <input
+            id="excel-upload"
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={(e) => setExcelFile(e.target.files?.[0])}
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            className={`px-4 py-2 rounded text-white text-sm transition duration-150 ${
+              excelFile
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            onClick={() => {
+              if (excelFile) {
+                handleImportExcel(excelFile);
+              } else {
+                alert("Please select a file first.");
+              }
+            }}
+            disabled={!excelFile}
+          >
+            ✅ Import Excel Data
+          </button>
+
+          {excelFile && (
+            <span className="text-sm text-gray-600 italic">
+              Selected: {excelFile.name}
+            </span>
+          )}
+        </div>
+
         <div className="toggleBtn">
           {formType ? (
             <button
@@ -462,14 +519,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           <label htmlFor="toggle-btn"></label>
           Others
         </div>
-
-
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleImportExcel}
-          className="import-btn"
-        />
 
         {formType ? (
           <form onSubmit={submit}>

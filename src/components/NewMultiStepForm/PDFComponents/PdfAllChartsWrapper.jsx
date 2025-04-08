@@ -1,24 +1,38 @@
-
 import React, { useState, useEffect } from "react";
 import PdfWithChart from "./PdfWithChart";
 import PdfWithCombinedCharts from "./PdfWithCombinedCharts";
-import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 20,
-  },
-  section: {
-    margin: 10,
-  },
-  chartImage: {
-    width: 400,
-    height: 300,
-    marginVertical: 20,
-  },
-});
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
-const PdfAllChartsWrapper = ({ formData, totalExpenses, labels, dscr, currentRatio }) => {
+// const styles = StyleSheet.create({
+//   page: {
+//     padding: 20,
+//   },
+//   section: {
+//     margin: 10,
+//   },
+//   chartImage: {
+//     width: 400,
+//     height: 300,
+//     marginVertical: 20,
+//   },
+// });
+
+const PdfAllChartsWrapper = ({
+  formData,
+  totalExpenses,
+  labels,
+  dscr,
+  currentRatio,
+}) => {
   const [pieChart, setPieChart] = useState(null);
   const [barChart, setBarChart] = useState(null);
   const [dscrChart, setDscrChart] = useState(null);
@@ -51,33 +65,30 @@ const PdfAllChartsWrapper = ({ formData, totalExpenses, labels, dscr, currentRat
         onCurrentRatioReady={setCurrentRatioChart}
       />
 
-    
-
       {/* Once all charts are ready, render the PDF */}
       {chartsReady && (
-        <Document>
-          <Page size="A4" style={styles.page}>
-            <View style={styles.section}>
-              <Text>Direct Expense Breakup</Text>
-              <Image src={pieChart} style={styles.chartImage} />
-            </View>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.section}>
 
-            <View style={styles.section}>
-              <Text>Revenue vs Expenses</Text>
-              <Image src={barChart} style={styles.chartImage} />
-            </View>
+            <Text>Direct Expense Breakup</Text>
+            <Image src={pieChart} style={styles.chartImage} />
+          </View>
 
-            <View style={styles.section}>
-              <Text>DSCR Chart</Text>
-              <Image src={dscrChart} style={styles.chartImage} />
-            </View>
+          <View style={styles.section}>
+            <Text>Revenue vs Expenses</Text>
+            <Image src={barChart} style={styles.chartImage} />
+          </View>
 
-            <View style={styles.section}>
-              <Text>Current Ratio</Text>
-              <Image src={currentRatioChart} style={styles.chartImage} />
-            </View>
-          </Page>
-        </Document>
+          <View style={styles.section}>
+            <Text>DSCR Chart</Text>
+            <Image src={dscrChart} style={styles.chartImage} />
+          </View>
+
+          <View style={styles.section}>
+            <Text>Current Ratio</Text>
+            <Image src={currentRatioChart} style={styles.chartImage} />
+          </View>
+        </Page>
       )}
     </>
   );

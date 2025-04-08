@@ -385,14 +385,17 @@ const ProjectedDepreciation = ({
   }, [formData, years]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const orientation =
+  hideFirstYear
+    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+
 
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears > 6
-          ? "landscape"
-          : "portrait"
+       orientation
       }
       wrap={false}
       break
