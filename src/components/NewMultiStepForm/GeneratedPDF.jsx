@@ -133,8 +133,10 @@ const GeneratedPDF = ({}) => {
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
 
+
   const [blobObject, setBlobObject] = useState();
   const [blobUrl, setBlobUrl] = useState();
+
 
   const location = useLocation();
 
@@ -878,6 +880,7 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
+
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
          
@@ -897,6 +900,7 @@ const GeneratedPDF = ({}) => {
               .trim();
 
             saveAs(blob, `${safeName}.pdf`);
+
           };
 
           return (

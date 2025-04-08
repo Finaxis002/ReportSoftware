@@ -624,7 +624,7 @@ const FourthStepPRS = ({
                   <select
                     id="CAName"
                     name="CAName"
-                    value={localData.CAName || ""}
+                    value={localData?.CAName || ""}
                     onChange={handleChange}
                     className="form-control selectInput"
                   >
@@ -646,7 +646,7 @@ const FourthStepPRS = ({
                     name="MembershipNumber"
                     type="text"
                     placeholder="Membership Number"
-                    value={localData.MembershipNumber || ""}
+                    value={localData?.MembershipNumber?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MembershipNumber">Membership Number</label>
@@ -661,7 +661,7 @@ const FourthStepPRS = ({
                     name="MobileNumber"
                     type="text"
                     placeholder="Mobile Number"
-                    value={localData.MobileNumber || ""}
+                    value={localData?.MobileNumber?.value || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MobileNumber">Mobile Number</label>

@@ -77,4 +77,5 @@ const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRa
   );
 };
 
+
 export default PdfWithCurrentRatioChart;

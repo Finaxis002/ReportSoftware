@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
+
 const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
   return (
     <Page style={[styles.page]}>

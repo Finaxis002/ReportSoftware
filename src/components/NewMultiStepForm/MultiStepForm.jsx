@@ -58,15 +58,25 @@ const MultiStepForm = ({ userRole, userName }) => {
     generatedPDF: {},
   });
 
+  // useEffect(() => {
+  //   if (isCreateReportWithExistingClicked && reportData) {
+  //     // Pre-fill the form data when creating new from existing report
+  //     const preFilledData = { ...reportData }; // Clone the report data
+  //     setFormData(preFilledData);
+  //   }
+  // }, [isCreateReportWithExistingClicked, reportData]);
+
+  // Store data in localStorage whenever formData changes
   useEffect(() => {
     if (isCreateReportWithExistingClicked && reportData) {
-      // Pre-fill the form data when creating new from existing report
-      const preFilledData = { ...reportData }; // Clone the report data
+      const preFilledData = { ...reportData };
+      delete preFilledData._id;
+      delete preFilledData.sessionId; // ✅ CRITICAL
       setFormData(preFilledData);
     }
   }, [isCreateReportWithExistingClicked, reportData]);
-
-  // Store data in localStorage whenever formData changes
+  
+  
   useEffect(() => {
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
@@ -175,6 +185,8 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
+  
+
   const handleCreateNewFromExisting = async () => {
     try {
       console.log(
@@ -188,6 +200,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       delete newData._id;
       delete newData.sessionId;
 
+      newData.cloneFromExisting = true;
       console.log(
         "🚀 Final Payload Before API Call:",
         JSON.stringify(newData, null, 2)
@@ -230,6 +243,10 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
+  
+
+  
+  
   const handleUpdate = async () => {
     if (!sessionId) {
       alert("No session ID found. Please select a business first.");
@@ -553,3 +570,9 @@ const MultiStepForm = ({ userRole, userName }) => {
 };
 
 export default MultiStepForm;
+
+
+
+////////////////////////////////////////////////////////////////
+
+
