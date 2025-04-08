@@ -555,7 +555,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   return (
     <>
-      <div className="form-scroll">
+      <div className="form-scroll p-0">
         {/* ✅ Toggle Section */}
 
         <div className="flex items-center gap-4 ">
@@ -643,8 +643,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
         {formType ? (
           <form onSubmit={submit}>
-            <div className="position-relative w-100">
-              <div className="form-scroll" style={{ height: "30vh" }}>
+            <div
+              className="position-relative w-100"
+              style={{ position: "relative" }}
+            >
+              <div style={{  }}>
                 <table className="table table-revenue">
                   <thead>
                     <tr>
@@ -811,12 +814,23 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                 </table>
               </div>
 
-              <div className="position-relative w-100 overflow-y-scroll">
-                <div className="pt-3 total-div">
+              <div
+                className="total-fixed-row dark:bg-gray-800"
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  borderTop: "1px solid #ddd",
+                  boxShadow: "0 -2px 6px rgba(0,0,0,0.1)",
+                  zIndex: 10,
+                }}
+              >
+                <div className=" total-div">
                   <div className="d-flex">
                     <label
                       htmlFor=""
-                      className="form-label w-25 fs-10 dark:text-gray-950"
+                      className="form-label text-sm w-30 fs-10 dark:text-gray-950"
                     >
                       Total Revenue From Operations
                     </label>
@@ -844,10 +858,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 }}
                                 className="total-revenue-input"
                                 type="text" // Use text instead of number to allow commas
-                                style={{
-                                  padding: "5px",
-                                  textAlign: "right",
-                                }}
+                               
                               />
                             </td>
                           ))}
