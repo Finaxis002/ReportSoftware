@@ -381,41 +381,95 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   const handleImportExcel = (file) => {
     const reader = new FileReader();
-  
+
     reader.onload = (evt) => {
       const data = evt.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
-  
+
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // 2D array
-  
+
       const [header, ...rows] = json;
-  
+
+      const projectionYears = parseInt(
+        formData?.ProjectReportSetting?.ProjectionYears || 5
+      );
+
+      const getYearValues = (row, startIndex) => {
+        const values = row
+          .slice(startIndex, startIndex + projectionYears)
+          .map((val) => {
+            const trimmed = String(val).trim();
+            return trimmed === "" ? "" : Number(val);
+          });
+
+        while (values.length < projectionYears) {
+          values.push(""); // fill missing years with blank instead of 0
+        }
+
+        return values;
+      };
+
       if (formType) {
         // ✅ OTHERS MODE
-        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  
-        // Extract total revenue row (assuming it's the last row)
-        const totalRevenueRow = rows.find((row) =>
-          String(row[0] || "").toLowerCase().includes("total")
+
+        // Extract total revenue row (assuming it's the last row or includes "total")
+        const totalRevenueRow = rows.find(
+          (row) =>
+            String(row[0] || "")
+              .toLowerCase()
+              .includes("total revenue from operations") ||
+            String(row[1] || "")
+              .toLowerCase()
+              .includes("total revenue from operations")
         );
-  
+
         const importedTotalRevenue = totalRevenueRow
-          ? totalRevenueRow.slice(2, 2 + projectionYears).map((val) => Number(val || 0))
-          : Array(projectionYears).fill(0); // default fallback
-  
-        // Extract regular rows
+          ? getYearValues(totalRevenueRow, 2)
+          : Array(projectionYears).fill(0);
         const formFields = rows
-          .filter((row) => !String(row[0] || "").toLowerCase().includes("total")) // exclude "Total Revenue" row
-          .map((row) => ({
-            serialNumber: row[0] ?? "",
-            particular: row[1] ?? "",
-            years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
-            rowType: "0",
-            increaseBy: "",
-          }));
-  
+          .filter(
+            (row) =>
+              !String(row[0] || "")
+                .toLowerCase()
+                .includes("total revenue from operations") &&
+              !String(row[1] || "")
+                .toLowerCase()
+                .includes("total revenue from operations")
+          )
+          .map((row) => {
+            let particular = (row[1] ?? "").trim();
+            let rowType = "0"; // default: Normal
+
+            if (particular.startsWith("#")) {
+              rowType = "1"; // Heading
+              particular = particular.replace(/^#\s*/, "");
+            } else if (
+              particular.startsWith("__**") &&
+              particular.endsWith("**__")
+            ) {
+              rowType = "3"; // Bold + Underline
+              particular = particular
+                .replace(/^__\*\*/, "")
+                .replace(/\*\*__$/, "");
+            } else if (
+              particular.startsWith("**") &&
+              particular.endsWith("**")
+            ) {
+              rowType = "2"; // Bold
+              particular = particular.replace(/^\*\*/, "").replace(/\*\*$/, "");
+            }
+
+            return {
+              serialNumber: row[0] ?? "",
+              particular,
+              years: getYearValues(row, 2),
+              rowType,
+              increaseBy: "",
+            };
+          });
+
         setLocalData((prev) => ({
           ...prev,
           formFields,
@@ -423,26 +477,95 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         }));
       } else {
         // ✅ MONTHLY MODE
-        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
-        const monthlyRows = rows.filter((row) => !String(row[0] || "").toLowerCase().includes("total"));
-  
+
+        const monthlyRows = rows.filter(
+          (row) =>
+            !String(row[0] || "")
+              .toLowerCase()
+              .includes("total")
+        );
+
         const formFields2 = monthlyRows.map((row) => ({
           particular: row[1] ?? "",
-          years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
+          years: getYearValues(row, 2),
           amount: 0,
           increaseBy: "",
         }));
-  
+
         setLocalData((prev) => ({
           ...prev,
           formFields2,
         }));
       }
     };
-  
+
     reader.readAsBinaryString(file);
   };
-  
+
+  const handleDownloadTemplate = () => {
+    const businessName =
+      formData?.AccountInformation?.businessName || "Template";
+
+    const projectionYears = parseInt(
+      formData?.ProjectReportSetting?.ProjectionYears || 5
+    );
+
+    const headers = ["S.No", "Particular"];
+    for (let i = 1; i <= projectionYears; i++) {
+      headers.push(`Year ${i}`);
+    }
+
+    const data = [headers];
+
+    // Use either Others or Monthly format
+    if (formType && localData?.formFields?.length > 0) {
+      // Others Template
+      localData.formFields.forEach((item) => {
+        const row = [
+          item.serialNumber ?? "",
+          item.particular ?? "",
+          ...(item.years ?? []).slice(0, projectionYears),
+          rowTypeToLabel(item.rowType), // ➕ Add Row Type as last column
+        ];
+        while (row.length < 2 + projectionYears + 1) row.push(""); // ➕ Adjust for extra column
+        data.push(row);
+      });
+
+      // Add Total Row
+      const totalRow = [
+        "",
+        "Total Revenue From Operations",
+        ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
+      ];
+      while (totalRow.length < 2 + projectionYears) totalRow.push("");
+      data.push(totalRow);
+    } else if (!formType && localData?.formFields2?.length > 0) {
+      // Monthly Template
+      localData.formFields2.forEach((item) => {
+        const row = [
+          "", // no serial number
+          item.particular ?? "",
+          ...(item.years ?? []).slice(0, projectionYears),
+        ];
+        while (row.length < 2 + projectionYears) row.push("");
+        data.push(row);
+      });
+    } else {
+      // Add one blank row if no data available
+      data.push(["1", "Sample Entry", ...Array(projectionYears).fill("")]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    const fileName = `${businessName.replace(
+      /[/\\?%*:|"<>]/g,
+      "-"
+    )}_Template.xlsx`;
+
+    XLSX.writeFile(wb, fileName);
+  };
 
   return (
     <>
@@ -450,6 +573,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         {/* ✅ Toggle Section */}
 
         <div className="flex items-center gap-4 ">
+          {/* Upload Label */}
           <label
             htmlFor="excel-upload"
             className="cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white shadow-sm hover:bg-gray-100 transition duration-150 text-sm"
@@ -457,6 +581,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             📁 Choose Excel File
           </label>
 
+          {/* Hidden File Input */}
           <input
             id="excel-upload"
             type="file"
@@ -465,6 +590,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             className="hidden"
           />
 
+          {/* Import Button */}
           <button
             type="button"
             className={`px-4 py-2 rounded text-white text-sm transition duration-150 ${
@@ -484,6 +610,16 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             ✅ Import Excel Data
           </button>
 
+          {/* Download Template Button */}
+          <button
+            type="button"
+            className="px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 text-sm transition duration-150"
+            onClick={() => handleDownloadTemplate()}
+          >
+            📥 Download Template
+          </button>
+
+          {/* File Name Preview */}
           {excelFile && (
             <span className="text-sm text-gray-600 italic">
               Selected: {excelFile.name}
@@ -617,7 +753,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             <td key={y}>
                               <input
                                 name="value"
-                                placeholder="0"
+                                placeholder=""
                                 className="table-input"
                                 type="text"
                                 value={formatNumberWithCommas(yr || 0)}
@@ -697,7 +833,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       htmlFor=""
                       className="form-label w-25 fs-10 dark:text-gray-950"
                     >
-                      Total Revenue
+                      Total Revenue From Operations
                     </label>
                     <table className="table">
                       <tbody>
@@ -803,7 +939,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             <td key={y}>
                               <input
                                 name="value"
-                                placeholder="0"
+                                placeholder=""
                                 className="table-input"
                                 type="text" // ✅ change to text so we can show commas
                                 value={formatNumberWithCommas(yr || "")}
