@@ -262,7 +262,7 @@ const ProjectedBalanceSheet = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 6 ? "landscape" : "portrait"}
+      orientation={projectionYears > 5 ? "landscape" : "portrait"}
       wrap={false}
       break
       style={[{ padding: "20px" }]}
