@@ -47,11 +47,21 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     }
   }, [revenueData?.togglerType]);
 
+  // on change
   const changeMonth = (index, newValue) => {
     const updated = [...noOfMonths];
     updated[index] = Number(newValue);
     setNoOfMonths(updated);
+    localStorage.setItem("noOfMonths", JSON.stringify(updated));
   };
+
+  // on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("noOfMonths");
+    if (saved) {
+      setNoOfMonths(JSON.parse(saved));
+    }
+  }, []);
 
   // ✅ Initialize formType based on revenueData first, fallback to formData
   const [formType, setFormType] = useState(() => {
@@ -248,16 +258,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     setLocalData({ ...localData, formFields: updatedFormFields });
   };
 
-  // Format number with commas (Indian format)
-  const formatNumberWithCommas = (num) => {
-    const x = num.toString().replace(/,/g, "");
-    if (isNaN(Number(x))) return num;
-    return Number(x).toLocaleString("en-IN");
-  };
-
-  // Remove commas for raw value
-  const removeCommas = (str) => str.replace(/,/g, "");
-
   const addFields2 = (e) => {
     e.preventDefault();
     let object = {
@@ -403,14 +403,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             const trimmed = String(val).trim();
             return trimmed === "" ? "" : Number(val);
           });
-      
+
         while (values.length < projectionYears) {
           values.push(""); // fill missing years with blank instead of 0
         }
-      
+
         return values;
       };
-      
 
       if (formType) {
         // ✅ OTHERS MODE
@@ -427,19 +426,19 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         );
 
         const importedTotalRevenue = totalRevenueRow
-        ? getYearValues(totalRevenueRow, 2)
-        : Array(projectionYears).fill(0);
+          ? getYearValues(totalRevenueRow, 2)
+          : Array(projectionYears).fill(0);
         const formFields = rows
-        
-        .filter(
-          (row) =>
-            !String(row[0] || "")
-              .toLowerCase()
-              .includes("total revenue from operations") &&
-            !String(row[1] || "")
-              .toLowerCase()
-              .includes("total revenue from operations")
-        )
+
+          .filter(
+            (row) =>
+              !String(row[0] || "")
+                .toLowerCase()
+                .includes("total revenue from operations") &&
+              !String(row[1] || "")
+                .toLowerCase()
+                .includes("total revenue from operations")
+          )
           .map((row) => ({
             serialNumber: row[0] ?? "",
             particular: row[1] ?? "",
@@ -483,17 +482,18 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   const handleDownloadTemplate = () => {
     const businessName =
       formData?.AccountInformation?.businessName || "Template";
-  
-    const projectionYears =
-      parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  
+
+    const projectionYears = parseInt(
+      formData?.ProjectReportSetting?.ProjectionYears || 5
+    );
+
     const headers = ["S.No", "Particular"];
     for (let i = 1; i <= projectionYears; i++) {
       headers.push(`Year ${i}`);
     }
-  
+
     const data = [headers];
-  
+
     // Use either Others or Monthly format
     if (formType && localData?.formFields?.length > 0) {
       // Others Template
@@ -506,7 +506,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         while (row.length < 2 + projectionYears) row.push("");
         data.push(row);
       });
-  
+
       // Add Total Row
       const totalRow = [
         "",
@@ -530,16 +530,28 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       // Add one blank row if no data available
       data.push(["1", "Sample Entry", ...Array(projectionYears).fill("")]);
     }
-  
+
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Template");
-  
-    const fileName = `${businessName.replace(/[/\\?%*:|"<>]/g, "-")}_Template.xlsx`;
-  
+
+    const fileName = `${businessName.replace(
+      /[/\\?%*:|"<>]/g,
+      "-"
+    )}_Template.xlsx`;
+
     XLSX.writeFile(wb, fileName);
   };
-  
+
+  // Format number with commas (Indian format)
+  const formatNumberWithCommas = (num) => {
+    const x = num.toString().replace(/,/g, "");
+    if (isNaN(Number(x))) return num;
+    return Number(x).toLocaleString("en-IN");
+  };
+
+  // Remove commas for raw value
+  const removeCommas = (str) => str.replace(/,/g, "");
 
   return (
     <>
@@ -547,6 +559,14 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         {/* ✅ Toggle Section */}
 
         <div className="flex items-center gap-4 ">
+          {/* Download Template Button */}
+          <button
+            type="button"
+            className="px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 text-sm transition duration-150"
+            onClick={() => handleDownloadTemplate()}
+          >
+            📥 Download Template
+          </button>
           {/* Upload Label */}
           <label
             htmlFor="excel-upload"
@@ -582,15 +602,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             disabled={!excelFile}
           >
             ✅ Import Excel Data
-          </button>
-
-          {/* Download Template Button */}
-          <button
-            type="button"
-            className="px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 text-sm transition duration-150"
-            onClick={() => handleDownloadTemplate()}
-          >
-            📥 Download Template
           </button>
 
           {/* File Name Preview */}
@@ -821,21 +832,21 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <input
                                 name={`value-${i}`} // Unique name for each input
                                 placeholder="Enter value"
-                                value={
+                                value={formatNumberWithCommas(
                                   localData.totalRevenueForOthers?.[i] ?? ""
-                                } // Handle empty fields
-                                onChange={(e) =>
+                                )} // Show formatted value
+                                onChange={(e) => {
+                                  const rawValue = removeCommas(e.target.value); // Get raw number
                                   handleTotalRevenueForOthersChange(
-                                    e.target.value,
+                                    rawValue,
                                     i
-                                  )
-                                }
-                                // className="form-control text-end noBorder"
-
+                                  ); // Save clean value
+                                }}
                                 className="total-revenue-input"
-                                type="number"
+                                type="text" // Use text instead of number to allow commas
                                 style={{
                                   padding: "5px",
+                                  textAlign: "right",
                                 }}
                               />
                             </td>
