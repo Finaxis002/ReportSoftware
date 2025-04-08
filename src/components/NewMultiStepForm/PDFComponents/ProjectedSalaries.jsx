@@ -250,7 +250,7 @@ const ProjectedSalaries = ({
                 borderBottomWidth: "1px",
                 fontSize: "10px",
                 paddingVertical: "6px",
-                width:"100%"
+                width:"110%"
               },
             ]}
           >

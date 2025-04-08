@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 
 const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
+  const [excelFile, setExcelFile] = useState(null);
+
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
 
   // const [totalRevenue, setTotalRevenue] = useState(
@@ -16,8 +19,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   );
-
-
 
   useEffect(() => {
     const updatedTotalRevenue = Array.from(
@@ -192,20 +193,41 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     });
   };
 
-const handleFormChange = (event, index, field = null) => {
-  const { name, value } = event.target;
-  const updatedFormFields = [...localData.formFields];
+  const handleFormChange = (event, index, field = null) => {
+    const { name, value } = event.target;
+    const updatedFormFields = [...localData.formFields];
 
-  if (field === "serialNumber") {
-    updatedFormFields[index][field] = value;
-  } else if (field !== null && name === "value") {
-    // Year cell update
-    updatedFormFields[index].years[field] = value;
+    if (field === "serialNumber") {
+      updatedFormFields[index][field] = value;
+    } else if (field !== null && name === "value") {
+      // Year cell update
+      updatedFormFields[index].years[field] = value;
 
-    // ✅ If this is the first year, and increaseBy exists → recalculate onward years
-    if (field === 0) {
-      const baseValue = parseFloat(value);
-      const increasePercent = parseFloat(updatedFormFields[index].increaseBy);
+      // ✅ If this is the first year, and increaseBy exists → recalculate onward years
+      if (field === 0) {
+        const baseValue = parseFloat(value);
+        const increasePercent = parseFloat(updatedFormFields[index].increaseBy);
+        const projectionYears =
+          parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
+
+        if (!isNaN(baseValue) && !isNaN(increasePercent)) {
+          updatedFormFields[index].years = [baseValue];
+          for (let y = 1; y < projectionYears; y++) {
+            const prev = parseFloat(updatedFormFields[index].years[y - 1]);
+            const next = parseFloat(
+              (prev * (1 + increasePercent / 100)).toFixed(2)
+            );
+            updatedFormFields[index].years[y] = next;
+          }
+        }
+      }
+    } else if (name === "increaseBy") {
+      // ✅ Store increaseBy
+      updatedFormFields[index][name] = value;
+
+      // ✅ If year 1 exists, use it to recalculate
+      const baseValue = parseFloat(updatedFormFields[index].years[0]);
+      const increasePercent = parseFloat(value);
       const projectionYears =
         parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
 
@@ -219,34 +241,12 @@ const handleFormChange = (event, index, field = null) => {
           updatedFormFields[index].years[y] = next;
         }
       }
+    } else {
+      updatedFormFields[index][name] = value;
     }
-  } else if (name === "increaseBy") {
-    // ✅ Store increaseBy
-    updatedFormFields[index][name] = value;
 
-    // ✅ If year 1 exists, use it to recalculate
-    const baseValue = parseFloat(updatedFormFields[index].years[0]);
-    const increasePercent = parseFloat(value);
-    const projectionYears =
-      parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
-
-    if (!isNaN(baseValue) && !isNaN(increasePercent)) {
-      updatedFormFields[index].years = [baseValue];
-      for (let y = 1; y < projectionYears; y++) {
-        const prev = parseFloat(updatedFormFields[index].years[y - 1]);
-        const next = parseFloat(
-          (prev * (1 + increasePercent / 100)).toFixed(2)
-        );
-        updatedFormFields[index].years[y] = next;
-      }
-    }
-  } else {
-    updatedFormFields[index][name] = value;
-  }
-
-  setLocalData({ ...localData, formFields: updatedFormFields });
-};
-
+    setLocalData({ ...localData, formFields: updatedFormFields });
+  };
 
   // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
@@ -284,18 +284,19 @@ const handleFormChange = (event, index, field = null) => {
   const handleFormChange2 = (event, childIndex, yearIndex = null) => {
     const { name, value } = event.target;
     let data = [...localData.formFields2];
-  
+
     if (name === "particular") {
       data[childIndex]["particular"] = value;
     } else if (name === "amount") {
       data[childIndex]["amount"] = Number(value);
     } else if (name === "increaseBy") {
       data[childIndex]["increaseBy"] = value;
-  
+
       const baseValue = parseFloat(data[childIndex]?.years?.[0]);
       const percent = parseFloat(value);
-      const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
-  
+      const projectionYears =
+        parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
+
       if (!isNaN(baseValue) && !isNaN(percent)) {
         data[childIndex].years = [baseValue];
         for (let j = 1; j < projectionYears; j++) {
@@ -306,13 +307,14 @@ const handleFormChange = (event, index, field = null) => {
       }
     } else if (name === "value") {
       data[childIndex]["years"][yearIndex] = Number(value);
-  
+
       // ✅ Trigger auto-calc if it's the first year and increaseBy is already filled
       if (yearIndex === 0) {
         const baseValue = parseFloat(value);
         const percent = parseFloat(data[childIndex].increaseBy);
-        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
-  
+        const projectionYears =
+          parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
+
         if (!isNaN(baseValue) && !isNaN(percent)) {
           data[childIndex].years = [baseValue];
           for (let j = 1; j < projectionYears; j++) {
@@ -323,10 +325,9 @@ const handleFormChange = (event, index, field = null) => {
         }
       }
     }
-  
+
     setLocalData({ ...localData, formFields2: data });
   };
-  
 
   const handleTotalRevenueForOthersChange = (value, index) => {
     setLocalData((prevData) => {
@@ -378,10 +379,118 @@ const handleFormChange = (event, index, field = null) => {
     console.log("Form submitted", localData);
   };
 
+  const handleImportExcel = (file) => {
+    const reader = new FileReader();
+  
+    reader.onload = (evt) => {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+  
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // 2D array
+  
+      const [header, ...rows] = json;
+  
+      if (formType) {
+        // ✅ OTHERS MODE
+        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+  
+        // Extract total revenue row (assuming it's the last row)
+        const totalRevenueRow = rows.find((row) =>
+          String(row[0] || "").toLowerCase().includes("total")
+        );
+  
+        const importedTotalRevenue = totalRevenueRow
+          ? totalRevenueRow.slice(2, 2 + projectionYears).map((val) => Number(val || 0))
+          : Array(projectionYears).fill(0); // default fallback
+  
+        // Extract regular rows
+        const formFields = rows
+          .filter((row) => !String(row[0] || "").toLowerCase().includes("total")) // exclude "Total Revenue" row
+          .map((row) => ({
+            serialNumber: row[0] ?? "",
+            particular: row[1] ?? "",
+            years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
+            rowType: "0",
+            increaseBy: "",
+          }));
+  
+        setLocalData((prev) => ({
+          ...prev,
+          formFields,
+          totalRevenueForOthers: importedTotalRevenue,
+        }));
+      } else {
+        // ✅ MONTHLY MODE
+        const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+        const monthlyRows = rows.filter((row) => !String(row[0] || "").toLowerCase().includes("total"));
+  
+        const formFields2 = monthlyRows.map((row) => ({
+          particular: row[1] ?? "",
+          years: row.slice(2, 2 + projectionYears).map((val) => Number(val || 0)),
+          amount: 0,
+          increaseBy: "",
+        }));
+  
+        setLocalData((prev) => ({
+          ...prev,
+          formFields2,
+        }));
+      }
+    };
+  
+    reader.readAsBinaryString(file);
+  };
+  
+
   return (
     <>
       <div className="form-scroll">
         {/* ✅ Toggle Section */}
+
+        <div className="flex items-center gap-4 ">
+          <label
+            htmlFor="excel-upload"
+            className="cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white shadow-sm hover:bg-gray-100 transition duration-150 text-sm"
+          >
+            📁 Choose Excel File
+          </label>
+
+          <input
+            id="excel-upload"
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={(e) => setExcelFile(e.target.files?.[0])}
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            className={`px-4 py-2 rounded text-white text-sm transition duration-150 ${
+              excelFile
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            onClick={() => {
+              if (excelFile) {
+                handleImportExcel(excelFile);
+              } else {
+                alert("Please select a file first.");
+              }
+            }}
+            disabled={!excelFile}
+          >
+            ✅ Import Excel Data
+          </button>
+
+          {excelFile && (
+            <span className="text-sm text-gray-600 italic">
+              Selected: {excelFile.name}
+            </span>
+          )}
+        </div>
+
         <div className="toggleBtn">
           {formType ? (
             <button
@@ -534,7 +643,6 @@ const handleFormChange = (event, index, field = null) => {
                           {/* Row Type Dropdown */}
                           <td>
                             <select
-                             
                               id="rowType"
                               name="rowType"
                               value={entry.rowType}
@@ -585,7 +693,10 @@ const handleFormChange = (event, index, field = null) => {
               <div className="position-relative w-100 overflow-y-scroll">
                 <div className="pt-3 total-div">
                   <div className="d-flex">
-                    <label htmlFor="" className="form-label w-25 fs-10 dark:text-gray-950">
+                    <label
+                      htmlFor=""
+                      className="form-label w-25 fs-10 dark:text-gray-950"
+                    >
                       Total Revenue
                     </label>
                     <table className="table">
@@ -597,20 +708,27 @@ const handleFormChange = (event, index, field = null) => {
                               0, // Generate fields based on projection years
                           }).map((_, i) => (
                             <td key={i}>
-                            <input
-                              name={`value-${i}`} // Unique name
-                              placeholder="Enter value"
-                              value={formatNumberWithCommas(localData.totalRevenueForOthers?.[i] ?? "")}
-                              onChange={(event) => {
-                                const rawValue = removeCommas(event.target.value); // "12345" from "12,345"
-                                handleTotalRevenueForOthersChange(rawValue, i); // Pass only the value
-                              }}
-                              className="total-revenue-input"
-                              type="text" // ✅ Use text instead of number to allow commas
-                              style={{ padding: "5px" }}
-                            />
-                          </td>
-                          
+                              <input
+                                name={`value-${i}`} // Unique name for each input
+                                placeholder="Enter value"
+                                value={
+                                  localData.totalRevenueForOthers?.[i] ?? ""
+                                } // Handle empty fields
+                                onChange={(e) =>
+                                  handleTotalRevenueForOthersChange(
+                                    e.target.value,
+                                    i
+                                  )
+                                }
+                                // className="form-control text-end noBorder"
+
+                                className="total-revenue-input"
+                                type="number"
+                                style={{
+                                  padding: "5px",
+                                }}
+                              />
+                            </td>
                           ))}
                         </tr>
                       </tbody>
@@ -739,74 +857,85 @@ const handleFormChange = (event, index, field = null) => {
 
               {String(formType || "")?.trim() !== "Others" && (
                 <div className="position-relative w-100">
-                <div className="total-div pt-3 px-2">
-                  {/* Total Monthly Revenue (Read-Only) */}
-                  <div className="d-flex">
-                    <label className="form-label w-[15rem] fs-10 dark:text-gray-950">Total Monthly Revenue</label>
-                    <table className="table mb-1">
-                      <tbody>
-                        <tr>
-                          {totalMonthlyRevenue.map((v, i) => (
-                            <td key={i}>{Number(v || 0).toLocaleString("en-IN")}</td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-              
-                  {/* Number of Months (Editable) */}
-                  <div className="d-flex">
-                    <label className="form-label w-[15rem] fs-10 dark:text-gray-950">No. of Months</label>
-                    <table className="table mb-1">
-                      <tbody>
-                        <tr>
-                          {noOfMonths.map((v, i) => (
-                            <td key={i}>
-                              <input
-                                className="total-revenue-input"
-                                style={{ width: "4rem", padding: "0px" }}
-                                type="number"
-                                value={v || 0}
-                                onChange={(e) => changeMonth(i, e.target.value)}
-                              />
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-              
-                  {/* Total Revenue = Monthly × Months */}
-                  <div className="d-flex">
-                    <label className="form-label w-[20rem] fs-10 pe-8 dark:text-gray-950">Total Revenue</label>
-                    <table className="table">
-                      <tbody>
-                        <tr>
-                          {Array.from({ length: projectionYears }).map((_, i) => {
-                            const total =
-                              (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
-                              (parseFloat(noOfMonths?.[i]) || 0);
-              
-                            return (
+                  <div className="total-div pt-3 px-2">
+                    {/* Total Monthly Revenue (Read-Only) */}
+                    <div className="d-flex">
+                      <label className="form-label w-[15rem] fs-10 dark:text-gray-950">
+                        Total Monthly Revenue
+                      </label>
+                      <table className="table mb-1">
+                        <tbody>
+                          <tr>
+                            {totalMonthlyRevenue.map((v, i) => (
+                              <td key={i}>
+                                {Number(v || 0).toLocaleString("en-IN")}
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Number of Months (Editable) */}
+                    <div className="d-flex">
+                      <label className="form-label w-[15rem] fs-10 dark:text-gray-950">
+                        No. of Months
+                      </label>
+                      <table className="table mb-1">
+                        <tbody>
+                          <tr>
+                            {noOfMonths.map((v, i) => (
                               <td key={i}>
                                 <input
-                                  name={`total-${i}`}
-                                  value={total.toLocaleString("en-IN")}
-                                  readOnly
-                                  className="total-revenue-input text-center"
-                                  type="text"
-                                  style={{ padding: "5px", border: "none" }}
+                                  className="total-revenue-input"
+                                  style={{ width: "4rem", padding: "0px" }}
+                                  type="number"
+                                  value={v || 0}
+                                  onChange={(e) =>
+                                    changeMonth(i, e.target.value)
+                                  }
                                 />
                               </td>
-                            );
-                          })}
-                        </tr>
-                      </tbody>
-                    </table>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Total Revenue = Monthly × Months */}
+                    <div className="d-flex">
+                      <label className="form-label w-[20rem] fs-10 pe-8 dark:text-gray-950">
+                        Total Revenue
+                      </label>
+                      <table className="table">
+                        <tbody>
+                          <tr>
+                            {Array.from({ length: projectionYears }).map(
+                              (_, i) => {
+                                const total =
+                                  (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
+                                  (parseFloat(noOfMonths?.[i]) || 0);
+
+                                return (
+                                  <td key={i}>
+                                    <input
+                                      name={`total-${i}`}
+                                      value={total.toLocaleString("en-IN")}
+                                      readOnly
+                                      className="total-revenue-input text-center"
+                                      type="text"
+                                      style={{ padding: "5px", border: "none" }}
+                                    />
+                                  </td>
+                                );
+                              }
+                            )}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
               )}
             </div>
           </form>

@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
-import "../generatedPdf.css"
+import "../generatedPdf.css";
 import {
   Document,
   PDFViewer,
@@ -133,10 +133,13 @@ const GeneratedPDF = ({}) => {
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
 
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [blobObject, setBlobObject] = useState(null);
+
+  const [blobObject, setBlobObject] = useState();
+  const [blobUrl, setBlobUrl] = useState();
+
 
   const location = useLocation();
+
   const stableLocation = useMemo(() => location, []);
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
@@ -813,22 +816,6 @@ const GeneratedPDF = ({}) => {
     lineChartBase64,
   ]);
 
-  const triggerPdfDownload = () => {
-    if (!blobUrl || !blobObject) {
-      alert("PDF not ready yet. Please wait...");
-      return;
-    }
-
-    const businessName = formData?.AccountInformation?.businessName || "Report";
-    const businessOwner =
-      formData?.AccountInformation?.businessOwner || "Owner";
-    const safeName = `${businessName} (${businessOwner})`
-      .replace(/[/\\?%*:|"<>]/g, "-")
-      .trim();
-
-    saveAs(blobObject, `${safeName}.pdf`);
-  };
-
   // for filling the form data silently
 
   useEffect(() => {
@@ -857,19 +844,15 @@ const GeneratedPDF = ({}) => {
     };
   }, []);
 
-
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, []);
-  
 
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-screen generatedpdf"
-      >
+    <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
       {/* ✅ Loader Section */}
       {isPDFLoading && (
         <div className="flex items-center justify-center">
@@ -897,18 +880,27 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
-        {(blobProps) => {
-          // Immediately assign values
-          if (blobProps.blob && blobProps.url && !blobObject && !blobUrl) {
-            setBlobObject(blobProps.blob);
-            setBlobUrl(blobProps.url);
-          }
 
-          const { loading } = blobProps;
+        {({ blob, url, loading }) => {
+          // ✅ Save to ref or state
+         
 
-          // Check if the blob is ready
-          const handleDownloadPDF = async () => {
-            triggerPdfDownload(); // All roles (employee, admin, client) can directly download
+          const handleDownloadPDF = () => {
+            if (!blob) {
+              alert("PDF is not ready yet.");
+              return;
+            }
+
+            const businessName =
+              formData?.AccountInformation?.businessName || "Report";
+            const businessOwner =
+              formData?.AccountInformation?.businessOwner || "Owner";
+            const safeName = `${businessName} (${businessOwner})`
+              .replace(/[/\\?%*:|"<>]/g, "-")
+              .trim();
+
+            saveAs(blob, `${safeName}.pdf`);
+
           };
 
           return (

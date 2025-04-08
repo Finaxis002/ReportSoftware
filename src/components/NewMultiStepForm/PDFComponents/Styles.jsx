@@ -326,6 +326,25 @@ console.log("Registered fonts:", Font.getRegisteredFonts?.());
 
 
 const styles = StyleSheet.create({
+
+  chartContainer: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  Charttitle: { fontSize: 18, marginBottom: 10, textAlign: "center" },
+  pieChart: {
+    width: 300,
+    height: 300,
+    marginVertical: 20,
+    borderRadius: 8,
+    textAlign: "center",
+  },
+  barChart: {
+    width: 400,
+    height: 300,
+    borderColor: "#ccc",
+    backgroundColor: "#ffffff",
+  },
   Width60: {
     width: "60%",
     wrap: false,
@@ -452,7 +471,7 @@ const styles = StyleSheet.create({
     wrap: false,
   },
   particularsCell: {
-    width: "50%",
+    width: "55%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
@@ -470,7 +489,7 @@ const styles = StyleSheet.create({
     wrap: false,
   },
   detailsCell: {
-    width: "65%",
+    width: "30%",
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
@@ -511,7 +530,7 @@ const styles = StyleSheet.create({
     wrap: false,
   },
   particularsCellsDetail: {
-    width: "50%",
+    width: "55%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
@@ -530,7 +549,7 @@ const styles = StyleSheet.create({
     wrap: false,
   },
   detailsCellDetail: {
-    width: "65%",
+    width: "30%",
     padding: 3,
     borderBottom: "1px solid #000",
     fontSize: "9px",
@@ -722,7 +741,7 @@ const stylesCOP = StyleSheet.create({
     wrap: false,
   },
   particularsCellsDetail: {
-    width: "50%",
+    width: "55%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "9px",
@@ -741,7 +760,7 @@ const stylesCOP = StyleSheet.create({
     wrap: false,
   },
   detailsCellDetail: {
-    width: "65%",
+    width: "30%",
     padding: 3,
     borderRight: "1px solid #000",
     fontSize: "9px",
@@ -768,7 +787,7 @@ const stylesCOP = StyleSheet.create({
     wrap: false,
   },
   extraWidth: {
-    width: "65%",
+    width: "30%",
     fontFamily: selectedFont,
     wrap: false,
   },
@@ -800,7 +819,7 @@ const styleExpenses = StyleSheet.create({
   },
 
   particularWidth: {
-    width: 500,
+    width: 800,
     fontFamily: selectedFont,
     wrap: false,
   },
