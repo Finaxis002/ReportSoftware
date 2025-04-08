@@ -147,6 +147,10 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     //       directExpense: defaultDirectExpenses, // ✅ Set default direct expenses
     //       totalExpense: 0,
     //     };
+
+    
+
+
     if (expenseData && Object.keys(expenseData).length > 0) {
       const updatedNormal = (expenseData.normalExpense || []).map((item) => {
         const amount = parseFloat(item.amount) || 0;
@@ -213,9 +217,25 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
   //   });
   // };
 
+  // Format number with commas (Indian format)
+const formatNumberWithCommas = (num) => {
+  const x = num.toString().replace(/,/g, "");
+  if (isNaN(Number(x))) return num;
+  return Number(x).toLocaleString("en-IN");
+};
+
+// Remove commas for raw value
+const removeCommas = (str) => str.replace(/,/g, "");
+
   // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
     const { name, value } = event.target;
+
+    const rawValue = removeCommas(value);
+
+  if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
+    if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
+  }
 
     setLocalData((prevData) => {
       const updatedExpenseList = [...prevData[type]];
@@ -418,7 +438,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                   onChange={(event) =>
                     handleFormChange(event, index, form, "normalExpense")
                   }
-                  value={form.amount}
+                  value={formatNumberWithCommas(form.amount)}
                   className="form-control"
                   type="text"
                 />
@@ -489,13 +509,13 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
               Total Expected Salary:{" "}
             </strong>
             <span className="ms-2">
-              {normalExpenses
+              {formatNumberWithCommas(normalExpenses
                 .reduce((total, form) => {
                   const amount = parseFloat(form.amount) || 0;
                   const quantity = parseFloat(form.quantity) || 0;
                   return total + amount * quantity * 12; // ✅ Corrected calculation
                 }, 0)
-                .toFixed(2)}
+                .toFixed(2))}
             </span>
           </div>
         )}
@@ -552,7 +572,12 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                   <input
                     name="value"
                     placeholder="0"
-                    value={form.value || ""}
+                    // value={form.value || ""}
+                    value={
+                      isPercentage
+                        ? form.value
+                        : formatNumberWithCommas(form.value || 0)
+                    }
                     onChange={(event) =>
                       handleFormChange(event, index, form, "directExpense")
                     }
@@ -582,7 +607,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                     <input
                       name="total"
                       placeholder="Annual Value"
-                      value={form.total || ""}
+                      value={formatNumberWithCommas(form.total || "")}
                       onChange={(event) =>
                         handleFormChange(event, index, form, "directExpense")
                       }
@@ -631,7 +656,8 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
             Total Projected Expenses:
           </strong>
           <span className="text-lg font-medium">
-            {totalSum.toFixed(2) * 12}
+            {/* {formatNumberWithCommas(totalSum.toFixed(2) * 12)} */}
+            {formatNumberWithCommas((totalSum * 12).toFixed(2))}
           </span>
         </div>
       </form>

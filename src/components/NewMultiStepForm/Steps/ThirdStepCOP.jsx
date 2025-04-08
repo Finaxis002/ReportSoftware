@@ -61,6 +61,16 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   });
   const [infoMessage, setInfoMessage] = useState("");
 
+  // Format number with commas (Indian format)
+const formatNumberWithCommas = (num) => {
+  const x = num.toString().replace(/,/g, "");
+  if (isNaN(Number(x))) return num;
+  return Number(x).toLocaleString("en-IN");
+};
+
+// Remove commas for raw value
+const removeCommas = (str) => str.replace(/,/g, "");
+
   // ✅ Populate `localData` from `formData.CostOfProject` on mount
   useEffect(() => {
     if (formData?.CostOfProject) {
@@ -95,7 +105,17 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     let newValue = value;
 
     // Ensure numeric fields are valid numbers
-    if (field === "amount" || field === "rate") {
+    // if (field === "amount" || field === "rate") {
+    //   newValue = value.trim() === "" ? 0 : parseFloat(value) || 0;
+    // }
+    if (field === "amount") {
+      const raw = removeCommas(value);
+      if (raw === "" || /^\d+$/.test(raw)) {
+        newValue = parseFloat(raw) || 0;
+      } else {
+        return; // Prevent invalid characters
+      }
+    } else if (field === "rate") {
       newValue = value.trim() === "" ? 0 : parseFloat(value) || 0;
     }
 
@@ -173,9 +193,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                   name="amount"
                   placeholder="0"
                   onChange={(e) => handleChange(e, key, "amount")}
-                  value={field.amount || ""}
+                  value={formatNumberWithCommas(field.amount || "")}
                   className="form-control no-spinner"
-                  type="number"
+                  type="text"
                 />
               </div>
               <div>
@@ -226,10 +246,10 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
             </label>
 
             <input
-              type="number"
+              type="text"
               name="workingCapital"
               className="form-control w-[50%]"
-              value={formData.MeansOfFinance?.totalWorkingCapital || ""}
+              value={formatNumberWithCommas(formData.MeansOfFinance?.totalWorkingCapital || "")}
               onChange={(e) => {
                 const newValue =
                   e.target.value.trim() === ""
@@ -253,7 +273,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
             <label className="form-label w-100">Total Amount</label>
             <input
               name="totalAmount"
-              value={calculatedTotal}
+              value={formatNumberWithCommas(calculatedTotal)}
               className="form-control w-[50%]"
               type="number"
               disabled
