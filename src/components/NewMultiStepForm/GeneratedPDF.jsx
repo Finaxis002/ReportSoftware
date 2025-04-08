@@ -136,6 +136,8 @@ const GeneratedPDF = ({}) => {
   const [blobObject, setBlobObject] = useState();
   const [blobUrl, setBlobUrl] = useState();
 
+  const location = useLocation();
+
   const stableLocation = useMemo(() => location, []);
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
@@ -878,12 +880,7 @@ const GeneratedPDF = ({}) => {
       <BlobProvider document={memoizedPDF}>
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
-          useEffect(() => {
-            if (blob && url) {
-              setBlobObject(blob);
-              setBlobUrl(url);
-            }
-          }, [blob, url]);
+         
 
           const handleDownloadPDF = () => {
             if (!blob) {
