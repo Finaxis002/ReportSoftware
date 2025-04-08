@@ -479,7 +479,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
     reader.readAsBinaryString(file);
   };
-  
 
   const handleDownloadTemplate = () => {
     const businessName =
@@ -503,12 +502,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           item.serialNumber ?? "",
           item.particular ?? "",
           ...(item.years ?? []).slice(0, projectionYears),
-          rowTypeToLabel(item.rowType) // ➕ Add Row Type as last column
         ];
-        while (row.length < 2 + projectionYears + 1) row.push(""); // ➕ Adjust for extra column
+        while (row.length < 2 + projectionYears) row.push("");
         data.push(row);
       });
-      
   
       // Add Total Row
       const totalRow = [
