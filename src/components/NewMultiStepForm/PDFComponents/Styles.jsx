@@ -326,12 +326,21 @@ console.log("Registered fonts:", Font.getRegisteredFonts?.());
 
 
 const styles = StyleSheet.create({
-
+  centeredTextContainer: {
+        width: '100%',
+        alignItems: 'center',
+       },
   chartContainer: {
     marginBottom: 20,
     alignItems: "center",
   },
-  Charttitle: { fontSize: 18, marginBottom: 10, textAlign: "center" },
+  Charttitle: { 
+    fontSize: 18, 
+    marginBottom: 10, 
+    textAlign: "center", 
+    borderBottom: "1px solid black",
+    fontFamily:"Times New Roman"
+   },
   pieChart: {
     width: 300,
     height: 300,

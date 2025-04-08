@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Page, Text, View, Document, Image, StyleSheet } from '@react-pdf/renderer';
 import CurrentRatioChart from '../charts/CurrentRatioChart';
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
 const MyDocument = ({ chartBase64 }) => (
   <Document>
     <View >
       <View>
       <View style={styles.centeredTextContainer}>
-        <Text style={styles.title}>Current Ratio</Text>
+        <Text style={styles.Charttitle}>Current Ratio</Text>
         </View>
         {chartBase64 ? (
           <Image src={chartBase64} style={styles.chart} />
@@ -19,33 +20,33 @@ const MyDocument = ({ chartBase64 }) => (
   </Document>
 );
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 20,
-    flexDirection: 'column',
-    backgroundColor: '#fff',
-  },
-  centeredTextContainer: {
-    width: '100%',
-    alignItems: 'center',   // ✅ Center children horizontally
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  chart: {
-    width: 400,
-    height: 250,
-    marginVertical: 20,
-  },
-  loading: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#999',
-  },
-});
+// const styles = StyleSheet.create({
+//   page: {
+//     padding: 20,
+//     flexDirection: 'column',
+//     backgroundColor: '#fff',
+//   },
+//   centeredTextContainer: {
+//     width: '100%',
+//     alignItems: 'center',   // ✅ Center children horizontally
+//   },
+//   title: {
+//     fontSize: 18,
+//     marginBottom: 10,
+//     textAlign: 'center',
+//     fontWeight: 'bold',
+//   },
+//   chart: {
+//     width: 400,
+//     height: 250,
+//     marginVertical: 20,
+//   },
+//   loading: {
+//     fontSize: 14,
+//     textAlign: 'center',
+//     color: '#999',
+//   },
+// });
 
 const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRatioReady}) => {
   const [chartBase64, setChartBase64] = useState(null);

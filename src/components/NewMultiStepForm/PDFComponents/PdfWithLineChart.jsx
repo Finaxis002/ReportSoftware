@@ -1,39 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import LineChart from '../charts/LineChart';
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
 const MyDocument = ({ chartBase64 }) => (
   <View>
     <View style={styles.centeredTextContainer}>
-      <Text style={styles.title}>DSCR</Text>
+      <Text style={styles.Charttitle}>DSCR</Text>
     </View>
     <Image src={chartBase64} style={styles.chart} />
   </View>
 );
 
-const styles = StyleSheet.create({
-  centeredTextContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  chart: {
-    width: 400,
-    height: 250,
-    marginVertical: 10,
-    alignSelf: 'center',
-  },
-  loading: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#999',
-  },
-});
+// const styles = StyleSheet.create({
+//   centeredTextContainer: {
+//     width: '100%',
+//     alignItems: 'center',
+//   },
+//   title: {
+//     fontSize: 18,
+//     marginBottom: 10,
+//     textAlign: 'center',
+//     fontWeight: 'bold',
+//     fontFamily: "roboto",
+//   },
+//   chart: {
+//     width: 400,
+//     height: 250,
+//     marginVertical: 10,
+//     alignSelf: 'center',
+//   },
+//   loading: {
+//     fontSize: 14,
+//     textAlign: 'center',
+//     color: '#999',
+//   },
+// });
 
 const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);

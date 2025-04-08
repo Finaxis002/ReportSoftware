@@ -136,7 +136,7 @@ const PdfWithChart = ({
 
         {barBase64 ? (
           <View style={styles.chartContainer}>
-            <Text style={styles.Charttitle}>Revenue vs Expenses</Text>
+            <Text style={styles.Charttitle}>Revenue V/s Expenses</Text>
             <Image src={barBase64} style={styles.barChart} />
           </View>
         ) : (
