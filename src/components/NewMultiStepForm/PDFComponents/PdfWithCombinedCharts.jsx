@@ -2,6 +2,8 @@ import React from "react";
 import PdfWithCurrentRatioChart from "./PdfWithCurrentRatioChart";
 import PdfWithLineChart from "./PdfWithLineChart";
 import { Page, StyleSheet, View } from "@react-pdf/renderer";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+
 
 const PdfWithCombinedCharts = ({
   labels = [],
@@ -14,13 +16,13 @@ const PdfWithCombinedCharts = ({
   }
 
   return (
-    <Page size="A4" style={styles.page}>
-      <View style={styles.chartContainer}>
+    <Page size="A4" style={stylesCharts.page}>
+      <View style={stylesCharts.chartContainer}>
         {/* ✅ Flexbox styling applied */}
-        <View style={styles.chartWrapper}>
+        <View style={stylesCharts.chartWrapper}>
           <PdfWithLineChart labels={labels} dscr={dscr} />
         </View>
-        <View style={styles.chartWrapper}>
+        <View style={stylesCharts.chartWrapper}>
           <PdfWithCurrentRatioChart labels={labels} currentRatio={currentRatio} />
         </View>
       </View>
@@ -28,7 +30,7 @@ const PdfWithCombinedCharts = ({
   );
 };
 
-const styles = StyleSheet.create({
+const stylesCharts = StyleSheet.create({
   page: {
     padding: 20,
     flexDirection: "column", // ✅ Use flexDirection instead of display

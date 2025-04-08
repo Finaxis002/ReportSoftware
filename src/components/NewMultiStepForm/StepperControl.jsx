@@ -140,9 +140,7 @@ selectedRevenueArray.forEach((val, idx) =>
         )}
 
       {!isUpdateReportClicked &&
-        (!isCreateReportWithExistingClicked ||
-          (isCreateReportWithExistingClicked &&
-            currentStep === totalSteps)) && (
+        !isCreateReportWithExistingClicked  && (
           <button
             type="button"
             onClick={() => handleSave(isCreateReportWithExistingClicked)} // ✅ Pass the flag
@@ -156,7 +154,7 @@ selectedRevenueArray.forEach((val, idx) =>
           </button>
         )}
       {/* Next Button */}
-      {/* {isCreateReportWithExistingClicked ? (
+      {isCreateReportWithExistingClicked ? (
         // Show this button if "Create Report With Existing" is clicked
         <button
           onClick={() => {
@@ -169,12 +167,12 @@ selectedRevenueArray.forEach((val, idx) =>
             }
             handleNextStep(stepData)}}
           className={`bg-green-500 text-white uppercase py-2 px-4 rounded-xl font-semibold cursor-pointer border-2 hover:bg-slate-700 hover:text-white transition duration-200 ease-in-out ${
-            currentStep === totalSteps ? "opacity-50 cursor-not-allowed" : ""
+            currentStep === totalSteps ? "invisible cursor-not-allowed" : ""
           }`}
         >
           Save & Next
         </button>
-      ) : ( */}
+      ) : (
       
         <button
         type="button"
@@ -200,7 +198,7 @@ selectedRevenueArray.forEach((val, idx) =>
         Next
       </button>
       
-      {/* )} */}
+      )} 
 
     </div>
   );

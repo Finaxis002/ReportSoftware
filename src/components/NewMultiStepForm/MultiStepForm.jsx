@@ -192,6 +192,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       console.log(
         "🔄 Preparing to create a new report from an existing one..."
       );
+      setSessionId(null); 
 
       // ✅ Deep Copy `formData` to remove any lingering references
       let newData = JSON.parse(JSON.stringify(formData));
