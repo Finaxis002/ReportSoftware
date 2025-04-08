@@ -1204,7 +1204,7 @@ const RatioAnalysis = ({
                       fontWeight: "extrabold",
                       paddingTop: "20px",
                       
-                    },{width:"25%"}
+                    },{width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageGrossProfitSalesRatio !== "-"
@@ -1256,7 +1256,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageOperatingProfitSalesRatio !== "-"
@@ -1307,7 +1307,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageProfitBeforeTaxSalesRatio !== "-"
@@ -1359,7 +1359,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageNetProfitSalesRatio !== "-"
@@ -1410,7 +1410,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageNetProfitNetWorthRatio !== "-"
@@ -1461,7 +1461,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageDebtEquityRatio !== "-"
@@ -1512,7 +1512,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageTotalOutsideLiabilitiesNetWorthRatio !== "-"
@@ -1563,7 +1563,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageNetWorthTotalLiabilitiesRatio !== "-"
@@ -1618,7 +1618,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageDebtServiceCoverageRatio !== "-"
@@ -1669,7 +1669,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "-"}
@@ -1718,7 +1718,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%"}
+                    {width:"25%" , fontSize:8}
                   ]}
                 >
                   {averageReturnOnInvestment !== "-"
