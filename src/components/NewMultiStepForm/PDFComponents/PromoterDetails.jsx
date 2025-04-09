@@ -89,7 +89,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
           <View>
             <Text style={{ fontSize: 10 }}>
             
-              {formData?.AccountInformation?.clientName || "Client Name"} aged{" "}
+              {formData?.AccountInformation?.businessOwner || "Owner Name"} aged{" "}
               {new Date().getFullYear() -
                 new Date(
                   formData?.AccountInformation?.clientDob
