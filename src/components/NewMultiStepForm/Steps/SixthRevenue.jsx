@@ -210,7 +210,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
       // ✅ If this is the first year, and increaseBy exists → recalculate onward years
       if (field === 0) {
-        const baseValue = parseFloat(value);
+        const baseValue = parseFloat(value || "0"); // safer
+
         const increasePercent = parseFloat(updatedFormFields[index].increaseBy);
         const projectionYears =
           parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 1;
@@ -301,7 +302,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         }
       }
     } else if (name === "value") {
-      data[childIndex]["years"][yearIndex] = Number(value);
+      data[childIndex]["years"][yearIndex] = value; // ✅ Keep raw input string
+
 
       // ✅ Trigger auto-calc if it's the first year and increaseBy is already filled
       if (yearIndex === 0) {
@@ -342,8 +344,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       { length: projectionYears || 1 },
       (_, yearIndex) => {
         return localData.formFields2.reduce(
-          (sum, field) => sum + Number(field.years[yearIndex] || 0),
-          0
+          (sum, field) => sum + parseFloat(field.years[yearIndex] || "0") || 0 ,0
         );
       }
     );
@@ -540,13 +541,30 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
-    const x = num.toString().replace(/,/g, "");
-    if (isNaN(Number(x))) return num;
-    return Number(x).toLocaleString("en-IN");
+    if (num === null || num === undefined || num === "") return "";
+  
+    const str = num.toString();
+  
+    // Allow incomplete decimals like "1000.", "1000.5"
+    if (/^\d+\.\d{0,1}$/.test(str) || str.endsWith(".")) return str;
+  
+    const numericValue = parseFloat(str.replace(/,/g, ""));
+    if (isNaN(numericValue)) return str;
+  
+    return numericValue.toLocaleString("en-IN", {
+      minimumFractionDigits: str.includes(".") ? 2 : 0,
+      maximumFractionDigits: 2,
+    });
   };
+  
+  
 
   // Remove commas for raw value
-  const removeCommas = (str) => str.replace(/,/g, "");
+  const removeCommas = (str) => {
+    if (typeof str !== "string") str = String(str);
+    return str.replace(/,/g, "");
+  };
+  
 
   return (
     <>
