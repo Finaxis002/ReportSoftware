@@ -91,10 +91,28 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
 
 // Format number with commas (Indian format)
 const formatNumberWithCommas = (num) => {
-  const x = num.toString().replace(/,/g, "");
-  if (isNaN(Number(x))) return num;
-  return Number(x).toLocaleString("en-IN");
+  if (num === null || num === undefined || num === "") return "";
+
+  const str = num.toString().replace(/,/g, "");
+
+  // Don't format while user is typing incomplete decimals (e.g., ends with "." or ".0")
+  if (str.endsWith(".") || str.match(/\.\d{0,1}$/)) {
+    return str;
+  }
+
+  const numericValue = Number(str);
+  if (isNaN(numericValue)) return num;
+
+  // Format with or without decimals depending on whether there are decimal digits
+  return str.includes(".")
+    ? numericValue.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })
+    : numericValue.toLocaleString("en-IN");
 };
+
+
 
 // Remove commas for raw value
 const removeCommas = (str) => str.replace(/,/g, "");
@@ -107,8 +125,7 @@ const handleChange = (e) => {
 
   const rawValue = removeCommas(value);
 
-  // ✅ Allow numbers with optional decimal and max two digits after decimal
-  if (!/^\d*\.?\d{0,2}$/.test(rawValue)) return;
+  if (!/^\d*\.?\d*$/.test(rawValue)) return;
 
   // Update parent state
   onFormDataChange({
@@ -134,8 +151,6 @@ const handleChange = (e) => {
     };
   });
 };
-
-
 
 
   return (

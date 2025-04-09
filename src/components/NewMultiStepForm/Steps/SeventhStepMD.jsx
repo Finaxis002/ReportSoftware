@@ -159,15 +159,29 @@ const SeventhStepMD = ({
       return newState;
     });
   };
-
+  // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
-    const x = num.toString().replace(/,/g, "");
-    if (isNaN(Number(x))) return num;
-    return Number(x).toLocaleString("en-IN");
+    if (num === null || num === undefined || num === "") return "";
+  
+    const str = num.toString();
+  
+    // Incomplete decimals: "1000.", ".5", "1000.5"
+    if (str.endsWith(".") || /^\d*\.\d?$/.test(str)) return str;
+  
+    const numericValue = Number(str.replace(/,/g, ""));
+    if (isNaN(numericValue)) return str;
+  
+    return numericValue.toLocaleString("en-IN", {
+      minimumFractionDigits: str.includes(".") ? 2 : 0,
+      maximumFractionDigits: 2,
+    });
   };
+  
 
   // Remove commas for raw value
-  const removeCommas = (str) => str.replace(/,/g, "");
+  const removeCommas = (str) => str?.toString().replace(/,/g, "");
+
+
 
   return (
     <div className="overflow-x-hidden">
