@@ -209,7 +209,7 @@ const MainLogin = ({ onLogin }) => {
             } transition-all duration-300`}
             onClick={() => setActiveTab("employee")}
           >
-            Login as Employee
+            Login as Users
           </a>
         </li>
         <li className="nav-item flex-1">
@@ -229,13 +229,14 @@ const MainLogin = ({ onLogin }) => {
       {/* ✅ Login Form */}
       <div className="bg-white p-8 rounded-b-lg shadow-2xl w-full max-w-lg mx-auto">
         <h4 className="text-center text-3xl font-semibold text-teal-700 mb-6">
-          {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Login
+          {activeTab === "employee"? "User" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Login 
+          
         </h4>
         <form onSubmit={handleSubmit}>
           {/* Username */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700">
-              {activeTab === "employee" ? "Employee ID" : "Username"}
+              {activeTab === "employee" ? "User ID" : " Username"}
             </label>
             <input
               type="text"

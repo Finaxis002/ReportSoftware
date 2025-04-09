@@ -293,7 +293,7 @@ const handleChange = (e) => {
                   name="totalWorkingCapital"
                   type="text"
                   placeholder="Total Working Capital"
-                  value={localData.totalWorkingCapital}
+                  value={formatNumberWithCommas(localData.totalWorkingCapital)}
                   disabled
                 />
                 <label htmlFor="totalWorkingCapital">
