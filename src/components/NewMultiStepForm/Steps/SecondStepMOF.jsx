@@ -107,7 +107,7 @@ const handleChange = (e) => {
 
   const rawValue = removeCommas(value);
 
-  // ✅ Allow numbers with optional dot and up to 2 decimal places
+  // ✅ Allow numbers with optional decimal and max two digits after decimal
   if (!/^\d*\.?\d{0,2}$/.test(rawValue)) return;
 
   // Update parent state
