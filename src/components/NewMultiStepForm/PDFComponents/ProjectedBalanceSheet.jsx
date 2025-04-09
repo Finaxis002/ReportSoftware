@@ -847,7 +847,7 @@ const ProjectedBalanceSheet = ({
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                      {index + 6}
+                      {index + 5}
                     </Text>
 
                     {/* Particular Name */}
