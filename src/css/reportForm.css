@@ -753,3 +753,9 @@ body.dark {
   font-weight: 500;
   color: #2e1065;
 }
+
+
+.table-wrapper {
+  position: relative;
+  z-index: 1;
+}
