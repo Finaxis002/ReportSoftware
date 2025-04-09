@@ -53,15 +53,20 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     updated[index] = Number(newValue);
     setNoOfMonths(updated);
     localStorage.setItem("noOfMonths", JSON.stringify(updated));
+
+    // ✅ Update localData.noOfMonths as well
+    setLocalData((prev) => ({
+      ...prev,
+      noOfMonths: updated,
+    }));
   };
 
-  // on mount
   useEffect(() => {
-    const saved = localStorage.getItem("noOfMonths");
-    if (saved) {
-      setNoOfMonths(JSON.parse(saved));
-    }
-  }, []);
+    setLocalData((prev) => ({
+      ...prev,
+      noOfMonths,
+    }));
+  }, [noOfMonths]);
 
   // ✅ Initialize formType based on revenueData first, fallback to formData
   const [formType, setFormType] = useState(() => {
@@ -114,6 +119,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     };
   });
 
+  console.log("Submitting this data to backend:", localData);
+
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
   useEffect(() => {
     setLocalData((prevData) => ({
@@ -151,11 +158,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     setTogglerType(isChecked); // ✅ Ensure togglerType is updated
   };
 
-  // ✅ Initialize totalMonthlyRevenue state
-  // const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
-  //   Array(projectionYears).fill(0)
-  // );
-
   // ✅ Compute totalMonthlyRevenue dynamically
   useEffect(() => {
     const total = Array.from({ length: projectionYears }).map((_, yearIndex) =>
@@ -171,13 +173,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       totalMonthlyRevenue: total,
     }));
   }, [localData.formFields2, projectionYears]);
-
-  // const [noOfMonths, setNoOfMonths] = useState(
-  //   Array.from({ length: projectionYears || 1 }).fill(12)
-  // );
-  // const [totalRevenue, setTotalRevenue] = useState(
-  //   Array.from({ length: Math.max(1, projectionYears) }).fill(0)
-  // );
 
   const addFields = (e) => {
     e.preventDefault();
@@ -927,8 +922,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           </form>
         ) : (
           <form onSubmit={submit}>
-            <div className="position-relative w-100">
-              <div className="form-scroll" style={{ height: "30vh" }}>
+            <div
+              className="position-relative w-100"
+              style={{ position: "relative" }}
+            >
+              <div style={{}}>
                 <table className="table table-revenue">
                   <thead>
                     <tr>
@@ -1039,91 +1037,109 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       );
                     })}
                   </tbody>
+
+                  <tfoot
+                    style={{
+                      position: "sticky",
+                      bottom: 0,
+                      backgroundColor: "white",
+                      zIndex: 9,
+                      borderTop: "1px solid #ddd",
+                      boxShadow: "rgb(0 0 0 / 44%) 0px -2px 6px;",
+                    }}
+                  >
+                    <tr>
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+
+                      <td style={{ border: "1px solid #7e22ce" }}>
+                        <strong> Total Monthly Revenue</strong>
+                      </td>
+                      {totalMonthlyRevenue.map((v, i, arr) => (
+                        <td key={i} style={{ padding: 0 }}>
+                          <input
+                            name={`value-${i}`}
+                            type="text"
+                            placeholder="Enter value"
+                            className="table-input"
+                            style={{
+                              width: "100%",
+                              border: "none",
+                              backgroundColor: "white",
+                              borderLeft: "1px solid #7e22ce",
+                              ...(i === arr.length - 1 && {
+                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                              }),
+                            }}
+                            value={Number(v || 0).toLocaleString("en-IN")} // ✅ Correct value binding
+                            readOnly // Optional: prevent editing
+                          />
+                        </td>
+                      ))}
+                    </tr>
+
+                    <tr>
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+
+                      <td style={{ border: "1px solid #7e22ce" }}>
+                        <strong> No. of Months</strong>
+                      </td>
+                      {noOfMonths.map((v, i , arr) => (
+                        <td key={i} style={{padding:0}}>
+                          <input
+                            className="total-revenue-input"
+                            style={{
+                              width: "100%",
+                              border: "none",
+                              backgroundColor: "white",
+                              borderLeft: "1px solid #7e22ce",
+                              ...(i === arr.length - 1 && {
+                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                              }),
+                            }}
+                            type="number"
+                            value={v || 0}
+                            onChange={(e) => changeMonth(i, e.target.value)}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+
+                    <tr>
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+
+                      <td style={{ border: "1px solid #7e22ce" }}>
+                        <strong> Total Revenue</strong>
+                      </td>
+                      {Array.from({ length: projectionYears }).map((_, i , arr) => {
+                        const total =
+                          (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
+                          (parseFloat(noOfMonths?.[i]) || 0);
+
+                        return (
+                          <td key={i} style={{padding:0}}>
+                            <input
+                              name={`total-${i}`}
+                              value={total.toLocaleString("en-IN")}
+                              readOnly
+                              className="total-revenue-input text-center"
+                              type="text"
+                              style={{
+                                width: "100%",
+                                border: "none",
+                                backgroundColor: "white",
+                                borderLeft: "1px solid #7e22ce",
+                                ...(i === arr.length - 1 && {
+                                  borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                                }),
+                              }}
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
-
-              {String(formType || "")?.trim() !== "Others" && (
-                <div className="position-relative w-100">
-                  <div className="total-div pt-3 px-2">
-                    {/* Total Monthly Revenue (Read-Only) */}
-                    <div className="d-flex">
-                      <label className="form-label w-[15rem] fs-10 dark:text-gray-950">
-                        Total Monthly Revenue
-                      </label>
-                      <table className="table mb-1">
-                        <tbody>
-                          <tr>
-                            {totalMonthlyRevenue.map((v, i) => (
-                              <td key={i}>
-                                {Number(v || 0).toLocaleString("en-IN")}
-                              </td>
-                            ))}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Number of Months (Editable) */}
-                    <div className="d-flex">
-                      <label className="form-label w-[15rem] fs-10 dark:text-gray-950">
-                        No. of Months
-                      </label>
-                      <table className="table mb-1">
-                        <tbody>
-                          <tr>
-                            {noOfMonths.map((v, i) => (
-                              <td key={i}>
-                                <input
-                                  className="total-revenue-input"
-                                  style={{ width: "4rem", padding: "0px" }}
-                                  type="number"
-                                  value={v || 0}
-                                  onChange={(e) =>
-                                    changeMonth(i, e.target.value)
-                                  }
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Total Revenue = Monthly × Months */}
-                    <div className="d-flex">
-                      <label className="form-label w-[20rem] fs-10 pe-8 dark:text-gray-950">
-                        Total Revenue
-                      </label>
-                      <table className="table">
-                        <tbody>
-                          <tr>
-                            {Array.from({ length: projectionYears }).map(
-                              (_, i) => {
-                                const total =
-                                  (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
-                                  (parseFloat(noOfMonths?.[i]) || 0);
-
-                                return (
-                                  <td key={i}>
-                                    <input
-                                      name={`total-${i}`}
-                                      value={total.toLocaleString("en-IN")}
-                                      readOnly
-                                      className="total-revenue-input text-center"
-                                      type="text"
-                                      style={{ padding: "5px", border: "none" }}
-                                    />
-                                  </td>
-                                );
-                              }
-                            )}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </form>
         )}
