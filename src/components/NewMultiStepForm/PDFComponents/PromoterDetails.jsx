@@ -255,7 +255,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.clientPhone}
+              {formData?.AccountInformation?.businessContactNumber}
             </Text>
           </View>
 
@@ -283,7 +283,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.clientEmail}
+              {formData?.AccountInformation?.businessEmail}
             </Text>
           </View>
 
