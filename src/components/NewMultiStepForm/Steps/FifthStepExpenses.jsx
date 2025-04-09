@@ -187,7 +187,14 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
   // Format number with commas (Indian format)
 
-  
+
+// Remove commas for raw value
+// const removeCommas = (str) => str.replace(/,/g, "");
+const removeCommas = (str) =>
+  typeof str === "string" || typeof str === "number"
+    ? str.toString().replace(/,/g, "")
+    : "";
+
 
 
   // Ensure that at least empty arrays are provided
@@ -219,37 +226,69 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
       setLastEditedField(name);
 
-      if (type === "normalExpense") {
-        const quantity = parseFloat(updatedForm.quantity) || 1;
-        const amount = parseFloat(updatedForm.amount) || 0;
-        const annual = parseFloat(updatedForm.value) || 0;
+      // if (type === "normalExpense") {
+      //   const quantity = parseFloat(updatedForm.quantity) || 1;
+      //   const amount = parseFloat(updatedForm.amount) || 0;
+      //   const annual = parseFloat(updatedForm.value) || 0;
 
+      //   if (name === "amount") {
+      //     updatedForm.value = (numericValue * quantity * 12).toFixed(2);
+      //   }
+
+      //   if (name === "value") {
+      //     updatedForm.amount = (numericValue / (quantity * 12)).toFixed(2);
+      //   }
+
+      //   if (name === "quantity") {
+      //     updatedForm.value = (amount * numericValue * 12).toFixed(2);
+      //   }
+      // }
+
+      if (type === "normalExpense") {
+        const quantity = parseFloat(removeCommas(updatedForm.quantity)) || 1;
+        const amount = parseFloat(removeCommas(updatedForm.amount)) || 0;
+        const annual = parseFloat(removeCommas(updatedForm.value)) || 0;
+      
         if (name === "amount") {
           // ✅ Remove .toFixed(2)
           updatedForm.value = numericValue * quantity * 12;
         }
-
+      
         if (name === "value") {
           updatedForm.amount = numericValue / (quantity * 12);
         }
-
+      
         if (name === "quantity") {
           updatedForm.value = amount * numericValue * 12;
         }
       }
+      
 
+      // if (type === "directExpense") {
+      //   const monthly = parseFloat(updatedForm.value) || 0;
+      //   const total = parseFloat(updatedForm.total) || 0;
+
+      //   if (name === "value") {
+      //     updatedForm.total = (numericValue * 12).toFixed(2);
+      //   }
+
+      //   if (name === "total") {
+      //     updatedForm.value = (numericValue / 12).toFixed(2);
+      //   }
+      // }
       if (type === "directExpense") {
-        const monthly = parseFloat(updatedForm.value) || 0;
-        const total = parseFloat(updatedForm.total) || 0;
-
+        const monthly = parseFloat(removeCommas(updatedForm.value)) || 0;
+        const total = parseFloat(removeCommas(updatedForm.total)) || 0;
+      
         if (name === "value") {
           updatedForm.total = (numericValue * 12).toFixed(2);
         }
-
+      
         if (name === "total") {
           updatedForm.value = (numericValue / 12).toFixed(2);
         }
       }
+      
 
       updatedExpenseList[index] = updatedForm;
 
