@@ -68,7 +68,7 @@ const Stepper = ({ steps, currentStep, onStepClick }) => {
       selected: index <= currentStep - 1,
     }));
   
-    console.log(`🚀 Stepper State Updated to Step ${currentStep}`); // Debugging Log ✅
+    // console.log(`🚀 Stepper State Updated to Step ${currentStep}`); // Debugging Log ✅
   
     stepRef.current = stepState;
     setNewStep(stepState);
