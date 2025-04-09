@@ -107,7 +107,8 @@ const handleChange = (e) => {
 
   const rawValue = removeCommas(value);
 
-  if (!/^\d*$/.test(rawValue)) return; // Allow only digits
+  // ✅ Allow numbers with optional dot and up to 2 decimal places
+  if (!/^\d*\.?\d{0,2}$/.test(rawValue)) return;
 
   // Update parent state
   onFormDataChange({
@@ -133,6 +134,8 @@ const handleChange = (e) => {
     };
   });
 };
+
+
 
 
   return (
