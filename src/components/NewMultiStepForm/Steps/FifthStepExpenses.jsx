@@ -232,18 +232,22 @@ const removeCommas = (str) => str.replace(/,/g, "");
   const handleFormChange = (event, index, form, type) => {
     const { name, value } = event.target;
 
-    const rawValue = removeCommas(value);
+    // const rawValue = removeCommas(value);
+    const rawValue = value.replace(/,/g, ""); // remove commas
 
-  if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
-    if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
-  }
+  // if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
+  //   if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
+  // }
+  if ((name === "amount" || name === "value" || name === "total") && rawValue !== "" && isNaN(rawValue)) return;
+
   setLastEditedField(name);  
-  
+
     setLocalData((prevData) => {
       const updatedExpenseList = [...prevData[type]];
       const updatedForm = { ...updatedExpenseList[index] };
 
-      const numericValue = parseFloat(value) || 0;
+      const rawValue = value.replace(/,/g, ""); // Remove commas
+      const numericValue = parseFloat(rawValue) || 0; 
       updatedForm[name] = value;
 
       setLastEditedField(name);  
