@@ -119,7 +119,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     };
   });
 
-  console.log("Submitting this data to backend:", localData);
+  // console.log("Submitting this data to backend:", localData);
 
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
   useEffect(() => {
@@ -834,6 +834,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                           key={i}
                           style={{ border: "1px solid #7e22ce", padding: 0 }}
                         >
+                          <strong>
                           <input
                             name={`value-${i}`}
                             type="text"
@@ -856,6 +857,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               handleTotalRevenueForOthersChange(rawValue, i);
                             }}
                           />
+                          </strong>
                         </td>
                       ))}
 
@@ -1056,6 +1058,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       </td>
                       {totalMonthlyRevenue.map((v, i, arr) => (
                         <td key={i} style={{ padding: 0 }}>
+                          <strong>
                           <input
                             name={`value-${i}`}
                             type="text"
@@ -1073,6 +1076,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             value={Number(v || 0).toLocaleString("en-IN")} // ✅ Correct value binding
                             readOnly // Optional: prevent editing
                           />
+                          </strong>
                         </td>
                       ))}
                     </tr>
@@ -1085,6 +1089,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       </td>
                       {noOfMonths.map((v, i , arr) => (
                         <td key={i} style={{padding:0}}>
+                          <strong>
                           <input
                             className="total-revenue-input"
                             style={{
@@ -1100,6 +1105,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                             value={v || 0}
                             onChange={(e) => changeMonth(i, e.target.value)}
                           />
+                          </strong>
                         </td>
                       ))}
                     </tr>
@@ -1117,6 +1123,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                         return (
                           <td key={i} style={{padding:0}}>
+                            <strong>
                             <input
                               name={`total-${i}`}
                               value={total.toLocaleString("en-IN")}
@@ -1133,6 +1140,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 }),
                               }}
                             />
+                            </strong>
                           </td>
                         );
                       })}
