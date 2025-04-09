@@ -647,7 +647,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
               className="position-relative w-100"
               style={{ position: "relative" }}
             >
-              <div style={{  }}>
+              <div style={{}}>
                 <table className="table table-revenue">
                   <thead>
                     <tr>
@@ -811,11 +811,69 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       );
                     })}
                   </tbody>
+
+                  <tfoot>
+                    <tr
+                      style={{
+                        position: "sticky",
+                        bottom: 0,
+                        backgroundColor: "white",
+                        zIndex: 9,
+                        borderTop: "1px solid #ddd",
+                        boxShadow: "0 -2px 6px rgba(0, 0, 0, 0.05)",
+                      }}
+                    >
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+
+                      <td style={{ border: "1px solid #7e22ce" }}>
+                        <strong>Total Revenue From Operations</strong>
+                      </td>
+
+                      {Array.from({
+                        length:
+                          parseInt(
+                            formData?.ProjectReportSetting?.ProjectionYears
+                          ) || 5,
+                      }).map((_, i, arr) => (
+                        <td
+                          key={i}
+                          style={{ border: "1px solid #7e22ce", padding: 0 }}
+                        >
+                          <input
+                            name={`value-${i}`}
+                            type="text"
+                            placeholder="Enter value"
+                            className="table-input"
+                            style={{
+                              width: "100%",
+                              border: "none",
+                              backgroundColor: "white",
+                              borderLeft: "1px solid #7e22ce",
+                              ...(i === arr.length - 1 && {
+                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                              }),
+                            }}
+                            value={formatNumberWithCommas(
+                              localData.totalRevenueForOthers?.[i] ?? ""
+                            )}
+                            onChange={(e) => {
+                              const rawValue = removeCommas(e.target.value);
+                              handleTotalRevenueForOthersChange(rawValue, i);
+                            }}
+                          />
+                        </td>
+                      ))}
+
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
 
-              <div
-                className="total-fixed-row dark:bg-gray-800"
+              {/* <div
+                className="total-fixed-row dark:bg-gray-800 table table-revenue"
                 style={{
                   position: "sticky",
                   bottom: 0,
@@ -828,12 +886,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
               >
                 <div className=" total-div">
                   <div className="d-flex">
-                    <label
-                      htmlFor=""
-                      className="form-label text-sm w-30 fs-10 dark:text-gray-950"
-                    >
+                    <label htmlFor="" className="header-label">
                       Total Revenue From Operations
                     </label>
+
                     <table className="table">
                       <tbody>
                         <tr>
@@ -856,9 +912,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                     i
                                   ); // Save clean value
                                 }}
-                                className="total-revenue-input"
+                                className="table-input"
                                 type="text" // Use text instead of number to allow commas
-                               
                               />
                             </td>
                           ))}
@@ -867,7 +922,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                     </table>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </form>
         ) : (
