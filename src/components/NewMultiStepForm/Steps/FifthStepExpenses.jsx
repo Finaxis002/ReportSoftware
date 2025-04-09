@@ -193,6 +193,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       totalExpense: 0,
     };
   });
+  const [lastEditedField, setLastEditedField] = useState(null);
 
   // Save data changes to localStorage
   useEffect(() => {
@@ -236,13 +237,16 @@ const removeCommas = (str) => str.replace(/,/g, "");
   if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
     if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
   }
-
+  setLastEditedField(name);  
+  
     setLocalData((prevData) => {
       const updatedExpenseList = [...prevData[type]];
       const updatedForm = { ...updatedExpenseList[index] };
 
       const numericValue = parseFloat(value) || 0;
       updatedForm[name] = value;
+
+      setLastEditedField(name);  
 
       if (type === "normalExpense") {
         const quantity = parseFloat(updatedForm.quantity) || 1;
