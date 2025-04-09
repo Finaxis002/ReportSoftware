@@ -87,15 +87,18 @@ const SecondStepMOF = ({ formData, onFormDataChange, submitDetails }) => {
   ]);
 
 
-  // Format number in Indian comma style
+  
+
+// Format number with commas (Indian format)
 const formatNumberWithCommas = (num) => {
   const x = num.toString().replace(/,/g, "");
   if (isNaN(Number(x))) return num;
   return Number(x).toLocaleString("en-IN");
 };
 
-// Remove commas before storing
+// Remove commas for raw value
 const removeCommas = (str) => str.replace(/,/g, "");
+
 
 
 const handleChange = (e) => {
@@ -147,9 +150,9 @@ const handleChange = (e) => {
                   id="termLoan.promoterContribution"
                   className="no-spinner"
                   name="termLoan.promoterContribution"
-                  type="number"
+                  type="text"
                   placeholder="Promoter's Contribution"
-                  value={localData.termLoan.promoterContribution}
+                  value={formatNumberWithCommas(localData.termLoan.promoterContribution)}
                   onChange={handleChange}
                   required
                 />
@@ -179,10 +182,10 @@ const handleChange = (e) => {
                 <input
                   id="termLoan.termLoan"
                   name="termLoan.termLoan"
-                  type="number"
+                  type="text"
                   className="no-spinner"
                   placeholder="Term Loan"
-                  value={localData.termLoan.termLoan}
+                  value={formatNumberWithCommas(localData.termLoan.termLoan)}
                   onChange={handleChange}
                   required
                 />
@@ -208,9 +211,9 @@ const handleChange = (e) => {
                 <input
                   id="totalTermLoan"
                   name="totalTermLoan"
-                  type="number"
+                  type="text"
                   placeholder="Total Term Loan"
-                  value={localData.totalTermLoan}
+                  value={formatNumberWithCommas(localData.totalTermLoan)}
                   disabled
                 />
                 <label htmlFor="totalTermLoan">Total Term Loan</label>
@@ -228,9 +231,9 @@ const handleChange = (e) => {
                 <input
                   id="workingCapital.promoterContribution"
                   name="workingCapital.promoterContribution"
-                  type="number"
+                  type="text"
                   placeholder="Promoter's Contribution"
-                  value={localData.workingCapital.promoterContribution}
+                  value={formatNumberWithCommas(localData.workingCapital.promoterContribution)}
                   onChange={handleChange}
                   required
                   className="no-spinner"
@@ -260,9 +263,9 @@ const handleChange = (e) => {
                 <input
                   id="workingCapital.termLoan"
                   name="workingCapital.termLoan"
-                  type="number"
+                  type="text"
                   placeholder="Term Loan"
-                  value={localData.workingCapital.termLoan}
+                  value={formatNumberWithCommas(localData.workingCapital.termLoan)}
                   onChange={handleChange}
                   required
                   className="no-spinner"
@@ -288,9 +291,9 @@ const handleChange = (e) => {
                 <input
                   id="totalWorkingCapital"
                   name="totalWorkingCapital"
-                  type="number"
+                  type="text"
                   placeholder="Total Working Capital"
-                  value={localData.totalWorkingCapital}
+                  value={formatNumberWithCommas(localData.totalWorkingCapital)}
                   disabled
                 />
                 <label htmlFor="totalWorkingCapital">
@@ -310,9 +313,9 @@ const handleChange = (e) => {
                 <input
                   id="totalPC"
                   name="totalPC"
-                  type="number"
+                  type="text"
                   placeholder="Promoter's Contribution Total"
-                  value={localData.totalPC}
+                  value={formatNumberWithCommas(localData.totalPC)}
                   disabled
                 />
                 <label htmlFor="totalPC">Promoter's Contribution Total</label>
@@ -338,9 +341,9 @@ const handleChange = (e) => {
                 <input
                   id="totalTL"
                   name="totalTL"
-                  type="number"
+                  type="text"
                   placeholder="Term Loan Total"
-                  value={localData.totalTL}
+                  value={formatNumberWithCommas(localData.totalTL)}
                   disabled
                 />
                 <label htmlFor="totalTL">Term Loan Total</label>
@@ -364,9 +367,9 @@ const handleChange = (e) => {
                 <input
                   id="total"
                   name="total"
-                  type="number"
+                  type="text"
                   placeholder="Total"
-                  value={localData.total}
+                  value={formatNumberWithCommas(localData.total)}
                   disabled
                 />
                 <label htmlFor="total">Total</label>

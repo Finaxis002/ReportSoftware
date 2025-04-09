@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import Header from "./Header";
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
@@ -41,6 +41,21 @@ const MultiStepForm = ({ userRole, userName }) => {
       setCurrentStep(parseInt(step)); // Update step in state
     }
   }, [step]);
+
+  // 👇 Add at the top
+const hasPreFilled = useRef(false);
+
+// 👇 This useEffect should be inside MultiStepForm.jsx (NOT Stepper.jsx!)
+useEffect(() => {
+  if (!hasPreFilled.current && isCreateReportWithExistingClicked && reportData) {
+    const preFilledData = { ...reportData };
+    delete preFilledData._id;
+    delete preFilledData.sessionId;
+    setFormData(preFilledData);
+    hasPreFilled.current = true;
+  }
+}, [isCreateReportWithExistingClicked, reportData]);
+
 
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {

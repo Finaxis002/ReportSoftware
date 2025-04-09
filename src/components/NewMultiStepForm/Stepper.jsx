@@ -30,50 +30,45 @@ const Stepper = ({ steps, currentStep, onStepClick }) => {
   
   
   
-  // useEffect(() => {
-  //   if (!steps.length) return;
   
-  //   // Initialize steps with default properties
-  //   const stepState = steps.map((step, index) => ({
-  //     description: step,
-  //     completed: index < stepFromURL - 1,
-  //     highlighted: index === stepFromURL - 1,
-  //     selected: index <= stepFromURL - 1,
-  //   }));
   
-  //   stepRef.current = stepState;
-  //   setNewStep(updateStep(stepFromURL - 1, stepState));
-  // }, [steps, stepFromURL]);
-
   // useEffect(() => {
   //   if (!steps.length) return;
   
   //   const stepState = steps.map((step, index) => ({
   //     description: step,
-  //     completed: index < currentStep,
+  //     completed: index < currentStep - 1,
   //     highlighted: index === currentStep - 1,
   //     selected: index <= currentStep - 1,
   //   }));
   
+  //   console.log(`🚀 Stepper State Updated to Step ${currentStep}`); // Debugging Log ✅
+  
   //   stepRef.current = stepState;
   //   setNewStep(stepState);
-  // }, [steps, currentStep]); 
+  // }, [steps, currentStep]); // ✅ Depend only on steps and currentStep
+  
   useEffect(() => {
     if (!steps.length) return;
   
-    const stepState = steps.map((step, index) => ({
+    const updatedSteps = steps.map((step, index) => ({
       description: step,
       completed: index < currentStep - 1,
       highlighted: index === currentStep - 1,
       selected: index <= currentStep - 1,
     }));
   
-    // console.log(`🚀 Stepper State Updated to Step ${currentStep}`); // Debugging Log ✅
+    // ✅ Prevent unnecessary state updates
+    const isEqual =
+      JSON.stringify(updatedSteps) === JSON.stringify(newStep);
   
-    stepRef.current = stepState;
-    setNewStep(stepState);
-  }, [steps, currentStep]); // ✅ Depend only on steps and currentStep
-  
+    if (!isEqual) {
+      console.log(`🚀 Stepper State Updated to Step ${currentStep}`);
+      stepRef.current = updatedSteps;
+      setNewStep(updatedSteps);
+    }
+  }, [steps, currentStep]);
+
   
 
   return (
