@@ -298,12 +298,19 @@ const GeneratedPDF = ({}) => {
   );
 
   // ✅ Compute Total Gross Fixed Assets for first year
+  const parseAmount = (val) => {
+    if (!val) return 0;
+    const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
+    return parseFloat(cleaned) || 0;
+  };
+  
   const firstYearGrossFixedAssets = useMemo(() => {
     return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
-      let netAsset = asset.amount || 0;
+      const netAsset = parseAmount(asset.amount);
       return sum + netAsset;
     }, 0);
-  }, [formData.CostOfProject]);
+  }, [formData?.CostOfProject]);
+  
 
   // Function to generate correct financial year labels
   const generateFinancialYearLabels = useMemo(
