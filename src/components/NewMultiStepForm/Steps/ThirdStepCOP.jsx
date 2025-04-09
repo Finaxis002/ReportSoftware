@@ -62,14 +62,31 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   const [infoMessage, setInfoMessage] = useState("");
 
   // Format number with commas (Indian format)
-const formatNumberWithCommas = (num) => {
-  const x = num.toString().replace(/,/g, "");
-  if (isNaN(Number(x))) return num;
-  return Number(x).toLocaleString("en-IN");
-};
+  const formatNumberWithCommas = (num) => {
+    if (num === null || num === undefined || num === "") return "";
 
-// Remove commas for raw value
-const removeCommas = (str) => str.replace(/,/g, "");
+    const str = num.toString().replace(/,/g, "");
+
+    // Don't format while user is typing incomplete decimals (e.g., ends with "." or ".0")
+    if (str.endsWith(".") || str.match(/\.\d{0,1}$/)) {
+      return str;
+    }
+
+    const numericValue = Number(str);
+    if (isNaN(numericValue)) return num;
+
+    // Format with or without decimals depending on whether there are decimal digits
+    return str.includes(".")
+      ? numericValue.toLocaleString("en-IN", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })
+      : numericValue.toLocaleString("en-IN");
+  };
+
+  // Remove commas for raw value
+  const removeCommas = (str) => str?.toString().replace(/,/g, "");
+
 
   // ✅ Populate `localData` from `formData.CostOfProject` on mount
   useEffect(() => {
@@ -110,10 +127,10 @@ const removeCommas = (str) => str.replace(/,/g, "");
     // }
     if (field === "amount") {
       const raw = removeCommas(value);
-      if (raw === "" || /^\d+$/.test(raw)) {
-        newValue = parseFloat(raw) || 0;
+      if (raw === "" || /^\d*\.?\d*$/.test(raw)) {
+        newValue = raw; // Keep it as string to preserve trailing '.' or '.0'
       } else {
-        return; // Prevent invalid characters
+        return; // Block invalid input
       }
     } else if (field === "rate") {
       newValue = value.trim() === "" ? 0 : parseFloat(value) || 0;
@@ -129,14 +146,19 @@ const removeCommas = (str) => str.replace(/,/g, "");
   };
 
   const calculatedTotal =
-    Object.values(localData).reduce((total, field) => total + field.amount, 0) +
-    Number(formData.MeansOfFinance.totalWorkingCapital);
+  Object.values(localData).reduce(
+    (total, field) => total + parseFloat(field.amount || 0),
+    0
+  ) + Number(formData.MeansOfFinance.totalWorkingCapital || 0);
+
   useEffect(() => {
     const meansOfFinanceTotal = calculatedTotal;
     const totalProjectCost = Number(
       formData?.ProjectReportSetting?.totalProjectCost || 0
     );
-    const totalLoan = Number(formData?.MeansOfFinance?.total || 0);
+    const totalLoan = parseFloat(
+      removeCommas(formData?.MeansOfFinance?.total || 0)
+    );
 
     if (totalLoan !== meansOfFinanceTotal) {
       setError(
@@ -148,12 +170,12 @@ const removeCommas = (str) => str.replace(/,/g, "");
 
     // Set the informational message
 
+    const difference = totalLoan - calculatedTotal;
+
     setInfoMessage(
-      `Means of Finance Total = ₹${formData.MeansOfFinance.total.toLocaleString(
+      `Means of Finance Total = ₹${totalLoan.toLocaleString(
         "en-IN"
-      )}\nDifference = ${(
-        formData.MeansOfFinance.total - calculatedTotal
-      ).toLocaleString("en-IN")}`
+      )}\nDifference = ₹${difference.toLocaleString("en-IN")}`
     );
 
     setMeansOfFinanceSummary({
@@ -249,7 +271,9 @@ const removeCommas = (str) => str.replace(/,/g, "");
               type="text"
               name="workingCapital"
               className="form-control w-[50%]"
-              value={formatNumberWithCommas(formData.MeansOfFinance?.totalWorkingCapital || "")}
+              value={formatNumberWithCommas(
+                formData.MeansOfFinance?.totalWorkingCapital || ""
+              )}
               onChange={(e) => {
                 const newValue =
                   e.target.value.trim() === ""

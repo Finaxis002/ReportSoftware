@@ -8,13 +8,20 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   // ✅ Helper Function to Format Numbers Based on Selected Format
 
   // ✅ Compute Total Cost of Project including Working Capital
+  const parseAmount = (val) => {
+    if (!val) return 0;
+    const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
+    return parseFloat(cleaned) || 0;
+  };
+  
   const totalCost =
     (formData?.CostOfProject
       ? Object.values(formData.CostOfProject).reduce(
-          (sum, field) => sum + (field?.amount || 0),
+          (sum, field) => sum + parseAmount(field?.amount),
           0
         )
-      : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
+      : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
+  
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
@@ -61,23 +68,23 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           alignItems: "flex-end",
         }}
       >
-       <Text style={[styles.AmountIn, styles.italicText]}>
-                 (Amount In{" "}
-                 {
-                   formData?.ProjectReportSetting?.AmountIn === "rupees"
-                     ? "Rs." // Show "Rupees" if "rupees" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                     ? "Thousands" // Show "Thousands" if "thousand" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                     ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "crores"
-                     ? "Crores" // Show "Crores" if "crores" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "millions"
-                     ? "Millions" // Show "Millions" if "millions" is selected
-                     : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                 }
-                 )
-               </Text>
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
       <View style={stylesCOP.heading}>
         <Text>Cost Of Project</Text>
@@ -85,73 +92,85 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
       <View style={[styles.table, { paddingBottom: 0 }]}>
         <View style={styles.tableHeader}>
-          <Text style={[styles.serialNoCell , {width:50}]}>S.No.</Text>
+          <Text style={[styles.serialNoCell, { width: 100 }]}>S.No.</Text>
           <Text style={styles.detailsCell}>Particulars</Text>
           <Text style={styles.particularsCell}>Amount</Text>
         </View>
 
         {/* ✅ Show Cost of Project Items */}
-        {formData?.CostOfProject &&
-        Object.keys(formData.CostOfProject).length > 0 ? (
-          // ✅ Filter out rows where amount = 0
-          Object.entries(formData.CostOfProject)
-            .filter(([_, field]) => field?.amount > 0) // ✅ Filter condition
-            .map(([key, field], index) => (
-              <View key={key} style={styles.tableRow}>
-                {/* ✅ Serial No. based on filtered data */}
-                <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>{index + 1}</Text>
-                <Text style={stylesCOP.detailsCellDetail}>
-                  {field?.name || "N/A"}
-                </Text>
-                <Text
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    { textAlign: "right" },
-                  ]}
-                >
-                  {formatNumber(field?.amount || 0)}
-                </Text>
-              </View>
-            ))
-        ) : (
-          <View style={styles.tableRow}>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                { textAlign: "center", width: "100%" },
-              ]}
-            >
-              No cost data available
-            </Text>
-          </View>
-        )}
+        {/* ✅ Precompute filtered cost items */}
+        {(() => {
+          const filteredCostItems = Object.entries(
+            formData?.CostOfProject || {}
+          ).filter(([_, field]) => field?.amount > 0);
 
-        {/* ✅ Show Working Capital Row */}
-        {formData?.MeansOfFinance?.totalWorkingCapital && (
-          <View style={styles.tableRow}>
-            <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>
-              {Object.keys(formData.CostOfProject).length - 1 + 1}
-            </Text>
-            <Text
-              style={[stylesCOP.detailsCellDetail, { paddingBottom: "10px" }]}
-            >
-              Working Capital Required
-            </Text>
-            <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                { paddingBottom: "10px" },
-                { textAlign: "right" },
-              ]}
-            >
-              {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
-            </Text>
-          </View>
-        )}
+          return (
+            <>
+              {filteredCostItems.length > 0 ? (
+                filteredCostItems.map(([key, field], index) => (
+                  <View key={key} style={styles.tableRow}>
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, { width: 100 }]}
+                    >
+                      {index + 1}
+                    </Text>
+                    <Text style={stylesCOP.detailsCellDetail}>
+                      {field?.name || "N/A"}
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        { textAlign: "right" },
+                      ]}
+                    >
+                      {formatNumber(field?.amount || 0)}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      { textAlign: "center", width: "100%" },
+                    ]}
+                  >
+                    No cost data available
+                  </Text>
+                </View>
+              )}
+
+              {/* ✅ Working Capital - Continues numbering */}
+              {formData?.MeansOfFinance?.totalWorkingCapital && (
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
+                    {filteredCostItems.length + 1}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      { paddingBottom: "10px" },
+                    ]}
+                  >
+                    Working Capital Required
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      { paddingBottom: "10px", textAlign: "right" },
+                    ]}
+                  >
+                    {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
+                  </Text>
+                </View>
+              )}
+            </>
+          );
+        })()}
 
         {/* ✅ Total Cost Row (Including Working Capital) */}
         <View style={stylesCOP.totalHeader}>
-          <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}></Text>
+          <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}></Text>
           <View
             style={[
               stylesCOP.detailsCellDetail,
@@ -177,7 +196,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                   border: "1px solid #000",
                   borderBottomWidth: 0,
                   textAlign: "left",
-                  borderLeftWidth:1
+                  borderLeftWidth: 1,
                 },
               ]}
             >
@@ -194,7 +213,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 borderTop: "1px solid #000",
                 borderBottomWidth: 0,
                 borderLeftWidth: 1,
-              
+
                 fontWeight: "bold",
                 textAlign: "right",
               },
@@ -230,88 +249,3 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 };
 
 export default CostOfProject;
-
-// import React from "react";
-// import { Page, View, Text } from "@react-pdf/renderer";
-// import { styles, stylesCOP, styleExpenses, stylesMOF } from "./Styles"; // Import only necessary styles
-
-// const CostOfProject = ({ formData, localData }) => {
-
-//   // ✅ Safe Helper Function to Format Numbers Based on Selected Format
-//   const formatNumber = (value) => {
-//     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-
-//     if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values
-
-//     switch (formatType) {
-//       case "1": // Indian Format (1,23,456)
-//         return new Intl.NumberFormat("en-IN").format(value);
-
-//       case "2": // USD Format (1,123,456)
-//         return new Intl.NumberFormat("en-US").format(value);
-
-//       case "3": // Generic Format (1,23,456)
-//         return new Intl.NumberFormat("en-IN").format(value);
-
-//       default:
-//         return new Intl.NumberFormat("en-IN").format(value); // ✅ Safe default
-//     }
-//   };
-
-//   // ✅ Compute Total Cost of Project Safely
-//   const totalCost = formData?.CostOfProject
-//     ? Object.values(formData.CostOfProject).reduce(
-//         (sum, field) => sum + (field?.amount || 0), // ✅ Ensures missing values default to 0
-//         0
-//       )
-//     : 0; // ✅ Default to 0 if CostOfProject is missing
-
-//   return (
-//     <Page size="A4" style={stylesCOP.styleCOP}>
-//       <Text style={styles.clientName}>{localData?.clientName || "Client Name"}</Text>
-//       <View style={stylesCOP.heading}>
-//         <Text>Cost Of Project</Text>
-//       </View>
-
-//       <View style={styles.table}>
-//         <View style={styles.tableHeader}>
-//           <Text style={[styles.serialNoCell , {width:50}]}>S.No.</Text>
-//           <Text style={styles.detailsCell}>Particulars</Text>
-//           <Text style={styles.particularsCell}>Amount</Text>
-//         </View>
-
-//         {/* ✅ Handle Empty CostOfProject Data Gracefully */}
-//         {formData?.CostOfProject && Object.keys(formData.CostOfProject).length > 0 ? (
-//           Object.entries(formData.CostOfProject).map(([key, field], index) => (
-//             <View key={key} style={styles.tableRow}>
-//               <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>{index + 1}</Text>
-//               <Text style={stylesCOP.detailsCellDetail}>{field?.name || "N/A"}</Text>
-//               <Text style={stylesCOP.particularsCellsDetail}>
-//                 {formatNumber(field?.amount || 0)}
-//               </Text>
-//             </View>
-//           ))
-//         ) : (
-//           <View style={styles.tableRow}>
-//             <Text style={[stylesCOP.detailsCellDetail, { textAlign: "center", width: "100%" }]}>
-//               No cost data available
-//             </Text>
-//           </View>
-//         )}
-
-//         {/* ✅ Total Cost Row */}
-//         <View style={stylesCOP.totalHeader}>
-//           <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}></Text>
-//           <Text style={[stylesCOP.detailsCellDetail, stylesCOP.boldText]}>
-//             Total Cost of Project
-//           </Text>
-//           <Text style={[stylesCOP.particularsCellsDetail, stylesCOP.boldText]}>
-//             {formatNumber(totalCost)}
-//           </Text>
-//         </View>
-//       </View>
-//     </Page>
-//   );
-// };
-
-// export default CostOfProject;

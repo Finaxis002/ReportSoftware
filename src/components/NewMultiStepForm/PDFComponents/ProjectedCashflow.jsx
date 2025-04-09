@@ -706,7 +706,7 @@ const ProjectedCashflow = ({
             {/* Depreciation */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                3
+                5
               </Text>
               <Text
                 style={[

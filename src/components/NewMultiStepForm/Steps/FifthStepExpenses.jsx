@@ -10,7 +10,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Raw Material Expenses / Purchases",
         key: "raw_material",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -19,7 +19,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Electricity Expenses",
         key: "electricity",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -28,7 +28,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Marketing Expenses",
         key: "marketing",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -37,7 +37,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Transportation Expenses",
         key: "transportation",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -46,7 +46,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Insurance Expenses",
         key: "insurance",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -55,7 +55,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Telephone and Internet Expenses",
         key: "telephone",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -64,7 +64,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Administrative Expenses",
         key: "administrative",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -73,7 +73,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Repairs and Maintenance",
         key: "repairs",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -82,7 +82,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Other Miscellaneous Expenses",
         key: "miscellaneous",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -91,7 +91,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Water Expenses",
         key: "water",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -100,7 +100,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Rent Expenses",
         key: "rent",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -109,7 +109,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "CRM Expenses",
         key: "crm",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: true,
         type: "direct",
@@ -118,38 +118,13 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       {
         name: "Annual Maintenance Charges",
         key: "maintenance",
-        total : 0,
+        total: 0,
         value: 0,
         isDirect: false,
         type: "direct",
         isCustom: false,
       },
     ];
-
-    // ✅ Merge existing expenseData if available, otherwise use defaults
-    // return expenseData && Object.keys(expenseData).length > 0
-    //   ? {
-    //       ...expenseData,
-    //       directExpense: expenseData.directExpense || defaultDirectExpenses,
-    //     }
-    //   : {
-    //       normalExpense: [
-    //         {
-    //           name: "",
-    //           key: "",
-    //           amount: 0,
-    //           quantity: 1,
-    //           value: 0,
-    //           type: "normal",
-    //           isCustom: true,
-    //         },
-    //       ],
-    //       directExpense: defaultDirectExpenses, // ✅ Set default direct expenses
-    //       totalExpense: 0,
-    //     };
-
-    
-
 
     if (expenseData && Object.keys(expenseData).length > 0) {
       const updatedNormal = (expenseData.normalExpense || []).map((item) => {
@@ -160,22 +135,26 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           value: item.value || (amount * quantity * 12).toFixed(2),
         };
       });
-  
-      const updatedDirect = (expenseData.directExpense || defaultDirectExpenses).map((item) => {
+
+      const updatedDirect = (
+        expenseData.directExpense || defaultDirectExpenses
+      ).map((item) => {
         const value = parseFloat(item.value) || 0;
         return {
           ...item,
-          total: item.total || (!String(item.value).includes("%") ? (value * 12).toFixed(2) : ""),
+          total:
+            item.total ||
+            (!String(item.value).includes("%") ? (value * 12).toFixed(2) : ""),
         };
       });
-  
+
       return {
         ...expenseData,
         normalExpense: updatedNormal,
         directExpense: updatedDirect,
       };
     }
-  
+
     // ✅ Default fallback state if no data
     return {
       normalExpense: [
@@ -212,24 +191,8 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
   //   onFormDataChange({ Expenses: localData });
   // }, [localData]);
 
-  // const handleFormChange = (event, index, form, type) => {
-  //   const { name, value } = event.target;
-  //   setLocalData((prevData) => {
-  //     const updatedExpenseList = [...prevData[type]];
-  //     updatedExpenseList[index][name] = value;
-  //     return {
-  //       ...prevData,
-  //       [type]: updatedExpenseList,
-  //     };
-  //   });
-  // };
-
   // Format number with commas (Indian format)
-const formatNumberWithCommas = (num) => {
-  const x = num.toString().replace(/,/g, "");
-  if (isNaN(Number(x))) return num;
-  return Number(x).toLocaleString("en-IN");
-};
+
 
 // Remove commas for raw value
 // const removeCommas = (str) => str.replace(/,/g, "");
@@ -257,6 +220,7 @@ const removeCommas = (str) =>
       };
     };
 
+
   // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
     const { name, value } = event.target;
@@ -264,22 +228,27 @@ const removeCommas = (str) =>
     // const rawValue = removeCommas(value);
     const rawValue = value.replace(/,/g, ""); // remove commas
 
-  // if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
-  //   if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
-  // }
-  if ((name === "amount" || name === "value" || name === "total") && rawValue !== "" && isNaN(rawValue)) return;
+    // if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
+    //   if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
+    // }
+    if (
+      (name === "amount" || name === "value" || name === "total") &&
+      rawValue !== "" &&
+      isNaN(rawValue)
+    )
+      return;
 
-  setLastEditedField(name);  
+    setLastEditedField(name);
 
     setLocalData((prevData) => {
       const updatedExpenseList = [...prevData[type]];
       const updatedForm = { ...updatedExpenseList[index] };
 
       const rawValue = value.replace(/,/g, ""); // Remove commas
-      const numericValue = parseFloat(rawValue) || 0; 
+      const numericValue = parseFloat(rawValue) || 0;
       updatedForm[name] = value;
 
-      setLastEditedField(name);  
+      setLastEditedField(name);
 
       // if (type === "normalExpense") {
       //   const quantity = parseFloat(updatedForm.quantity) || 1;
@@ -305,15 +274,16 @@ const removeCommas = (str) =>
         const annual = parseFloat(removeCommas(updatedForm.value)) || 0;
       
         if (name === "amount") {
-          updatedForm.value = (numericValue * quantity * 12).toFixed(2);
+          // ✅ Remove .toFixed(2)
+          updatedForm.value = numericValue * quantity * 12;
         }
       
         if (name === "value") {
-          updatedForm.amount = (numericValue / (quantity * 12)).toFixed(2);
+          updatedForm.amount = numericValue / (quantity * 12);
         }
       
         if (name === "quantity") {
-          updatedForm.value = (amount * numericValue * 12).toFixed(2);
+          updatedForm.value = amount * numericValue * 12;
         }
       }
       
@@ -362,7 +332,7 @@ const removeCommas = (str) =>
         setMessage("You can only add up to 25 fields.");
         return prevData;
       }
-  
+
       setMessage("");
       return {
         ...prevData,
@@ -381,7 +351,6 @@ const removeCommas = (str) =>
       };
     });
   };
-  
 
   const addDirectFields = () => {
     setLocalData((prevData) => {
@@ -465,9 +434,29 @@ const removeCommas = (str) =>
     event.preventDefault();
     onFormDataChange({ Expenses: localData });
   };
-  
 
 
+  const formatNumberWithCommas = (num) => {
+    if (num === null || num === undefined || num === "") return "";
+
+    const str = num.toString().replace(/,/g, "");
+
+    // Don't format while user is typing incomplete decimals (e.g., ends with "." or ".0")
+    if (str.endsWith(".") || str.match(/\.\d{0,1}$/)) {
+      return str;
+    }
+
+    const numericValue = Number(str);
+    if (isNaN(numericValue)) return num;
+
+    // Format with or without decimals depending on whether there are decimal digits
+    return str.includes(".")
+      ? numericValue.toLocaleString("en-IN", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })
+      : numericValue.toLocaleString("en-IN");
+  };
   
 
   return (
@@ -504,10 +493,10 @@ const removeCommas = (str) =>
                 <input
                   name="amount"
                   placeholder="0"
-                  onChange={(event) =>
-                    handleFormChange(event, index, form, "normalExpense")
-                  }
                   value={formatNumberWithCommas(form.amount)}
+                  onChange={(e) =>
+                    handleFormChange(e, index, form, "normalExpense")
+                  }
                   className="form-control"
                   type="text"
                 />
@@ -549,7 +538,7 @@ const removeCommas = (str) =>
                 <input
                   name="value"
                   placeholder="Annual Salary"
-                  value={form.value}
+                  value={formatNumberWithCommas(form.value)}
                   onChange={(event) =>
                     handleFormChange(event, index, form, "normalExpense")
                   }
@@ -578,6 +567,7 @@ const removeCommas = (str) =>
               Total Expected Salary:{" "}
             </strong>
             <span className="ms-2">
+
               {formatNumberWithCommas(normalExpenses
                 .reduce((total, form) => {
                   const amount = parseFloat(removeCommas(form.amount)) || 0;
@@ -585,6 +575,7 @@ const removeCommas = (str) =>
                   return total + amount * quantity * 12; // ✅ Corrected calculation
                 }, 0)
                 .toFixed(2))}
+
             </span>
           </div>
         )}

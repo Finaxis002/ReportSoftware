@@ -88,10 +88,8 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
         <View>
           <View>
             <Text style={{ fontSize: 10 }}>
-              {formData?.AccountInformation?.gender?.toLowerCase() === "female"
-                ? "Mrs."
-                : "Mr."}{" "}
-              {formData?.AccountInformation?.clientName || "Client Name"} aged{" "}
+            
+              {formData?.AccountInformation?.businessOwner || "Owner Name"} aged{" "}
               {new Date().getFullYear() -
                 new Date(
                   formData?.AccountInformation?.clientDob
@@ -257,7 +255,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.clientPhone}
+              {formData?.AccountInformation?.businessContactNumber}
             </Text>
           </View>
 
@@ -285,7 +283,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.clientEmail}
+              {formData?.AccountInformation?.businessEmail}
             </Text>
           </View>
 

@@ -201,7 +201,7 @@ body.dark {
   font-family: Arial, Helvetica, sans-serif;
 }
 .table-revenue{
-  width: max-content;
+  width: -webkit-fill-available;
 }
 
 .table thead th {
@@ -494,11 +494,15 @@ body.dark {
   font-size: 14px;
 }
 
+.table2 td{
+  border: 1px solid #673ab7 !important;
+}
+
 .table-revenue td:nth-child(n+3), /* Target Year 1, Year 2, etc. */
 .table-revenue th:nth-child(n+3) {
-  width: 80px; /* Adjust column width */
-  min-width: 80px;
-  max-width: 80px;
+  width: 100px; /* Adjust column width */
+  min-width: 100px;
+  max-width: 100px;
   text-align: center; /* Align numbers to the right */
 }
 
@@ -514,14 +518,15 @@ body.dark {
 /* Total Revenue section styling */
 .total-div {
   background-color: #f9f9f9;
-  padding: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
   font-weight: bold;
   overflow: hidden;
   overflow-x: auto;
-  display: flex;
+  /* display: flex; */
   align-items: normal;
-  justify-content: space-between;
-  flex-direction: column;
+  /* justify-content: space-between; */
+  /* flex-direction: column; */
 }
 
 .total-div table {
@@ -537,8 +542,8 @@ body.dark {
   width: 80px; /* Adjust input width */
   height: 22px; /* Compact height */
   font-size: 14px;
-  padding: 2px;
-  text-align: right;
+  padding: 10px;
+  text-align: left;
   border: none; /* Remove borders */
   background-color: transparent; /* Transparent background */
   outline: none; /* No outline */
@@ -556,15 +561,16 @@ body.dark {
   font-weight: bold;
   text-align: left;
   padding-right: 10px;
-  width: 250px;
+   width: -webkit-fill-available;
   display: flex;
   align-items: center;
 }
 
 /* Make table compact */
 .total-div table {
-  width: auto;
+  width: -webkit-fill-available;
   border-collapse: collapse;
+  margin: 0;
 }
 
 /* Keep table header styling */
@@ -578,7 +584,8 @@ body.dark {
   width: 80px; /* Match revenue table column width */
   min-width: 80px;
   max-width: 80px;
-  text-align: right;
+  text-align: left;
+  padding: 5px;
 }
 
 .total-div td, 
@@ -716,4 +723,39 @@ body.dark {
   .card {
     margin: 20px;
   }
+}
+
+
+
+
+.sticky-footer-total {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background-color: #f5f5ff; /* subtle highlight */
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: bold;
+  color: #2e1065; /* dark purple tone */
+}
+
+.sticky-footer-total td {
+  border: 1px solid #7e22ce !important;
+  padding: 6px !important;
+  vertical-align: middle;
+  background-color: #f5f5ff;
+}
+
+.sticky-footer-total td input {
+  border: none;
+  background: transparent;
+  text-align: center;
+  width: 100%;
+  font-weight: 500;
+  color: #2e1065;
+}
+
+
+.table-wrapper {
+  position: relative;
+  z-index: 1;
 }

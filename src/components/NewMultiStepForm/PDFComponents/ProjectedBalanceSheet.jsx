@@ -87,7 +87,6 @@ const ProjectedBalanceSheet = ({
   // ✅ Compute Corrected Total Liabilities for Each Year
   let cumulativeAdditionalLiabilities = 0; // ✅ Initialize cumulative liabilities
 
-
   // console.log("Final Total Liabilities Array:", totalLiabilitiesArray);
 
   // ✅ Calculate Current Liabilities for Each Year
@@ -196,33 +195,39 @@ const ProjectedBalanceSheet = ({
   const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
-  
+
       const reservesAndSurplus = Math.max(
-        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[index] || 0,
+        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[
+          index
+        ] || 0,
         0
       );
-  
+
       const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
-      const repaymentWithin12Months = Number(repaymentValueswithin12months?.[index] || 0);
+      const repaymentWithin12Months = Number(
+        repaymentValueswithin12months?.[index] || 0
+      );
       const termLoan = marchBalance - repaymentWithin12Months;
-  
+
       const mappedIndex = index + 1;
       const bankLoanPayableWithinNext12Months =
         mappedIndex < projectionYears
           ? yearlyPrincipalRepayment[mappedIndex] || 0
           : 0;
-  
-      const workingCapitalLoan = Number(cumulativeLoanForPreviousYears?.[index] || 0);
-  
+
+      const workingCapitalLoan = Number(
+        cumulativeLoanForPreviousYears?.[index] || 0
+      );
+
       const currentYearLiabilities = (
         formData?.MoreDetails?.currentLiabilities ?? []
       ).reduce(
         (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
         0
       );
-  
+
       cumulativeAdditionalLiabilities += currentYearLiabilities;
-  
+
       const totalForYear =
         capital +
         reservesAndSurplus +
@@ -230,11 +235,10 @@ const ProjectedBalanceSheet = ({
         bankLoanPayableWithinNext12Months +
         workingCapitalLoan +
         cumulativeAdditionalLiabilities;
-  
+
       return totalForYear;
     }
   );
-  
 
   // ✅ Log final yearly total liabilities array
   // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);
@@ -321,22 +325,22 @@ const ProjectedBalanceSheet = ({
           }}
         >
           <Text style={[styles.AmountIn, styles.italicText]}>
-                    (Amount In{" "}
-                    {
-                      formData?.ProjectReportSetting?.AmountIn === "rupees"
-                        ? "Rs." // Show "Rupees" if "rupees" is selected
-                        : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                        ? "Thousands" // Show "Thousands" if "thousand" is selected
-                        : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                        ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                        : formData?.ProjectReportSetting?.AmountIn === "crores"
-                        ? "Crores" // Show "Crores" if "crores" is selected
-                        : formData?.ProjectReportSetting?.AmountIn === "millions"
-                        ? "Millions" // Show "Millions" if "millions" is selected
-                        : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                    }
-                    )
-                  </Text>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
         </View>
 
         <View
@@ -388,7 +392,7 @@ const ProjectedBalanceSheet = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -402,7 +406,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -469,8 +473,7 @@ const ProjectedBalanceSheet = ({
                 (amount, yearIndex) => {
                   // Convert negative values to 0 and round appropriately
                   const adjustedAmount = Math.max(amount, 0);
-                  const roundedValue =
-                    adjustedAmount 
+                  const roundedValue = adjustedAmount;
 
                   return (
                     <Text
@@ -580,47 +583,53 @@ const ProjectedBalanceSheet = ({
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
             {formData?.MoreDetails?.currentLiabilities
               ?.filter((liabilities) =>
-                // ✅ Filter out rows where all year values are zero
-                liabilities.years.every((value) => Number(value) === 0)
-                  ? false
-                  : true
+                liabilities.years.some((value) => Number(value) !== 0)
               )
-              .map((liabilities, idx) => (
-                <View style={styles.tableRow} key={idx}>
-                  {/* ✅ Adjust Serial Number after filtering */}
-                  <Text
-                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                  >
-                    {idx + 5}
-                  </Text>
+              .map((liabilities, idx) => {
+                let cumulative = 0; // ⬅️ initialize cumulative tracker
 
-                  {/* ✅ Liabilities Name */}
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {liabilities.particular}
-                  </Text>
+                return (
+                  <View style={styles.tableRow} key={idx}>
+                    {/* Serial Number */}
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {idx + 6}
+                    </Text>
 
-                  {/* ✅ Loop through Projection Years */}
-                  {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) => (
-                      <Text
-                        key={yearIndex}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formatNumber(liabilities.years[yearIndex] || "0")}
-                      </Text>
-                    )
-                  )}
-                </View>
-              ))}
+                    {/* Particular Name */}
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {liabilities.particular}
+                    </Text>
+
+                    {/* Cumulative values */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        const value = Number(liabilities.years[yearIndex]) || 0;
+                        cumulative += value;
+
+                        return (
+                          <Text
+                            key={yearIndex}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(cumulative)}
+                          </Text>
+                        );
+                      }
+                    )}
+                  </View>
+                );
+              })}
 
             {/* Total Liabilities Calculation */}
             <View
@@ -635,7 +644,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -656,8 +665,7 @@ const ProjectedBalanceSheet = ({
                     },
                   ]}
                 >
-                  {formatNumber(total)}{" "}
-                  {/* ✅ Display Correct Total */}
+                  {formatNumber(total)} {/* ✅ Display Correct Total */}
                 </Text>
               ))}
             </View>
@@ -672,7 +680,7 @@ const ProjectedBalanceSheet = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -686,7 +694,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -827,49 +835,54 @@ const ProjectedBalanceSheet = ({
 
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
-              ?.filter((assets) =>
-                // ✅ Filter out rows where all year values are zero
-                assets.years.every((value) => Number(value) === 0)
-                  ? false
-                  : true
+              ?.filter(
+                (assets) => assets.years.some((value) => Number(value) !== 0) // Filter rows with at least one non-zero
               )
-              .map((assets, index) => (
-                <View style={styles.tableRow} key={index}>
-                  {/* ✅ Adjust Serial Number after filtering */}
-                  <Text
-                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                  >
-                    {index + 6}
-                  </Text>
+              .map((assets, index) => {
+                let cumulative = 0; // ⬅️ Start fresh for each asset
 
-                  {/* ✅ Particular Name */}
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {assets.particular}
-                  </Text>
+                return (
+                  <View style={styles.tableRow} key={index}>
+                    {/* Serial Number */}
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {index + 5}
+                    </Text>
 
-                  {/* ✅ Ensure Projection Years Match */}
-                  {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) => (
-                      <Text
-                        key={yearIndex}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
-                        {/* Fill missing values with 0 */}
-                      </Text>
-                    )
-                  )}
-                </View>
-              ))}
+                    {/* Particular Name */}
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {assets.particular}
+                    </Text>
+
+                    {/* Cumulative Projection Years */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        const value = Number(assets.years[yearIndex]) || 0;
+                        cumulative += value;
+
+                        return (
+                          <Text
+                            key={yearIndex}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(cumulative)}
+                          </Text>
+                        );
+                      }
+                    )}
+                  </View>
+                );
+              })}
 
             {/* Total assets Calculation */}
             <View
@@ -884,7 +897,7 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -934,30 +947,32 @@ const ProjectedBalanceSheet = ({
         </View> */}
 
         <view>
-        {formData?.ProjectReportSetting?.CAName?.value ?(<Text
-            style={[
-              {
-                fontSize: "8px",
-                paddingRight: "4px",
-                paddingLeft: "4px",
-                textAlign: "justify",
-              },
-            ]}
-          >
-            Guidance and assistance have been provided for the preparation of
-            these financial statements on the specific request of the promoter
-            for the purpose of availing finance for the business. These
-            financial statements are based on realistic market assumptions,
-            proposed estimates issued by an approved valuer, details provided by
-            the promoter, and rates prevailing in the market. Based on the
-            examination of the evidence supporting the assumptions, nothing has
-            come to attention that causes any belief that the assumptions do not
-            provide a reasonable basis for the forecast. These financials do not
-            vouch for the accuracy of the same, as actual results are likely to
-            be different from the forecast since anticipated events might not
-            occur as expected, and the variation might be material.
-          </Text>): null}
-
+          {formData?.ProjectReportSetting?.CAName?.value ? (
+            <Text
+              style={[
+                {
+                  fontSize: "8px",
+                  paddingRight: "4px",
+                  paddingLeft: "4px",
+                  textAlign: "justify",
+                },
+              ]}
+            >
+              Guidance and assistance have been provided for the preparation of
+              these financial statements on the specific request of the promoter
+              for the purpose of availing finance for the business. These
+              financial statements are based on realistic market assumptions,
+              proposed estimates issued by an approved valuer, details provided
+              by the promoter, and rates prevailing in the market. Based on the
+              examination of the evidence supporting the assumptions, nothing
+              has come to attention that causes any belief that the assumptions
+              do not provide a reasonable basis for the forecast. These
+              financials do not vouch for the accuracy of the same, as actual
+              results are likely to be different from the forecast since
+              anticipated events might not occur as expected, and the variation
+              might be material.
+            </Text>
+          ) : null}
         </view>
 
         <View
@@ -986,7 +1001,7 @@ const ProjectedBalanceSheet = ({
                   styles.caName,
                   {
                     fontSize: "10px",
-                   
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -997,12 +1012,7 @@ const ProjectedBalanceSheet = ({
 
             {/* ✅ Membership Number (Conditional Display) */}
             {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
-              <Text
-                style={[
-                  styles.membershipNumber,
-                  { fontSize: "10px" },
-                ]}
-              >
+              <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
                 M. No.:{" "}
                 {formData?.ProjectReportSetting?.MembershipNumber?.value}
               </Text>
@@ -1010,24 +1020,14 @@ const ProjectedBalanceSheet = ({
 
             {/* ✅ UDIN Number (Conditional Display) */}
             {formData?.ProjectReportSetting?.UDINNumber?.value ? (
-              <Text
-                style={[
-                  styles.udinNumber,
-                  { fontSize: "10px" },
-                ]}
-              >
+              <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
                 UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
               </Text>
             ) : null}
 
             {/* ✅ Mobile Number (Conditional Display) */}
             {formData?.ProjectReportSetting?.MobileNumber?.value ? (
-              <Text
-                style={[
-                  styles.mobileNumber,
-                  { fontSize: "10px" },
-                ]}
-              >
+              <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
                 Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
               </Text>
             ) : null}
