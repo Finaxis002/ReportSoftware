@@ -13,9 +13,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     Array.from({ length: projectionYears || 1 }, () => 0) // ✅ Ensures correct length
   );
 
-  const [noOfMonths, setNoOfMonths] = useState(
-    Array.from({ length: Math.max(1, projectionYears) }, () => 12)
-  );
+  const [noOfMonths, setNoOfMonths] = useState(() => {
+    const stored = localStorage.getItem("noOfMonths");
+    return stored ? JSON.parse(stored) : Array(projectionYears).fill(12);
+  });
+  
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   );
@@ -47,26 +49,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     }
   }, [revenueData?.togglerType]);
 
-  // on change
-  const changeMonth = (index, newValue) => {
-    const updated = [...noOfMonths];
-    updated[index] = Number(newValue);
-    setNoOfMonths(updated);
-    localStorage.setItem("noOfMonths", JSON.stringify(updated));
 
-    // ✅ Update localData.noOfMonths as well
-    setLocalData((prev) => ({
-      ...prev,
-      noOfMonths: updated,
-    }));
-  };
-
-  useEffect(() => {
-    setLocalData((prev) => ({
-      ...prev,
-      noOfMonths,
-    }));
-  }, [noOfMonths]);
 
   // ✅ Initialize formType based on revenueData first, fallback to formData
   const [formType, setFormType] = useState(() => {
@@ -119,6 +102,41 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     };
   });
 
+
+  // on change
+  const changeMonth = (index, newValue) => {
+    const updated = [...noOfMonths];
+    updated[index] = Number(newValue);
+    setNoOfMonths(updated);
+    localStorage.setItem("noOfMonths", JSON.stringify(updated));
+
+    // ✅ Update localData.noOfMonths as well
+    setLocalData((prev) => ({
+      ...prev,
+      noOfMonths: updated,
+    }));
+  };
+
+
+  
+  useEffect(() => {
+    if (localData?.noOfMonths?.length > 0) {
+      setNoOfMonths(localData.noOfMonths);
+    }
+  }, [localData]);
+
+  useEffect(() => {
+    const storedMonths = localStorage.getItem("noOfMonths");
+    if (storedMonths) {
+      const parsed = JSON.parse(storedMonths);
+      setNoOfMonths(parsed);
+      setLocalData((prev) => ({
+        ...prev,
+        noOfMonths: parsed,
+      }));
+    }
+  }, []);
+  
   // console.log("Submitting this data to backend:", localData);
 
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
@@ -304,7 +322,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     } else if (name === "value") {
       data[childIndex]["years"][yearIndex] = value; // ✅ Keep raw input string
 
-
       // ✅ Trigger auto-calc if it's the first year and increaseBy is already filled
       if (yearIndex === 0) {
         const baseValue = parseFloat(value);
@@ -344,7 +361,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       { length: projectionYears || 1 },
       (_, yearIndex) => {
         return localData.formFields2.reduce(
-          (sum, field) => sum + parseFloat(field.years[yearIndex] || "0") || 0 ,0
+          (sum, field) => sum + parseFloat(field.years[yearIndex] || "0") || 0,
+          0
         );
       }
     );
@@ -542,29 +560,26 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
     if (num === null || num === undefined || num === "") return "";
-  
+
     const str = num.toString();
-  
+
     // Allow incomplete decimals like "1000.", "1000.5"
     if (/^\d+\.\d{0,1}$/.test(str) || str.endsWith(".")) return str;
-  
+
     const numericValue = parseFloat(str.replace(/,/g, ""));
     if (isNaN(numericValue)) return str;
-  
+
     return numericValue.toLocaleString("en-IN", {
       minimumFractionDigits: str.includes(".") ? 2 : 0,
       maximumFractionDigits: 2,
     });
   };
-  
-  
 
   // Remove commas for raw value
   const removeCommas = (str) => {
     if (typeof str !== "string") str = String(str);
     return str.replace(/,/g, "");
   };
-  
 
   return (
     <>
@@ -830,15 +845,26 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       style={{
                         position: "sticky",
                         bottom: 0,
-                        backgroundColor: "white",
+                        backgroundColor: "#f0ebff", // ✅ Light purple background
                         zIndex: 9,
-                        borderTop: "1px solid #ddd",
-                        boxShadow: "0 -2px 6px rgba(0, 0, 0, 0.05)",
+                        borderTop: "2px solid #7e22ce", // ✅ Strong top border
                       }}
                     >
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
 
-                      <td style={{ border: "1px solid #7e22ce" }}>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      >
                         <strong>Total Revenue From Operations</strong>
                       </td>
 
@@ -850,38 +876,61 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       }).map((_, i, arr) => (
                         <td
                           key={i}
-                          style={{ border: "1px solid #7e22ce", padding: 0 }}
+                          style={{
+                            padding: 0,
+                            border: "1px solid #7e22ce",
+                            backgroundColor: "#f3e8ff",
+                            fontWeight: "600",
+                          }}
                         >
                           <strong>
-                          <input
-                            name={`value-${i}`}
-                            type="text"
-                            placeholder="Enter value"
-                            className="table-input"
-                            style={{
-                              width: "100%",
-                              border: "none",
-                              backgroundColor: "white",
-                              borderLeft: "1px solid #7e22ce",
-                              ...(i === arr.length - 1 && {
-                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
-                              }),
-                            }}
-                            value={formatNumberWithCommas(
-                              localData.totalRevenueForOthers?.[i] ?? ""
-                            )}
-                            onChange={(e) => {
-                              const rawValue = removeCommas(e.target.value);
-                              handleTotalRevenueForOthersChange(rawValue, i);
-                            }}
-                          />
+                            <input
+                              name={`value-${i}`}
+                              type="text"
+                              placeholder="Enter value"
+                              className="table-input"
+                              style={{
+                                width: "100%",
+                                border: "none",
+                                backgroundColor: "#f3e8ff",
+                                borderLeft: "1px solid #7e22ce",
+                                ...(i === arr.length - 1 && {
+                                  borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                                }),
+                              }}
+                              value={formatNumberWithCommas(
+                                localData.totalRevenueForOthers?.[i] ?? ""
+                              )}
+                              onChange={(e) => {
+                                const rawValue = removeCommas(e.target.value);
+                                handleTotalRevenueForOthersChange(rawValue, i);
+                              }}
+                            />
                           </strong>
                         </td>
                       ))}
 
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
                     </tr>
                   </tfoot>
                 </table>
@@ -1062,106 +1111,170 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                     style={{
                       position: "sticky",
                       bottom: 0,
-                      backgroundColor: "white",
-                      zIndex: 9,
-                      borderTop: "1px solid #ddd",
-                      boxShadow: "rgb(0 0 0 / 44%) 0px -2px 6px;",
+                      zIndex: 99,
+                      background: "#f3e8ff", // ✅ Solid color
+                      borderTop: "2px solid #7e22ce",
+                      boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.15)", // ✅ Adds depth
+                      backdropFilter: "none", // ✅ Ensures it's not transparent
+                      WebkitBackdropFilter: "none",
                     }}
                   >
                     <tr>
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
 
-                      <td style={{ border: "1px solid #7e22ce" }}>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      >
                         <strong> Total Monthly Revenue</strong>
                       </td>
                       {totalMonthlyRevenue.map((v, i, arr) => (
-                        <td key={i} style={{ padding: 0 }}>
+                        <td
+                          key={i}
+                          style={{
+                            padding: 0,
+                            border: "1px solid #7e22ce",
+                            backgroundColor: "#f3e8ff",
+                            fontWeight: "600",
+                          }}
+                        >
                           <strong>
-                          <input
-                            name={`value-${i}`}
-                            type="text"
-                            placeholder="Enter value"
-                            className="table-input"
-                            style={{
-                              width: "100%",
-                              border: "none",
-                              backgroundColor: "white",
-                              borderLeft: "1px solid #7e22ce",
-                              ...(i === arr.length - 1 && {
-                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
-                              }),
-                            }}
-                            value={Number(v || 0).toLocaleString("en-IN")} // ✅ Correct value binding
-                            readOnly // Optional: prevent editing
-                          />
-                          </strong>
-                        </td>
-                      ))}
-                    </tr>
-
-                    <tr>
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
-
-                      <td style={{ border: "1px solid #7e22ce" }}>
-                        <strong> No. of Months</strong>
-                      </td>
-                      {noOfMonths.map((v, i , arr) => (
-                        <td key={i} style={{padding:0}}>
-                          <strong>
-                          <input
-                            className="total-revenue-input"
-                            style={{
-                              width: "100%",
-                              border: "none",
-                              backgroundColor: "white",
-                              borderLeft: "1px solid #7e22ce",
-                              ...(i === arr.length - 1 && {
-                                borderRight: "1px solid #7e22ce", // ✅ Only on the last one
-                              }),
-                            }}
-                            type="number"
-                            value={v || 0}
-                            onChange={(e) => changeMonth(i, e.target.value)}
-                          />
-                          </strong>
-                        </td>
-                      ))}
-                    </tr>
-
-                    <tr>
-                      <td style={{ border: "1px solid #7e22ce" }}></td>
-
-                      <td style={{ border: "1px solid #7e22ce" }}>
-                        <strong> Total Revenue</strong>
-                      </td>
-                      {Array.from({ length: projectionYears }).map((_, i , arr) => {
-                        const total =
-                          (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
-                          (parseFloat(noOfMonths?.[i]) || 0);
-
-                        return (
-                          <td key={i} style={{padding:0}}>
-                            <strong>
                             <input
-                              name={`total-${i}`}
-                              value={total.toLocaleString("en-IN")}
-                              readOnly
-                              className="total-revenue-input text-center"
+                              name={`value-${i}`}
                               type="text"
+                              placeholder="Enter value"
+                              className="table-input"
                               style={{
                                 width: "100%",
                                 border: "none",
-                                backgroundColor: "white",
+                                backgroundColor: "#f3e8ff",
                                 borderLeft: "1px solid #7e22ce",
                                 ...(i === arr.length - 1 && {
                                   borderRight: "1px solid #7e22ce", // ✅ Only on the last one
                                 }),
                               }}
+                              value={Number(v || 0).toLocaleString("en-IN")} // ✅ Correct value binding
+                              readOnly // Optional: prevent editing
                             />
-                            </strong>
-                          </td>
-                        );
-                      })}
+                          </strong>
+                        </td>
+                      ))}
+                    </tr>
+
+                    <tr>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
+
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      >
+                        <strong> No. of Months</strong>
+                      </td>
+                      {noOfMonths.map((v, i, arr) => (
+                        <td
+                          key={i}
+                          style={{
+                            padding: 0,
+                            border: "1px solid #7e22ce",
+                            backgroundColor: "#f3e8ff",
+                            fontWeight: "600",
+                          }}
+                        >
+                          <strong>
+                            <input
+                              className="total-revenue-input"
+                              style={{
+                                width: "100%",
+                                border: "none",
+                                backgroundColor: "#f3e8ff",
+                                borderLeft: "1px solid #7e22ce",
+                                ...(i === arr.length - 1 && {
+                                  borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                                }),
+                              }}
+                              type="number"
+                              value={v || 0}
+                              onChange={(e) => changeMonth(i, e.target.value)}
+                            />
+                          </strong>
+                        </td>
+                      ))}
+                    </tr>
+
+                    <tr>
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      ></td>
+
+                      <td
+                        style={{
+                          border: "1px solid #7e22ce",
+                          backgroundColor: "#f3e8ff", // ✅ Lighter purple to match header
+                          fontWeight: "600", // ✅ Slightly bolder
+                        }}
+                      >
+                        <strong> Total Revenue</strong>
+                      </td>
+                      {Array.from({ length: projectionYears }).map(
+                        (_, i, arr) => {
+                          const total =
+                            (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
+                            (parseFloat(noOfMonths?.[i]) || 0);
+
+                          return (
+                            <td
+                              key={i}
+                              style={{
+                                padding: 0,
+                                border: "1px solid #7e22ce",
+                                backgroundColor: "#f3e8ff",
+                                fontWeight: "600",
+                              }}
+                            >
+                              <strong>
+                                <input
+                                  name={`total-${i}`}
+                                  value={total.toLocaleString("en-IN")}
+                                  readOnly
+                                  className="total-revenue-input text-center"
+                                  type="text"
+                                  style={{
+                                    width: "100%",
+                                    border: "none",
+                                    backgroundColor: "#f3e8ff",
+                                    borderLeft: "1px solid #7e22ce",
+                                    ...(i === arr.length - 1 && {
+                                      borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                                    }),
+                                  }}
+                                />
+                              </strong>
+                            </td>
+                          );
+                        }
+                      )}
                     </tr>
                   </tfoot>
                 </table>
