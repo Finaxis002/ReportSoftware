@@ -277,7 +277,12 @@ const FourthStepPRS = ({
     }));
   }, [localData]);
 
-
+  const getValue = (obj) => {
+    if (typeof obj === "string") return obj;
+    if (typeof obj === "object" && obj !== null && "value" in obj) return obj.value;
+    return "";
+  };
+  
   console.log("Incoming formData.AmountIn:", formData?.ProjectReportSetting?.AmountIn);
 
 
@@ -611,7 +616,7 @@ const FourthStepPRS = ({
                     name="UDINNumber"
                     type="text"
                     placeholder="Enter UDIN Number"
-                    value={localData?.UDINNumber?.value || ""}
+                    value={localData?.UDINNumber || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="UDINNumber">UDIN Number</label>
@@ -646,7 +651,7 @@ const FourthStepPRS = ({
                     name="MembershipNumber"
                     type="text"
                     placeholder="Membership Number"
-                    value={localData?.MembershipNumber?.value || ""}
+                    value={localData?.MembershipNumber || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MembershipNumber">Membership Number</label>
@@ -661,7 +666,7 @@ const FourthStepPRS = ({
                     name="MobileNumber"
                     type="text"
                     placeholder="Mobile Number"
-                    value={localData?.MobileNumber?.value || ""}
+                    value={localData?.MobileNumber || ""}
                     onChange={handleChange}
                   />
                   <label htmlFor="MobileNumber">Mobile Number</label>
@@ -676,7 +681,9 @@ const FourthStepPRS = ({
                     name="BankDetails.Bank"
                     type="text"
                     placeholder="Enter Bank Name"
-                    value={localData?.BankDetails?.Bank || ""}
+                    // value={localData?.BankDetails?.Bank?.name || ""}
+                    value={getValue(localData?.BankDetails?.Bank)}
+
                     onChange={handleChange}
                   />
                   <label htmlFor="Bank">Bank Name</label>
@@ -691,7 +698,8 @@ const FourthStepPRS = ({
                     name="BankDetails.BankManagerName"
                     type="text"
                     placeholder="Enter Bank Manager Name"
-                    value={localData?.BankDetails?.BankManagerName || ""}
+                    // value={localData?.BankDetails?.BankManagerName?.value || ""}
+                    value={getValue(localData?.BankDetails?.BankManagerName)}
                     onChange={handleChange}
                   />
                   <label htmlFor="BankManagerName">Bank Manager Name</label>
@@ -706,7 +714,8 @@ const FourthStepPRS = ({
                     name="BankDetails.Post"
                     type="text"
                     placeholder="Enter Post"
-                    value={localData?.BankDetails?.Post || ""}
+                    // value={localData?.BankDetails?.Post?.value || ""}
+                    value={getValue(localData?.BankDetails?.Post)}
                     onChange={handleChange}
                   />
                   <label htmlFor="Post">Post</label>
@@ -721,7 +730,8 @@ const FourthStepPRS = ({
                     name="BankDetails.ContactNo"
                     type="text"
                     placeholder="Enter Contact No."
-                    value={localData?.BankDetails?.ContactNo || ""}
+                    // value={localData?.BankDetails?.ContactNo?.value || ""}
+                    value={getValue(localData?.BankDetails?.ContactNo)}
                     onChange={handleChange}
                   />
                   <label htmlFor="ContactNo">Contact No.</label>
@@ -736,7 +746,8 @@ const FourthStepPRS = ({
                     name="BankDetails.EmailId"
                     type="email"
                     placeholder="Enter Email ID"
-                    value={localData?.BankDetails?.EmailId || ""}
+                    // value={localData?.BankDetails?.EmailId?.value || ""}
+                    value={getValue(localData?.BankDetails?.EmailId)}
                     onChange={handleChange}
                   />
                   <label htmlFor="EmailId">Email ID</label>
@@ -751,7 +762,8 @@ const FourthStepPRS = ({
                     name="BankDetails.IFSCCode"
                     type="text"
                     placeholder="Enter IFSC Code"
-                    value={localData?.BankDetails?.IFSCCode || ""}
+                    // value={localData?.BankDetails?.IFSCCode?.value || ""}
+                    value={getValue(localData?.BankDetails?.IFSCCode)}
                     onChange={handleChange}
                   />
                   <label htmlFor="IFSCCode">IFSC Code</label>
@@ -766,7 +778,8 @@ const FourthStepPRS = ({
                     name="BankDetails.City"
                     type="text"
                     placeholder="Enter City"
-                    value={localData?.BankDetails?.City || ""}
+                    // value={localData?.BankDetails?.City?.value || ""}
+                    value={getValue(localData?.BankDetails?.City)}
                     onChange={handleChange}
                   />
                   <label htmlFor="City">City</label>
