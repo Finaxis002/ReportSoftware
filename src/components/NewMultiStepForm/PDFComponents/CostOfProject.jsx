@@ -61,23 +61,23 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           alignItems: "flex-end",
         }}
       >
-       <Text style={[styles.AmountIn, styles.italicText]}>
-                 (Amount In{" "}
-                 {
-                   formData?.ProjectReportSetting?.AmountIn === "rupees"
-                     ? "Rs." // Show "Rupees" if "rupees" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                     ? "Thousands" // Show "Thousands" if "thousand" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                     ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "crores"
-                     ? "Crores" // Show "Crores" if "crores" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "millions"
-                     ? "Millions" // Show "Millions" if "millions" is selected
-                     : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                 }
-                 )
-               </Text>
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
       <View style={stylesCOP.heading}>
         <Text>Cost Of Project</Text>
@@ -85,7 +85,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
       <View style={[styles.table, { paddingBottom: 0 }]}>
         <View style={styles.tableHeader}>
-          <Text style={[styles.serialNoCell , {width:50}]}>S.No.</Text>
+          <Text style={[styles.serialNoCell, { width: 100 }]}>S.No.</Text>
           <Text style={styles.detailsCell}>Particulars</Text>
           <Text style={styles.particularsCell}>Amount</Text>
         </View>
@@ -99,7 +99,9 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
             .map(([key, field], index) => (
               <View key={key} style={styles.tableRow}>
                 {/* ✅ Serial No. based on filtered data */}
-                <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>{index + 1}</Text>
+                <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
+                  {index + 1}
+                </Text>
                 <Text style={stylesCOP.detailsCellDetail}>
                   {field?.name || "N/A"}
                 </Text>
@@ -129,7 +131,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         {/* ✅ Show Working Capital Row */}
         {formData?.MeansOfFinance?.totalWorkingCapital && (
           <View style={styles.tableRow}>
-            <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}>
+            <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
               {Object.keys(formData.CostOfProject).length - 1 + 1}
             </Text>
             <Text
@@ -151,7 +153,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
         {/* ✅ Total Cost Row (Including Working Capital) */}
         <View style={stylesCOP.totalHeader}>
-          <Text style={[stylesCOP.serialNoCellDetail , {width:50}]}></Text>
+          <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}></Text>
           <View
             style={[
               stylesCOP.detailsCellDetail,
@@ -177,7 +179,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                   border: "1px solid #000",
                   borderBottomWidth: 0,
                   textAlign: "left",
-                  borderLeftWidth:1
+                  borderLeftWidth: 1,
                 },
               ]}
             >
@@ -194,7 +196,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 borderTop: "1px solid #000",
                 borderBottomWidth: 0,
                 borderLeftWidth: 1,
-              
+
                 fontWeight: "bold",
                 textAlign: "right",
               },
