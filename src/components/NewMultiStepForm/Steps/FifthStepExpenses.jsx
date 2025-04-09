@@ -200,11 +200,17 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     localStorage.setItem("FifthStepExpenses", JSON.stringify(localData));
   }, [localData]);
 
+  
   // Update parent component and calculate totals
   useEffect(() => {
     calculateTotalExpense();
-    onFormDataChange({ Expenses: localData });
+    const sanitizedData = sanitizeForPDF(localData);
+    onFormDataChange({ Expenses: sanitizedData });
   }, [localData]);
+  // useEffect(() => {
+  //   calculateTotalExpense();
+  //   onFormDataChange({ Expenses: localData });
+  // }, [localData]);
 
   // const handleFormChange = (event, index, form, type) => {
   //   const { name, value } = event.target;
@@ -232,6 +238,24 @@ const removeCommas = (str) =>
     ? str.toString().replace(/,/g, "")
     : "";
 
+    
+    const sanitizeForPDF = (data) => {
+      return {
+        ...data,
+        normalExpense: data.normalExpense.map(item => ({
+          ...item,
+          amount: Number(removeCommas(item.amount)),
+          quantity: Number(removeCommas(item.quantity)),
+          value: Number(removeCommas(item.value)),
+        })),
+        directExpense: data.directExpense.map(item => ({
+          ...item,
+          value: Number(removeCommas(item.value)),
+          total: Number(removeCommas(item.total)),
+        })),
+        totalExpense: Number(removeCommas(data.totalExpense)),
+      };
+    };
 
   // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
@@ -385,7 +409,7 @@ const removeCommas = (str) =>
   };
 
   const totalSum = directExpenses.reduce((sum, item) => {
-    const value = parseFloat(item.value) || 0;
+    const value = parseFloat(removeCommas(item.value)) || 0;
     return sum + value;
   }, 0);
 
@@ -556,8 +580,8 @@ const removeCommas = (str) =>
             <span className="ms-2">
               {formatNumberWithCommas(normalExpenses
                 .reduce((total, form) => {
-                  const amount = parseFloat(form.amount) || 0;
-                  const quantity = parseFloat(form.quantity) || 0;
+                  const amount = parseFloat(removeCommas(form.amount)) || 0;
+                  const quantity = parseFloat(removeCommas(form.quantity)) || 0;
                   return total + amount * quantity * 12; // ✅ Corrected calculation
                 }, 0)
                 .toFixed(2))}

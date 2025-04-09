@@ -47,7 +47,7 @@ const EmployeeNotifications = () => {
 
         let url = "";
         if (role === "admin") {
-          url = "http://backend-three-pink.vercel.app/api/admin/notifications";
+          url = "https://backend-three-pink.vercel.app/api/admin/notifications";
         } else if (role === "employee") {
           const employeeId = localStorage.getItem("employeeId");
           if (!employeeId) {
