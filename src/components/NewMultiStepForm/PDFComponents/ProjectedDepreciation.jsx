@@ -342,7 +342,11 @@ const ProjectedDepreciation = ({
       const allAssetValues = [];
 
       Object.values(formData.CostOfProject).forEach((asset, index) => {
-        const assetAmount = asset.amount || 0;
+        const assetAmount =
+        typeof asset.amount === "string"
+          ? parseFloat(asset.amount.replace(/,/g, "")) || 0
+          : asset.amount || 0;
+      
         const depreciationPerYear =
           depreciationValues[index]?.yearlyDepreciation || [];
 

@@ -8,13 +8,20 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   // ✅ Helper Function to Format Numbers Based on Selected Format
 
   // ✅ Compute Total Cost of Project including Working Capital
+  const parseAmount = (val) => {
+    if (!val) return 0;
+    const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
+    return parseFloat(cleaned) || 0;
+  };
+  
   const totalCost =
     (formData?.CostOfProject
       ? Object.values(formData.CostOfProject).reduce(
-          (sum, field) => sum + (field?.amount || 0),
+          (sum, field) => sum + parseAmount(field?.amount),
           0
         )
-      : 0) + Number(formData?.MeansOfFinance?.totalWorkingCapital || 0); // ✅ Adding Working Capital
+      : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
+  
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
