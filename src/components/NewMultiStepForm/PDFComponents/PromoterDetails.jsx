@@ -88,9 +88,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
         <View>
           <View>
             <Text style={{ fontSize: 10 }}>
-              {formData?.AccountInformation?.gender?.toLowerCase() === "female"
-                ? "Mrs."
-                : "Mr."}{" "}
+            
               {formData?.AccountInformation?.clientName || "Client Name"} aged{" "}
               {new Date().getFullYear() -
                 new Date(
