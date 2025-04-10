@@ -574,9 +574,6 @@ const FinalStep = ({ formData, userRole }) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="select option">Select Report Type</option>
-          <option value="Sharda Associates">Sharda Associates</option>
-          <option value="CA Certified">CA Certified</option>
-          <option value="Finaxis">Finaxis</option>
           <option value="Other">Other</option>
         </select>
 
