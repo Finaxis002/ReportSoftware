@@ -1496,9 +1496,12 @@ const ProjectedProfitability = ({
             )}
           </View>
           {/* Withdrawals during the year  */}
-          {Array.from({ length: projectionYears }).every(
-            (_, index) => !Number(formData.MoreDetails?.Withdrawals?.[index])
-          ) ? null : (
+          {Array.from({
+            length: hideFirstYear ? projectionYears - 1 : projectionYears,
+          }).every((_, index) => {
+            const adjustedIndex = hideFirstYear ? index + 1 : index;
+            return !Number(formData.MoreDetails?.Withdrawals?.[adjustedIndex]);
+          }) ? null : (
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -1516,19 +1519,24 @@ const ProjectedProfitability = ({
               >
                 Withdrawals during the year
               </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(
-                    formData.MoreDetails?.Withdrawals?.[index] || "-"
-                  )}
-                </Text>
-              ))}
+              {Array.from({
+                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              }).map((_, index) => {
+                const adjustedIndex = hideFirstYear ? index + 1 : index;
+                const value =
+                  formData.MoreDetails?.Withdrawals?.[adjustedIndex];
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value || "-")}
+                  </Text>
+                );
+              })}
             </View>
           )}
 

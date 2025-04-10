@@ -9,15 +9,35 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   // const [totalRevenue, setTotalRevenue] = useState(
   //   Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   // );
+  
   const [totalRevenue, setTotalRevenue] = useState(
     Array.from({ length: projectionYears || 1 }, () => 0) // ✅ Ensures correct length
   );
 
+  const getPaddedMonths = (months, length) => {
+    return [...months, ...Array(Math.max(0, length - months.length)).fill(12)];
+  };
+
   const [noOfMonths, setNoOfMonths] = useState(() => {
     const stored = localStorage.getItem("noOfMonths");
-    return stored ? JSON.parse(stored) : Array(projectionYears).fill(12);
+    // return stored ? JSON.parse(stored) : Array(projectionYears).fill(12);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return getPaddedMonths(parsed, projectionYears);
   });
+
+  useEffect(() => {
+    if (noOfMonths.length < projectionYears) {
+      const padded = [...noOfMonths, ...Array(projectionYears - noOfMonths.length).fill(12)];
+      setNoOfMonths(padded);
+      localStorage.setItem("noOfMonths", JSON.stringify(padded));
+      setLocalData((prev) => ({
+        ...prev,
+        noOfMonths: padded,
+      }));
+    }
+  }, [noOfMonths, projectionYears]);
   
+
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   );
@@ -48,8 +68,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       setTogglerType(revenueData.togglerType);
     }
   }, [revenueData?.togglerType]);
-
-
 
   // ✅ Initialize formType based on revenueData first, fallback to formData
   const [formType, setFormType] = useState(() => {
@@ -102,10 +120,13 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     };
   });
 
-
   // on change
   const changeMonth = (index, newValue) => {
     const updated = [...noOfMonths];
+
+    if (updated.length < projectionYears) {
+      updated = [...updated, ...Array(projectionYears - updated.length).fill(12)];
+    }
     updated[index] = Number(newValue);
     setNoOfMonths(updated);
     localStorage.setItem("noOfMonths", JSON.stringify(updated));
@@ -117,29 +138,41 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     }));
   };
 
-
-  
   useEffect(() => {
     if (localData?.noOfMonths?.length > 0) {
       setNoOfMonths(localData.noOfMonths);
     }
   }, [localData]);
 
-  useEffect(() => {
-    const storedMonths = localStorage.getItem("noOfMonths");
-    if (storedMonths) {
-      const parsed = JSON.parse(storedMonths);
-      setNoOfMonths(parsed);
-      setLocalData((prev) => ({
-        ...prev,
-        noOfMonths: parsed,
-      }));
-    }
-  }, []);
-  
+  // useEffect(() => {
+  //   const storedMonths = localStorage.getItem("noOfMonths");
+  //   if (storedMonths) {
+  //     const parsed = JSON.parse(storedMonths);
+  //     setNoOfMonths(parsed);
+  //     setLocalData((prev) => ({
+  //       ...prev,
+  //       noOfMonths: parsed,
+  //     }));
+  //   }
+  // }, []);
+
   // console.log("Submitting this data to backend:", localData);
 
   // ✅ Auto-update `totalRevenue` when `noOfMonths` or `totalMonthlyRevenue` changes
+  useEffect(() => {
+    const storedMonths = localStorage.getItem("noOfMonths");
+    if (storedMonths) {
+      let parsed = JSON.parse(storedMonths);
+      const padded = getPaddedMonths(parsed, projectionYears);
+      setNoOfMonths(padded);
+      setLocalData((prev) => ({
+        ...prev,
+        noOfMonths: padded,
+      }));
+    }
+  }, [projectionYears]);
+  
+  
   useEffect(() => {
     setLocalData((prevData) => ({
       ...prevData,
@@ -493,6 +526,23 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     reader.readAsBinaryString(file);
   };
 
+  // const projectionYears = parseInt(
+  //   formData?.ProjectReportSetting?.ProjectionYears || 5
+  // );
+  const startYear = parseInt(
+    formData?.ProjectReportSetting?.FinancialYear || 2025
+  );
+
+  const getFinancialYearHeaders = (startYear, projectionYears) => {
+    const headers = [];
+    let year = parseInt(startYear); // Make sure it's a number
+    for (let i = 0; i < projectionYears; i++) {
+      headers.push(`${year}-${(year + 1).toString().slice(-2)}`);
+      year++;
+    }
+    return headers;
+  };
+
   const handleDownloadTemplate = () => {
     const businessName =
       formData?.AccountInformation?.businessName || "Template";
@@ -683,7 +733,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       <th className="header-label">Particulars</th>
 
                       {/* Dynamically Generate Table Headers */}
-                      {Array.from({
+                      {/* {Array.from({
                         length:
                           parseInt(
                             formData?.ProjectReportSetting?.ProjectionYears
@@ -691,6 +741,18 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       }).map((_, b) => (
                         <th key={b} className="header-label">
                           Year {b + 1}
+                        </th>
+                      ))} */}
+                      {getFinancialYearHeaders(
+                        parseInt(
+                          formData?.ProjectReportSetting?.StartYear || 2025
+                        ),
+                        parseInt(
+                          formData?.ProjectReportSetting?.ProjectionYears || 5
+                        )
+                      ).map((fy, idx) => (
+                        <th key={idx} className="header-label">
+                          {fy}
                         </th>
                       ))}
 
@@ -1003,7 +1065,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       <th className="header-label">Particulars</th>
 
                       {/* Dynamically Generate Table Headers */}
-                      {Array.from({
+                      {/* {Array.from({
                         length:
                           parseInt(
                             formData?.ProjectReportSetting?.ProjectionYears
@@ -1012,7 +1074,20 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                         <th key={b} className="header-label">
                           Year {b + 1}
                         </th>
+                      ))} */}
+                      {getFinancialYearHeaders(
+                        parseInt(
+                          formData?.ProjectReportSetting?.StartYear || 2025
+                        ),
+                        parseInt(
+                          formData?.ProjectReportSetting?.ProjectionYears || 5
+                        )
+                      ).map((fy, idx) => (
+                        <th key={idx} className="header-label">
+                          {fy}
+                        </th>
                       ))}
+
                       <th className="header-label">Increase By (%)</th>
                       <th className="header-label"></th>
                     </tr>
@@ -1188,7 +1263,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       >
                         <strong> No. of Months</strong>
                       </td>
-                      {noOfMonths.map((v, i, arr) => (
+                      {/* {noOfMonths.map((v, i, arr) => ( */}
+                      {getFinancialYearHeaders(startYear, projectionYears).map((_, i, arr) => (
                         <td
                           key={i}
                           style={{
@@ -1211,7 +1287,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                                 }),
                               }}
                               type="number"
-                              value={v || 0}
+                              // value={v || 0}
+                              value={noOfMonths[i] || 0}
                               onChange={(e) => changeMonth(i, e.target.value)}
                             />
                           </strong>
@@ -1237,8 +1314,9 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       >
                         <strong> Total Revenue</strong>
                       </td>
-                      {Array.from({ length: projectionYears }).map(
-                        (_, i, arr) => {
+                      {/* {Array.from({ length: projectionYears }).map(
+                        (_, i, arr) => { */}
+                        {getFinancialYearHeaders(startYear, projectionYears).map((_, i, arr) => {
                           const total =
                             (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
                             (parseFloat(noOfMonths?.[i]) || 0);
