@@ -158,7 +158,7 @@ const ProjectedSalaries = ({
                 index === normalExpense.length - 1 && { paddingBottom: 20 },
               ]}
             >
-              {formatNumber(expense.amount * expense.quantity * 12)}
+              {formatNumber(expense.value )}
             </Text>
           </View>
         ))}

@@ -135,10 +135,9 @@ const ProjectedCashflow = ({
       Number(formData?.MeansOfFinance?.workingCapital?.termLoan) || 0;
     const interestRate =
       Number(formData?.ProjectReportSetting?.interestOnTL) || 0;
-  
+
     return (workingCapitalLoan * interestRate) / 100;
   });
-  
 
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
@@ -181,8 +180,8 @@ const ProjectedCashflow = ({
   });
 
   // const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || 0;
-  const incomeTaxCalculation2 = incomeTaxCalculation?.incomeTaxCalculation || [];
-
+  const incomeTaxCalculation2 =
+    incomeTaxCalculation?.incomeTaxCalculation || [];
 
   // ✅ Compute Total Sources for Each Year
   // const totalSourcesArray = Array.from({ length: projectionYears }).map(
@@ -232,12 +231,10 @@ const ProjectedCashflow = ({
       //   0
       // ) || 0;
       const currentLiabilitiesTotal =
-
         formData?.MoreDetails?.currentLiabilities?.reduce(
           (sum, liability) => sum + (liability.years?.[index] || 0),
           0
         ) || 0;
-
 
       // ✅ Sum up all sources including newly added liabilities
       return (
@@ -277,7 +274,6 @@ const ProjectedCashflow = ({
 
         0
       );
-      
 
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
@@ -398,7 +394,6 @@ const ProjectedCashflow = ({
           ? formData?.MeansOfFinance?.workingCapital?.termLoan || "-"
           : "0"
     );
-    
 
     // console.log("term Loan Values:", termLoanValues);
 
@@ -474,23 +469,23 @@ const ProjectedCashflow = ({
           alignItems: "flex-end",
         }}
       >
-       <Text style={[styles.AmountIn, styles.italicText]}>
-                 (Amount In{" "}
-                 {
-                   formData?.ProjectReportSetting?.AmountIn === "rupees"
-                     ? "Rs." // Show "Rupees" if "rupees" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                     ? "Thousands" // Show "Thousands" if "thousand" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                     ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "crores"
-                     ? "Crores" // Show "Crores" if "crores" is selected
-                     : formData?.ProjectReportSetting?.AmountIn === "millions"
-                     ? "Millions" // Show "Millions" if "millions" is selected
-                     : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                 }
-                 )
-               </Text>
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
       <View style={[styleExpenses.paddingx]}>
         <View
@@ -541,7 +536,7 @@ const ProjectedCashflow = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -555,7 +550,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -664,10 +659,10 @@ const ProjectedCashflow = ({
                       : "0"
                   )} */}
                   {formatNumber(
-      index === 0
-        ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
-        : "0"
-    )}
+                    index === 0
+                      ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
+                      : "0"
+                  )}
                 </Text>
               ))}
             </View>
@@ -788,7 +783,7 @@ const ProjectedCashflow = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    
+
                     fontWeight: "bold",
                     textAlign: "right",
                   },
@@ -806,8 +801,7 @@ const ProjectedCashflow = ({
                       fontSize: "9px",
                       borderTopWidth: "1px",
                       borderBottomWidth: "1px",
-                      
-                      
+
                       paddingVertical: "8px",
                     },
                   ]}
@@ -826,7 +820,7 @@ const ProjectedCashflow = ({
                   stylesCOP.serialNoCellDetail,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -840,7 +834,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                   {
                     paddingVertical: "10px",
-                    
+
                     fontWeight: "bold",
                   },
                 ]}
@@ -1018,39 +1012,43 @@ const ProjectedCashflow = ({
             </View>
 
             {/* Withdrawals */}
-            <View style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                5
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Withdrawals
-              </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => (
+            {Array.from({ length: projectionYears }).every(
+              (_, index) => !Number(formData.MoreDetails?.Withdrawals?.[index])
+            ) ? null : (
+              <View style={styles.tableRow}>
                 <Text
-                  key={index}
                   style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
                   ]}
                 >
-                  {formatNumber(
-                    formData.MoreDetails?.Withdrawals?.[index] || "-"
-                  )}
+                  5
                 </Text>
-              ))}
-            </View>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Withdrawals
+                </Text>
+                {Array.from({ length: projectionYears }).map((_, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(
+                      formData.MoreDetails?.Withdrawals?.[index] || "-"
+                    )}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/* Income Tax */}
             <View style={[styles.tableRow]}>
@@ -1159,7 +1157,7 @@ const ProjectedCashflow = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-                    
+
                     fontWeight: "bold",
                     textAlign: "right",
                   },
@@ -1177,8 +1175,7 @@ const ProjectedCashflow = ({
                       fontSize: "9px",
                       borderTopWidth: "1px",
                       borderBottomWidth: "1px",
-                      
-                      
+
                       paddingVertical: "8px",
                     },
                   ]}
