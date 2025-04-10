@@ -743,7 +743,7 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Less:Depreciation */}
-            <View style={[styles.tableRow, styles.totalRow]}>
+            <View style={[styles.tableRow, styles.totalRow , {borderBottomWidth:1}]}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 2
               </Text>
