@@ -105,10 +105,8 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
                 ? "her"
                 : "him"}{" "}
               with an edge while setting up the current business.{" "}
-              {formData?.AccountInformation?.gender?.toLowerCase() === "female"
-                ? "Mrs."
-                : "Mr."}{" "}
-              {formData?.AccountInformation?.clientName || "Client Name"} is a
+             
+              {formData?.AccountInformation?.businessOwner || "Client Name"} is a
               resident of{" "}
               {formData?.AccountInformation?.location||
                 "Business Address Not Available"}
