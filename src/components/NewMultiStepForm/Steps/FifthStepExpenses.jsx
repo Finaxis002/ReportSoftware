@@ -203,23 +203,29 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
 
     
-    const sanitizeForPDF = (data) => {
-      return {
-        ...data,
-        normalExpense: data.normalExpense.map(item => ({
-          ...item,
-          amount: Number(removeCommas(item.amount)),
-          quantity: Number(removeCommas(item.quantity)),
-          value: Number(removeCommas(item.value)),
-        })),
-        directExpense: data.directExpense.map(item => ({
-          ...item,
-          value: Number(removeCommas(item.value)),
-          total: Number(removeCommas(item.total)),
-        })),
-        totalExpense: Number(removeCommas(data.totalExpense)),
+      const sanitizeForPDF = (data) => {
+        return {
+          ...data,
+          normalExpense: data.normalExpense.map(item => ({
+            ...item,
+            amount: Number(removeCommas(item.amount)),
+            quantity: Number(removeCommas(item.quantity)),
+            value: Number(removeCommas(item.value)),
+          })),
+          directExpense: data.directExpense.map(item => {
+            const valueStr = String(item.value).trim();
+            return {
+              ...item,
+              value: valueStr.endsWith("%")
+                ? valueStr // ✅ Keep percentage string as-is
+                : Number(removeCommas(valueStr)),
+              total: Number(removeCommas(item.total)),
+            };
+          }),
+          totalExpense: Number(removeCommas(data.totalExpense)),
+        };
       };
-    };
+      
 
 
   // Ensure that at least empty arrays are provided

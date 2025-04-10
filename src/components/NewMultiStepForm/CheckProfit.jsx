@@ -202,29 +202,30 @@ const CheckProfit = () => {
     const totalDirectExpenses = directExpense
       .filter((expense) => expense.type === "direct")
       .reduce((sum, expense) => {
-        // ✅ Check if this is "Raw Material Expenses / Purchases"
         const isRawMaterial =
           expense.name.trim() === "Raw Material Expenses / Purchases";
         const isPercentage = String(expense.value).trim().endsWith("%");
+
         let expenseValue = 0;
 
         const ClosingStock =
           formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
         const OpeningStock =
           formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
         if (isRawMaterial && isPercentage) {
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
           expenseValue = baseValue - ClosingStock + OpeningStock;
         } else {
-          expenseValue = Number(expense.value) * 12 || 0;
+          // ✅ Use annual total directly
+          expenseValue = Number(expense.total) || 0;
         }
 
-        // ✅ Apply calculateExpense only for non-raw material expenses
         return (
           sum +
-          (isRawMaterial
+          (isRawMaterial && isPercentage
             ? expenseValue
             : calculateExpense(expenseValue, yearIndex))
         );
@@ -302,30 +303,31 @@ const CheckProfit = () => {
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    const totalIndirectExpenses = indirectExpense.reduce(
-      (sum, expense) =>
-        sum +
-        calculateIndirectExpense(Number(expense.value * 12) || 0, yearIndex),
-      0
-    );
-
+    const totalIndirectExpenses = indirectExpense.reduce((sum, expense) => {
+      const annualTotal = Number(expense.total) || 0; // ✅ Use annual total directly
+      return sum + calculateIndirectExpense(annualTotal, yearIndex);
+    }, 0);
+  
     const interestOnTermLoan =
       storedData?.yearlyInterestLiabilities[yearIndex] || 0;
+  
     const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
       interestOnWorkingCapital[yearIndex] || 0,
       yearIndex
     );
+  
     const depreciationExpense =
       storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0;
-
+  
     const total =
       totalIndirectExpenses +
       interestOnTermLoan +
       interestExpenseOnWorkingCapital +
       depreciationExpense;
-
+  
     return total;
   });
+  
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
   const netProfitBeforeTax = grossProfitValues.map((grossProfit, yearIndex) => {
@@ -777,47 +779,32 @@ const CheckProfit = () => {
                     .trim()
                     .endsWith("%");
 
-                  const ClosingStock =
-                    Number(formData?.MoreDetails?.ClosingStock?.[index]) || 0;
-                  const OpeningStock =
-                    Number(formData?.MoreDetails?.OpeningStock?.[index]) || 0;
-
-                  let expenseValue = 0; // ✅ Declare it here
-
-                  if (isRawMaterial && isPercentage) {
-                    const baseValue =
-                      (parseFloat(expense.value) / 100) *
-                      (storedData?.totalRevenueReceipts?.[index] || 0);
-                    expenseValue = baseValue - ClosingStock + OpeningStock;
-                  } else {
-                    expenseValue = Number(expense.value) * 12 || 0;
-                  }
-
                   // ✅ Step 1: Compute values for all years
                   const valuesPerYear = Array.from({
                     length: projectionYears,
                   }).map((_, yearIndex) => {
-                    let yearlyExpenseValue = expenseValue;
+                    const ClosingStock =
+                      Number(
+                        formData?.MoreDetails?.ClosingStock?.[yearIndex]
+                      ) || 0;
+                    const OpeningStock =
+                      Number(
+                        formData?.MoreDetails?.OpeningStock?.[yearIndex]
+                      ) || 0;
 
-                    // if (
-                    //   isRawMaterial &&
-                    //   String(expense.value).trim().endsWith("%")
-                    // ) {
-                    //   yearlyExpenseValue =
-                    //     (parseFloat(expense.value) / 100) *
-                    //     (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
-                    // } else {
-                    //   yearlyExpenseValue = Number(expense.value) * 12 || 0;
-                    // }
-
-                    return isRawMaterial
-                      ? parseFloat(yearlyExpenseValue.toFixed(2))
-                      : parseFloat(
-                          calculateExpense(
-                            yearlyExpenseValue,
-                            yearIndex
-                          ).toFixed(2)
-                        );
+                    if (isRawMaterial && isPercentage) {
+                      const baseValue =
+                        (parseFloat(expense.value) / 100) *
+                        (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
+                      return parseFloat(
+                        (baseValue - ClosingStock + OpeningStock).toFixed(2)
+                      );
+                    } else {
+                      const total = Number(expense.total) || 0;
+                      return parseFloat(
+                        calculateExpense(total, yearIndex).toFixed(2)
+                      );
+                    }
                   });
 
                   // ✅ Step 2: Filter out values if hideFirstYear is true
@@ -1013,16 +1000,15 @@ const CheckProfit = () => {
               {directExpense
                 .filter((expense) => expense.type === "indirect")
                 .map((expense, index) => {
-                  const baseValue = Number(expense.value) || 0;
+                  const baseValue = Number(expense.total) || 0; // ✅ Use total
 
-                  // ✅ Step 1: Precompute all values
+                  // ✅ Step 1: Precompute all values with increment
                   const yearlyValues = Array.from({
                     length:
                       parseInt(formData.ProjectReportSetting.ProjectionYears) ||
                       0,
-                  }).map(
-                    (_, yearIndex) =>
-                      calculateIndirectExpense(baseValue, yearIndex) * 12
+                  }).map((_, yearIndex) =>
+                    calculateIndirectExpense(baseValue, yearIndex)
                   );
 
                   // ✅ Step 2: Filter values based on hideFirstYear
@@ -1059,7 +1045,7 @@ const CheckProfit = () => {
                             key={`indirectExpense-${index}-${yearIndex}`}
                             className="border border-black px-1 py-2 text-center font-normal text-[11px]"
                           >
-                            {formatNumber(val)}
+                            {formatNumber(val.toFixed(2))}
                           </td>
                         );
                       })}
