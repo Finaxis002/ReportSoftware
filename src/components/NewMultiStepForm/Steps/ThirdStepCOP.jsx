@@ -87,7 +87,6 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   // Remove commas for raw value
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
 
-
   // ✅ Populate `localData` from `formData.CostOfProject` on mount
   useEffect(() => {
     if (formData?.CostOfProject) {
@@ -146,10 +145,10 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   };
 
   const calculatedTotal =
-  Object.values(localData).reduce(
-    (total, field) => total + parseFloat(field.amount || 0),
-    0
-  ) + Number(formData.MeansOfFinance.totalWorkingCapital || 0);
+    Object.values(localData).reduce(
+      (total, field) => total + parseFloat(field.amount || 0),
+      0
+    ) + Number(formData.MeansOfFinance.totalWorkingCapital || 0);
 
   useEffect(() => {
     const meansOfFinanceTotal = calculatedTotal;
@@ -275,15 +274,16 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                 formData.MeansOfFinance?.totalWorkingCapital || ""
               )}
               onChange={(e) => {
-                const newValue =
-                  e.target.value.trim() === ""
-                    ? 0
-                    : parseFloat(e.target.value) || 0;
+                const rawValue = e.target.value.replace(/,/g, ""); // Remove commas to get raw number
+                const numericValue =
+                  rawValue === "" ? 0 : parseFloat(rawValue) || 0; // Convert to numeric
+
+                // Update the state with the formatted value (allow large inputs)
                 onFormDataChange({
                   ...formData,
                   MeansOfFinance: {
                     ...formData.MeansOfFinance,
-                    totalWorkingCapital: newValue,
+                    totalWorkingCapital: numericValue,
                   },
                 });
               }}
@@ -292,18 +292,19 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
         </div>
 
         {/* Total Amount Calculation */}
-        <div className="d-flex gap-2 my-4 justify-content-end">
-          <div className="w-100 flex">
-            <label className="form-label w-100">Total Amount</label>
-            <input
-              name="totalAmount"
-              value={formatNumberWithCommas(calculatedTotal)}
-              className="form-control w-[50%]"
-              type="number"
-              disabled
-            />
-          </div>
+        <div className="flex flex-col items-end gap-2 my-4 px-4">
+          <label className="text-sm font-medium text-gray-700">
+            Total Amount
+          </label>
+          <input
+            name="totalAmount"
+            value={formatNumberWithCommas(calculatedTotal)}
+            className="border border-gray-300 px-3 py-2 rounded-md shadow-sm text-right w-64"
+            type="text"
+            disabled
+          />
         </div>
+
         {error && <div className="text-danger mt-2 text-right">{error}</div>}
         {infoMessage && (
           <div
