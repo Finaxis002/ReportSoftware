@@ -187,15 +187,12 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
   // Format number with commas (Indian format)
 
-
-// Remove commas for raw value
-// const removeCommas = (str) => str.replace(/,/g, "");
-const removeCommas = (str) =>
-  typeof str === "string" || typeof str === "number"
-    ? str.toString().replace(/,/g, "")
-    : "";
-
-
+  // Remove commas for raw value
+  // const removeCommas = (str) => str.replace(/,/g, "");
+  const removeCommas = (str) =>
+    typeof str === "string" || typeof str === "number"
+      ? str.toString().replace(/,/g, "")
+      : "";
 
   // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
@@ -207,9 +204,16 @@ const removeCommas = (str) =>
     // if (name === "amount" || name === "quantity" || name === "value" || name === "total") {
     //   if (rawValue !== "" && !/^\d+(\.\d{0,2})?$/.test(rawValue)) return;
     // }
+    const isPercentageInput =
+      type === "directExpense" &&
+      name === "value" &&
+      typeof value === "string" &&
+      value.trim().endsWith("%");
+
     if (
       (name === "amount" || name === "value" || name === "total") &&
       rawValue !== "" &&
+      !isPercentageInput &&
       isNaN(rawValue)
     )
       return;
@@ -221,8 +225,11 @@ const removeCommas = (str) =>
       const updatedForm = { ...updatedExpenseList[index] };
 
       const rawValue = value.replace(/,/g, ""); // Remove commas
-      const numericValue = parseFloat(rawValue) || 0;
-      updatedForm[name] = value;
+      const numericValue = isPercentageInput
+        ? rawValue
+        : parseFloat(rawValue) || 0;
+
+      updatedForm[name] = rawValue; // ✅ save raw number string (without commas)
 
       setLastEditedField(name);
 
@@ -248,21 +255,20 @@ const removeCommas = (str) =>
         const quantity = parseFloat(removeCommas(updatedForm.quantity)) || 1;
         const amount = parseFloat(removeCommas(updatedForm.amount)) || 0;
         const annual = parseFloat(removeCommas(updatedForm.value)) || 0;
-      
+
         if (name === "amount") {
           // ✅ Remove .toFixed(2)
           updatedForm.value = numericValue * quantity * 12;
         }
-      
+
         if (name === "value") {
           updatedForm.amount = numericValue / (quantity * 12);
         }
-      
+
         if (name === "quantity") {
           updatedForm.value = amount * numericValue * 12;
         }
       }
-      
 
       // if (type === "directExpense") {
       //   const monthly = parseFloat(updatedForm.value) || 0;
@@ -279,16 +285,15 @@ const removeCommas = (str) =>
       if (type === "directExpense") {
         const monthly = parseFloat(removeCommas(updatedForm.value)) || 0;
         const total = parseFloat(removeCommas(updatedForm.total)) || 0;
-      
+
         if (name === "value") {
           updatedForm.total = (numericValue * 12).toFixed(2);
         }
-      
+
         if (name === "total") {
           updatedForm.value = (numericValue / 12).toFixed(2);
         }
       }
-      
 
       updatedExpenseList[index] = updatedForm;
 
@@ -411,7 +416,6 @@ const removeCommas = (str) =>
     onFormDataChange({ Expenses: localData });
   };
 
-
   const formatNumberWithCommas = (num) => {
     if (num === null || num === undefined || num === "") return "";
 
@@ -433,7 +437,6 @@ const removeCommas = (str) =>
         })
       : numericValue.toLocaleString("en-IN");
   };
-  
 
   return (
     <div>
