@@ -128,43 +128,62 @@ const ProjectedProfitability = ({
 
   const monthsPerYear = calculateMonthsPerYear();
 
+  const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod
   // Function to calculate the expense for each year considering the increment rate
   const calculateExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
     let incrementedExpense;
-
+  
+    // ✅ Calculate how many repayment years have passed (excluding full moratorium year)
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
-      .filter((months) => months > 0).length;
-
+      .filter((months, idx) => {
+        if (idx === 0 && months <= moratoriumPeriod) return false;
+        return months > 0;
+      }).length;
+  
     if (monthsInYear === 0) {
       incrementedExpense = 0;
     } else {
-      incrementedExpense =
-        annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+      const fullYearExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+  
+      // ✅ Apply pro-rata only in the first year if it's affected by moratorium
+      if (yearIndex === 0 && moratoriumPeriod > 0) {
+        const monthsEffective = monthsInYear;
+        incrementedExpense = (fullYearExpense * monthsEffective) / 12;
+      } else {
+        incrementedExpense = fullYearExpense;
+      }
     }
-
+  
     return incrementedExpense;
   };
+  
+  
 
   // Function to calculate indirect expenses considering the increment rate
   const calculateIndirectExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
-    let incrementedExpense;
-
+    let incrementedExpense = 0;
+  
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
-      .filter((months) => months > 0).length;
-
+      .filter((months, idx) => {
+        if (idx === 0 && months <= moratoriumPeriod) return false;
+        return months > 0;
+      }).length;
+  
     if (monthsInYear === 0) {
       incrementedExpense = 0;
     } else {
-      incrementedExpense =
-        annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+      const baseExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+      // ✅ Apply pro-rata for actual months in the year
+      incrementedExpense = (baseExpense * monthsInYear) / 12;
     }
-
+  
     return incrementedExpense;
   };
+  
 
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
