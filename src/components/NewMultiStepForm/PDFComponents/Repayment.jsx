@@ -541,20 +541,18 @@ const Repayment = ({
                 formData?.ProjectReportSetting?.MoratoriumPeriod || 0
               );
 
-              // ✅ Check if the entire year is within moratorium
-              const isFullYearInMoratorium = yearData.every(
-                () => globalMonthCounter < moratoriumPeriod
-              );
-
-              // ⛔ Skip rendering this year completely if it's fully in moratorium
-              if (isFullYearInMoratorium) {
-                globalMonthCounter += yearData.length;
-                return null;
-              }
-
               let filteredYearData = [...yearData];
 
-              // ✅ Calculate totals
+              // ✅ Check if every month in this year is within the moratorium
+              // Copy current counter to simulate check
+              let futureCounter = globalMonthCounter;
+              const isFullYearInMoratorium = filteredYearData.every(
+                () => futureCounter++ < moratoriumPeriod
+              );
+
+              // ✅ Then update counter AFTER decision
+              globalMonthCounter += filteredYearData.length;
+
               let totalPrincipalRepayment = filteredYearData.reduce(
                 (sum, entry) => sum + entry.principalRepayment,
                 0
@@ -566,13 +564,11 @@ const Repayment = ({
                     : sum + entry.interestLiability,
                 0
               );
+
               let totalRepayment = filteredYearData.reduce(
                 (sum, entry) => sum + entry.totalRepayment,
                 0
               );
-
-              // ✅ Store current display year to render (index)
-              const currentDisplayYear = displayYearCounter++;
 
               return (
                 <View
@@ -589,49 +585,51 @@ const Repayment = ({
                   ]}
                 >
                   {/* ✅ Year Row */}
-                  <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
-                    <Text
-                      style={[
-                        styles.serialNumberCellStyle,
-                        { width: "8%", paddingTop: "5px" },
-                      ]}
-                    >
-                      {currentDisplayYear}
-                    </Text>
-
-                    <Text
-                      style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.bordernone,
-                        styleExpenses.fontBold,
-                        {
-                          textAlign: "left",
-                          width: "15.35%",
-                          borderLeftWidth: 1,
-                          paddingTop: "5px",
-                        },
-                      ]}
-                    >
-                      {financialYear + yearIndex}-{" "}
-                      {(financialYear + yearIndex + 1).toString().slice(-2)}
-                    </Text>
-
-                    {/* Empty columns for alignment */}
-                    {Array.from({ length: 5 }).map((_, idx) => (
+                  {!isFullYearInMoratorium && (
+                    <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
-                        key={idx}
                         style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
+                          styles.serialNumberCellStyle,
+                          { width: "8%", paddingTop: "5px" },
+                        ]}
+                      >
+                        {displayYearCounter++}
+                      </Text>
+
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.bordernone,
+                          styleExpenses.fontBold,
                           {
-                            textAlign: "center",
+                            textAlign: "left",
                             width: "15.35%",
+                            borderLeftWidth: 1,
                             paddingTop: "5px",
                           },
                         ]}
-                      />
-                    ))}
-                  </View>
+                      >
+                        {financialYear + yearIndex}-{" "}
+                        {(financialYear + yearIndex + 1).toString().slice(-2)}
+                      </Text>
+
+                      {/* Empty columns for alignment */}
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Text
+                          key={idx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            {
+                              textAlign: "center",
+                              width: "15.35%",
+                              paddingTop: "5px",
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  )}
 
                   {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
                   {filteredYearData.map((entry, monthIndex) => {
@@ -739,93 +737,95 @@ const Repayment = ({
                   })}
 
                   {/* ✅ Total Row for the Year */}
-                  <View
-                    style={[
-                      stylesMOF.row,
-                      styles.tableRow,
-                      { borderTopWidth: 0 },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.serialNumberCellStyle, { width: "8%" }]}
-                    ></Text>
-                    <Text
+                  {!isFullYearInMoratorium && (
+                    <View
                       style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                          borderLeftWidth: 1,
-                        },
+                        stylesMOF.row,
+                        styles.tableRow,
+                        { borderTopWidth: 0 },
                       ]}
-                    ></Text>
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                        },
-                      ]}
-                    ></Text>
+                    >
+                      <Text
+                        style={[styles.serialNumberCellStyle, { width: "8%" }]}
+                      ></Text>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderLeftWidth: 1,
+                          },
+                        ]}
+                      ></Text>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                          },
+                        ]}
+                      ></Text>
 
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        styleExpenses.fontBold,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                          borderTopWidth: 1,
-                        },
-                      ]}
-                    >
-                      {formatNumber(totalPrincipalRepayment)}
-                    </Text>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          styleExpenses.fontBold,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
+                        ]}
+                      >
+                        {formatNumber(totalPrincipalRepayment)}
+                      </Text>
 
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                          borderLeftWidth: 1,
-                        },
-                      ]}
-                    ></Text>
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        styleExpenses.fontBold,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                          borderTopWidth: 1,
-                        },
-                      ]}
-                    >
-                      {formatNumber(totalInterestLiability)}
-                    </Text>
-                    <Text
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        styleExpenses.fontBold,
-                        {
-                          textAlign: "center",
-                          width: "15.35%",
-                          borderTopWidth: 1,
-                        },
-                      ]}
-                    >
-                      {formatNumber(totalRepayment)}
-                    </Text>
-                  </View>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderLeftWidth: 1,
+                          },
+                        ]}
+                      ></Text>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          styleExpenses.fontBold,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
+                        ]}
+                      >
+                        {formatNumber(totalInterestLiability)}
+                      </Text>
+                      <Text
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          styleExpenses.fontBold,
+                          {
+                            textAlign: "center",
+                            width: "15.35%",
+                            borderTopWidth: 1,
+                          },
+                        ]}
+                      >
+                        {formatNumber(totalRepayment)}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               );
             })}
