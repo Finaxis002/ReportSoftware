@@ -134,24 +134,18 @@ const BreakEvenPoint = ({
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
-      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
       const monthsInYear = monthsPerYear[yearIndex];
-
-      if (monthsInYear === 0) {
-        return 0; // No interest during moratorium
-      } else {
-        if (yearIndex === repaymentStartYear) {
-          const monthsRemainingAfterMoratorium =
-            12 - (moratoriumPeriodMonths % 12);
-          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
-        } else if (yearIndex > repaymentStartYear) {
-          return interestAmount; // From second year onwards, apply full interest
-        } else {
-          return 0; // No interest during moratorium
-        }
+  
+      if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
+        // ✅ Pro-rata interest in first year only based on moratorium
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
       }
+  
+      return interestAmount; // ✅ Full interest from second year onward
     };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+  }, [moratoriumPeriodMonths, monthsPerYear]);
+  
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
   const adjustedRevenueValues = Array.from({
