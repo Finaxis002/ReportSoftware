@@ -35,7 +35,7 @@ const Repayment = ({
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
   // ✅ Correct the total repayment months (including moratorium)
-  let totalMonths = repaymentMonths + moratoriumPeriod;
+  let totalMonths = repaymentMonths;
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
   let fixedPrincipalRepayment =
     effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
@@ -69,62 +69,87 @@ const Repayment = ({
 
   let repaymentStartIndex = startMonthIndex; // Start from selected month
 
+  const financialYear = parseInt(
+    formData.ProjectReportSetting.FinancialYear || 2025
+  );
+
   let data = [];
 
   // ✅ Track the Total Elapsed Months Since Repayment Start
-  let elapsedMonths = 0;
+  let elapsedRepaymentMonths = 0;
+  let elapsedMonths = 0; // total from start including moratorium
 
-  for (let year = 0; year < totalMonths; year++) {
+  for (let year = 0; year < 10; year++) {
     let yearData = [];
-
-    // ✅ First Year Starts from Selected Month
     let firstMonth = year === 0 ? repaymentStartIndex : 0;
 
     for (let i = firstMonth; i < 12; i++) {
-      if (remainingBalance <= 0) break; // Stop when balance is cleared
+      if (elapsedMonths >= repaymentMonths) break; // ✅ Fixed here
 
       let principalOpeningBalance = remainingBalance;
+      let isMoratorium = elapsedMonths < moratoriumPeriod;
 
-      // ✅ Ensure exactly 5 months of Moratorium
-      let principalRepayment =
-        elapsedMonths < moratoriumPeriod ? 0 : fixedPrincipalRepayment;
-
+      let principalRepayment = isMoratorium ? 0 : fixedPrincipalRepayment;
       let principalClosingBalance = Math.max(
         0,
         principalOpeningBalance - principalRepayment
       );
 
-      // ✅ Ensure interest is calculated exactly for 5 months
-      let interestLiability =
-        elapsedMonths < moratoriumPeriod
-          ? principalOpeningBalance * (interestRate / 12)
-          : principalClosingBalance * (interestRate / 12);
+      let interestLiability = isMoratorium
+        ? principalOpeningBalance * (interestRate / 12)
+        : principalClosingBalance * (interestRate / 12);
 
       let totalRepayment = principalRepayment + interestLiability;
 
       yearData.push({
         month: months[i],
-        principalOpeningBalance: principalOpeningBalance, // ✅ Rounded
-        principalRepayment: principalRepayment, // ✅ Rounded
-        principalClosingBalance: principalClosingBalance, // ✅ Rounded
-        interestLiability, // ✅ Already rounded above
-        totalRepayment: totalRepayment, // ✅ Rounded
+        principalOpeningBalance,
+        principalRepayment,
+        principalClosingBalance,
+        interestLiability,
+        totalRepayment,
       });
 
       remainingBalance = principalClosingBalance;
-
-      // ✅ Move the elapsed months counter forward
       elapsedMonths++;
+      if (!isMoratorium) elapsedRepaymentMonths++;
     }
 
     if (yearData.length > 0) {
       data.push(yearData);
-    }
-  }
 
-  const financialYear = parseInt(
-    formData.ProjectReportSetting.FinancialYear || 2025
-  );
+      const displayYear = financialYear + data.length - 1;
+      console.log(
+        `📅 Financial Year: ${displayYear}-${(displayYear + 1)
+          .toString()
+          .slice(-2)}`
+      );
+
+      console.table(
+        yearData.map((entry, index) => ({
+          "Month No": elapsedMonths - yearData.length + index + 1,
+          Month: entry.month,
+          "Opening Balance": Number(entry.principalOpeningBalance || 0).toFixed(
+            2
+          ),
+          "Principal Repayment": Number(entry.principalRepayment || 0).toFixed(
+            2
+          ),
+          "Closing Balance": Number(entry.principalClosingBalance || 0).toFixed(
+            2
+          ),
+          Interest: Number(entry.interestLiability || 0).toFixed(2),
+          "Total Repayment": Number(entry.totalRepayment || 0).toFixed(2),
+          "Is Moratorium":
+            elapsedMonths - yearData.length + index < moratoriumPeriod
+              ? "✅ Yes"
+              : "❌ No",
+        }))
+      );
+    }
+
+    if (elapsedMonths >= repaymentMonths) break; // ✅ Also here
+  }
 
   // ✅ Compute Yearly Total Principal Repayment
   const computedYearlyPrincipalRepayment = data.map((yearData) =>
@@ -269,10 +294,12 @@ const Repayment = ({
     }
   };
 
+  let globalMonthIndex = 0;
+  let finalRepaymentReached = false;
+
   return (
     <>
       <Page
-
         // orientation={
         //   formData.ProjectReportSetting.ProjectionYears > 7
         //     ? "landscape"
@@ -351,7 +378,6 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                   
                   },
                 ]}
               >
@@ -364,7 +390,6 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                   
                   },
                 ]}
               >
@@ -377,7 +402,6 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                   
                   },
                 ]}
               >
@@ -390,7 +414,6 @@ const Repayment = ({
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                   
                   },
                 ]}
               >
@@ -542,7 +565,6 @@ const Repayment = ({
               // if (!filteredYearData || filteredYearData.length === 0) {
               //   filteredYearData = yearData; // Fallback to full yearData if nothing was pushed
               // }
-              
 
               // ✅ Compute total values for the year
               let totalPrincipalRepayment = filteredYearData.reduce(
@@ -639,10 +661,21 @@ const Repayment = ({
 
                   {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
                   {filteredYearData.map((entry, monthIndex) => {
-                    // ✅ Skip moratorium months for the first year only
-                    if (yearIndex === 0 && monthIndex < moratoriumPeriod) {
+                    // 🔁 Skip initial moratorium months globally
+                    if (globalMonthIndex < moratoriumPeriod) {
+                      globalMonthIndex++;
                       return null;
                     }
+
+                    // ✅ Allow final repayment row where PCB === 0
+                    if (globalMonthIndex >= moratoriumPeriod) {
+                      if (entry.principalClosingBalance === 0 && !finalRepaymentReached) {
+                        finalRepaymentReached = true; // allow this row
+                      } else if (finalRepaymentReached) {
+                        return null; // skip anything after final repayment
+                      }
+                    }
+                    
 
                     return (
                       <View
