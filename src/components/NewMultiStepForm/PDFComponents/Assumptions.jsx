@@ -50,10 +50,13 @@ const Assumptions = ({
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  const orientation = hideFirstYear
+    ? formData.ProjectReportSetting.ProjectionYears > 6
+      ? "landscape"
+      : "portrait"
+    : formData.ProjectReportSetting.ProjectionYears > 5
+    ? "landscape"
+    : "portrait";
 
   return (
     <Page
@@ -191,7 +194,7 @@ const Assumptions = ({
       </View>
 
       <View style={{ marginTop: "10px" }}>
-        <Text style={[styles.text,{ fontSize: 9 }]}>
+        <Text style={[styles.text, { fontSize: 9 }]}>
           Also the total expense for the firm during the projection years will
           be as follows:
         </Text>
@@ -256,7 +259,9 @@ const Assumptions = ({
         </View>
       </View>
 
-      <Text style={[styles.text,{ fontSize: 9 }]}>Rate of Depreciation is as follows:</Text>
+      <Text style={[styles.text, { fontSize: 9 }]}>
+        Rate of Depreciation is as follows:
+      </Text>
       <View
         style={[
           styles.table,
@@ -269,8 +274,23 @@ const Assumptions = ({
         ]}
       >
         <View style={styles.tableHeader}>
-          <Text style={styles.detailsCell}>Particulars</Text>
-          <Text style={[styles.particularsCell, { borderRightWidth: "0px" }]}>
+          <Text
+            style={[
+              styles.detailsCell,
+              stylesCOP.boldText,
+              styleExpenses.particularWidth,
+            ]}
+          >
+            Particulars
+          </Text>
+
+          <Text
+            style={[
+              styles.particularsCell,
+              stylesCOP.boldText,
+              { textAlign: "left" },
+            ]}
+          >
             Rates
           </Text>
         </View>
@@ -280,13 +300,20 @@ const Assumptions = ({
         Object.keys(formData.CostOfProject).length > 0 ? (
           Object.entries(formData.CostOfProject).map(([key, field], index) => (
             <View key={key} style={styles.tableRow}>
-              <Text style={stylesCOP.detailsCellDetail}>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
                 {field?.name || "N/A"}
               </Text>
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
-                  { borderRightWidth: "0px" },
+                  styleExpenses.fontSmall,
+                  { textAlign: "right" },
                 ]}
               >
                 {formatNumber(field?.rate || 0)}%
@@ -307,7 +334,7 @@ const Assumptions = ({
         )}
       </View>
       {/* Notes Section */}
-      <View style={[ styles.text , { marginTop: 20, marginLeft: 2 }]}>
+      <View style={[styles.text, { marginTop: 20, marginLeft: 2 }]}>
         <Text style={{ fontSize: 9 }}>
           The Term Loan Repayment for {years} Years {months} Months is
           calculated at an interest rate of{" "}

@@ -52,19 +52,7 @@ const ProjectedExpenses = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
-
+ 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
@@ -146,6 +134,33 @@ const ProjectedExpenses = ({
   };
   
   
+
+   // ✅ Calculate Interest on Working Capital for each projection year
+   const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    const workingCapitalLoan =
+      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+    const interestRate =
+      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+  
+    const annualInterest = (workingCapitalLoan * interestRate) / 100;
+  
+    const moratoriumPeriodMonths =
+      parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod || 0);
+  
+    // ✅ Apply pro-rata for the first year only
+    if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
+      const proRatedInterest =
+        (annualInterest * (12 - moratoriumPeriodMonths)) / 12;
+      return proRatedInterest;
+    }
+  
+    // ✅ From second year onward, full interest
+    return annualInterest;
+  });
+  
+
   
 
   // Function to calculate interest on working capital considering moratorium period
