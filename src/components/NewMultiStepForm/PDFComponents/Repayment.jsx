@@ -296,6 +296,8 @@ const Repayment = ({
 
   let globalMonthIndex = 0;
   let finalRepaymentReached = false;
+  let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
+  let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
 
   return (
     <>
@@ -539,7 +541,20 @@ const Repayment = ({
                 formData?.ProjectReportSetting?.MoratoriumPeriod || 0
               );
 
-              let filteredYearData = [...yearData]; // ✅ Show all months as generated
+              // ✅ Check if the entire year is within moratorium
+              const isFullYearInMoratorium = yearData.every(
+                () => globalMonthCounter < moratoriumPeriod
+              );
+
+              // ⛔ Skip rendering this year completely if it's fully in moratorium
+              if (isFullYearInMoratorium) {
+                globalMonthCounter += yearData.length;
+                return null;
+              }
+
+              let filteredYearData = [...yearData];
+
+              // ✅ Calculate totals
               let totalPrincipalRepayment = filteredYearData.reduce(
                 (sum, entry) => sum + entry.principalRepayment,
                 0
@@ -551,11 +566,13 @@ const Repayment = ({
                     : sum + entry.interestLiability,
                 0
               );
-
               let totalRepayment = filteredYearData.reduce(
                 (sum, entry) => sum + entry.totalRepayment,
                 0
               );
+
+              // ✅ Store current display year to render (index)
+              const currentDisplayYear = displayYearCounter++;
 
               return (
                 <View
@@ -579,7 +596,7 @@ const Repayment = ({
                         { width: "8%", paddingTop: "5px" },
                       ]}
                     >
-                      {yearIndex + 1}
+                      {currentDisplayYear}
                     </Text>
 
                     <Text
