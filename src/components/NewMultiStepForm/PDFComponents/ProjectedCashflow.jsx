@@ -213,32 +213,7 @@ const ProjectedCashflow = ({
   const incomeTaxCalculation2 =
     incomeTaxCalculation?.incomeTaxCalculation || [];
 
-  // ✅ Compute Total Sources for Each Year
-  // const totalSourcesArray = Array.from({ length: projectionYears }).map(
-  //   (_, index) => {
-  //     const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
-  //     const promotersCapital =
-  //       index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
-  //     const bankTermLoan =
-  //       index === 0
-  //         ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
-  //         : 0;
-  //     const workingCapitalLoan =
-  //       index === 0
-  //         ? parseFloat(formData.MeansOfFinance?.workingCapital?.termLoan || 0)
-  //         : 0;
-  //     const depreciation = totalDepreciationPerYear[index] || 0;
 
-  //     // ✅ Sum up all sources
-  //     return (
-  //       netProfitValue +
-  //       promotersCapital +
-  //       bankTermLoan +
-  //       workingCapitalLoan +
-  //       depreciation
-  //     );
-  //   }
-  // );
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
