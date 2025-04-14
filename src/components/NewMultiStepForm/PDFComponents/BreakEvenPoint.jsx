@@ -131,20 +131,36 @@ const BreakEvenPoint = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
-  // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
+ const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
   
-      if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
-        // ✅ Pro-rata interest in first year only based on moratorium
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
+      if (monthsInYear === 0) {
+        return 0; // Entire year under moratorium
       }
   
-      return interestAmount; // ✅ Full interest from second year onward
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+  
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
+      } else {
+        return 0; // No interest during moratorium
+      }
     };
-  }, [moratoriumPeriodMonths, monthsPerYear]);
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
   
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
@@ -281,7 +297,7 @@ const BreakEvenPoint = ({
     // console.log("Sending Dscr : ", DSCR )
   }, [JSON.stringify(breakEvenPointPercentage)]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+ 
 
   const orientation = hideFirstYear
     ? formData.ProjectReportSetting.ProjectionYears > 6

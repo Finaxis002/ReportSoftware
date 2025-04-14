@@ -150,30 +150,31 @@ const ProjectedCashflow = ({
       (Number(formData.ProjectReportSetting?.interestOnTL) || 0) /
       100;
   
-    const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
-      let appliedInterest = 0;
+    // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+    //   let appliedInterest = 0;
   
-      if (monthsInYear === 0) {
-        appliedInterest = 0;
-      } else if (yearIndex === firstRepaymentYearIndex) {
-        appliedInterest = (interestAmount * monthsInYear) / 12;
-      } else {
-        appliedInterest = interestAmount;
-      }
+    //   if (monthsInYear === 0) {
+    //     appliedInterest = 0;
+    //   } else if (yearIndex === firstRepaymentYearIndex) {
+    //     appliedInterest = (interestAmount * monthsInYear) / 12;
+    //   } else {
+    //     appliedInterest = interestAmount;
+    //   }
   
-      return {
-        "Year Index": yearIndex + 1,
-        "Months Effective": monthsInYear,
-        "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
-        "Interest Amount (Full)": interestAmount.toFixed(2),
-        "Interest Applied": appliedInterest.toFixed(2),
-      };
-    });
+    //   return {
+    //     "Year Index": yearIndex + 1,
+    //     "Months Effective": monthsInYear,
+    //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+    //     "Interest Amount (Full)": interestAmount.toFixed(2),
+    //     "Interest Applied": appliedInterest.toFixed(2),
+    //   };
+    // });
   
-    console.log("📊 Interest on Working Capital - Moratorium Effect");
-    console.table(debugTable);
+    // console.log("📊 Interest on Working Capital - Moratorium Effect");
+    // console.table(debugTable);
   
     // ✅ Actual logic returned by useMemo
+    
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
   
