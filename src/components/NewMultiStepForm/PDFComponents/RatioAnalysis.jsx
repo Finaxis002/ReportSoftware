@@ -85,26 +85,53 @@ const RatioAnalysis = ({
   });
 
   // ✅ Calculate Total Debt and store in a variable
+  // const totalDebtArray = Array.from({ length: projectionYears }).map(
+  //   (_, index) => {
+  //     // Use raw value for Term Loan
+  //     const termLoan = Number(receivedMarchClosingBalances?.[index]) || 0;
+
+  //     // Use raw value for Bank Loan Payable from the next year (index + 1)
+  //     const bankLoan =
+  //       Number(
+  //         receivedTotalLiabilities?.repaymentValueswithin12months?.[index + 1]
+  //       ) || 0;
+
+  //     // Use the fallback array for Working Capital
+  //     const workingCapitalLoan = workingCapitalArray[index] || 0;
+
+  //     // ✅ Compute Total Debt correctly
+  //     const totalDebt = termLoan + bankLoan + workingCapitalLoan;
+
+  //     return totalDebt; // Store calculated total debt
+  //   }
+  // );
+
+
+
   const totalDebtArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      // Use raw value for Term Loan
-      const termLoan = Number(receivedMarchClosingBalances?.[index]) || 0;
-
-      // Use raw value for Bank Loan Payable from the next year (index + 1)
-      const bankLoan =
-        Number(
-          receivedTotalLiabilities?.repaymentValueswithin12months?.[index + 1]
-        ) || 0;
-
-      // Use the fallback array for Working Capital
+      const termLoan = Number(receivedMarchClosingBalances?.[index+1]) || 0;
+  
+      // ✅ Don't shift repayment index — use current year index
+      const bankLoan = Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0;
+  
       const workingCapitalLoan = workingCapitalArray[index] || 0;
-
-      // ✅ Compute Total Debt correctly
-      const totalDebt = termLoan + bankLoan + workingCapitalLoan;
-
-      return totalDebt; // Store calculated total debt
+  
+      return termLoan + bankLoan + workingCapitalLoan;
     }
   );
+  
+
+  // console.table(
+  //   totalDebtArray.map((debt, index) => ({
+  //     Year: index + 1,
+  //     "Term Loan": Number(receivedMarchClosingBalances?.[index]) || 0,
+  //     "Bank Loan": Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0,
+  //     "Working Capital": workingCapitalArray[index] || 0,
+  //     "Total Debt": debt.toFixed(2),
+  //   }))
+  // );
+  
 
   // ✅ Initialize cumulative sum for Current Liabilities
   let cumulativeCurrentLiabilities = 0;
@@ -113,7 +140,7 @@ const RatioAnalysis = ({
     length: projectionYears,
   }).map((_, index) => {
     // Use raw value for Term Loan
-    const termLoan = Number(receivedMarchClosingBalances?.[index]) || 0;
+    const termLoan = Number(receivedMarchClosingBalances?.[index+1]) || 0;
 
     // Use raw value for Bank Loan Payable from the next year (index + 1)
     const bankLoan =

@@ -135,14 +135,14 @@ const ProjectedBalanceSheet = ({
       return netFixedAssetValue + cashEquivalent + cumulativeCurrentAssets; // Use cumulative total for assets
     }
   );
- console.log("yearly principal repayment" , yearlyPrincipalRepayment)
+//  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
 
 
  const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
 
 
-  console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
+  // console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
   // ✅ Initialize cumulative liabilities
   let cumulativeCurrentLiabilities = 0;
@@ -190,53 +190,46 @@ const ProjectedBalanceSheet = ({
     }
   );
 
-  const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
+ const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
+  (_, index) => {
+    const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
 
-      const reservesAndSurplus = Math.max(
-        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[
-          index
-        ] || 0,
-        0
-      );
+    const reservesAndSurplus = Math.max(
+      receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[index] || 0,
+      0
+    );
 
-      const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
-      const repaymentWithin12Months = Number(
-        repaymentValueswithin12months?.[index] || 0
-      );
-      const termLoan = marchBalance - repaymentWithin12Months;
+    const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
+    const repaymentWithin12 = yearlyPrincipalRepayment[index + 1] || 0; // Shift by 1
+    const termLoan = marchBalance - repaymentWithin12;
 
-      const mappedIndex = index + 1;
-      const bankLoanPayableWithinNext12Months =
-        mappedIndex < projectionYears
-          ? yearlyPrincipalRepayment[mappedIndex] || 0
-          : 0;
+    const bankLoanPayableWithinNext12Months = repaymentWithin12;
 
-      const workingCapitalLoan = Number(
-        cumulativeLoanForPreviousYears?.[index] || 0
-      );
+    const workingCapitalLoan = Number(
+      cumulativeLoanForPreviousYears?.[index] || 0
+    );
 
-      const currentYearLiabilities = (
-        formData?.MoreDetails?.currentLiabilities ?? []
-      ).reduce(
-        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
-        0
-      );
+    const currentYearLiabilities = (
+      formData?.MoreDetails?.currentLiabilities ?? []
+    ).reduce(
+      (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
+      0
+    );
 
-      cumulativeAdditionalLiabilities += currentYearLiabilities;
+    cumulativeAdditionalLiabilities += currentYearLiabilities;
 
-      const totalForYear =
-        capital +
-        reservesAndSurplus +
-        termLoan +
-        bankLoanPayableWithinNext12Months +
-        workingCapitalLoan +
-        cumulativeAdditionalLiabilities;
+    const totalForYear =
+      capital +
+      reservesAndSurplus +
+      termLoan +
+      bankLoanPayableWithinNext12Months +
+      workingCapitalLoan +
+      cumulativeAdditionalLiabilities;
 
-      return totalForYear;
-    }
-  );
+    return totalForYear;
+  }
+);
+
 
   // ✅ Log final yearly total liabilities array
   // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);

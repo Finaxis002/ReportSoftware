@@ -141,18 +141,54 @@ const ProjectedCashflow = ({
 
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
+    // ✅ Find the first repayment year index (first with non-zero months)
+    const firstRepaymentYearIndex = monthsPerYear.findIndex(months => months > 0);
+  
+    // ✅ Debug Table
+    const interestAmount =
+      (Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+      (Number(formData.ProjectReportSetting?.interestOnTL) || 0) /
+      100;
+  
+    const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+      let appliedInterest = 0;
+  
+      if (monthsInYear === 0) {
+        appliedInterest = 0;
+      } else if (yearIndex === firstRepaymentYearIndex) {
+        appliedInterest = (interestAmount * monthsInYear) / 12;
+      } else {
+        appliedInterest = interestAmount;
+      }
+  
+      return {
+        "Year Index": yearIndex + 1,
+        "Months Effective": monthsInYear,
+        "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+        "Interest Amount (Full)": interestAmount.toFixed(2),
+        "Interest Applied": appliedInterest.toFixed(2),
+      };
+    });
+  
+    console.log("📊 Interest on Working Capital - Moratorium Effect");
+    console.table(debugTable);
+  
+    // ✅ Actual logic returned by useMemo
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
   
-      if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
-        // ✅ Pro-rata interest in first year only based on moratorium
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
+      if (monthsInYear === 0) {
+        return 0;
       }
   
-      return interestAmount; // ✅ Full interest from second year onward
+      if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+        return (interestAmount * monthsInYear) / 12;
+      }
+  
+      return interestAmount;
     };
-  }, [moratoriumPeriodMonths, monthsPerYear]);
+  }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+  
   
   // Compute Net Profit Before Interest & Taxes for Each Year
   const netProfitBeforeInterestAndTaxes = Array.from({
