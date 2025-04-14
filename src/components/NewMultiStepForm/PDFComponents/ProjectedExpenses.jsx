@@ -26,6 +26,8 @@ const ProjectedExpenses = ({
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 5;
 
+    const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   // Month Mapping
   const monthMap = {
     April: 1,
@@ -57,24 +59,35 @@ const ProjectedExpenses = ({
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
     let remainingMoratorium = moratoriumPeriodMonths;
+  
     for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
+      let monthsInYear;
+  
+      // ✅ If first year is hidden, apply starting month logic on second year
+      const isEffectiveFirstYear = (!hideFirstYear && year === 1) || (hideFirstYear && year === 2);
+  
+      if (isEffectiveFirstYear) {
+        monthsInYear = 12 - x + 1;
+      } else {
+        monthsInYear = 12;
       }
-
+  
+      // ✅ Apply moratorium logic
       if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
+        monthsArray.push(0);
         remainingMoratorium -= monthsInYear;
       } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
+        monthsArray.push(monthsInYear - remainingMoratorium);
         remainingMoratorium = 0;
       }
     }
+  
     return monthsArray;
   };
+  
 
   const monthsPerYear = calculateMonthsPerYear();
+
 
   const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod
 
@@ -83,7 +96,6 @@ const ProjectedExpenses = ({
     const monthsInYear = monthsPerYear[yearIndex];
     let incrementedExpense;
   
-    // ✅ Calculate how many repayment years have passed (excluding full moratorium year)
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
       .filter((months, idx) => {
@@ -96,10 +108,13 @@ const ProjectedExpenses = ({
     } else {
       const fullYearExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
   
-      // ✅ Apply pro-rata only in the first year if it's affected by moratorium
-      if (yearIndex === 0 && moratoriumPeriod > 0) {
-        const monthsEffective = monthsInYear;
-        incrementedExpense = (fullYearExpense * monthsEffective) / 12;
+      // ✅ Pro-rata only in the first effective year (visible 1st year)
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1); // 2nd year is 1st visible
+  
+      if (isProRataYear && moratoriumPeriod > 0) {
+        incrementedExpense = (fullYearExpense * monthsInYear) / 12;
       } else {
         incrementedExpense = fullYearExpense;
       }
@@ -108,6 +123,49 @@ const ProjectedExpenses = ({
     return incrementedExpense;
   };
   
+  // useEffect(() => {
+  //   const baseSalary = Number(fringAndAnnualCalculation) || 0;
+  
+  //   const salaryDebugTable = Array.from({
+  //     length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  //   }).map((_, visibleYearIndex) => {
+  //     const actualYearIndex = hideFirstYear ? visibleYearIndex + 1 : visibleYearIndex;
+  //     const monthsInYear = monthsPerYear[actualYearIndex];
+  
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, actualYearIndex)
+  //       .filter((months, idx) => {
+  //         if (idx === 0 && months <= moratoriumPeriod) return false;
+  //         return months > 0;
+  //       }).length;
+  
+  //     const fullYearExpense = baseSalary * Math.pow(1 + rateOfExpense, repaymentYear);
+  
+  //     const isProRata =
+  //       (!hideFirstYear && actualYearIndex === 0) ||
+  //       (hideFirstYear && actualYearIndex === 1);
+  
+  //     const calculatedExpense = monthsInYear === 0
+  //       ? 0
+  //       : isProRata
+  //         ? (fullYearExpense * monthsInYear) / 12
+  //         : fullYearExpense;
+  
+  //     return {
+  //       "Visible Year Index": visibleYearIndex + 1,
+  //       "Actual Year Index": actualYearIndex,
+  //       "Revenue": receivedtotalRevenueReceipts?.[actualYearIndex] || 0,
+  //       "Months Effective": monthsInYear,
+  //       "Repayment Year #": repaymentYear,
+  //       "Base Salary": baseSalary,
+  //       "Full Year Expense": fullYearExpense.toFixed(2),
+  //       "Final Salary Applied": calculatedExpense.toFixed(2),
+  //     };
+  //   });
+  
+  //   console.log("======= Salary Moratorium Calculation Table =======");
+  //   console.table(salaryDebugTable);
+  // }, [monthsPerYear, hideFirstYear]);
   
 
   // Function to calculate indirect expenses considering the increment rate
@@ -126,12 +184,22 @@ const ProjectedExpenses = ({
       incrementedExpense = 0;
     } else {
       const baseExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
-      // ✅ Apply pro-rata for actual months in the year
-      incrementedExpense = (baseExpense * monthsInYear) / 12;
+  
+      // ✅ Apply pro-rata only in the first visible year
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      if (isProRataYear && moratoriumPeriod > 0) {
+        incrementedExpense = (baseExpense * monthsInYear) / 12;
+      } else {
+        incrementedExpense = baseExpense;
+      }
     }
   
     return incrementedExpense;
   };
+  
   
   
 
@@ -166,23 +234,33 @@ const ProjectedExpenses = ({
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
-      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
       const monthsInYear = monthsPerYear[yearIndex];
+  
       if (monthsInYear === 0) {
-        return 0; // No interest during moratorium
+        return 0; // Entire year under moratorium
+      }
+  
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+  
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
       } else {
-        if (yearIndex === repaymentStartYear) {
-          const monthsRemainingAfterMoratorium =
-            12 - (moratoriumPeriodMonths % 12);
-          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
-        } else if (yearIndex > repaymentStartYear) {
-          return interestAmount; // From second year onwards, apply full interest
-        } else {
-          return 0; // No interest during moratorium
-        }
+        return 0; // No interest during moratorium
       }
     };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -266,7 +344,7 @@ const ProjectedExpenses = ({
     }
   }, [JSON.stringify(totalExpensesArray), onTotalExpenseSend]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   const orientation =
   hideFirstYear
     ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
