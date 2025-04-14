@@ -11,7 +11,7 @@ const ProjectedRevenue = ({
   formatNumber,
   pdfType,
 }) => {
-  console.log("revenue", formData.Revenue);
+  // console.log("revenue", formData.Revenue);
   // ✅ Extract projection years and formType safely
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;

@@ -129,12 +129,13 @@ const ProjectedProfitability = ({
   const monthsPerYear = calculateMonthsPerYear();
 
   const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod
+
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
   // Function to calculate the expense for each year considering the increment rate
   const calculateExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
     let incrementedExpense;
   
-    // ✅ Calculate how many repayment years have passed (excluding full moratorium year)
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
       .filter((months, idx) => {
@@ -147,10 +148,13 @@ const ProjectedProfitability = ({
     } else {
       const fullYearExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
   
-      // ✅ Apply pro-rata only in the first year if it's affected by moratorium
-      if (yearIndex === 0 && moratoriumPeriod > 0) {
-        const monthsEffective = monthsInYear;
-        incrementedExpense = (fullYearExpense * monthsEffective) / 12;
+      // ✅ Pro-rata only in the first effective year (visible 1st year)
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1); // 2nd year is 1st visible
+  
+      if (isProRataYear && moratoriumPeriod > 0) {
+        incrementedExpense = (fullYearExpense * monthsInYear) / 12;
       } else {
         incrementedExpense = fullYearExpense;
       }
@@ -158,7 +162,6 @@ const ProjectedProfitability = ({
   
     return incrementedExpense;
   };
-  
   
 
   // Function to calculate indirect expenses considering the increment rate
@@ -177,12 +180,22 @@ const ProjectedProfitability = ({
       incrementedExpense = 0;
     } else {
       const baseExpense = annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
-      // ✅ Apply pro-rata for actual months in the year
-      incrementedExpense = (baseExpense * monthsInYear) / 12;
+  
+      // ✅ Apply pro-rata only in the first visible year
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      if (isProRataYear && moratoriumPeriod > 0) {
+        incrementedExpense = (baseExpense * monthsInYear) / 12;
+      } else {
+        incrementedExpense = baseExpense;
+      }
     }
   
     return incrementedExpense;
   };
+  
   
 
   // Function to calculate interest on working capital considering moratorium period
@@ -190,16 +203,31 @@ const ProjectedProfitability = ({
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
   
-      if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
-        // ✅ Pro-rata interest in first year only based on moratorium
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
+      if (monthsInYear === 0) {
+        return 0; // Entire year under moratorium
       }
   
-      return interestAmount; // ✅ Full interest from second year onward
-    };
-  }, [moratoriumPeriodMonths, monthsPerYear]);
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
   
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+  
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
+      } else {
+        return 0; // No interest during moratorium
+      }
+    };
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -432,7 +460,7 @@ const ProjectedProfitability = ({
   }, []);
 
   // ✅ Determine if first-year should be hidden
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
+
   const orientation = hideFirstYear
     ? formData.ProjectReportSetting.ProjectionYears > 6
       ? "landscape"

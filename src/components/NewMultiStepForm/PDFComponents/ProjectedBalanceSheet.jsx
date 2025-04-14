@@ -135,16 +135,14 @@ const ProjectedBalanceSheet = ({
       return netFixedAssetValue + cashEquivalent + cumulativeCurrentAssets; // Use cumulative total for assets
     }
   );
+ console.log("yearly principal repayment" , yearlyPrincipalRepayment)
 
-  const repaymentValueswithin12months = Array.from({
-    length: formData.ProjectReportSetting.ProjectionYears || 0,
-  }).map((_, index) => {
-    let mappedIndex = index + 1; // ✅ Shift to next year
 
-    return mappedIndex < formData.ProjectReportSetting.ProjectionYears
-      ? yearlyPrincipalRepayment[mappedIndex] || 0 // ✅ Fetch next year's value
-      : 0; // ✅ Ensure last year's value is explicitly set to 0
-  });
+ const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
+
+
+
+  console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
   // ✅ Initialize cumulative liabilities
   let cumulativeCurrentLiabilities = 0;
