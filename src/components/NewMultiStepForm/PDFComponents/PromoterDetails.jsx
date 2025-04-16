@@ -397,7 +397,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
 
         {/* partner details */}
         
-        {formData?.AccountInformation?.allPartners?.length > 1 && (
+        {formData?.AccountInformation?.allPartners?.length >= 1 && (
           <View>
            <View
            style={{

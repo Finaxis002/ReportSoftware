@@ -1341,7 +1341,7 @@ const ProjectSynopsis = React.memo(
                 </View>
               )}
               {/* partner details */}
-              {formData?.AccountInformation?.allPartners?.length > 1 && (
+              {formData?.AccountInformation?.allPartners?.length >= 1 && (
                 <View>
                   {/* Header */}
                   <View style={[styles.tableHeader]}>
