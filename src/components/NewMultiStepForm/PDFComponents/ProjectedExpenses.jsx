@@ -206,28 +206,15 @@ const ProjectedExpenses = ({
    // ✅ Calculate Interest on Working Capital for each projection year
    const interestOnWorkingCapital = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
+  }).map(() => {
     const workingCapitalLoan =
       Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
     const interestRate =
       Number(formData.ProjectReportSetting.interestOnTL) || 0;
-  
-    const annualInterest = (workingCapitalLoan * interestRate) / 100;
-  
-    const moratoriumPeriodMonths =
-      parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod || 0);
-  
-    // ✅ Apply pro-rata for the first year only
-    if (yearIndex === 0 && moratoriumPeriodMonths > 0) {
-      const proRatedInterest =
-        (annualInterest * (12 - moratoriumPeriodMonths)) / 12;
-      return proRatedInterest;
-    }
-  
-    // ✅ From second year onward, full interest
-    return annualInterest;
+
+    // ✅ Annual Interest Calculation
+    return (workingCapitalLoan * interestRate) / 100;
   });
-  
 
   
 
@@ -260,7 +247,38 @@ const ProjectedExpenses = ({
       }
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
+
   
+  interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
+    const monthsInYear = monthsPerYear[yearIndex];
+    const isProRataYear =
+      (!hideFirstYear && yearIndex === 0) ||
+      (hideFirstYear && yearIndex === 1);
+  
+    const repaymentYear = monthsPerYear
+      .slice(0, yearIndex)
+      .filter((months) => months > 0).length;
+  
+    console.log(`\n📅 Final Adjustment - Year ${yearIndex + 1}`);
+    console.log(`- Base Interest: ₹${interestAmount.toFixed(2)}`);
+    console.log(`- Months In Year: ${monthsInYear}`);
+    console.log(`- Is Pro-Rata Year: ${isProRataYear}`);
+    console.log(`- Repayment Year Index: ${repaymentYear}`);
+  
+    if (isProRataYear && moratoriumPeriodMonths > 0) {
+      const monthsEffective = monthsInYear;
+      const final = (interestAmount * monthsEffective) / 12;
+  
+      console.log(`✅ Adjusted Pro-Rata Interest: ₹${final.toFixed(2)} for ${monthsEffective} months`);
+    } else if (repaymentYear >= 1) {
+      console.log(`✅ Full Interest Applicable: ₹${interestAmount.toFixed(2)}`);
+    } else {
+      console.log(`❌ No Interest: Under Moratorium`);
+    }
+  });
+  
+
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
