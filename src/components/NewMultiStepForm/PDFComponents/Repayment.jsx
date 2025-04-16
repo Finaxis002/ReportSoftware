@@ -878,13 +878,6 @@ const Repayment = ({
   onMarchClosingBalanceCalculated, // New callback prop for March balances
   onInterestLiabilityUpdate,
 }) => {
-
-  console.log("🚀 Term Loan Raw:", formData?.MeansOfFinance?.termLoan?.termLoan);
-console.log("🚀 Interest Rate Raw:", formData?.ProjectReportSetting?.interestOnTL);
-console.log("🚀 Moratorium Period:", formData.ProjectReportSetting?.MoratoriumPeriod);
-console.log("🚀 Repayment Months:", formData.ProjectReportSetting?.RepaymentMonths);
-console.log("🚀 Start Month:", formData.ProjectReportSetting?.SelectStartingMonth);
-console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear);
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
@@ -925,7 +918,7 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
     startMonthIndex = 0; // Default to April if input is incorrect
   }
 
-  // let remainingBalance = termLoan; // Remaining loan balance
+  let remainingBalance = termLoan; // Remaining loan balance
 
   let repaymentStartIndex = startMonthIndex; // Start from selected month
 
@@ -938,7 +931,6 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
   // ✅ Track the Total Elapsed Months Since Repayment Start
   let elapsedRepaymentMonths = 0;
   let elapsedMonths = 0; // total from start including moratorium
-
 
   for (let year = 0; year < 10; year++) {
     let yearData = [];
@@ -960,7 +952,7 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
         ? principalOpeningBalance * (interestRate / 12)
         : principalClosingBalance * (interestRate / 12);
 
-
+      let totalRepayment = principalRepayment + interestLiability;
 
       yearData.push({
         month: months[i],
@@ -1009,120 +1001,8 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
       // );
     }
 
-
     if (elapsedMonths >= repaymentMonths) break; // ✅ Also here
   }
-
-  let allMonths = [];
-let remainingBalance = termLoan;
-let monthIndex = months.indexOf(
-  formData.ProjectReportSetting.SelectStartingMonth
-);
-const fyBase = parseInt(formData.ProjectReportSetting.FinancialYear);
-let realMonthIndex = 0;
-let repaymentMonthsPushed = 0;
-
-// 1️⃣ Moratorium period — interest only
-for (let i = 0; i < moratoriumPeriod; i++) {
-  const monthName = months[monthIndex % 12];
-  const currentFY = fyBase + Math.floor((realMonthIndex + (12 - startMonthIndex)) / 12);
-
-  const interestLiability = remainingBalance * (interestRate / 12);
-
-  allMonths.push({
-    month: monthName,
-    principalOpeningBalance: remainingBalance,
-    principalRepayment: 0,
-    principalClosingBalance: remainingBalance,
-    interestLiability,
-    totalRepayment: interestLiability,
-    financialYear: currentFY,
-  });
-
-  monthIndex++;
-  realMonthIndex++;
-}
-
-// 2️⃣ Repayment period — principal + interest
-for (let i = 0; i < repaymentMonths && repaymentMonthsPushed < repaymentMonths; i++) {
-  const monthName = months[monthIndex % 12];
-  const currentFY = fyBase + Math.floor((realMonthIndex + (12 - startMonthIndex)) / 12);
-
-  const principalOpeningBalance = remainingBalance;
-  let principalRepayment = fixedPrincipalRepayment;
-  let principalClosingBalance = principalOpeningBalance - principalRepayment;
-
-  // if (principalClosingBalance <= 0) break;
-  if (principalClosingBalance <= 0) {
-    principalRepayment += principalClosingBalance; // adjust final
-    principalClosingBalance = 0;
-  }
-
-
-  const interestLiability = principalClosingBalance * (interestRate / 12);
-  const totalRepayment = principalRepayment + interestLiability;
-
-  allMonths.push({
-    month: monthName,
-    principalOpeningBalance,
-    principalRepayment,
-    principalClosingBalance,
-    interestLiability,
-    totalRepayment,
-    financialYear: currentFY,
-  });
-
-  remainingBalance = principalClosingBalance;
-  if (principalRepayment > 0) repaymentMonthsPushed++;
-  monthIndex++;
-  realMonthIndex++;
-}
-
-console.log("📆 All Months (Final Loan Repayment Table):", allMonths);
-console.log("📦 Last Entry:", allMonths[allMonths.length - 1]);
-console.log("📦 Second Last Entry:", allMonths[allMonths.length - 2]);
-
-// ✅ After your repayment loop ends:
-const projectionYears = parseInt(formData.ProjectReportSetting.ProjectionYears || 5);
-const totalExpectedMonths = projectionYears * 12;
-const totalActualMonths = allMonths.length;
-
-// Padding logic to reach exactly final month of projection
-while (allMonths.length < totalExpectedMonths) {
-  const nextMonthIndex = (monthIndex++) % 12;
-  const nextMonthName = months[nextMonthIndex];
-  const fy = fyBase + Math.floor((startMonthIndex + realMonthIndex) / 12);
-
-  allMonths.push({
-    month: nextMonthName,
-    principalOpeningBalance: 0,
-    principalRepayment: 0,
-    principalClosingBalance: 0,
-    interestLiability: 0,
-    totalRepayment: 0,
-    financialYear: fy,
-  });
-
-  realMonthIndex++;
-}
-
-
-const groupedByYear = {};
-const getFinancialYear = (absoluteMonthIndex) => {
-  const fyStart = fyBase + Math.floor((startMonthIndex + absoluteMonthIndex) / 12);
-  const fyEnd = (fyStart + 1).toString().slice(-2);
-  return `${fyStart}-${fyEnd}`;
-};
-
-allMonths.forEach((entry, idx) => {
-  const yearKey = getFinancialYear(idx);
-  if (!groupedByYear[yearKey]) groupedByYear[yearKey] = [];
-  groupedByYear[yearKey].push(entry);
-});
-console.log("📘 Grouped By Financial Year:", groupedByYear);
-
-
-  
 
   // ✅ Compute Yearly Total Principal Repayment
   const computedYearlyPrincipalRepayment = data.map((yearData) =>
@@ -1508,7 +1388,7 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
               </View>
             </View>
 
-
+            {/* Table Body */}
             {data.map((yearData, yearIndex) => {
               const moratoriumPeriod = parseInt(
                 formData?.ProjectReportSetting?.MoratoriumPeriod || 0
@@ -1559,7 +1439,6 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                 >
                   {/* ✅ Year Row */}
                   {!isFullYearInMoratorium && (
-
                     <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
                         style={[
@@ -1567,9 +1446,7 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                           { width: "8%", paddingTop: "5px" },
                         ]}
                       >
-
                         {displayYearCounter++}
-
                       </Text>
 
                       <Text
@@ -1584,7 +1461,6 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                             paddingTop: "5px",
                           },
                         ]}
-
                       >
                         {financialYear + yearIndex}-{" "}
                         {(financialYear + yearIndex + 1).toString().slice(-2)}
@@ -1636,52 +1512,77 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                           styles.tableRow,
                           { borderBottomWidth: 0, borderTopWidth: 0 },
                         ]}
-
                       >
-                        {/* {financialYear + yearIndex}-{" "}
-                      {(financialYear + yearIndex + 1).toString().slice(-2)} */}
-                        {yearKey}
-                      </Text>
-
-                      {/* Empty columns for alignment */}
-                      {Array.from({ length: 5 }).map((_, idx) => (
                         <Text
-                          key={idx}
+                          style={[
+                            styles.serialNumberCellStyle,
+                            { width: "8%" },
+                          ]}
+                        >
+                          {"\u00A0"}
+                        </Text>
+
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                            {
+                              textAlign: "left",
+                              width: "15.35%",
+                              borderLeftWidth: 1,
+                            },
+                          ]}
+                        >
+                          {entry.month}
+                        </Text>
+                        <Text
                           style={[
                             stylesCOP.particularsCellsDetail,
                             styleExpenses.fontSmall,
-                            {
-                              textAlign: "center",
-                              width: "15.35%",
-                              paddingTop: "5px",
-                            },
-                          ]}
-                        />
-                      ))}
-                    </View>
-
-
-                    {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
-                    {filteredYearData.map((entry, monthIndex) => {console.log("🧾 Year Key:", yearKey);
-console.log("📋 Filtered Year Data:", filteredYearData);
-
-                      // ✅ Skip moratorium months for the first year only
-                      if (yearIndex === 0 && monthIndex < moratoriumPeriod) {
-                        return null;
-                      }
-                      const EPSILON = 1e-6; // Tiny threshold to treat as 0
-const alpha = entry.principalClosingBalance <= EPSILON ? 0 : entry.principalOpeningBalance;
-if (alpha === 0) return null;
-                      return (
-                        <View
-                          key={monthIndex}
-                          style={[
-                            stylesMOF.row,
-                            styles.tableRow,
-                            { borderBottomWidth: 0, borderTopWidth: 0 },
+                            { textAlign: "center", width: "15.35%" },
                           ]}
                         >
-
+                          {formatNumber(entry.principalOpeningBalance)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.principalRepayment)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(entry.principalClosingBalance)}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
+                          {formatNumber(
+                            entry.principalRepayment === 0
+                              ? 0
+                              : entry.interestLiability
+                          )}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { textAlign: "center", width: "15.35%" },
+                          ]}
+                        >
                           {formatNumber(entry.totalRepayment)}
                         </Text>
                       </View>
@@ -1690,7 +1591,6 @@ if (alpha === 0) return null;
 
                   {/* ✅ Total Row for the Year */}
                   {!isFullYearInMoratorium && (
-
                     <View
                       style={[
                         stylesMOF.row,
@@ -1778,12 +1678,10 @@ if (alpha === 0) return null;
                         {formatNumber(totalRepayment)}
                       </Text>
                     </View>
-
                   )}
                 </View>
               );
             })}
-
           </View>
 
           {/* businees name and Client Name  */}
