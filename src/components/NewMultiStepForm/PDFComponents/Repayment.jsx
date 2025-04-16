@@ -895,7 +895,7 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
   // ✅ Correct the total repayment months (including moratorium)
-  let totalMonths = repaymentMonths + moratoriumPeriod;
+  let totalMonths = repaymentMonths;
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
   let fixedPrincipalRepayment =
     effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
@@ -929,62 +929,89 @@ console.log("🚀 Financial Year:", formData.ProjectReportSetting?.FinancialYear
 
   let repaymentStartIndex = startMonthIndex; // Start from selected month
 
-  let data = [];
-
-  // ✅ Track the Total Elapsed Months Since Repayment Start
-  let elapsedMonths = 0;
-
-  // for (let year = 0; year < totalMonths; year++) {
-  //   let yearData = [];
-
-  //   // ✅ First Year Starts from Selected Month
-  //   let firstMonth = year === 0 ? repaymentStartIndex : 0;
-
-  //   for (let i = firstMonth; i < 12; i++) {
-  //     if (remainingBalance <= 0) break; // Stop when balance is cleared
-
-  //     let principalOpeningBalance = remainingBalance;
-
-  //     // ✅ Ensure exactly 5 months of Moratorium
-  //     let principalRepayment =
-  //       elapsedMonths < moratoriumPeriod ? 0 : fixedPrincipalRepayment;
-
-  //     let principalClosingBalance = Math.max(
-  //       0,
-  //       principalOpeningBalance - principalRepayment
-  //     );
-
-  //     // ✅ Ensure interest is calculated exactly for 5 months
-  //     let interestLiability =
-  //       elapsedMonths < moratoriumPeriod
-  //         ? principalOpeningBalance * (interestRate / 12)
-  //         : principalClosingBalance * (interestRate / 12);
-
-  //     let totalRepayment = principalRepayment + interestLiability;
-
-  //     yearData.push({
-  //       month: months[i],
-  //       principalOpeningBalance: principalOpeningBalance, // ✅ Rounded
-  //       principalRepayment: principalRepayment, // ✅ Rounded
-  //       principalClosingBalance: principalClosingBalance, // ✅ Rounded
-  //       interestLiability, // ✅ Already rounded above
-  //       totalRepayment: totalRepayment, // ✅ Rounded
-  //     });
-
-  //     remainingBalance = principalClosingBalance;
-
-  //     // ✅ Move the elapsed months counter forward
-  //     elapsedMonths++;
-  //   }
-
-  //   if (yearData.length > 0) {
-  //     data.push(yearData);
-  //   }
-  // }
-
   const financialYear = parseInt(
     formData.ProjectReportSetting.FinancialYear || 2025
   );
+
+  let data = [];
+
+  // ✅ Track the Total Elapsed Months Since Repayment Start
+  let elapsedRepaymentMonths = 0;
+  let elapsedMonths = 0; // total from start including moratorium
+
+
+  for (let year = 0; year < 10; year++) {
+    let yearData = [];
+    let firstMonth = year === 0 ? repaymentStartIndex : 0;
+
+    for (let i = firstMonth; i < 12; i++) {
+      if (elapsedMonths >= repaymentMonths) break; // ✅ Fixed here
+
+      let principalOpeningBalance = remainingBalance;
+      let isMoratorium = elapsedMonths < moratoriumPeriod;
+
+      let principalRepayment = isMoratorium ? 0 : fixedPrincipalRepayment;
+      let principalClosingBalance = Math.max(
+        0,
+        principalOpeningBalance - principalRepayment
+      );
+
+      let interestLiability = isMoratorium
+        ? principalOpeningBalance * (interestRate / 12)
+        : principalClosingBalance * (interestRate / 12);
+
+
+
+      yearData.push({
+        month: months[i],
+        principalOpeningBalance,
+        principalRepayment,
+        principalClosingBalance,
+        interestLiability,
+        totalRepayment,
+      });
+
+      remainingBalance = principalClosingBalance;
+      elapsedMonths++;
+      if (!isMoratorium) elapsedRepaymentMonths++;
+    }
+
+    if (yearData.length > 0) {
+      data.push(yearData);
+
+      const displayYear = financialYear + data.length - 1;
+      // console.log(
+      //   `📅 Financial Year: ${displayYear}-${(displayYear + 1)
+      //     .toString()
+      //     .slice(-2)}`
+      // );
+
+      // console.table(
+      //   yearData.map((entry, index) => ({
+      //     "Month No": elapsedMonths - yearData.length + index + 1,
+      //     Month: entry.month,
+      //     "Opening Balance": Number(entry.principalOpeningBalance || 0).toFixed(
+      //       2
+      //     ),
+      //     "Principal Repayment": Number(entry.principalRepayment || 0).toFixed(
+      //       2
+      //     ),
+      //     "Closing Balance": Number(entry.principalClosingBalance || 0).toFixed(
+      //       2
+      //     ),
+      //     Interest: Number(entry.interestLiability || 0).toFixed(2),
+      //     "Total Repayment": Number(entry.totalRepayment || 0).toFixed(2),
+      //     "Is Moratorium":
+      //       elapsedMonths - yearData.length + index < moratoriumPeriod
+      //         ? "✅ Yes"
+      //         : "❌ No",
+      //   }))
+      // );
+    }
+
+
+    if (elapsedMonths >= repaymentMonths) break; // ✅ Also here
+  }
 
   let allMonths = [];
 let remainingBalance = termLoan;
@@ -1240,6 +1267,11 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
     }
   };
 
+  let globalMonthIndex = 0;
+  let finalRepaymentReached = false;
+  let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
+  let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
+
   return (
     <>
       <Page
@@ -1476,90 +1508,58 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
               </View>
             </View>
 
-            {/* Table Body */}
-            {Object.entries(groupedByYear).map(
-              ([yearKey, yearData], yearIndex) => {
-                let filteredYearData = [];
-                let repaymentStopped = false;
-                let previousEntryHadZeroClosingBalance = false;
 
-                for (const entry of yearData) {
-                  // ✅ If previous entry had zero closing balance, stop adding rows
-                  if (previousEntryHadZeroClosingBalance) {
-                    break;
-                  }
+            {data.map((yearData, yearIndex) => {
+              const moratoriumPeriod = parseInt(
+                formData?.ProjectReportSetting?.MoratoriumPeriod || 0
+              );
 
-                  // ✅ If closing balance becomes zero, allow one additional row
-                  if (entry.principalClosingBalance === 0) {
-                    if (repaymentStopped) {
-                      previousEntryHadZeroClosingBalance = true; // ✅ Stop after next row
-                    }
-                    repaymentStopped = true;
-                  }
+              let filteredYearData = [...yearData];
 
-                  // ✅ Include row if repayment hasn't fully stopped
-                  filteredYearData.push(entry);
-                }
+              // ✅ Check if every month in this year is within the moratorium
+              // Copy current counter to simulate check
+              let futureCounter = globalMonthCounter;
+              const isFullYearInMoratorium = filteredYearData.every(
+                () => futureCounter++ < moratoriumPeriod
+              );
 
-                const moratoriumPeriod = parseInt(
-                  formData?.ProjectReportSetting?.MoratoriumPeriod || 0
-                );
+              // ✅ Then update counter AFTER decision
+              globalMonthCounter += filteredYearData.length;
 
-                // // ✅ Skip rendering this year if there are no valid months
-                // if (!filteredYearData || filteredYearData.length === 0) {
-                //   filteredYearData = yearData; // Fallback to full yearData if nothing was pushed
-                // }
+              let totalPrincipalRepayment = filteredYearData.reduce(
+                (sum, entry) => sum + entry.principalRepayment,
+                0
+              );
+              let totalInterestLiability = filteredYearData.reduce(
+                (sum, entry) =>
+                  entry.principalRepayment === 0
+                    ? sum
+                    : sum + entry.interestLiability,
+                0
+              );
 
-                // ✅ Compute total values for the year
-                let totalPrincipalRepayment = filteredYearData.reduce(
-                  (sum, entry) => sum + entry.principalRepayment,
-                  0
-                );
-                let totalInterestLiability = filteredYearData.reduce(
-                  (sum, entry) =>
-                    entry.principalRepayment === 0
-                      ? sum // If principal repayment is 0, don't add interest liability
-                      : sum + entry.interestLiability,
-                  0
-                );
+              let totalRepayment = filteredYearData.reduce(
+                (sum, entry) => sum + entry.totalRepayment,
+                0
+              );
 
-                
-                // 🔥 Skip first N months from the beginning of the year (not from filtered entries)
-                const monthsToConsider = filteredYearData.filter(
-                  (_, monthIndex) => {
-                    // ✅ Skip moratoriumPeriod only in the first year
-                    if (yearIndex === 0 && monthIndex < moratoriumPeriod) {
-                      return false;
-                    }
-                    return true;
-                  }
-                );
+              return (
+                <View
+                  key={yearIndex}
+                  wrap={false}
+                  style={[
+                    { borderLeftWidth: 0 },
+                    {
+                      position: "relative",
+                      zIndex: 1,
+                      borderLeftWidth: 1,
+                      borderTopWidth: 1,
+                    },
+                  ]}
+                >
+                  {/* ✅ Year Row */}
+                  {!isFullYearInMoratorium && (
 
-                // ✅ Then calculate totalRepayment from monthsToConsider
-                let totalRepayment = monthsToConsider.reduce(
-                  (sum, entry) => sum + entry.totalRepayment,
-                  0
-                );
-
-                if (totalInterestLiability === 0) {
-                  return null; // 🚫 Skip year block if no visible month
-                }
-
-                return (
-                  <View
-                    key={yearIndex}
-                    wrap={false}
-                    style={[
-                      { borderLeftWidth: 0 },
-                      {
-                        position: "relative",
-                        zIndex: 1,
-                        borderLeftWidth: 1,
-                        borderTopWidth: 1,
-                      },
-                    ]}
-                  >
-                    {/* ✅ Year Row */}
                     <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
                         style={[
@@ -1567,7 +1567,9 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                           { width: "8%", paddingTop: "5px" },
                         ]}
                       >
-                        {yearIndex + 1}
+
+                        {displayYearCounter++}
+
                       </Text>
 
                       <Text
@@ -1582,6 +1584,59 @@ console.log("📘 Grouped By Financial Year:", groupedByYear);
                             paddingTop: "5px",
                           },
                         ]}
+
+                      >
+                        {financialYear + yearIndex}-{" "}
+                        {(financialYear + yearIndex + 1).toString().slice(-2)}
+                      </Text>
+
+                      {/* Empty columns for alignment */}
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Text
+                          key={idx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            {
+                              textAlign: "center",
+                              width: "15.35%",
+                              paddingTop: "5px",
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  )}
+
+                  {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
+                  {filteredYearData.map((entry, monthIndex) => {
+                    // 🔁 Skip initial moratorium months globally
+                    if (globalMonthIndex < moratoriumPeriod) {
+                      globalMonthIndex++;
+                      return null;
+                    }
+
+                    // ✅ Allow final repayment row where PCB === 0
+                    if (globalMonthIndex >= moratoriumPeriod) {
+                      if (
+                        entry.principalClosingBalance === 0 &&
+                        !finalRepaymentReached
+                      ) {
+                        finalRepaymentReached = true; // allow this row
+                      } else if (finalRepaymentReached) {
+                        return null; // skip anything after final repayment
+                      }
+                    }
+
+                    return (
+                      <View
+                        key={monthIndex}
+                        style={[
+                          stylesMOF.row,
+                          styles.tableRow,
+                          { borderBottomWidth: 0, borderTopWidth: 0 },
+                        ]}
+
                       >
                         {/* {financialYear + yearIndex}-{" "}
                       {(financialYear + yearIndex + 1).toString().slice(-2)} */}
@@ -1626,83 +1681,16 @@ if (alpha === 0) return null;
                             { borderBottomWidth: 0, borderTopWidth: 0 },
                           ]}
                         >
-                          <Text
-                            style={[
-                              styles.serialNumberCellStyle,
-                              { width: "8%" },
-                            ]}
-                          >
-                            {"\u00A0"}
-                          </Text>
 
-                          <Text
-                            style={[
-                              stylesCOP.detailsCellDetail,
-                              styleExpenses.particularWidth,
-                              styleExpenses.bordernone,
-                              {
-                                textAlign: "left",
-                                width: "15.35%",
-                                borderLeftWidth: 1,
-                              },
-                            ]}
-                          >
-                            {entry.month}
-                          </Text>
-                          <Text
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                              { textAlign: "center", width: "15.35%" },
-                            ]}
-                          >
-                            {formatNumber(entry.principalOpeningBalance)}
-                          </Text>
-                          <Text
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                              { textAlign: "center", width: "15.35%" },
-                            ]}
-                          >
-                            {formatNumber(entry.principalRepayment)}
-                          </Text>
-                          <Text
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                              { textAlign: "center", width: "15.35%" },
-                            ]}
-                          >
-                            {formatNumber(entry.principalClosingBalance)}
-                          </Text>
-                          <Text
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                              { textAlign: "center", width: "15.35%" },
-                            ]}
-                          >
-                            {formatNumber(
-                              entry.principalRepayment === 0
-                                ? 0
-                                : entry.interestLiability
-                            )}
-                          </Text>
-                          <Text
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                              { textAlign: "center", width: "15.35%" },
-                            ]}
-                          >
-                            {formatNumber(entry.totalRepayment)}
-                          </Text>
-                        </View>
-                      );
-                    })}
+                          {formatNumber(entry.totalRepayment)}
+                        </Text>
+                      </View>
+                    );
+                  })}
 
-                    {/* ✅ Total Row for the Year */}
+                  {/* ✅ Total Row for the Year */}
+                  {!isFullYearInMoratorium && (
+
                     <View
                       style={[
                         stylesMOF.row,
@@ -1790,10 +1778,12 @@ if (alpha === 0) return null;
                         {formatNumber(totalRepayment)}
                       </Text>
                     </View>
-                  </View>
-                );
-              }
-            )}
+
+                  )}
+                </View>
+              );
+            })}
+
           </View>
 
           {/* businees name and Client Name  */}

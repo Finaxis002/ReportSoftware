@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import Header from "./Header";
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
@@ -43,19 +49,22 @@ const MultiStepForm = ({ userRole, userName }) => {
   }, [step]);
 
   // 👇 Add at the top
-const hasPreFilled = useRef(false);
+  const hasPreFilled = useRef(false);
 
-// 👇 This useEffect should be inside MultiStepForm.jsx (NOT Stepper.jsx!)
-useEffect(() => {
-  if (!hasPreFilled.current && isCreateReportWithExistingClicked && reportData) {
-    const preFilledData = { ...reportData };
-    delete preFilledData._id;
-    delete preFilledData.sessionId;
-    setFormData(preFilledData);
-    hasPreFilled.current = true;
-  }
-}, [isCreateReportWithExistingClicked, reportData]);
-
+  // 👇 This useEffect should be inside MultiStepForm.jsx (NOT Stepper.jsx!)
+  useEffect(() => {
+    if (
+      !hasPreFilled.current &&
+      isCreateReportWithExistingClicked &&
+      reportData
+    ) {
+      const preFilledData = { ...reportData };
+      delete preFilledData._id;
+      delete preFilledData.sessionId;
+      setFormData(preFilledData);
+      hasPreFilled.current = true;
+    }
+  }, [isCreateReportWithExistingClicked, reportData]);
 
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {
@@ -90,8 +99,7 @@ useEffect(() => {
       setFormData(preFilledData);
     }
   }, [isCreateReportWithExistingClicked, reportData]);
-  
-  
+
   useEffect(() => {
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
@@ -120,28 +128,43 @@ useEffect(() => {
   );
 
   const handleBusinessSelect = (businessData, sessionId) => {
-    // ✅ Create a new object (Ensures NO reference issues)
+    // ✅ Create a deep copy of the fetched business data
     let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
-
-    // ✅ REMOVE `_id` only when creating a new report from existing
+  
+    // ✅ Get current logged-in user and role from localStorage
+    const currentUser =
+      localStorage.getItem("adminName") || localStorage.getItem("employeeName") || "Unknown";
+    const currentUserRole = localStorage.getItem("userRole") || "unknown";
+  
+    // ✅ REMOVE _id and sessionId if creating a new report
     if (isCreateReportWithExistingClicked) {
       delete cleanedBusinessData._id;
-      delete cleanedBusinessData.sessionId; // 🚀 Ensure sessionId is removed for new report creation
-      console.log(
-        "🗑 Removing `_id` and `sessionId` for new report creation..."
-      );
+      delete cleanedBusinessData.sessionId;
+      console.log("🗑 Removing _id and sessionId for new report creation...");
       setSessionId(null); // Reset sessionId for new report
+  
+      // ✅ Force update author info
+      if (!cleanedBusinessData.AccountInformation) {
+        cleanedBusinessData.AccountInformation = {};
+      }
+  
+      cleanedBusinessData.AccountInformation.userRole = currentUserRole;
+      cleanedBusinessData.AccountInformation.createdBy = currentUser;
+  
+      console.log("✍️ Overwriting author info:", {
+        userRole: currentUserRole,
+        createdBy: currentUser,
+      });
     } else {
-      setSessionId(sessionId || null); // Keep sessionId when updating an existing report
+      setSessionId(sessionId || null); // Use sessionId when updating
     }
-
-    console.log(
-      "✅ Cleaned Business Data (Before Setting Form):",
-      cleanedBusinessData
-    );
-
+  
+    console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
+  
+    // ✅ Set final data in state
     setFormData(cleanedBusinessData);
   };
+  
 
   const handleSaveData = async () => {
     try {
@@ -150,10 +173,24 @@ useEffect(() => {
       requestData.append("step", steps[currentStep - 1]);
 
       // ✅ Include userRole explicitly in formData
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+
+      // Overwrite values in AccountInformation
       let formDataWithoutFile = {
         ...formData,
-        userRole,
+        AccountInformation: {
+          ...formData.AccountInformation,
+          userRole: currentUserRole,
+          createdBy: currentUser,
+        },
       };
+
+   
+      console.log("📦 Final Payload to Backend:", formDataWithoutFile.AccountInformation);
 
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
 
@@ -200,14 +237,12 @@ useEffect(() => {
     }
   };
 
-  
-
   const handleCreateNewFromExisting = async () => {
     try {
       console.log(
         "🔄 Preparing to create a new report from an existing one..."
       );
-      setSessionId(null); 
+      setSessionId(null);
 
       // ✅ Deep Copy `formData` to remove any lingering references
       let newData = JSON.parse(JSON.stringify(formData));
@@ -259,10 +294,6 @@ useEffect(() => {
     }
   };
 
-  
-
-  
-  
   const handleUpdate = async () => {
     if (!sessionId) {
       alert("No session ID found. Please select a business first.");
@@ -587,8 +618,4 @@ useEffect(() => {
 
 export default MultiStepForm;
 
-
-
 ////////////////////////////////////////////////////////////////
-
-

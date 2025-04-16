@@ -100,27 +100,39 @@ const DebtServiceCoverageRatio = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
-      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
       const monthsInYear = monthsPerYear[yearIndex];
-
+  
       if (monthsInYear === 0) {
-        return 0; // No interest during moratorium
+        return 0; // Entire year under moratorium
+      }
+  
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+  
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
       } else {
-        if (yearIndex === repaymentStartYear) {
-          const monthsRemainingAfterMoratorium =
-            12 - (moratoriumPeriodMonths % 12);
-          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
-        } else if (yearIndex > repaymentStartYear) {
-          return interestAmount; // From second year onwards, apply full interest
-        } else {
-          return 0; // No interest during moratorium
-        }
+        return 0; // No interest during moratorium
       }
     };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  
+  
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
 
@@ -194,7 +206,7 @@ const DebtServiceCoverageRatio = ({
     // console.log("DSCR:", DSCR);
   }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   const orientation =
   hideFirstYear
     ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")

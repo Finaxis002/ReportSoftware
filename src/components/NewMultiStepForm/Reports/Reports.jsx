@@ -290,7 +290,8 @@ const Reports = ({ sendPdfData }) => {
 
                     {authRole !== "employee" && (
                       <td className="border px-4 py-2 text-gray-700 dark:text-white w-[100px]">
-                        {report.AccountInformation?.userRole || "N/A"}
+                       {report.AccountInformation?.createdBy || report.AccountInformation?.userRole || "N/A"}
+
                       </td>
                     )}
 

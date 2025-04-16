@@ -217,7 +217,7 @@ const IncomeTaxCalculation = ({
 
           {/* depreciation */}
           <View style={[styles.tableRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}></Text>
+            <Text style={stylesCOP.serialNoCellDetail}>Add</Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,

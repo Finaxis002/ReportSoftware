@@ -280,7 +280,7 @@ const GeneratedPDF = ({}) => {
     if (!Array.isArray(normalExpense)) return 0; // Prevents errors
     return normalExpense.reduce(
       (sum, expense) =>
-        sum + Number(expense.amount * expense.quantity * 12 || 0),
+        sum + Number(expense?.value),
       0
     );
   }, [normalExpense]);
