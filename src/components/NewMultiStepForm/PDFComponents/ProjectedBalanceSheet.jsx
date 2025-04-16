@@ -122,8 +122,7 @@ const ProjectedBalanceSheet = ({
     length: formData.MoreDetails.OpeningStock.length,
   }).map((_, yearIndex) => {
     const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
-    const finalStock = ClosingStock - OpeningStock;
+    const finalStock = ClosingStock ;
 
     return finalStock;
   });
@@ -145,8 +144,7 @@ const ProjectedBalanceSheet = ({
         length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
         const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-        const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
-        const finalStock = ClosingStock - OpeningStock;
+        const finalStock = ClosingStock;
   
         return finalStock;
       });
