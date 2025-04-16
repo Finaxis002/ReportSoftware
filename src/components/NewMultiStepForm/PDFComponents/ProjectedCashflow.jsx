@@ -272,7 +272,7 @@ const ProjectedCashflow = ({
   
       // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
       const currentAssetsTotal = formData?.MoreDetails?.currentAssets
-        ?.filter((asset) => asset.particular !== 'Inventory') // Skip the 'Inventory' row
+        ?.filter((asset) => asset.particular !== 'Inventory') // Skip 'Inventory' row
         .reduce(
           (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
           0
@@ -288,6 +288,9 @@ const ProjectedCashflow = ({
         return finalStock;
       });
   
+      // ✅ If Inventory is not available, set it to 0
+      const inventoryValue = inventory[index] || 0;
+  
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
   
@@ -300,11 +303,25 @@ const ProjectedCashflow = ({
         sanitize(withdrawals) +
         sanitize(incomeTaxValue) +
         sanitize(currentAssetsTotal) +
-        sanitize(inventory[index]); // Add the Inventory for the current year (index)
+        sanitize(inventoryValue); // Add the Inventory for the current year (index)
+  
+      // ✅ Logging values for each year index
+      console.log(`Year ${index + 1}:`);
+      console.log("Fixed Assets:", fixedAssets);
+      console.log("Repayment of Term Loan:", repaymentOfTermLoan);
+      console.log("Interest on Term Loan:", interestOnTermLoan);
+      console.log("Interest on Working Capital:", interestOnWorkingCapitalValue);
+      console.log("Withdrawals:", withdrawals);
+      console.log("Income Tax Value:", incomeTaxValue);
+      console.log("Current Assets Total (excluding Inventory):", currentAssetsTotal);
+      console.log("Inventory (ClosingStock - OpeningStock):", inventoryValue);
+      console.log("Total Uses for Year", index + 1, ":", totalUses);
   
       return totalUses;
     }
   );
+  
+  
   
 
   // console.log(totalUsesArray);
