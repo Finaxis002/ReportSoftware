@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import deleteImg from "../delete.png";
 import axios from "axios";
 import {
@@ -223,17 +223,28 @@ const FirstStepBasicDetails = ({
 
   // console.log(addPartner);
 
-  const handlePartnerChange = (e, index) => {
-    const { name, value } = e.target;
+  // const handlePartnerChange = (e, index) => {
+  //   const { name, value } = e.target;
     
+  //   setLocalData((prevData) => {
+  //     const updatedPartners = [...prevData.allPartners];
+  //     updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+      
+  //     return { ...prevData, allPartners: updatedPartners };
+  //   });
+  // };
+  
+  const handlePartnerChange = useCallback((e, index) => {
+    const { name, value } = e.target;
+  
     setLocalData((prevData) => {
       const updatedPartners = [...prevData.allPartners];
       updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+  
+      // Update state only if the partners array changes
       return { ...prevData, allPartners: updatedPartners };
     });
-  };
-  
- 
+  }, [setLocalData]);
   
   // Effect to automatically save the data when the form is updated
   useEffect(() => {
