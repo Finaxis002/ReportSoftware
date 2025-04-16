@@ -116,18 +116,6 @@ const ProjectedCashflow = ({
 
   const monthsPerYear = calculateMonthsPerYear();
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  // const interestOnWorkingCapital = Array.from({
-  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  // }).map(() => {
-  //   const workingCapitalLoan =
-  //     Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-  //   const interestRate =
-  //     Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-  //   // ✅ Annual Interest Calculation
-  //   return (workingCapitalLoan * interestRate) / 100;
-  // });
   const interestOnWorkingCapital = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map(() => {
@@ -142,17 +130,19 @@ const ProjectedCashflow = ({
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // ✅ Find the first repayment year index (first with non-zero months)
-    const firstRepaymentYearIndex = monthsPerYear.findIndex(months => months > 0);
-  
+    const firstRepaymentYearIndex = monthsPerYear.findIndex(
+      (months) => months > 0
+    );
+
     // ✅ Debug Table
     const interestAmount =
-      (Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
-      (Number(formData.ProjectReportSetting?.interestOnTL) || 0) /
+      ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+        (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
       100;
-  
+
     // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
     //   let appliedInterest = 0;
-  
+
     //   if (monthsInYear === 0) {
     //     appliedInterest = 0;
     //   } else if (yearIndex === firstRepaymentYearIndex) {
@@ -160,7 +150,7 @@ const ProjectedCashflow = ({
     //   } else {
     //     appliedInterest = interestAmount;
     //   }
-  
+
     //   return {
     //     "Year Index": yearIndex + 1,
     //     "Months Effective": monthsInYear,
@@ -169,28 +159,27 @@ const ProjectedCashflow = ({
     //     "Interest Applied": appliedInterest.toFixed(2),
     //   };
     // });
-  
+
     // console.log("📊 Interest on Working Capital - Moratorium Effect");
     // console.table(debugTable);
-  
+
     // ✅ Actual logic returned by useMemo
-    
+
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
-  
+
       if (monthsInYear === 0) {
         return 0;
       }
-  
+
       if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
         return (interestAmount * monthsInYear) / 12;
       }
-  
+
       return interestAmount;
     };
   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
-  
-  
+
   // Compute Net Profit Before Interest & Taxes for Each Year
   const netProfitBeforeInterestAndTaxes = Array.from({
     length: projectionYears,
@@ -213,6 +202,15 @@ const ProjectedCashflow = ({
   const incomeTaxCalculation2 =
     incomeTaxCalculation?.incomeTaxCalculation || [];
 
+  const inventory = Array.from({
+    length: formData.MoreDetails.OpeningStock.length,
+  }).map((_, yearIndex) => {
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+    const finalStock = ClosingStock - OpeningStock;
+
+    return finalStock;
+  });
 
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -271,19 +269,29 @@ const ProjectedCashflow = ({
         formData?.MoreDetails?.Withdrawals?.[index] || 0
       );
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
-
-      // ✅ Ensuring Projection Years Match for Current Assets
-
-      const currentAssetsTotal = formData?.MoreDetails?.currentAssets?.reduce(
-        (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
-
-        0
-      );
-
+  
+      // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
+      const currentAssetsTotal = formData?.MoreDetails?.currentAssets
+        ?.filter((asset) => asset.particular !== 'Inventory') // Skip the 'Inventory' row
+        .reduce(
+          (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
+          0
+        );
+  
+      // ✅ Ensuring Inventory Calculation - Closing Stock - Opening Stock
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+        const finalStock = ClosingStock - OpeningStock;
+        return finalStock;
+      });
+  
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
-
-      // ✅ Final Total Uses Calculation
+  
+      // ✅ Final Total Uses Calculation (including Inventory)
       const totalUses =
         sanitize(fixedAssets) +
         sanitize(repaymentOfTermLoan) +
@@ -291,11 +299,13 @@ const ProjectedCashflow = ({
         sanitize(interestOnWorkingCapitalValue) +
         sanitize(withdrawals) +
         sanitize(incomeTaxValue) +
-        sanitize(currentAssetsTotal); // Adding newly added current assets
-
+        sanitize(currentAssetsTotal) +
+        sanitize(inventory[index]); // Add the Inventory for the current year (index)
+  
       return totalUses;
     }
   );
+  
 
   // console.log(totalUsesArray);
 
@@ -344,26 +354,6 @@ const ProjectedCashflow = ({
       return openingBalance + surplusDuringYear; // ✅ Correct Calculation
     }
   );
-
-  // useEffect(() => {
-  //   if (cashBalances.length > 0) {
-  //     const computedClosingCashBalance = cashBalances.map((cb) => cb.closing);
-
-  //     // ✅ Update only if the values have changed
-  //     const isDifferent = computedClosingCashBalance.some(
-  //       (balance, index) => balance !== closingCashBalanceArray2[index]
-  //     );
-
-  //     if (isDifferent) {
-  //       setClosingCashBalanceArray(computedClosingCashBalance);
-
-  //       // ✅ Pass the new values to the parent component
-  //       if (onClosingCashBalanceCalculated) {
-  //         onClosingCashBalanceCalculated(computedClosingCashBalance);
-  //       }
-  //     }
-  //   }
-  // }, [cashBalances, onClosingCashBalanceCalculated, closingCashBalanceArray]);
 
   useEffect(() => {
     // ✅ Extract closing cash balance values directly from cashBalances
@@ -1103,13 +1093,53 @@ const ProjectedCashflow = ({
               )}
             </View>
 
+            {/* inventory  */}
+            <View style={[styles.tableRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                7
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Inventory
+              </Text>
+
+              {/* Render the incomeTaxCalculation values */}
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, yearIndex) => {
+                const inventorymap = inventory[yearIndex] || 0;
+
+                return (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(inventorymap)}
+                  </Text>
+                );
+              })}
+            </View>
+
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
-              ?.filter((assets) =>
-                // ✅ Filter out rows where all year values are zero
-                assets.years.every((value) => Number(value) === 0)
-                  ? false
-                  : true
+              ?.filter(
+                (assets) =>
+                  assets.particular !== "Inventory" &&
+                  assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
               )
               .map((assets, index) => (
                 <View style={styles.tableRow} key={index}>
@@ -1117,7 +1147,7 @@ const ProjectedCashflow = ({
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {index + 7}
+                    {index + 8}
                   </Text>
 
                   {/* ✅ Particular Name */}

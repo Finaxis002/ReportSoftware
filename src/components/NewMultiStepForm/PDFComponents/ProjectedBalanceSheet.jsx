@@ -118,29 +118,60 @@ const ProjectedBalanceSheet = ({
   // ✅ Compute Corrected Total Assets for Each Year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
+  const inventory = Array.from({
+    length: formData.MoreDetails.OpeningStock.length,
+  }).map((_, yearIndex) => {
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+    const finalStock = ClosingStock - OpeningStock;
+
+    return finalStock;
+  });
+
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const netFixedAssetValue = computedNetFixedAssets[index] || 0; // Use computed values directly
       const cashEquivalent = closingCashBalanceArray[index] || 0; // Use closing cash balance
-
-      // ✅ Include Current Assets from `MoreDetails.currentAssets` with cumulative rule
-      const currentYearAssets = formData?.MoreDetails?.currentAssets?.reduce(
-        (total, assets) => total + Number(assets.years[index] || 0),
-        0
-      );
-
+  
+      // ✅ Include Current Assets from `MoreDetails.currentAssets`, skipping 'Inventory'
+      const currentYearAssets = formData?.MoreDetails?.currentAssets
+        ?.filter((assets) => assets.particular !== "Inventory") // Skip 'Inventory' row
+        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+  
       cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
-
-      // ✅ Compute the Correct Total Assets
-      return netFixedAssetValue + cashEquivalent + cumulativeCurrentAssets; // Use cumulative total for assets
+  
+      // ✅ Compute the Inventory (ClosingStock - OpeningStock)
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+        const finalStock = ClosingStock - OpeningStock;
+  
+        return finalStock;
+      });
+  
+      // ✅ Add the Inventory for the current year (index)
+      const totalAssets =
+        netFixedAssetValue +
+        cashEquivalent +
+        cumulativeCurrentAssets +
+        (inventory[index] || 0);
+  
+      // ✅ Logging the values year by year
+      // console.log(`Year ${index + 1}:`);
+      // console.log("Net Fixed Assets:", netFixedAssetValue);
+      // console.log("Cash & Cash Equivalents:", cashEquivalent);
+      // console.log("Inventory (ClosingStock - OpeningStock):", inventory[index]);
+      // console.log("Other Liabilities (Current Assets Cumulative):", cumulativeCurrentAssets);
+      // console.log("Total Assets:", totalAssets);
+  
+      return totalAssets; // Return the total assets value for this year
     }
   );
-//  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
+  //  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
 
-
- const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
-
-
+  const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
   // console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
@@ -190,46 +221,47 @@ const ProjectedBalanceSheet = ({
     }
   );
 
- const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-  (_, index) => {
-    const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
+  const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
 
-    const reservesAndSurplus = Math.max(
-      receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[index] || 0,
-      0
-    );
+      const reservesAndSurplus = Math.max(
+        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[
+          index
+        ] || 0,
+        0
+      );
 
-    const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
-    const repaymentWithin12 = yearlyPrincipalRepayment[index + 1] || 0; // Shift by 1
-    const termLoan = marchBalance - repaymentWithin12;
+      const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
+      const repaymentWithin12 = yearlyPrincipalRepayment[index + 1] || 0; // Shift by 1
+      const termLoan = marchBalance - repaymentWithin12;
 
-    const bankLoanPayableWithinNext12Months = repaymentWithin12;
+      const bankLoanPayableWithinNext12Months = repaymentWithin12;
 
-    const workingCapitalLoan = Number(
-      cumulativeLoanForPreviousYears?.[index] || 0
-    );
+      const workingCapitalLoan = Number(
+        cumulativeLoanForPreviousYears?.[index] || 0
+      );
 
-    const currentYearLiabilities = (
-      formData?.MoreDetails?.currentLiabilities ?? []
-    ).reduce(
-      (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
-      0
-    );
+      const currentYearLiabilities = (
+        formData?.MoreDetails?.currentLiabilities ?? []
+      ).reduce(
+        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
+        0
+      );
 
-    cumulativeAdditionalLiabilities += currentYearLiabilities;
+      cumulativeAdditionalLiabilities += currentYearLiabilities;
 
-    const totalForYear =
-      capital +
-      reservesAndSurplus +
-      termLoan +
-      bankLoanPayableWithinNext12Months +
-      workingCapitalLoan +
-      cumulativeAdditionalLiabilities;
+      const totalForYear =
+        capital +
+        reservesAndSurplus +
+        termLoan +
+        bankLoanPayableWithinNext12Months +
+        workingCapitalLoan +
+        cumulativeAdditionalLiabilities;
 
-    return totalForYear;
-  }
-);
-
+      return totalForYear;
+    }
+  );
 
   // ✅ Log final yearly total liabilities array
   // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);
@@ -530,15 +562,16 @@ const ProjectedBalanceSheet = ({
                 Bank Loan Payable within next 12 months
               </Text>
 
-              {repaymentValueswithin12months.map((value, index) => (
+              {Array.from({ length: projectionYears }).map((_, yearIndex) => (
                 <Text
-                  key={index}
+                  key={yearIndex}
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(value)} {/* Format and display the value */}
+                  {formatNumber(repaymentValueswithin12months[yearIndex] || 0)}{" "}
+                  {/* Default to 0 if no value exists */}
                 </Text>
               ))}
             </View>
@@ -734,7 +767,13 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Less:Depreciation */}
-            <View style={[styles.tableRow, styles.totalRow , {borderBottomWidth:1}]}>
+            <View
+              style={[
+                styles.tableRow,
+                styles.totalRow,
+                { borderBottomWidth: 1 },
+              ]}
+            >
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 2
               </Text>
@@ -824,56 +863,91 @@ const ProjectedBalanceSheet = ({
               ))}
             </View>
 
+            {/* inventory  */}
+            <View style={[styles.tableRow]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                5
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Inventory
+              </Text>
+
+              {/* Render the incomeTaxCalculation values */}
+              {Array.from({
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, yearIndex) => {
+                const inventorymap = inventory[yearIndex] || 0;
+
+                return (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(inventorymap)}
+                  </Text>
+                );
+              })}
+            </View>
+
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
               ?.filter(
-                (assets) => assets.years.some((value) => Number(value) !== 0) // Filter rows with at least one non-zero
+                (assets) =>
+                  assets.particular !== "Inventory" &&
+                  assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
               )
-              .map((assets, index) => {
-                let cumulative = 0; // ⬅️ Start fresh for each asset
+              .map((assets, index) => (
+                <View style={styles.tableRow} key={index}>
+                  {/* ✅ Adjust Serial Number after filtering */}
+                  <Text
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {index + 6}
+                  </Text>
 
-                return (
-                  <View style={styles.tableRow} key={index}>
-                    {/* Serial Number */}
-                    <Text
-                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                    >
-                      {index + 5}
-                    </Text>
+                  {/* ✅ Particular Name */}
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {assets.particular}
+                  </Text>
 
-                    {/* Particular Name */}
-                    <Text
-                      style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.particularWidth,
-                        styleExpenses.bordernone,
-                      ]}
-                    >
-                      {assets.particular}
-                    </Text>
-
-                    {/* Cumulative Projection Years */}
-                    {Array.from({ length: projectionYears }).map(
-                      (_, yearIndex) => {
-                        const value = Number(assets.years[yearIndex]) || 0;
-                        cumulative += value;
-
-                        return (
-                          <Text
-                            key={yearIndex}
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                            ]}
-                          >
-                            {formatNumber(cumulative)}
-                          </Text>
-                        );
-                      }
-                    )}
-                  </View>
-                );
-              })}
+                  {/* ✅ Ensure Projection Years Match */}
+                  {Array.from({ length: projectionYears }).map(
+                    (_, yearIndex) => (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
+                        {/* Fill missing values with 0 */}
+                      </Text>
+                    )
+                  )}
+                </View>
+              ))}
 
             {/* Total assets Calculation */}
             <View

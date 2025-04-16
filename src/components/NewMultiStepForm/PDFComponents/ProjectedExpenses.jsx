@@ -260,21 +260,21 @@ const ProjectedExpenses = ({
       .slice(0, yearIndex)
       .filter((months) => months > 0).length;
   
-    console.log(`\n📅 Final Adjustment - Year ${yearIndex + 1}`);
-    console.log(`- Base Interest: ₹${interestAmount.toFixed(2)}`);
-    console.log(`- Months In Year: ${monthsInYear}`);
-    console.log(`- Is Pro-Rata Year: ${isProRataYear}`);
-    console.log(`- Repayment Year Index: ${repaymentYear}`);
+    // console.log(`\n📅 Final Adjustment - Year ${yearIndex + 1}`);
+    // console.log(`- Base Interest: ₹${interestAmount.toFixed(2)}`);
+    // console.log(`- Months In Year: ${monthsInYear}`);
+    // console.log(`- Is Pro-Rata Year: ${isProRataYear}`);
+    // console.log(`- Repayment Year Index: ${repaymentYear}`);
   
     if (isProRataYear && moratoriumPeriodMonths > 0) {
       const monthsEffective = monthsInYear;
       const final = (interestAmount * monthsEffective) / 12;
   
-      console.log(`✅ Adjusted Pro-Rata Interest: ₹${final.toFixed(2)} for ${monthsEffective} months`);
+      // console.log(`✅ Adjusted Pro-Rata Interest: ₹${final.toFixed(2)} for ${monthsEffective} months`);
     } else if (repaymentYear >= 1) {
-      console.log(`✅ Full Interest Applicable: ₹${interestAmount.toFixed(2)}`);
+      // console.log(`✅ Full Interest Applicable: ₹${interestAmount.toFixed(2)}`);
     } else {
-      console.log(`❌ No Interest: Under Moratorium`);
+      // console.log(`❌ No Interest: Under Moratorium`);
     }
   });
   
