@@ -88,7 +88,6 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
         <View>
           <View>
             <Text style={{ fontSize: 10 }}>
-            
               {formData?.AccountInformation?.businessOwner || "Owner Name"} aged{" "}
               {new Date().getFullYear() -
                 new Date(
@@ -108,7 +107,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
              
               {formData?.AccountInformation?.businessOwner || "Client Name"} is a
               resident of{" "}
-              {formData?.AccountInformation?.location||
+              {formData?.AccountInformation?.location ||
                 "Business Address Not Available"}
               .{" "}
               {formData?.AccountInformation?.gender?.toLowerCase() === "female"
@@ -160,7 +159,6 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
         >
           <Text
             style={{
-              
               fontWeight: "extrabold",
               textDecoration: "underline",
               fontSize: "12px",
@@ -396,6 +394,159 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
             </Text>
           </View>
         </View>
+
+        {/* partner details */}
+        
+        {formData?.AccountInformation?.allPartners?.length > 1 && (
+          <View>
+           <View
+           style={{
+             display: "flex",
+             alignItems: "center",
+             justifyContent: "center",
+             marginTop: "10px",
+           }}
+         >
+           <Text
+         style={{
+          fontWeight: "extrabold",
+          textDecoration: "underline",
+          fontSize: "12px",
+          marginBottom: "4px"
+        }}>
+        {formData?.AccountInformation?.registrationType ===
+                  "Partnership" ||
+                formData?.AccountInformation?.registrationType === "LLP"
+                  ? "Additional Details of Partner"
+                  : "Additional Details of Director"}
+        </Text>
+         </View>
+          <View>
+            {/* Header */}
+            <View style={[styles.tableHeader]}>
+              <Text
+                style={[styles.serialNoCell, { padding: "8px", width: "10%" }]}
+              >
+                S. No.
+              </Text>
+              <Text
+                style={[
+                  styles.particularsCell,
+                  styleExpenses.fontBold,
+                  { padding: "8px", width: "45%" },
+                ]}
+              >
+                {formData?.AccountInformation?.registrationType ===
+                  "Partnership" ||
+                formData?.AccountInformation?.registrationType === "LLP"
+                  ? "Name of Partner"
+                  : "Name of Director"}
+              </Text>
+              <Text
+                style={[
+                  styles.separatorCell,
+                  styleExpenses.fontBold,
+                  { textAlign: "center", width: "5%" },
+                ]}
+              >
+                :
+              </Text>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.fontBold,
+                  { padding: "8px", width: "27.5%", textAlign: "center" },
+                ]}
+              >
+                {formData?.AccountInformation?.registrationType ===
+                  "Partnership" ||
+                formData?.AccountInformation?.registrationType === "LLP"
+                  ? "Aadhar No. of Partner"
+                  : "Aadhar No. of Director"}
+              </Text>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.fontBold,
+                  { padding: "8px", width: "27.5%", textAlign: "center" },
+                ]}
+              >
+                {formData?.AccountInformation?.registrationType ===
+                  "Partnership" ||
+                formData?.AccountInformation?.registrationType === "LLP"
+                  ? "DPIN of Partner"
+                  : "DIN of Director"}
+              </Text>
+            </View>
+
+            {/* Body */}
+            {formData?.AccountInformation?.allPartners?.map(
+              (partner, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text
+                    style={[
+                      styles.serialNoCellDetail,
+                      { padding: "8px", width: "10%",borderLeftWidth: "1px" },
+                    ]}
+                  >
+                    {index + 1}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.particularsCellsDetail,
+                      { padding: "8px", width: "45%", textAlign: "left" },
+                    ]}
+                  >
+                    {partner.partnerName || "N/A"}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.separatorCellDetail,
+                      {
+                        padding: "8px",
+                        textAlign: "center",
+                        width: "5%",
+                      },
+                    ]}
+                  >
+                    :
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.detailsCellDetail,
+                      {
+                        padding: "8px",
+                        width: "27.5%",
+                        textAlign: "center",
+                      },
+                    ]}
+                  >
+                    {partner.partnerAadhar || "N/A"}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.detailsCellDetail,
+                      {
+                        padding: "8px",
+                        width: "27.5%",
+                        textAlign: "center",
+                        borderLeftWidth: "1px",
+                        borderRightWidth: "1px",
+                      },
+                    ]}
+                  >
+                    {partner.partnerDin || "N/A"}
+                  </Text>
+                </View>
+              )
+            )}
+          </View>
+          </View>
+        )}
       </View>
     </Page>
   );
