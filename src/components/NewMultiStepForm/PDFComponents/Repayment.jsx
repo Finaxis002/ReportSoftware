@@ -1057,36 +1057,25 @@ console.log("📦 Second Last Entry:", allMonths[allMonths.length - 2]);
 
 // ✅ After your repayment loop ends:
 const projectionYears = parseInt(formData.ProjectReportSetting.ProjectionYears || 5);
-const finalFY = fyBase + projectionYears - 1;
+const totalExpectedMonths = projectionYears * 12;
+const totalActualMonths = allMonths.length;
 
-// Add months until we reach APRIL of finalFY
-
-const finalMonth = "April"; // We want to ensure this shows
-
-while (true) {
-  const nextMonth = months[monthIndex % 12];
+// Padding logic to reach exactly final month of projection
+while (allMonths.length < totalExpectedMonths) {
+  const nextMonthIndex = (monthIndex++) % 12;
+  const nextMonthName = months[nextMonthIndex];
   const fy = fyBase + Math.floor((startMonthIndex + realMonthIndex) / 12);
 
-  const shouldBreak =
-    fy > finalFY ||
-    (fy === finalFY && nextMonth !== finalMonth && allMonths.some(m => m.month === finalMonth && m.financialYear === finalFY));
+  allMonths.push({
+    month: nextMonthName,
+    principalOpeningBalance: 0,
+    principalRepayment: 0,
+    principalClosingBalance: 0,
+    interestLiability: 0,
+    totalRepayment: 0,
+    financialYear: fy,
+  });
 
-  if (shouldBreak) break;
-
-  if (fy === finalFY && nextMonth === finalMonth && !allMonths.find(m => m.month === "April" && m.financialYear === finalFY)) {
-    // Push final April only if not already pushed
-    allMonths.push({
-      month: nextMonth,
-      principalOpeningBalance: 0,
-      principalRepayment: 0,
-      principalClosingBalance: 0,
-      interestLiability: 0,
-      totalRepayment: 0,
-      financialYear: fy,
-    });
-  }
-
-  monthIndex++;
   realMonthIndex++;
 }
 
