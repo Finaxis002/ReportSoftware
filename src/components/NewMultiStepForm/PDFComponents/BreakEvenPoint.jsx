@@ -208,7 +208,7 @@ const BreakEvenPoint = ({
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue - ClosingStock + OpeningStock;
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
           // ✅ Use 'total' directly for annual expense
           const annual = Number(expense.total) || 0;
@@ -679,7 +679,7 @@ const BreakEvenPoint = ({
                     const baseValue =
                       (parseFloat(expense.value) / 100) *
                       (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-                    expenseValue = baseValue - ClosingStock + OpeningStock;
+                    expenseValue = baseValue + ClosingStock - OpeningStock;
                   } else {
                     expenseValue = Number(expense.total) || 0;
                   }
@@ -739,7 +739,7 @@ const BreakEvenPoint = ({
                           (parseFloat(expense.value) / 100) *
                           (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
                             0);
-                        expenseValue = baseValue - ClosingStock + OpeningStock;
+                        expenseValue = baseValue + ClosingStock - OpeningStock;
                       } else {
                         expenseValue = Number(expense.total) || 0;
                       }
