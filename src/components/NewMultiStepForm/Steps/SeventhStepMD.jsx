@@ -71,11 +71,7 @@ const SeventhStepMD = ({
               years: getEmptyArray(),
               isCustom: false,
             },
-            {
-              particular: "Inventory",
-              years: getEmptyArray(),
-              isCustom: false,
-            },
+           
           ],
           OpeningStock: getEmptyArray(),
           ClosingStock: getEmptyArray(),
