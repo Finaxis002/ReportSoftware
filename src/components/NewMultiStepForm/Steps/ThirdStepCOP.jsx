@@ -6,7 +6,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   const prevDataRef = useRef(null);
 
   const defaultData = {
-    Land: { name: "Land", id: "Land", amount: 0, rate: 15, isCustom: false },
+    Land: { name: "Land", id: "Land", amount: 0, rate: 0, isCustom: false },
     Building: { name: "Building", id: "Building", amount: 0, rate: 10 },
     FurnitureandFittings: {
       name: "Furniture and Fittings",
@@ -120,10 +120,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     const { value } = event.target;
     let newValue = value;
 
-    // Ensure numeric fields are valid numbers
-    // if (field === "amount" || field === "rate") {
-    //   newValue = value.trim() === "" ? 0 : parseFloat(value) || 0;
-    // }
+   
     if (field === "amount") {
       const raw = removeCommas(value);
       if (raw === "" || /^\d*\.?\d*$/.test(raw)) {

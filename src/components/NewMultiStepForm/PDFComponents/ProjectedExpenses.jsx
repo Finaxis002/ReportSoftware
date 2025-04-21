@@ -256,11 +256,11 @@ const ProjectedExpenses = ({
         // ✅ Use same logic as render: calculateExpense instead of calculateIndirectExpense
         const escalated = calculateExpense(annual, yearIndex);
   
-        console.log(
-          `💰 ${expense.name}: Base = ₹${annual}, Escalated (Y${yearIndex + 1}) ➤ ₹${escalated.toFixed(
-            2
-          )}`
-        );
+        // console.log(
+        //   `💰 ${expense.name}: Base = ₹${annual}, Escalated (Y${yearIndex + 1}) ➤ ₹${escalated.toFixed(
+        //     2
+        //   )}`
+        // );
   
         return sum + escalated;
       }, 0);

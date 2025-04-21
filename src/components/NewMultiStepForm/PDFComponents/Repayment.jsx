@@ -543,31 +543,55 @@ const Repayment = ({
 
               let filteredYearData = [...yearData];
 
-              // ✅ Check if every month in this year is within the moratorium
-              // Copy current counter to simulate check
+              // Check if every month in this year is within the moratorium
               let futureCounter = globalMonthCounter;
               const isFullYearInMoratorium = filteredYearData.every(
                 () => futureCounter++ < moratoriumPeriod
               );
 
-              // ✅ Then update counter AFTER decision
               globalMonthCounter += filteredYearData.length;
 
-              let totalPrincipalRepayment = filteredYearData.reduce(
-                (sum, entry) => sum + entry.principalRepayment,
-                0
-              );
-              let totalInterestLiability = filteredYearData.reduce(
-                (sum, entry) =>
-                  entry.principalRepayment === 0
-                    ? sum
-                    : sum + entry.interestLiability,
-                0
+              // Initialize total repayment for only visible months
+              let totalPrincipalRepayment = 0;
+              let totalInterestLiability = 0;
+              let totalRepayment = 0;
+
+              console.log(
+                `Year ${
+                  financialYear + yearIndex
+                }: Total Repayment (Visible Months Only):`
               );
 
-              let totalRepayment = filteredYearData.reduce(
-                (sum, entry) => sum + entry.totalRepayment,
-                0
+              // Render Only Valid Months
+              const visibleMonths = filteredYearData.filter(
+                (entry, monthIndex) => {
+                  if (globalMonthIndex < moratoriumPeriod) {
+                    globalMonthIndex++;
+                    return false; // Skip the months within the moratorium period
+                  }
+
+                  // Add the month to the total repayment if it is visible
+                  totalPrincipalRepayment += entry.principalRepayment;
+                  totalInterestLiability +=
+                    entry.principalRepayment === 0
+                      ? 0
+                      : entry.interestLiability;
+                  totalRepayment += entry.totalRepayment;
+
+                  // Log visible months and their total repayment
+                  console.log(`Month: ${entry.month}`);
+                  console.log(
+                    `Total Repayment for ${entry.month}: ${entry.totalRepayment}`
+                  );
+
+                  return true; // Keep the visible months
+                }
+              );
+
+              console.log(
+                `Year ${
+                  financialYear + yearIndex
+                }: Total Repayment for Visible Months: ${totalRepayment}`
               );
 
               return (
@@ -584,7 +608,7 @@ const Repayment = ({
                     },
                   ]}
                 >
-                  {/* ✅ Year Row */}
+                  {/* Year Row */}
                   {!isFullYearInMoratorium && (
                     <View style={[stylesMOF.row, { borderBottomWidth: 0 }]}>
                       <Text
@@ -631,24 +655,15 @@ const Repayment = ({
                     </View>
                   )}
 
-                  {/* ✅ Render Only Valid Months (skip row if Principal Repayment or Interest Liability <= 0) */}
-                  {filteredYearData.map((entry, monthIndex) => {
-                    // 🔁 Skip initial moratorium months globally
-                    if (globalMonthIndex < moratoriumPeriod) {
-                      globalMonthIndex++;
+                  {/* Render Only Valid Months */}
+                  {visibleMonths.map((entry, monthIndex) => {
+                    if (
+                      entry.principalClosingBalance === 0 &&
+                      !finalRepaymentReached
+                    ) {
+                      finalRepaymentReached = true;
+                    } else if (finalRepaymentReached) {
                       return null;
-                    }
-
-                    // ✅ Allow final repayment row where PCB === 0
-                    if (globalMonthIndex >= moratoriumPeriod) {
-                      if (
-                        entry.principalClosingBalance === 0 &&
-                        !finalRepaymentReached
-                      ) {
-                        finalRepaymentReached = true; // allow this row
-                      } else if (finalRepaymentReached) {
-                        return null; // skip anything after final repayment
-                      }
                     }
 
                     return (
@@ -736,7 +751,7 @@ const Repayment = ({
                     );
                   })}
 
-                  {/* ✅ Total Row for the Year */}
+                  {/* Total Row for the Year */}
                   {!isFullYearInMoratorium && (
                     <View
                       style={[
