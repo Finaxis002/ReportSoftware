@@ -1341,7 +1341,7 @@ const ProjectSynopsis = React.memo(
                 </View>
               )}
               {/* partner details */}
-              {formData?.AccountInformation?.allPartners?.length > 1 && (
+              {formData?.AccountInformation?.allPartners?.length >= 1 && (
                 <View>
                   {/* Header */}
                   <View style={[styles.tableHeader]}>
@@ -1360,7 +1360,10 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "45%" },
                       ]}
                     >
-                      Name of Partner
+                       {formData?.AccountInformation?.registrationType === "Partnership" ||
+        formData?.AccountInformation?.registrationType === "LLP"
+          ? "Name of Partner"
+          : "Name of Director"}
                     </Text>
                     <Text
                       style={[
@@ -1378,7 +1381,10 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                      Aadhar No. of Partner
+                       {formData?.AccountInformation?.registrationType === "Partnership" ||
+        formData?.AccountInformation?.registrationType === "LLP"
+          ? "Aadhar No. of Partner"
+          : "Aadhar No. of Director"}
                     </Text>
                     <Text
                       style={[
@@ -1387,7 +1393,10 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                      DIN of Partner
+                      {formData?.AccountInformation?.registrationType === "Partnership" ||
+        formData?.AccountInformation?.registrationType === "LLP"
+          ? "DPIN of Partner"
+          : "DIN of Director"}
                     </Text>
                   </View>
 

@@ -1,4 +1,6 @@
-import React, { useState, useEffect , useRef } from "react";
+
+import React, { useState, useEffect, useCallback ,useRef } from "react";
+
 import deleteImg from "../delete.png";
 import axios from "axios";
 import {
@@ -217,15 +219,29 @@ const FirstStepBasicDetails = ({
 
   // console.log(addPartner);
 
-  const handlePartnerChange = (e, index) => {
+  // const handlePartnerChange = (e, index) => {
+  //   const { name, value } = e.target;
+    
+  //   setLocalData((prevData) => {
+  //     const updatedPartners = [...prevData.allPartners];
+  //     updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+      
+  //     return { ...prevData, allPartners: updatedPartners };
+  //   });
+  // };
+  
+  const handlePartnerChange = useCallback((e, index) => {
     const { name, value } = e.target;
+  
     setLocalData((prevData) => {
       const updatedPartners = [...prevData.allPartners];
       updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+  
+      // Update state only if the partners array changes
       return { ...prevData, allPartners: updatedPartners };
     });
-  };
-
+  }, [setLocalData]);
+  
   // Effect to automatically save the data when the form is updated
   useEffect(() => {
     // Make sure to update AccountInformation instead of CostOfProject
@@ -535,7 +551,7 @@ const FirstStepBasicDetails = ({
               <label htmlFor="industryType">Industry Type</label>
             </div>
 
-            <div className="input">
+            {/* <div className="input">
               <input
                 id="registrationType"
                 name="registrationType"
@@ -546,6 +562,40 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="registrationType">Registration Type</label>
+            </div> */}
+            {/* Dropdown for Registration Type */}
+            <div className="input">
+              <select
+                className="form-control dark selectInput"
+                id="registrationType"
+                name="registrationType"
+                value={localData.registrationType || ""}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  Select Registration Type
+                </option>
+                <option value="Sole proprietorship">Sole proprietorship</option>
+                <option value="Partnership">Partnership</option>
+                <option value="LLP">LLP</option>
+                <option value="Private limited company">
+                  Private limited company
+                </option>
+                <option value="Public limited company">
+                  Public limited company
+                </option>
+                <option value="Section 8 company">Section 8 company</option>
+                <option value="Others">Others</option>
+              </select>
+              <label htmlFor="registrationType">
+                {/* Registration Type <span className="text-red-600">*</span> */}
+              </label>
+              {requiredFieldErrors.registrationType && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.registrationType}
+                </p>
+              )}
             </div>
 
             <div className="input">
@@ -728,7 +778,7 @@ const FirstStepBasicDetails = ({
             {/* Add Partners Section */}
 
             <div className="bg-light text-center p-3 mb-4 flex flex-col gap-[2rem]">
-              <h5>Add Partners / Director</h5>
+              {/* <h5>Add Partners / Director</h5> */}
 
               {localData.allPartners.map((partner, index) => (
                 <div
@@ -741,13 +791,17 @@ const FirstStepBasicDetails = ({
                       id={`partnerName-${index}`}
                       name="partnerName"
                       type="text"
-                      placeholder="Name of Partner"
+                      placeholder="Name"
                       value={partner.partnerName || ""} // Ensure value is a string
                       onChange={(e) => handlePartnerChange(e, index)}
                       required
                     />
                     <label htmlFor={`partnerName-${index}`}>
-                      Name of Partner
+                      Name{" "}
+                      {localData.registrationType === "Partnership" ||
+                      localData.registrationType === "LLP"
+                        ? "of Partner"
+                        : "of Director"}
                     </label>
                   </div>
                   <div className="input mb-0">
@@ -755,13 +809,21 @@ const FirstStepBasicDetails = ({
                       id={`partnerAadhar-${index}`}
                       name="partnerAadhar"
                       type="text"
-                      placeholder="Aadhar of Partner"
+                      placeholder={
+                        localData.registrationType === "Partnership" ||
+                        localData.registrationType === "LLP"
+                          ? "Aadhar of Partner"
+                          : "Aadhar of Director"
+                      }
                       value={partner.partnerAadhar || ""} // Ensure value is a string
                       onChange={(e) => handlePartnerChange(e, index)}
                       required
                     />
                     <label htmlFor={`partnerAadhar-${index}`}>
-                      Aadhar of Partner
+                      {localData.registrationType === "Partnership" ||
+                      localData.registrationType === "LLP"
+                        ? "Aadhar of Partner"
+                        : "Aadhar of Director"}
                     </label>
                   </div>
                   <div className="input mb-0">
@@ -769,13 +831,21 @@ const FirstStepBasicDetails = ({
                       id={`partnerDin-${index}`}
                       name="partnerDin"
                       type="text"
-                      placeholder="DIN of Partner"
+                      placeholder={
+                        localData.registrationType === "Partnership" ||
+                        localData.registrationType === "LLP"
+                          ? "DPIN of Partner"
+                          : "DIN of Director"
+                      }
                       value={partner.partnerDin || ""} // Ensure value is a string
                       onChange={(e) => handlePartnerChange(e, index)}
                       required
                     />
                     <label htmlFor={`partnerDin-${index}`}>
-                      DIN of Partner
+                      {localData.registrationType === "Partnership" ||
+                      localData.registrationType === "LLP"
+                        ? "DPIN of Partner"
+                        : "DIN of Director"}
                     </label>
                   </div>
                   <button
@@ -795,7 +865,10 @@ const FirstStepBasicDetails = ({
                   addPartner(); // ✅ Call your function
                 }}
               >
-                Add Partner / Director
+                {localData.registrationType === "Partnership" ||
+                localData.registrationType === "LLP"
+                  ? "Add Partner"
+                  : "Add Director"}
               </button>
             </div>
           </div>
