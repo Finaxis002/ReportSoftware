@@ -57,7 +57,7 @@ const CurrentRatio = ({
       .map((r) => parseFloat(r)); // Convert to numeric values
 
     // ✅ Exclude leading values ≤ 1
-    const firstValidIndex = validRatios.findIndex((value) => value > 1);
+    const firstValidIndex = validRatios.findIndex((value) => value > 0);
     const nonZeroRatios = validRatios.slice(firstValidIndex);
 
     // ✅ If there are no valid ratios left, return "-"
