@@ -30,6 +30,7 @@ const ProjectedCashflow = ({
   onClosingCashBalanceCalculated,
   formatNumber,
   pdfType,
+  orientation
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
@@ -421,9 +422,7 @@ const ProjectedCashflow = ({
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={
-        formData.ProjectReportSetting.ProjectionYears > 5
-          ? "landscape"
-          : "portrait"
+        orientation
       }
       wrap={false}
       break

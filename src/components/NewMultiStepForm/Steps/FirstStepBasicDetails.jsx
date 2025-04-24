@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import deleteImg from "../delete.png";
 import axios from "axios";
 import {
@@ -81,27 +81,21 @@ const FirstStepBasicDetails = ({
     });
   }, [localData, onFormDataChange]);
 
-  useEffect(() => {
-    if (formData?.AccountInformation) {
-      setLocalData((prevData) => {
-        // ✅ Prevent unnecessary state updates to avoid infinite loops
-        if (
-          JSON.stringify(prevData) !==
-          JSON.stringify(formData.AccountInformation)
-        ) {
-          return {
-            ...prevData,
-            ...formData.AccountInformation,
-            allPartners: Array.isArray(formData.AccountInformation.allPartners)
-              ? formData.AccountInformation.allPartners
-              : [], // ✅ Ensures allPartners is always an array
-          };
-        }
-        return prevData; // ✅ Return existing state if no changes
-      });
-    }
-  }, [formData?.AccountInformation]); // ✅ Runs only when `formData.AccountInformation` changes
+  const firstLoad = useRef(true);
 
+  useEffect(() => {
+    if (firstLoad.current && formData?.AccountInformation) {
+      setLocalData((prevData) => ({
+        ...prevData,
+        ...formData.AccountInformation,
+        allPartners: Array.isArray(formData.AccountInformation.allPartners)
+          ? formData.AccountInformation.allPartners
+          : [],
+      }));
+      firstLoad.current = false;
+    }
+  }, [formData?.AccountInformation]);
+  
   useEffect(() => {
     setFieldErrors(requiredFieldErrors || {});
   }, [requiredFieldErrors]);
@@ -794,8 +788,12 @@ const FirstStepBasicDetails = ({
                 </div>
               ))}
               <button
+                type="button"
                 className="btn btn-sm btn-primary mt-3"
-                onClick={addPartner}
+                onClick={(e) => {
+                  e.preventDefault(); // ✅ Important: Stop default form behavior
+                  addPartner(); // ✅ Call your function
+                }}
               >
                 Add Partner / Director
               </button>

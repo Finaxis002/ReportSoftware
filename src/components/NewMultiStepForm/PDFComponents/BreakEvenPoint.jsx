@@ -31,6 +31,7 @@ const BreakEvenPoint = ({
   sendBreakEvenPointPercentage,
   receivedtotalRevenueReceipts,
   pdfType,
+  orientation
 }) => {
   // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
@@ -299,13 +300,13 @@ const BreakEvenPoint = ({
 
  
 
-  const orientation = hideFirstYear
-    ? formData.ProjectReportSetting.ProjectionYears > 6
-      ? "landscape"
-      : "portrait"
-    : formData.ProjectReportSetting.ProjectionYears > 5
-    ? "landscape"
-    : "portrait";
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
 
   return (
     <Page

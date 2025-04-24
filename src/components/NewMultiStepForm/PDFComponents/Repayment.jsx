@@ -556,11 +556,11 @@ const Repayment = ({
               let totalInterestLiability = 0;
               let totalRepayment = 0;
 
-              console.log(
-                `Year ${
-                  financialYear + yearIndex
-                }: Total Repayment (Visible Months Only):`
-              );
+              // console.log(
+              //   `Year ${
+              //     financialYear + yearIndex
+              //   }: Total Repayment (Visible Months Only):`
+              // );
 
               // Render Only Valid Months
               const visibleMonths = filteredYearData.filter(
@@ -579,20 +579,20 @@ const Repayment = ({
                   totalRepayment += entry.totalRepayment;
 
                   // Log visible months and their total repayment
-                  console.log(`Month: ${entry.month}`);
-                  console.log(
-                    `Total Repayment for ${entry.month}: ${entry.totalRepayment}`
-                  );
+                  // console.log(`Month: ${entry.month}`);
+                  // console.log(
+                  //   `Total Repayment for ${entry.month}: ${entry.totalRepayment}`
+                  // );
 
                   return true; // Keep the visible months
                 }
               );
 
-              console.log(
-                `Year ${
-                  financialYear + yearIndex
-                }: Total Repayment for Visible Months: ${totalRepayment}`
-              );
+              // console.log(
+              //   `Year ${
+              //     financialYear + yearIndex
+              //   }: Total Repayment for Visible Months: ${totalRepayment}`
+              // );
 
               return (
                 <View

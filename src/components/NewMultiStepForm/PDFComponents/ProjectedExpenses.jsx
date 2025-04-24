@@ -14,6 +14,7 @@ const ProjectedExpenses = ({
   formatNumber,
   onTotalExpenseSend,
   pdfType,
+  orientation,
 }) => {
   //  console.log("Received total depreciation", yearlyInterestLiabilities)
 
@@ -315,22 +316,22 @@ const ProjectedExpenses = ({
     }
   }, [JSON.stringify(totalExpensesArray), onTotalExpenseSend]);
 
-  const orientation = hideFirstYear
-    ? formData.ProjectReportSetting.ProjectionYears > 6
-      ? "landscape"
-      : "portrait"
-    : formData.ProjectReportSetting.ProjectionYears > 5
-    ? "landscape"
-    : "portrait";
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
 
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-      orientation={orientation}
-      wrap={false}
-      break
-      style={[{ padding: "20px" }]}
-    >
+       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+       orientation={orientation} // ✅ Now using prop
+       wrap={false}
+       break
+       style={[{ padding: "20px" }]}
+     >
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&

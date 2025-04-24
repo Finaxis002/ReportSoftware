@@ -127,6 +127,7 @@ const ProjectedDepreciation = ({
   financialYearLabels,
   formatNumber,
   receivedtotalRevenueReceipts,
+  orientation, 
 }) => {
   const [grossFixedAssetsPerYear, setGrossFixedAssetsPerYear] = useState([]);
 
@@ -153,33 +154,7 @@ const ProjectedDepreciation = ({
 
   // State for First Year Gross Fixed Assets
   const [firstYearGrossFixedAssets, setFirstYearGrossFixedAssets] = useState(0);
-  // ✅ Calculate Gross Fixed Assets using useEffect
 
-  // useEffect(() => {
-  //   if (formData && formData.CostOfProject) {
-  //     const calculatedAssets = Array.from({ length: years }).map(
-  //       (_, yearIndex) => {
-  //         return Object.values(formData.CostOfProject).reduce((sum, asset) => {
-  //           let netAsset = asset.amount;
-  //           for (let i = 1; i < yearIndex; i++) {
-  //             let depreciation = (netAsset * asset.rate) / 100;
-  //             netAsset -= depreciation;
-  //           }
-  //           return sum + netAsset;
-  //         }, 0);
-  //       }
-  //     );
-
-  //     setGrossFixedAssetsPerYear(calculatedAssets);
-
-  //     // ✅ Send data back to parent component
-  //     if (onGrossFixedAssetsPerYearCalculated) {
-  //       onGrossFixedAssetsPerYearCalculated(calculatedAssets);
-  //     }
-  //   }
-  // }, [formData, years]);
-
-  // ✅ Send the First Year's Value to Another Component via useEffect
   useEffect(() => {
     if (firstYearGrossFixedAssets > 0 && onFirstYearGrossAssetsCalculated) {
       onFirstYearGrossAssetsCalculated(firstYearGrossFixedAssets);
@@ -264,31 +239,6 @@ const ProjectedDepreciation = ({
     }
   }, [formData, years]);
 
-  // useEffect(() => {
-  //   if (formData && formData.CostOfProject) {
-  //     const calculatedAssets = Array.from({ length: years }).map((_, yearIndex) => {
-  //       return Object.entries(formData.CostOfProject).reduce((sum, [key, asset]) => {
-  //         const assetAmount = asset.amount || 0;
-  //         const depreciationArray = asset.depreciation || []; // <-- use local depreciation from formData
-
-  //         let currentValue = assetAmount;
-
-  //         for (let i = 0; i <= yearIndex - 1; i++) {
-  //           const yearlyDepreciation = depreciationArray[i] || 0;
-  //           currentValue -= yearlyDepreciation;
-  //         }
-
-  //         return sum + currentValue;
-  //       }, 0);
-  //     });
-
-  //     setGrossFixedAssetsPerYear(calculatedAssets);
-
-  //     if (onGrossFixedAssetsPerYearCalculated) {
-  //       onGrossFixedAssetsPerYearCalculated(calculatedAssets);
-  //     }
-  //   }
-  // }, [formData, years]); // ✅ NO depreciationValues here
 
   useEffect(() => {
     setTotalDepreciation(totalDepreciationPerYear);
@@ -323,7 +273,7 @@ const ProjectedDepreciation = ({
     }
   );
 
-  // ✅ Compute Total Net Assets Per Year
+
   // ✅ Total Net Asset Values Per Year (summed across all assets)
   const totalNetAssetValuesPerYear = [];
 
@@ -389,22 +339,21 @@ const ProjectedDepreciation = ({
   }, [formData, years]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
 
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-      orientation={
-       orientation
-      }
-      wrap={false}
-      break
-      style={[{ padding: "20px" }]}
-    >
+    size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+    orientation={orientation} // ✅ Now using prop
+    wrap={false}
+    break
+    style={[{ padding: "20px" }]}
+  >
+  
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&

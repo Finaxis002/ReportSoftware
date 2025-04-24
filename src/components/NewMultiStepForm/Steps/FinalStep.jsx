@@ -532,6 +532,19 @@ const FinalStep = ({ formData, userRole }) => {
     return colorMap[color] || "#172554"; // default fallback (dark blue)
   };
 
+  useEffect(() => {
+    const handleUnload = () => {
+      localStorage.removeItem("selectedColor");
+    };
+  
+    window.addEventListener("beforeunload", handleUnload);
+  
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, []);
+  
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
