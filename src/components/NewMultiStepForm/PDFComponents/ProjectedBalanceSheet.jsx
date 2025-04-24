@@ -34,6 +34,7 @@ const ProjectedBalanceSheet = ({
   closingCashBalanceArray = [],
   onTotalLiabilitiesSend = [],
   formatNumber,
+  orientation
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -288,7 +289,7 @@ const ProjectedBalanceSheet = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 5 ? "landscape" : "portrait"}
+      orientation={orientation}
       wrap={false}
       break
       style={[{ padding: "20px" }]}

@@ -37,6 +37,7 @@ const RatioAnalysis = ({
   formatNumber,
   pdfType,
   receivedtotalRevenueReceipts,
+  orientation
 }) => {
   //  console.log(receivedTotalLiabilities)
 
@@ -84,27 +85,6 @@ const RatioAnalysis = ({
     return totalValue; // Return the calculated Net Worth for that year
   });
 
-  // ✅ Calculate Total Debt and store in a variable
-  // const totalDebtArray = Array.from({ length: projectionYears }).map(
-  //   (_, index) => {
-  //     // Use raw value for Term Loan
-  //     const termLoan = Number(receivedMarchClosingBalances?.[index]) || 0;
-
-  //     // Use raw value for Bank Loan Payable from the next year (index + 1)
-  //     const bankLoan =
-  //       Number(
-  //         receivedTotalLiabilities?.repaymentValueswithin12months?.[index + 1]
-  //       ) || 0;
-
-  //     // Use the fallback array for Working Capital
-  //     const workingCapitalLoan = workingCapitalArray[index] || 0;
-
-  //     // ✅ Compute Total Debt correctly
-  //     const totalDebt = termLoan + bankLoan + workingCapitalLoan;
-
-  //     return totalDebt; // Store calculated total debt
-  //   }
-  // );
 
 
 
@@ -122,16 +102,7 @@ const RatioAnalysis = ({
   );
   
 
-  // console.table(
-  //   totalDebtArray.map((debt, index) => ({
-  //     Year: index + 1,
-  //     "Term Loan": Number(receivedMarchClosingBalances?.[index]) || 0,
-  //     "Bank Loan": Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0,
-  //     "Working Capital": workingCapitalArray[index] || 0,
-  //     "Total Debt": debt.toFixed(2),
-  //   }))
-  // );
-  
+
 
   // ✅ Initialize cumulative sum for Current Liabilities
   let cumulativeCurrentLiabilities = 0;
@@ -445,10 +416,10 @@ const RatioAnalysis = ({
   ]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
 
   return (
@@ -572,11 +543,7 @@ const RatioAnalysis = ({
                 </Text>
               ))}
             <Text
-              style={[
-                styles.particularsCell,
-                stylesCOP.boldText,
-                { width: "25%" },
-              ]}
+             style={[styles.particularsCell, stylesCOP.boldText]}
             >
              AR
             </Text>
@@ -632,7 +599,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -675,7 +642,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -720,7 +687,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -765,7 +732,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -811,7 +778,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -857,7 +824,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -903,7 +870,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -950,7 +917,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -996,7 +963,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -1042,7 +1009,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -1089,7 +1056,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -1102,7 +1069,7 @@ const RatioAnalysis = ({
                 style={[
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
               <Text
@@ -1159,7 +1126,7 @@ const RatioAnalysis = ({
                   styleExpenses.fontSmall,
                   { borderLeftWidth: 1 },
 
-                  { width: "25%" },
+                  
                 ]}
               ></Text>
             </View>
@@ -1231,7 +1198,7 @@ const RatioAnalysis = ({
                       fontWeight: "extrabold",
                       paddingTop: "20px",
                       
-                    },{width:"25%" , fontSize:8}
+                    }
                   ]}
                 >
                   {averageGrossProfitSalesRatio !== "-"
@@ -1283,7 +1250,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageOperatingProfitSalesRatio !== "-"
@@ -1334,7 +1301,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageProfitBeforeTaxSalesRatio !== "-"
@@ -1386,7 +1353,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageNetProfitSalesRatio !== "-"
@@ -1437,7 +1404,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageNetProfitNetWorthRatio !== "-"
@@ -1488,7 +1455,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageDebtEquityRatio !== "-"
@@ -1539,7 +1506,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageTotalOutsideLiabilitiesNetWorthRatio !== "-"
@@ -1590,7 +1557,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageNetWorthTotalLiabilitiesRatio !== "-"
@@ -1645,7 +1612,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageDebtServiceCoverageRatio !== "-"
@@ -1696,7 +1663,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "-"}
@@ -1745,7 +1712,7 @@ const RatioAnalysis = ({
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {  fontWeight: "extrabold" },
-                    {width:"25%" , fontSize:8}
+                    
                   ]}
                 >
                   {averageReturnOnInvestment !== "-"

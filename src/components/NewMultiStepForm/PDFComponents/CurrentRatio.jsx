@@ -29,6 +29,7 @@ const CurrentRatio = ({
   pdfType,
   receivedtotalRevenueReceipts,
   sendCurrentRatio,
+  orientation,
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
@@ -93,10 +94,10 @@ const CurrentRatio = ({
     }
   }, [JSON.stringify(currentRatio)]);
 
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
 
   return (

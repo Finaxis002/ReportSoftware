@@ -35,6 +35,7 @@ const ProjectedProfitability = ({
   receivedtotalRevenueReceipts,
   onComputedDataToProfit,
   pdfType,
+  orientation
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -503,13 +504,13 @@ const ProjectedProfitability = ({
 
   // ✅ Determine if first-year should be hidden
 
-  const orientation = hideFirstYear
-    ? formData.ProjectReportSetting.ProjectionYears > 6
-      ? "landscape"
-      : "portrait"
-    : formData.ProjectReportSetting.ProjectionYears > 5
-    ? "landscape"
-    : "portrait";
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
 
   return (
     <Page

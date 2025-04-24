@@ -10,6 +10,7 @@ const ProjectedRevenue = ({
   financialYearLabels,
   formatNumber,
   pdfType,
+  orientation
 }) => {
   // console.log("revenue", formData.Revenue);
   // ✅ Extract projection years and formType safely
@@ -63,10 +64,10 @@ const ProjectedRevenue = ({
     ? totalRevenueReceipts.slice(1)
     : totalRevenueReceipts;
 
-    const orientation =
-    hideFirstYear
-      ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-      : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+    // const orientation =
+    // hideFirstYear
+    //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+    //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
   
 
   return (
