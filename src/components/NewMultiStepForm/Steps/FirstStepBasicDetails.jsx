@@ -83,20 +83,36 @@ const FirstStepBasicDetails = ({
     });
   }, [localData, onFormDataChange]);
 
+
+
+  
+
   const firstLoad = useRef(true);
 
   useEffect(() => {
-    if (firstLoad.current && formData?.AccountInformation) {
-      setLocalData((prevData) => ({
-        ...prevData,
-        ...formData.AccountInformation,
-        allPartners: Array.isArray(formData.AccountInformation.allPartners)
-          ? formData.AccountInformation.allPartners
+    const accountInfo = formData?.AccountInformation;
+  
+    // Only proceed if we have data from backend
+    const hasData =
+      accountInfo &&
+      Object.keys(accountInfo).length > 0 &&
+      accountInfo.clientName; // or any key you expect from backend
+  
+    if (firstLoad.current && hasData) {
+      setLocalData({
+        ...accountInfo,
+        allPartners: Array.isArray(accountInfo.allPartners)
+          ? accountInfo.allPartners
           : [],
-      }));
+      });
       firstLoad.current = false;
     }
   }, [formData?.AccountInformation]);
+  
+  useEffect(() => {
+    firstLoad.current = true;
+  }, [sessionId]);
+  
   
   useEffect(() => {
     setFieldErrors(requiredFieldErrors || {});
