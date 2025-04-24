@@ -84,26 +84,7 @@ const FirstStepBasicDetails = ({
   }, [localData, onFormDataChange]);
 
 
-  // useEffect(() => {
-  //   if (firstLoad.current && formData?.AccountInformation) {
-  //     setLocalData((prevData) => {
-  //       if (
-  //         JSON.stringify(prevData) !==
-  //         JSON.stringify(formData.AccountInformation)
-  //       ) {
-  //         return {
-  //           ...prevData,
-  //           ...formData.AccountInformation,
-  //           allPartners: Array.isArray(formData.AccountInformation.allPartners)
-  //             ? formData.AccountInformation.allPartners
-  //             : [],
-  //         };
-  //         firstLoad.current = false;
-  //       }
-  //       return prevData;
-  //     });
-  //   }
-  // }, [formData?.AccountInformation]);
+
   
 
   const firstLoad = useRef(true);
