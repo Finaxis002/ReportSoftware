@@ -147,45 +147,37 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
       0
     ) + Number(formData.MeansOfFinance.totalWorkingCapital || 0);
 
-  useEffect(() => {
-    const meansOfFinanceTotal = calculatedTotal;
-    const totalProjectCost = Number(
-      formData?.ProjectReportSetting?.totalProjectCost || 0
-    );
-    const totalLoan = parseFloat(
-      removeCommas(formData?.MeansOfFinance?.total || 0)
-    );
-
-    if (totalLoan !== meansOfFinanceTotal) {
-      setError(
-        "Total Amount should be equal to the Total Amount of the Means of Finance."
+    useEffect(() => {
+      const meansOfFinanceTotal = calculatedTotal;
+      const totalLoan = parseFloat(removeCommas(formData?.MeansOfFinance?.total || 0));
+    
+      // ✅ Fix: handle floating point precision by using Math.abs
+      const difference = totalLoan - meansOfFinanceTotal;
+      const isMatch = Math.abs(difference) < 0.01;
+    
+      if (isMatch) {
+        setError(""); // ✅ Very important: exact empty string
+      } else {
+        setError("Total Amount should be equal to the Total Amount of the Means of Finance.");
+      }
+    
+      setInfoMessage(
+        `Means of Finance Total = ₹${totalLoan.toLocaleString("en-IN")}\nDifference = ₹${isMatch ? 0 : difference.toLocaleString("en-IN")}`
       );
-    } else {
-      setError("");
-    }
-
-    // Set the informational message
-
-    const difference = totalLoan - calculatedTotal;
-
-    setInfoMessage(
-      `Means of Finance Total = ₹${totalLoan.toLocaleString(
-        "en-IN"
-      )}\nDifference = ₹${difference.toLocaleString("en-IN")}`
-    );
-
-    setMeansOfFinanceSummary({
-      meansOfFinanceTotal,
-      totalLoan,
+    
+      setMeansOfFinanceSummary({
+        meansOfFinanceTotal,
+        totalLoan,
+        calculatedTotal,
+        difference: isMatch ? 0 : difference,
+      });
+    }, [
       calculatedTotal,
-      difference: totalLoan - calculatedTotal,
-    });
-  }, [
-    calculatedTotal,
-    formData?.MeansOfFinance?.total,
-    formData?.ProjectReportSetting?.calculatedTotal,
-    setError,
-  ]);
+      formData?.MeansOfFinance?.total,
+      formData?.ProjectReportSetting?.calculatedTotal,
+      setError,
+    ]);
+    
 
   return (
     <div className="form-scroll">
