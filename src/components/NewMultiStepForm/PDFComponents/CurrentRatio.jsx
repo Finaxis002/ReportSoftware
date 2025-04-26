@@ -99,7 +99,6 @@ const CurrentRatio = ({
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
   //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
-
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
@@ -161,22 +160,22 @@ const CurrentRatio = ({
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
-                      ? "Millions" // Show "Millions" if "millions" is selected
-                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
 
       <View>
@@ -314,7 +313,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold",  },
+                { fontWeight: "bold" },
               ]}
             >
               Current Ratio
@@ -331,7 +330,7 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        
+
                         textAlign: "center",
                       },
                     ]}
@@ -354,7 +353,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold",  fontSize: "10px" },
+                { fontWeight: "bold", fontSize: "10px" },
               ]}
             >
               Average Current Ratio
@@ -394,10 +393,10 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        
+
                         textAlign: "center",
-                        borderLeftWidth:0,
-                        borderRightWidth:0
+                        borderLeftWidth: 0,
+                        borderRightWidth: 0,
                       },
                     ]}
                   >
