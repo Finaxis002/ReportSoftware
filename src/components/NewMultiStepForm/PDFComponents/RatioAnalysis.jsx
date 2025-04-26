@@ -154,7 +154,21 @@ const RatioAnalysis = ({
         .filter((asset) => asset.particular !== "Investments") // ✅ Exclude Investments
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
-      cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
+        const inventory = Array.from({
+          length: formData.MoreDetails.OpeningStock.length,
+        }).map((_, yearIndex) => {
+          const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+          const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+          const finalStock = ClosingStock - OpeningStock;
+          return finalStock;
+        });
+    
+        // ✅ If Inventory is not available, set it to 0
+        const inventoryValue = inventory[index] || 0;
+
+      cumulativeCurrentAssets += currentYearAssets + inventoryValue; // Apply cumulative rule
+
+      
 
       // ✅ Compute final total: Cash Balance + Cumulative Current Assets
       return cashBalance + cumulativeCurrentAssets;
