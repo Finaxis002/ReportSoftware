@@ -86,9 +86,34 @@ const SeventhStepMD = ({
     }
   }, [MoreDetailsData]);
 
+  const sanitizeMoreDetails = (moreDetails, projectionYears) => {
+    if (!moreDetails) return {};
+  
+    const forceArray = (data) => {
+      if (Array.isArray(data)) return data;
+      if (typeof data === "object" && data !== null) {
+        // Object case {0: ..., 1: ..., 2: ...} => convert to [v0, v1, v2]
+        return Object.keys(data)
+          .sort((a, b) => Number(a) - Number(b))
+          .map((key) => Number(data[key]));
+      }
+      return Array.from({ length: projectionYears }).fill(0);
+    };
+  
+    return {
+      ...moreDetails,
+      OpeningStock: forceArray(moreDetails.OpeningStock),
+      ClosingStock: forceArray(moreDetails.ClosingStock),
+      Withdrawals: forceArray(moreDetails.Withdrawals),
+    };
+  };
+  
+
   useEffect(() => {
-    onFormDataChange({ MoreDetails: localData });
-  }, [localData, onFormDataChange]);
+    const sanitizedData = sanitizeMoreDetails(localData, projectionYears);
+    onFormDataChange({ MoreDetails: sanitizedData });
+  }, [localData, onFormDataChange, projectionYears]);
+  
 
   // Handle Adding Custom Fields
   const addFields = (type) => {
@@ -99,15 +124,6 @@ const SeventhStepMD = ({
     }));
   };
 
-  // Handle Removing Custom Fields
-  const removeFields = (e, index, type) => {
-    e.preventDefault();
-    setLocalData((prevData) => {
-      const updatedData = [...prevData[type]];
-      updatedData.splice(index, 1);
-      return { ...prevData, [type]: updatedData };
-    });
-  };
 
   // Handle Form Input Changes
   const handleFormChange = (event, index, year, type) => {
@@ -127,10 +143,11 @@ const SeventhStepMD = ({
     const numericValue = Number(value);
 
     setLocalData((prevData) => {
-      const updatedStock = {
-        ...(prevData[name] ?? Array.from({ length: projectionYears }).fill(0)),
-      };
+      const updatedStock = [
+        ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
+      ];
       updatedStock[index] = numericValue;
+      
 
       const newState = { ...prevData, [name]: updatedStock };
 
