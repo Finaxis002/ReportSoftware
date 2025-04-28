@@ -110,8 +110,12 @@ const SeventhStepMD = ({
   
 
   useEffect(() => {
-    const sanitizedData = sanitizeMoreDetails(localData, projectionYears);
-    onFormDataChange({ MoreDetails: sanitizedData });
+    const timeoutId = setTimeout(() => {
+      const sanitizedData = sanitizeMoreDetails(localData, projectionYears);
+      onFormDataChange({ MoreDetails: sanitizedData });
+    }, 500); // 500ms delay after user stops typing
+  
+    return () => clearTimeout(timeoutId);
   }, [localData, onFormDataChange, projectionYears]);
   
 
@@ -154,14 +158,12 @@ const SeventhStepMD = ({
       // Sync ClosingStock → OpeningStock (if not overridden)
       if (name === "ClosingStock" && index < projectionYears - 1) {
         if (!overriddenOpeningStock[index + 1]) {
-          const updatedOpeningStock = [
-            ...(Array.isArray(prevData.OpeningStock) ? prevData.OpeningStock : getEmptyArray()),
-          ];
-          updatedOpeningStock[index + 1] = numericValue;
-          newState.OpeningStock = updatedOpeningStock;
+          newState.OpeningStock = {
+            ...(prevData.OpeningStock ?? getEmptyArray()),
+            [index + 1]: numericValue,
+          };
         }
       }
-      
 
       // If user is editing OpeningStock manually
       if (name === "OpeningStock") {
