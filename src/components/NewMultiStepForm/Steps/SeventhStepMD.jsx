@@ -154,12 +154,14 @@ const SeventhStepMD = ({
       // Sync ClosingStock → OpeningStock (if not overridden)
       if (name === "ClosingStock" && index < projectionYears - 1) {
         if (!overriddenOpeningStock[index + 1]) {
-          newState.OpeningStock = {
-            ...(prevData.OpeningStock ?? getEmptyArray()),
-            [index + 1]: numericValue,
-          };
+          const updatedOpeningStock = [
+            ...(Array.isArray(prevData.OpeningStock) ? prevData.OpeningStock : getEmptyArray()),
+          ];
+          updatedOpeningStock[index + 1] = numericValue;
+          newState.OpeningStock = updatedOpeningStock;
         }
       }
+      
 
       // If user is editing OpeningStock manually
       if (name === "OpeningStock") {
