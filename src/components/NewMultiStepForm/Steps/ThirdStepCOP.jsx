@@ -80,6 +80,10 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     difference: 0,
   });
   const [infoMessage, setInfoMessage] = useState("");
+  const [preliminaryWriteOffYears, setPreliminaryWriteOffYears] = useState(5);
+  const [preliminaryExpenses, setPreliminaryExpenses] = useState([
+    { name: "", amount: 0 },
+  ]);
 
   // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
@@ -134,6 +138,16 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
       prevDataRef.current = localData;
     }
   }, [localData, onFormDataChange]);
+
+  useEffect(() => {
+    onFormDataChange((prev) => ({
+      ...prev,
+      PreliminaryExpenses: {
+        writeOffYears: preliminaryWriteOffYears,
+        expenses: preliminaryExpenses,
+      },
+    }));
+  }, [preliminaryWriteOffYears, preliminaryExpenses]);
 
   // ✅ Handle input changes
   const handleChange = (event, key, field) => {
@@ -213,6 +227,25 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     }));
   };
 
+  const handlePrelimChange = (index, field, value) => {
+    setPreliminaryExpenses((prev) => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        [field]: field === "amount" ? Number(value) : value,
+      };
+      return updated;
+    });
+  };
+
+  const addPrelimRow = () => {
+    setPreliminaryExpenses((prev) => [...prev, { name: "", amount: 0 }]);
+  };
+
+  const removePrelimRow = (index) => {
+    setPreliminaryExpenses((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="form-scroll">
       <form onSubmit={(e) => e.preventDefault()}>
@@ -258,7 +291,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
               <div className="">
                 <div className="flex flex-col items-center justify-center">
                   {index === 0 && (
-                   <label className="form-label">Add to Assets</label>
+                    <label className="form-label">Add to More Details</label>
                   )}
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -371,7 +404,81 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
           + Add More
         </button>
       </form>
-      <div className="my-2 d-flex gap-5 justify-content-center"></div>
+      <hr className="my-4" />
+
+      {/* Heading with editable years */}
+      <div className="d-flex align-items-center gap-3 mb-3">
+        <h5 className="text-primary m-0">
+          Preliminary Expenses Written Off in
+        </h5>
+        <input
+          type="number"
+          min="1"
+          className="form-control text-center border border-gray-300 rounded shadow-sm"
+          style={{ width: "80px", height: "38px" }}
+          value={preliminaryWriteOffYears}
+          onChange={(e) => {
+            const val = parseInt(e.target.value);
+            if (!isNaN(val) && val > 0) {
+              setPreliminaryWriteOffYears(val);
+            }
+          }}
+        />
+        <span className="text-primary fw-semibold">Years</span>
+      </div>
+
+      {/* Expense rows */}
+      {preliminaryExpenses.map((item, index) => (
+        <div key={index}>
+          <div className="d-flex gap-2 my-3 justify-content-around">
+            <div className="w-100">
+              {index === 0 && (
+                <label className="form-label">Particular Name</label>
+              )}
+              <input
+                type="text"
+                placeholder="Expense Name"
+                value={item.name}
+                onChange={(e) =>
+                  handlePrelimChange(index, "name", e.target.value)
+                }
+                className="form-control"
+              />
+            </div>
+            <div>
+              {index === 0 && <label className="form-label">Amount</label>}
+              <input
+                type="number"
+                placeholder="0"
+                value={item.amount}
+                onChange={(e) =>
+                  handlePrelimChange(index, "amount", e.target.value)
+                }
+                className="form-control no-spinner"
+              />
+            </div>
+            <button
+              className="btn h-100 mt-auto"
+              style={{ width: "40px", padding: "0", border: "none" }}
+              onClick={() => removePrelimRow(index)}
+            >
+              <img src={deleteImg} alt="Remove" className="w-100" />
+            </button>
+          </div>
+          <hr />
+        </div>
+      ))}
+
+      {/* Add More Button */}
+      <div className="d-flex justify-content-end mt-3 mb-2">
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-success"
+          onClick={addPrelimRow}
+        >
+          + Add Preliminary Expense
+        </button>
+      </div>
     </div>
   );
 };
