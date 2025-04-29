@@ -217,7 +217,7 @@ const CheckProfit = () => {
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue - ClosingStock + OpeningStock;
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
           // ✅ Use annual total directly
           expenseValue = Number(expense.total) || 0;
@@ -797,7 +797,7 @@ const CheckProfit = () => {
                         (parseFloat(expense.value) / 100) *
                         (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
                       return parseFloat(
-                        (baseValue - ClosingStock + OpeningStock).toFixed(2)
+                        (baseValue + ClosingStock - OpeningStock).toFixed(2)
                       );
                     } else {
                       const total = Number(expense.total) || 0;

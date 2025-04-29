@@ -29,6 +29,7 @@ const CurrentRatio = ({
   pdfType,
   receivedtotalRevenueReceipts,
   sendCurrentRatio,
+  orientation,
 }) => {
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
@@ -56,7 +57,7 @@ const CurrentRatio = ({
       .map((r) => parseFloat(r)); // Convert to numeric values
 
     // ✅ Exclude leading values ≤ 1
-    const firstValidIndex = validRatios.findIndex((value) => value > 1);
+    const firstValidIndex = validRatios.findIndex((value) => value > 0);
     const nonZeroRatios = validRatios.slice(firstValidIndex);
 
     // ✅ If there are no valid ratios left, return "-"
@@ -93,11 +94,10 @@ const CurrentRatio = ({
     }
   }, [JSON.stringify(currentRatio)]);
 
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
-
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
   return (
     <Page
@@ -160,22 +160,22 @@ const CurrentRatio = ({
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
-                      ? "Millions" // Show "Millions" if "millions" is selected
-                      : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
       </View>
 
       <View>
@@ -313,7 +313,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold",  },
+                { fontWeight: "bold" },
               ]}
             >
               Current Ratio
@@ -330,7 +330,7 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        
+
                         textAlign: "center",
                       },
                     ]}
@@ -353,7 +353,7 @@ const CurrentRatio = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                { fontWeight: "bold",  fontSize: "10px" },
+                { fontWeight: "bold", fontSize: "10px" },
               ]}
             >
               Average Current Ratio
@@ -393,10 +393,10 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-                        
+
                         textAlign: "center",
-                        borderLeftWidth:0,
-                        borderRightWidth:0
+                        borderLeftWidth: 0,
+                        borderRightWidth: 0,
                       },
                     ]}
                   >

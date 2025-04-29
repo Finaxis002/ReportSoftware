@@ -22,8 +22,8 @@ const IncomeTaxCalculation = ({
   totalDepreciationPerYear = [],
   financialYearLabels,
   formatNumber,
-  pdfType,
   receivedtotalRevenueReceipts,
+  orientation
 }) => {
   if (!formData || typeof formData !== "object") {
     console.error("❌ Invalid formData provided");
@@ -47,10 +47,10 @@ const IncomeTaxCalculation = ({
       : [];
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
 
   return (

@@ -28,12 +28,11 @@ const Assumptions = ({
   receiveTotalExpense,
   pdfType,
   receivedtotalRevenueReceipts,
+  orientation
 }) => {
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
   const years = Math.floor(formData.ProjectReportSetting.RepaymentMonths / 12);
   const months = formData.ProjectReportSetting.RepaymentMonths % 12;
-  //   console.log("total expense value is received", receiveTotalExpense);
-  // Mock Data for Sales and Expenses (as per screenshot)
 
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
@@ -50,13 +49,13 @@ const Assumptions = ({
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
-  const orientation = hideFirstYear
-    ? formData.ProjectReportSetting.ProjectionYears > 6
-      ? "landscape"
-      : "portrait"
-    : formData.ProjectReportSetting.ProjectionYears > 5
-    ? "landscape"
-    : "portrait";
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
 
   return (
     <Page

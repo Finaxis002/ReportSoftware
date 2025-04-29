@@ -31,6 +31,7 @@ const DebtServiceCoverageRatio = ({
   formatNumber,
   pdfType,
   receivedtotalRevenueReceipts,
+  orientation
 }) => {
   // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
@@ -207,10 +208,10 @@ const DebtServiceCoverageRatio = ({
   }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
 
-  const orientation =
-  hideFirstYear
-    ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-    : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
 
   return (

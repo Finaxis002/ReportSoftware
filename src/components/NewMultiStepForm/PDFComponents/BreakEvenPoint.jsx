@@ -31,6 +31,7 @@ const BreakEvenPoint = ({
   sendBreakEvenPointPercentage,
   receivedtotalRevenueReceipts,
   pdfType,
+  orientation
 }) => {
   // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
@@ -208,7 +209,7 @@ const BreakEvenPoint = ({
           const baseValue =
             (parseFloat(expense.value) / 100) *
             (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue - ClosingStock + OpeningStock;
+          expenseValue = baseValue + ClosingStock - OpeningStock;
         } else {
           // ✅ Use 'total' directly for annual expense
           const annual = Number(expense.total) || 0;
@@ -299,13 +300,13 @@ const BreakEvenPoint = ({
 
  
 
-  const orientation = hideFirstYear
-    ? formData.ProjectReportSetting.ProjectionYears > 6
-      ? "landscape"
-      : "portrait"
-    : formData.ProjectReportSetting.ProjectionYears > 5
-    ? "landscape"
-    : "portrait";
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
 
   return (
     <Page
@@ -679,7 +680,7 @@ const BreakEvenPoint = ({
                     const baseValue =
                       (parseFloat(expense.value) / 100) *
                       (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-                    expenseValue = baseValue - ClosingStock + OpeningStock;
+                    expenseValue = baseValue + ClosingStock - OpeningStock;
                   } else {
                     expenseValue = Number(expense.total) || 0;
                   }
@@ -739,7 +740,7 @@ const BreakEvenPoint = ({
                           (parseFloat(expense.value) / 100) *
                           (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
                             0);
-                        expenseValue = baseValue - ClosingStock + OpeningStock;
+                        expenseValue = baseValue + ClosingStock - OpeningStock;
                       } else {
                         expenseValue = Number(expense.total) || 0;
                       }

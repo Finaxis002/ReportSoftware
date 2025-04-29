@@ -321,7 +321,7 @@ body.dark {
 .headingRow td,
 .headingRow td input,
 .headingRow td select {
-  background: rgb(198 191 224) !important;
+  background: rgb(198, 191, 224) !important;
 }
 
 .boldRow td,
@@ -335,6 +335,29 @@ body.dark {
 .boldUnderlineRow td select {
   background: rgb(224, 191, 191) !important;
 }
+
+/* New Row Type 4: Underline */
+.underlineRow td,
+.underlineRow td input,
+.underlineRow td select {
+  background: rgb(191, 224, 224) !important; /* light cyan type color */
+}
+
+/* New Row Type 5: Total Format */
+.totalRow td,
+.totalRow td input,
+.totalRow td select {
+  background: rgb(243, 232, 255) !important; /* light purple (matching total format) */
+}
+
+/* New Row Type 6: Show (blank row for spacing) */
+.showRow td,
+.showRow td input,
+.showRow td select {
+  background: rgb(255, 255, 255) !important; /* Same as normal (white) */
+  height: 12px; /* Extra spacing for blank row */
+}
+
 
 /* --------------------------------------------------------------- */
 

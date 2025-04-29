@@ -71,11 +71,6 @@ const SeventhStepMD = ({
               years: getEmptyArray(),
               isCustom: false,
             },
-            {
-              particular: "Inventory",
-              years: getEmptyArray(),
-              isCustom: false,
-            },
           ],
           OpeningStock: getEmptyArray(),
           ClosingStock: getEmptyArray(),
@@ -84,33 +79,101 @@ const SeventhStepMD = ({
   );
   const [overriddenOpeningStock, setOverriddenOpeningStock] = useState({});
 
-  useEffect(() => {
-    if (MoreDetailsData && Object.keys(MoreDetailsData).length > 0) {
-      setLocalData(MoreDetailsData);
-    }
-  }, [MoreDetailsData]);
+  // useEffect(() => {
+  //   if (MoreDetailsData && Object.keys(MoreDetailsData).length > 0) {
+  //     setLocalData(MoreDetailsData);
+  //   }
+  // }, [MoreDetailsData]);
 
   useEffect(() => {
-    onFormDataChange({ MoreDetails: localData });
-  }, [localData, onFormDataChange]);
+    if (formData?.CostOfProject) {
+      const selectedItems = Object.values(formData.CostOfProject)
+        .filter((item) => item.isSelected)
+        .map((item) => item.name);
+
+      const selectedAssets = Object.values(formData.CostOfProject)
+        .filter((item) => item.isSelected)
+        .map((item) => ({
+          particular: item.name,
+          years: [
+            Number(String(item.amount).replace(/,/g, "")) || 0,
+            ...Array.from({ length: projectionYears - 1 }).fill(0),
+          ],
+          isCustom: false,
+          dontSendToBS: false, // 🔥 new flag
+        }));
+
+      setLocalData((prevData) => {
+        const currentAssets = prevData.currentAssets || [];
+
+        // Keep only unselected static/default items or custom entries
+        const filteredAssets = currentAssets.filter(
+          (entry) =>
+            !Object.values(formData.CostOfProject).some(
+              (item) => item.name === entry.particular && !item.isSelected
+            ) || entry.isCustom
+        );
+
+        // Prevent duplicates by checking existing names
+        const existingNames = new Set(filteredAssets.map((a) => a.particular));
+        const mergedAssets = [
+          ...filteredAssets,
+          ...selectedAssets.filter((a) => !existingNames.has(a.particular)),
+        ];
+
+        return {
+          ...prevData,
+          currentAssets: mergedAssets,
+        };
+      });
+    } else if (MoreDetailsData && Object.keys(MoreDetailsData).length > 0) {
+      setLocalData(MoreDetailsData);
+    }
+  }, [MoreDetailsData, formData?.CostOfProject, projectionYears]);
+
+  const sanitizeMoreDetails = (moreDetails, projectionYears) => {
+    if (!moreDetails) return {};
+
+    const forceArray = (data) => {
+      if (Array.isArray(data)) return data;
+      if (typeof data === "object" && data !== null) {
+        // Object case {0: ..., 1: ..., 2: ...} => convert to [v0, v1, v2]
+        return Object.keys(data)
+          .sort((a, b) => Number(a) - Number(b))
+          .map((key) => Number(data[key]));
+      }
+      return Array.from({ length: projectionYears }).fill(0);
+    };
+
+    return {
+      ...moreDetails,
+      OpeningStock: forceArray(moreDetails.OpeningStock),
+      ClosingStock: forceArray(moreDetails.ClosingStock),
+      Withdrawals: forceArray(moreDetails.Withdrawals),
+    };
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const sanitizedData = sanitizeMoreDetails(localData, projectionYears);
+      onFormDataChange({ MoreDetails: sanitizedData });
+    }, 500); // 500ms delay after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [localData, onFormDataChange, projectionYears]);
 
   // Handle Adding Custom Fields
   const addFields = (type) => {
-    const newData = { particular: "", years: getEmptyArray(), isCustom: true };
+    const newData = {
+      particular: "",
+      years: getEmptyArray(),
+      isCustom: true,
+      dontSendToBS: false,
+    };
     setLocalData((prevData) => ({
       ...prevData,
       [type]: [...prevData[type], newData],
     }));
-  };
-
-  // Handle Removing Custom Fields
-  const removeFields = (e, index, type) => {
-    e.preventDefault();
-    setLocalData((prevData) => {
-      const updatedData = [...prevData[type]];
-      updatedData.splice(index, 1);
-      return { ...prevData, [type]: updatedData };
-    });
   };
 
   // Handle Form Input Changes
@@ -131,9 +194,9 @@ const SeventhStepMD = ({
     const numericValue = Number(value);
 
     setLocalData((prevData) => {
-      const updatedStock = {
-        ...(prevData[name] ?? Array.from({ length: projectionYears }).fill(0)),
-      };
+      const updatedStock = [
+        ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
+      ];
       updatedStock[index] = numericValue;
 
       const newState = { ...prevData, [name]: updatedStock };
@@ -162,26 +225,23 @@ const SeventhStepMD = ({
   // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
     if (num === null || num === undefined || num === "") return "";
-  
+
     const str = num.toString();
-  
+
     // Incomplete decimals: "1000.", ".5", "1000.5"
     if (str.endsWith(".") || /^\d*\.\d?$/.test(str)) return str;
-  
+
     const numericValue = Number(str.replace(/,/g, ""));
     if (isNaN(numericValue)) return str;
-  
+
     return numericValue.toLocaleString("en-IN", {
       minimumFractionDigits: str.includes(".") ? 2 : 0,
       maximumFractionDigits: 2,
     });
   };
-  
 
   // Remove commas for raw value
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
-
-
 
   return (
     <div className="overflow-x-hidden">
@@ -261,7 +321,8 @@ const SeventhStepMD = ({
                   <tr>
                     <th className="header-label">Index</th>
                     <th className="header-label">Particular</th>
-
+                    <th className="header-label">Exclude from BS</th>{" "}
+                    {/* ✅ NEW COLUMN */}
                     {/* Determine the max number of years dynamically */}
                     {Array.from({ length: projectionYears }).map((_, index) => (
                       <th key={index} className="header-label">
@@ -287,6 +348,28 @@ const SeventhStepMD = ({
                           style={{ width: "20rem" }}
                           type="text"
                           disabled={!entry.isCustom}
+                        />
+                      </td>
+                      <td className="md-input text-center">
+                        {" "}
+                        {/* ✅ NEW CELL */}
+                        <input
+                          type="checkbox"
+                          checked={entry.dontSendToBS || false}
+                          className="w-4 h-4 rounded-full bg-green-700"
+                          onChange={(e) =>
+                            setLocalData((prev) => {
+                              const updated = [...prev[dataType]];
+                              updated[i] = {
+                                ...updated[i],
+                                dontSendToBS: e.target.checked,
+                              };
+                              return {
+                                ...prev,
+                                [dataType]: updated,
+                              };
+                            })
+                          }
                         />
                       </td>
                       {Array.from({ length: projectionYears }).map(

@@ -133,11 +133,6 @@ const GeneratedPDF = ({}) => {
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
 
-
-  const [blobObject, setBlobObject] = useState();
-  const [blobUrl, setBlobUrl] = useState();
-
-
   const location = useLocation();
 
   const stableLocation = useMemo(() => location, []);
@@ -244,7 +239,11 @@ const GeneratedPDF = ({}) => {
 
   const formData = pdfData || formData1;
 
-  // console.log("formData", formData);
+  const [orientation, setOrientation] = useState(() => {
+    const stored = JSON.parse(localStorage.getItem("formData"));
+    const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
+    return years > 6 ? "landscape" : "portrait";
+  });
 
   const yearsRef = useRef(5);
 
@@ -279,8 +278,7 @@ const GeneratedPDF = ({}) => {
   const totalAnnualWages = useMemo(() => {
     if (!Array.isArray(normalExpense)) return 0; // Prevents errors
     return normalExpense.reduce(
-      (sum, expense) =>
-        sum + Number(expense?.value),
+      (sum, expense) => sum + Number(expense?.value),
       0
     );
   }, [normalExpense]);
@@ -303,14 +301,13 @@ const GeneratedPDF = ({}) => {
     const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
     return parseFloat(cleaned) || 0;
   };
-  
+
   const firstYearGrossFixedAssets = useMemo(() => {
     return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
       const netAsset = parseAmount(asset.amount);
       return sum + netAsset;
     }, 0);
   }, [formData?.CostOfProject]);
-  
 
   // Function to generate correct financial year labels
   const generateFinancialYearLabels = useMemo(
@@ -541,7 +538,7 @@ const GeneratedPDF = ({}) => {
         onLoadSuccess={({ numPages }) => setNumPages(numPages)}
         onRender={() => {
           console.log("✅ PDF fully rendered");
-          setIsPDFLoading(false); // Turn off loader reliably
+          setIsPDFLoading(false);
         }}
       >
         {/* basic details table */}
@@ -618,6 +615,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         {/* Projected Expense Table Direct and Indirect */}
         <ProjectedExpenses
@@ -635,6 +633,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           formatNumber={formatNumber}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -644,6 +643,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         {/* Projected Profitability Statement */}
         <ProjectedProfitability
@@ -667,6 +667,7 @@ const GeneratedPDF = ({}) => {
           onComputedDataToProfit={setComputedDataToProfit}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <Repayment
           formData={formData}
@@ -689,6 +690,7 @@ const GeneratedPDF = ({}) => {
             pdfType={pdfType}
             receivedtotalRevenueReceipts={totalRevenueReceipts}
             pageNumber={pageNumber}
+            orientation={orientation}
           />
         )}
         <ProjectedCashflow
@@ -708,6 +710,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <ProjectedBalanceSheet
           formData={formData}
@@ -731,6 +734,7 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <CurrentRatio
           formData={formData}
@@ -742,6 +746,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           sendCurrentRatio={setCurrentRatio}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
 
         <DebtServiceCoverageRatio
@@ -756,6 +761,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <RatioAnalysis
           formData={formData}
@@ -781,6 +787,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <BreakEvenPoint
           formData={formData}
@@ -794,6 +801,7 @@ const GeneratedPDF = ({}) => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
         <Assumptions
           formData={formData}
@@ -804,6 +812,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pageNumber={pageNumber}
+          orientation={orientation}
         />
       </Document>
     );
@@ -858,6 +867,18 @@ const GeneratedPDF = ({}) => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleUnload = () => {
+      localStorage.removeItem("selectedColor");
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
       {/* ✅ Loader Section */}
@@ -887,10 +908,8 @@ const GeneratedPDF = ({}) => {
       )}
 
       <BlobProvider document={memoizedPDF}>
-
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
-         
 
           const handleDownloadPDF = () => {
             if (!blob) {
@@ -907,7 +926,6 @@ const GeneratedPDF = ({}) => {
               .trim();
 
             saveAs(blob, `${safeName}.pdf`);
-
           };
 
           return (
@@ -923,12 +941,29 @@ const GeneratedPDF = ({}) => {
                     📄 PDF Report Viewer
                   </div>
 
-                  {/* Page Counter */}
-                  {numPages && (
-                    <div className="text-white text-xs">
-                      Page {pageNumber} / {numPages}
-                    </div>
-                  )}
+                  {/* Orientation Toggle Buttons */}
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setOrientation("portrait")}
+                      className={`text-sm px-2 py-1 rounded ${
+                        orientation === "portrait"
+                          ? "bg-white text-indigo-600"
+                          : "bg-indigo-600 text-white"
+                      }`}
+                    >
+                      Portrait
+                    </button>
+                    <button
+                      onClick={() => setOrientation("landscape")}
+                      className={`text-sm px-2 py-1 rounded ${
+                        orientation === "landscape"
+                          ? "bg-white text-indigo-600"
+                          : "bg-indigo-600 text-white"
+                      }`}
+                    >
+                      Landscape
+                    </button>
+                  </div>
 
                   {/* Download Button */}
                   <div className="flex gap-2 px-4">
@@ -953,6 +988,7 @@ const GeneratedPDF = ({}) => {
                 height="800"
                 showToolbar={false}
                 style={{ overflow: "hidden" }}
+                key={orientation}
               >
                 {memoizedPDF}
               </PDFViewer>
