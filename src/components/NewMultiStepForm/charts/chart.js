@@ -25,6 +25,17 @@ Chart.register(shadowPlugin);
 
 export const generateChart = async (data) => {
   try {
+
+     // ✅ Step 1: Filter out zero values and their corresponding labels
+     const filteredLabels = [];
+     const filteredValues = [];
+     
+     data.values.forEach((value, index) => {
+       if (value !== 0 && value !== null && value !== undefined) {
+         filteredLabels.push(data.labels[index]);
+         filteredValues.push(value);
+       }
+     });
     // Create a hidden canvas for chart rendering
     const canvas = document.createElement('canvas');
     canvas.width = 500;
@@ -77,9 +88,11 @@ export const generateChart = async (data) => {
     new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: data.labels,
+        // labels: data.labels,
+        labels: filteredLabels,
         datasets: [{
-          data: data.values,
+          // data: data.values,
+          data: filteredValues,
           backgroundColor: backgroundColors,
           borderColor: borderColors,
 
@@ -94,7 +107,7 @@ export const generateChart = async (data) => {
       options: {
         responsive: false,
         maintainAspectRatio: false,
-        responsive: false,
+        
         
         plugins: {
           legend: {
