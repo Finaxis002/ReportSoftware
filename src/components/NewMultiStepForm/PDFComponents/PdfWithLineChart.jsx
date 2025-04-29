@@ -12,30 +12,6 @@ const MyDocument = ({ chartBase64 }) => (
   </View>
 );
 
-// const styles = StyleSheet.create({
-//   centeredTextContainer: {
-//     width: '100%',
-//     alignItems: 'center',
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//     fontFamily: "roboto",
-//   },
-//   chart: {
-//     width: 400,
-//     height: 250,
-//     marginVertical: 10,
-//     alignSelf: 'center',
-//   },
-//   loading: {
-//     fontSize: 14,
-//     textAlign: 'center',
-//     color: '#999',
-//   },
-// });
 
 const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);
@@ -47,6 +23,13 @@ const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
       setChartBase64(null); // Reset chart until it regenerates
     }
   }, [labels, dscr]);
+
+  // ✅ Second useEffect to call onDscrReady AFTER chartBase64 is available
+  useEffect(() => {
+    if (chartBase64 && typeof chartBase64 === 'string' && chartBase64.startsWith('data:image')) {
+      if (onDscrReady) onDscrReady(chartBase64);
+    }
+  }, [chartBase64, onDscrReady]);
 
   return (
     <>
