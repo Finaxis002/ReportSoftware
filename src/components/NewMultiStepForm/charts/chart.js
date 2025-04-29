@@ -38,14 +38,24 @@ export const generateChart = async (data) => {
     //     'rgba(220, 130, 40)', 
     //     'rgba(255, 159, 64, 0.9)', 
     // ];
+    // const backgroundColors = [
+    //     'rgba(115, 210, 210)', 
+    //     'rgba(75, 192, 192, 0.5)',
+    //     'rgba(255, 180, 100)',
+    //     'rgba(35, 120, 120)', 
+    //     'rgba(220, 130, 40)', 
+    //     'rgba(255, 159, 64, 0.9)', 
+    //   ];
     const backgroundColors = [
-        'rgba(115, 210, 210)', 
-        'rgba(75, 192, 192, 0.5)',
-        'rgba(255, 180, 100)',
-        'rgba(35, 120, 120)', 
-        'rgba(220, 130, 40)', 
-        'rgba(255, 159, 64, 0.9)', 
-      ];
+      'rgb(54, 116, 181)', 
+      'rgba(32, 164, 243, 1)',
+      'rgb(121, 206, 241)',
+      'rgb(32, 164, 243)', 
+      'rgba(87, 143, 202, 0.6)', 
+      'rgb(71, 130, 192)', 
+      'rgb(124, 185, 226)',
+      'rgb(87, 143, 202)',
+    ];
     // const backgroundColors = storedColors;
     const borderColors = backgroundColors.map(color =>
         color.replace('0.8', '1')

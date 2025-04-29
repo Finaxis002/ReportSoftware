@@ -47,8 +47,11 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
 
         // ✅ Create Gradient Background
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
-        gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
+        // gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
+        // gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
+        gradient.addColorStop(0, "rgba(128, 196, 233, 0.5)");
+        gradient.addColorStop(1, "rgba(128, 196, 233, 0.2)");
+        
 
         const lastYearValue = values[values.length - 1] || 0;
         let maxYValue = lastYearValue + lastYearValue * 0.5 + 1; 
@@ -73,12 +76,12 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
               {
                 label: "CurrentRatio",
                 data: values,
-                borderColor: "rgba(75, 192, 192, 0.8)",
+                borderColor: "rgba(54, 116, 181, 0.8)",
                 backgroundColor: gradient,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: "rgba(255, 159, 64, 0.5)",
-                pointBorderColor: "rgb(255, 159, 64)",
+                pointBackgroundColor: "rgba(121, 206, 241, 0.5)",
+                pointBorderColor: "rgb(54, 116, 181)",
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8,
