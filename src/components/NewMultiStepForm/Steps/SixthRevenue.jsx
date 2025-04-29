@@ -9,7 +9,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   // const [totalRevenue, setTotalRevenue] = useState(
   //   Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   // );
-  
+
   const [totalRevenue, setTotalRevenue] = useState(
     Array.from({ length: projectionYears || 1 }, () => 0) // ✅ Ensures correct length
   );
@@ -27,7 +27,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
   useEffect(() => {
     if (noOfMonths.length < projectionYears) {
-      const padded = [...noOfMonths, ...Array(projectionYears - noOfMonths.length).fill(12)];
+      const padded = [
+        ...noOfMonths,
+        ...Array(projectionYears - noOfMonths.length).fill(12),
+      ];
       setNoOfMonths(padded);
       localStorage.setItem("noOfMonths", JSON.stringify(padded));
       setLocalData((prev) => ({
@@ -36,7 +39,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       }));
     }
   }, [noOfMonths, projectionYears]);
-  
 
   const [totalMonthlyRevenue, setTotalMonthlyRevenue] = useState(
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
@@ -125,7 +127,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     const updated = [...noOfMonths];
 
     if (updated.length < projectionYears) {
-      updated = [...updated, ...Array(projectionYears - updated.length).fill(12)];
+      updated = [
+        ...updated,
+        ...Array(projectionYears - updated.length).fill(12),
+      ];
     }
     updated[index] = Number(newValue);
     setNoOfMonths(updated);
@@ -171,8 +176,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       }));
     }
   }, [projectionYears]);
-  
-  
+
   useEffect(() => {
     setLocalData((prevData) => ({
       ...prevData,
@@ -781,19 +785,26 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
                       return (
                         <tr
-                          key={i}
-                          className={`rowHover ${
-                            entry.rowType === "0"
-                              ? "normalRow"
-                              : entry.rowType === "1"
-                              ? "headingRow"
-                              : entry.rowType === "2"
-                              ? "boldRow"
-                              : entry.rowType === "3"
-                              ? "boldUnderlineRow"
-                              : ""
-                          }`}
-                        >
+                        key={i}
+                        className={`rowHover ${
+                          entry.rowType === "0"
+                            ? "normalRow"
+                            : entry.rowType === "1"
+                            ? "headingRow"
+                            : entry.rowType === "2"
+                            ? "boldRow"
+                            : entry.rowType === "3"
+                            ? "boldUnderlineRow"
+                            : entry.rowType === "4"
+                            ? "underlineRow"
+                            : entry.rowType === "5"
+                            ? "totalRow"
+                            : entry.rowType === "6"
+                            ? "showRow"
+                            : ""
+                        }`}
+                      >
+                      
                           {/* ✅ Editable Serial Number (Now Alphanumeric) */}
                           <td>
                             <input
@@ -870,7 +881,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                               <option value="0">Normal</option>
                               <option value="1">Heading</option>
                               <option value="2">Bold</option>
-                              <option value="3">B \ U</option>
+                              <option value="3">B / U</option>
+                              <option value="4">Underline</option>
+                              <option value="5">Total Format</option>
+                              <option value="6">Show</option>
                             </select>
                           </td>
                           {/* Increase By (%) Input */}
@@ -1264,36 +1278,38 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                         <strong> No. of Months</strong>
                       </td>
                       {/* {noOfMonths.map((v, i, arr) => ( */}
-                      {getFinancialYearHeaders(startYear, projectionYears).map((_, i, arr) => (
-                        <td
-                          key={i}
-                          style={{
-                            padding: 0,
-                            border: "1px solid #7e22ce",
-                            backgroundColor: "#f3e8ff",
-                            fontWeight: "600",
-                          }}
-                        >
-                          <strong>
-                            <input
-                              className="total-revenue-input"
-                              style={{
-                                width: "100%",
-                                border: "none",
-                                backgroundColor: "#f3e8ff",
-                                borderLeft: "1px solid #7e22ce",
-                                ...(i === arr.length - 1 && {
-                                  borderRight: "1px solid #7e22ce", // ✅ Only on the last one
-                                }),
-                              }}
-                              type="number"
-                              // value={v || 0}
-                              value={noOfMonths[i] || 0}
-                              onChange={(e) => changeMonth(i, e.target.value)}
-                            />
-                          </strong>
-                        </td>
-                      ))}
+                      {getFinancialYearHeaders(startYear, projectionYears).map(
+                        (_, i, arr) => (
+                          <td
+                            key={i}
+                            style={{
+                              padding: 0,
+                              border: "1px solid #7e22ce",
+                              backgroundColor: "#f3e8ff",
+                              fontWeight: "600",
+                            }}
+                          >
+                            <strong>
+                              <input
+                                className="total-revenue-input"
+                                style={{
+                                  width: "100%",
+                                  border: "none",
+                                  backgroundColor: "#f3e8ff",
+                                  borderLeft: "1px solid #7e22ce",
+                                  ...(i === arr.length - 1 && {
+                                    borderRight: "1px solid #7e22ce", // ✅ Only on the last one
+                                  }),
+                                }}
+                                type="number"
+                                // value={v || 0}
+                                value={noOfMonths[i] || 0}
+                                onChange={(e) => changeMonth(i, e.target.value)}
+                              />
+                            </strong>
+                          </td>
+                        )
+                      )}
                     </tr>
 
                     <tr>
@@ -1316,7 +1332,8 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
                       </td>
                       {/* {Array.from({ length: projectionYears }).map(
                         (_, i, arr) => { */}
-                        {getFinancialYearHeaders(startYear, projectionYears).map((_, i, arr) => {
+                      {getFinancialYearHeaders(startYear, projectionYears).map(
+                        (_, i, arr) => {
                           const total =
                             (parseFloat(totalMonthlyRevenue?.[i]) || 0) *
                             (parseFloat(noOfMonths?.[i]) || 0);
