@@ -365,109 +365,94 @@ const ProjectedRevenue = ({
                     ]}
                   >
                     {/* If heading and empty row, blank text */}
-                    {isHeading && isEmptyRow ? "" : formatNumber(yearValue)}
+                    {isEmptyRow ? "" : formatNumber(yearValue)}
+
                   </Text>
                 ))}
               </View>
             );
           })}
-        </View>
 
-        {/* ✅ Show No. of Months in each year column for Monthly form */}
-        {formType?.trim() === "Monthly" &&
-          Array.isArray(formData?.Revenue?.noOfMonths) && (
-            <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  { borderBottomWidth: "0px", borderLeftWidth: "1px" },
-                ]}
-              ></Text>
+          {/* ✅ Show No. of Months in each year column for Monthly form */}
+          {formType?.trim() === "Monthly" &&
+            Array.isArray(formData?.Revenue?.noOfMonths) && (
+              <View style={[stylesMOF.row, styleExpenses.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                  ]}
+                ></Text>
 
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  { paddingLeft: 10 },
-                ]}
-              >
-                Number of Months
-              </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    { paddingLeft: 10 },
+                  ]}
+                >
+                  Number of Months
+                </Text>
 
-              {formData.Revenue.noOfMonths
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
-                .map((monthValue, yearIndex) => (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      { textAlign: "center" },
-                    ]}
-                  >
-                    {monthValue}
-                  </Text>
-                ))}
-            </View>
-          )}
+                {formData.Revenue.noOfMonths
+                  .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
+                  .map((monthValue, yearIndex) => (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { textAlign: "center" , borderTopWidth:1 },
+                      ]}
+                    >
+                      {monthValue}
+                    </Text>
+                  ))}
+              </View>
+            )}
 
-        {/* ✅ Compute & Display Revenue Based on formType */}
-        <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              { borderBottomWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 },
-            ]}
-          >
-            {/* Keep it empty but apply same height and border */}
-          </Text>
-
-          {/* ✅ Conditional Label Based on formType */}
-          <Text
-           style={[
-            stylesCOP.detailsCellDetail,
-            styleExpenses.particularWidth,
-            styleExpenses.bordernone,
-            {
-              fontWeight: "bold",
-              paddingLeft: 10,
-              borderBottomWidth: 1,
-              borderRightWidth: 1,
-              borderLeftWidth: 0, // if needed
-            },
-          ]}
-          >
-            {formType?.trim() === "Monthly"
-              ? "Total Monthly Revenue"
-              : "Total Revenue From Operations"}
-          </Text>
-
-          {/* ✅ Display Correct Revenue Based on formType */}
-          {adjustedTotalRevenueReceipts.map((_, yearIndex) => (
+          {/* ✅ Compute & Display Revenue Based on formType */}
+          <View style={[stylesMOF.row, styleExpenses.totalRow]}>
             <Text
-              key={yearIndex}
               style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                {
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  borderBottomWidth: 1,
-                  borderRightWidth: 1,
-                  borderLeftWidth: yearIndex === 0 ? 1 : 0,
-                },
+                stylesCOP.serialNoCellDetail,
+              ]}
+            ></Text>
+
+            {/* ✅ Conditional Label Based on formType */}
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { fontWeight: "bold", paddingLeft: 10 },
               ]}
             >
-              {
-                formType?.trim() === "Monthly"
-                  ? formatNumber(adjustedTotalRevenueReceipts[yearIndex] || 0) // Monthly revenue
-                  : formatNumber(
-                      adjustedTotalRevenueForOthers?.[yearIndex] || 0
-                    ) // Others revenue
-              }
+              {formType?.trim() === "Monthly"
+                ? "Total Monthly Revenue"
+                : "Total Revenue From Operations"}
             </Text>
-          ))}
+
+            {/* ✅ Display Correct Revenue Based on formType */}
+            {adjustedTotalRevenueReceipts.map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  { textAlign: "center", fontWeight: "bold" },
+                ]}
+              >
+                {
+                  formType?.trim() === "Monthly"
+                    ? formatNumber(adjustedTotalRevenueReceipts[yearIndex] || 0) // Monthly revenue
+                    : formatNumber(
+                        adjustedTotalRevenueForOthers?.[yearIndex] || 0
+                      ) // Others revenue
+                }
+              </Text>
+            ))}
+          </View>
         </View>
       </View>
 
