@@ -34,7 +34,7 @@ const ProjectedBalanceSheet = ({
   closingCashBalanceArray = [],
   onTotalLiabilitiesSend = [],
   formatNumber,
-  orientation
+  orientation,
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -135,7 +135,10 @@ const ProjectedBalanceSheet = ({
 
       // ✅ Include Current Assets from `MoreDetails.currentAssets`, skipping 'Inventory'
       const currentYearAssets = formData?.MoreDetails?.currentAssets
-        ?.filter((assets) => assets.particular !== "Inventory") // Skip 'Inventory' row
+        ?.filter(
+          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS // ✅ skip ticked assets
+        )
+
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
@@ -909,8 +912,10 @@ const ProjectedBalanceSheet = ({
               ?.filter(
                 (assets) =>
                   assets.particular !== "Inventory" &&
-                  assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
+                  !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
+                  assets.years.some((value) => Number(value) !== 0)
               )
+
               .map((assets, index) => {
                 let cumulative = 0; // Initialize cumulative variable before rendering
 

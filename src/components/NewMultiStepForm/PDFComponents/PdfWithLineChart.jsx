@@ -12,30 +12,7 @@ const MyDocument = ({ chartBase64 }) => (
   </View>
 );
 
-// const styles = StyleSheet.create({
-//   centeredTextContainer: {
-//     width: '100%',
-//     alignItems: 'center',
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//     fontFamily: "roboto",
-//   },
-//   chart: {
-//     width: 400,
-//     height: 250,
-//     marginVertical: 10,
-//     alignSelf: 'center',
-//   },
-//   loading: {
-//     fontSize: 14,
-//     textAlign: 'center',
-//     color: '#999',
-//   },
-// });
+
 
 const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);

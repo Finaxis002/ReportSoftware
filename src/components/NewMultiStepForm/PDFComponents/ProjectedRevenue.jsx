@@ -247,7 +247,6 @@ const ProjectedRevenue = ({
                       stylesCOP.serialNoCellDetail,
                       isHeading && styleExpenses.headingText,
                       { borderBottomWidth: "0px" },
-                      
                     ]}
                   ></Text>
 
@@ -264,7 +263,11 @@ const ProjectedRevenue = ({
                         textDecoration: "underline",
                       },
                       isUnderline && { textDecoration: "underline" }, // only underline
-                      { borderBottomWidth: "0px" , paddingTop:6 , paddingBottom:6 },
+                      {
+                        borderBottomWidth: "0px",
+                        paddingTop: 6,
+                        paddingBottom: 6,
+                      },
                     ]}
                   ></Text>
 
@@ -334,7 +337,7 @@ const ProjectedRevenue = ({
                     },
                     isUnderline && { textDecoration: "underline" }, // only underline
                     { borderBottomWidth: "0px" },
-                    isTotalFormat && {fontWeight:"bold"}
+                    isTotalFormat && { fontWeight: "bold" },
                   ]}
                 >
                   {item.particular}
@@ -414,18 +417,26 @@ const ProjectedRevenue = ({
           <Text
             style={[
               stylesCOP.serialNoCellDetail,
-              { borderBottomWidth: "0px", borderLeftWidth: "1px" },
+              { borderBottomWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 },
             ]}
-          ></Text>
+          >
+            {/* Keep it empty but apply same height and border */}
+          </Text>
 
           {/* ✅ Conditional Label Based on formType */}
           <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "bold", paddingLeft: 10 },
-            ]}
+           style={[
+            stylesCOP.detailsCellDetail,
+            styleExpenses.particularWidth,
+            styleExpenses.bordernone,
+            {
+              fontWeight: "bold",
+              paddingLeft: 10,
+              borderBottomWidth: 1,
+              borderRightWidth: 1,
+              borderLeftWidth: 0, // if needed
+            },
+          ]}
           >
             {formType?.trim() === "Monthly"
               ? "Total Monthly Revenue"
@@ -439,7 +450,13 @@ const ProjectedRevenue = ({
               style={[
                 stylesCOP.particularsCellsDetail,
                 styleExpenses.fontSmall,
-                { textAlign: "center" , fontWeight:"bold"},
+                {
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  borderBottomWidth: 1,
+                  borderRightWidth: 1,
+                  borderLeftWidth: yearIndex === 0 ? 1 : 0,
+                },
               ]}
             >
               {

@@ -20,33 +20,7 @@ const MyDocument = ({ chartBase64 }) => (
   </Document>
 );
 
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 20,
-//     flexDirection: 'column',
-//     backgroundColor: '#fff',
-//   },
-//   centeredTextContainer: {
-//     width: '100%',
-//     alignItems: 'center',   // ✅ Center children horizontally
-//   },
-//   title: {
-//     fontSize: 18,
-//     marginBottom: 10,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//   },
-//   chart: {
-//     width: 400,
-//     height: 250,
-//     marginVertical: 20,
-//   },
-//   loading: {
-//     fontSize: 14,
-//     textAlign: 'center',
-//     color: '#999',
-//   },
-// });
+
 
 const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRatioReady}) => {
   const [chartBase64, setChartBase64] = useState(null);

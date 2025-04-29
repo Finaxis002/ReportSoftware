@@ -273,7 +273,10 @@ const ProjectedCashflow = ({
   
       // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
       const currentAssetsTotal = formData?.MoreDetails?.currentAssets
-        ?.filter((asset) => asset.particular !== 'Inventory') // Skip 'Inventory' row
+      ?.filter(
+        (assets) =>
+          assets.particular !== "Inventory" && !assets.dontSendToBS // ✅ skip ticked assets
+      )
         .reduce(
           (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
           0
@@ -305,18 +308,6 @@ const ProjectedCashflow = ({
         sanitize(incomeTaxValue) +
         sanitize(currentAssetsTotal) +
         sanitize(inventoryValue); // Add the Inventory for the current year (index)
-  
-      // ✅ Logging values for each year index
-      // console.log(`Year ${index + 1}:`);
-      // console.log("Fixed Assets:", fixedAssets);
-      // console.log("Repayment of Term Loan:", repaymentOfTermLoan);
-      // console.log("Interest on Term Loan:", interestOnTermLoan);
-      // console.log("Interest on Working Capital:", interestOnWorkingCapitalValue);
-      // console.log("Withdrawals:", withdrawals);
-      // console.log("Income Tax Value:", incomeTaxValue);
-      // console.log("Current Assets Total (excluding Inventory):", currentAssetsTotal);
-      // console.log("Inventory (ClosingStock - OpeningStock):", inventoryValue);
-      // console.log("Total Uses for Year", index + 1, ":", totalUses);
   
       return totalUses;
     }
@@ -363,15 +354,7 @@ const ProjectedCashflow = ({
     }
   );
 
-  // ✅ Compute Closing Cash Balance for Each Year
-  const closingCashBalanceArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const openingBalance = cashBalances[index]?.opening || 0;
-      const surplusDuringYear = surplusDuringYearArray[index] || 0;
 
-      return openingBalance + surplusDuringYear; // ✅ Correct Calculation
-    }
-  );
 
   useEffect(() => {
     // ✅ Extract closing cash balance values directly from cashBalances
@@ -1155,8 +1138,10 @@ const ProjectedCashflow = ({
               ?.filter(
                 (assets) =>
                   assets.particular !== "Inventory" &&
-                  assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
+                  !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
+                  assets.years.some((value) => Number(value) !== 0)
               )
+              
               .map((assets, index) => (
                 <View style={styles.tableRow} key={index}>
                   {/* ✅ Adjust Serial Number after filtering */}
