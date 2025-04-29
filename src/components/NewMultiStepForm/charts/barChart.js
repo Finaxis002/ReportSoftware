@@ -250,8 +250,10 @@ export const generateBarChart = async ({
 
     Chart.defaults.font.family = "Times New Roman";
     const colors = JSON.parse(localStorage.getItem("barChartColors")) || {
-      revenue: "rgba(75, 192, 192, 0.8)",
-      expenses: "rgba(255, 159, 64, 0.8)",
+      // revenue: "rgba(75, 192, 192, 0.8)",
+      // expenses: "rgba(255, 159, 64, 0.8)",
+      revenue: "rgb(54, 116, 181)",
+      expenses: "rgb(124, 185, 226)",
     };
 
     new Chart(ctx, {
