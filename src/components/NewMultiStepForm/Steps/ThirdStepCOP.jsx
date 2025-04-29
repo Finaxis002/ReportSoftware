@@ -255,10 +255,10 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                   type="number"
                 />
               </div>
-              <div className="w-1/6">
+              <div className="">
                 <div className="flex flex-col items-center justify-center">
                   {index === 0 && (
-                    <label className="form-label">Add to Assets</label>
+                   <label className="form-label">Add to Assets</label>
                   )}
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
