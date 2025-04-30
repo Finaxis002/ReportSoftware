@@ -170,6 +170,17 @@ const ProjectedCashflow = ({
     };
   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
 
+  const isWorkingCapitalInterestZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestOnWorkingCapital[yearIndex] || 0,
+      yearIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
+
   // Compute Net Profit Before Interest & Taxes for Each Year
   const netProfitBeforeInterestAndTaxes = Array.from({
     length: projectionYears,
@@ -413,6 +424,9 @@ const ProjectedCashflow = ({
       (liability) => !liability.years.every((value) => Number(value) === 0)
     )?.length || 0;
   const preliminarySerialNo = 6 + visibleLiabilitiesCount;
+
+  const isInventoryZero = inventory.every((value) => value === 0);
+
 
   return (
     <Page
@@ -673,7 +687,7 @@ const ProjectedCashflow = ({
             </View>
 
             {/* Working Capital Loan */}
-            <View style={styles.tableRow}>
+            {!isWorkingCapitalInterestZero && (<View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 4
               </Text>
@@ -701,12 +715,12 @@ const ProjectedCashflow = ({
                   )}
                 </Text>
               ))}
-            </View>
+            </View>)}
 
             {/* Depreciation */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                5
+              {isWorkingCapitalInterestZero ? 4 : 5}
               </Text>
               <Text
                 style={[
@@ -738,13 +752,16 @@ const ProjectedCashflow = ({
                   ? false
                   : true
               )
-              .map((liabilities, idx) => (
+              .map((liabilities, idx) => {
+                const serialNumber = isWorkingCapitalInterestZero ? idx + 5 : idx + 6;
+              
+                return(
                 <View style={styles.tableRow} key={idx}>
                   {/* ✅ Adjust Serial Number after filtering */}
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {idx + 6}
+                    {serialNumber}
                   </Text>
 
                   {/* ✅ Liabilities Name */}
@@ -772,8 +789,8 @@ const ProjectedCashflow = ({
                       </Text>
                     )
                   )}
-                </View>
-              ))}
+                </View>)
+})}
 
             {/* ✅ Render Preliminary Row */}
             {!isPreliminaryWriteOffAllZero && (
@@ -1003,7 +1020,7 @@ const ProjectedCashflow = ({
             </View>
 
             {/* Interest On Working Capital */}
-            <View style={[styles.tableRow, styles.totalRow]}>
+            {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
                 style={[
@@ -1046,7 +1063,7 @@ const ProjectedCashflow = ({
                   </Text>
                 );
               })}
-            </View>
+            </View>)}
 
             {/* Withdrawals */}
             {Array.from({ length: projectionYears }).every(
@@ -1060,7 +1077,7 @@ const ProjectedCashflow = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  5
+                  {isWorkingCapitalInterestZero ? 4 : 5}
                 </Text>
                 <Text
                   style={[
@@ -1096,7 +1113,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                6
+                 {isWorkingCapitalInterestZero ? 5 : 6}
               </Text>
               <Text
                 style={[
@@ -1136,7 +1153,7 @@ const ProjectedCashflow = ({
             </View>
 
             {/* inventory  */}
-            <View style={[styles.tableRow]}>
+            {!isInventoryZero && (<View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -1144,7 +1161,7 @@ const ProjectedCashflow = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                7
+                 {isWorkingCapitalInterestZero ? 6 : 7}
               </Text>
               <Text
                 style={[
@@ -1174,7 +1191,7 @@ const ProjectedCashflow = ({
                   </Text>
                 );
               })}
-            </View>
+            </View>)}
 
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
@@ -1185,13 +1202,16 @@ const ProjectedCashflow = ({
                   assets.years.some((value) => Number(value) !== 0)
               )
 
-              .map((assets, index) => (
+              .map((assets, index) => {
+                const serialNumber = isWorkingCapitalInterestZero ? index + 6 : index + 7;
+                return(
+
                 <View style={styles.tableRow} key={index}>
                   {/* ✅ Adjust Serial Number after filtering */}
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {index + 8}
+                    {serialNumber}
                   </Text>
 
                   {/* ✅ Particular Name */}
@@ -1220,8 +1240,8 @@ const ProjectedCashflow = ({
                       </Text>
                     )
                   )}
-                </View>
-              ))}
+                </View>);
+})}
 
             {/* Total Uses Calculation */}
             <View

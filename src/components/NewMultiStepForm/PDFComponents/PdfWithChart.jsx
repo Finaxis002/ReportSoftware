@@ -5,37 +5,7 @@ import { generateBarChart } from "../charts/barChart";
 
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
-// const styles = StyleSheet.create({
-//   // chartContainer: {
-//   //   display: 'flex',
-//   //   justifyContent: 'center',
-//   //   alignItems: 'center',
-//   //   marginVertical: 20,
-//   // },
-//   page: {
-//     padding: 20,
-//     flexDirection: "column",
-//     backgroundColor: "#fff",
-//   },
-//   chartContainer: {
-//     marginBottom: 20,
-//     alignItems: "center",
-//   },
-//   title: { fontSize: 18, marginBottom: 10, textAlign: "center" },
-//   pieChart: {
-//     width: 300,
-//     height: 300,
-//     marginVertical: 20,
-//     borderRadius: 8,
-//     textAlign: "center",
-//   },
-//   barChart: {
-//     width: 400,
-//     height: 300,
-//     borderColor: "#ccc",
-//     backgroundColor: "#ffffff",
-//   },
-// });
+
 
 const PdfWithChart = ({
   formData,
@@ -97,6 +67,19 @@ const PdfWithChart = ({
 
     generateCharts();
   }, [formData, totalExpenses]);
+
+  //new useeffect for full chart generation
+  useEffect(() => {
+    if (pieBase64 && barBase64) {
+      if (typeof pieBase64 === 'string' && pieBase64.startsWith('data:image') && onPieChartReady) {
+        onPieChartReady(pieBase64);
+      }
+      if (typeof barBase64 === 'string' && barBase64.startsWith('data:image') && onBarChartReady) {
+        onBarChartReady(barBase64);
+      }
+    }
+  }, [pieBase64, barBase64, onPieChartReady, onBarChartReady]);
+  
 
   if (!pieBase64 || !barBase64) {
     return <Text>Loading charts...</Text>;

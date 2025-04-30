@@ -133,6 +133,17 @@ const DebtServiceCoverageRatio = ({
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
   
+  const isWorkingCapitalInterestZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestOnWorkingCapital[yearIndex] || 0,
+      yearIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
+
   
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
@@ -468,7 +479,7 @@ const DebtServiceCoverageRatio = ({
           </View>
 
           {/* Interest On Working Capital */}
-          <View style={[styles.tableRow, styles.totalRow]}>
+          {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
             {/* Serial Number */}
             <Text
               style={[
@@ -513,7 +524,7 @@ const DebtServiceCoverageRatio = ({
                 </Text>
               );
             })}
-          </View>
+          </View>)}
 
           {/* ✅ Total Row for Variable Expense */}
           <View
@@ -608,7 +619,7 @@ const DebtServiceCoverageRatio = ({
           </View>
 
           {/* Interest On Working Capital */}
-          <View style={[styles.tableRow, styles.totalRow]}>
+          {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
             {/* Serial Number */}
             <Text
               style={[
@@ -652,7 +663,7 @@ const DebtServiceCoverageRatio = ({
                 </Text>
               );
             })}
-          </View>
+          </View>)}
 
           {/* ✅ Repayment of Term Loan */}
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -663,7 +674,7 @@ const DebtServiceCoverageRatio = ({
                 styleExpenses.bordernone,
               ]}
             >
-              3
+              {isWorkingCapitalInterestZero ? 2 : 3}
             </Text>
 
             <Text

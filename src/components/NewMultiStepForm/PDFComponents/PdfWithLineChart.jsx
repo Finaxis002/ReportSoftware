@@ -25,6 +25,13 @@ const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
     }
   }, [labels, dscr]);
 
+  // ✅ Second useEffect to call onDscrReady AFTER chartBase64 is available
+  useEffect(() => {
+    if (chartBase64 && typeof chartBase64 === 'string' && chartBase64.startsWith('data:image')) {
+      if (onDscrReady) onDscrReady(chartBase64);
+    }
+  }, [chartBase64, onDscrReady]);
+
   return (
     <>
       {/* ✅ Render chart generation component */}
