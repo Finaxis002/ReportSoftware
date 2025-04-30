@@ -965,8 +965,8 @@ const ProjectedBalanceSheet = ({
                       </Text>
                     )
                   )}
-                </View>
-              ))}
+                </View>)
+})}
 
             {/* Total assets Calculation */}
             <View

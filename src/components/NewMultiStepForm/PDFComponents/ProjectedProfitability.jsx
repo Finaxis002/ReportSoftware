@@ -129,23 +129,53 @@ const ProjectedProfitability = ({
   };
   const monthsPerYear = calculateMonthsPerYear();
 
-  const calculateInterestOnWorkingCapital = useMemo(() => {
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
+  
+  //     if (monthsInYear === 0) {
+  //       return 0; // Entire year under moratorium
+  //     }
+  
+  //     // ✅ Determine first visible repayment year index
+  //     const isProRataYear =
+  //       (!hideFirstYear && yearIndex === 0) ||
+  //       (hideFirstYear && yearIndex === 1);
+  
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, yearIndex)
+  //       .filter((months, idx) => months > 0).length;
+  
+  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
+  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+  //       const monthsEffective = monthsInYear;
+  //       return (interestAmount * monthsEffective) / 12;
+  //     } else if (repaymentYear >= 1) {
+  //       return interestAmount; // Full interest from second visible repayment year onward
+  //     } else {
+  //       return 0; // No interest during moratorium
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
+
+const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex];
-  
+
       if (monthsInYear === 0) {
         return 0; // Entire year under moratorium
       }
-  
+
       // ✅ Determine first visible repayment year index
       const isProRataYear =
         (!hideFirstYear && yearIndex === 0) ||
         (hideFirstYear && yearIndex === 1);
-  
+
       const repaymentYear = monthsPerYear
         .slice(0, yearIndex)
         .filter((months, idx) => months > 0).length;
-  
+
       if (isProRataYear && moratoriumPeriodMonths > 0) {
         // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
         const monthsEffective = monthsInYear;
@@ -157,6 +187,7 @@ const ProjectedProfitability = ({
       }
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
 
   const isWorkingCapitalInterestZero = Array.from({
     length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -232,34 +263,34 @@ const ProjectedProfitability = ({
     return incrementedExpense;
   };
   // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
-    return (interestAmount, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
 
-      if (monthsInYear === 0) {
-        return 0; // Entire year under moratorium
-      }
+  //     if (monthsInYear === 0) {
+  //       return 0; // Entire year under moratorium
+  //     }
 
-      // ✅ Determine first visible repayment year index
-      const isProRataYear =
-        (!hideFirstYear && yearIndex === 0) ||
-        (hideFirstYear && yearIndex === 1);
+  //     // ✅ Determine first visible repayment year index
+  //     const isProRataYear =
+  //       (!hideFirstYear && yearIndex === 0) ||
+  //       (hideFirstYear && yearIndex === 1);
 
-      const repaymentYear = monthsPerYear
-        .slice(0, yearIndex)
-        .filter((months, idx) => months > 0).length;
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, yearIndex)
+  //       .filter((months, idx) => months > 0).length;
 
-      if (isProRataYear && moratoriumPeriodMonths > 0) {
-        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
-      } else if (repaymentYear >= 1) {
-        return interestAmount; // Full interest from second visible repayment year onward
-      } else {
-        return 0; // No interest during moratorium
-      }
-    };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
+  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+  //       const monthsEffective = monthsInYear;
+  //       return (interestAmount * monthsEffective) / 12;
+  //     } else if (repaymentYear >= 1) {
+  //       return interestAmount; // Full interest from second visible repayment year onward
+  //     } else {
+  //       return 0; // No interest during moratorium
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -1405,12 +1436,18 @@ const ProjectedProfitability = ({
 
               .map((expense, index) => {
                 const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
-
+                const isRawMaterial =
+                        expense.name.trim() ===
+                        "Raw Material Expenses / Purchases";
+                const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
                 return (
                   <View key={index} style={[styles.tableRow, styles.totalRow]}>
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {index + 4}
                     </Text>
+
                     <Text
                       style={[
                         stylesCOP.detailsCellDetail,

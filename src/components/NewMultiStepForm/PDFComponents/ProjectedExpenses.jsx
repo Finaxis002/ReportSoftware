@@ -154,7 +154,18 @@ const ProjectedExpenses = ({
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
 
-
+  const isWorkingCapitalInterestZero = Array.from({
+    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestAmount,
+      adjustedIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
   
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
@@ -882,7 +893,12 @@ const ProjectedExpenses = ({
             })
             .map((expense, index) => {
               const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
-            
+              const isRawMaterial =
+              expense.name.trim() ===
+              "Raw Material Expenses / Purchases";
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
                   <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
