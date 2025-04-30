@@ -122,6 +122,8 @@ const ProjectedExpenses = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
+  
+
   // Function to calculate interest on working capital considering moratorium period
   const calculateInterestOnWorkingCapital = useMemo(() => {
     return (interestAmount, yearIndex) => {
@@ -152,25 +154,39 @@ const ProjectedExpenses = ({
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
 
+  const isWorkingCapitalInterestZero = Array.from({
+    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestAmount,
+      adjustedIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
+  
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
     const isProRataYear =
-      (!hideFirstYear && yearIndex === 0) || (hideFirstYear && yearIndex === 1);
-
+      (!hideFirstYear && yearIndex === 0) ||
+      (hideFirstYear && yearIndex === 1);
+  
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
       .filter((months) => months > 0).length;
-
+  
     // console.log(`\n📅 Final Adjustment - Year ${yearIndex + 1}`);
     // console.log(`- Base Interest: ₹${interestAmount.toFixed(2)}`);
     // console.log(`- Months In Year: ${monthsInYear}`);
     // console.log(`- Is Pro-Rata Year: ${isProRataYear}`);
     // console.log(`- Repayment Year Index: ${repaymentYear}`);
-
+  
     if (isProRataYear && moratoriumPeriodMonths > 0) {
       const monthsEffective = monthsInYear;
       const final = (interestAmount * monthsEffective) / 12;
-
+  
       // console.log(`✅ Adjusted Pro-Rata Interest: ₹${final.toFixed(2)} for ${monthsEffective} months`);
     } else if (repaymentYear >= 1) {
       // console.log(`✅ Full Interest Applicable: ₹${interestAmount.toFixed(2)}`);
@@ -178,6 +194,8 @@ const ProjectedExpenses = ({
       // console.log(`❌ No Interest: Under Moratorium`);
     }
   });
+  
+
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -781,6 +799,7 @@ const ProjectedExpenses = ({
           </View>
 
           {/* Interest on Working Capital */}
+          {!isWorkingCapitalInterestZero && (
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text style={stylesCOP.serialNoCellDetail}>2</Text>
 
@@ -819,10 +838,13 @@ const ProjectedExpenses = ({
               );
             })}
           </View>
+          )}
 
           {/* ✅ Render Depreciation Row */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+            <Text style={stylesCOP.serialNoCellDetail}>
+            {isWorkingCapitalInterestZero ? 2 : 3}
+            </Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -870,11 +892,16 @@ const ProjectedExpenses = ({
               return expense.type === "indirect" && !isAllYearsZero;
             })
             .map((expense, index) => {
-              const displayName = expense.name;
-
+              const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
+              const isRawMaterial =
+              expense.name.trim() ===
+              "Raw Material Expenses / Purchases";
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
