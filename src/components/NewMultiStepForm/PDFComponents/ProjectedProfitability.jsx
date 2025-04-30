@@ -1442,10 +1442,11 @@ const calculateInterestOnWorkingCapital = useMemo(() => {
                 const displayName = isRawMaterial
                 ? "Purchases / RM Expenses"
                 : expense.name;
+                const serialNumber = isWorkingCapitalInterestZero ? index + 3 : index + 4
                 return (
                   <View key={index} style={[styles.tableRow, styles.totalRow]}>
                     <Text style={stylesCOP.serialNoCellDetail}>
-                      {index + 4}
+                      {serialNumber}
                     </Text>
 
                     <Text
