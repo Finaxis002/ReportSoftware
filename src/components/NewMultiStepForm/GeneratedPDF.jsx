@@ -713,6 +713,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           pageNumber={pageNumber}
           orientation={orientation}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
         <ProjectedBalanceSheet
           formData={formData}
@@ -737,6 +738,7 @@ const GeneratedPDF = ({}) => {
           pdfType={pdfType}
           pageNumber={pageNumber}
           orientation={orientation}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
         />
         <CurrentRatio
           formData={formData}

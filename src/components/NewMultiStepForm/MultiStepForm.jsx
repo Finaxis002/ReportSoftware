@@ -169,16 +169,16 @@ const MultiStepForm = ({ userRole, userName }) => {
   const handleSaveData = async () => {
     try {
       let requestData = new FormData();
-
+  
       requestData.append("step", steps[currentStep - 1]);
-
-      // ✅ Include userRole explicitly in formData
+  
+      // Include userRole explicitly in formData
       const currentUser =
         localStorage.getItem("adminName") ||
         localStorage.getItem("employeeName") ||
         "Unknown";
       const currentUserRole = localStorage.getItem("userRole") || "unknown";
-
+  
       // Overwrite values in AccountInformation
       let formDataWithoutFile = {
         ...formData,
@@ -188,14 +188,19 @@ const MultiStepForm = ({ userRole, userName }) => {
           createdBy: currentUser,
         },
       };
-
-   
+  
+      // Ensure preliminaryExpenses is included inside CostOfProject
+      formDataWithoutFile.CostOfProject = {
+        ...formDataWithoutFile.CostOfProject,
+        preliminaryExpenses: formData.preliminaryExpenses, // Add preliminaryExpenses
+      };
+  
       console.log("📦 Final Payload to Backend:", formDataWithoutFile.AccountInformation);
-
+  
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
-
+  
       let apiUrl = "https://backend-three-pink.vercel.app/save-step";
-
+  
       if (!sessionId || isCreateReportWithExistingClicked) {
         apiUrl =
           "https://backend-three-pink.vercel.app/create-new-from-existing";
@@ -204,30 +209,30 @@ const MultiStepForm = ({ userRole, userName }) => {
       } else {
         requestData.append("sessionId", sessionId);
       }
-
+  
       if (formDataWithoutFile.AccountInformation) {
         delete formDataWithoutFile.AccountInformation.logoOfBusiness;
       }
-
+  
       requestData.append("data", JSON.stringify(formDataWithoutFile));
-
+  
       if (formData.AccountInformation?.logoOfBusiness instanceof File) {
         requestData.append("file", formData.AccountInformation.logoOfBusiness);
       }
-
+  
       console.log(`🚀 Sending Request to API: ${apiUrl}`);
-
+  
       const response = await axios.post(apiUrl, requestData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       console.log("✅ Response from API:", response.data);
-
+  
       if (!sessionId || isCreateReportWithExistingClicked) {
         setSessionId(response.data.sessionId);
         localStorage.setItem("activeSessionId", response.data.sessionId);
       }
-
+  
       alert("Data saved successfully!");
     } catch (error) {
       console.error("🔥 Error saving data:", error);
@@ -236,6 +241,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       );
     }
   };
+  
 
   const handleCreateNewFromExisting = async () => {
     try {

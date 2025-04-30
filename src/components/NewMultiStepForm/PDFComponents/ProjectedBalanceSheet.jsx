@@ -35,6 +35,7 @@ const ProjectedBalanceSheet = ({
   onTotalLiabilitiesSend = [],
   formatNumber,
   orientation,
+  receivedtotalRevenueReceipts,
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -133,50 +134,75 @@ const ProjectedBalanceSheet = ({
     return finalStock;
   });
 
+ 
+
+  const preliminaryExpensesTotal = Number(
+    formData?.CostOfProject?.preliminaryExpensesTotal || 0
+  );
+
+  const preliminaryWriteOffYears = Number(
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+  );
+
+  // Calculate yearly write-off value
+  const yearlyWriteOffAmount =
+    preliminaryWriteOffYears > 0
+      ? preliminaryExpensesTotal / preliminaryWriteOffYears
+      : 0;
+
+  // const writeOffStartIndex = skipfirstyear ? 1 : 0;
+  const writeOffStartIndex = 0;
+  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
+
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, index) => {
+    const relativeYear = index - writeOffStartIndex;
+
+    if (
+      index >= writeOffStartIndex &&
+      relativeYear < preliminaryWriteOffSteps
+    ) {
+      // Calculate decreasing value
+      return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
+    }
+
+    return 0;
+  });
+
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const netFixedAssetValue = computedNetFixedAssets[index] || 0; // Use computed values directly
-      const cashEquivalent = closingCashBalanceArray[index] || 0; // Use closing cash balance
-
-      // ✅ Include Current Assets from `MoreDetails.currentAssets`, skipping 'Inventory'
+      const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+      const cashEquivalent = closingCashBalanceArray[index] || 0;
+  
       const currentYearAssets = formData?.MoreDetails?.currentAssets
         ?.filter(
-          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS // ✅ skip ticked assets
+          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
         )
-
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-      cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
-
-      // ✅ Compute the Inventory (ClosingStock - OpeningStock)
+  
+      cumulativeCurrentAssets += currentYearAssets;
+  
       const inventory = Array.from({
         length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
-        const ClosingStock =
-          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-        const finalStock = ClosingStock;
-
-        return finalStock;
+        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        return ClosingStock;
       });
-
-      // ✅ Add the Inventory for the current year (index)
+  
+      const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
+  
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
         cumulativeCurrentAssets +
-        (inventory[index] || 0);
-
-      // ✅ Logging the values year by year
-      // console.log(`Year ${index + 1}:`);
-      // console.log("Net Fixed Assets:", netFixedAssetValue);
-      // console.log("Cash & Cash Equivalents:", cashEquivalent);
-      // console.log("Inventory (ClosingStock - OpeningStock):", inventory[index]);
-      // console.log("Other Liabilities (Current Assets Cumulative):", cumulativeCurrentAssets);
-      // console.log("Total Assets:", totalAssets);
-
-      return totalAssets; // Return the total assets value for this year
+        (inventory[index] || 0) +
+        preliminaryAsset; // ✅ INCLUDED
+  
+      return totalAssets;
     }
   );
+  
   //  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
@@ -295,8 +321,23 @@ const ProjectedBalanceSheet = ({
   ]);
 
 
+  const isPreliminaryWriteOffAllZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedYearIndex = yearIndex; // ✅ Fix index offset
+    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
+  });
+
+  const visibleLiabilitiesCount =
+    formData?.MoreDetails?.currentAssets?.filter(
+      (liability) => !liability.years.every((value) => Number(value) === 0)
+    )?.length || 0;
+  const preliminarySerialNo = 6 + visibleLiabilitiesCount;
+
+
+
   const isInventoryZero = inventory.every((value) => value === 0);
-  
+
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
@@ -967,6 +1008,39 @@ const ProjectedBalanceSheet = ({
                   )}
                 </View>)
 })}
+
+            {/* ✅ Render Preliminary Row */}
+            {!isPreliminaryWriteOffAllZero && (
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>
+                  {preliminarySerialNo}
+                </Text>
+
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  <Text>
+                    Preliminary Expenses <br /> Yet to Be Written Off
+                  </Text>
+                </Text>
+
+                {preliminaryWriteOffPerYear.map((value, yearIndex) => (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value)}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/* Total assets Calculation */}
             <View

@@ -4,6 +4,8 @@ import checkImg from "../check.png";
 
 const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   const prevDataRef = useRef(null);
+  const prevPrelimDataRef = useRef(null);
+  const prevWriteOffRef = useRef(null);
 
   const defaultData = {
     Land: {
@@ -80,26 +82,18 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     difference: 0,
   });
   const [infoMessage, setInfoMessage] = useState("");
-  const [preliminaryWriteOffYears, setPreliminaryWriteOffYears] = useState(5);
-  const [preliminaryExpenses, setPreliminaryExpenses] = useState([
-    { name: "", amount: 0 },
-  ]);
+  const [preliminaryWriteOffYears, setPreliminaryWriteOffYears] = useState(
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+  );
 
-  // Format number with commas (Indian format)
   const formatNumberWithCommas = (num) => {
     if (num === null || num === undefined || num === "") return "";
-
     const str = num.toString().replace(/,/g, "");
-
-    // Don't format while user is typing incomplete decimals (e.g., ends with "." or ".0")
     if (str.endsWith(".") || str.match(/\.\d{0,1}$/)) {
       return str;
     }
-
     const numericValue = Number(str);
     if (isNaN(numericValue)) return num;
-
-    // Format with or without decimals depending on whether there are decimal digits
     return str.includes(".")
       ? numericValue.toLocaleString("en-IN", {
           minimumFractionDigits: 0,
@@ -108,10 +102,17 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
       : numericValue.toLocaleString("en-IN");
   };
 
-  // Remove commas for raw value
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
 
-  // ✅ Populate `localData` from `formData.CostOfProject` on mount
+  
+  // Calculate preliminary expenses total (add this helper function)
+const calculatePreliminaryTotal = (data) => {
+  return Object.values(data)
+    .filter(item => item?.isPreliminary)
+    .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+};
+
+
   useEffect(() => {
     if (formData?.CostOfProject) {
       const newData = {
@@ -119,37 +120,60 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
         ...formData.CostOfProject,
       };
 
-      // Prevent unnecessary updates
+      // Ensure all preliminary expenses have isPreliminary flag
+      Object.keys(newData).forEach((key) => {
+        if (newData[key].isPreliminary) {
+          newData[key] = {
+            ...newData[key],
+            isPreliminary: true,
+            isCustom: true,
+          };
+        }
+      });
+
+      if (formData.CostOfProject.preliminaryWriteOffYears) {
+        setPreliminaryWriteOffYears(
+          formData.CostOfProject.preliminaryWriteOffYears
+        );
+      }
+      
+    // Calculate or use existing preliminary expenses total
+    newData.preliminaryExpensesTotal = 
+      typeof newData.preliminaryExpensesTotal === 'number'
+        ? newData.preliminaryExpensesTotal
+        : calculatePreliminaryTotal(newData);
+
+
       if (
         !prevDataRef.current ||
         JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)
       ) {
-        // console.log("Populating CostOfProject data:", newData);
         setLocalData(newData);
         prevDataRef.current = newData;
       }
     }
   }, [formData?.CostOfProject]);
 
-  // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
+
+
   useEffect(() => {
-    if (JSON.stringify(localData) !== JSON.stringify(prevDataRef.current)) {
-      onFormDataChange({ CostOfProject: localData });
-      prevDataRef.current = localData;
+
+    const prelimsTotal = calculatePreliminaryTotal(localData);
+
+    const combinedData = {
+      ...localData,
+      preliminaryWriteOffYears: preliminaryWriteOffYears,
+      preliminaryExpensesTotal: prelimsTotal,
+    };
+
+    if (JSON.stringify(prevDataRef.current) !== JSON.stringify(combinedData)) {
+      onFormDataChange({
+        CostOfProject: combinedData,
+      });
+      prevDataRef.current = combinedData;
     }
-  }, [localData, onFormDataChange]);
+  }, [localData, preliminaryWriteOffYears, onFormDataChange]);
 
-  useEffect(() => {
-    onFormDataChange((prev) => ({
-      ...prev,
-      PreliminaryExpenses: {
-        writeOffYears: preliminaryWriteOffYears,
-        expenses: preliminaryExpenses,
-      },
-    }));
-  }, [preliminaryWriteOffYears, preliminaryExpenses]);
-
-  // ✅ Handle input changes
   const handleChange = (event, key, field) => {
     const { value } = event.target;
     let newValue = value;
@@ -157,9 +181,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     if (field === "amount") {
       const raw = removeCommas(value);
       if (raw === "" || /^\d*\.?\d*$/.test(raw)) {
-        newValue = raw; // Keep it as string to preserve trailing '.' or '.0'
+        newValue = raw;
       } else {
-        return; // Block invalid input
+        return;
       }
     } else if (field === "rate") {
       newValue = value.trim() === "" ? 0 : parseFloat(value) || 0;
@@ -185,13 +209,11 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     const totalLoan = parseFloat(
       removeCommas(formData?.MeansOfFinance?.total || 0)
     );
-
-    // ✅ Fix: handle floating point precision by using Math.abs
     const difference = totalLoan - meansOfFinanceTotal;
     const isMatch = Math.abs(difference) < 0.01;
 
     if (isMatch) {
-      setError(""); // ✅ Very important: exact empty string
+      setError("");
     } else {
       setError(
         "Total Amount should be equal to the Total Amount of the Means of Finance."
@@ -210,12 +232,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
       calculatedTotal,
       difference: isMatch ? 0 : difference,
     });
-  }, [
-    calculatedTotal,
-    formData?.MeansOfFinance?.total,
-    formData?.ProjectReportSetting?.calculatedTotal,
-    setError,
-  ]);
+  }, [calculatedTotal, formData?.MeansOfFinance?.total, setError]);
 
   const handleChangeCheckbox = (key, checked) => {
     setLocalData((prevData) => ({
@@ -227,103 +244,133 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
     }));
   };
 
-  const handlePrelimChange = (index, field, value) => {
-    setPreliminaryExpenses((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
+  const handlePrelimChange = (id, field, value) => {
+    setLocalData((prevData) => ({
+      ...prevData,
+      [id]: {
+        ...prevData[id],
         [field]: field === "amount" ? Number(value) : value,
-      };
+      },
+    }));
+  };
+
+  const removePrelimRow = (id) => {
+    setLocalData((prevData) => {
+      const updated = { ...prevData };
+      delete updated[id];
       return updated;
     });
   };
 
-  const addPrelimRow = () => {
-    setPreliminaryExpenses((prev) => [...prev, { name: "", amount: 0 }]);
+  const getSeparatedData = () => {
+    const assets = {};
+    const prelims = {};
+
+    Object.entries(localData).forEach(([key, field]) => {
+      if (field.isPreliminary) {
+        prelims[key] = field;
+      } else {
+        assets[key] = field;
+      }
+    });
+
+    return { assets, prelims };
   };
 
-  const removePrelimRow = (index) => {
-    setPreliminaryExpenses((prev) => prev.filter((_, i) => i !== index));
+  const addPreliminaryExpense = () => {
+    const newId = `PreliminaryExpense_${Date.now()}`;
+    setLocalData((prevData) => ({
+      ...prevData,
+      [newId]: {
+        name: "",
+        id: newId,
+        amount: 0,
+        isPreliminary: true,
+        isCustom: true,
+      },
+    }));
   };
 
   return (
     <div className="form-scroll">
       <form onSubmit={(e) => e.preventDefault()}>
-        {Object.entries(localData).map(([key, field], index) => (
-          <div key={key}>
-            <div className="d-flex gap-2 my-4 justify-content-around">
-              <div className="w-100">
-                {index === 0 && <label className="form-label">Name</label>}
-                <input
-                  name="name"
-                  placeholder={field.name}
-                  onChange={(e) => handleChange(e, key, "name")}
-                  value={field.name}
-                  className="form-control"
-                  type="text"
-                  disabled={!field.isCustom}
-                />
-              </div>
-              <div>
-                {index === 0 && <label className="form-label">Amount</label>}
-                <input
-                  name="amount"
-                  placeholder="0"
-                  onChange={(e) => handleChange(e, key, "amount")}
-                  value={formatNumberWithCommas(field.amount || "")}
-                  className="form-control no-spinner"
-                  type="text"
-                />
-              </div>
-              <div>
-                {index === 0 && (
-                  <label className="form-label">Depreciation(%)</label>
-                )}
-                <input
-                  name="rate"
-                  placeholder={field.rate}
-                  onChange={(e) => handleChange(e, key, "rate")}
-                  value={field.rate}
-                  className="form-control"
-                  type="number"
-                />
-              </div>
-              <div className="">
-                <div className="flex flex-col items-center justify-center">
-                  {index === 0 && (
-                    <label className="form-label">Add to More Details</label>
-                  )}
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={field.isSelected || false}
-                      onChange={(e) =>
-                        handleChangeCheckbox(key, e.target.checked)
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
-                  </label>
+        {Object.entries(getSeparatedData().assets).map(
+          ([key, field], index) => (
+            <div key={key}>
+              <div className="d-flex gap-2 my-4 justify-content-around">
+                <div className="w-100">
+                  {index === 0 && <label className="form-label">Name</label>}
+                  <input
+                    name="name"
+                    placeholder={field.name}
+                    onChange={(e) => handleChange(e, key, "name")}
+                    value={field.name}
+                    className="form-control"
+                    type="text"
+                    disabled={!field.isCustom}
+                  />
                 </div>
-              </div>
+                <div>
+                  {index === 0 && <label className="form-label">Amount</label>}
+                  <input
+                    name="amount"
+                    placeholder="0"
+                    onChange={(e) => handleChange(e, key, "amount")}
+                    value={formatNumberWithCommas(field.amount || "")}
+                    className="form-control no-spinner"
+                    type="text"
+                  />
+                </div>
+                <div>
+                  {index === 0 && (
+                    <label className="form-label">Depreciation(%)</label>
+                  )}
+                  <input
+                    name="rate"
+                    placeholder={field.rate}
+                    onChange={(e) => handleChange(e, key, "rate")}
+                    value={field.rate}
+                    className="form-control"
+                    type="number"
+                  />
+                </div>
+                <div className="">
+                  <div className="flex flex-col items-center justify-center">
+                    {index === 0 && (
+                      <label className="form-label">Add to Assets</label>
+                    )}
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={field.isSelected || false}
+                        onChange={(e) =>
+                          handleChangeCheckbox(key, e.target.checked)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                    </label>
+                  </div>
+                </div>
 
-              <button
-                className="btn h-100 mt-auto"
-                style={{ width: "50px", padding: "0", border: "none" }}
-                onClick={() =>
-                  setLocalData((prevData) => {
-                    const updatedData = { ...prevData };
-                    delete updatedData[key];
-                    return updatedData;
-                  })
-                }
-              >
-                <img src={deleteImg} alt="Remove" className="w-100" />
-              </button>
+                <button
+                  className="btn h-100 mt-auto"
+                  style={{ width: "50px", padding: "0", border: "none" }}
+                  onClick={() =>
+                    setLocalData((prevData) => {
+                      const updatedData = { ...prevData };
+                      delete updatedData[key];
+                      return updatedData;
+                    })
+                  }
+                >
+                  <img src={deleteImg} alt="Remove" className="w-100" />
+                </button>
+              </div>
+              <hr />
             </div>
-            <hr />
-          </div>
-        ))}
+          )
+        )}
 
         {/* Working Capital Input */}
         <div className="d-flex gap-2 my-4 justify-content-end">
@@ -340,11 +387,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
                 formData.MeansOfFinance?.totalWorkingCapital || ""
               )}
               onChange={(e) => {
-                const rawValue = e.target.value.replace(/,/g, ""); // Remove commas to get raw number
+                const rawValue = e.target.value.replace(/,/g, "");
                 const numericValue =
-                  rawValue === "" ? 0 : parseFloat(rawValue) || 0; // Convert to numeric
-
-                // Update the state with the formatted value (allow large inputs)
+                  rawValue === "" ? 0 : parseFloat(rawValue) || 0;
                 onFormDataChange({
                   ...formData,
                   MeansOfFinance: {
@@ -384,7 +429,6 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
         <button
           className="btn btn-secondary px-4"
           onClick={() => {
-            // Check if the number of fields is less than 5
             if (Object.keys(localData).length < 12) {
               setLocalData((prevData) => ({
                 ...prevData,
@@ -404,80 +448,99 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
           + Add More
         </button>
       </form>
-      <hr className="my-4" />
+      <div>
+        <hr className="my-4" />
 
-      {/* Heading with editable years */}
-      <div className="d-flex align-items-center gap-3 mb-3">
-        <h5 className="text-primary m-0">
-          Preliminary Expenses Written Off in
-        </h5>
-        <input
-          type="number"
-          min="1"
-          className="form-control text-center border border-gray-300 rounded shadow-sm"
-          style={{ width: "80px", height: "38px" }}
-          value={preliminaryWriteOffYears}
-          onChange={(e) => {
-            const val = parseInt(e.target.value);
-            if (!isNaN(val) && val > 0) {
-              setPreliminaryWriteOffYears(val);
-            }
-          }}
-        />
-        <span className="text-primary fw-semibold">Years</span>
-      </div>
-
-      {/* Expense rows */}
-      {preliminaryExpenses.map((item, index) => (
-        <div key={index}>
-          <div className="d-flex gap-2 my-3 justify-content-around">
-            <div className="w-100">
-              {index === 0 && (
-                <label className="form-label">Particular Name</label>
-              )}
-              <input
-                type="text"
-                placeholder="Expense Name"
-                value={item.name}
-                onChange={(e) =>
-                  handlePrelimChange(index, "name", e.target.value)
-                }
-                className="form-control"
-              />
-            </div>
-            <div>
-              {index === 0 && <label className="form-label">Amount</label>}
-              <input
-                type="number"
-                placeholder="0"
-                value={item.amount}
-                onChange={(e) =>
-                  handlePrelimChange(index, "amount", e.target.value)
-                }
-                className="form-control no-spinner"
-              />
-            </div>
-            <button
-              className="btn h-100 mt-auto"
-              style={{ width: "40px", padding: "0", border: "none" }}
-              onClick={() => removePrelimRow(index)}
-            >
-              <img src={deleteImg} alt="Remove" className="w-100" />
-            </button>
-          </div>
-          <hr />
+        {/* Heading with editable years */}
+        <div className="d-flex align-items-center gap-3 mb-3">
+          <h5 className="text-primary m-0">
+            Preliminary Expenses Written Off in
+          </h5>
+          <input
+            type="number"
+            min="1"
+            className="form-control text-center border border-gray-300 rounded shadow-sm"
+            style={{ width: "80px", height: "38px" }}
+            value={preliminaryWriteOffYears}
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              if (!isNaN(val) && val > 0) {
+                setPreliminaryWriteOffYears(val);
+              }
+            }}
+          />
+          <span className="text-primary fw-semibold">Years</span>
         </div>
-      ))}
 
-      {/* Add More Button */}
-      <div className="d-flex justify-content-end mt-3 mb-2">
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-success"
-          onClick={addPrelimRow}
-        >
-          + Add Preliminary Expense
-        </button>
+        {/* Header Labels */}
+        <div className="d-flex gap-2 my-2 justify-content-around fw-bold text-secondary">
+          <div className="w-100">Particular Name</div>
+          <div style={{ width: "250px" }}>Amount</div>
+          <div style={{ width: "40px" }}></div>
+        </div>
+
+        {/* Expense rows */}
+        {Object.entries(getSeparatedData().prelims).map(([id, item]) => (
+          <div key={id}>
+            <div className="d-flex gap-2 my-3 justify-content-around">
+              <div className="w-100">
+                <input
+                  type="text"
+                  value={item.name}
+                  onChange={(e) =>
+                    handlePrelimChange(id, "name", e.target.value)
+                  }
+                  className="form-control"
+                />
+              </div>
+              <div style={{ width: "250px" }}>
+                <input
+                  type="number"
+                  value={item.amount}
+                  onChange={(e) =>
+                    handlePrelimChange(id, "amount", e.target.value)
+                  }
+                  className="form-control no-spinner"
+                />
+              </div>
+              <button
+                className="btn h-100"
+                style={{ width: "40px", padding: "0", border: "none" }}
+                onClick={() => removePrelimRow(id)}
+              >
+                <img src={deleteImg} alt="Remove" className="w-100" />
+              </button>
+            </div>
+            <hr />
+          </div>
+        ))}
+
+        {/* Total Row */}
+        <div className="d-flex gap-2 my-3 justify-content-around">
+          <div className="w-100 fw-bold text-end pe-3">Total:</div>
+          <div style={{ width: "250px" }}>
+            <input
+              type="number"
+              value={Object.values(getSeparatedData().prelims).reduce(
+                (sum, item) => sum + (Number(item.amount) || 0),
+                0
+              )}
+              className="form-control no-spinner fw-bold"
+              disabled
+            />
+          </div>
+          <div style={{ width: "40px" }}></div>
+        </div>
+
+        {/* Add New Preliminary Expense Button */}
+        <div className="d-flex justify-start mt-3 mb-2">
+          <button
+            className="btn btn-secondary px-4"
+            onClick={addPreliminaryExpense}
+          >
+            + Add Preliminary Expense
+          </button>
+        </div>
       </div>
     </div>
   );
