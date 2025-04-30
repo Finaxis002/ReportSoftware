@@ -457,18 +457,19 @@ const calculatePreliminaryTotal = (data) => {
             Preliminary Expenses Written Off in
           </h5>
           <input
-            type="number"
-            min="1"
-            className="form-control text-center border border-gray-300 rounded shadow-sm"
-            style={{ width: "80px", height: "38px" }}
-            value={preliminaryWriteOffYears}
-            onChange={(e) => {
-              const val = parseInt(e.target.value);
-              if (!isNaN(val) && val > 0) {
-                setPreliminaryWriteOffYears(val);
-              }
-            }}
-          />
+  type="number"
+  min="1"
+  className="form-control text-center border border-gray-300 rounded shadow-sm"
+  style={{ width: "80px", height: "38px" }}
+  value={preliminaryWriteOffYears || 5}  // Default value is 5
+  onChange={(e) => {
+    const val = parseInt(e.target.value);
+    if (!isNaN(val) && val > 0) {
+      setPreliminaryWriteOffYears(val);
+    }
+  }}
+/>
+
           <span className="text-primary fw-semibold">Years</span>
         </div>
 
