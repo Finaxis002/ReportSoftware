@@ -84,6 +84,11 @@ const ProjectedBalanceSheet = ({
     []
   );
 
+  // Calculate if all values for the working capital loan are zero
+  const isWorkingCapitalLoanZero = cumulativeLoanForPreviousYears.every(
+    (loan) => loan === 0
+  );
+
   // ✅ Compute Corrected Total Liabilities for Each Year
   let cumulativeAdditionalLiabilities = 0; // ✅ Initialize cumulative liabilities
 
@@ -284,6 +289,9 @@ const ProjectedBalanceSheet = ({
     JSON.stringify(repaymentValueswithin12months),
   ]);
 
+
+  const isInventoryZero = inventory.every((value) => value === 0);
+  
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
@@ -575,7 +583,7 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Bank Loan - Working Capital Loan */}
-            <View style={styles.tableRow}>
+            {!isWorkingCapitalLoanZero && (<View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 5
               </Text>
@@ -600,7 +608,7 @@ const ProjectedBalanceSheet = ({
                   {formatNumber(loan)}
                 </Text>
               ))}
-            </View>
+            </View>)}
 
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
             {formData?.MoreDetails?.currentLiabilities
@@ -610,13 +618,17 @@ const ProjectedBalanceSheet = ({
               .map((liabilities, idx) => {
                 let cumulative = 0; // ⬅️ initialize cumulative tracker
 
+                 // Calculate the correct serial number
+    const serialNumber = isWorkingCapitalLoanZero ? idx + 5 : idx + 6;
+
+
                 return (
                   <View style={styles.tableRow} key={idx}>
                     {/* Serial Number */}
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                      {idx + 6}
+                      {serialNumber}
                     </Text>
 
                     {/* Particular Name */}
@@ -862,7 +874,7 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* inventory  */}
-            <View style={[styles.tableRow]}>
+            {!isInventoryZero && (<View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -900,7 +912,7 @@ const ProjectedBalanceSheet = ({
                   </Text>
                 );
               })}
-            </View>
+            </View>)}
 
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
@@ -909,13 +921,15 @@ const ProjectedBalanceSheet = ({
                   assets.particular !== "Inventory" &&
                   assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
               )
-              .map((assets, index) => (
+              .map((assets, index) => {
+                const serialNumber = isInventoryZero ? index + 5 : index + 6;
+                return(
                 <View style={styles.tableRow} key={index}>
                   {/* ✅ Adjust Serial Number after filtering */}
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {index + 6}
+                    {serialNumber}
                   </Text>
 
                   {/* ✅ Particular Name */}
@@ -945,7 +959,8 @@ const ProjectedBalanceSheet = ({
                     )
                   )}
                 </View>
-              ))}
+                );
+})}
 
             {/* Total assets Calculation */}
             <View

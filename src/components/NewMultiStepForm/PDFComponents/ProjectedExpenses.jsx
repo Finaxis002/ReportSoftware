@@ -200,9 +200,6 @@ const ProjectedExpenses = ({
     return incrementedExpense;
   };
   
-  
-  
-
    // ✅ Calculate Interest on Working Capital for each projection year
    const interestOnWorkingCapital = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -216,40 +213,7 @@ const ProjectedExpenses = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
-  
-
-  // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
-    return (interestAmount, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
-  
-      if (monthsInYear === 0) {
-        return 0; // Entire year under moratorium
-      }
-  
-      // ✅ Determine first visible repayment year index
-      const isProRataYear =
-        (!hideFirstYear && yearIndex === 0) ||
-        (hideFirstYear && yearIndex === 1);
-  
-      const repaymentYear = monthsPerYear
-        .slice(0, yearIndex)
-        .filter((months, idx) => months > 0).length;
-  
-      if (isProRataYear && moratoriumPeriodMonths > 0) {
-        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
-      } else if (repaymentYear >= 1) {
-        return interestAmount; // Full interest from second visible repayment year onward
-      } else {
-        return 0; // No interest during moratorium
-      }
-    };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
-
-
-  
+ 
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
     const isProRataYear =
@@ -277,6 +241,51 @@ const ProjectedExpenses = ({
       // console.log(`❌ No Interest: Under Moratorium`);
     }
   });
+  
+   // Function to calculate interest on working capital considering moratorium period
+   const calculateInterestOnWorkingCapital = useMemo(() => {
+    return (interestAmount, yearIndex) => {
+      const monthsInYear = monthsPerYear[yearIndex];
+  
+      if (monthsInYear === 0) {
+        return 0; // Entire year under moratorium
+      }
+  
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+  
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+  
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
+      } else {
+        return 0; // No interest during moratorium
+      }
+    };
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  
+  const isWorkingCapitalInterestZero = Array.from({
+    length: hideFirstYear
+      ? projectionYears - 1
+      : projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestOnWorkingCapital[adjustedIndex] || 0,
+      adjustedIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
+
   
 
 
@@ -812,6 +821,7 @@ const ProjectedExpenses = ({
           </View>
 
           {/* Interest on Working Capital */}
+          {!isWorkingCapitalInterestZero && (
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text style={stylesCOP.serialNoCellDetail}>2</Text>
 
@@ -850,10 +860,13 @@ const ProjectedExpenses = ({
               );
             })}
           </View>
+          )}
 
           {/* ✅ Render Depreciation Row */}
           <View style={[styles.tableRow, styles.totalRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+            <Text style={stylesCOP.serialNoCellDetail}>
+            {isWorkingCapitalInterestZero ? 2 : 3}
+            </Text>
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
@@ -902,10 +915,12 @@ const ProjectedExpenses = ({
             })
             .map((expense, index) => {
               const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
-            
+              const serialNumber = isWorkingCapitalInterestZero ? index + 3 : index + 4
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {serialNumber}
+                    </Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,

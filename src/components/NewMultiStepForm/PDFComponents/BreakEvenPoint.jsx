@@ -162,7 +162,16 @@ const BreakEvenPoint = ({
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
   
-
+  const isWorkingCapitalInterestZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestOnWorkingCapital[yearIndex] || 0,
+      yearIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
   const adjustedRevenueValues = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
@@ -701,7 +710,7 @@ const BreakEvenPoint = ({
                 return (
                   <View key={index} style={[styles.tableRow, styles.totalRow]}>
                     <Text style={stylesCOP.serialNoCellDetail}>
-                      {index + 2}
+                      {index + 1}
                     </Text>
                     <Text
                       style={[
@@ -989,7 +998,7 @@ const BreakEvenPoint = ({
             </View>
 
             {/* Interest On Working Capital */}
-            <View style={[styles.tableRow, styles.totalRow]}>
+            {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
                 style={[
@@ -1033,7 +1042,7 @@ const BreakEvenPoint = ({
                   </Text>
                 );
               })}
-            </View>
+            </View>)}
 
             {/* ✅ Render Depreciation Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -1044,7 +1053,7 @@ const BreakEvenPoint = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                4
+                {isWorkingCapitalInterestZero ? 3 : 4}
               </Text>
               <Text
                 style={[
