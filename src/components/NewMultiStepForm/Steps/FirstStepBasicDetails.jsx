@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+
+import React, { useState, useEffect, useCallback ,useRef } from "react";
+
 import deleteImg from "../delete.png";
 import axios from "axios";
 import {
@@ -81,27 +83,37 @@ const FirstStepBasicDetails = ({
     });
   }, [localData, onFormDataChange]);
 
-  useEffect(() => {
-    if (formData?.AccountInformation) {
-      setLocalData((prevData) => {
-        // ✅ Prevent unnecessary state updates to avoid infinite loops
-        if (
-          JSON.stringify(prevData) !==
-          JSON.stringify(formData.AccountInformation)
-        ) {
-          return {
-            ...prevData,
-            ...formData.AccountInformation,
-            allPartners: Array.isArray(formData.AccountInformation.allPartners)
-              ? formData.AccountInformation.allPartners
-              : [], // ✅ Ensures allPartners is always an array
-          };
-        }
-        return prevData; // ✅ Return existing state if no changes
-      });
-    }
-  }, [formData?.AccountInformation]); // ✅ Runs only when `formData.AccountInformation` changes
 
+
+  
+
+  const firstLoad = useRef(true);
+
+  useEffect(() => {
+    const accountInfo = formData?.AccountInformation;
+  
+    // Only proceed if we have data from backend
+    const hasData =
+      accountInfo &&
+      Object.keys(accountInfo).length > 0 &&
+      accountInfo.clientName; // or any key you expect from backend
+  
+    if (firstLoad.current && hasData) {
+      setLocalData({
+        ...accountInfo,
+        allPartners: Array.isArray(accountInfo.allPartners)
+          ? accountInfo.allPartners
+          : [],
+      });
+      firstLoad.current = false;
+    }
+  }, [formData?.AccountInformation]);
+  
+  useEffect(() => {
+    firstLoad.current = true;
+  }, [sessionId]);
+  
+  
   useEffect(() => {
     setFieldErrors(requiredFieldErrors || {});
   }, [requiredFieldErrors]);
@@ -862,8 +874,12 @@ const FirstStepBasicDetails = ({
                 </div>
               ))}
               <button
+                type="button"
                 className="btn btn-sm btn-primary mt-3"
-                onClick={addPartner}
+                onClick={(e) => {
+                  e.preventDefault(); // ✅ Important: Stop default form behavior
+                  addPartner(); // ✅ Call your function
+                }}
               >
                 {localData.registrationType === "Partnership" ||
                 localData.registrationType === "LLP"

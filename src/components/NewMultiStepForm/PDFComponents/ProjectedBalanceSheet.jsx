@@ -34,6 +34,7 @@ const ProjectedBalanceSheet = ({
   closingCashBalanceArray = [],
   onTotalLiabilitiesSend = [],
   formatNumber,
+  orientation,
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -127,7 +128,7 @@ const ProjectedBalanceSheet = ({
     length: formData.MoreDetails.OpeningStock.length,
   }).map((_, yearIndex) => {
     const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const finalStock = ClosingStock ;
+    const finalStock = ClosingStock;
 
     return finalStock;
   });
@@ -136,31 +137,35 @@ const ProjectedBalanceSheet = ({
     (_, index) => {
       const netFixedAssetValue = computedNetFixedAssets[index] || 0; // Use computed values directly
       const cashEquivalent = closingCashBalanceArray[index] || 0; // Use closing cash balance
-  
+
       // ✅ Include Current Assets from `MoreDetails.currentAssets`, skipping 'Inventory'
       const currentYearAssets = formData?.MoreDetails?.currentAssets
-        ?.filter((assets) => assets.particular !== "Inventory") // Skip 'Inventory' row
+        ?.filter(
+          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS // ✅ skip ticked assets
+        )
+
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-  
+
       cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
-  
+
       // ✅ Compute the Inventory (ClosingStock - OpeningStock)
       const inventory = Array.from({
         length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
-        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
         const finalStock = ClosingStock;
-  
+
         return finalStock;
       });
-  
+
       // ✅ Add the Inventory for the current year (index)
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
         cumulativeCurrentAssets +
         (inventory[index] || 0);
-  
+
       // ✅ Logging the values year by year
       // console.log(`Year ${index + 1}:`);
       // console.log("Net Fixed Assets:", netFixedAssetValue);
@@ -168,7 +173,7 @@ const ProjectedBalanceSheet = ({
       // console.log("Inventory (ClosingStock - OpeningStock):", inventory[index]);
       // console.log("Other Liabilities (Current Assets Cumulative):", cumulativeCurrentAssets);
       // console.log("Total Assets:", totalAssets);
-  
+
       return totalAssets; // Return the total assets value for this year
     }
   );
@@ -295,7 +300,7 @@ const ProjectedBalanceSheet = ({
   return (
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
-      orientation={projectionYears > 5 ? "landscape" : "portrait"}
+      orientation={orientation}
       wrap={false}
       break
       style={[{ padding: "20px" }]}
@@ -919,10 +924,12 @@ const ProjectedBalanceSheet = ({
               ?.filter(
                 (assets) =>
                   assets.particular !== "Inventory" &&
-                  assets.years.some((value) => Number(value) !== 0) // Skip rows where all year values are 0
+                  !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
+                  assets.years.some((value) => Number(value) !== 0)
               )
               .map((assets, index) => {
                 const serialNumber = isInventoryZero ? index + 5 : index + 6;
+                let cumulative = 0; 
                 return(
                 <View style={styles.tableRow} key={index}>
                   {/* ✅ Adjust Serial Number after filtering */}
@@ -932,16 +939,16 @@ const ProjectedBalanceSheet = ({
                     {serialNumber}
                   </Text>
 
-                  {/* ✅ Particular Name */}
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {assets.particular}
-                  </Text>
+                    {/* ✅ Particular Name */}
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {assets.particular}
+                    </Text>
 
                   {/* ✅ Ensure Projection Years Match */}
                   {Array.from({ length: projectionYears }).map(
@@ -959,8 +966,7 @@ const ProjectedBalanceSheet = ({
                     )
                   )}
                 </View>
-                );
-})}
+              ))}
 
             {/* Total assets Calculation */}
             <View

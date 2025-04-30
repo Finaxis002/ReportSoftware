@@ -10,6 +10,7 @@ const ProjectedRevenue = ({
   financialYearLabels,
   formatNumber,
   pdfType,
+  orientation,
 }) => {
   // console.log("revenue", formData.Revenue);
   // ✅ Extract projection years and formType safely
@@ -63,18 +64,15 @@ const ProjectedRevenue = ({
     ? totalRevenueReceipts.slice(1)
     : totalRevenueReceipts;
 
-    const orientation =
-    hideFirstYear
-      ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-      : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
-  
+  // const orientation =
+  // hideFirstYear
+  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
+  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
 
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-      orientation={
-       orientation
-      }
+      orientation={orientation}
       wrap={false}
       break
       style={[{ padding: "20px" }]}
@@ -206,11 +204,17 @@ const ProjectedRevenue = ({
               updatedYears.shift();
             }
 
+            // Set all row type flags
+            const isNormal = item.rowType === "0";
             const isHeading = item.rowType === "1";
             const isBold = item.rowType === "2";
+            const isBoldUnderline = item.rowType === "3";
+            const isUnderline = item.rowType === "4";
+            const isTotalFormat = item.rowType === "5";
+            const isShow = item.rowType === "6";
+
             const serialNumber =
               formData?.Revenue?.formFields?.[index]?.serialNumber;
-
             const finalSerialNumber =
               formType === "Others" &&
               serialNumber !== undefined &&
@@ -224,10 +228,79 @@ const ProjectedRevenue = ({
               (year) => year === 0 || year === ""
             );
 
-            if (isEmptyRow && !isHeading) {
-              return null;
+            // 🛑 Important: If Show Row → render blank View and return immediately
+            if (isShow) {
+              return (
+                <View
+                  key={index}
+                  style={[
+                    stylesMOF.row,
+                    styleExpenses.tableRow,
+                    isHeading && styleExpenses.headingRow,
+                    isBold && { fontWeight: "bold" }, // for full row bold
+                    { borderBottomWidth: "0px" },
+                  ]}
+                >
+                  {/* Serial Number */}
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      isHeading && styleExpenses.headingText,
+                      { borderBottomWidth: "0px" },
+                    ]}
+                  ></Text>
+
+                  {/* Particular Column */}
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      isHeading && styleExpenses.headingText,
+                      isBold && { fontWeight: "bold" },
+                      isBoldUnderline && {
+                        fontWeight: "bold",
+                        textDecoration: "underline",
+                      },
+                      isUnderline && { textDecoration: "underline" }, // only underline
+                      {
+                        borderBottomWidth: "0px",
+                        paddingTop: 6,
+                        paddingBottom: 6,
+                      },
+                    ]}
+                  ></Text>
+
+                  {/* Year Values */}
+                  {updatedYears.map((yearValue, yearIndex) => (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        isBold && { fontWeight: "bold" },
+                        isHeading && {
+                          color: "black",
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        },
+                        isTotalFormat && {
+                          fontWeight: "bold",
+                          textAlign: "center",
+                          borderTopWidth: 1,
+                          borderBottomWidth: 1,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                        },
+                        { borderBottomWidth: "0px" }, // default bottom (overridden if Total)
+                      ]}
+                    ></Text>
+                  ))}
+                </View>
+              );
             }
 
+            // 🛠️ Now Normal Rows Render
             return (
               <View
                 key={index}
@@ -235,10 +308,11 @@ const ProjectedRevenue = ({
                   stylesMOF.row,
                   styleExpenses.tableRow,
                   isHeading && styleExpenses.headingRow,
-                  isBold && {  fontWeight: "bold" },
+                  isBold && { fontWeight: "bold" }, // for full row bold
                   { borderBottomWidth: "0px" },
                 ]}
               >
+                {/* Serial Number */}
                 <Text
                   style={[
                     stylesCOP.serialNoCellDetail,
@@ -249,124 +323,136 @@ const ProjectedRevenue = ({
                   {finalSerialNumber}
                 </Text>
 
+                {/* Particular Column */}
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
                     styleExpenses.particularWidth,
                     styleExpenses.bordernone,
                     isHeading && styleExpenses.headingText,
+                    isBold && { fontWeight: "bold" },
+                    isBoldUnderline && {
+                      fontWeight: "bold",
+                      textDecoration: "underline",
+                    },
+                    isUnderline && { textDecoration: "underline" }, // only underline
                     { borderBottomWidth: "0px" },
+                    isTotalFormat && { fontWeight: "bold" },
                   ]}
                 >
                   {item.particular}
                 </Text>
 
-                {/* ✅ Render years dynamically, skipping first year if necessary */}
+                {/* Year Values */}
                 {updatedYears.map((yearValue, yearIndex) => (
                   <Text
                     key={yearIndex}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      isBold && {  fontWeight: "bold" },
+                      isBold && { fontWeight: "bold" },
                       isHeading && {
-                        
                         color: "black",
                         fontWeight: "bold",
                         textAlign: "center",
                       },
-                      { borderBottomWidth: "0px" },
+                      isTotalFormat && {
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        borderTopWidth: 1,
+                        borderBottomWidth: 1,
+                      },
                     ]}
                   >
-                    {isHeading && isEmptyRow ? "" : formatNumber(yearValue)}{" "}
+                    {/* If heading and empty row, blank text */}
+                    {isEmptyRow ? "" : formatNumber(yearValue)}
+
                   </Text>
                 ))}
               </View>
             );
           })}
-        </View>
 
-        {/* ✅ Show No. of Months in each year column for Monthly form */}
-        {formType?.trim() === "Monthly" &&
-          Array.isArray(formData?.Revenue?.noOfMonths) && (
-            <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  { borderBottomWidth: "0px", borderLeftWidth: "1px" },
-                ]}
-              ></Text>
+          {/* ✅ Show No. of Months in each year column for Monthly form */}
+          {formType?.trim() === "Monthly" &&
+            Array.isArray(formData?.Revenue?.noOfMonths) && (
+              <View style={[stylesMOF.row, styleExpenses.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                  ]}
+                ></Text>
 
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  {  paddingLeft: 10 },
-                ]}
-              >
-                Number of Months
-              </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    { paddingLeft: 10 },
+                  ]}
+                >
+                  Number of Months
+                </Text>
 
-              {formData.Revenue.noOfMonths
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
-                .map((monthValue, yearIndex) => (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      { textAlign: "center" },
-                    ]}
-                  >
-                    {monthValue}
-                  </Text>
-                ))}
-            </View>
-          )}
+                {formData.Revenue.noOfMonths
+                  .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
+                  .map((monthValue, yearIndex) => (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { textAlign: "center" , borderTopWidth:1 },
+                      ]}
+                    >
+                      {monthValue}
+                    </Text>
+                  ))}
+              </View>
+            )}
 
-        {/* ✅ Compute & Display Revenue Based on formType */}
-        <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-          <Text
-            style={[
-              stylesCOP.serialNoCellDetail,
-              { borderBottomWidth: "0px", borderLeftWidth: "1px" },
-            ]}
-          ></Text>
-
-          {/* ✅ Conditional Label Based on formType */}
-          <Text
-            style={[
-              stylesCOP.detailsCellDetail,
-              styleExpenses.particularWidth,
-              styleExpenses.bordernone,
-              { fontWeight: "bold", paddingLeft: 10 },
-            ]}
-          >
-            {formType?.trim() === "Monthly"
-              ? "Total Monthly Revenue"
-              : "Total Revenue for Others"}
-          </Text>
-
-          {/* ✅ Display Correct Revenue Based on formType */}
-          {adjustedTotalRevenueReceipts.map((_, yearIndex) => (
+          {/* ✅ Compute & Display Revenue Based on formType */}
+          <View style={[stylesMOF.row, styleExpenses.totalRow]}>
             <Text
-              key={yearIndex}
               style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                { textAlign: "center" },
+                stylesCOP.serialNoCellDetail,
+              ]}
+            ></Text>
+
+            {/* ✅ Conditional Label Based on formType */}
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                { fontWeight: "bold", paddingLeft: 10 },
               ]}
             >
-              {
-                formType?.trim() === "Monthly"
-                  ? formatNumber(adjustedTotalRevenueReceipts[yearIndex] || 0) // Monthly revenue
-                  : formatNumber(
-                      adjustedTotalRevenueForOthers?.[yearIndex] || 0
-                    ) // Others revenue
-              }
+              {formType?.trim() === "Monthly"
+                ? "Total Monthly Revenue"
+                : "Total Revenue From Operations"}
             </Text>
-          ))}
+
+            {/* ✅ Display Correct Revenue Based on formType */}
+            {adjustedTotalRevenueReceipts.map((_, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  { textAlign: "center", fontWeight: "bold" },
+                ]}
+              >
+                {
+                  formType?.trim() === "Monthly"
+                    ? formatNumber(adjustedTotalRevenueReceipts[yearIndex] || 0) // Monthly revenue
+                    : formatNumber(
+                        adjustedTotalRevenueForOthers?.[yearIndex] || 0
+                      ) // Others revenue
+                }
+              </Text>
+            ))}
+          </View>
         </View>
       </View>
 

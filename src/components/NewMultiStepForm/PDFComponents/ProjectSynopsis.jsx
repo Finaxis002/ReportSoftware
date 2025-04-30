@@ -1336,7 +1336,7 @@ const ProjectSynopsis = React.memo(
                       { padding: 8, paddingLeft: 20, width: "55%" },
                     ]}
                   >
-                    {subsidyName}
+                    {subsidyName} - {formData?.ProjectReportSetting?.subsidyPercentage}%
                   </Text>
                 </View>
               )}

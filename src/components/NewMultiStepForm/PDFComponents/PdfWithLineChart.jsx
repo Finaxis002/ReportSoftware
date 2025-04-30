@@ -13,6 +13,7 @@ const MyDocument = ({ chartBase64 }) => (
 );
 
 
+
 const PdfWithLineChart = ({ labels = [], dscr = [], onDscrReady }) => {
   const [chartBase64, setChartBase64] = useState(null);
 
