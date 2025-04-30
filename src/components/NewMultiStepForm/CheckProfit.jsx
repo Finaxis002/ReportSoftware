@@ -307,27 +307,26 @@ const CheckProfit = () => {
       const annualTotal = Number(expense.total) || 0; // ✅ Use annual total directly
       return sum + calculateIndirectExpense(annualTotal, yearIndex);
     }, 0);
-  
+
     const interestOnTermLoan =
       storedData?.yearlyInterestLiabilities[yearIndex] || 0;
-  
+
     const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
       interestOnWorkingCapital[yearIndex] || 0,
       yearIndex
     );
-  
+
     const depreciationExpense =
       storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0;
-  
+
     const total =
       totalIndirectExpenses +
       interestOnTermLoan +
       interestExpenseOnWorkingCapital +
       depreciationExpense;
-  
+
     return total;
   });
-  
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
   const netProfitBeforeTax = grossProfitValues.map((grossProfit, yearIndex) => {
@@ -494,21 +493,80 @@ const CheckProfit = () => {
   // ✅ Compute Corrected Total Assets for Each Year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
+  const inventory = Array.from({
+    length: formData.MoreDetails.OpeningStock.length,
+  }).map((_, yearIndex) => {
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+    const finalStock = ClosingStock;
+
+    return finalStock;
+  });
+
+  const preliminaryExpensesTotal = Number(
+    formData?.CostOfProject?.preliminaryExpensesTotal || 0
+  );
+
+  const preliminaryWriteOffYears = Number(
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+  );
+
+  // Calculate yearly write-off value
+  const yearlyWriteOffAmount =
+    preliminaryWriteOffYears > 0
+      ? preliminaryExpensesTotal / preliminaryWriteOffYears
+      : 0;
+
+  // const writeOffStartIndex = skipfirstyear ? 1 : 0;
+  const writeOffStartIndex = 0;
+  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
+
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, index) => {
+    const relativeYear = index - writeOffStartIndex;
+
+    if (
+      index >= writeOffStartIndex &&
+      relativeYear < preliminaryWriteOffSteps
+    ) {
+      // Calculate decreasing value
+      return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
+    }
+
+    return 0;
+  });
+
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const netFixedAssetValue = computedNetFixedAssets[index] || 0; // Use computed values directly
-      const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0; // Use closing cash balance
+      const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+      const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0;
 
-      // ✅ Include Current Assets from `MoreDetails.currentAssets` with cumulative rule
-      const currentYearAssets = formData?.MoreDetails?.currentAssets?.reduce(
-        (total, assets) => total + Number(assets.years[index] || 0),
-        0
-      );
+      // ✅ Filter out "Inventory" and dontSendToBS before summing
+      const currentYearAssets =
+        formData?.MoreDetails?.currentAssets
+          ?.filter(
+            (asset) =>
+              asset.particular !== "Inventory" &&
+              !asset.dontSendToBS &&
+              asset.years?.[index]
+          )
+          .reduce((sum, asset) => sum + Number(asset.years[index] || 0), 0) ||
+        0;
 
-      cumulativeCurrentAssets += currentYearAssets; // Apply cumulative rule
+      cumulativeCurrentAssets += currentYearAssets;
 
-      // ✅ Compute the Correct Total Assets
-      return netFixedAssetValue + cashEquivalent + cumulativeCurrentAssets; // Use cumulative total for assets
+      const inventoryValue = inventory[index] || 0; // ✅ Add inventory here
+
+      const preliminaryWriteOffcalculation = preliminaryWriteOffPerYear[index] || 0;
+
+      const totalAssets =
+        netFixedAssetValue +
+        cashEquivalent +
+        cumulativeCurrentAssets +
+        preliminaryWriteOffcalculation+
+        inventoryValue; // ✅ Added
+
+      return totalAssets;
     }
   );
 
@@ -570,21 +628,24 @@ const CheckProfit = () => {
         workingCapitalLoan +
         cumulativeAdditionalLiabilities;
 
-      // console.log(`Year ${index + 1}:`);
-      // console.log(`  - Capital: ${capital}`);
-      // console.log(`  - Reserves & Surplus: ${reservesAndSurplus}`);
-      // console.log(`  - Term Loan: ${termLoan}`);
-      // console.log(`  - Bank Loan Payable Next 12 Months: ${bankLoanPayableWithinNext12Months}`);
-      // console.log(`  - Working Capital Loan: ${workingCapitalLoan}`);
-      // console.log(`  - Current Year Liabilities: ${currentYearLiabilities}`);
-      // console.log(`  - Cumulative Liabilities: ${cumulativeAdditionalLiabilities}`);
-      // console.log(`  - Total Liabilities: ${totalForYear}`);
-
       return totalForYear;
     }
   );
 
   const hideFirstYear = storedData?.totalRevenueReceipts?.[0] === 0;
+
+  const isPreliminaryWriteOffAllZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedYearIndex = yearIndex; // ✅ Fix index offset
+    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
+  });
+
+  const visibleLiabilitiesCount =
+    formData?.MoreDetails?.currentAssets?.filter(
+      (liability) => !liability.years.every((value) => Number(value) === 0)
+    )?.length || 0;
+  const preliminarySerialNo = 6 + visibleLiabilitiesCount;
 
   return (
     <div className="p-2 w-full">
@@ -1736,49 +1797,101 @@ const CheckProfit = () => {
                 ))}
               </tr>
 
-              {/* ✅ Current Assets from More Details */}
-              {formData?.MoreDetails?.currentAssets?.map((assets, index) => {
-                let cumulativeSum = 0;
+              <tr className="font-normal text-[11px] border-0 mt-2">
+                {/* Serial Number */}
+                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                  5
+                </td>
 
-                // ✅ Step 1: Precompute cumulative values
-                const cumulativeValues = Array.from({
-                  length: projectionYears,
+                {/* Particular Name */}
+                <td className="border border-black px-1 py-2 text-left font-normal text-[11px] w-1/3">
+                  Inventory
+                </td>
+
+                {/* Inventory Values per Year */}
+                {Array.from({
+                  length: formData.ProjectReportSetting.ProjectionYears,
                 }).map((_, yearIndex) => {
-                  cumulativeSum += Number(assets.years[yearIndex]) || 0;
-                  return cumulativeSum;
-                });
+                  const inventorymap = inventory[yearIndex] || 0;
 
-                // ✅ Step 2: Check if all values are zero
-                const allValuesZero = cumulativeValues.every(
-                  (val) => val === 0
-                );
-
-                // ✅ Step 3: Skip rendering if all values are zero
-                if (allValuesZero) return null;
-
-                // ✅ Step 4: Render the row
-                return (
-                  <tr
-                    className="font-normal text-[11px] border-0 mt-2"
-                    key={`currentAssets-${index}`}
-                  >
-                    <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
-                      {index + 6}
+                  return (
+                    <td
+                      key={yearIndex}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(inventorymap)}
                     </td>
-                    <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
-                      {assets.particular}
-                    </td>
-                    {cumulativeValues.map((val, yearIndex) => (
-                      <td
-                        key={`currentAsset-${index}-${yearIndex}`}
-                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                      >
-                        {formatNumber(val)}
+                  );
+                })}
+              </tr>
+
+              {/* ✅ Current Assets from More Details */}
+              {formData?.MoreDetails?.currentAssets
+                ?.filter(
+                  (assets) =>
+                    assets.particular !== "Inventory" &&
+                    !assets.dontSendToBS && // ✅ Skip if checkbox was ticked
+                    assets.years.some((value) => Number(value) !== 0) // ✅ Skip all-zero rows
+                )
+                .map((assets, index) => {
+                  let cumulativeSum = 0;
+
+                  // ✅ Step 1: Precompute cumulative values
+                  const cumulativeValues = Array.from({
+                    length: projectionYears,
+                  }).map((_, yearIndex) => {
+                    cumulativeSum += Number(assets.years[yearIndex]) || 0;
+                    return cumulativeSum;
+                  });
+
+                  // ✅ Step 2: Render the row
+                  return (
+                    <tr
+                      className="font-normal text-[11px] border-0 mt-2"
+                      key={`currentAssets-${index}`}
+                    >
+                      <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                        {index + 6}
                       </td>
-                    ))}
-                  </tr>
-                );
-              })}
+                      <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                        {assets.particular}
+                      </td>
+                      {cumulativeValues.map((val, yearIndex) => (
+                        <td
+                          key={`currentAsset-${index}-${yearIndex}`}
+                          className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                        >
+                          {formatNumber(val)}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+
+              {/* ✅ Render Preliminary Row */}
+              {!isPreliminaryWriteOffAllZero && (
+                <tr className="font-normal text-[11px] border-0 mt-2">
+                  {/* Serial Number */}
+                  <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                    {preliminarySerialNo}
+                  </td>
+
+                  {/* Particular Name */}
+                  <td className="border border-black px-1 py-2 text-left font-normal text-[11px] w-1/3">
+                    Preliminary Expenses <br /> Yet to Be Written Off
+                  </td>
+
+                  {/* Render values for each projection year */}
+                  {preliminaryWriteOffPerYear.map((value, yearIndex) => (
+                    <td
+                      key={yearIndex}
+                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                    >
+                      {formatNumber(value)}
+                    </td>
+                  ))}
+                </tr>
+              )}
 
               {/* ✅ Total Assets Row */}
               <tr className="font-bold text-[11px] border-black border-2 mt-2">

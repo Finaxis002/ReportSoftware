@@ -35,7 +35,7 @@ const ProjectedProfitability = ({
   receivedtotalRevenueReceipts,
   onComputedDataToProfit,
   pdfType,
-  orientation
+  orientation,
 }) => {
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -281,25 +281,45 @@ const ProjectedProfitability = ({
     return yearTotal;
   });
 
+  const preliminaryExpensesTotal = Number(
+    formData?.CostOfProject?.preliminaryExpensesTotal || 0
+  );
+
+  const preliminaryWriteOffYears = Number(
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+  );
+
+  // Calculate yearly write-off value
+  const yearlyWriteOffAmount =
+    preliminaryWriteOffYears > 0
+      ? preliminaryExpensesTotal / preliminaryWriteOffYears
+      : 0;
+
+  // Generate the array for yearly values
+  const preliminaryWriteOffPerYear = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const startIndex = hideFirstYear ? 1 : 0;
+      const endIndex = startIndex + preliminaryWriteOffYears;
+  
+      // 👇 Only insert value if it's within the write-off window
+      if (index >= startIndex && index < endIndex) {
+        return yearlyWriteOffAmount;
+      }
+  
+      // 👇 Insert 0 for all other years (including hidden first year)
+      return 0;
+    }
+  );
+  
+
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    // console.log(`\n📊 INDIRECT EXPENSES - YEAR ${yearIndex + 1}`);
-  
     const totalIndirectExpenses = indirectExpense
       .filter((expense) => expense.type === "indirect")
       .reduce((sum, expense) => {
         const annual = Number(expense.total) || 0;
-  
-        // ✅ Use same logic as render: calculateExpense instead of calculateIndirectExpense
         const escalated = calculateExpense(annual, yearIndex);
-  
-        // console.log(
-        //   `💰 ${expense.name}: Base = ₹${annual}, Escalated (Y${yearIndex + 1}) ➤ ₹${escalated.toFixed(
-        //     2
-        //   )}`
-        // );
-  
         return sum + escalated;
       }, 0);
   
@@ -309,27 +329,18 @@ const ProjectedProfitability = ({
       yearIndex
     );
     const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-  
-    // console.log(`💳 Interest on Term Loan: ₹${interestOnTermLoan.toFixed(2)}`);
-    // console.log(
-    //   `🏦 Interest on Working Capital: ₹${interestExpenseOnWorkingCapital.toFixed(
-    //     2
-    //   )}`
-    // );
-    // console.log(`🏗️ Depreciation: ₹${depreciationExpense.toFixed(2)}`);
+    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
   
     const yearTotal =
       totalIndirectExpenses +
       interestOnTermLoan +
       interestExpenseOnWorkingCapital +
-      depreciationExpense;
-  
-    // console.log(
-    //   `✅ TOTAL Indirect Expenses (Y${yearIndex + 1}): ₹${yearTotal.toFixed(2)}`
-    // );
+      depreciationExpense +
+      preliminaryWriteOff; // ✅ ADDED HERE
   
     return yearTotal;
   });
+  
   // ✅ Extract required values from formData
   const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
   const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
@@ -511,6 +522,47 @@ const ProjectedProfitability = ({
   //   : formData.ProjectReportSetting.ProjectionYears > 5
   //   ? "landscape"
   //   : "portrait";
+
+  const indirectCount = directExpense.filter((expense) => {
+    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
+      return false;
+    }
+
+    const isAllYearsZero = Array.from({
+      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    }).every((_, yearIndex) => {
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const expenseValue = Number(expense.total) || 0;
+      return expenseValue === 0;
+    });
+
+    return expense.type === "indirect" && !isAllYearsZero;
+  }).length;
+
+  const isPreliminaryWriteOffAllZero = Array.from({
+    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
+  });
+
+
+  const renderedIndirectExpenses = directExpense.filter((expense) => {
+    if (expense.name.trim() === "Raw Material Expenses / Purchases") return false;
+  
+    const isAllYearsZero = Array.from({
+      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    }).every((_, yearIndex) => {
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const escalated = calculateExpense(Number(expense.total) || 0, adjustedYearIndex);
+      return escalated === 0;
+    });
+  
+    return expense.type === "indirect" && !isAllYearsZero;
+  }).length;
+  
+  const preliminarySerialNo = 3 + renderedIndirectExpenses + 1; // 3 static rows + count + 1
+
 
   return (
     <Page
@@ -1364,9 +1416,7 @@ const ProjectedProfitability = ({
 
                 return (
                   <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                    <Text style={stylesCOP.serialNoCellDetail}>
-                      {index + 2}
-                    </Text>
+                    <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
                     <Text
                       style={[
                         stylesCOP.detailsCellDetail,
@@ -1433,7 +1483,37 @@ const ProjectedProfitability = ({
                   </View>
                 );
               })}
-            ;{/* ✅ Total Indirect Expenses Row */}
+            ;{/* ✅ Render Preliminary Row */}
+            {!isPreliminaryWriteOffAllZero && (
+              <View style={[styles.tableRow, styles.totalRow]}>
+               <Text style={stylesCOP.serialNoCellDetail}>{preliminarySerialNo}</Text>
+
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Preliminary Expenses
+                </Text>
+
+                {preliminaryWriteOffPerYear
+                  .slice(hideFirstYear ? 1 : 0)
+                  .map((value, yearIndex) => (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(value)}
+                    </Text>
+                  ))}
+              </View>
+            )}
+            {/* ✅ Total Indirect Expenses Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}></Text>
               <Text
@@ -1818,27 +1898,6 @@ const ProjectedProfitability = ({
         ) : null}
       </view>
 
-      {/* businees name and Client Name  */}
-      {/* <View
-        style={[
-          {
-            display: "flex",
-            flexDirection: "column",
-            gap: "30px",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            marginTop: "60px",
-          },
-        ]}
-      >
-        <Text style={[styles.businessName, { fontSize: "14px" }]}>
-          {formData?.AccountInformation?.businessName || "Business Name"}
-        </Text>
-
-        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.businessOwner || "businessOwner"}
-        </Text>
-      </View> */}
       <View
         style={[
           {
