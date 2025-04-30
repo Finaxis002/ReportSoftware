@@ -106,6 +106,7 @@ const ProjectedProfitability = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
@@ -126,12 +127,87 @@ const ProjectedProfitability = ({
     }
     return monthsArray;
   };
-
   const monthsPerYear = calculateMonthsPerYear();
+
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
+  
+  //     if (monthsInYear === 0) {
+  //       return 0; // Entire year under moratorium
+  //     }
+  
+  //     // ✅ Determine first visible repayment year index
+  //     const isProRataYear =
+  //       (!hideFirstYear && yearIndex === 0) ||
+  //       (hideFirstYear && yearIndex === 1);
+  
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, yearIndex)
+  //       .filter((months, idx) => months > 0).length;
+  
+  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
+  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+  //       const monthsEffective = monthsInYear;
+  //       return (interestAmount * monthsEffective) / 12;
+  //     } else if (repaymentYear >= 1) {
+  //       return interestAmount; // Full interest from second visible repayment year onward
+  //     } else {
+  //       return 0; // No interest during moratorium
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
+
+const calculateInterestOnWorkingCapital = useMemo(() => {
+    return (interestAmount, yearIndex) => {
+      const monthsInYear = monthsPerYear[yearIndex];
+
+      if (monthsInYear === 0) {
+        return 0; // Entire year under moratorium
+      }
+
+      // ✅ Determine first visible repayment year index
+      const isProRataYear =
+        (!hideFirstYear && yearIndex === 0) ||
+        (hideFirstYear && yearIndex === 1);
+
+      const repaymentYear = monthsPerYear
+        .slice(0, yearIndex)
+        .filter((months, idx) => months > 0).length;
+
+      if (isProRataYear && moratoriumPeriodMonths > 0) {
+        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+        const monthsEffective = monthsInYear;
+        return (interestAmount * monthsEffective) / 12;
+      } else if (repaymentYear >= 1) {
+        return interestAmount; // Full interest from second visible repayment year onward
+      } else {
+        return 0; // No interest during moratorium
+      }
+    };
+  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+
+
+  const isWorkingCapitalInterestZero = Array.from({
+    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  }).every((_, yearIndex) => {
+    const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
+    const calculatedInterest = calculateInterestOnWorkingCapital(
+      interestAmount,
+      adjustedIndex
+    );
+    return calculatedInterest === 0;
+  });
+  
+  
+
+  
 
   const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod;
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
+ 
   // Function to calculate the expense for each year considering the increment rate
   const calculateExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
@@ -187,34 +263,34 @@ const ProjectedProfitability = ({
     return incrementedExpense;
   };
   // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
-    return (interestAmount, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
 
-      if (monthsInYear === 0) {
-        return 0; // Entire year under moratorium
-      }
+  //     if (monthsInYear === 0) {
+  //       return 0; // Entire year under moratorium
+  //     }
 
-      // ✅ Determine first visible repayment year index
-      const isProRataYear =
-        (!hideFirstYear && yearIndex === 0) ||
-        (hideFirstYear && yearIndex === 1);
+  //     // ✅ Determine first visible repayment year index
+  //     const isProRataYear =
+  //       (!hideFirstYear && yearIndex === 0) ||
+  //       (hideFirstYear && yearIndex === 1);
 
-      const repaymentYear = monthsPerYear
-        .slice(0, yearIndex)
-        .filter((months, idx) => months > 0).length;
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, yearIndex)
+  //       .filter((months, idx) => months > 0).length;
 
-      if (isProRataYear && moratoriumPeriodMonths > 0) {
-        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
-      } else if (repaymentYear >= 1) {
-        return interestAmount; // Full interest from second visible repayment year onward
-      } else {
-        return 0; // No interest during moratorium
-      }
-    };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
+  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+  //       const monthsEffective = monthsInYear;
+  //       return (interestAmount * monthsEffective) / 12;
+  //     } else if (repaymentYear >= 1) {
+  //       return interestAmount; // Full interest from second visible repayment year onward
+  //     } else {
+  //       return 0; // No interest during moratorium
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -1304,7 +1380,7 @@ const ProjectedProfitability = ({
               )}
             </View>
             {/* Interest on Working Capital */}
-            <View style={[styles.tableRow, styles.totalRow]}>
+            {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>2</Text>
 
               <Text
@@ -1340,10 +1416,14 @@ const ProjectedProfitability = ({
                   </Text>
                 );
               })}
-            </View>
+            </View>)}
+
+            
             {/* ✅ Render Depreciation Row */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+              <Text style={stylesCOP.serialNoCellDetail}>
+                {isWorkingCapitalInterestZero ? 2 : 3}
+                </Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -1407,16 +1487,22 @@ const ProjectedProfitability = ({
               })
 
               .map((expense, index) => {
+                const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
                 const isRawMaterial =
-                  expense.name.trim() === "Raw Material Expenses / Purchases";
-                const isPercentage = String(expense.value).trim().endsWith("%");
+                        expense.name.trim() ===
+                        "Raw Material Expenses / Purchases";
                 const displayName = isRawMaterial
-                  ? "Purchases / RM Expenses"
-                  : expense.name;
-
+                ? "Purchases / RM Expenses"
+                : expense.name;
+                const serialNumber = isWorkingCapitalInterestZero ? index + 3 : index + 4
                 return (
                   <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                    <Text style={stylesCOP.serialNoCellDetail}>{index + 4}</Text>
+
+                    <Text style={stylesCOP.serialNoCellDetail}>
+                      {serialNumber}
+                    </Text>
+
+
                     <Text
                       style={[
                         stylesCOP.detailsCellDetail,

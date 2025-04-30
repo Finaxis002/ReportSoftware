@@ -27,8 +27,15 @@ const PdfWithCurrentRatioChart = ({ labels = [], currentRatio = [] , onCurrentRa
 
   const handleBase64Generated = (base64) => {
     setChartBase64(base64);
-    if(onCurrentRatioReady) onCurrentRatioReady(base64);
+    // if(onCurrentRatioReady) onCurrentRatioReady(base64);
   };
+
+   // ✅ New useEffect to safely call parent once chartBase64 is ready
+  useEffect(() => {
+    if (chartBase64 && typeof chartBase64 === 'string' && chartBase64.startsWith('data:image')) {
+      if (onCurrentRatioReady) onCurrentRatioReady(chartBase64);
+    }
+  }, [chartBase64, onCurrentRatioReady]);
 
   useEffect(() => {
     if (labels?.length > 0 && currentRatio?.length > 0) {

@@ -12,19 +12,7 @@ import {
 
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 20,
-//   },
-//   section: {
-//     margin: 10,
-//   },
-//   chartImage: {
-//     width: 400,
-//     height: 300,
-//     marginVertical: 20,
-//   },
-// });
+
 
 const PdfAllChartsWrapper = ({
   formData,
@@ -41,12 +29,28 @@ const PdfAllChartsWrapper = ({
   const [chartsReady, setChartsReady] = useState(false);
 
   // ✅ Set `chartsReady` when all charts are available
+  // useEffect(() => {
+  //   if (pieChart && barChart && dscrChart && currentRatioChart) {
+  //     setChartsReady(true);
+  //   }
+  // }, [pieChart, barChart, dscrChart, currentRatioChart]);
+
   useEffect(() => {
-    if (pieChart && barChart && dscrChart && currentRatioChart) {
+    const allChartsAvailable =
+      typeof pieChart === "string" &&
+      pieChart.startsWith("data:image") &&
+      typeof barChart === "string" &&
+      barChart.startsWith("data:image") &&
+      typeof dscrChart === "string" &&
+      dscrChart.startsWith("data:image") &&
+      typeof currentRatioChart === "string" &&
+      currentRatioChart.startsWith("data:image");
+  
+    if (allChartsAvailable) {
       setChartsReady(true);
     }
   }, [pieChart, barChart, dscrChart, currentRatioChart]);
-
+  
   // Render the chart components to generate charts
   return (
     <>
