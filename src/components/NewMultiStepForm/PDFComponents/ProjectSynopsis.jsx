@@ -184,6 +184,15 @@ const ProjectSynopsis = React.memo(
 
     const subsidyName = formData?.ProjectReportSetting?.subsidyName;
 
+
+    let serialCounter = 13; // Start from 14 since previous ended at 13
+    const getNextSerial = () => {
+      serialCounter++;
+      return serialCounter;
+    };
+    
+
+
     return (
       <>
         <Page size="A4" style={styles.page}>
@@ -680,7 +689,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                  14
+                 {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -938,7 +947,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                  15
+                 {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1190,7 +1199,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                  16
+                 {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1230,7 +1239,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                  17
+                 {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1272,7 +1281,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                  18
+                  {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1312,7 +1321,7 @@ const ProjectSynopsis = React.memo(
                       { padding: 8, width: "10%" },
                     ]}
                   >
-                    19
+                    {getNextSerial()}
                   </Text>
                   <Text
                     style={[
@@ -1351,7 +1360,7 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "10%" },
                       ]}
                     >
-                      20
+                      {getNextSerial()}
                     </Text>
                     <Text
                       style={[
