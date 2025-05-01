@@ -13,7 +13,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
     const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
     return parseFloat(cleaned) || 0;
   };
-  
+
   const totalCost =
     (formData?.CostOfProject
       ? Object.values(formData.CostOfProject).reduce(
@@ -21,7 +21,6 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           0
         )
       : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
-  
 
   return (
     <Page size="A4" style={stylesCOP.styleCOP}>
@@ -93,8 +92,8 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
       <View style={[styles.table, { paddingBottom: 0 }]}>
         <View style={styles.tableHeader}>
           <Text style={[styles.serialNoCell, { width: 100 }]}>S.No.</Text>
-          <Text style={styles.detailsCell}>Particulars</Text>
-          <Text style={styles.particularsCell}>Amount</Text>
+          <Text style={styles.particularsCell}>Particulars</Text>
+          <Text style={styles.detailsCell}>Amount</Text>
         </View>
 
         {/* ✅ Show Cost of Project Items */}
@@ -114,12 +113,17 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                     >
                       {index + 1}
                     </Text>
-                    <Text style={stylesCOP.detailsCellDetail}>
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        { textAlign: "left" },
+                      ]}
+                    >
                       {field?.name || "N/A"}
                     </Text>
                     <Text
                       style={[
-                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.detailsCellDetail,
                         { textAlign: "right" },
                       ]}
                     >
@@ -148,15 +152,15 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                   </Text>
                   <Text
                     style={[
-                      stylesCOP.detailsCellDetail,
-                      { paddingBottom: "10px" },
+                      stylesCOP.particularsCellsDetail,
+                      { paddingBottom: "10px", textAlign: "left" },
                     ]}
                   >
                     Working Capital Required
                   </Text>
                   <Text
                     style={[
-                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.detailsCellDetail,
                       { paddingBottom: "10px", textAlign: "right" },
                     ]}
                   >
@@ -169,14 +173,14 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
         })()}
 
         {/* ✅ Total Cost Row (Including Working Capital) */}
-        <View style={stylesCOP.totalHeader}>
+        <View style={styles.tableRow}>
           <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}></Text>
           <View
             style={[
-              stylesCOP.detailsCellDetail,
+              stylesCOP.particularsCellsDetail,
               stylesCOP.boldText,
               styles.Total,
-              {
+          {
                 borderWidth: 0,
                 display: "flex",
                 alignContent: "flex-end",
@@ -204,9 +208,10 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
               Total{" "}
             </Text>
           </View>
+
           <Text
             style={[
-              stylesCOP.particularsCellsDetail,
+              stylesCOP.detailsCellDetail,
               stylesCOP.boldText,
               styles.Total,
               {
@@ -223,7 +228,6 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           </Text>
         </View>
       </View>
-
       {/* businees name and Client Name  */}
       <View
         style={[

@@ -134,8 +134,6 @@ const ProjectedBalanceSheet = ({
     return finalStock;
   });
 
- 
-
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
   );
@@ -174,35 +172,36 @@ const ProjectedBalanceSheet = ({
     (_, index) => {
       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
       const cashEquivalent = closingCashBalanceArray[index] || 0;
-  
+
       const currentYearAssets = formData?.MoreDetails?.currentAssets
         ?.filter(
           (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
         )
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-  
+
       cumulativeCurrentAssets += currentYearAssets;
-  
+
       const inventory = Array.from({
         length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
-        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
         return ClosingStock;
       });
-  
+
       const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
-  
+
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
         cumulativeCurrentAssets +
         (inventory[index] || 0) +
         preliminaryAsset; // ✅ INCLUDED
-  
+
       return totalAssets;
     }
   );
-  
+
   //  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
@@ -320,7 +319,6 @@ const ProjectedBalanceSheet = ({
     JSON.stringify(repaymentValueswithin12months),
   ]);
 
-
   const isPreliminaryWriteOffAllZero = Array.from({
     length: projectionYears,
   }).every((_, yearIndex) => {
@@ -333,8 +331,6 @@ const ProjectedBalanceSheet = ({
       (liability) => !liability.years.every((value) => Number(value) === 0)
     )?.length || 0;
   const preliminarySerialNo = 6 + visibleLiabilitiesCount;
-
-
 
   const isInventoryZero = inventory.every((value) => value === 0);
 
@@ -629,32 +625,34 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Bank Loan - Working Capital Loan */}
-            {!isWorkingCapitalLoanZero && (<View style={styles.tableRow}>
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                5
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Bank Loan - Working Capital Loan
-              </Text>
-              {/* Display the cumulative working capital loan for each year */}
-              {cumulativeLoanForPreviousYears.map((loan, index) => (
+            {!isWorkingCapitalLoanZero && (
+              <View style={styles.tableRow}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                  5
+                </Text>
                 <Text
-                  key={index}
                   style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
                   ]}
                 >
-                  {formatNumber(loan)}
+                  Bank Loan - Working Capital Loan
                 </Text>
-              ))}
-            </View>)}
+                {/* Display the cumulative working capital loan for each year */}
+                {cumulativeLoanForPreviousYears.map((loan, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(loan)}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
             {formData?.MoreDetails?.currentLiabilities
@@ -664,9 +662,10 @@ const ProjectedBalanceSheet = ({
               .map((liabilities, idx) => {
                 let cumulative = 0; // ⬅️ initialize cumulative tracker
 
-                 // Calculate the correct serial number
-    const serialNumber = isWorkingCapitalLoanZero ? idx + 5 : idx + 6;
-
+                // Calculate the correct serial number
+                const serialNumber = isWorkingCapitalLoanZero
+                  ? idx + 5
+                  : idx + 6;
 
                 return (
                   <View style={styles.tableRow} key={idx}>
@@ -920,67 +919,70 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* inventory  */}
-            {!isInventoryZero && (<View style={[styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                5
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Inventory
-              </Text>
+            {!isInventoryZero && (
+              <View style={[styles.tableRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  5
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Inventory
+                </Text>
 
-              {/* Render the incomeTaxCalculation values */}
-              {Array.from({
-                length: formData.ProjectReportSetting.ProjectionYears,
-              }).map((_, yearIndex) => {
-                const inventorymap = inventory[yearIndex] || 0;
+                {/* Render the incomeTaxCalculation values */}
+                {Array.from({
+                  length: formData.ProjectReportSetting.ProjectionYears,
+                }).map((_, yearIndex) => {
+                  const inventorymap = inventory[yearIndex] || 0;
 
-                return (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(inventorymap)}
-                  </Text>
-                );
-              })}
-            </View>)}
+                  return (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(inventorymap)}
+                    </Text>
+                  );
+                })}
+              </View>
+            )}
 
             {/* ✅ Current Assets from More Details */}
             {formData?.MoreDetails?.currentAssets
               ?.filter(
                 (assets) =>
                   assets.particular !== "Inventory" &&
-                  !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
+                  !assets.dontSendToBS &&
                   assets.years.some((value) => Number(value) !== 0)
               )
               .map((assets, index) => {
                 const serialNumber = isInventoryZero ? index + 5 : index + 6;
-                let cumulative = 0; 
-                return(
-                <View style={styles.tableRow} key={index}>
-                  {/* ✅ Adjust Serial Number after filtering */}
-                  <Text
-                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                  >
-                    {serialNumber}
-                  </Text>
+                let cumulative = 0;
 
-                    {/* ✅ Particular Name */}
+                return (
+                  <View style={styles.tableRow} key={index}>
+                    {/* Serial Number */}
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {serialNumber}
+                    </Text>
+
+                    {/* Particular */}
                     <Text
                       style={[
                         stylesCOP.detailsCellDetail,
@@ -991,23 +993,27 @@ const ProjectedBalanceSheet = ({
                       {assets.particular}
                     </Text>
 
-                  {/* ✅ Ensure Projection Years Match */}
-                  {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) => (
-                      <Text
-                        key={yearIndex}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
-                        {/* Fill missing values with 0 */}
-                      </Text>
-                    )
-                  )}
-                </View>)
-})}
+                    {/* Cumulative Year-wise Values */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => {
+                        const value = Number(assets.years[yearIndex] || 0);
+                        cumulative += value; // 🧮 accumulate value
+                        return (
+                          <Text
+                            key={yearIndex}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(cumulative)}
+                          </Text>
+                        );
+                      }
+                    )}
+                  </View>
+                );
+              })}
 
             {/* ✅ Render Preliminary Row */}
             {!isPreliminaryWriteOffAllZero && (
