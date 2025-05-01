@@ -525,40 +525,40 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text
-                style={[
-                  styles.serialNoCell,
-                  styleExpenses.sno,
-                  styleExpenses.fontBold,
-                  { textAlign: "center" },
-                ]}
-              >
-                S. No.
-              </Text>
-              <Text
-                style={[
-                  styleExpenses.particularWidth,
-                  styleExpenses.fontBold,
-                  styles.particularsCell,
-                 
-                  { textAlign: "center" },
-                ]}
-              >
-                Particulars
-              </Text>
-
-              {/* Generate Dynamic Year Headers using financialYearLabels */}
-              {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-                .map((yearLabel, yearIndex) => (
-                  <Text
-                    key={yearIndex}
-                    style={[styles.particularsCell, stylesCOP.boldText]}
-                  >
-                    {yearLabel}
-                  </Text>
-                ))}
-            </View>
+                        <Text
+                          style={[
+                            styles.serialNoCell,
+                            styleExpenses.sno,
+                            styleExpenses.fontBold,
+                            { textAlign: "center" },
+                          ]}
+                        >
+                          S. No.
+                        </Text>
+                        <Text
+                          style={[
+                            styles.detailsCell,
+                            styleExpenses.particularWidth,
+                            styleExpenses.fontBold,
+                            { textAlign: "center" },
+                          ]}
+                        >
+                          Particulars
+                        </Text>
+            
+                        {/* Generate Dynamic Year Headers using financialYearLabels */}
+                        {financialYearLabels.map(
+                          (yearLabel, yearIndex) =>
+                            (!hideFirstYear || yearIndex !== 0) && (
+                              <Text
+                                key={yearIndex}
+                                style={[styles.particularsCell, stylesCOP.boldText]}
+                              >
+                                {yearLabel}
+                              </Text>
+                            )
+                        )}
+                      </View>
           </View>
         </View>
 
