@@ -424,8 +424,8 @@ const ProjectedRevenue = ({
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-                { fontWeight: "bold", paddingLeft: 10 },
+                { fontWeight: "bold", paddingLeft: 10, },
+
               ]}
             >
               {formType?.trim() === "Monthly"
@@ -440,7 +440,7 @@ const ProjectedRevenue = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { textAlign: "center", fontWeight: "bold" },
+                  { textAlign: "center", fontWeight: "bold", borderWidth:1 },
                 ]}
               >
                 {
