@@ -180,25 +180,24 @@ const ProjectedDepreciation = ({
 
   // ✅ Step 2: Compute Net Asset Values using Depreciation from Step 1
   const netAssetValues = Object.entries(formData.CostOfProject)
-    .filter(([_, asset]) => !asset.isSelected) // ✅ Skip selected
-    .map(([key, asset], index) => {
-      const assetAmount = asset.amount || 0;
-      const depreciationPerYear =
-        depreciationValues[index]?.yearlyDepreciation || [];
+  .filter(([_, asset]) => !asset.isSelected && !asset.isPreliminary) // ✅ Skip both
+  .map(([key, asset], index) => {
+    const assetAmount = asset.amount || 0;
+    const depreciationPerYear = depreciationValues[index]?.yearlyDepreciation || [];
 
-      const assetValues = [];
-      let currentValue = assetAmount;
+    const assetValues = [];
+    let currentValue = assetAmount;
 
-      for (let yearIndex = 0; yearIndex < years; yearIndex++) {
-        const depreciation = depreciationPerYear[yearIndex] || 0;
-        const net = currentValue - depreciation;
+    for (let yearIndex = 0; yearIndex < years; yearIndex++) {
+      const depreciation = depreciationPerYear[yearIndex] || 0;
+      const net = currentValue - depreciation;
+      assetValues.push(net);
+      currentValue = net;
+    }
 
-        assetValues.push(net);
-        currentValue = net;
-      }
+    return { assetValues };
+  });
 
-      return { assetValues };
-    });
 
   const totalDepreciationPerYear = calculateTotalDepreciationPerYear(
     formData,
@@ -278,24 +277,20 @@ const ProjectedDepreciation = ({
   for (let year = 0; year < years; year++) {
     let yearTotal = 0;
   
-    Object.entries(formData.CostOfProject).forEach(([_, asset], index) => {
-      // ✅ Skip selected or preliminary assets
-      if (asset.isSelected || asset.isPreliminary) return;
-  
-      const assetValue = netAssetValues[index]?.assetValues?.[year] || 0;
-      yearTotal += assetValue;
+    netAssetValues.forEach((assetData) => {
+      yearTotal += assetData.assetValues[year] || 0;
     });
   
     totalNetAssetValuesPerYear.push(yearTotal);
   }
   
+
   useEffect(() => {
     if (formData && formData.CostOfProject && depreciationValues.length > 0) {
       const allAssetValues = [];
 
       Object.values(formData.CostOfProject).forEach((asset, index) => {
         if (asset.isSelected || asset.isPreliminary) return; // ✅ Skip selected & preliminary assets
-      
 
         const assetAmount =
           typeof asset.amount === "string"
@@ -857,7 +852,7 @@ const ProjectedDepreciation = ({
               ]}
             ></Text>
 
-            {/* ✅ Render values from grossFixedAssetsPerYear */}
+            {/* ✅ Render values from net assets per year */}
             {totalNetAssetValuesPerYear.map((total, yearIndex) =>
               hideFirstYear && yearIndex === 0 ? null : (
                 <Text
@@ -879,60 +874,80 @@ const ProjectedDepreciation = ({
           {(() => {
             let visibleIndex = 0;
 
-            return netAssetValues.map((assetData, index) => {
-              const assetKey = Object.keys(formData.CostOfProject)[index];
-              const asset = formData.CostOfProject[assetKey];
-              const netPerYear = assetData.assetValues;
+            return Object.entries(formData.CostOfProject).map(
+              ([assetKey, asset], index) => {
+                const assetData = netAssetValues.find(
+                  (_, i) => Object.keys(formData.CostOfProject)[i] === assetKey
+                );
+                if (!assetData) return null;
 
-              // ❌ Skip any selected or preliminary asset
-              if (asset.isSelected || asset.isPreliminary) return null;
+                const netPerYear = assetData.assetValues;
 
-              const visibleNetValues = hideFirstYear
-                ? netPerYear.slice(1)
-                : netPerYear;
-              if (visibleNetValues.every((val) => val === 0)) return null;
+                // ❌ Skip selected or preliminary assets
+                const totalValue = netPerYear.reduce(
+                  (acc, val) => acc + val,
+                  0
+                );
+                const allSameValue = netPerYear.every(
+                  (val) => val === netPerYear[0]
+                );
 
-              visibleIndex++;
+                if (
+                  asset.isSelected ||
+                  asset.isPreliminary ||
+                  totalValue < 10000 ||
+                  allSameValue
+                )
+                  return null;
 
-              return (
-                <View key={assetKey} style={styles.tableRow}>
-                  <Text style={stylesCOP.serialNoCellDetail}>
-                    {visibleIndex}
-                  </Text>
+                // Skip assets where all visible years are 0
+                const visibleNetValues = hideFirstYear
+                  ? netPerYear.slice(1)
+                  : netPerYear;
+                if (visibleNetValues.every((val) => val === 0)) return null;
 
-                  <Text
-                    style={[
-                      stylesCOP.detailsCellDetail,
-                      styleExpenses.particularWidth,
-                      styleExpenses.bordernone,
-                    ]}
-                  >
-                    {asset.name}
-                  </Text>
+                visibleIndex++;
 
-                  <Text
-                    style={[
-                      stylesCOP.serialNoCellDetail,
-                      { fontWeight: "bold" },
-                    ]}
-                  ></Text>
+                return (
+                  <View key={assetKey} style={styles.tableRow}>
+                    <Text style={stylesCOP.serialNoCellDetail}>
+                      {visibleIndex}
+                    </Text>
 
-                  {netPerYear.map((netAsset, yearIndex) =>
-                    hideFirstYear && yearIndex === 0 ? null : (
-                      <Text
-                        key={yearIndex}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formatNumber(netAsset)}
-                      </Text>
-                    )
-                  )}
-                </View>
-              );
-            });
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {asset.name}
+                    </Text>
+
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        { fontWeight: "bold" },
+                      ]}
+                    ></Text>
+
+                    {netPerYear.map((netAsset, yearIndex) =>
+                      hideFirstYear && yearIndex === 0 ? null : (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(netAsset)}
+                        </Text>
+                      )
+                    )}
+                  </View>
+                );
+              }
+            );
           })()}
         </View>
 

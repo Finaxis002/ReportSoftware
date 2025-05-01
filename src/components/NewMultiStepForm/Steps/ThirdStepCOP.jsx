@@ -104,14 +104,12 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
 
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
 
-  
   // Calculate preliminary expenses total (add this helper function)
-const calculatePreliminaryTotal = (data) => {
-  return Object.values(data)
-    .filter(item => item?.isPreliminary)
-    .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-};
-
+  const calculatePreliminaryTotal = (data) => {
+    return Object.values(data)
+      .filter((item) => item?.isPreliminary)
+      .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  };
 
   useEffect(() => {
     if (formData?.CostOfProject) {
@@ -136,13 +134,12 @@ const calculatePreliminaryTotal = (data) => {
           formData.CostOfProject.preliminaryWriteOffYears
         );
       }
-      
-    // Calculate or use existing preliminary expenses total
-    newData.preliminaryExpensesTotal = 
-      typeof newData.preliminaryExpensesTotal === 'number'
-        ? newData.preliminaryExpensesTotal
-        : calculatePreliminaryTotal(newData);
 
+      // Calculate or use existing preliminary expenses total
+      newData.preliminaryExpensesTotal =
+        typeof newData.preliminaryExpensesTotal === "number"
+          ? newData.preliminaryExpensesTotal
+          : calculatePreliminaryTotal(newData);
 
       if (
         !prevDataRef.current ||
@@ -154,10 +151,7 @@ const calculatePreliminaryTotal = (data) => {
     }
   }, [formData?.CostOfProject]);
 
-
-
   useEffect(() => {
-
     const prelimsTotal = calculatePreliminaryTotal(localData);
 
     const combinedData = {
@@ -235,14 +229,26 @@ const calculatePreliminaryTotal = (data) => {
   }, [calculatedTotal, formData?.MeansOfFinance?.total, setError]);
 
   const handleChangeCheckbox = (key, checked) => {
-    setLocalData((prevData) => ({
-      ...prevData,
-      [key]: {
-        ...prevData[key],
-        isSelected: checked,
-      },
-    }));
+    setLocalData((prevData) => {
+      const updatedData = { ...prevData };
+  
+      if (updatedData[key]) {
+        const current = updatedData[key];
+  
+        updatedData[key] = {
+          ...current,
+          isSelected: checked,
+          rate: checked
+            ? 0
+            : current.prevRate ?? current.rate, // restore previous rate
+          prevRate: checked ? current.rate : current.prevRate, // store prev rate only when selecting
+        };
+      }
+  
+      return updatedData;
+    });
   };
+  
 
   const handlePrelimChange = (id, field, value) => {
     setLocalData((prevData) => ({
@@ -332,6 +338,7 @@ const calculatePreliminaryTotal = (data) => {
                     value={field.rate}
                     className="form-control"
                     type="number"
+                    disabled={field.isSelected}
                   />
                 </div>
                 <div className="">
@@ -437,8 +444,10 @@ const calculatePreliminaryTotal = (data) => {
                   id: `CustomField${Object.keys(prevData).length + 1}`,
                   amount: 0,
                   rate: 15,
+                  prevRate: 15, // 👈 Store initial rate
                   isCustom: true,
                 },
+                
               }));
             } else {
               alert("You can only add up to 5 fields.");
@@ -457,18 +466,18 @@ const calculatePreliminaryTotal = (data) => {
             Preliminary Expenses Written Off in
           </h5>
           <input
-  type="number"
-  min="1"
-  className="form-control text-center border border-gray-300 rounded shadow-sm"
-  style={{ width: "80px", height: "38px" }}
-  value={preliminaryWriteOffYears || 5}  // Default value is 5
-  onChange={(e) => {
-    const val = parseInt(e.target.value);
-    if (!isNaN(val) && val > 0) {
-      setPreliminaryWriteOffYears(val);
-    }
-  }}
-/>
+            type="number"
+            min="1"
+            className="form-control text-center border border-gray-300 rounded shadow-sm"
+            style={{ width: "80px", height: "38px" }}
+            value={preliminaryWriteOffYears || 5} // Default value is 5
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              if (!isNaN(val) && val > 0) {
+                setPreliminaryWriteOffYears(val);
+              }
+            }}
+          />
 
           <span className="text-primary fw-semibold">Years</span>
         </div>
