@@ -5,8 +5,7 @@ import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
 const CostOfProject = ({ formData, pdfType, formatNumber }) => {
-  // ✅ Helper Function to Format Numbers Based on Selected Format
-
+  
   // ✅ Compute Total Cost of Project including Working Capital
   const parseAmount = (val) => {
     if (!val) return 0;
@@ -98,7 +97,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
 
         {/* ✅ Show Cost of Project Items */}
         {/* ✅ Precompute filtered cost items */}
-        {(() => {
+        {/* {(() => {
           const filteredCostItems = Object.entries(
             formData?.CostOfProject || {}
           ).filter(([_, field]) => field?.amount > 0);
@@ -144,7 +143,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                 </View>
               )}
 
-              {/* ✅ Working Capital - Continues numbering */}
+              
               {formData?.MeansOfFinance?.totalWorkingCapital && (
                 <View style={styles.tableRow}>
                   <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
@@ -170,6 +169,165 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
               )}
             </>
           );
+        })()} */}
+        {(() => {
+          const costItems = Object.entries(
+            formData?.CostOfProject || {}
+          ).filter(([_, field]) => parseFloat(field?.amount || 0) > 0);
+
+          const normalItems = costItems.filter(
+            ([_, field]) => !field?.isPreliminary
+          );
+          const preliminaryItems = costItems.filter(
+            ([_, field]) => field?.isPreliminary
+          );
+
+          let serial = 1;
+
+          // Total of preliminary expenses
+          const preliminaryTotal = preliminaryItems.reduce(
+            (sum, [_, field]) => sum + parseFloat(field?.amount || 0),
+            0
+          );
+
+          return (
+            <>
+              {/* Normal Items */}
+              {normalItems.map(([key, field]) => (
+                <View key={key} style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
+                    {serial++}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      { textAlign: "left" },
+                    ]}
+                  >
+                    {field?.name || "N/A"}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      { textAlign: "right" },
+                    ]}
+                  >
+                    {formatNumber(field?.amount || 0)}
+                  </Text>
+                </View>
+              ))}
+
+              {/* Working Capital */}
+              {formData?.MeansOfFinance?.totalWorkingCapital && (
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
+                    {serial++}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      { textAlign: "left" },
+                    ]}
+                  >
+                    Working Capital Required
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      { textAlign: "right" },
+                    ]}
+                  >
+                    {formatNumber(formData.MeansOfFinance.totalWorkingCapital)}
+                  </Text>
+                </View>
+              )}
+
+              {/* Parent Row: Preliminary Expense */}
+              {preliminaryItems.length > 0 && (
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, { width: 100 }]}>
+                    {serial++}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      { textAlign: "left", fontWeight: "bold" },
+                    ]}
+                  >
+                    Preliminary Expenses
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      { textAlign: "right", fontWeight: "bold" },
+                    ]}
+                  >
+                    {formatNumber(preliminaryTotal)}
+                  </Text>
+                </View>
+              )}
+
+              {/* Sub Items A, B, C */}
+              {preliminaryItems.length > 0 &&
+                preliminaryItems.map(([key, field], index) => (
+                  <View key={key} style={[styles.tableRow]}>
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, { width: 100 }]}
+                    >
+                      {/* A, B, C... */}
+                    </Text>
+                    <View
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        {
+                          paddingLeft: 10,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        },
+                      ]}
+                    >
+                      <Text style={{ width: "5%", textAlign: "left" }}>
+                        {String.fromCharCode(65 + index)}
+                      </Text>
+                      <Text
+                        style={{
+                          width: "65%",
+                          textAlign: "left",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {field?.name || "N/A"}
+                      </Text>
+                      <Text style={{ width: "30%", textAlign: "right" }}>
+                        {formatNumber(field?.amount || 0)}
+                      </Text>
+                    </View>
+
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        { textAlign: "right" },
+                      ]}
+                    ></Text>
+                  </View>
+                ))}
+
+              {/* No data fallback */}
+              {costItems.length === 0 &&
+                !formData?.MeansOfFinance?.totalWorkingCapital && (
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        { textAlign: "center", width: "100%" },
+                      ]}
+                    >
+                      No cost data available
+                    </Text>
+                  </View>
+                )}
+            </>
+          );
         })()}
 
         {/* ✅ Total Cost Row (Including Working Capital) */}
@@ -180,7 +338,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
               stylesCOP.particularsCellsDetail,
               stylesCOP.boldText,
               styles.Total,
-          {
+              {
                 borderWidth: 0,
                 display: "flex",
                 alignContent: "flex-end",

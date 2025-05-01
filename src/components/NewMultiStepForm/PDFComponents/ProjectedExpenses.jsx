@@ -539,6 +539,8 @@ const ProjectedExpenses = ({
                 style={[
                   styleExpenses.particularWidth,
                   styleExpenses.fontBold,
+                  styles.particularsCell,
+                 
                   { textAlign: "center" },
                 ]}
               >
