@@ -37,6 +37,7 @@ import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
+import History from "./components/NewMultiStepForm/History.jsx";
 
 
 // Initialize query client
@@ -294,6 +295,15 @@ const App = () => {
                 <ProtectedRoute>
                   {" "}
                   <CheckProfit />{" "}
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <History userRole={userRole}/>{" "}
                 </ProtectedRoute>
               }
             />
