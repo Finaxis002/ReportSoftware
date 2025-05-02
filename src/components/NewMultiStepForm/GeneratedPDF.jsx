@@ -935,10 +935,7 @@ const GeneratedPDF = ({}) => {
           return (
             <>
               {/* Toolbar */}
-              {((userRole === "admin" &&
-                (!localStorage.getItem("adminName") ||
-                  permissions.downloadPDF)) ||
-                (userRole === "employee" && permissions.downloadPDF)) && (
+            
                 <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
                   {/* Title */}
                   <div className="text-white font-normal text-sm px-4 tracking-wide">
@@ -970,6 +967,10 @@ const GeneratedPDF = ({}) => {
                   </div>
 
                   {/* Download Button */}
+                  {((userRole === "admin" &&
+                (!localStorage.getItem("adminName") ||
+                  permissions.downloadPDF)) ||
+                (userRole === "employee" && permissions.downloadPDF)) && (
                   <div className="flex gap-2 px-4">
                     <button
                       onClick={handleDownloadPDF}
@@ -984,8 +985,9 @@ const GeneratedPDF = ({}) => {
                       Download PDF
                     </button>
                   </div>
+                   )}
                 </div>
-              )}
+             
 
               <PDFViewer
                 width="100%"
