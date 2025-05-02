@@ -94,7 +94,7 @@ const History = ({ userRole }) => {
       <div className="app-content w-full p-6">
         <Header dashboardType="Admin Dashboard" />
         <div className="flex items-center gap-10 mb-6 px-3 pt-3">
-          <h2 className="text-lg text-gray-700">
+          <h2 className="text-lg dark:text-gray-50 text-gray-700">
             User Activity History
           </h2>
           <div className="relative w-full max-w-sm">
@@ -103,7 +103,7 @@ const History = ({ userRole }) => {
               placeholder="Search by name, report title, or owner..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-10 pr-4 py-2 border dark:border-gray-800 dark:text-gray-50 dark:bg-gray-900 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <svg
               className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
@@ -135,13 +135,13 @@ const History = ({ userRole }) => {
             .map((act) => (
               <div
                 key={act._id}
-                className="flex items-start gap-3 p-4 border-l-4 border-indigo-500 bg-gray-50 rounded-md shadow-sm hover:shadow-md transition-shadow"
+                className="flex items-start gap-3 p-4 border-l-4 border-indigo-500 dark:bg-gray-800 bg-gray-50 rounded-md shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex-1">
-                  <p className="text-sm text-gray-700 font-medium">
+                  <p className="text-sm dark:text-gray-100 text-gray-700 font-medium">
                     {formatActivityMessage(act)}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs dark:text-gray-300 text-gray-500 mt-1">
                     {new Date(act.timestamp).toLocaleString("en-IN", {
                       dateStyle: "medium",
                       timeStyle: "short",
