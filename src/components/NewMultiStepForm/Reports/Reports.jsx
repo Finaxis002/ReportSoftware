@@ -183,8 +183,8 @@ const Reports = ({ sendPdfData }) => {
       <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 
         {/* ✅ Enhanced Search Bar */}
-        <div className="w-full flex justify-end items-center mb-6 p-4">
-          <div className="flex w-full justify-between items-center mb-2 px-2">
+        <div className="w-full flex  items-center mb-6 p-4">
+          <div className="flex w-80 justify-between items-center mb-2 px-2 me-6">
             <button
               onClick={handleRefresh}
               className="flex items-center gap-1 text-sm text-teal-900 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
