@@ -577,12 +577,6 @@ const GeneratedPDF = ({}) => {
   const memoizedPDF = useMemo(() => {
     return (
       <Document
-        onLoadSuccess={() => {
-          // Disable default context menu
-          if (window.PDFViewerApplication) {
-            PDFViewerApplicationOptions.set("contextMenuDisabled", true);
-          }
-        }}
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
