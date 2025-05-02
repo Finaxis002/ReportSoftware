@@ -394,62 +394,83 @@ const FinalStep = ({ formData, userRole }) => {
     XLSX.writeFile(workbook, "exported-data.xlsx");
   };
 
-  const handleCheckProfit = () => {
+  const handleCheckProfit = async () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
-
-    // ✅ Open the popup window with specific size and position
+  
+    const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
+    const sessionId = localStorage.getItem("activeSessionId") || formData?.sessionId;
+  
+    let reportId = null;
+  
+    // ✅ Try to fetch reportId via sessionId
+    try {
+      const res = await fetch(`https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`);
+      const data = await res.json();
+      if (data?.reportId) {
+        reportId = data.reportId;
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch reportId for check_profit log");
+    }
+    const reportOwner = formData?.AccountInformation?.businessOwner || "";
+    // ✅ Log activity
+    try {
+      await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "check_profit",
+          reportTitle,
+          reportId,
+          reportOwner, // ✅ send this
+          performedBy: {
+            name: userName || "Unknown",
+            role: userRole || "unknown",
+          },
+        }),
+      });
+      console.log("✅ Logged 'check_profit' activity");
+    } catch (error) {
+      console.warn("❌ Failed to log 'check_profit' activity:", error);
+    }
+  
+    // ✅ Continue opening checkprofit
     const popup = window.open(
       "",
       "popupWindow",
       "width=800,height=600,left=200,top=200,resizable=no,scrollbars=yes"
     );
-
+  
     if (!popup) {
       alert("Popup blocked. Please allow popups for this site.");
       return;
     }
-
+  
     if (iframeRef.current) {
-      // ✅ Load the generated PDF
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
-
-      // ✅ Fallback timeout after 15 seconds
+  
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
-          console.log("⏳ Navigating to checkprofit after timeout...");
-          setIsPDFLoaded(true);
-          setIsLoading(false);
-
-          // ✅ Open checkprofit in the popup window
           popup.location.href = "/checkprofit";
         }
       }, 15000);
-
-      // ✅ Handle iframe load for early completion
+  
       iframeRef.current.onload = () => {
-        if (!isComponentMounted.current) return;
-        console.log("✅ PDF Loaded Successfully");
-
         clearTimeout(timeoutId.current);
         timeoutId.current = null;
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-
-        // ✅ Navigate the popup window after PDF load
-        setTimeout(() => {
-          if (isComponentMounted.current && popup) {
-            console.log("🚀 Opening checkprofit in popup...");
+        if (isComponentMounted.current && popup) {
+          setTimeout(() => {
             popup.location.href = "/checkprofit";
-          }
-        }, 3000);
+          }, 3000);
+        }
       };
     }
-
-    // ✅ Save last step to localStorage
+  
     localStorage.setItem("lastStep", 8);
   };
+  
 
   useEffect(() => {
     const fetchPermissions = async () => {
