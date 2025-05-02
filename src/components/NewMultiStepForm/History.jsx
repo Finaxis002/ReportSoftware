@@ -8,6 +8,21 @@ const History = ({ userRole }) => {
   const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
+
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await axios.get("/api/activity/unread-count");
+        setUnreadCount(res.data.count);
+      } catch (err) {
+        console.error("❌ Failed to fetch unread count", err);
+      }
+    };
+  
+    fetchUnreadCount();
+  }, []);
 
   const renderMenuBar = () => {
     if (!userRole) {
