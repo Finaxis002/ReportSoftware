@@ -66,26 +66,26 @@ const History = ({ userRole }) => {
     timestamp,
   }) => {
     const name = performedBy?.name || "Unknown";
-    const role = performedBy?.role === "admin" ? "Admin" : "User"; // ✅ Correct role logic
-
-    const formattedAction =
-      {
-        create: "created",
-        update: "updated",
-        download: "downloaded",
-        check_profit: "checked profit for",
-      }[action] || "performed an action on";
-
+    const role = performedBy?.role === "admin" ? "Admin" : "User";
+  
+    const formattedAction = {
+      create: "created",
+      update: "updated",
+      download: "downloaded",
+      check_profit: "checked profit for",
+      generated_pdf : "generated PDF for", // ✅ NEW ACTION HANDLED
+    }[action] || "performed an action on";
+  
     const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
       dateStyle: "medium",
       timeStyle: "short",
     });
-
+  
     const cleanTitle = reportTitle?.trim() || "Untitled";
     const cleanOwner = reportOwner?.trim();
     const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
-
-    return `${name} (${role}) ${formattedAction} the report "${fullTitle}"`;
+  
+    return `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
   };
 
   return (
