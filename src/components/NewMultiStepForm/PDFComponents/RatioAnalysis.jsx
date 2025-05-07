@@ -145,35 +145,41 @@ const RatioAnalysis = ({
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum
   const CurrentAssetsArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      // ✅ Get closing cash balance safely
       const cashBalance =
         Number(receivedTotalLiabilities?.closingCashBalanceArray?.[index]) || 0;
-
-      // ✅ Exclude "Investments" while summing up Current Assets
+  
       const currentYearAssets = (formData?.MoreDetails?.currentAssets ?? [])
-        .filter((asset) => asset.particular !== "Investments") // ✅ Exclude Investments
+        .filter((asset) => asset.particular !== "Investments")
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-        const inventory = Array.from({
-          length: formData.MoreDetails.OpeningStock.length,
-        }).map((_, yearIndex) => {
-          const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-          const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
-          const finalStock = ClosingStock - OpeningStock;
-          return finalStock;
-        });
-    
-        // ✅ If Inventory is not available, set it to 0
-        const inventoryValue = inventory[index] || 0;
-
-      cumulativeCurrentAssets += currentYearAssets + inventoryValue; // Apply cumulative rule
-
-      
-
-      // ✅ Compute final total: Cash Balance + Cumulative Current Assets
-      return cashBalance + cumulativeCurrentAssets;
+  
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+        return ClosingStock - OpeningStock;
+      });
+  
+      const inventoryValue = inventory[index] || 0;
+  
+      cumulativeCurrentAssets += currentYearAssets;
+  
+      const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
+  
+      // ✅ Log everything year-wise
+      console.log(`\nYear ${index + 1}:`);
+      console.log("Cash Balance           :", cashBalance);
+      console.log("Current Year Assets    :", currentYearAssets);
+      console.log("Inventory Value        :", inventoryValue);
+      console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
+      console.log("Total Current Assets   :", totalCurrentAssets);
+  
+      return totalCurrentAssets;
     }
   );
+  
 
   // ✅ Initialize an array to store total liabilities for each projection year
 
