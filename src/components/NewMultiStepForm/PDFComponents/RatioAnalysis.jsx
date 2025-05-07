@@ -366,36 +366,45 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
     ) || []
   );
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
-    .map((r) => parseFloat(r)) // Convert to float
-    .filter((r) => !isNaN(r) && r !== "-" && r >= 1); // ✅ Ignore "-" & values < 1
+  .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
+  .filter(({ value, index }) => {
+    // Skip the first year if hidden
+    if (hideFirstYear && index === 0) return false;
+    // Filter out invalid, non-numeric, or < 1 values
+    return !isNaN(value) && value >= 1;
+  })
+  .map(({ value }) => value); // Extract just the values
+
 
     const averageCurrentRatio = (() => {
-      // Filter out invalid ratios and convert valid ones to numbers
-      const validRatios = currentRatio
-        .filter((r) => r !== "-" && !isNaN(parseFloat(r))) // Filter out invalid values
-        .map((r) => parseFloat(r)); // Convert to numeric values
-  
-      // ✅ Exclude leading values ≤ 1
-      const firstValidIndex = validRatios.findIndex((value) => value > 0);
-      const nonZeroRatios = validRatios.slice(firstValidIndex);
-  
-      // ✅ If there are no valid ratios left, return "-"
-      if (nonZeroRatios.length === 0) {
+      // Step 1: Filter out invalid values and convert valid ones to numbers
+      let validRatios = currentRatio
+        .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+        .map((r) => parseFloat(r));
+    
+      // Step 2: Remove first year's ratio if it's hidden
+      if (hideFirstYear) {
+        validRatios = validRatios.slice(1); // Remove first index
+      }
+    
+      // Step 3: If no valid ratios left, return "-"
+      if (validRatios.length === 0) {
         return "-";
       }
-  
-      // ✅ Calculate the total of valid non-zero ratios
-      const total = nonZeroRatios.reduce((sum, value) => sum + value, 0);
-  
-      // ✅ Return the average rounded to 2 decimal places
-      const average = (total / nonZeroRatios.length).toFixed(2);
-  
+    
+      // Step 4: Calculate the average
+      const total = validRatios.reduce((sum, value) => sum + value, 0);
+      const average = (total / validRatios.length).toFixed(2);
+    
       return average;
     })();
+    
 
   const numOfYearsUsedForAvg = validRatios.length;
+
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -433,7 +442,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
     numOfYearsUsedForAvg,
   ]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   // const orientation =
   // hideFirstYear
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
