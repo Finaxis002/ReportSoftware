@@ -959,26 +959,28 @@ const GeneratedPDF = ({}) => {
               alert("PDF is not ready yet.");
               return;
             }
-          
+
             const businessName =
               formData?.AccountInformation?.businessName || "Report";
             const businessOwner =
               formData?.AccountInformation?.businessOwner || "Owner";
-          
+
             const safeName = `${businessName} (${businessOwner})`
               .replace(/[/\\?%*:|"<>]/g, "-")
               .trim();
-          
+
             // ✅ Save the file locally
             saveAs(blob, `${safeName}.pdf`);
-          
+
             // ✅ Send activity log
             try {
               const sessionId =
-                localStorage.getItem("activeSessionId") || formData?.sessionId || "";
-          
+                localStorage.getItem("activeSessionId") ||
+                formData?.sessionId ||
+                "";
+
               let reportId = null;
-          
+
               if (sessionId) {
                 const res = await fetch(
                   `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
@@ -988,31 +990,33 @@ const GeneratedPDF = ({}) => {
                   reportId = data.reportId;
                 }
               }
-          
-              await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  action: "download",
-                  reportTitle: businessName,
-                  reportOwner: businessOwner,
-                  reportId,
-                  performedBy: {
-                    name:
-                      localStorage.getItem("adminName") ||
-                      localStorage.getItem("employeeName") ||
-                      "Unknown",
-                    role: localStorage.getItem("userRole") || "unknown",
-                  },
-                }),
-              });
-          
+
+              await fetch(
+                "https://backend-three-pink.vercel.app/api/activity/log",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    action: "download",
+                    reportTitle: businessName,
+                    reportOwner: businessOwner,
+                    reportId,
+                    performedBy: {
+                      name:
+                        localStorage.getItem("adminName") ||
+                        localStorage.getItem("employeeName") ||
+                        "Unknown",
+                      role: localStorage.getItem("userRole") || "unknown",
+                    },
+                  }),
+                }
+              );
+
               console.log("✅ Logged PDF download");
             } catch (error) {
               console.warn("❌ Failed to log download activity:", error);
             }
           };
-          
 
           return (
             <>
@@ -1070,16 +1074,6 @@ const GeneratedPDF = ({}) => {
                   )}
                 </div>
 
-                {/* <PDFViewer
-                width="100%"
-                height="800"
-                showToolbar={false}
-                style={{ overflow: "hidden" }}
-                key={orientation}
-              >
-                {memoizedPDF}
-              </PDFViewer> */}
-
                 <div
                   style={{
                     position: "relative",
@@ -1087,7 +1081,6 @@ const GeneratedPDF = ({}) => {
                     height: "800px",
                   }}
                 >
-                  {/* ✅ PDF Viewer */}
                   <PDFViewer
                     width="100%"
                     height="800"
@@ -1100,18 +1093,17 @@ const GeneratedPDF = ({}) => {
                     {memoizedPDF}
                   </PDFViewer>
 
-                  {/* ✅ Overlay that captures right-click but allows scroll */}
                   <div
                     style={{
                       position: "absolute",
                       top: "50%",
                       left: "50%",
-                      transform:"translate(-50%, -50%)",
+                      transform: "translate(-50%, -50%)",
                       width: "98%",
                       height: "100%",
                       zIndex: 10,
                       backgroundColor: "transparent",
-                      // 👇 Allow scroll to pass through
+
                       pointerEvents: "auto",
                     }}
                     onContextMenu={(e) => {
@@ -1119,7 +1111,6 @@ const GeneratedPDF = ({}) => {
                       alert("Right-click is disabled on this PDF.");
                     }}
                     onWheel={(e) => {
-                      // 👇 Let scrolling through
                       const pdfIframe = document.querySelector("iframe");
                       if (pdfIframe) {
                         pdfIframe.contentWindow.scrollBy(0, e.deltaY);
