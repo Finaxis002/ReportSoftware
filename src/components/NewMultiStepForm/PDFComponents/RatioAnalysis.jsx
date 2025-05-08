@@ -164,7 +164,7 @@ const RatioAnalysis = ({
   
       const inventoryValue = inventory[index] || 0;
   
-      cumulativeCurrentAssets += currentYearAssets;
+      cumulativeCurrentAssets += currentYearAssets + inventoryValue;
   
       const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
   
