@@ -181,7 +181,7 @@ const RatioAnalysis = ({
   );
   
 
-  // ✅ Initialize an array to store total liabilities for each projection year
+// ✅ Initialize an array to store total liabilities for each projection year
 
   // console.log("Final Current Liabilities Array:", currentLiabilities);
 
