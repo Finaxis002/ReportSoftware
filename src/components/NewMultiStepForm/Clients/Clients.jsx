@@ -119,26 +119,80 @@ const Clients = () => {
     }));
   };
 
-  const handleAddClient = async () => {
+  // const handleAddClient = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "https://backend-three-pink.vercel.app/api/clients",
+  //       newClientDetails
+  //     );
+  //     console.log(response.data);
+  //     alert("Client added successfully!");
+  //     setShowAddModal(false);
+  //     setNewClientDetails({
+  //       clientName: "",
+  //       contactNo: "",
+  //       emailId: "",
+  //       address: "",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error adding client:", error);
+  //     alert("Failed to add client!");
+  //   }
+  // };
+const handleDeleteClient = async (clientId) => {
+  if (window.confirm("Are you sure you want to delete this client?")) {
     try {
-      const response = await axios.post(
+      await axios.delete(`https://backend-three-pink.vercel.app/api/clients/${clientId}`);
+      alert("Client deleted successfully!");
+      setClients((prev) => prev.filter((client) => client._id !== clientId));
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      alert("Failed to delete client!");
+    }
+  }
+};
+
+const handleEditClient = (client) => {
+  setNewClientDetails({
+    clientName: client.clientName,
+    contactNo: client.contactNo,
+    emailId: client.emailId,
+    address: client.address,
+  });
+  setShowAddModal(true);
+  // Store client ID to update later
+  setSelectedClient(client._id);
+};
+
+const handleAddClient = async () => {
+  try {
+    if (selectedClient) {
+      // Update client
+      await axios.put(
+        `https://backend-three-pink.vercel.app/api/clients/${selectedClient}`,
+        newClientDetails
+      );
+      alert("Client updated successfully!");
+    } else {
+      // Add new client
+      await axios.post(
         "https://backend-three-pink.vercel.app/api/clients",
         newClientDetails
       );
-      console.log(response.data);
       alert("Client added successfully!");
-      setShowAddModal(false);
-      setNewClientDetails({
-        clientName: "",
-        contactNo: "",
-        emailId: "",
-        address: "",
-      });
-    } catch (error) {
-      console.error("Error adding client:", error);
-      alert("Failed to add client!");
     }
-  };
+
+    setShowAddModal(false);
+    setNewClientDetails({ clientName: "", contactNo: "", emailId: "", address: "" });
+    setSelectedClient(null); // Reset
+    // Refetch clients
+    const response = await axios.get("https://backend-three-pink.vercel.app/api/clients");
+    setClients(response.data);
+  } catch (error) {
+    console.error("Error saving client:", error);
+    alert("Failed to save client!");
+  }
+};
 
   return (
     <div className="flex h-[100vh] bg-gray-100 dark:bg">
@@ -150,7 +204,12 @@ const Clients = () => {
           {/* Add Client Button */}
           <div className="flex justify-end mb-6">
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => 
+               { 
+                setSelectedClient(null);
+  setNewClientDetails({ clientName: "", contactNo: "", emailId: "", address: "" });
+                setShowAddModal(true)
+               }}
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
             >
               + Add Client
@@ -169,6 +228,8 @@ const Clients = () => {
                   key={client._id}
                   className="relative /5 dark:/10 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg transition-transform hover:scale-[1.02]"
                 >
+                  
+
                   {/* Header with Avatar & Name */}
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-teal-400 flex items-center justify-center text-white text-xl font-bold shadow-md">
@@ -204,6 +265,21 @@ const Clients = () => {
                       <span className="text-red-400 dark:text-red-300">📍</span>
                       <span>{client.address || "Not Provided"}</span>
                     </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+  <button
+    onClick={() => handleEditClient(client)}
+    className="text-sm px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+  >
+    Edit
+  </button>
+  <button
+    onClick={() => handleDeleteClient(client._id)}
+    className="text-sm px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+  >
+    Delete
+  </button>
+</div>
                   </div>
                 </div>
               ))
