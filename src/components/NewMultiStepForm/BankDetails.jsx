@@ -496,8 +496,9 @@ const BankDetails = () => {
     return;
   }
 
+  // Set the form data to the existing bank details for editing
   setNewBankDetails({
-    _id: id, // Preserve the ID for updating
+    _id: id, // Store the ID for updating
     businessName: detail.businessName || "",
     clientName: detail.clientName || "",
     bankName: detail.bankDetails?.Bank || "",
@@ -508,8 +509,10 @@ const BankDetails = () => {
     ifscCode: detail.bankDetails?.IFSCCode || "",
     city: detail.bankDetails?.City || "",
   });
-  setShowAddModal(true);
+
+  setShowAddModal(true); // Show the modal for editing
 };
+
 
   const handleDelete = async (detail) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
@@ -544,7 +547,7 @@ const BankDetails = () => {
 
   const handleUpdateBank = async () => {
   try {
-    const id = newBankDetails._id;
+    const id = newBankDetails._id; // Ensure the _id is available
     if (!id) {
       alert("Cannot update - no valid ID found");
       return;
@@ -575,28 +578,18 @@ const BankDetails = () => {
 
     if (response.ok) {
       const updatedBank = await response.json();
-      
-      // Update the local state
-      setBankDetails(prev => prev.map(item => 
-        (item._id === id || item.bankDetails?._id === id) 
+
+      // Update the local state with the updated bank details
+      setBankDetails(prev => prev.map(item =>
+        (item._id === id || item.bankDetails?._id === id)
           ? { 
               ...item, 
-              businessName: updatedBank.data.businessName,
-              clientName: updatedBank.data.clientName,
-              bankDetails: {
-                ...item.bankDetails,
-                Bank: updatedBank.data.bankName,
-                BankManagerName: updatedBank.data.managerName,
-                Post: updatedBank.data.post,
-                ContactNo: updatedBank.data.contactNo,
-                EmailId: updatedBank.data.emailId,
-                IFSCCode: updatedBank.data.ifscCode,
-                City: updatedBank.data.city
-              }
-            } 
+              ...updatedBank.data 
+            }
           : item
       ));
-      
+
+      // Close the modal and reset the form
       setShowAddModal(false);
       setNewBankDetails({
         businessName: "",
@@ -609,6 +602,7 @@ const BankDetails = () => {
         ifscCode: "",
         city: "",
       });
+
       alert("Bank details updated successfully");
     } else {
       const errorResponse = await response.json();
@@ -1039,7 +1033,8 @@ const BankDetails = () => {
                     <i className="fas fa-times mr-2"></i> Cancel
                   </button>
                   <button
-                    onClick={handleAddBank}
+                    // onClick={handleAddBank}
+                    onClick={newBankDetails._id ? handleUpdateBank : handleAddBank} 
                     className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md"
                   >
                     <i className="fas fa-paper-plane mr-2"></i> 
