@@ -13,9 +13,6 @@ const MainLogin = ({ onLogin }) => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpValue, setOtpValue] = useState("");
 
-
-
-  
   const navigate = useNavigate();
 
   // Fixed credentials for Admin & Client
@@ -28,14 +25,45 @@ const MainLogin = ({ onLogin }) => {
   
 
   // ✅ Check if already logged in
+  // useEffect(() => {
+  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
+  //   if (isLoggedIn) {
+  //     const userRole = localStorage.getItem("userRole");
+  //     onLogin(true, userRole);
+  //     navigate("/");
+  //   }
+  // }, [navigate, onLogin]);
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn) {
-      const userRole = localStorage.getItem("userRole");
-      onLogin(true, userRole);
-      navigate("/");
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+  const loginTime = localStorage.getItem("loginTime");
+
+  if (isLoggedIn && loginTime) {
+    const now = new Date().getTime();
+    const elapsed = now - parseInt(loginTime);
+
+    const maxSessionTime = 10 * 60 * 60 * 1000; // 10 hours in milliseconds
+
+    if (elapsed >= maxSessionTime) {
+      // Auto-logout
+      localStorage.clear();
+      navigate("/login"); // or navigate("/") depending on your route
+      return;
     }
-  }, [navigate, onLogin]);
+
+    // ✅ Still valid - start timeout to auto-logout after remaining time
+    const remainingTime = maxSessionTime - elapsed;
+    const timeout = setTimeout(() => {
+      localStorage.clear();
+      navigate("/login");
+    }, remainingTime);
+
+    const userRole = localStorage.getItem("userRole");
+    onLogin(true, userRole);
+
+    // ✅ Cleanup on component unmount
+    return () => clearTimeout(timeout);
+  }
+}, [navigate, onLogin]);
 
 
 
@@ -58,6 +86,7 @@ const MainLogin = ({ onLogin }) => {
       });
   
       const data = await response.json();
+      const loginTime = new Date().getTime();
   
       if (response.ok) {
         console.log("✅ Admin Login Successful (Database):", data);
@@ -68,7 +97,9 @@ const MainLogin = ({ onLogin }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
         localStorage.setItem("employeeId", data.employeeId)
+        localStorage.setItem("loginTime", loginTime.toString());
         sessionStorage.setItem("justLoggedIn", "true");
+        
         onLogin(true, "admin");
         navigate("/");
         return; // ✅ Exit if database login succeeds
