@@ -372,7 +372,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
     } else {
       console.error("⚠️ Unexpected response:", response);
-      alert("Failed to update report."); // fallback only if response is not success
+      alert("Failed to update report."); 
     }
 
       await logActivity(
@@ -385,7 +385,7 @@ const MultiStepForm = ({ userRole, userName }) => {
         "❌ Error updating report:",
         error.response ? error.response.data : error.message
       );
-      alert("Failed to update report.");
+      // alert("Failed to update report.");
     }
   };
 
