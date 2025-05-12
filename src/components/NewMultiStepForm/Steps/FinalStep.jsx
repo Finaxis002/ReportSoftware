@@ -195,26 +195,25 @@ const FinalStep = ({ formData, userRole }) => {
 
     if (formData?.CostOfProject) {
       const rows = [["Name", "Amount"]];
-    
+
       Object.values(formData.CostOfProject).forEach((item) => {
         if (item?.name && typeof item.amount === "number") {
           rows.push([item.name, item.amount]);
         }
       });
-    
+
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Cost of Project");
     }
-    
 
     if (formData?.Expenses) {
       const worksheetData = [];
-    
+
       // 1️⃣ Normal Expenses
       if (Array.isArray(formData.Expenses.normalExpense)) {
         worksheetData.push(["Normal Expenses"]); // Section heading
         worksheetData.push(["Name", "Amount", "Quantity", "Value", "Type"]); // Headers
-    
+
         formData.Expenses.normalExpense.forEach((item) => {
           if (item?.name) {
             worksheetData.push([
@@ -226,15 +225,15 @@ const FinalStep = ({ formData, userRole }) => {
             ]);
           }
         });
-    
+
         worksheetData.push([]); // Spacer row
       }
-    
+
       // 2️⃣ Direct Expenses
       if (Array.isArray(formData.Expenses.directExpense)) {
         worksheetData.push(["Direct Expenses"]); // Section heading
         worksheetData.push(["Name", "Value", "Type"]); // Headers
-    
+
         formData.Expenses.directExpense.forEach((item) => {
           if (item?.name) {
             worksheetData.push([
@@ -245,23 +244,32 @@ const FinalStep = ({ formData, userRole }) => {
           }
         });
       }
-    
+
       // ✅ Create worksheet and add it
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
     }
-    
-    
 
     if (formData?.Revenue) {
       const revenueData = formData.Revenue;
       const revenueSheet = [];
-    
+
       // 1️⃣ Form Fields (if exists)
       if (Array.isArray(revenueData.formFields)) {
         revenueSheet.push(["Form Fields"]);
-        revenueSheet.push(["Index", "Particular", "Serial Number", "Row Type", "Increase By", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
-    
+        revenueSheet.push([
+          "Index",
+          "Particular",
+          "Serial Number",
+          "Row Type",
+          "Increase By",
+          "Year 1",
+          "Year 2",
+          "Year 3",
+          "Year 4",
+          "Year 5",
+        ]);
+
         revenueData.formFields.forEach((item, i) => {
           revenueSheet.push([
             i + 1,
@@ -272,15 +280,25 @@ const FinalStep = ({ formData, userRole }) => {
             ...(Array.isArray(item.years) ? item.years.slice(0, 5) : []),
           ]);
         });
-    
+
         revenueSheet.push([]);
       }
-    
+
       // 2️⃣ Form Fields 2 (if exists)
       if (Array.isArray(revenueData.formFields2)) {
         revenueSheet.push(["Form Fields 2"]);
-        revenueSheet.push(["Index", "Particular", "Amount", "Increase By", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]);
-    
+        revenueSheet.push([
+          "Index",
+          "Particular",
+          "Amount",
+          "Increase By",
+          "Year 1",
+          "Year 2",
+          "Year 3",
+          "Year 4",
+          "Year 5",
+        ]);
+
         revenueData.formFields2.forEach((item, i) => {
           revenueSheet.push([
             i + 1,
@@ -290,10 +308,10 @@ const FinalStep = ({ formData, userRole }) => {
             ...(Array.isArray(item.years) ? item.years.slice(0, 5) : []),
           ]);
         });
-    
+
         revenueSheet.push([]);
       }
-    
+
       // 3️⃣ Total Revenue For Others
       if (Array.isArray(revenueData.totalRevenueForOthers)) {
         revenueSheet.push(["Total Revenue For Others"]);
@@ -301,7 +319,7 @@ const FinalStep = ({ formData, userRole }) => {
         revenueSheet.push(revenueData.totalRevenueForOthers.slice(0, 5));
         revenueSheet.push([]);
       }
-    
+
       // 4️⃣ Total Monthly Revenue
       if (Array.isArray(revenueData.totalMonthlyRevenue)) {
         revenueSheet.push(["Total Monthly Revenue"]);
@@ -309,7 +327,7 @@ const FinalStep = ({ formData, userRole }) => {
         revenueSheet.push(revenueData.totalMonthlyRevenue.slice(0, 5));
         revenueSheet.push([]);
       }
-    
+
       // 5️⃣ No. of Months
       if (Array.isArray(revenueData.noOfMonths)) {
         revenueSheet.push(["No. of Months"]);
@@ -317,7 +335,7 @@ const FinalStep = ({ formData, userRole }) => {
         revenueSheet.push(revenueData.noOfMonths.slice(0, 5));
         revenueSheet.push([]);
       }
-    
+
       // 6️⃣ Total Revenue
       if (Array.isArray(revenueData.totalRevenue)) {
         revenueSheet.push(["Total Revenue"]);
@@ -325,66 +343,78 @@ const FinalStep = ({ formData, userRole }) => {
         revenueSheet.push(revenueData.totalRevenue.slice(0, 5));
         revenueSheet.push([]);
       }
-    
+
       // 7️⃣ Form Type
       revenueSheet.push(["Form Type", revenueData.formType ?? ""]);
-    
+
       // ✅ Create and append the worksheet
       const worksheet = XLSX.utils.aoa_to_sheet(revenueSheet);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Revenue");
     }
-    
+
     if (formData?.MoreDetails && Object.keys(formData.MoreDetails).length > 0) {
       const moreDetails = formData.MoreDetails;
       const rows = [];
-    
+
       const addSectionHeader = (title) => {
         rows.push([title]);
         rows.push([]); // Empty row
       };
-    
+
       const addArrayTable = (label, array = []) => {
         const header = ["Particular", ...array.map((_, i) => `Year ${i + 1}`)];
         rows.push(header);
         rows.push([label, ...array]);
         rows.push([]);
       };
-    
+
       const addStructuredRows = (title, dataArray) => {
         addSectionHeader(title);
         if (Array.isArray(dataArray)) {
           const yearCount =
-            dataArray.find((item) => Array.isArray(item?.years))?.years.length || 8;
-          const header = ["Particular", ...Array.from({ length: yearCount }, (_, i) => `Year ${i + 1}`)];
+            dataArray.find((item) => Array.isArray(item?.years))?.years
+              .length || 8;
+          const header = [
+            "Particular",
+            ...Array.from({ length: yearCount }, (_, i) => `Year ${i + 1}`),
+          ];
           rows.push(header);
-    
+
           dataArray.forEach((item) => {
             if (item?.particular && Array.isArray(item.years)) {
               rows.push([item.particular, ...item.years]);
             }
           });
-    
+
           rows.push([]);
         }
       };
-    
+
       // 👉 Export currentAssets and currentLiabilities
       addStructuredRows("Current Assets", moreDetails.currentAssets || []);
-      addStructuredRows("Current Liabilities", moreDetails.currentLiabilities || []);
-    
+      addStructuredRows(
+        "Current Liabilities",
+        moreDetails.currentLiabilities || []
+      );
+
       // 👉 Export other raw arrays (openingStock, closingStock, withdrawals, etc.)
-      ["openingStock", "closingStock", "withdrawals", "Withdrawals", "OpeningStock", "ClosingStock"].forEach((key) => {
+      [
+        "openingStock",
+        "closingStock",
+        "withdrawals",
+        "Withdrawals",
+        "OpeningStock",
+        "ClosingStock",
+      ].forEach((key) => {
         if (Array.isArray(moreDetails[key])) {
           addArrayTable(key, moreDetails[key]);
         }
       });
-    
+
       // 👉 Convert to sheet and append to workbook
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(workbook, worksheet, "More Details");
     }
-    
-    
 
     if (Object.keys(sections["Other Data"]).length > 0) {
       addKeyValueSheet(sections["Other Data"], "Other Data");
@@ -394,12 +424,53 @@ const FinalStep = ({ formData, userRole }) => {
     XLSX.writeFile(workbook, "exported-data.xlsx");
   };
 
-  const handleCheckProfit = () => {
+  const handleCheckProfit = async () => {
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
 
-    // ✅ Open the popup window with specific size and position
+    const reportTitle =
+      formData?.AccountInformation?.businessName || "Untitled";
+    const sessionId =
+      localStorage.getItem("activeSessionId") || formData?.sessionId;
+
+    let reportId = null;
+
+    // ✅ Try to fetch reportId via sessionId
+    try {
+      const res = await fetch(
+        `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+      );
+      const data = await res.json();
+      if (data?.reportId) {
+        reportId = data.reportId;
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch reportId for check_profit log");
+    }
+    const reportOwner = formData?.AccountInformation?.businessOwner || "";
+    // ✅ Log activity
+    try {
+      await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "check_profit",
+          reportTitle,
+          reportId,
+          reportOwner, // ✅ send this
+          performedBy: {
+            name: userName || "Unknown",
+            role: userRole || "unknown",
+          },
+        }),
+      });
+      console.log("✅ Logged 'check_profit' activity");
+    } catch (error) {
+      console.warn("❌ Failed to log 'check_profit' activity:", error);
+    }
+
+    // ✅ Continue opening checkprofit
     const popup = window.open(
       "",
       "popupWindow",
@@ -412,42 +483,25 @@ const FinalStep = ({ formData, userRole }) => {
     }
 
     if (iframeRef.current) {
-      // ✅ Load the generated PDF
       iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
 
-      // ✅ Fallback timeout after 15 seconds
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
-          console.log("⏳ Navigating to checkprofit after timeout...");
-          setIsPDFLoaded(true);
-          setIsLoading(false);
-
-          // ✅ Open checkprofit in the popup window
           popup.location.href = "/checkprofit";
         }
       }, 15000);
 
-      // ✅ Handle iframe load for early completion
       iframeRef.current.onload = () => {
-        if (!isComponentMounted.current) return;
-        console.log("✅ PDF Loaded Successfully");
-
         clearTimeout(timeoutId.current);
         timeoutId.current = null;
-        setIsPDFLoaded(true);
-        setIsLoading(false);
-
-        // ✅ Navigate the popup window after PDF load
-        setTimeout(() => {
-          if (isComponentMounted.current && popup) {
-            console.log("🚀 Opening checkprofit in popup...");
+        if (isComponentMounted.current && popup) {
+          setTimeout(() => {
             popup.location.href = "/checkprofit";
-          }
-        }, 3000);
+          }, 3000);
+        }
       };
     }
 
-    // ✅ Save last step to localStorage
     localStorage.setItem("lastStep", 8);
   };
 
@@ -458,19 +512,19 @@ const FinalStep = ({ formData, userRole }) => {
           fetch("https://backend-three-pink.vercel.app/api/employees"),
           fetch("https://backend-three-pink.vercel.app/api/admins"),
         ]);
-  
+
         if (!empRes.ok || !adminRes.ok) {
           throw new Error("Failed to fetch data");
         }
-  
+
         const employeeList = await empRes.json();
         const adminList = await adminRes.json();
-  
+
         const normalizedUserName = userName?.trim().toLowerCase();
-  
+
         if (userRole === "admin") {
           const storedAdminName = localStorage.getItem("adminName");
-  
+
           if (!storedAdminName) {
             setPermissions({
               generateReport: true,
@@ -482,18 +536,18 @@ const FinalStep = ({ formData, userRole }) => {
             });
             return;
           }
-  
+
           const admin = adminList.find(
             (a) =>
               a.username?.trim().toLowerCase() === normalizedUserName ||
               a.adminId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (admin?.permissions) {
             setPermissions(admin.permissions);
           }
         }
-  
+
         if (userRole === "employee") {
           const employee = employeeList.find(
             (emp) =>
@@ -501,7 +555,7 @@ const FinalStep = ({ formData, userRole }) => {
               emp.email?.trim().toLowerCase() === normalizedUserName ||
               emp.employeeId?.trim().toLowerCase() === normalizedUserName
           );
-  
+
           if (employee?.permissions) {
             setPermissions(employee.permissions);
           }
@@ -510,7 +564,7 @@ const FinalStep = ({ formData, userRole }) => {
         console.error("Error fetching permissions:", err.message);
       }
     };
-  
+
     fetchPermissions(); // 🔁 Only fetch once when dependencies change
   }, [userRole, userName]);
 
@@ -536,13 +590,69 @@ const FinalStep = ({ formData, userRole }) => {
     const handleUnload = () => {
       localStorage.removeItem("selectedColor");
     };
-  
+
     window.addEventListener("beforeunload", handleUnload);
-  
+
     return () => {
       window.removeEventListener("beforeunload", handleUnload);
     };
   }, []);
+
+
+  const handleGeneratePdfClick = async () => {
+    try {
+      console.log("🚀 Logging 'generated-pdf' activity...");
+  
+      const reportTitle =
+      formData?.AccountInformation?.businessName || "Untitled";
+    const sessionId =
+      localStorage.getItem("activeSessionId") || formData?.sessionId;
+
+    let reportId = null;
+
+    // ✅ Try to fetch reportId via sessionId
+    try {
+      const res = await fetch(
+        `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+      );
+      const data = await res.json();
+      if (data?.reportId) {
+        reportId = data.reportId;
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch reportId for generated_pdf log");
+    }
+    const reportOwner = formData?.AccountInformation?.businessOwner || "";
+    // ✅ Log activity
+    try {
+      await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generated_pdf",
+          reportTitle,
+          reportId,
+          reportOwner, // ✅ send this
+          performedBy: {
+            name: userName || "Unknown",
+            role: userRole || "unknown",
+          },
+        }),
+      });
+      console.log("✅ Logged 'generated_pdf' activity");
+    } catch (error) {
+      console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+    }
+  
+      console.log("✅ Logged 'generated-pdf' activity");
+  
+      // ✅ Open PDF in new tab
+      window.open("/generated-pdf", "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("❌ Failed to log 'generated-pdf' activity:", error);
+    }
+  };
+  
   
 
   return (
@@ -748,7 +858,6 @@ const FinalStep = ({ formData, userRole }) => {
       )}
 
       <div className="flex gap-5">
-
         {/* ✅ Check Profit Button */}
         <button
           onClick={handleCheckProfit}
@@ -756,19 +865,18 @@ const FinalStep = ({ formData, userRole }) => {
         >
           {isLoading ? "Loading..." : "Check Profit"}
         </button>
-        
+
         {/* ✅ Generate PDF Button */}
         {((userRole === "admin" &&
           (!localStorage.getItem("adminName") || permissions.generateReport)) ||
           (userRole === "employee" && permissions.generateReport)) && (
-          <Link to="/generated-pdf" target="_blank" rel="noopener noreferrer">
-            <button className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              Generate PDF
-            </button>
-          </Link>
+          <button
+            onClick={handleGeneratePdfClick}
+            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            Generate PDF
+          </button>
         )}
-
-        
 
         {/* ✅ New Export Data Button */}
         {((userRole === "admin" &&
@@ -787,7 +895,6 @@ const FinalStep = ({ formData, userRole }) => {
 <ChartColorSelector chartType="barChart" />
 <ChartColorSelector chartType="dscrChart" />
 <ChartColorSelector chartType="currentRatioChart" /> */}
-
 
       {/* ✅ Hidden Iframe */}
       <iframe

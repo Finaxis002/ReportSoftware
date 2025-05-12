@@ -145,37 +145,43 @@ const RatioAnalysis = ({
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum
   const CurrentAssetsArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      // ✅ Get closing cash balance safely
       const cashBalance =
         Number(receivedTotalLiabilities?.closingCashBalanceArray?.[index]) || 0;
-
-      // ✅ Exclude "Investments" while summing up Current Assets
+  
       const currentYearAssets = (formData?.MoreDetails?.currentAssets ?? [])
-        .filter((asset) => asset.particular !== "Investments") // ✅ Exclude Investments
+        .filter((asset) => asset.particular !== "Investments")
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-        const inventory = Array.from({
-          length: formData.MoreDetails.OpeningStock.length,
-        }).map((_, yearIndex) => {
-          const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-          const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
-          const finalStock = ClosingStock - OpeningStock;
-          return finalStock;
-        });
-    
-        // ✅ If Inventory is not available, set it to 0
-        const inventoryValue = inventory[index] || 0;
-
-      cumulativeCurrentAssets += currentYearAssets + inventoryValue; // Apply cumulative rule
-
-      
-
-      // ✅ Compute final total: Cash Balance + Cumulative Current Assets
-      return cashBalance + cumulativeCurrentAssets;
+  
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+        return ClosingStock - OpeningStock;
+      });
+  
+      const inventoryValue = inventory[index] || 0;
+  
+      cumulativeCurrentAssets += currentYearAssets + inventoryValue;
+  
+      const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
+  
+      // ✅ Log everything year-wise
+      console.log(`\nYear ${index + 1}:`);
+      console.log("Cash Balance           :", cashBalance);
+      console.log("Current Year Assets    :", currentYearAssets);
+      console.log("Inventory Value        :", inventoryValue);
+      console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
+      console.log("Total Current Assets   :", totalCurrentAssets);
+  
+      return totalCurrentAssets;
     }
   );
+  
 
-  // ✅ Initialize an array to store total liabilities for each projection year
+// ✅ Initialize an array to store total liabilities for each projection year
 
   // console.log("Final Current Liabilities Array:", currentLiabilities);
 
@@ -366,36 +372,45 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
     ) || []
   );
 
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
-    .map((r) => parseFloat(r)) // Convert to float
-    .filter((r) => !isNaN(r) && r !== "-" && r >= 1); // ✅ Ignore "-" & values < 1
+  .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
+  .filter(({ value, index }) => {
+    // Skip the first year if hidden
+    if (hideFirstYear && index === 0) return false;
+    // Filter out invalid, non-numeric, or < 1 values
+    return !isNaN(value) && value >= 1;
+  })
+  .map(({ value }) => value); // Extract just the values
+
 
     const averageCurrentRatio = (() => {
-      // Filter out invalid ratios and convert valid ones to numbers
-      const validRatios = currentRatio
-        .filter((r) => r !== "-" && !isNaN(parseFloat(r))) // Filter out invalid values
-        .map((r) => parseFloat(r)); // Convert to numeric values
-  
-      // ✅ Exclude leading values ≤ 1
-      const firstValidIndex = validRatios.findIndex((value) => value > 0);
-      const nonZeroRatios = validRatios.slice(firstValidIndex);
-  
-      // ✅ If there are no valid ratios left, return "-"
-      if (nonZeroRatios.length === 0) {
+      // Step 1: Filter out invalid values and convert valid ones to numbers
+      let validRatios = currentRatio
+        .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+        .map((r) => parseFloat(r));
+    
+      // Step 2: Remove first year's ratio if it's hidden
+      if (hideFirstYear) {
+        validRatios = validRatios.slice(1); // Remove first index
+      }
+    
+      // Step 3: If no valid ratios left, return "-"
+      if (validRatios.length === 0) {
         return "-";
       }
-  
-      // ✅ Calculate the total of valid non-zero ratios
-      const total = nonZeroRatios.reduce((sum, value) => sum + value, 0);
-  
-      // ✅ Return the average rounded to 2 decimal places
-      const average = (total / nonZeroRatios.length).toFixed(2);
-  
+    
+      // Step 4: Calculate the average
+      const total = validRatios.reduce((sum, value) => sum + value, 0);
+      const average = (total / validRatios.length).toFixed(2);
+    
       return average;
     })();
+    
 
   const numOfYearsUsedForAvg = validRatios.length;
+
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -433,7 +448,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
     numOfYearsUsedForAvg,
   ]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
   // const orientation =
   // hideFirstYear
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")

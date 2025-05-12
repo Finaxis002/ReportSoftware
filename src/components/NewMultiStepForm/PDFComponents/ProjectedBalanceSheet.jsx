@@ -225,11 +225,6 @@ const ProjectedBalanceSheet = ({
       const currentYearLiabilities = (
         formData?.MoreDetails?.currentLiabilities ?? []
       )
-        .filter(
-          (liabilitie) =>
-            liabilitie.particular !==
-            "Quasi Equity (Important to set Current Ratio)"
-        )
         .reduce(
           (total, liabilities) =>
             total + Number(liabilities.years?.[yearIndex] || 0),

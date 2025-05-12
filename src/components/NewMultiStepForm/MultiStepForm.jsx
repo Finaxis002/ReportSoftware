@@ -130,27 +130,29 @@ const MultiStepForm = ({ userRole, userName }) => {
   const handleBusinessSelect = (businessData, sessionId) => {
     // ✅ Create a deep copy of the fetched business data
     let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
-  
+
     // ✅ Get current logged-in user and role from localStorage
     const currentUser =
-      localStorage.getItem("adminName") || localStorage.getItem("employeeName") || "Unknown";
+      localStorage.getItem("adminName") ||
+      localStorage.getItem("employeeName") ||
+      "Unknown";
     const currentUserRole = localStorage.getItem("userRole") || "unknown";
-  
+
     // ✅ REMOVE _id and sessionId if creating a new report
     if (isCreateReportWithExistingClicked) {
       delete cleanedBusinessData._id;
       delete cleanedBusinessData.sessionId;
       console.log("🗑 Removing _id and sessionId for new report creation...");
       setSessionId(null); // Reset sessionId for new report
-  
+
       // ✅ Force update author info
       if (!cleanedBusinessData.AccountInformation) {
         cleanedBusinessData.AccountInformation = {};
       }
-  
+
       cleanedBusinessData.AccountInformation.userRole = currentUserRole;
       cleanedBusinessData.AccountInformation.createdBy = currentUser;
-  
+
       console.log("✍️ Overwriting author info:", {
         userRole: currentUserRole,
         createdBy: currentUser,
@@ -158,28 +160,62 @@ const MultiStepForm = ({ userRole, userName }) => {
     } else {
       setSessionId(sessionId || null); // Use sessionId when updating
     }
-  
-    console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
-  
+
+    console.log(
+      "✅ Cleaned Business Data (Before Setting Form):",
+      cleanedBusinessData
+    );
+
     // ✅ Set final data in state
     setFormData(cleanedBusinessData);
   };
-  
+
+  const waitForReportId = async (sessionId, retries = 5, delay = 1000) => {
+    console.log("⏳ Waiting for reportId for session:", sessionId);
+    
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(`🔍 Attempt ${attempt} to fetch reportId...`);
+        const res = await axios.get(
+          `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+        );
+        
+        console.log("📡 Response from get-report-id:", res.data);
+        
+        if (res.data?.reportId) {
+          console.log("🎉 Successfully got reportId:", res.data.reportId);
+          return res.data.reportId;
+        }
+        
+        if (attempt < retries) {
+          console.log(`⏸ Waiting ${delay}ms before next attempt...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      } catch (err) {
+        console.error(`⚠️ Attempt ${attempt} failed:`, err.message);
+        if (attempt === retries) {
+          console.error("❌ All attempts to fetch reportId failed");
+          throw err;
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    console.warn("⚠️ Exhausted all retries without getting reportId");
+    return null;
+  };
 
   const handleSaveData = async () => {
     try {
       let requestData = new FormData();
-  
       requestData.append("step", steps[currentStep - 1]);
   
-      // Include userRole explicitly in formData
       const currentUser =
         localStorage.getItem("adminName") ||
         localStorage.getItem("employeeName") ||
         "Unknown";
       const currentUserRole = localStorage.getItem("userRole") || "unknown";
   
-      // Overwrite values in AccountInformation
       let formDataWithoutFile = {
         ...formData,
         AccountInformation: {
@@ -189,24 +225,17 @@ const MultiStepForm = ({ userRole, userName }) => {
         },
       };
   
-      // Ensure preliminaryExpenses is included inside CostOfProject
       formDataWithoutFile.CostOfProject = {
         ...formDataWithoutFile.CostOfProject,
-        preliminaryExpenses: formData.preliminaryExpenses, // Add preliminaryExpenses
+        preliminaryExpenses: formData.preliminaryExpenses,
       };
-  
-      console.log("📦 Final Payload to Backend:", formDataWithoutFile.AccountInformation);
   
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
   
       let apiUrl = "https://backend-three-pink.vercel.app/save-step";
+      const isNew = !sessionId || isCreateReportWithExistingClicked;
   
-      if (!sessionId || isCreateReportWithExistingClicked) {
-        apiUrl =
-          "https://backend-three-pink.vercel.app/create-new-from-existing";
-        localStorage.removeItem("activeSessionId");
-        setSessionId(null);
-      } else {
+      if (!isNew) {
         requestData.append("sessionId", sessionId);
       }
   
@@ -220,17 +249,32 @@ const MultiStepForm = ({ userRole, userName }) => {
         requestData.append("file", formData.AccountInformation.logoOfBusiness);
       }
   
-      console.log(`🚀 Sending Request to API: ${apiUrl}`);
-  
+      // ✅ API call first
       const response = await axios.post(apiUrl, requestData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
   
       console.log("✅ Response from API:", response.data);
   
-      if (!sessionId || isCreateReportWithExistingClicked) {
-        setSessionId(response.data.sessionId);
-        localStorage.setItem("activeSessionId", response.data.sessionId);
+      // ✅ Set sessionId if it was just created
+      if (isNew) {
+        const newSessionId = response.data.sessionId;
+        setSessionId(newSessionId);
+        localStorage.setItem("activeSessionId", newSessionId);
+  
+        const reportTitle =
+          formDataWithoutFile?.AccountInformation?.businessName || "Untitled";
+  
+        try {
+          const reportId = await waitForReportId(newSessionId);
+          if (reportId) {
+            await logActivity("create", reportTitle, reportId);
+          } else {
+            console.warn("⚠️ No reportId available for logging");
+          }
+        } catch (err) {
+          console.warn("⚠️ Activity logging failed:", err.message);
+        }
       }
   
       alert("Data saved successfully!");
@@ -245,60 +289,57 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const handleCreateNewFromExisting = async () => {
     try {
-      console.log(
-        "🔄 Preparing to create a new report from an existing one..."
-      );
+      console.log("🔄 Creating new report from existing...");
       setSessionId(null);
-
-      // ✅ Deep Copy `formData` to remove any lingering references
+  
+      // Step 1: Prepare data
       let newData = JSON.parse(JSON.stringify(formData));
-
-      // ✅ REMOVE `_id` & `sessionId` (CRITICAL)
       delete newData._id;
       delete newData.sessionId;
-
       newData.cloneFromExisting = true;
-      console.log(
-        "🚀 Final Payload Before API Call:",
-        JSON.stringify(newData, null, 2)
-      );
-
-      // ✅ Prepare FormData
-      let requestData = new FormData();
+  
+      // Ensure creator info exists
+      if (!newData.AccountInformation) newData.AccountInformation = {};
+      newData.AccountInformation.userRole = userRole;
+      newData.AccountInformation.createdBy = userName;
+  
+      const requestData = new FormData();
       requestData.append("data", JSON.stringify(newData));
-
+  
       if (formData.AccountInformation?.logoOfBusiness instanceof File) {
         requestData.append("file", formData.AccountInformation.logoOfBusiness);
       }
-
-      console.log("🚀 Sending Request to /create-new-from-existing");
-
-      // ✅ Step 1: Always create a new document (NO `sessionId`)
+  
+      // Step 2: Create report
       const createResponse = await axios.post(
         "https://backend-three-pink.vercel.app/create-new-from-existing",
         requestData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-
-      console.log("✅ New Report Created:", createResponse.data);
-
-      // ✅ Step 2: Store the NEW `sessionId`
+  
       const newSessionId = createResponse.data.sessionId;
       setSessionId(newSessionId);
       localStorage.setItem("activeSessionId", newSessionId);
-
+  
+      // Step 3: Retry to fetch the Mongo _id using sessionId
+      const reportId = await waitForReportId(newSessionId);
+      if (!reportId) {
+        console.warn("❌ Could not fetch reportId, skipping activity log.");
+        return;
+      }
+  
+      // Step 4: Log activity now
+      const reportTitle = newData.AccountInformation?.businessName || "Untitled";
+      await logActivity("create", reportTitle, reportId);
+  
       alert("✅ New Report Created Successfully!");
     } catch (error) {
-      console.error("🔥 Error creating new report from existing:", error);
-      alert(
-        `❌ Failed to create new report: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      console.error("🔥 Error in create from existing:", error);
+      alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
     }
   };
+  
+  
 
   const handleUpdate = async () => {
     if (!sessionId) {
@@ -328,10 +369,17 @@ const MultiStepForm = ({ userRole, userName }) => {
       if (response.status === 200 || response.status === 201) {
       console.log("✅ Update successful:", response.data);
       alert("Report updated successfully!");
+
     } else {
       console.error("⚠️ Unexpected response:", response);
       alert("Failed to update report."); // fallback only if response is not success
     }
+
+      await logActivity(
+        "update",
+        formData?.AccountInformation?.businessName || "Untitled"
+      );
+
     } catch (error) {
       console.error(
         "❌ Error updating report:",
@@ -574,6 +622,50 @@ const MultiStepForm = ({ userRole, userName }) => {
     console.log("Step clicked:", stepNumber);
     setCurrentStep(stepNumber);
   };
+
+  const logActivity = async (action, reportTitle = "", reportId = "") => {
+    try {
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+  
+      const reportOwner = formData?.AccountInformation?.businessOwner || "";
+  
+      console.log("📝 Logging activity with:", {
+        action,
+        reportTitle,
+        reportId,
+        name: currentUser,
+        role: currentUserRole
+      });
+  
+      const response = await axios.post("https://backend-three-pink.vercel.app/api/activity/log", {
+        action,
+        reportTitle,
+        reportId,
+        reportOwner,
+        performedBy: {
+          name: currentUser,
+          role: currentUserRole
+        },
+        timestamp: new Date().toISOString()
+      });
+  
+      console.log("✅ Activity logged successfully:", response.data);
+      return response.data;
+    } catch (err) {
+      console.error("❌ Failed to log activity:", {
+        error: err.response?.data || err.message,
+        action,
+        reportTitle,
+        reportId
+      });
+      throw err;
+    }
+  };
+  
 
   return (
     <div className="flex h-[100vh]">

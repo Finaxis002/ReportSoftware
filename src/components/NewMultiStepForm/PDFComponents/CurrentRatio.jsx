@@ -34,7 +34,7 @@ const CurrentRatio = ({
   //   console.log("received values", receivedAssetsLiabilities);
   // ✅ Safely handle undefined formData and provide fallback
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
-
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
   const currentRatio = Array.from({
     length: receivedAssetsLiabilities?.CurrentAssetsArray?.length || 0,
   }).map((_, index) => {
@@ -52,38 +52,38 @@ const CurrentRatio = ({
   // ✅ Calculate Average Current Ratio (Excluding Leading Zeros and Values ≤ 1)
   const averageCurrentRatio = (() => {
     // Filter out invalid ratios and convert valid ones to numbers
-    const validRatios = currentRatio
-      .filter((r) => r !== "-" && !isNaN(parseFloat(r))) // Filter out invalid values
-      .map((r) => parseFloat(r)); // Convert to numeric values
-
-    // ✅ Exclude leading values ≤ 1
-    const firstValidIndex = validRatios.findIndex((value) => value > 0);
-    const nonZeroRatios = validRatios.slice(firstValidIndex);
-
+    let validRatios = currentRatio
+      .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+      .map((r) => parseFloat(r));
+  
+    // ✅ Remove the first year's value if it's hidden
+    if (hideFirstYear) {
+      validRatios = validRatios.slice(1); // Remove first index
+    }
+  
     // ✅ If there are no valid ratios left, return "-"
-    if (nonZeroRatios.length === 0) {
+    if (validRatios.length === 0) {
       return "-";
     }
-
-    // ✅ Calculate the total of valid non-zero ratios
-    const total = nonZeroRatios.reduce((sum, value) => sum + value, 0);
-
-    // ✅ Return the average rounded to 2 decimal places
-    const average = (total / nonZeroRatios.length).toFixed(2);
-
+  
+    // ✅ Calculate the average of valid ratios
+    const total = validRatios.reduce((sum, value) => sum + value, 0);
+    const average = (total / validRatios.length).toFixed(2);
+  
     return average;
   })();
+  
 
   useEffect(() => {
-    if (averageCurrentRatio.length > 0) {
+    if (averageCurrentRatio !== "-") {
       sendAverageCurrentRation((prev) => ({
         ...prev,
         averageCurrentRatio,
       }));
     }
-    // console.log("sending average current ratio : ", averageCurrentRatio)
-  }, [JSON.stringify(averageCurrentRatio)]);
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  }, [averageCurrentRatio]);
+  
+
 
   useEffect(() => {
     if (currentRatio.length > 0) {

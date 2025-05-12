@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser
-} from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
   const nav = useNavigate();
@@ -26,23 +24,22 @@ const MenuBar = ({ userRole }) => {
     const fetchUnseenNotifications = async () => {
       const employeeId = localStorage.getItem("employeeId");
       if (!employeeId) return;
-  
+
       try {
         const res = await fetch(
           `https://backend-three-pink.vercel.app/api/notifications/unseen?employeeId=${employeeId}`
         );
         const data = await res.json();
         setUnseenCount(data.length);
-  
+
         console.log("🔴 Unseen Count:", data.length);
       } catch (err) {
         console.error("❌ Error fetching unseen notifications:", err.message);
       }
     };
-  
+
     fetchUnseenNotifications();
   }, [location]);
-  
 
   // Define menu items with roles
   const menuItems = [
@@ -249,6 +246,30 @@ const MenuBar = ({ userRole }) => {
         </svg>
       ),
     },
+
+    {
+      path: "/history",
+      label: "History",
+      roles: ["admin"],
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="feather feather-clock"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+    },
+
     // {
     //   path: "/employee-tasks",
     //   label: "Employee Tasks",
@@ -316,40 +337,37 @@ const MenuBar = ({ userRole }) => {
         ))}
       </ul> */}
       <ul className="sidebar-list">
-  {visibleMenuItems.map((item, index) => (
-    <li
-      key={item.path || index}
-      className={`sidebar-list-item ${getLocation(item.path)}`}
-      onClick={() => nav(item.path)}
-    >
-      <div className="relative">
-        {item.icon}
-        <span>{item.label}</span>
+        {visibleMenuItems.map((item, index) => (
+          <li
+            key={item.path || index}
+            className={`sidebar-list-item ${getLocation(item.path)}`}
+            onClick={() => nav(item.path)}
+          >
+            <div className="relative">
+              {item.icon}
+              <span>{item.label}</span>
 
-        {item.label === "Notifications" && unseenCount > 0 && (
-          <span className="absolute top-0 right-0 translate-x-2 -translate-y-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-            {unseenCount}
-          </span>
-        )}
-      </div>
-    </li>
-  ))}
-</ul>
+              {item.label === "Notifications" && unseenCount > 0 && (
+                <span className="absolute top-0 right-0 translate-x-2 -translate-y-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {unseenCount}
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
 
-      
       <div className="account-info">
-        {userRole === 'admin' ? (
+        {userRole === "admin" ? (
           <div className="account-info-picture">
-          <img
-            src="https://static.vecteezy.com/system/resources/previews/006/309/616/original/initial-ca-logo-design-logo-design-free-vector.jpg"
-            alt="Account"
-          />
-        </div>
-        ):(
+            <img
+              src="https://static.vecteezy.com/system/resources/previews/006/309/616/original/initial-ca-logo-design-logo-design-free-vector.jpg"
+              alt="Account"
+            />
+          </div>
+        ) : (
           <FontAwesomeIcon className="dark:text-white" icon={faUser} />
         )}
-        
-      
 
         <div className="account-info-name">
           {userRole === "employee"
@@ -358,8 +376,6 @@ const MenuBar = ({ userRole }) => {
             ? `Admin (${ToCapitalize(adminName)})`
             : "Admin"}
         </div>
-
-      
       </div>
     </div>
   );

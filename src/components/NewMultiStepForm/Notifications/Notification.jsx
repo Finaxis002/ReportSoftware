@@ -70,10 +70,9 @@ const Notification = () => {
     }
   };
   return (
-    <div className="flex h-[100vh]">
-      {renderMenuBar()}
-     
-      <div className="app-content">
+    <div className="flex h-[100vh] overflow-y-hidden">
+    {renderMenuBar()}
+    <div className="app-content w-full p-6">
       {/* <Header dashboardType="Employee Dashboard"/> */}
       <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 

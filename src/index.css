@@ -43,3 +43,10 @@ code {
   50% { transform: scale(1.5); opacity: 0.5; }
   100% { transform: scale(2); opacity: 0; }
 }
+
+
+/* Hide download/print buttons in Chrome PDF viewer */
+embed[type="application/pdf"] {
+  pointer-events: none;
+}
+

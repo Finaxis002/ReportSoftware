@@ -128,12 +128,9 @@ const GeneratedPDF = ({}) => {
 
   //for otp
 
-  const [showOTPModal, setShowOTPModal] = useState(false);
-  const [otpInput, setOtpInput] = useState("");
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [isOtpSent, setIsOtpSent] = useState(false);
-
   const location = useLocation();
+
+  const pdfContainerRef = useRef(null);
 
   const stableLocation = useMemo(() => location, []);
 
@@ -309,7 +306,6 @@ const GeneratedPDF = ({}) => {
       return sum + netAsset;
     }, 0);
   }, [formData?.CostOfProject]);
-  
 
   // Function to generate correct financial year labels
   const generateFinancialYearLabels = useMemo(
@@ -534,10 +530,53 @@ const GeneratedPDF = ({}) => {
     }
   }, [dscr, currentRatio, formData]);
 
+  //disable print button
+
+  useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    const handleKeyDown = (e) => {
+      // Ctrl+P or Command+P
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        alert("Printing is disabled for this document.");
+      }
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const overlayRef = useRef(null);
+
+  useEffect(() => {
+    const overlay = overlayRef.current;
+
+    const handleWheel = (e) => {
+      const iframe = document.querySelector("iframe");
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.scrollBy(0, e.deltaY);
+      }
+    };
+
+    if (overlay) {
+      overlay.addEventListener("wheel", handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (overlay) {
+        overlay.removeEventListener("wheel", handleWheel);
+      }
+    };
+  }, []);
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document
-        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
@@ -915,7 +954,7 @@ const GeneratedPDF = ({}) => {
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
 
-          const handleDownloadPDF = () => {
+          const handleDownloadPDF = async () => {
             if (!blob) {
               alert("PDF is not ready yet.");
               return;
@@ -925,20 +964,64 @@ const GeneratedPDF = ({}) => {
               formData?.AccountInformation?.businessName || "Report";
             const businessOwner =
               formData?.AccountInformation?.businessOwner || "Owner";
+
             const safeName = `${businessName} (${businessOwner})`
               .replace(/[/\\?%*:|"<>]/g, "-")
               .trim();
 
+            // ✅ Save the file locally
             saveAs(blob, `${safeName}.pdf`);
+
+            // ✅ Send activity log
+            try {
+              const sessionId =
+                localStorage.getItem("activeSessionId") ||
+                formData?.sessionId ||
+                "";
+
+              let reportId = null;
+
+              if (sessionId) {
+                const res = await fetch(
+                  `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+                );
+                const data = await res.json();
+                if (data?.reportId) {
+                  reportId = data.reportId;
+                }
+              }
+
+              await fetch(
+                "https://backend-three-pink.vercel.app/api/activity/log",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    action: "download",
+                    reportTitle: businessName,
+                    reportOwner: businessOwner,
+                    reportId,
+                    performedBy: {
+                      name:
+                        localStorage.getItem("adminName") ||
+                        localStorage.getItem("employeeName") ||
+                        "Unknown",
+                      role: localStorage.getItem("userRole") || "unknown",
+                    },
+                  }),
+                }
+              );
+
+              console.log("✅ Logged PDF download");
+            } catch (error) {
+              console.warn("❌ Failed to log download activity:", error);
+            }
           };
 
           return (
             <>
               {/* Toolbar */}
-              {((userRole === "admin" &&
-                (!localStorage.getItem("adminName") ||
-                  permissions.downloadPDF)) ||
-                (userRole === "employee" && permissions.downloadPDF)) && (
+              <div ref={pdfContainerRef} className="w-full">
                 <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
                   {/* Title */}
                   <div className="text-white font-normal text-sm px-4 tracking-wide">
@@ -970,32 +1053,72 @@ const GeneratedPDF = ({}) => {
                   </div>
 
                   {/* Download Button */}
-                  <div className="flex gap-2 px-4">
-                    <button
-                      onClick={handleDownloadPDF}
-                      className={`flex items-center gap-2 ${
-                        loading
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-white hover:bg-indigo-100"
-                      } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
-                      disabled={loading}
-                    >
-                      <FiDownload size={16} />
-                      Download PDF
-                    </button>
-                  </div>
+                  {((userRole === "admin" &&
+                    (!localStorage.getItem("adminName") ||
+                      permissions.downloadPDF)) ||
+                    (userRole === "employee" && permissions.downloadPDF)) && (
+                    <div className="flex gap-2 px-4">
+                      <button
+                        onClick={handleDownloadPDF}
+                        className={`flex items-center gap-2 ${
+                          loading
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-white hover:bg-indigo-100"
+                        } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
+                        disabled={loading}
+                      >
+                        <FiDownload size={16} />
+                        Download PDF
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              <PDFViewer
-                width="100%"
-                height="800"
-                showToolbar={false}
-                style={{ overflow: "hidden" }}
-                key={orientation}
-              >
-                {memoizedPDF}
-              </PDFViewer>
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "800px",
+                  }}
+                >
+                  <PDFViewer
+                    width="100%"
+                    height="800"
+                    showToolbar={false}
+                    style={{
+                      overflow: "auto",
+                    }}
+                    key={orientation}
+                  >
+                    {memoizedPDF}
+                  </PDFViewer>
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "98%",
+                      height: "100%",
+                      zIndex: 10,
+                      backgroundColor: "transparent",
+
+                      pointerEvents: "auto",
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      alert("Right-click is disabled on this PDF.");
+                    }}
+                    onWheel={(e) => {
+                      const pdfIframe = document.querySelector("iframe");
+                      if (pdfIframe) {
+                        pdfIframe.contentWindow.scrollBy(0, e.deltaY);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </>
           );
         }}
