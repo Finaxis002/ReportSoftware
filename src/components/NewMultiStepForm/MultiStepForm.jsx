@@ -364,12 +364,22 @@ const MultiStepForm = ({ userRole, userName }) => {
         }
       );
 
+      // console.log("✅ Update successful:", response.data);
+      // alert("Report updated successfully!");
+      if (response.status === 200 || response.status === 201) {
       console.log("✅ Update successful:", response.data);
       alert("Report updated successfully!");
+
+    } else {
+      console.error("⚠️ Unexpected response:", response);
+      alert("Failed to update report."); // fallback only if response is not success
+    }
+
       await logActivity(
         "update",
         formData?.AccountInformation?.businessName || "Untitled"
       );
+
     } catch (error) {
       console.error(
         "❌ Error updating report:",
