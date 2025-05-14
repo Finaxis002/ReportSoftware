@@ -36,7 +36,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   const [requiredFieldErrors, setRequiredFieldErrors] = useState({});
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const isCreateReportWithExistingClicked =
-    location.state?.isCreateReportWithExistingClicked || false;
+  location.state?.isCreateReportWithExistingClicked || false;
   const reportData = location.state?.reportData || null;
 
   const [searchParams] = useSearchParams();
