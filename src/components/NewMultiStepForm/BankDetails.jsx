@@ -581,6 +581,7 @@ const BankDetails = () => {
               EmailId: saved.data.emailId,
               IFSCCode: saved.data.ifscCode,
               City: saved.data.city,
+              BranchAddress: saved.data.branchAddress,
             },
           });
         } catch (err) {
