@@ -5,6 +5,7 @@ import Header from "../NewMultiStepForm/Header";
 
 import { useNavigate } from "react-router-dom";
 import Skeleton from "../common/Skeleton";
+import * as XLSX from "xlsx";
 
 const BankDetails = () => {
   const [bankDetails, setBankDetails] = useState([]);
@@ -27,71 +28,14 @@ const BankDetails = () => {
     emailId: "",
     ifscCode: "",
     city: "",
+    branchAddress: "",
   });
 
 
   const [cityOptions, setCityOptions] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
-
-  // useEffect(() => {
-  //   const fetchBankDetails = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         "https://backend-three-pink.vercel.app/api/bank-details"
-  //       );
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch bank details");
-  //       }
-  //       const data = await response.json();
-
-  //       // ✅ Filter out empty bank details
-  //       const filteredData = data.filter(
-  //         (item) =>
-  //           item.bankDetails &&
-  //           Object.values(item.bankDetails).some((val) => val !== "")
-  //       );
-
-  //       setBankDetails(filteredData);
-
-  //       // ✅ Extract unique Bank options
-  //       const uniqueBanks = filteredData.reduce((acc, item) => {
-  //         const bank = item.bankDetails?.Bank || "Unknown Bank";
-  //         const ifsc = item.bankDetails?.IFSCCode || "N/A";
-  //         const label = `${bank} (${ifsc})`;
-  //         if (!acc.some((option) => option.label === label)) {
-  //           acc.push({
-  //             label,
-  //             value: ifsc,
-  //           });
-  //         }
-  //         return acc;
-  //       }, []);
-
-  //       setBankOptions(uniqueBanks);
-
-  //       // ✅ Extract unique Manager options
-  //       const uniqueManagers = filteredData.reduce((acc, item) => {
-  //         const manager =
-  //           item.bankDetails?.BankManagerName || "Unknown Manager";
-  //         if (!acc.some((option) => option.label === manager)) {
-  //           acc.push({
-  //             label: manager,
-  //             value: manager,
-  //           });
-  //         }
-  //         return acc;
-  //       }, []);
-
-  //       setManagerOptions(uniqueManagers);
-  //     } catch (err) {
-  //       setError(err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchBankDetails();
-  // }, []);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
 
 
   useEffect(() => {
@@ -191,6 +135,7 @@ const BankDetails = () => {
               EmailId: item?.emailId || "N/A",
               IFSCCode: item?.ifscCode || "N/A",
               City: item?.city || "N/A",
+              BranchAddress: item?.branchAddress || "N/A",
             },
           })),
           ...(data2 || []).map((item) => ({
@@ -205,6 +150,7 @@ const BankDetails = () => {
               EmailId: item?.bankDetails?.EmailId || "N/A",
               IFSCCode: item?.bankDetails?.IFSCCode || "N/A",
               City: item?.bankDetails?.City || "N/A",
+              BranchAddress: item?.bankDetails?.BranchAddress || "N/A",
             },
           })),
         ];
@@ -362,6 +308,15 @@ const BankDetails = () => {
   };
 
   const handleAddBank = async () => {
+    const { city, contactNo, bankName, managerName } = newBankDetails;
+
+    // ✅ Validate only the 4 required fields
+    if (!city || !contactNo || !bankName || !managerName) {
+      alert(
+        "Please fill all required fields: Business Name, Client Name, Bank Name, Manager Name."
+      );
+      return;
+    }
     try {
       // ✅ Ensure the payload structure is correct
       const payload = {
@@ -375,6 +330,7 @@ const BankDetails = () => {
           emailId: newBankDetails.emailId || "",
           ifscCode: newBankDetails.ifscCode || "",
           city: newBankDetails.city || "",
+          branchAddress: newBankDetails.branchAddress || "",
         },
       };
 
@@ -398,6 +354,7 @@ const BankDetails = () => {
 
         // ✅ Update bank list state
         setBankDetails((prev) => [...prev, newBank.data]);
+        alert("✅ Bank details added successfully!");
 
         // ✅ Close modal and reset form
         setShowAddModal(false);
@@ -411,6 +368,7 @@ const BankDetails = () => {
           emailId: "",
           ifscCode: "",
           city: "",
+          branchAddress: "",
         });
       } else {
         const errorResponse = await response.json();
@@ -448,6 +406,7 @@ const BankDetails = () => {
       "Email",
       "IFSC Code",
       "City",
+      "Branch Address",
     ];
 
     // ✅ Prepare data rows
@@ -466,6 +425,7 @@ const BankDetails = () => {
           `"${bankDetails.EmailId || "N/A"}"`,
           `"${bankDetails.IFSCCode || "N/A"}"`,
           `"${bankDetails.City || "N/A"}"`,
+          `"${bankDetails.BranchAddress || "N/A"}"`,
         ].join(",");
       }),
     ];
@@ -479,6 +439,164 @@ const BankDetails = () => {
     link.download = "bank_details.csv";
     link.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  //   const handleExcelImport = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   const reader = new FileReader();
+
+  //   reader.onload = async (event) => {
+  //     const data = new Uint8Array(event.target.result);
+  //     const workbook = XLSX.read(data, { type: "array" });
+
+  //     const sheetName = workbook.SheetNames[0];
+  //     const worksheet = workbook.Sheets[sheetName];
+
+  //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+  //     console.log("📥 Parsed Excel Data:", jsonData);
+
+  //     const mappedData = jsonData.map((row) => ({
+  //       clientName: row["Client Name"] || "",
+  //       businessName: row["Business Name"] || "",
+  //       bankDetails: {
+  //         Bank: row["Bank Name"] || "",
+  //         BankManagerName: row["Manager Name"] || "",
+  //         Post: row["Post"] || "",
+  //         ContactNo: row["Contact No"] || "",
+  //         EmailId: row["Email"] || "",
+  //         IFSCCode: row["IFSC Code"] || "",
+  //         City: row["City"] || "",
+  //       },
+  //     }));
+
+  //     setBankDetails((prev) => [...prev, ...mappedData]);
+
+  //     // Optional: Upload to backend
+  //     for (const entry of mappedData) {
+  //       try {
+  //         const res = await fetch(
+  //           "https://backend-three-pink.vercel.app/api/add-bank-details",
+  //           {
+  //             method: "POST",
+  //             headers: { "Content-Type": "application/json" },
+  //             body: JSON.stringify({ bankDetails: entry.bankDetails, clientName: entry.clientName, businessName: entry.businessName }),
+  //           }
+  //         );
+
+  //         if (!res.ok) {
+  //           const err = await res.json();
+  //           console.error("❌ Upload failed:", err.message);
+  //         } else {
+  //           console.log("✅ Uploaded entry:", await res.json());
+  //         }
+  //       } catch (error) {
+  //         console.error("🔥 Upload error:", error.message);
+  //       }
+  //     }
+
+  //     alert("Excel data imported successfully!");
+  //   };
+
+  //   reader.readAsArrayBuffer(file);
+  // };
+  const handleExcelImport = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log("📥 Parsed Excel Data:", jsonData);
+
+      // Map Excel rows to payload format
+      const mappedData = jsonData.map((row) => ({
+        clientName: row["Client Name"] || "",
+        businessName: row["Business Name"] || "",
+        bankDetails: {
+          Bank: row["Bank Name"] || "",
+          BankManagerName: row["Manager Name"] || "",
+          Post: row["Post"] || "",
+          ContactNo: row["Contact No"] || "",
+          EmailId: row["Email"] || "",
+          IFSCCode: row["IFSC Code"] || "",
+          City: row["City"] || "",
+          branchAddress: row["Branch Address"] || "",
+        },
+      }));
+
+      const insertedEntries = [];
+
+      for (const entry of mappedData) {
+        try {
+          const response = await fetch(
+            "https://backend-three-pink.vercel.app/api/add-bank-details",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                bankDetails: {
+                  businessName: entry.businessName,
+                  clientName: entry.clientName,
+                  bankName: entry.bankDetails.Bank,
+                  managerName: entry.bankDetails.BankManagerName,
+                  post: entry.bankDetails.Post,
+                  contactNo: entry.bankDetails.ContactNo,
+                  emailId: entry.bankDetails.EmailId,
+                  ifscCode: entry.bankDetails.IFSCCode,
+                  city: entry.bankDetails.City,
+                  branchAddress: entry.bankDetails.branchAddress, 
+                },
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            const error = await response.json();
+            console.error("❌ Upload failed:", error.message);
+            continue;
+          }
+
+          const saved = await response.json();
+
+          // Push in correct format expected by frontend
+          insertedEntries.push({
+            _id: saved.data._id,
+            clientName: saved.data.clientName,
+            businessName: saved.data.businessName,
+            bankDetails: {
+              Bank: saved.data.bankName,
+              BankManagerName: saved.data.managerName,
+              Post: saved.data.post,
+              ContactNo: saved.data.contactNo,
+              EmailId: saved.data.emailId,
+              IFSCCode: saved.data.ifscCode,
+              City: saved.data.city,
+            },
+          });
+        } catch (err) {
+          console.error("🔥 Upload error:", err.message);
+        }
+      }
+
+      if (insertedEntries.length > 0) {
+        setBankDetails((prev) => [...prev, ...insertedEntries]);
+        alert("✅ Excel data imported successfully!");
+      } else {
+        alert("❌ No entries were imported.");
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 
   const handleEdit = (detail) => {
@@ -500,6 +618,7 @@ const BankDetails = () => {
       emailId: detail.bankDetails?.EmailId || "",
       ifscCode: detail.bankDetails?.IFSCCode || "",
       city: detail.bankDetails?.City || "",
+      branchAddress: detail.bankDetails?.branchAddress || "",
     });
 
     setShowAddModal(true); // Show the modal for editing
@@ -554,6 +673,7 @@ const BankDetails = () => {
         emailId: newBankDetails.emailId,
         ifscCode: newBankDetails.ifscCode,
         city: newBankDetails.city,
+        branchAddress: newBankDetails.branchAddress,
       };
 
       const response = await fetch(
@@ -594,6 +714,7 @@ const BankDetails = () => {
           emailId: "",
           ifscCode: "",
           city: "",
+          branchAddress: "",
         });
 
         alert("Bank details updated successfully");
@@ -604,6 +725,106 @@ const BankDetails = () => {
     } catch (error) {
       console.error("Error updating bank:", error);
       alert("Error updating bank details");
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const templateHeaders = [
+      [
+        "City",
+        "Bank Name",
+        "Manager Name",
+        "Contact No",
+        "Email",
+        "IFSC Code",
+        "Client Name",
+        "Business Name",
+        "Post",
+        "Branch Address",
+      ],
+    ];
+
+    // Create worksheet from headers
+    const worksheet = XLSX.utils.aoa_to_sheet(templateHeaders);
+
+    // Create workbook and add the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+
+    // Write workbook and trigger download
+    XLSX.writeFile(workbook, "BankDetails_Template.xlsx");
+  };
+
+  // const handleOTPVerifyAndExport = async () => {
+  //   try {
+  //     // ✅ Step 1: Request OTP to be sent
+  //     const sendRes = await fetch("https://backend-three-pink.vercel.app/api/otpRouteForExport/send-otp", {
+  //       method: "POST",
+  //     });
+
+  //     if (!sendRes.ok) {
+  //       alert("Failed to send OTP. Please try again.");
+  //       return;
+  //     }
+
+  //     // ✅ Step 2: Ask user for OTP input
+  //     const otp = prompt("Enter the OTP sent to your email:");
+
+  //     if (!otp) {
+  //       alert("OTP is required to proceed.");
+  //       return;
+  //     }
+
+  //     // ✅ Step 3: Verify OTP
+  //     const verifyRes = await fetch("https://backend-three-pink.vercel.app/api/otpRouteForExport/verify-otp", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ otp }),
+  //     });
+
+  //     const verifyData = await verifyRes.json();
+
+  //     if (verifyRes.ok && verifyData.success) {
+  //       // ✅ Step 4: OTP verified — proceed to export
+  //       exportBankDataToCSV();
+  //     } else {
+  //       alert("Invalid OTP. Export cancelled.");
+  //     }
+  //   } catch (err) {
+  //     console.error("❌ OTP export error:", err);
+  //     alert("An error occurred. Please try again.");
+  //   }
+  // };
+  const handleOTPVerifyAndExport = async () => {
+    try {
+      if (!otpInput) {
+        alert("Please enter the OTP.");
+        return;
+      }
+
+      const verifyRes = await fetch(
+        "https://backend-three-pink.vercel.app/api/otpRouteForExport/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ otp: otpInput }),
+        }
+      );
+
+      const verifyData = await verifyRes.json();
+
+      if (verifyRes.ok && verifyData.success) {
+        setOtpModalOpen(false);
+        setOtpInput("");
+        exportBankDataToCSV(); // ✅ Success
+      } else {
+        alert("❌ Invalid OTP. Please try again.");
+      }
+    } catch (err) {
+      console.error("❌ OTP verification error:", err);
+      alert("Error verifying OTP. Try again.");
     }
   };
 
@@ -618,76 +839,6 @@ const BankDetails = () => {
             Bank Details
           </h2>
 
-          {/* ✅ Filter Section */}
-          {/* <div className="flex flex-wrap gap-6 justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-md shadow-md">
-           
-            <button
-              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-blue-700 active:scale-95"
-              onClick={() => setShowAddModal(true)}
-            >
-              + Add New
-            </button>
-
-            <button
-              onClick={exportBankDataToCSV}
-              className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-green-700 active:scale-95"
-            >
-              Export Data
-            </button>
-
-            
-            
-            <div className="w-full sm:w-1/3">
-              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-2">
-                Bank Name (IFSC)
-              </label>
-              <Select
-                key={uniqueBankOptions.length}
-                options={uniqueBankOptions}
-                value={uniqueBankOptions.find(
-                  (option) => option.value === selectedBank
-                )}
-                onChange={(option) => setSelectedBank(option?.value)}
-                placeholder="Select Bank"
-                isClearable
-                className="dark:bg-black"
-              />
-            </div>
-            
-            <div className="w-full sm:w-1/3">
-              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-2">
-                Manager Name
-              </label>
-              <Select
-                key={uniqueManagerOptions.length}
-                options={uniqueManagerOptions}
-                value={uniqueManagerOptions.find(
-                  (option) => option.value === selectedManager
-                )}
-                onChange={(option) => setSelectedManager(option?.value)}
-                placeholder="Select Manager"
-                isClearable
-              />
-            </div>
-            
-            <div className="w-full sm:w-1/3">
-              <label className="block text-gray-800 dark:text-gray-200 font-medium mb-2">
-                City
-              </label>
-              <Select
-                key={cityOptions.length}
-                options={cityOptions}
-                value={cityOptions.find(
-                  (option) => option.value === selectedCity
-                )}
-                onChange={(option) => setSelectedCity(option?.value)}
-                placeholder="Select City"
-                isClearable
-              />
-            </div>
-
-          </div> */}
-
           <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md shadow-md space-y-4">
             {/* ✅ First Line: Buttons */}
             <div className="flex flex-wrap justify-between items-center gap-4">
@@ -698,12 +849,55 @@ const BankDetails = () => {
                 >
                   + Add New
                 </button>
+                {/* <button
+                  onClick={handleOTPVerifyAndExport}
+                  className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-green-700 active:scale-95"
+                >
+                  Export Data
+                </button> */}
                 <button
-                  onClick={exportBankDataToCSV}
+                  onClick={() => {
+                    fetch(
+                      "https://backend-three-pink.vercel.app/api/otpRouteForExport/send-otp",
+                      {
+                        method: "POST",
+                      }
+                    )
+                      .then((res) => {
+                        if (!res.ok) throw new Error("Failed to send OTP");
+                        alert("OTP sent to your email.");
+                        setOtpModalOpen(true); // ✅ Show the OTP modal
+                      })
+                      .catch((err) => {
+                        console.error("❌ OTP send error:", err);
+                        alert("Failed to send OTP.");
+                      });
+                  }}
                   className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-green-700 active:scale-95"
                 >
                   Export Data
                 </button>
+
+                <button
+                  onClick={handleDownloadTemplate}
+                  className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-yellow-600 active:scale-95"
+                >
+                  Download Template
+                </button>
+
+                <input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleExcelImport}
+                  className="hidden"
+                  id="upload-excel"
+                />
+                <label
+                  htmlFor="upload-excel"
+                  className="px-6 py-2 bg-purple-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-purple-700 active:scale-95 cursor-pointer"
+                >
+                  Import Excel
+                </label>
               </div>
             </div>
 
@@ -912,64 +1106,13 @@ const BankDetails = () => {
                         <th className="px-6 py-3 text-left border-r border-blue-500">
                           Business
                         </th>
+                        <th className="px-6 py-3 text-left border-r border-blue-500">
+                          Branch Address
+                        </th>
                         <th className="px-6 py-3 text-left">Actions</th>
                       </tr>
                     </thead>
 
-                    {/* <tbody className="dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm">
-                      {filteredData.map((detail, index) => (
-                        <tr
-                          key={index}
-                          className={`transition duration-200 ${
-                            index % 2 === 0
-                              ? "dark:bg-gray-900"
-                              : "bg-gray-50 dark:bg-gray-800"
-                          } hover:bg-blue-50 dark:hover:bg-gray-700`}
-                        >
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.City || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.Bank || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.BankManagerName || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.ContactNo || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.EmailId || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.bankDetails?.IFSCCode || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.clientName || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 truncate">
-                            {detail.businessName || "N/A"}
-                          </td>
-                          <td className="px-6 py-3 whitespace-nowrap flex gap-2">
-                            <button
-                              onClick={() => handleEdit(detail)}
-                              className="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-                            >
-                              Edit
-                            </button>
-
-                            {(detail._id || detail.bankDetails?._id) && (
-                              <button
-                                onClick={() => handleDelete(detail)}
-                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody> */}
                     <tbody className="dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm">
                       {filteredData.map((detail, index) => {
                         // Check if this record has an ID (manually added)
@@ -1008,6 +1151,10 @@ const BankDetails = () => {
                             <td className="px-6 py-3 truncate">
                               {detail.businessName || "N/A"}
                             </td>
+                            <td className="px-6 py-3 truncate">
+                              {detail.bankDetails?.BranchAddress || "N/A"}
+                            </td>
+
                             <td className="px-6 py-3 whitespace-nowrap flex gap-2">
                               {hasId ? (
                                 <>
@@ -1112,6 +1259,12 @@ const BankDetails = () => {
                       type: "text",
                       placeholder: "Enter City",
                     },
+                    {
+                      label: "Branch Address",
+                      name: "branchAddress",
+                      type: "text",
+                      placeholder: "Enter Branch Address",
+                    },
                   ].map((field, i) => (
                     <div key={i}>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -1153,6 +1306,35 @@ const BankDetails = () => {
           )}
         </div>
       </div>
+      {otpModalOpen && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl p-6 shadow-lg z-[9999] w-full max-w-sm">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+            Enter OTP
+          </h2>
+          <input
+            type="text"
+            value={otpInput}
+            onChange={(e) => setOtpInput(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter OTP received on email"
+            autoFocus
+          />
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              onClick={() => setOtpModalOpen(false)}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleOTPVerifyAndExport}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Verify & Export
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
