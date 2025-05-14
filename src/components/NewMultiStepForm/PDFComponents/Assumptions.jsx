@@ -297,28 +297,53 @@ const Assumptions = ({
         {/* ✅ Show Cost of Project Items */}
         {formData?.CostOfProject &&
         Object.keys(formData.CostOfProject).length > 0 ? (
-          Object.entries(formData.CostOfProject).map(([key, field], index) => (
-            <View key={key} style={styles.tableRow}>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                {field?.name || "N/A"}
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.particularsCellsDetail,
-                  styleExpenses.fontSmall,
-                  { textAlign: "right" },
-                ]}
-              >
-                {formatNumber(field?.rate || 0)}%
-              </Text>
-            </View>
-          ))
+          // Object.entries(formData.CostOfProject).map(([key, field], index) => (
+          //   <View key={key} style={styles.tableRow}>
+          //     <Text
+          //       style={[
+          //         stylesCOP.detailsCellDetail,
+          //         styleExpenses.particularWidth,
+          //         styleExpenses.bordernone,
+          //       ]}
+          //     >
+          //       {field?.name || "N/A"}
+          //     </Text>
+          //     <Text
+          //       style={[
+          //         stylesCOP.particularsCellsDetail,
+          //         styleExpenses.fontSmall,
+          //         { textAlign: "right" },
+          //       ]}
+          //     >
+          //       {formatNumber(field?.rate || 0)}%
+          //     </Text>
+          //   </View>
+          // ))
+          Object.entries(formData.CostOfProject)
+  .filter(([_, field]) => field?.name?.trim()) // ⛔ filters out empty or whitespace-only names
+  .map(([key, field]) => (
+    <View key={key} style={styles.tableRow}>
+      <Text
+        style={[
+          stylesCOP.detailsCellDetail,
+          styleExpenses.particularWidth,
+          styleExpenses.bordernone,
+        ]}
+      >
+        {field.name}
+      </Text>
+      <Text
+        style={[
+          stylesCOP.particularsCellsDetail,
+          styleExpenses.fontSmall,
+          { textAlign: "right" },
+        ]}
+      >
+        {formatNumber(field?.rate || 0)}%
+      </Text>
+    </View>
+  ))
+
         ) : (
           <View style={styles.tableRow}>
             <Text

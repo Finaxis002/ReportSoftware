@@ -119,14 +119,71 @@ const Clients = () => {
     }));
   };
 
+  // const handleAddClient = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "https://backend-three-pink.vercel.app/api/clients",
+  //       newClientDetails
+  //     );
+  //     console.log(response.data);
+  //     alert("Client added successfully!");
+  //     setShowAddModal(false);
+  //     setNewClientDetails({
+  //       clientName: "",
+  //       contactNo: "",
+  //       emailId: "",
+  //       address: "",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error adding client:", error);
+  //     alert("Failed to add client!");
+  //   }
+  // };
+  const handleDeleteClient = async (clientId) => {
+    if (window.confirm("Are you sure you want to delete this client?")) {
+      try {
+        await axios.delete(
+          `https://backend-three-pink.vercel.app/api/clients/${clientId}`
+        );
+        alert("Client deleted successfully!");
+        setClients((prev) => prev.filter((client) => client._id !== clientId));
+      } catch (error) {
+        console.error("Error deleting client:", error);
+        alert("Failed to delete client!");
+      }
+    }
+  };
+
+  const handleEditClient = (client) => {
+    setNewClientDetails({
+      clientName: client.clientName,
+      contactNo: client.contactNo,
+      emailId: client.emailId,
+      address: client.address,
+    });
+    setShowAddModal(true);
+    // Store client ID to update later
+    setSelectedClient(client._id);
+  };
+
   const handleAddClient = async () => {
     try {
-      const response = await axios.post(
-        "https://backend-three-pink.vercel.app/api/clients",
-        newClientDetails
-      );
-      console.log(response.data);
-      alert("Client added successfully!");
+      if (selectedClient) {
+        // Update client
+        await axios.put(
+          `https://backend-three-pink.vercel.app/api/clients/${selectedClient}`,
+          newClientDetails
+        );
+        alert("Client updated successfully!");
+      } else {
+        // Add new client
+        await axios.post(
+          "https://backend-three-pink.vercel.app/api/clients",
+          newClientDetails
+        );
+        alert("Client added successfully!");
+      }
+
       setShowAddModal(false);
       setNewClientDetails({
         clientName: "",
@@ -134,9 +191,15 @@ const Clients = () => {
         emailId: "",
         address: "",
       });
+      setSelectedClient(null); // Reset
+      // Refetch clients
+      const response = await axios.get(
+        "https://backend-three-pink.vercel.app/api/clients"
+      );
+      setClients(response.data);
     } catch (error) {
-      console.error("Error adding client:", error);
-      alert("Failed to add client!");
+      console.error("Error saving client:", error);
+      alert("Failed to save client!");
     }
   };
 
@@ -150,7 +213,16 @@ const Clients = () => {
           {/* Add Client Button */}
           <div className="flex justify-end mb-6">
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setSelectedClient(null);
+                setNewClientDetails({
+                  clientName: "",
+                  contactNo: "",
+                  emailId: "",
+                  address: "",
+                });
+                setShowAddModal(true);
+              }}
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
             >
               + Add Client
@@ -162,6 +234,7 @@ const Clients = () => {
           </h2>
 
           {/* Clients Card Layout */}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-3 gap-8 px-4 py-6">
             {clients.length > 0 ? (
               clients.map((client) => (
@@ -203,6 +276,21 @@ const Clients = () => {
                     <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
                       <span className="text-red-400 dark:text-red-300">📍</span>
                       <span>{client.address || "Not Provided"}</span>
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => handleEditClient(client)}
+                        className="text-sm px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClient(client._id)}
+                        className="text-sm px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -249,8 +337,6 @@ const Clients = () => {
                       </span>
                       <span>{data.clientPhone || "Phone not available"}</span>
                     </div>
-
-                  
                   </div>
                 </div>
               ))
@@ -264,107 +350,107 @@ const Clients = () => {
           {/* Add Client Modal */}
           {showAddModal && (
             <div className="fixed inset-0 dark:border-white bg-gray-900 bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-            <div className=" dark:bg-gray-900 bg-gray-50 dark:border-white border rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-fadeIn">
-              {/* Title */}
-              <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-8 border-b pb-4 flex items-center gap-2">
-                <i className="fas fa-user-plus text-indigo-600 text-xl" /> Add New Client
-              </h2>
-          
-              {/* Form Grid */}
-              <div className="space-y-5">
-                {/* Client Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Client Name
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-user absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      name="clientName"
-                      value={newClientDetails.clientName}
-                      onChange={handleInputChange}
-                      placeholder="Enter Client Name"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
-                    />
+              <div className=" dark:bg-gray-900 bg-gray-50 dark:border-white border rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-fadeIn">
+                {/* Title */}
+                <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-8 border-b pb-4 flex items-center gap-2">
+                  <i className="fas fa-user-plus text-indigo-600 text-xl" /> Add
+                  New Client
+                </h2>
+
+                {/* Form Grid */}
+                <div className="space-y-5">
+                  {/* Client Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                      Client Name
+                    </label>
+                    <div className="relative">
+                      <i className="fas fa-user absolute left-3 top-3 text-gray-400" />
+                      <input
+                        type="text"
+                        name="clientName"
+                        value={newClientDetails.clientName}
+                        onChange={handleInputChange}
+                        placeholder="Enter Client Name"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Contact Number */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                      Contact Number
+                    </label>
+                    <div className="relative">
+                      <i className="fas fa-phone-alt absolute left-3 top-3 text-gray-400" />
+                      <input
+                        type="text"
+                        name="contactNo"
+                        value={newClientDetails.contactNo}
+                        onChange={handleInputChange}
+                        placeholder="Enter Contact Number"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email ID */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                      Email ID
+                    </label>
+                    <div className="relative">
+                      <i className="fas fa-envelope absolute left-3 top-3 text-gray-400" />
+                      <input
+                        type="email"
+                        name="emailId"
+                        value={newClientDetails.emailId}
+                        onChange={handleInputChange}
+                        placeholder="Enter Email ID"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                      Address
+                    </label>
+                    <div className="relative">
+                      <i className="fas fa-map-marker-alt absolute left-3 top-3 text-gray-400" />
+                      <input
+                        type="text"
+                        name="address"
+                        value={newClientDetails.address}
+                        onChange={handleInputChange}
+                        placeholder="Enter Address"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
+                      />
+                    </div>
                   </div>
                 </div>
-          
-                {/* Contact Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Contact Number
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-phone-alt absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      name="contactNo"
-                      value={newClientDetails.contactNo}
-                      onChange={handleInputChange}
-                      placeholder="Enter Contact Number"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                  </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end gap-4 mt-8">
+                  <button
+                    onClick={() => setShowAddModal(false)}
+                    className="px-6 py-2 text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition"
+                  >
+                    <i className="fas fa-times mr-2" />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddClient}
+                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md"
+                  >
+                    <i className="fas fa-check mr-2" />
+                    Submit
+                  </button>
                 </div>
-          
-                {/* Email ID */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Email ID
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-envelope absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="email"
-                      name="emailId"
-                      value={newClientDetails.emailId}
-                      onChange={handleInputChange}
-                      placeholder="Enter Email ID"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                  </div>
-                </div>
-          
-                {/* Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    Address
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-map-marker-alt absolute left-3 top-3 text-gray-400" />
-                    <input
-                      type="text"
-                      name="address"
-                      value={newClientDetails.address}
-                      onChange={handleInputChange}
-                      placeholder="Enter Address"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg  dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-          
-              {/* Buttons */}
-              <div className="flex justify-end gap-4 mt-8">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="px-6 py-2 text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition"
-                >
-                  <i className="fas fa-times mr-2" />
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddClient}
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md"
-                >
-                  <i className="fas fa-check mr-2" />
-                  Submit
-                </button>
               </div>
             </div>
-          </div>
-          
           )}
         </div>
       </div>

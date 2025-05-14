@@ -10,10 +10,9 @@ const MainLogin = ({ onLogin }) => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [captchaValue, setCaptchaValue] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
 
-
-
-  
   const navigate = useNavigate();
 
   // Fixed credentials for Admin & Client
@@ -26,14 +25,45 @@ const MainLogin = ({ onLogin }) => {
   
 
   // ✅ Check if already logged in
+  // useEffect(() => {
+  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
+  //   if (isLoggedIn) {
+  //     const userRole = localStorage.getItem("userRole");
+  //     onLogin(true, userRole);
+  //     navigate("/");
+  //   }
+  // }, [navigate, onLogin]);
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn) {
-      const userRole = localStorage.getItem("userRole");
-      onLogin(true, userRole);
-      navigate("/");
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+  const loginTime = localStorage.getItem("loginTime");
+
+  if (isLoggedIn && loginTime) {
+    const now = new Date().getTime();
+    const elapsed = now - parseInt(loginTime);
+
+    const maxSessionTime = 10 * 60 * 60 * 1000; // 10 hours in milliseconds
+
+    if (elapsed >= maxSessionTime) {
+      // Auto-logout
+      localStorage.clear();
+      navigate("/login"); // or navigate("/") depending on your route
+      return;
     }
-  }, [navigate, onLogin]);
+
+    // ✅ Still valid - start timeout to auto-logout after remaining time
+    const remainingTime = maxSessionTime - elapsed;
+    const timeout = setTimeout(() => {
+      localStorage.clear();
+      navigate("/login");
+    }, remainingTime);
+
+    const userRole = localStorage.getItem("userRole");
+    onLogin(true, userRole);
+
+    // ✅ Cleanup on component unmount
+    return () => clearTimeout(timeout);
+  }
+}, [navigate, onLogin]);
 
 
 
@@ -56,6 +86,7 @@ const MainLogin = ({ onLogin }) => {
       });
   
       const data = await response.json();
+      const loginTime = new Date().getTime();
   
       if (response.ok) {
         console.log("✅ Admin Login Successful (Database):", data);
@@ -66,7 +97,9 @@ const MainLogin = ({ onLogin }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
         localStorage.setItem("employeeId", data.employeeId)
+        localStorage.setItem("loginTime", loginTime.toString());
         sessionStorage.setItem("justLoggedIn", "true");
+        
         onLogin(true, "admin");
         navigate("/");
         return; // ✅ Exit if database login succeeds
@@ -94,37 +127,289 @@ const MainLogin = ({ onLogin }) => {
   };
   
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   if (!captchaValue) {
+  //     setError("Please complete the CAPTCHA.");
+  //     return;
+  //   }
+  //   try {
+  //     const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ token: captchaValue }),
+  //     });
+  
+  //     const verifyData = await verifyResponse.json();
+  
+  //     if (!verifyData.success) {
+  //       setError("CAPTCHA verification failed!");
+  //       return;
+  //     }
+  
+  //     console.log("✅ CAPTCHA verified successfully");
+  //   } catch (err) {
+  //     console.error("🔥 CAPTCHA verification error:", err);
+  //     setError("CAPTCHA verification failed due to server error.");
+  //     return;
+  //   }
+  
+  //   if (activeTab === "admin") {
+  //     await handleAdminLogin(); // ✅ Handles both database and hardcoded login
+  //   } else if (activeTab === "client") {
+  //     if (
+  //       inputUsername === clientCredentials.username &&
+  //       inputPassword === clientCredentials.password
+  //     ) {
+  //       localStorage.setItem("isLoggedIn", "true");
+  //       localStorage.setItem("userRole", "client");
+  //       onLogin(true, "client");
+  //       navigate("/");
+  //     } else {
+  //       setError("Invalid Client Credentials!");
+  //     }
+  //   } else if (activeTab === "employee") {
+  //     // try {
+  //     //   const response = await fetch(
+  //     //     "https://backend-three-pink.vercel.app/api/employees/login",
+  //     //     {
+  //     //       method: "POST",
+  //     //       headers: {
+  //     //         "Content-Type": "application/json",
+  //     //       },
+  //     //       body: JSON.stringify({
+  //     //         employeeId: inputUsername,
+  //     //         password: inputPassword,
+  //     //       }),
+  //     //     }
+  //     //   );
+  
+  //     //   const data = await response.json();
+  //     //   if (response.ok && data.success) {
+  //     //     console.log("✅ Employee Login Success:", data);
+  
+  //     //     localStorage.setItem("isLoggedIn", "true");
+  //     //     localStorage.setItem("userRole", "employee");
+  //     //     localStorage.setItem("employeeName", data.employee.name);
+  //     //     localStorage.setItem("employeeId", data.employee.employeeId)
+  //     //     sessionStorage.setItem("justLoggedIn", "true");
+  
+  //     //     onLogin(true, "employee", {
+  //     //       employeeId: data.employee.employeeId,
+  //     //       employeeName: data.employee.name,
+  //     //       permissions: data.employee.permissions,
+  //     //     });
+  
+  //     //     navigate("/");
+  //     //   } else {
+  //     //     setError(data.error || "Invalid Employee ID or Password!");
+  //     //   }
+  //     // } catch (err) {
+  //     //   console.error("🔥 Error logging in employee:", err);
+  //     //   setError("Server error. Please try again later.");
+  //     // }
+  //     if (!otpSent) {
+  //       // First step: send OTP
+  //       const sendOtpRes = await fetch("https://backend-three-pink.vercel.app/api/otp/send-otp", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ employeeId: inputUsername }),
+  //       });
+    
+  //       const sendData = await sendOtpRes.json();
+  //       if (sendOtpRes.ok) {
+  //         setOtpSent(true);
+  //         setError("OTP sent! Please enter it below.");
+  //       } else {
+  //         setError(sendData.error || "Failed to send OTP");
+  //       }
+  //       return;
+  //     }
+    
+  //     // Second step: verify OTP
+  //     const verifyRes = await fetch("https://backend-three-pink.vercel.app/api/otp/verify-otp", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ employeeId: inputUsername, otp: otpValue }),
+  //     });
+    
+  //     const verifyData = await verifyRes.json();
+  //     if (!verifyRes.ok) {
+  //       setError(verifyData.error || "Invalid OTP");
+  //       return;
+  //     }
+    
+  //     // Finally, do actual login
+  //     const loginRes = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ employeeId: inputUsername, password: inputPassword }),
+  //     });
+    
+  //     const loginData = await loginRes.json();
+  //     if (loginRes.ok && loginData.success) {
+  //       localStorage.setItem("isLoggedIn", "true");
+  //       localStorage.setItem("userRole", "employee");
+  //       localStorage.setItem("employeeName", loginData.employee.name);
+  //       localStorage.setItem("employeeId", loginData.employee.employeeId);
+  //       sessionStorage.setItem("justLoggedIn", "true");
+  //       onLogin(true, "employee");
+  //       navigate("/");
+  //     } else {
+  //       setError(loginData.error || "Login failed");
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!captchaValue) {
-      setError("Please complete the CAPTCHA.");
-      return;
-    }
-    try {
-      const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: captchaValue }),
-      });
   
-      const verifyData = await verifyResponse.json();
+    if (activeTab === "employee") {
+      if (!otpSent) {
+        // ✅ STEP 1: CAPTCHA verification BEFORE OTP
+        if (!captchaValue) {
+          setError("Please complete the CAPTCHA.");
+          return;
+        }
   
-      if (!verifyData.success) {
-        setError("CAPTCHA verification failed!");
+        try {
+          const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: captchaValue }),
+          });
+  
+          const verifyData = await verifyResponse.json();
+  
+          if (!verifyData.success) {
+            setError("CAPTCHA verification failed!");
+            return;
+          }
+  
+          console.log("✅ CAPTCHA verified successfully");
+        } catch (err) {
+          console.error("🔥 CAPTCHA verification error:", err);
+          setError("CAPTCHA verification failed due to server error.");
+          return;
+        }
+  
+        // ✅ STEP 2: Send OTP
+        const sendOtpRes = await fetch("https://backend-three-pink.vercel.app/api/otp/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ employeeId: inputUsername }),
+        });
+  
+        const sendData = await sendOtpRes.json();
+        if (sendOtpRes.ok) {
+          setOtpSent(true);
+          setCaptchaValue(null); // clear used token
+          setError("OTP sent! Please enter it below.");
+        } else {
+          setError(sendData.error || "Failed to send OTP");
+        }
+  
         return;
       }
   
-      console.log("✅ CAPTCHA verified successfully");
-    } catch (err) {
-      console.error("🔥 CAPTCHA verification error:", err);
-      setError("CAPTCHA verification failed due to server error.");
+      // ✅ STEP 3: Verify OTP
+      const verifyRes = await fetch("https://backend-three-pink.vercel.app/api/otp/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: inputUsername, otp: otpValue }),
+      });
+  
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok) {
+        setError(verifyData.error || "Invalid OTP");
+        return;
+      }
+  
+      // ✅ STEP 4: Final login
+      const loginRes = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: inputUsername, password: inputPassword }),
+      });
+  
+      const loginData = await loginRes.json();
+      if (loginRes.ok && loginData.success) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "employee");
+        localStorage.setItem("employeeName", loginData.employee.name);
+        localStorage.setItem("employeeId", loginData.employee.employeeId);
+        sessionStorage.setItem("justLoggedIn", "true");
+        onLogin(true, "employee");
+        navigate("/");
+      } else {
+        setError(loginData.error || "Login failed");
+      }
+  
       return;
     }
   
+    // ✅ For Admin Login
     if (activeTab === "admin") {
-      await handleAdminLogin(); // ✅ Handles both database and hardcoded login
-    } else if (activeTab === "client") {
+      if (!captchaValue) {
+        setError("Please complete the CAPTCHA.");
+        return;
+      }
+  
+      try {
+        const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: captchaValue }),
+        });
+  
+        const verifyData = await verifyResponse.json();
+  
+        if (!verifyData.success) {
+          setError("CAPTCHA verification failed!");
+          return;
+        }
+  
+        console.log("✅ CAPTCHA verified successfully");
+      } catch (err) {
+        console.error("🔥 CAPTCHA verification error:", err);
+        setError("CAPTCHA verification failed due to server error.");
+        return;
+      }
+  
+      await handleAdminLogin();
+      return;
+    }
+  
+    // ✅ For Client Login
+    if (activeTab === "client") {
+      if (!captchaValue) {
+        setError("Please complete the CAPTCHA.");
+        return;
+      }
+  
+      try {
+        const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: captchaValue }),
+        });
+  
+        const verifyData = await verifyResponse.json();
+  
+        if (!verifyData.success) {
+          setError("CAPTCHA verification failed!");
+          return;
+        }
+  
+        console.log("✅ CAPTCHA verified successfully");
+      } catch (err) {
+        console.error("🔥 CAPTCHA verification error:", err);
+        setError("CAPTCHA verification failed due to server error.");
+        return;
+      }
+  
       if (
         inputUsername === clientCredentials.username &&
         inputPassword === clientCredentials.password
@@ -136,50 +421,9 @@ const MainLogin = ({ onLogin }) => {
       } else {
         setError("Invalid Client Credentials!");
       }
-    } else if (activeTab === "employee") {
-      try {
-        const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              employeeId: inputUsername,
-              password: inputPassword,
-            }),
-          }
-        );
-  
-        const data = await response.json();
-        if (response.ok && data.success) {
-          console.log("✅ Employee Login Success:", data);
-  
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("userRole", "employee");
-          localStorage.setItem("employeeName", data.employee.name);
-          localStorage.setItem("employeeId", data.employee.employeeId)
-          sessionStorage.setItem("justLoggedIn", "true");
-  
-          onLogin(true, "employee", {
-            employeeId: data.employee.employeeId,
-            employeeName: data.employee.name,
-            permissions: data.employee.permissions,
-          });
-  
-          navigate("/");
-        } else {
-          setError(data.error || "Invalid Employee ID or Password!");
-        }
-      } catch (err) {
-        console.error("🔥 Error logging in employee:", err);
-        setError("Server error. Please try again later.");
-      }
     }
   };
-
-
+  
 
   console.log("Logging in with password:", inputPassword);
 
@@ -272,6 +516,20 @@ const MainLogin = ({ onLogin }) => {
             onChange={handleCaptchaChange}
             className="mb-4"
           />
+
+{activeTab === "employee" && otpSent && (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700">Enter OTP</label>
+    <input
+      type="text"
+      className="w-full p-2 border rounded-lg"
+      value={otpValue}
+      onChange={(e) => setOtpValue(e.target.value)}
+      placeholder="Enter OTP sent to email"
+    />
+  </div>
+)}
+
 
           <button
             type="submit"
