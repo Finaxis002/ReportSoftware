@@ -2,16 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import MenuBar from "./MenuBar";
 import Select from "react-select";
 import Header from "../NewMultiStepForm/Header";
-import {
-  faUniversity,
-  faUserTie,
-  faBriefcase,
-  faPhone,
-  faEnvelope,
-  faHashtag,
-  faMapMarkerAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { useNavigate } from "react-router-dom";
 
 const BankDetails = () => {
@@ -37,66 +28,7 @@ const BankDetails = () => {
     city: "",
   });
 
-  // useEffect(() => {
-  //   const fetchBankDetails = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         "https://backend-three-pink.vercel.app/api/bank-details"
-  //       );
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch bank details");
-  //       }
-  //       const data = await response.json();
-
-  //       // ✅ Filter out empty bank details
-  //       const filteredData = data.filter(
-  //         (item) =>
-  //           item.bankDetails &&
-  //           Object.values(item.bankDetails).some((val) => val !== "")
-  //       );
-
-  //       setBankDetails(filteredData);
-
-  //       // ✅ Extract unique Bank options
-  //       const uniqueBanks = filteredData.reduce((acc, item) => {
-  //         const bank = item.bankDetails?.Bank || "Unknown Bank";
-  //         const ifsc = item.bankDetails?.IFSCCode || "N/A";
-  //         const label = `${bank} (${ifsc})`;
-  //         if (!acc.some((option) => option.label === label)) {
-  //           acc.push({
-  //             label,
-  //             value: ifsc,
-  //           });
-  //         }
-  //         return acc;
-  //       }, []);
-
-  //       setBankOptions(uniqueBanks);
-
-  //       // ✅ Extract unique Manager options
-  //       const uniqueManagers = filteredData.reduce((acc, item) => {
-  //         const manager =
-  //           item.bankDetails?.BankManagerName || "Unknown Manager";
-  //         if (!acc.some((option) => option.label === manager)) {
-  //           acc.push({
-  //             label: manager,
-  //             value: manager,
-  //           });
-  //         }
-  //         return acc;
-  //       }, []);
-
-  //       setManagerOptions(uniqueManagers);
-  //     } catch (err) {
-  //       setError(err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchBankDetails();
-  // }, []);
-
+ 
   useEffect(() => {
     const fetchBankDetails = async () => {
       try {
@@ -352,30 +284,6 @@ const BankDetails = () => {
     new Set(managerOptions.map(JSON.stringify))
   ).map(JSON.parse);
 
-  // ✅ Utility function to convert JSON to CSV
-  // const exportManagersToCSV = () => {
-  //   if (!managerOptions.length) {
-  //     alert("No manager data available to export");
-  //     return;
-  //   }
-
-  //   const headers = ["Manager Name"];
-  //   const csvRows = [
-  //     headers.join(","), // ✅ Add headers
-  //     ...managerOptions.map((option) => `"${option.label}"`), // ✅ Add each manager name
-  //   ];
-
-  //   const csvData = csvRows.join("\n");
-  //   const blob = new Blob([csvData], { type: "text/csv" });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = "managers_list.csv";
-  //   link.click();
-  //   window.URL.revokeObjectURL(url);
-  // };
-
-  // ✅ Utility function to convert JSON to CSV and trigger download
   const exportBankDataToCSV = () => {
     if (!filteredData.length) {
       alert("No data available to export");
