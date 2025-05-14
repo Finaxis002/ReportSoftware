@@ -122,46 +122,107 @@ const ProjectedExpenses = ({
   
 
   // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
-    return (interestAmount, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
 
-      if (monthsInYear === 0) {
-        return 0; // Entire year under moratorium
-      }
+  //     if (monthsInYear === 0) {
+  //       return 0; // Entire year under moratorium
+  //     }
 
-      // ✅ Determine first visible repayment year index
-      const isProRataYear =
-        (!hideFirstYear && yearIndex === 0) ||
-        (hideFirstYear && yearIndex === 1);
+  //     // ✅ Determine first visible repayment year index
+  //     const isProRataYear =
+  //       (!hideFirstYear && yearIndex === 0) ||
+  //       (hideFirstYear && yearIndex === 1);
 
-      const repaymentYear = monthsPerYear
-        .slice(0, yearIndex)
-        .filter((months, idx) => months > 0).length;
+  //     const repaymentYear = monthsPerYear
+  //       .slice(0, yearIndex)
+  //       .filter((months, idx) => months > 0).length;
 
-      if (isProRataYear && moratoriumPeriodMonths > 0) {
-        // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-        const monthsEffective = monthsInYear;
-        return (interestAmount * monthsEffective) / 12;
-      } else if (repaymentYear >= 1) {
-        return interestAmount; // Full interest from second visible repayment year onward
-      } else {
-        return 0; // No interest during moratorium
-      }
-    };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
+  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
+  //       const monthsEffective = monthsInYear;
+  //       return (interestAmount * monthsEffective) / 12;
+  //     } else if (repaymentYear >= 1) {
+  //       return interestAmount; // Full interest from second visible repayment year onward
+  //     } else {
+  //       return 0; // No interest during moratorium
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
 
-  const isWorkingCapitalInterestZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
-    const calculatedInterest = calculateInterestOnWorkingCapital(
-      interestAmount,
-      adjustedIndex
-    );
-    return calculatedInterest === 0;
-  });
+  // const isWorkingCapitalInterestZero = Array.from({
+  //   length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  // }).every((_, yearIndex) => {
+  //   const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+  //   const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
+  //   const calculatedInterest = calculateInterestOnWorkingCapital(
+  //     interestAmount,
+  //     adjustedIndex
+  //   );
+  //   return calculatedInterest === 0;
+  // });
+   const calculateInterestOnWorkingCapital = useMemo(() => {
+      // ✅ Find the first repayment year index (first with non-zero months)
+      const firstRepaymentYearIndex = monthsPerYear.findIndex(
+        (months) => months > 0
+      );
+  
+      // ✅ Debug Table
+      const interestAmount =
+        ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+          (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+        100;
+  
+      // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+      //   let appliedInterest = 0;
+  
+      //   if (monthsInYear === 0) {
+      //     appliedInterest = 0;
+      //   } else if (yearIndex === firstRepaymentYearIndex) {
+      //     appliedInterest = (interestAmount * monthsInYear) / 12;
+      //   } else {
+      //     appliedInterest = interestAmount;
+      //   }
+  
+      //   return {
+      //     "Year Index": yearIndex + 1,
+      //     "Months Effective": monthsInYear,
+      //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+      //     "Interest Amount (Full)": interestAmount.toFixed(2),
+      //     "Interest Applied": appliedInterest.toFixed(2),
+      //   };
+      // });
+  
+      // console.log("📊 Interest on Working Capital - Moratorium Effect");
+      // console.table(debugTable);
+  
+      // ✅ Actual logic returned by useMemo
+  
+      return (interestAmount, yearIndex) => {
+        const monthsInYear = monthsPerYear[yearIndex];
+  
+        if (monthsInYear === 0) {
+          return 0;
+        }
+  
+        if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+          return (interestAmount * monthsInYear) / 12;
+        }
+  
+        return interestAmount;
+      };
+    }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+  
+    const isWorkingCapitalInterestZero = Array.from({
+      length: projectionYears,
+    }).every((_, yearIndex) => {
+      const calculatedInterest = calculateInterestOnWorkingCapital(
+        interestOnWorkingCapital[yearIndex] || 0,
+        yearIndex
+      );
+      return calculatedInterest === 0;
+    });
   
   
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
@@ -464,38 +525,40 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-              <Text
-                style={[
-                  styles.serialNoCell,
-                  styleExpenses.sno,
-                  styleExpenses.fontBold,
-                  { textAlign: "center" },
-                ]}
-              >
-                S. No.
-              </Text>
-              <Text
-                style={[
-                  styleExpenses.particularWidth,
-                  styleExpenses.fontBold,
-                  { textAlign: "center" },
-                ]}
-              >
-                Particulars
-              </Text>
-
-              {/* Generate Dynamic Year Headers using financialYearLabels */}
-              {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-                .map((yearLabel, yearIndex) => (
-                  <Text
-                    key={yearIndex}
-                    style={[styles.particularsCell, stylesCOP.boldText]}
-                  >
-                    {yearLabel}
-                  </Text>
-                ))}
-            </View>
+                        <Text
+                          style={[
+                            styles.serialNoCell,
+                            styleExpenses.sno,
+                            styleExpenses.fontBold,
+                            { textAlign: "center" },
+                          ]}
+                        >
+                          S. No.
+                        </Text>
+                        <Text
+                          style={[
+                            styles.detailsCell,
+                            styleExpenses.particularWidth,
+                            styleExpenses.fontBold,
+                            { textAlign: "center" },
+                          ]}
+                        >
+                          Particulars
+                        </Text>
+            
+                        {/* Generate Dynamic Year Headers using financialYearLabels */}
+                        {financialYearLabels.map(
+                          (yearLabel, yearIndex) =>
+                            (!hideFirstYear || yearIndex !== 0) && (
+                              <Text
+                                key={yearIndex}
+                                style={[styles.particularsCell, stylesCOP.boldText]}
+                              >
+                                {yearLabel}
+                              </Text>
+                            )
+                        )}
+                      </View>
           </View>
         </View>
 
