@@ -169,12 +169,12 @@ const RatioAnalysis = ({
       const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
   
       // ✅ Log everything year-wise
-      console.log(`\nYear ${index + 1}:`);
-      console.log("Cash Balance           :", cashBalance);
-      console.log("Current Year Assets    :", currentYearAssets);
-      console.log("Inventory Value        :", inventoryValue);
-      console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
-      console.log("Total Current Assets   :", totalCurrentAssets);
+      // console.log(`\nYear ${index + 1}:`);
+      // console.log("Cash Balance           :", cashBalance);
+      // console.log("Current Year Assets    :", currentYearAssets);
+      // console.log("Inventory Value        :", inventoryValue);
+      // console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
+      // console.log("Total Current Assets   :", totalCurrentAssets);
   
       return totalCurrentAssets;
     }
