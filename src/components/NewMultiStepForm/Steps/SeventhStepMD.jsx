@@ -356,7 +356,7 @@ const SeventhStepMD = ({
                         <input
                           type="checkbox"
                           checked={entry.dontSendToBS || false}
-                          className="w-4 h-4 rounded-full bg-green-700"
+                        
                           onChange={(e) =>
                             setLocalData((prev) => {
                               const updated = [...prev[dataType]];
