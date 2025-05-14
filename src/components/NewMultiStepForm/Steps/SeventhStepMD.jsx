@@ -356,7 +356,7 @@ const SeventhStepMD = ({
                         <input
                           type="checkbox"
                           checked={entry.dontSendToBS || false}
-                        
+                          className="accent-blue-600 h-4 w-4 rounded focus:ring-0"
                           onChange={(e) =>
                             setLocalData((prev) => {
                               const updated = [...prev[dataType]];
