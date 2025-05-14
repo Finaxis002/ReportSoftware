@@ -38,7 +38,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 import History from "./components/NewMultiStepForm/History.jsx";
-import AdminProfile from "./components/NewMultiStepForm/Profile.jsx";
+import Profile from "./components/NewMultiStepForm/Profile.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -337,6 +337,16 @@ const App = () => {
               <ProtectedRoute>
                 {" "}
                 <History userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Profile userRole={userRole} />{" "}
               </ProtectedRoute>
             }
           />
