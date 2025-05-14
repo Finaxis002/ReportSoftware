@@ -44,22 +44,57 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     Array.from({ length: Math.max(1, projectionYears) }, () => 0)
   );
 
-  useEffect(() => {
-    const updatedTotalRevenue = Array.from(
-      { length: projectionYears },
-      (_, i) => {
-        return (noOfMonths[i] || 12) * (totalMonthlyRevenue[i] || 0);
-      }
-    );
+  // useEffect(() => {
+  //   const updatedTotalRevenue = Array.from(
+  //     { length: projectionYears },
+  //     (_, i) => {
+  //       return (noOfMonths[i] || 12) * (totalMonthlyRevenue[i] || 0);
+  //     }
+  //   );
 
-    setTotalRevenue(updatedTotalRevenue); // ✅ Ensure it always matches projectionYears
-    setLocalData((prevData) => ({
-      ...prevData,
-      totalRevenue: updatedTotalRevenue, // ✅ Update in localData too
-    }));
-  }, [projectionYears, noOfMonths, totalMonthlyRevenue]); // ✅ Add projectionYears as dependency
+  //   setTotalRevenue(updatedTotalRevenue); // ✅ Ensure it always matches projectionYears
+  //   setLocalData((prevData) => ({
+  //     ...prevData,
+  //     totalRevenue: updatedTotalRevenue, // ✅ Update in localData too
+  //   }));
+  // }, [projectionYears, noOfMonths, totalMonthlyRevenue]); // ✅ Add projectionYears as dependency
 
   // ✅ Initialize togglerType (boolean) from revenueData, default to false
+  
+  
+useEffect(() => {
+  setLocalData((prevData) => {
+    const safeYears = projectionYears || 1;
+
+    // Trim formFields years array
+    const trimmedFormFields = (prevData.formFields || []).map((item) => ({
+      ...item,
+      years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
+    }));
+
+    // Trim formFields2 years array
+    const trimmedFormFields2 = (prevData.formFields2 || []).map((item) => ({
+      ...item,
+      years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
+    }));
+
+    return {
+      ...prevData,
+      formFields: trimmedFormFields,
+      formFields2: trimmedFormFields2,
+      totalRevenue: prevData.totalRevenue?.slice(0, safeYears) || [],
+      totalMonthlyRevenue:
+        prevData.totalMonthlyRevenue?.slice(0, safeYears) || [],
+      totalRevenueForOthers:
+        prevData.totalRevenueForOthers?.slice(0, safeYears) || [],
+      noOfMonths: prevData.noOfMonths?.slice(0, safeYears) || [],
+    };
+  });
+}, [projectionYears]);
+
+
+  
+  
   const [togglerType, setTogglerType] = useState(
     revenueData?.togglerType ?? false
   );
@@ -203,9 +238,29 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   }, [formType]);
 
   // ✅ Ensure `onFormDataChange` updates only when `localData` changes
-  useEffect(() => {
-    onFormDataChange({ Revenue: localData });
-  }, [localData]);
+useEffect(() => {
+  const safeYears = projectionYears || 1;
+
+  // Safely prepare clean data before submission
+  const trimmedData = {
+    ...localData,
+    formFields: (localData.formFields || []).map((item) => ({
+      ...item,
+      years: item.years?.slice(0, safeYears) || [],
+    })),
+    formFields2: (localData.formFields2 || []).map((item) => ({
+      ...item,
+      years: item.years?.slice(0, safeYears) || [],
+    })),
+    totalRevenue: localData.totalRevenue?.slice(0, safeYears) || [],
+    totalMonthlyRevenue: localData.totalMonthlyRevenue?.slice(0, safeYears) || [],
+    totalRevenueForOthers: localData.totalRevenueForOthers?.slice(0, safeYears) || [],
+    noOfMonths: localData.noOfMonths?.slice(0, safeYears) || [],
+  };
+
+  onFormDataChange({ Revenue: trimmedData });
+}, [localData, projectionYears]);
+
 
   // ✅ Toggle function to correctly update both `formType` and `togglerType`
   const toggleType = (isChecked) => {
