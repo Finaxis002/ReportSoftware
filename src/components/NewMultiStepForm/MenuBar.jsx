@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
   const nav = useNavigate();
   const location = useLocation();
   const [adminName, setAdminName] = useState("");
   const [unseenCount, setUnseenCount] = useState(0);
+  const [showProfile, setShowProfile] = useState(false); // State for profile popup
 
   useEffect(() => {
     const storedAdminName = localStorage.getItem("adminName");
@@ -31,8 +32,6 @@ const MenuBar = ({ userRole }) => {
         );
         const data = await res.json();
         setUnseenCount(data.length);
-
-        console.log("🔴 Unseen Count:", data.length);
       } catch (err) {
         console.error("❌ Error fetching unseen notifications:", err.message);
       }
@@ -271,6 +270,11 @@ const MenuBar = ({ userRole }) => {
     },
   ];
 
+  const handleLogout = () => {
+    localStorage.clear();
+    nav("/login");
+  };
+
   // Filter menu items based on the user's role
   const visibleMenuItems = menuItems.filter((item) =>
     item.roles.includes(userRole)
@@ -299,20 +303,7 @@ const MenuBar = ({ userRole }) => {
           <h6>Sharda Associates</h6>
         </div>
       </div>
-      {/* <ul className="sidebar-list">
-        {visibleMenuItems.map((item, index) => (
-          <li
-            key={item.path || index} // Ensure unique keys
-            className={`sidebar-list-item ${getLocation(item.path)}`}
-            onClick={() => nav(item.path)}
-          >
-            <div>
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
-          </li>
-        ))}
-      </ul> */}
+
       <ul className="sidebar-list">
         {visibleMenuItems.map((item, index) => (
           <li
@@ -334,7 +325,19 @@ const MenuBar = ({ userRole }) => {
         ))}
       </ul>
 
-      <div className="account-info">
+      <div
+        className={`account-info ${
+          userRole === "admin"
+            ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            : ""
+        }`}
+        onClick={() => {
+          const adminType = localStorage.getItem("adminType");
+          if (userRole === "admin" && adminType === "main") {
+            nav("/profile");
+          }
+        }}
+      >
         {userRole === "admin" ? (
           <div className="account-info-picture">
             <img
