@@ -351,18 +351,18 @@ const SeventhStepMD = ({
                         />
                       </td>
                       <td className="md-input text-center">
-                        {" "}
-                        {/* ✅ NEW CELL */}
-                        <input
-                          type="checkbox"
-                          checked={entry.dontSendToBS || false}
-                          className="accent-blue-600 h-4 w-4 rounded focus:ring-0"
-                          onChange={(e) =>
+                        <div
+                          className={`w-6 h-6 rounded-full border-2 mx-auto cursor-pointer ${
+                            entry.dontSendToBS
+                              ? "bg-green-700 border-green-700"
+                              : "bg-white border-gray-400"
+                          }`}
+                          onClick={() =>
                             setLocalData((prev) => {
                               const updated = [...prev[dataType]];
                               updated[i] = {
                                 ...updated[i],
-                                dontSendToBS: e.target.checked,
+                                dontSendToBS: !entry.dontSendToBS,
                               };
                               return {
                                 ...prev,
@@ -370,7 +370,16 @@ const SeventhStepMD = ({
                               };
                             })
                           }
-                        />
+                        >
+                          {entry.dontSendToBS && (
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="w-4 h-4 text-white fill-current relative top-0.5 left-0.5"
+                            >
+                              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                            </svg>
+                          )}
+                        </div>
                       </td>
                       {Array.from({ length: projectionYears }).map(
                         (_, index) => (
