@@ -88,13 +88,24 @@ const MainLogin = ({ onLogin }) => {
 
       const data = await response.json();
 
+      const loginTime = new Date().getTime();
+
+      
+
+        // ✅ Store token and userRole in localStorage
+
+
       if (response.ok) {
         console.log("✅ Admin Login Successful (Admin collection):", data);
         localStorage.setItem("adminType", "manual");
+
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
+
+        localStorage.setItem("employeeId", data.employeeId);
+
         localStorage.setItem("loginTime", loginTime.toString());
         sessionStorage.setItem("justLoggedIn", "true");
 
@@ -105,6 +116,26 @@ const MainLogin = ({ onLogin }) => {
     } catch (error) {
       console.error("🔥 Error during main admin login:", error);
     }
+
+
+    // ✅ If database login fails, check hardcoded admin credentials
+//     if (
+//       inputUsername === hardcodedAdminCredentials.username &&
+//       inputPassword === hardcodedAdminCredentials.password
+//     ) {
+//       console.log("✅ Admin Login Successful (Hardcoded)");
+
+//       localStorage.setItem("isLoggedIn", "true");
+//       localStorage.setItem("userRole", "admin");
+//       localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
+
+//       onLogin(true, "admin");
+//       navigate("/");
+//     } else {
+//       setError("Invalid Admin Credentials!");
+//     }
+//   };
+
 
     // 2️⃣ Try Fallback Login API (MainAdminPassword collection)
     try {
@@ -143,6 +174,7 @@ const MainLogin = ({ onLogin }) => {
       setError("Server error during fallback admin login.");
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -237,6 +269,7 @@ const MainLogin = ({ onLogin }) => {
         localStorage.setItem("userRole", "employee");
         localStorage.setItem("employeeName", loginData.employee.name);
         localStorage.setItem("employeeId", loginData.employee.employeeId);
+        localStorage.setItem("loginTime", new Date().getTime().toString()); // ✅ Add this line
         sessionStorage.setItem("justLoggedIn", "true");
         onLogin(true, "employee");
         navigate("/");
@@ -319,6 +352,8 @@ const MainLogin = ({ onLogin }) => {
       ) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "client");
+        localStorage.setItem("loginTime", new Date().getTime().toString());
+
         onLogin(true, "client");
         navigate("/");
       } else {
