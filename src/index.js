@@ -38,12 +38,10 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 import History from "./components/NewMultiStepForm/History.jsx";
-
+import Profile from "./components/NewMultiStepForm/Profile.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
-
-
 
 const App = () => {
   // Authentication state
@@ -55,7 +53,6 @@ const App = () => {
   const [pdfData, setPdfData] = useState();
   console.log("pdfData", pdfData);
 
-
   const location = useLocation(); // ✅ This is now inside the component
 
   useEffect(() => {
@@ -66,8 +63,6 @@ const App = () => {
       localStorage.removeItem("pdfType");
     }
   }, [location.pathname]);
-
-  
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -109,7 +104,6 @@ const App = () => {
     }
   }, []);
 
-
   // useEffect(() => {
   //   const handleUnload = () => {
   //     // Remove the keys on tab/browser close
@@ -117,10 +111,10 @@ const App = () => {
   //     localStorage.removeItem("selectedFont");
   //     localStorage.removeItem("selectedColor");
   //   };
-  
+
   //   // ✅ Use unload for full tab/window close
   //   window.addEventListener("unload", handleUnload);
-  
+
   //   return () => {
   //     window.removeEventListener("unload", handleUnload);
   //   };
@@ -129,187 +123,237 @@ const App = () => {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-       
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  userRole === "admin" ? (
-                    <AdminDashboard />
-                  ) : userRole === "employee" ? (
-                    <EmployeeDashboard />
-                  ) : (
-                    <Dashboard />
-                  )
+        <Routes>
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                userRole === "admin" ? (
+                  <AdminDashboard />
+                ) : userRole === "employee" ? (
+                  <EmployeeDashboard />
                 ) : (
-                  <MainLogin onLogin={handleLogin} />
+                  <Dashboard />
                 )
-              }
-            />
+              ) : (
+                <MainLogin onLogin={handleLogin} />
+              )
+            }
+          />
 
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            />
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <MainLogin onLogin={handleLogin} />
+              )
+            }
+          />
 
-        
-            <Route path="/employees" element={<ProtectedRoute ><Employees /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute ><AdminList /></ProtectedRoute>} />
-            <Route path="/notifications" element={<ProtectedRoute ><Notification /></ProtectedRoute>} />
-            <Route path="/clientData" element={<ProtectedRoute ><ClientData /></ProtectedRoute>} />
-            <Route path="/tasks/:taskId" element={<ProtectedRoute ><Tasks /></ProtectedRoute>} />
-            <Route path="/bank-details" element={<ProtectedRoute ><BankDetails /></ProtectedRoute>} />
-            {/* Protect MongoDB route */}
-            <Route
-              path="/database"
-              element={
-                isAuthenticated ? (
-                  <MongoDB />
-                ) : (
-                  <DatabaseLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/createreport"
-              element={
-                <ProtectedRoute >
+          <Route
+            path="/employees"
+            element={
+              <ProtectedRoute>
+                <Employees />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notification />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clientData"
+            element={
+              <ProtectedRoute>
+                <ClientData />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks/:taskId"
+            element={
+              <ProtectedRoute>
+                <Tasks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bank-details"
+            element={
+              <ProtectedRoute>
+                <BankDetails />
+              </ProtectedRoute>
+            }
+          />
+          {/* Protect MongoDB route */}
+          <Route
+            path="/database"
+            element={
+              isAuthenticated ? (
+                <MongoDB />
+              ) : (
+                <DatabaseLogin onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/createreport"
+            element={
+              <ProtectedRoute>
                 <CreateReport
                   userRole={userRole}
                   userName={userRole === "employee" ? userName : null}
                 />
-                </ProtectedRoute>
-              }
-            />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/login" replace />
+              ) : (
+                <MainLogin onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+          <Route
+            path="/MultestepForm"
+            element={
+              <ProtectedRoute>
+                <MultiStepForm
+                  receivedGeneratedPDFData={generatePDfData}
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/employees" element={<Employees />} />
+
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notification />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clientData"
+            element={
+              <ProtectedRoute>
+                <ClientData />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks/:taskId"
+            element={
+              <ProtectedRoute>
+                <Tasks />{" "}
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protect MongoDB route */}
+          <Route
+            path="/database"
+            element={
+              isAuthenticated ? (
+                <MongoDB />
+              ) : (
+                <DatabaseLogin onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/createreport"
+            element={
+              <ProtectedRoute>
+                <CreateReport
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ Correctly Placed Routes */}
+
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Reports sendPdfData={setPdfData} />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/clients" element={<Clients />} />
+
+          <Route
+            path="/generated-pdf"
+            element={
+              <ProtectedRoute>
+                <GeneratedPDF
+                  userRole={userRole}
+                  userName={userRole === "employee" ? userName : null}
+                  pdfData={pdfData}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkprofit"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <CheckProfit />{" "}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <History userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
 
             <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/login" replace />
-                ) : (
-                  <MainLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-            <Route
-              path="/MultestepForm"
-              element={
-                <ProtectedRoute>
-                  <MultiStepForm
-                    receivedGeneratedPDFData={generatePDfData}
-                    userRole={userRole}
-                    userName={userRole === "employee" ? userName : null}
-                  />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/employees" element={<Employees />} />
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Profile userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
+        
+        </Routes>
 
-            <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute>
-                  <Notification />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/clientData"
-              element={
-                <ProtectedRoute>
-                  <ClientData />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks/:taskId"
-              element={
-                <ProtectedRoute>
-                  <Tasks />{" "}
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Protect MongoDB route */}
-            <Route
-              path="/database"
-              element={
-                isAuthenticated ? (
-                  <MongoDB />
-                ) : (
-                  <DatabaseLogin onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/createreport"
-              element={
-                <ProtectedRoute>
-                  <CreateReport
-                    userRole={userRole}
-                    userName={userRole === "employee" ? userName : null}
-                  />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ✅ Correctly Placed Routes */}
-
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  {" "}
-                  <Reports sendPdfData={setPdfData} />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="/clients" element={<Clients />} />
-
-            <Route
-              path="/generated-pdf"
-              element={
-                <ProtectedRoute>
-                  <GeneratedPDF
-                    userRole={userRole}
-                    userName={userRole === "employee" ? userName : null}
-                    pdfData={pdfData}
-                  />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/checkprofit"
-              element={
-                <ProtectedRoute>
-                  {" "}
-                  <CheckProfit />{" "}
-                </ProtectedRoute>
-              }
-            />
-             <Route
-              path="/history"
-              element={
-                <ProtectedRoute>
-                  {" "}
-                  <History userRole={userRole}/>{" "}
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-
-          {/* <ToastContainer 
+        {/* <ToastContainer 
           position="top-right" 
           autoClose={3000} 
           hideProgressBar={false}
@@ -321,7 +365,6 @@ const App = () => {
           pauseOnHover 
           theme="light"
         /> */}
-        
       </QueryClientProvider>
     </Provider>
   );

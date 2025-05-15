@@ -249,7 +249,6 @@ export default MenuBar;
 
 
 
-// import React from 'react'
 // import { useLocation, useNavigate } from 'react-router-dom'
 
 // const MenuBar = () => {
