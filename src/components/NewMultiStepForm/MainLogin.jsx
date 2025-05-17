@@ -68,6 +68,9 @@ const MainLogin = ({ onLogin }) => {
   };
 
   const handleAdminLogin = async () => {
+    const loginTime = new Date().getTime();
+
+    // 1️⃣ Try Main Admin Login API (Admin collection)
     try {
       const response = await fetch(
         "https://backend-three-pink.vercel.app/api/admin/login",
@@ -84,180 +87,94 @@ const MainLogin = ({ onLogin }) => {
       );
 
       const data = await response.json();
+
       const loginTime = new Date().getTime();
 
-      if (response.ok) {
-        console.log("✅ Admin Login Successful (Database):", data);
+      
 
         // ✅ Store token and userRole in localStorage
+
+
+      if (response.ok) {
+        console.log("✅ Admin Login Successful (Admin collection):", data);
+        localStorage.setItem("adminType", "manual");
+
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("token", data.token);
         localStorage.setItem("adminName", data.username);
+
         localStorage.setItem("employeeId", data.employeeId);
+
         localStorage.setItem("loginTime", loginTime.toString());
         sessionStorage.setItem("justLoggedIn", "true");
 
         onLogin(true, "admin");
         navigate("/");
-        return; // ✅ Exit if database login succeeds
+        return;
       }
     } catch (error) {
-      console.error("🔥 Error during database login:", error);
+      console.error("🔥 Error during main admin login:", error);
     }
 
+
     // ✅ If database login fails, check hardcoded admin credentials
-    if (
-      inputUsername === hardcodedAdminCredentials.username &&
-      inputPassword === hardcodedAdminCredentials.password
-    ) {
-      console.log("✅ Admin Login Successful (Hardcoded)");
+//     if (
+//       inputUsername === hardcodedAdminCredentials.username &&
+//       inputPassword === hardcodedAdminCredentials.password
+//     ) {
+//       console.log("✅ Admin Login Successful (Hardcoded)");
 
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "admin");
-      localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
+//       localStorage.setItem("isLoggedIn", "true");
+//       localStorage.setItem("userRole", "admin");
+//       localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
 
-      onLogin(true, "admin");
-      navigate("/");
-    } else {
-      setError("Invalid Admin Credentials!");
+//       onLogin(true, "admin");
+//       navigate("/");
+//     } else {
+//       setError("Invalid Admin Credentials!");
+//     }
+//   };
+
+
+    // 2️⃣ Try Fallback Login API (MainAdminPassword collection)
+    try {
+      const fallbackResponse = await fetch(
+        "https://backend-three-pink.vercel.app/api/admin/hardcoded-login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: inputUsername,
+            password: inputPassword,
+          }),
+        }
+      );
+
+      const fallbackData = await fallbackResponse.json();
+
+      if (fallbackResponse.ok && fallbackData.success) {
+        localStorage.setItem("adminType", "main");
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "admin");
+        localStorage.setItem("token", fallbackData.token);
+        localStorage.setItem("adminName", fallbackData.username);
+        localStorage.setItem("loginTime", loginTime.toString());
+        sessionStorage.setItem("justLoggedIn", "true");
+
+        onLogin(true, "admin");
+        navigate("/");
+      } else {
+        setError(fallbackData.error || "Invalid Admin Credentials!");
+      }
+    } catch (err) {
+      console.error("🔥 Error in fallback admin login:", err);
+      setError("Server error during fallback admin login.");
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setError("");
-  //   if (!captchaValue) {
-  //     setError("Please complete the CAPTCHA.");
-  //     return;
-  //   }
-  //   try {
-  //     const verifyResponse = await fetch("https://backend-three-pink.vercel.app/api/verify-captcha", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ token: captchaValue }),
-  //     });
-
-  //     const verifyData = await verifyResponse.json();
-
-  //     if (!verifyData.success) {
-  //       setError("CAPTCHA verification failed!");
-  //       return;
-  //     }
-
-  //     console.log("✅ CAPTCHA verified successfully");
-  //   } catch (err) {
-  //     console.error("🔥 CAPTCHA verification error:", err);
-  //     setError("CAPTCHA verification failed due to server error.");
-  //     return;
-  //   }
-
-  //   if (activeTab === "admin") {
-  //     await handleAdminLogin(); // ✅ Handles both database and hardcoded login
-  //   } else if (activeTab === "client") {
-  //     if (
-  //       inputUsername === clientCredentials.username &&
-  //       inputPassword === clientCredentials.password
-  //     ) {
-  //       localStorage.setItem("isLoggedIn", "true");
-  //       localStorage.setItem("userRole", "client");
-  //       onLogin(true, "client");
-  //       navigate("/");
-  //     } else {
-  //       setError("Invalid Client Credentials!");
-  //     }
-  //   } else if (activeTab === "employee") {
-  //     // try {
-  //     //   const response = await fetch(
-  //     //     "https://backend-three-pink.vercel.app/api/employees/login",
-  //     //     {
-  //     //       method: "POST",
-  //     //       headers: {
-  //     //         "Content-Type": "application/json",
-  //     //       },
-  //     //       body: JSON.stringify({
-  //     //         employeeId: inputUsername,
-  //     //         password: inputPassword,
-  //     //       }),
-  //     //     }
-  //     //   );
-
-  //     //   const data = await response.json();
-  //     //   if (response.ok && data.success) {
-  //     //     console.log("✅ Employee Login Success:", data);
-
-  //     //     localStorage.setItem("isLoggedIn", "true");
-  //     //     localStorage.setItem("userRole", "employee");
-  //     //     localStorage.setItem("employeeName", data.employee.name);
-  //     //     localStorage.setItem("employeeId", data.employee.employeeId)
-  //     //     sessionStorage.setItem("justLoggedIn", "true");
-
-  //     //     onLogin(true, "employee", {
-  //     //       employeeId: data.employee.employeeId,
-  //     //       employeeName: data.employee.name,
-  //     //       permissions: data.employee.permissions,
-  //     //     });
-
-  //     //     navigate("/");
-  //     //   } else {
-  //     //     setError(data.error || "Invalid Employee ID or Password!");
-  //     //   }
-  //     // } catch (err) {
-  //     //   console.error("🔥 Error logging in employee:", err);
-  //     //   setError("Server error. Please try again later.");
-  //     // }
-  //     if (!otpSent) {
-  //       // First step: send OTP
-  //       const sendOtpRes = await fetch("https://backend-three-pink.vercel.app/api/otp/send-otp", {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ employeeId: inputUsername }),
-  //       });
-
-  //       const sendData = await sendOtpRes.json();
-  //       if (sendOtpRes.ok) {
-  //         setOtpSent(true);
-  //         setError("OTP sent! Please enter it below.");
-  //       } else {
-  //         setError(sendData.error || "Failed to send OTP");
-  //       }
-  //       return;
-  //     }
-
-  //     // Second step: verify OTP
-  //     const verifyRes = await fetch("https://backend-three-pink.vercel.app/api/otp/verify-otp", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ employeeId: inputUsername, otp: otpValue }),
-  //     });
-
-  //     const verifyData = await verifyRes.json();
-  //     if (!verifyRes.ok) {
-  //       setError(verifyData.error || "Invalid OTP");
-  //       return;
-  //     }
-
-  //     // Finally, do actual login
-  //     const loginRes = await fetch("https://backend-three-pink.vercel.app/api/employees/login", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ employeeId: inputUsername, password: inputPassword }),
-  //     });
-
-  //     const loginData = await loginRes.json();
-  //     if (loginRes.ok && loginData.success) {
-  //       localStorage.setItem("isLoggedIn", "true");
-  //       localStorage.setItem("userRole", "employee");
-  //       localStorage.setItem("employeeName", loginData.employee.name);
-  //       localStorage.setItem("employeeId", loginData.employee.employeeId);
-  //       sessionStorage.setItem("justLoggedIn", "true");
-  //       onLogin(true, "employee");
-  //       navigate("/");
-  //     } else {
-  //       setError(loginData.error || "Login failed");
-  //     }
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

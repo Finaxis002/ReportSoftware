@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import MenuBar from "./MenuBar";
 import Select from "react-select";
 import Header from "../NewMultiStepForm/Header";
+
 import { useNavigate } from "react-router-dom";
 import Skeleton from "../common/Skeleton";
 import * as XLSX from "xlsx";
@@ -30,11 +31,13 @@ const BankDetails = () => {
     branchAddress: "",
   });
 
+
   const [cityOptions, setCityOptions] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpInput, setOtpInput] = useState("");
   const [formErrors, setFormErrors] = useState({});
+
 
 
   useEffect(() => {
@@ -403,30 +406,6 @@ const BankDetails = () => {
     new Set(managerOptions.map(JSON.stringify))
   ).map(JSON.parse);
 
-  // ✅ Utility function to convert JSON to CSV
-  // const exportManagersToCSV = () => {
-  //   if (!managerOptions.length) {
-  //     alert("No manager data available to export");
-  //     return;
-  //   }
-
-  //   const headers = ["Manager Name"];
-  //   const csvRows = [
-  //     headers.join(","), // ✅ Add headers
-  //     ...managerOptions.map((option) => `"${option.label}"`), // ✅ Add each manager name
-  //   ];
-
-  //   const csvData = csvRows.join("\n");
-  //   const blob = new Blob([csvData], { type: "text/csv" });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = "managers_list.csv";
-  //   link.click();
-  //   window.URL.revokeObjectURL(url);
-  // };
-
-  // ✅ Utility function to convert JSON to CSV and trigger download
   const exportBankDataToCSV = () => {
     if (!filteredData.length) {
       alert("No data available to export");

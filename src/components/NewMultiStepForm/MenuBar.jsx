@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
   const nav = useNavigate();
   const location = useLocation();
   const [adminName, setAdminName] = useState("");
   const [unseenCount, setUnseenCount] = useState(0);
+  const [showProfile, setShowProfile] = useState(false); // State for profile popup
 
   useEffect(() => {
     const storedAdminName = localStorage.getItem("adminName");
@@ -31,8 +32,6 @@ const MenuBar = ({ userRole }) => {
         );
         const data = await res.json();
         setUnseenCount(data.length);
-
-        console.log("🔴 Unseen Count:", data.length);
       } catch (err) {
         console.error("❌ Error fetching unseen notifications:", err.message);
       }
@@ -269,30 +268,12 @@ const MenuBar = ({ userRole }) => {
         </svg>
       ),
     },
-
-    // {
-    //   path: "/employee-tasks",
-    //   label: "Employee Tasks",
-    //   roles: ["admin", "employee", "client"],
-    //   icon: (
-    //     <svg
-    //       xmlns="http://www.w3.org/2000/svg"
-    //       width="18"
-    //       height="18"
-    //       viewBox="0 0 24 24"
-    //       fill="none"
-    //       stroke="currentColor"
-    //       strokeWidth="2"
-    //       strokeLinecap="round"
-    //       strokeLinejoin="round"
-    //       className="feather feather-home"
-    //     >
-    //       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-    //       <polyline points="9 22 9 12 15 12 15 22" />
-    //     </svg>
-    //   ),
-    // },
   ];
+
+  const handleLogout = () => {
+    localStorage.clear();
+    nav("/login");
+  };
 
   // Filter menu items based on the user's role
   const visibleMenuItems = menuItems.filter((item) =>
@@ -322,20 +303,7 @@ const MenuBar = ({ userRole }) => {
           <h6>Sharda Associates</h6>
         </div>
       </div>
-      {/* <ul className="sidebar-list">
-        {visibleMenuItems.map((item, index) => (
-          <li
-            key={item.path || index} // Ensure unique keys
-            className={`sidebar-list-item ${getLocation(item.path)}`}
-            onClick={() => nav(item.path)}
-          >
-            <div>
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
-          </li>
-        ))}
-      </ul> */}
+
       <ul className="sidebar-list">
         {visibleMenuItems.map((item, index) => (
           <li
@@ -357,7 +325,19 @@ const MenuBar = ({ userRole }) => {
         ))}
       </ul>
 
-      <div className="account-info">
+      <div
+        className={`account-info ${
+          userRole === "admin"
+            ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            : ""
+        }`}
+        onClick={() => {
+          const adminType = localStorage.getItem("adminType");
+          if (userRole === "admin" && adminType === "main") {
+            nav("/profile");
+          }
+        }}
+      >
         {userRole === "admin" ? (
           <div className="account-info-picture">
             <img
