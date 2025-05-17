@@ -36,6 +36,8 @@ const BankDetails = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpInput, setOtpInput] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+
 
 
   useEffect(() => {
@@ -309,7 +311,21 @@ const BankDetails = () => {
 
   const handleAddBank = async () => {
     const { city, contactNo, bankName, managerName } = newBankDetails;
+  setFormErrors({});
+  const requiredFields = ["bankName", "managerName", "contactNo", "city"];
+  const errors = {};
+  requiredFields.forEach((field) => {
+    if (!newBankDetails[field] || newBankDetails[field].trim() === "") {
+      errors[field] = `${field
+        .replace(/([A-Z])/g, " $1") // Add spaces before capital letters
+        .replace(/^./, (str) => str.toUpperCase())} is required`;
+    }
+  });
 
+  if (Object.keys(errors).length > 0) {
+    setFormErrors(errors);
+    return; // Stop submission if errors
+  }
     // ✅ Validate only the 4 required fields
     if (!city || !contactNo || !bankName || !managerName) {
       alert(
@@ -317,6 +333,7 @@ const BankDetails = () => {
       );
       return;
     }
+
     try {
       // ✅ Ensure the payload structure is correct
       const payload = {
@@ -1205,7 +1222,7 @@ const BankDetails = () => {
 
                 {/* Form Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {[
+                  {/* {[
                     {
                       label: "Business Name",
                       name: "businessName",
@@ -1280,7 +1297,38 @@ const BankDetails = () => {
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
                       />
                     </div>
-                  ))}
+                  ))} */}
+                  {[
+  { label: "Business Name", name: "businessName", type: "text", placeholder: "Enter Business Name" },
+  { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter Client Name" },
+  { label: "Bank Name", name: "bankName", type: "text", placeholder: "Enter Bank Name", required: true },
+  { label: "Manager Name", name: "managerName", type: "text", placeholder: "Enter Manager Name", required: true },
+  { label: "Post", name: "post", type: "text", placeholder: "Enter Post" },
+  { label: "Contact Number", name: "contactNo", type: "text", placeholder: "Enter Contact No", required: true },
+  { label: "Email", name: "emailId", type: "email", placeholder: "Enter Email" },
+  { label: "IFSC Code", name: "ifscCode", type: "text", placeholder: "Enter IFSC Code" },
+  { label: "City", name: "city", type: "text", placeholder: "Enter City", required: true },
+  { label: "Branch Address", name: "branchAddress", type: "text", placeholder: "Enter Branch Address" },
+].map((field, i) => (
+  <div key={i}>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+      {field.label} {field.required && <span className="text-red-600">*</span>}
+    </label>
+    <input
+      type={field.type}
+      name={field.name}
+      value={newBankDetails[field.name]}
+      onChange={handleInputChange}
+      placeholder={field.placeholder}
+      className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition
+        ${formErrors[field.name] ? "border-red-500" : "border-gray-300 dark:border-gray-700"}`}
+    />
+    {formErrors[field.name] && (
+      <p className="text-red-600 text-sm mt-1">{formErrors[field.name]}</p>
+    )}
+  </div>
+))}
+
                 </div>
 
                 {/* Buttons */}
