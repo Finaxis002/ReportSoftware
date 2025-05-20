@@ -568,8 +568,6 @@ const FinalStep = ({ formData, userRole }) => {
     fetchPermissions(); // 🔁 Only fetch once when dependencies change
   }, [userRole, userName]);
 
-  console.log("user", userName);
-  console.log("permissions", permissions);
 
   const getColorHex = (color) => {
     const colorMap = {
@@ -653,6 +651,10 @@ const FinalStep = ({ formData, userRole }) => {
     }
   };
   
+
+  console.log("userRole:", userRole);
+console.log("adminName:", localStorage.getItem("adminName"));
+console.log("permissions.generateReport:", permissions?.generateReport);
   
 
   return (
@@ -867,9 +869,7 @@ const FinalStep = ({ formData, userRole }) => {
         </button>
 
         {/* ✅ Generate PDF Button */}
-        {((userRole === "admin" &&
-          (!localStorage.getItem("adminName") || permissions.generateReport)) ||
-          (userRole === "employee" && permissions.generateReport)) && (
+      {(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
           <button
             onClick={handleGeneratePdfClick}
             className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -879,9 +879,7 @@ const FinalStep = ({ formData, userRole }) => {
         )}
 
         {/* ✅ New Export Data Button */}
-        {((userRole === "admin" &&
-          (!localStorage.getItem("adminName") || permissions.exportData)) ||
-          (userRole === "employee" && permissions.exportData)) && (
+      {(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
           <button
             onClick={handleExportData}
             className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
