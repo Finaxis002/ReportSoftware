@@ -119,6 +119,7 @@ const BreakEvenPoint = ({
     return (incrementedExpense / 12) * monthsInYear;
   };
 
+  
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -186,7 +187,7 @@ const BreakEvenPoint = ({
       // ✅ Debug Table
       const interestAmount =
         ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
-          (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+          (Number(formData.ProjectReportSetting?.interestOnWC) || 0)) /
         100;
   
       // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
@@ -238,6 +239,22 @@ const BreakEvenPoint = ({
       );
       return calculatedInterest === 0;
     });
+
+    // Utility to check if a value is effectively zero
+const isZeroValue = (val) => {
+  const num = Number(val);
+  return !num || num === 0; // covers 0, null, undefined, NaN, ""
+};
+
+// Check if all Interest On Term Loan values are zero or falsy
+const isInterestOnTermLoanZero = yearlyInterestLiabilities
+  .slice(hideFirstYear ? 1 : 0)
+  .every((val) => isZeroValue(val));
+
+// Check if all Depreciation values are zero or falsy
+const isDepreciationZero = totalDepreciationPerYear
+  .slice(hideFirstYear ? 1 : 0)
+  .every((val) => isZeroValue(val));
 
     
   const adjustedRevenueValues = Array.from({
@@ -1116,6 +1133,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
             </View>
 
             {/* Interest On Term Loan */}
+            {!isInterestOnTermLoanZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
@@ -1157,6 +1175,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
                 );
               })}
             </View>
+            )}
 
             {/* Interest On Working Capital */}
             {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
@@ -1206,6 +1225,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
             </View>)}
 
             {/* ✅ Render Depreciation Row */}
+            {!isDepreciationZero && ( 
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -1242,6 +1262,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
                   )
               )}
             </View>
+            )}
 
             {/* ✅ Total Row for Fixed Expenses */}
             <View

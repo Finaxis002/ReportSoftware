@@ -17,7 +17,7 @@ const ProjectedExpenses = ({
   orientation,
 }) => {
   //  console.log("Received total depreciation", yearlyInterestLiabilities)
-
+  console.log("formdata", formData);
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
   const indirectExpense = directExpense.filter(
@@ -119,132 +119,121 @@ const ProjectedExpenses = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
-  
+  const isZeroValue = (val) => {
+    const num = Number(val);
+    return !num || num === 0; // covers 0, null, undefined, NaN, ""
+  };
+
+  // Check if all Interest On Term Loan values are zero or falsy
+  const isInterestOnTermLoanZero = yearlyInterestLiabilities
+    .slice(hideFirstYear ? 1 : 0)
+    .every((val) => isZeroValue(val));
+
+  // Check if all Depreciation values are zero or falsy
+  const isDepreciationZero = totalDepreciationPerYear
+    .slice(hideFirstYear ? 1 : 0)
+    .every((val) => isZeroValue(val));
 
   // Function to calculate interest on working capital considering moratorium period
-  // const calculateInterestOnWorkingCapital = useMemo(() => {
-  //   return (interestAmount, yearIndex) => {
-  //     const monthsInYear = monthsPerYear[yearIndex];
 
-  //     if (monthsInYear === 0) {
-  //       return 0; // Entire year under moratorium
-  //     }
+  //  const calculateInterestOnWorkingCapital = useMemo(() => {
+  //     // ✅ Find the first repayment year index (first with non-zero months)
+  //     const firstRepaymentYearIndex = monthsPerYear.findIndex(
+  //       (months) => months > 0
+  //     );
 
-  //     // ✅ Determine first visible repayment year index
-  //     const isProRataYear =
-  //       (!hideFirstYear && yearIndex === 0) ||
-  //       (hideFirstYear && yearIndex === 1);
+  //     // ✅ Debug Table
+  //     const interestAmount =
+  //       ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+  //         (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+  //       100;
 
-  //     const repaymentYear = monthsPerYear
-  //       .slice(0, yearIndex)
-  //       .filter((months, idx) => months > 0).length;
+  //     return (interestAmount, yearIndex) => {
+  //       const monthsInYear = monthsPerYear[yearIndex];
 
-  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
-  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-  //       const monthsEffective = monthsInYear;
-  //       return (interestAmount * monthsEffective) / 12;
-  //     } else if (repaymentYear >= 1) {
-  //       return interestAmount; // Full interest from second visible repayment year onward
-  //     } else {
-  //       return 0; // No interest during moratorium
-  //     }
-  //   };
-  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  //       if (monthsInYear === 0) {
+  //         return 0;
+  //       }
 
-  // const isWorkingCapitalInterestZero = Array.from({
-  //   length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  // }).every((_, yearIndex) => {
-  //   const adjustedIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-  //   const interestAmount = interestOnWorkingCapital[adjustedIndex] || 0;
-  //   const calculatedInterest = calculateInterestOnWorkingCapital(
-  //     interestAmount,
-  //     adjustedIndex
-  //   );
-  //   return calculatedInterest === 0;
-  // });
-   const calculateInterestOnWorkingCapital = useMemo(() => {
-      // ✅ Find the first repayment year index (first with non-zero months)
-      const firstRepaymentYearIndex = monthsPerYear.findIndex(
-        (months) => months > 0
-      );
-  
-      // ✅ Debug Table
-      const interestAmount =
-        ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
-          (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
-        100;
-  
-      // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
-      //   let appliedInterest = 0;
-  
-      //   if (monthsInYear === 0) {
-      //     appliedInterest = 0;
-      //   } else if (yearIndex === firstRepaymentYearIndex) {
-      //     appliedInterest = (interestAmount * monthsInYear) / 12;
-      //   } else {
-      //     appliedInterest = interestAmount;
-      //   }
-  
-      //   return {
-      //     "Year Index": yearIndex + 1,
-      //     "Months Effective": monthsInYear,
-      //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
-      //     "Interest Amount (Full)": interestAmount.toFixed(2),
-      //     "Interest Applied": appliedInterest.toFixed(2),
-      //   };
-      // });
-  
-      // console.log("📊 Interest on Working Capital - Moratorium Effect");
-      // console.table(debugTable);
-  
-      // ✅ Actual logic returned by useMemo
-  
-      return (interestAmount, yearIndex) => {
-        const monthsInYear = monthsPerYear[yearIndex];
-  
-        if (monthsInYear === 0) {
-          return 0;
-        }
-  
-        if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
-          return (interestAmount * monthsInYear) / 12;
-        }
-  
-        return interestAmount;
-      };
-    }, [formData, moratoriumPeriodMonths, monthsPerYear]);
-  
-    const isWorkingCapitalInterestZero = Array.from({
-      length: projectionYears,
-    }).every((_, yearIndex) => {
-      const calculatedInterest = calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0,
-        yearIndex
-      );
-      return calculatedInterest === 0;
-    });
-  
-  
+  //       if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+  //         return (interestAmount * monthsInYear) / 12;
+  //       }
+
+  //       return interestAmount;
+  //     };
+  //   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+
+  const calculateInterestOnWorkingCapital = useMemo(() => {
+    console.log("moratorium month", moratoriumPeriodMonths);
+
+    const principal =
+      Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
+    const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+    const annualInterestAmount = (principal * rate) / 100;
+
+    console.log("principal:", principal);
+    console.log("rate:", rate);
+    console.log("annualInterestAmount:", annualInterestAmount);
+
+    const firstRepaymentYearIndex = monthsPerYear.findIndex(
+      (months) => months > 0
+    );
+    console.log("Months per year:", monthsPerYear);
+    console.log("First repayment year index:", firstRepaymentYearIndex);
+
+    return (yearIndex) => {
+      const monthsInYear = monthsPerYear[yearIndex] || 0;
+      console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
+      if (monthsInYear === 0) {
+        // Entire year in moratorium, no interest
+        return 0;
+      }
+
+      // if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+      //   // Prorated interest for first repayment year
+      //   return (annualInterestAmount * monthsInYear) / 12;
+      // }
+      if (
+        yearIndex === firstRepaymentYearIndex &&
+        (moratoriumPeriodMonths > 0 || monthsInYear < 12)
+      ) {
+        const prorated = (annualInterestAmount * monthsInYear) / 12;
+        console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
+        return prorated;
+      }
+
+      console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
+      // Full annual interest for other repayment years
+      return annualInterestAmount;
+    };
+  }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+
+  const isWorkingCapitalInterestZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const calculatedInterest = calculateInterestOnWorkingCapital(yearIndex);
+    return calculatedInterest === 0;
+  });
+
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
     const isProRataYear =
-      (!hideFirstYear && yearIndex === 0) ||
-      (hideFirstYear && yearIndex === 1);
-  
+      (!hideFirstYear && yearIndex === 0) || (hideFirstYear && yearIndex === 1);
+
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
       .filter((months) => months > 0).length;
-  
+
     // console.log(`\n📅 Final Adjustment - Year ${yearIndex + 1}`);
     // console.log(`- Base Interest: ₹${interestAmount.toFixed(2)}`);
     // console.log(`- Months In Year: ${monthsInYear}`);
     // console.log(`- Is Pro-Rata Year: ${isProRataYear}`);
     // console.log(`- Repayment Year Index: ${repaymentYear}`);
-  
+
     if (isProRataYear && moratoriumPeriodMonths > 0) {
       const monthsEffective = monthsInYear;
       const final = (interestAmount * monthsEffective) / 12;
-  
+
       // console.log(`✅ Adjusted Pro-Rata Interest: ₹${final.toFixed(2)} for ${monthsEffective} months`);
     } else if (repaymentYear >= 1) {
       // console.log(`✅ Full Interest Applicable: ₹${interestAmount.toFixed(2)}`);
@@ -252,8 +241,6 @@ const ProjectedExpenses = ({
       // console.log(`❌ No Interest: Under Moratorium`);
     }
   });
-  
-
 
   const totalDirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -335,21 +322,20 @@ const ProjectedExpenses = ({
       : 0;
 
   // Generate the array for yearly values
-  const preliminaryWriteOffPerYear = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const startIndex = hideFirstYear ? 1 : 0;
-      const endIndex = startIndex + preliminaryWriteOffYears;
-  
-      // 👇 Only insert value if it's within the write-off window
-      if (index >= startIndex && index < endIndex) {
-        return yearlyWriteOffAmount;
-      }
-  
-      // 👇 Insert 0 for all other years (including hidden first year)
-      return 0;
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, index) => {
+    const startIndex = hideFirstYear ? 1 : 0;
+    const endIndex = startIndex + preliminaryWriteOffYears;
+
+    // 👇 Only insert value if it's within the write-off window
+    if (index >= startIndex && index < endIndex) {
+      return yearlyWriteOffAmount;
     }
-  );
-  
+
+    // 👇 Insert 0 for all other years (including hidden first year)
+    return 0;
+  });
 
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -363,10 +349,8 @@ const ProjectedExpenses = ({
       }, 0);
 
     const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-    const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[yearIndex] || 0,
-      yearIndex
-    );
+    const interestExpenseOnWorkingCapital =
+      calculateInterestOnWorkingCapital(yearIndex);
     const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
     const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
 
@@ -525,40 +509,40 @@ const ProjectedExpenses = ({
 
           <View style={[styles.table]}>
             <View style={styles.tableHeader}>
-                        <Text
-                          style={[
-                            styles.serialNoCell,
-                            styleExpenses.sno,
-                            styleExpenses.fontBold,
-                            { textAlign: "center" },
-                          ]}
-                        >
-                          S. No.
-                        </Text>
-                        <Text
-                          style={[
-                            styles.detailsCell,
-                            styleExpenses.particularWidth,
-                            styleExpenses.fontBold,
-                            { textAlign: "center" },
-                          ]}
-                        >
-                          Particulars
-                        </Text>
-            
-                        {/* Generate Dynamic Year Headers using financialYearLabels */}
-                        {financialYearLabels.map(
-                          (yearLabel, yearIndex) =>
-                            (!hideFirstYear || yearIndex !== 0) && (
-                              <Text
-                                key={yearIndex}
-                                style={[styles.particularsCell, stylesCOP.boldText]}
-                              >
-                                {yearLabel}
-                              </Text>
-                            )
-                        )}
-                      </View>
+              <Text
+                style={[
+                  styles.serialNoCell,
+                  styleExpenses.sno,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
+                S. No.
+              </Text>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.particularWidth,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
+                Particulars
+              </Text>
+
+              {/* Generate Dynamic Year Headers using financialYearLabels */}
+              {financialYearLabels.map(
+                (yearLabel, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[styles.particularsCell, stylesCOP.boldText]}
+                    >
+                      {yearLabel}
+                    </Text>
+                  )
+              )}
+            </View>
           </View>
         </View>
 
@@ -848,124 +832,132 @@ const ProjectedExpenses = ({
           </View>
 
           {/* Interest On Term Loan */}
-          <View style={[styles.tableRow, styles.totalRow]}>
-            {/* Serial Number */}
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            >
-              1
-            </Text>
+          {!isInterestOnTermLoanZero && (
+            <View style={[styles.tableRow, styles.totalRow]}>
+              {/* Serial Number */}
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                1
+              </Text>
 
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Interest On Term Loan
-            </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest On Term Loan
+              </Text>
 
-            {/* Get total projection years */}
-            {Array.from({
-              length: hideFirstYear
-                ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
-            }).map((_, index) => {
-              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
+              {/* Get total projection years */}
+              {Array.from({
+                length: hideFirstYear
+                  ? formData?.ProjectReportSetting?.ProjectionYears - 1
+                  : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
+              }).map((_, index) => {
+                const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
 
-              return (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(
-                    yearlyInterestLiabilities?.[adjustedIndex] ?? 0
-                  )}
-                </Text>
-              );
-            })}
-          </View>
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(
+                      yearlyInterestLiabilities?.[adjustedIndex] ?? 0
+                    )}
+                  </Text>
+                );
+              })}
+            </View>
+          )}
 
           {/* Interest on Working Capital */}
           {!isWorkingCapitalInterestZero && (
-          <View style={[styles.tableRow, styles.totalRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>
+                {isInterestOnTermLoanZero ? 1 : 2}
+              </Text>
 
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Interest On Working Capital
-            </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest On Working Capital
+              </Text>
 
-            {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
-            {Array.from({
-              length: hideFirstYear
-                ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
-            }).map((_, index) => {
-              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
-              const calculatedInterest = calculateInterestOnWorkingCapital(
-                interestOnWorkingCapital[adjustedIndex] || 0,
-                adjustedIndex
-              );
+              {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
+              {Array.from({
+                length: hideFirstYear
+                  ? formData?.ProjectReportSetting?.ProjectionYears - 1
+                  : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
+              }).map((_, index) => {
+                const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
+                // const calculatedInterest = calculateInterestOnWorkingCapital(
+                //   interestOnWorkingCapital[adjustedIndex] || 0,
+                //   adjustedIndex
+                // );
+                const calculatedInterest =
+                  calculateInterestOnWorkingCapital(adjustedIndex);
 
-              return (
-                <Text
-                  key={adjustedIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(calculatedInterest)}
-                </Text>
-              );
-            })}
-          </View>
+                return (
+                  <Text
+                    key={adjustedIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(calculatedInterest)}
+                  </Text>
+                );
+              })}
+            </View>
           )}
 
           {/* ✅ Render Depreciation Row */}
-          <View style={[styles.tableRow, styles.totalRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}>
-            {isWorkingCapitalInterestZero ? 2 : 3}
-            </Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Depreciation
-            </Text>
+          {!isDepreciationZero && (
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>
+                {isWorkingCapitalInterestZero ? 2 : 3}
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Depreciation
+              </Text>
 
-            {/* ✅ Display Depreciation Values for Each Year */}
-            {totalDepreciationPerYear
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year dynamically
-              .map((depreciationValue, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(depreciationValue)}
-                </Text>
-              ))}
-          </View>
+              {/* ✅ Display Depreciation Values for Each Year */}
+              {totalDepreciationPerYear
+                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year dynamically
+                .map((depreciationValue, yearIndex) => (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(depreciationValue)}
+                  </Text>
+                ))}
+            </View>
+          )}
 
           {directExpense
             .filter((expense) => {
@@ -990,16 +982,22 @@ const ProjectedExpenses = ({
             .map((expense, index) => {
               const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
               const isRawMaterial =
-              expense.name.trim() ===
-              "Raw Material Expenses / Purchases";
+                expense.name.trim() === "Raw Material Expenses / Purchases";
               const displayName = isRawMaterial
                 ? "Purchases / RM Expenses"
                 : expense.name;
-                const serialNumber = isWorkingCapitalInterestZero ? index + 3 : index + 4
+              const serialNumber =
+                isInterestOnTermLoanZero && isDepreciationZero
+                  ? index + 2 // Starts from 2 if both conditions are true
+                  : isWorkingCapitalInterestZero
+                  ? index + 3
+                  : index + 4;
+
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
-
-                  <Text style={stylesCOP.serialNoCellDetail}>{serialNumber}</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {serialNumber}
+                  </Text>
 
                   <Text
                     style={[

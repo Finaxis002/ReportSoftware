@@ -385,13 +385,13 @@ const FirstStepBasicDetails = ({
               <input
                 id="businessDescription"
                 name="businessDescription"
-                type="tel"
+                type="text"
                 placeholder="e.g., Description"
                 value={localData.businessDescription || ""}
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessOwner">Business Description</label>
+              <label htmlFor="businessDescription">Business Description</label>
             </div>
             <div className="input">
               <input

@@ -117,64 +117,111 @@ const ProjectedCashflow = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
+
+  
   // Function to calculate interest on working capital considering moratorium period
-  const calculateInterestOnWorkingCapital = useMemo(() => {
-    // ✅ Find the first repayment year index (first with non-zero months)
-    const firstRepaymentYearIndex = monthsPerYear.findIndex(
-      (months) => months > 0
-    );
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   // ✅ Find the first repayment year index (first with non-zero months)
+  //   const firstRepaymentYearIndex = monthsPerYear.findIndex(
+  //     (months) => months > 0
+  //   );
 
-    // ✅ Debug Table
-    const interestAmount =
-      ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
-        (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
-      100;
+  //   // ✅ Debug Table
+  //   const interestAmount =
+  //     ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+  //       (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+  //     100;
 
-    // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
-    //   let appliedInterest = 0;
+  //   // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+  //   //   let appliedInterest = 0;
 
-    //   if (monthsInYear === 0) {
-    //     appliedInterest = 0;
-    //   } else if (yearIndex === firstRepaymentYearIndex) {
-    //     appliedInterest = (interestAmount * monthsInYear) / 12;
-    //   } else {
-    //     appliedInterest = interestAmount;
-    //   }
+  //   //   if (monthsInYear === 0) {
+  //   //     appliedInterest = 0;
+  //   //   } else if (yearIndex === firstRepaymentYearIndex) {
+  //   //     appliedInterest = (interestAmount * monthsInYear) / 12;
+  //   //   } else {
+  //   //     appliedInterest = interestAmount;
+  //   //   }
 
-    //   return {
-    //     "Year Index": yearIndex + 1,
-    //     "Months Effective": monthsInYear,
-    //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
-    //     "Interest Amount (Full)": interestAmount.toFixed(2),
-    //     "Interest Applied": appliedInterest.toFixed(2),
-    //   };
-    // });
+  //   //   return {
+  //   //     "Year Index": yearIndex + 1,
+  //   //     "Months Effective": monthsInYear,
+  //   //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+  //   //     "Interest Amount (Full)": interestAmount.toFixed(2),
+  //   //     "Interest Applied": appliedInterest.toFixed(2),
+  //   //   };
+  //   // });
 
-    // console.log("📊 Interest on Working Capital - Moratorium Effect");
-    // console.table(debugTable);
+  //   // console.log("📊 Interest on Working Capital - Moratorium Effect");
+  //   // console.table(debugTable);
 
-    // ✅ Actual logic returned by useMemo
+  //   // ✅ Actual logic returned by useMemo
 
-    return (interestAmount, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
 
-      if (monthsInYear === 0) {
-        return 0;
+  //     if (monthsInYear === 0) {
+  //       return 0;
+  //     }
+
+  //     if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+  //       return (interestAmount * monthsInYear) / 12;
+  //     }
+
+  //     return interestAmount;
+  //   };
+  // }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+
+   const calculateInterestOnWorkingCapital = useMemo(() => {
+      console.log("moratorium month", moratoriumPeriodMonths);
+  
+      const principal =
+        Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
+      const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+      const annualInterestAmount = (principal * rate) / 100;
+     
+    console.log("principal:", principal);
+    console.log("rate:", rate);
+    console.log("annualInterestAmount:", annualInterestAmount);
+  
+      const firstRepaymentYearIndex = monthsPerYear.findIndex(
+        (months) => months > 0
+      );
+      console.log("Months per year:", monthsPerYear);
+      console.log("First repayment year index:", firstRepaymentYearIndex);
+  
+      return (yearIndex) => {
+        const monthsInYear = monthsPerYear[yearIndex] || 0;
+        console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
+        if (monthsInYear === 0) {
+          // Entire year in moratorium, no interest
+          return 0;
+        }
+  
+        // if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+        //   // Prorated interest for first repayment year
+        //   return (annualInterestAmount * monthsInYear) / 12;
+        // }
+        if (
+        yearIndex === firstRepaymentYearIndex &&
+        (moratoriumPeriodMonths > 0 || monthsInYear < 12)
+      ) {
+        const prorated = (annualInterestAmount * monthsInYear) / 12;
+        console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
+        return prorated;
       }
-
-      if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
-        return (interestAmount * monthsInYear) / 12;
-      }
-
-      return interestAmount;
-    };
-  }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+  
+        console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
+        // Full annual interest for other repayment years
+        return annualInterestAmount;
+      };
+    }, [formData, moratoriumPeriodMonths, monthsPerYear]);
 
   const isWorkingCapitalInterestZero = Array.from({
     length: projectionYears,
   }).every((_, yearIndex) => {
     const calculatedInterest = calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[yearIndex] || 0,
+      
       yearIndex
     );
     return calculatedInterest === 0;
@@ -188,7 +235,7 @@ const ProjectedCashflow = ({
     const profitBeforeTax = netProfitBeforeTax?.[yearIndex] || 0; // Profit Before Tax
     const interestOnTermLoan = yearlyInterestLiabilities?.[yearIndex] || 0; // Interest on Term Loan
     const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital?.[yearIndex] || 0,
+      
       yearIndex
     ); // Call function to get Interest on Working Capital
 
@@ -288,7 +335,7 @@ const ProjectedCashflow = ({
         yearlyInterestLiabilities[index] || 0
       );
       const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[index] || 0,
+        
         index
       );
       const withdrawals = parseFloat(
@@ -426,6 +473,25 @@ const ProjectedCashflow = ({
   const preliminarySerialNo = 6 + visibleLiabilitiesCount;
 
   const isInventoryZero = inventory.every((value) => value === 0);
+
+  const isBankTermLoanZero = Array.from({ length: projectionYears }).every(
+  (_, index) => (index === 0 ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0) : 0) === 0
+);
+
+const isDepreciationZero = Array.from({ length: projectionYears }).every(
+  (_, index) => totalDepreciationPerYear[index] === 0
+);
+
+const isFixedAssetsZero = firstYearGrossFixedAssets === 0;
+
+const isInterestOnTermLoanZero = Array.from({ length: projectionYears }).every(
+  (_, index) => yearlyInterestLiabilities[index] === 0
+);
+
+const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
+  (_, index) => yearlyPrincipalRepayment[index] === 0
+);
+
 
 
   return (
@@ -651,6 +717,7 @@ const ProjectedCashflow = ({
             </View>
 
             {/* Bank Term Loan */}
+            {!isBankTermLoanZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 3
@@ -685,6 +752,7 @@ const ProjectedCashflow = ({
                 </Text>
               ))}
             </View>
+            )}
 
             {/* Working Capital Loan */}
             {!isWorkingCapitalInterestZero && (<View style={styles.tableRow}>
@@ -718,6 +786,7 @@ const ProjectedCashflow = ({
             </View>)}
 
             {/* Depreciation */}
+            {!isDepreciationZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
               {isWorkingCapitalInterestZero ? 4 : 5}
@@ -743,6 +812,7 @@ const ProjectedCashflow = ({
                 </Text>
               ))}
             </View>
+            )}
 
             {/* ✅ Liabilities from More Details dynamically aligned with projectionYears */}
             {formData?.MoreDetails?.currentLiabilities
@@ -909,6 +979,7 @@ const ProjectedCashflow = ({
             </View>
 
             {/* Fixed Assets */}
+            {!isFixedAssetsZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
                 1
@@ -939,8 +1010,10 @@ const ProjectedCashflow = ({
                 </Text>
               ))}
             </View>
+            )}
 
             {/* Repayment of Term Loan */}
+            {!isRepaymentOfTermLoanZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -977,8 +1050,10 @@ const ProjectedCashflow = ({
                 </Text>
               ))}
             </View>
+            )}
 
             {/* Interest On Term Loan */}
+            {!isInterestOnTermLoanZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
               {/* Serial Number */}
               <Text
@@ -1018,6 +1093,7 @@ const ProjectedCashflow = ({
                 </Text>
               ))}
             </View>
+            )}
 
             {/* Interest On Working Capital */}
             {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
@@ -1047,7 +1123,7 @@ const ProjectedCashflow = ({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
                 const calculatedInterest = calculateInterestOnWorkingCapital(
-                  interestOnWorkingCapital[yearIndex] || 0,
+                 
                   yearIndex
                 );
 
