@@ -804,7 +804,7 @@ useEffect(() => {
                       ))} */}
                       {getFinancialYearHeaders(
                         parseInt(
-                          formData?.ProjectReportSetting?.StartYear || 2025
+                          formData?.ProjectReportSetting?.FinancialYear || 2025
                         ),
                         parseInt(
                           formData?.ProjectReportSetting?.ProjectionYears || 5
@@ -1146,7 +1146,7 @@ useEffect(() => {
                       ))} */}
                       {getFinancialYearHeaders(
                         parseInt(
-                          formData?.ProjectReportSetting?.StartYear || 2025
+                          formData?.ProjectReportSetting?.FinancialYear || 2025
                         ),
                         parseInt(
                           formData?.ProjectReportSetting?.ProjectionYears || 5

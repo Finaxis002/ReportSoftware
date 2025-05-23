@@ -19,6 +19,7 @@ Font.register({
   ],
 });
 
+
 const ProjectedBalanceSheet = ({
   formData = {},
   pdfType,
@@ -40,13 +41,6 @@ const ProjectedBalanceSheet = ({
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
-
-  // Update the state when the prop value changes
-  useEffect(() => {
-    if (firstYearGrossFixedAssets > 0) {
-      setGrossFixedAssets(firstYearGrossFixedAssets);
-    }
-  }, [firstYearGrossFixedAssets]);
 
   // Update the state when the prop value changes
   useEffect(() => {
@@ -224,12 +218,11 @@ const ProjectedBalanceSheet = ({
       // ✅ Compute current year liabilities and accumulate
       const currentYearLiabilities = (
         formData?.MoreDetails?.currentLiabilities ?? []
-      )
-        .reduce(
-          (total, liabilities) =>
-            total + Number(liabilities.years?.[yearIndex] || 0),
-          0
-        );
+      ).reduce(
+        (total, liabilities) =>
+          total + Number(liabilities.years?.[yearIndex] || 0),
+        0
+      );
 
       // ✅ Accumulate current liabilities over years
       cumulativeCurrentLiabilities += currentYearLiabilities;
@@ -237,13 +230,6 @@ const ProjectedBalanceSheet = ({
       // ✅ Calculate total liabilities for the year
       const totalForYear =
         repayment + workingCapitalLoan + cumulativeCurrentLiabilities;
-
-      // console.log(`Year ${yearIndex + 1}:`);
-      // console.log(`  - Bank Loan Payable: ${repayment}`);
-      // console.log(`  - Working Capital Loan: ${workingCapitalLoan}`);
-      // console.log(`  - Current Year Liabilities: ${currentYearLiabilities}`);
-      // console.log(`  - Cumulative Current Liabilities: ${cumulativeCurrentLiabilities}`);
-      // console.log(`  - Total Liabilities: ${totalForYear}`);
 
       return totalForYear;
     }
@@ -328,6 +314,57 @@ const ProjectedBalanceSheet = ({
   const preliminarySerialNo = 6 + visibleLiabilitiesCount;
 
   const isInventoryZero = inventory.every((value) => value === 0);
+
+  // Check if Bank Term Loan is zero for all years
+  const isBankTermLoanZero = Array.from({ length: projectionYears }).every(
+    (_, index) =>
+      (index === 0
+        ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
+        : 0) === 0
+  );
+
+  // Check if Bank Term Loan Payable within next 12 months is zero for all years
+  const isBankTermLoanPayableZero = repaymentValueswithin12months.every(
+    (value) => value === 0
+  );
+
+  // Check if Fixed Assets are zero for all years
+  const isFixedAssetsZero = computedFixedAssets.every((value) => value === 0);
+
+  // Check if Depreciation is zero for all years
+  const isDepreciationZero = totalDepreciationPerYear.every(
+    (value) => value === 0
+  );
+
+  // Check if Net Fixed Assets are zero for all years
+  const isNetFixedAssetsZero = computedNetFixedAssets.every(
+    (value) => value === 0
+  );
+
+  // Initialize counters for each section
+  let liabilitiesSerial = 0;
+  let assetsSerial = 0;
+
+  const getNextLiabilitiesSerial = () => ++liabilitiesSerial;
+  const getNextAssetsSerial = () => ++assetsSerial;
+
+  // Always visible rows (Capital, Reserves & Surplus)
+  const capitalSerial = getNextLiabilitiesSerial();
+  const reservesSerial = getNextLiabilitiesSerial();
+
+  // Conditional rows for Liabilities
+  const bankTermLoanSerial = !isBankTermLoanZero ? getNextLiabilitiesSerial() : null;
+  const bankPayableSerial = !isBankTermLoanPayableZero ? getNextLiabilitiesSerial() : null;
+  const workingCapitalSerial = !isWorkingCapitalLoanZero ? getNextLiabilitiesSerial() : null;
+
+  // Always visible rows for Assets (Cash)
+  const cashSerial = getNextAssetsSerial();
+
+  // Conditional rows for Assets
+  const fixedAssetsSerial = !isFixedAssetsZero ? getNextAssetsSerial() : null;
+  const depreciationSerial = !isDepreciationZero ? getNextAssetsSerial() : null;
+  const netFixedAssetsSerial = !isNetFixedAssetsZero ? getNextAssetsSerial() : null;
+  const inventorySerial = !isInventoryZero ? getNextAssetsSerial() : null;
 
   return (
     <Page
@@ -495,7 +532,7 @@ const ProjectedBalanceSheet = ({
             {/* ✅ Capital */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                1
+                 {capitalSerial}
               </Text>
               <Text
                 style={[
@@ -524,7 +561,7 @@ const ProjectedBalanceSheet = ({
             {/* Reserves & Surplus */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                2
+                {reservesSerial}
               </Text>
               <Text
                 style={[
@@ -557,73 +594,80 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Bank Loan - Term Loan */}
-            <View style={styles.tableRow}>
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                3
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Bank Loan - Term Loan
-              </Text>
-              {Array.from({ length: projectionYears }).map((_, index) => {
-                const marchBalance = receivedMarchClosingBalances?.[index] || 0;
-                const repaymentValue =
-                  repaymentValueswithin12months?.[index] || 0;
-                const netBalance = marchBalance - repaymentValue;
+            {!isBankTermLoanZero && (
+              <View style={styles.tableRow}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                 {bankTermLoanSerial}
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Bank Loan - Term Loan
+                </Text>
+                {Array.from({ length: projectionYears }).map((_, index) => {
+                  const marchBalance =
+                    receivedMarchClosingBalances?.[index] || 0;
+                  const repaymentValue =
+                    repaymentValueswithin12months?.[index] || 0;
+                  const netBalance = marchBalance - repaymentValue;
 
-                return (
+                  return (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(netBalance)} {/* ✅ Corrected this line */}
+                    </Text>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Bank Loan Payable within next 12 months */}
+            {!isBankTermLoanPayableZero && (
+              <View style={styles.tableRow}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                  {bankPayableSerial}
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Bank Loan Payable within next 12 months
+                </Text>
+
+                {Array.from({ length: projectionYears }).map((_, yearIndex) => (
                   <Text
-                    key={index}
+                    key={yearIndex}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(netBalance)} {/* ✅ Corrected this line */}
+                    {formatNumber(
+                      repaymentValueswithin12months[yearIndex] || 0
+                    )}{" "}
+                    {/* Default to 0 if no value exists */}
                   </Text>
-                );
-              })}
-            </View>
-
-            {/* Bank Loan Payable within next 12 months */}
-            <View style={styles.tableRow}>
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                4
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Bank Loan Payable within next 12 months
-              </Text>
-
-              {Array.from({ length: projectionYears }).map((_, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(repaymentValueswithin12months[yearIndex] || 0)}{" "}
-                  {/* Default to 0 if no value exists */}
-                </Text>
-              ))}
-            </View>
+                ))}
+              </View>
+            )}
 
             {/* Bank Loan - Working Capital Loan */}
             {!isWorkingCapitalLoanZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  5
+                  {workingCapitalSerial}
                 </Text>
                 <Text
                   style={[
@@ -668,7 +712,7 @@ const ProjectedBalanceSheet = ({
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                      {serialNumber}
+                       {getNextLiabilitiesSerial()}
                     </Text>
 
                     {/* Particular Name */}
@@ -789,106 +833,112 @@ const ProjectedBalanceSheet = ({
             </View>
 
             {/* Fixed Assets */}
-            <View style={styles.tableRow}>
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                1
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Fixed Assets
-              </Text>
-
-              {computedFixedAssets.map((value, index) => (
+            {!isFixedAssetsZero && (
+              <View style={styles.tableRow}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                  {fixedAssetsSerial}
+                </Text>
                 <Text
-                  key={index}
                   style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
                   ]}
                 >
-                  {formatNumber(value)}
+                  Fixed Assets
                 </Text>
-              ))}
-            </View>
+
+                {computedFixedAssets.map((value, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value)}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/* Less:Depreciation */}
-            <View
-              style={[
-                styles.tableRow,
-                styles.totalRow,
-                { borderBottomWidth: 1 },
-              ]}
-            >
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                2
-              </Text>
-
-              <Text
+            {!isDepreciationZero && (
+              <View
                 style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
+                  styles.tableRow,
+                  styles.totalRow,
+                  { borderBottomWidth: 1 },
                 ]}
               >
-                Less:Depreciation
-              </Text>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                  {depreciationSerial}
+                </Text>
 
-              {/* ✅ Display Principal Repayment Only for Projection Years */}
-
-              {Array.from({ length: projectionYears }).map((_, index) => (
                 <Text
-                  key={index}
                   style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
                   ]}
                 >
-                  {formatNumber(totalDepreciationPerYear[index] || "-")}
+                  Less:Depreciation
                 </Text>
-              ))}
-            </View>
+
+                {/* ✅ Display Principal Repayment Only for Projection Years */}
+
+                {Array.from({ length: projectionYears }).map((_, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(totalDepreciationPerYear[index] || "-")}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/*  Net fixed assets */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              {/* Serial Number */}
-              <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                3
-              </Text>
+            {!isNetFixedAssetsZero && (
+              <View style={[styles.tableRow, styles.totalRow]}>
+                {/* Serial Number */}
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                  {netFixedAssetsSerial}
+                </Text>
 
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Net fixed assets
-              </Text>
-
-              {/* Get total projection years */}
-
-              {computedNetFixedAssets.map((value, index) => (
                 <Text
-                  key={index}
                   style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
                   ]}
                 >
-                  {formatNumber(value)}
+                  Net fixed assets
                 </Text>
-              ))}
-            </View>
+
+                {/* Get total projection years */}
+
+                {computedNetFixedAssets.map((value, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value)}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/*  Cash & Cash Equivalents  */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                4
+                {cashSerial}
               </Text>
               <Text
                 style={[
@@ -923,7 +973,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  5
+                  {inventorySerial}
                 </Text>
                 <Text
                   style={[
@@ -974,7 +1024,7 @@ const ProjectedBalanceSheet = ({
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                      {serialNumber}
+                      {getNextAssetsSerial()}
                     </Text>
 
                     {/* Particular */}

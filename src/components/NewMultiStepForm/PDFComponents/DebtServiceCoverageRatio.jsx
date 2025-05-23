@@ -104,93 +104,100 @@ const DebtServiceCoverageRatio = ({
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   // Function to calculate interest on working capital considering moratorium period
-  // const calculateInterestOnWorkingCapital = useMemo(() => {
-  //   return (interestAmount, yearIndex) => {
-  //     const monthsInYear = monthsPerYear[yearIndex];
+  //  const calculateInterestOnWorkingCapital = useMemo(() => {
+  //     // ✅ Find the first repayment year index (first with non-zero months)
+  //     const firstRepaymentYearIndex = monthsPerYear.findIndex(
+  //       (months) => months > 0
+  //     );
   
-  //     if (monthsInYear === 0) {
-  //       return 0; // Entire year under moratorium
-  //     }
+  //     // ✅ Debug Table
+  //     const interestAmount =
+  //       ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+  //         (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+  //       100;
   
-  //     // ✅ Determine first visible repayment year index
-  //     const isProRataYear =
-  //       (!hideFirstYear && yearIndex === 0) ||
-  //       (hideFirstYear && yearIndex === 1);
+  //     // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+  //     //   let appliedInterest = 0;
   
-  //     const repaymentYear = monthsPerYear
-  //       .slice(0, yearIndex)
-  //       .filter((months, idx) => months > 0).length;
+  //     //   if (monthsInYear === 0) {
+  //     //     appliedInterest = 0;
+  //     //   } else if (yearIndex === firstRepaymentYearIndex) {
+  //     //     appliedInterest = (interestAmount * monthsInYear) / 12;
+  //     //   } else {
+  //     //     appliedInterest = interestAmount;
+  //     //   }
   
-  //     if (isProRataYear && moratoriumPeriodMonths > 0) {
-  //       // 🧮 Months applicable in first repayment year (e.g. May = month 2, then 11 months)
-  //       const monthsEffective = monthsInYear;
-  //       return (interestAmount * monthsEffective) / 12;
-  //     } else if (repaymentYear >= 1) {
-  //       return interestAmount; // Full interest from second visible repayment year onward
-  //     } else {
-  //       return 0; // No interest during moratorium
-  //     }
-  //   };
-  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense, hideFirstYear]);
+  //     //   return {
+  //     //     "Year Index": yearIndex + 1,
+  //     //     "Months Effective": monthsInYear,
+  //     //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+  //     //     "Interest Amount (Full)": interestAmount.toFixed(2),
+  //     //     "Interest Applied": appliedInterest.toFixed(2),
+  //     //   };
+  //     // });
   
-  // const isWorkingCapitalInterestZero = Array.from({
-  //   length: projectionYears,
-  // }).every((_, yearIndex) => {
-  //   const calculatedInterest = calculateInterestOnWorkingCapital(
-  //     interestOnWorkingCapital[yearIndex] || 0,
-  //     yearIndex
-  //   );
-  //   return calculatedInterest === 0;
-  // });
+  //     // console.log("📊 Interest on Working Capital - Moratorium Effect");
+  //     // console.table(debugTable);
+  
+  //     // ✅ Actual logic returned by useMemo
+  
+  //     return (interestAmount, yearIndex) => {
+  //       const monthsInYear = monthsPerYear[yearIndex];
+  
+  //       if (monthsInYear === 0) {
+  //         return 0;
+  //       }
+  
+  //       if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+  //         return (interestAmount * monthsInYear) / 12;
+  //       }
+  
+  //       return interestAmount;
+  //     };
+  //   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+
    const calculateInterestOnWorkingCapital = useMemo(() => {
-      // ✅ Find the first repayment year index (first with non-zero months)
+      console.log("moratorium month", moratoriumPeriodMonths);
+  
+      const principal =
+        Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
+      const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+      const annualInterestAmount = (principal * rate) / 100;
+     
+    console.log("principal:", principal);
+    console.log("rate:", rate);
+    console.log("annualInterestAmount:", annualInterestAmount);
+  
       const firstRepaymentYearIndex = monthsPerYear.findIndex(
         (months) => months > 0
       );
+      console.log("Months per year:", monthsPerYear);
+      console.log("First repayment year index:", firstRepaymentYearIndex);
   
-      // ✅ Debug Table
-      const interestAmount =
-        ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
-          (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
-        100;
-  
-      // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
-      //   let appliedInterest = 0;
-  
-      //   if (monthsInYear === 0) {
-      //     appliedInterest = 0;
-      //   } else if (yearIndex === firstRepaymentYearIndex) {
-      //     appliedInterest = (interestAmount * monthsInYear) / 12;
-      //   } else {
-      //     appliedInterest = interestAmount;
-      //   }
-  
-      //   return {
-      //     "Year Index": yearIndex + 1,
-      //     "Months Effective": monthsInYear,
-      //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
-      //     "Interest Amount (Full)": interestAmount.toFixed(2),
-      //     "Interest Applied": appliedInterest.toFixed(2),
-      //   };
-      // });
-  
-      // console.log("📊 Interest on Working Capital - Moratorium Effect");
-      // console.table(debugTable);
-  
-      // ✅ Actual logic returned by useMemo
-  
-      return (interestAmount, yearIndex) => {
-        const monthsInYear = monthsPerYear[yearIndex];
-  
+      return (yearIndex) => {
+        const monthsInYear = monthsPerYear[yearIndex] || 0;
+        console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
         if (monthsInYear === 0) {
+          // Entire year in moratorium, no interest
           return 0;
         }
   
-        if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
-          return (interestAmount * monthsInYear) / 12;
-        }
+        // if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+        //   // Prorated interest for first repayment year
+        //   return (annualInterestAmount * monthsInYear) / 12;
+        // }
+        if (
+        yearIndex === firstRepaymentYearIndex &&
+        (moratoriumPeriodMonths > 0 || monthsInYear < 12)
+      ) {
+        const prorated = (annualInterestAmount * monthsInYear) / 12;
+        console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
+        return prorated;
+      }
   
-        return interestAmount;
+        console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
+        // Full annual interest for other repayment years
+        return annualInterestAmount;
       };
     }, [formData, moratoriumPeriodMonths, monthsPerYear]);
   
@@ -198,7 +205,7 @@ const DebtServiceCoverageRatio = ({
       length: projectionYears,
     }).every((_, yearIndex) => {
       const calculatedInterest = calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0,
+       
         yearIndex
       );
       return calculatedInterest === 0;
@@ -218,7 +225,7 @@ const DebtServiceCoverageRatio = ({
       (totalDepreciationPerYear[yearIndex] || 0) +
       (yearlyInterestLiabilities[yearIndex] || 0) +
       (calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0,
+        
         yearIndex
       ) || 0)
     );
@@ -232,7 +239,7 @@ const DebtServiceCoverageRatio = ({
     return (
       (yearlyInterestLiabilities[yearIndex] || 0) + // ✅ Interest on Term Loan
       (calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0, // Pass interest amount
+       
         yearIndex // Pass current year index
       ) || 0) + // ✅ Interest on Working Capital
       (yearlyPrincipalRepayment[yearIndex] || 0) // ✅ Repayment of Term Loan
@@ -280,10 +287,15 @@ const DebtServiceCoverageRatio = ({
   }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
 
-  // const orientation =
-  // hideFirstYear
-  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  // Check if all Depreciation values are zero
+const isDepreciationAllZero = totalDepreciationPerYear.every((val) => val === 0);
+
+// Check if all Interest on Term Loan values are zero
+const isInterestOnTermLoanAllZero = yearlyInterestLiabilities.every((val) => val === 0);
+
+// Check if all Repayment of Term Loan values are zero
+const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val === 0);
+
 
 
   return (
@@ -458,6 +470,7 @@ const DebtServiceCoverageRatio = ({
           </View>
 
           {/* ✅ Render Depreciation Row */}
+          {!isDepreciationAllZero && (
           <View
             style={[stylesMOF.row, styles.tableRow, { borderWidth: "0px" }]}
           >
@@ -496,8 +509,10 @@ const DebtServiceCoverageRatio = ({
                 )
             )}
           </View>
+          )}
 
           {/* Interest On Term Loan */}
+          {!isInterestOnTermLoanAllZero && (
           <View style={[styles.tableRow, styles.totalRow]}>
             {/* Serial Number */}
             <Text
@@ -538,6 +553,7 @@ const DebtServiceCoverageRatio = ({
                 )
             )}
           </View>
+          )}
 
           {/* Interest On Working Capital */}
           {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
@@ -569,7 +585,7 @@ const DebtServiceCoverageRatio = ({
               if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
 
               const calculatedInterest = calculateInterestOnWorkingCapital(
-                interestOnWorkingCapital[yearIndex] || 0,
+                
                 yearIndex
               );
 
@@ -635,6 +651,7 @@ const DebtServiceCoverageRatio = ({
 
         <View>
           {/* Interest On Term Loan */}
+          {!isInterestOnTermLoanAllZero && (
           <View style={[styles.tableRow, styles.totalRow]}>
             {/* Serial Number */}
             <Text
@@ -678,6 +695,7 @@ const DebtServiceCoverageRatio = ({
                 )
             )}
           </View>
+          )}
 
           {/* Interest On Working Capital */}
           {!isWorkingCapitalInterestZero && (<View style={[styles.tableRow, styles.totalRow]}>
@@ -708,7 +726,7 @@ const DebtServiceCoverageRatio = ({
             }).map((_, yearIndex) => {
               if (hideFirstYear && yearIndex === 0) return null;
               const calculatedInterest = calculateInterestOnWorkingCapital(
-                interestOnWorkingCapital[yearIndex] || 0,
+                
                 yearIndex
               );
 
@@ -727,6 +745,7 @@ const DebtServiceCoverageRatio = ({
           </View>)}
 
           {/* ✅ Repayment of Term Loan */}
+          {!isRepaymentTermLoanAllZero && (
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text
               style={[
@@ -775,6 +794,7 @@ const DebtServiceCoverageRatio = ({
               </Text>
             )}
           </View>
+          )}
 
           {/* ✅ Total Row for Variable Expense */}
           <View
