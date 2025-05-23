@@ -62,23 +62,24 @@ const AdminList = () => {
     }
   };
 
-  const handleEdit = async (id) => {
-    try {
-      await updateAdmin(id, updatedName, updatedPassword, caSign, permissions);
-      setEditingAdmin(null);
-      fetchAdmins();
-      setIsModalOpen(false);
-      setUpdatedPassword(""); // ← this clears the input for safety after opening modal
+  // const handleEdit = async (id) => {
+  //   try {
+  //     await updateAdmin(id, updatedName, updatedPassword, caSign, permissions);
+  //     setEditingAdmin(null);
+  //     fetchAdmins();
+  //     setIsModalOpen(false);
+  //     setUpdatedPassword(""); // ← this clears the input for safety after opening modal
 
-    } catch (error) {
-      console.error("Failed to update admin:", error);
-    }
-    if (updatedPassword.trim() === "") {
-      const confirm = window.confirm("Password field is empty. Do you want to keep the old password?");
-      if (!confirm) return;
-    }
+  //   } catch (error) {
+  //     console.error("Failed to update admin:", error);
+  //   }
+  //   if (updatedPassword.trim() === "") {
+  //     const confirm = window.confirm("Password field is empty. Do you want to keep the old password?");
+  //     if (!confirm) return;
+  //   }
     
-  };
+  // };
+
   // const handleEdit = async () => {
   //   try {
   //     // Use the ID of the admin that is being edited (from the state)
@@ -110,8 +111,49 @@ const AdminList = () => {
   //   }
   // };
   
-  
+  const handleEdit = async (id) => {
+  try {
+    // Prepare the JSON body
+    const body = {
+      username: updatedName.trim(),
+      roles: permissions,
+    };
+
+    // Only add password if user entered a new one
+    if (updatedPassword && updatedPassword.trim() !== "") {
+      body.password = updatedPassword.trim();
+      console.log("Password being sent to backend:", JSON.stringify(body.password));
+    }
+
+    // Call update API
+    const response = await fetch(`https://backend-three-pink.vercel.app/api/admin/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message || "Admin updated successfully");
+      setEditingAdmin(null);
+      fetchAdmins(); // Refresh admin list
+      setIsModalOpen(false);
+      setUpdatedPassword(""); // Clear password input after success
+    } else {
+      alert(data.message || "Failed to update admin");
+    }
+  } catch (error) {
+    console.error("Failed to update admin:", error);
+    alert("Error updating admin");
+  }
+};
+
+
   const handleOpenEdit = (admin) => {
+    console.log("Opening edit modal for admin:", admin);
     setEditingAdmin(admin._id);
     setUpdatedName(admin.username);
     setRoles(admin.permissions || {});
