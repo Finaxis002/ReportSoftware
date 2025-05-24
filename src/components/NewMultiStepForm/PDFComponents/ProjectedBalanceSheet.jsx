@@ -341,12 +341,24 @@ const ProjectedBalanceSheet = ({
     (value) => value === 0
   );
 
-  // Initialize counters for each section
+  // Simple counters for each section
   let liabilitiesSerial = 0;
   let assetsSerial = 0;
 
   const getNextLiabilitiesSerial = () => ++liabilitiesSerial;
   const getNextAssetsSerial = () => ++assetsSerial;
+
+  // Reset counters before rendering each section
+  const resetCounters = () => {
+    liabilitiesSerial = 0;
+    assetsSerial = 0;
+  };
+  // Initialize counters for each section
+  // let liabilitiesSerial = 0;
+  // let assetsSerial = 0;
+
+  // const getNextLiabilitiesSerial = () => ++liabilitiesSerial;
+  // const getNextAssetsSerial = () => ++assetsSerial;
 
   // Always visible rows (Capital, Reserves & Surplus)
   const capitalSerial = getNextLiabilitiesSerial();
@@ -489,6 +501,7 @@ const ProjectedBalanceSheet = ({
           {/* Liabilities Section */}
 
           <View>
+            {resetCounters()}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -532,7 +545,7 @@ const ProjectedBalanceSheet = ({
             {/* ✅ Capital */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                 {capitalSerial}
+                 {getNextLiabilitiesSerial()}
               </Text>
               <Text
                 style={[
@@ -561,7 +574,7 @@ const ProjectedBalanceSheet = ({
             {/* Reserves & Surplus */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                {reservesSerial}
+                {getNextLiabilitiesSerial()}
               </Text>
               <Text
                 style={[
@@ -597,7 +610,7 @@ const ProjectedBalanceSheet = ({
             {!isBankTermLoanZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                 {bankTermLoanSerial}
+                 {getNextLiabilitiesSerial()}
                 </Text>
                 <Text
                   style={[
@@ -634,7 +647,7 @@ const ProjectedBalanceSheet = ({
             {!isBankTermLoanPayableZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {bankPayableSerial}
+                  {getNextLiabilitiesSerial()}
                 </Text>
                 <Text
                   style={[
@@ -667,7 +680,7 @@ const ProjectedBalanceSheet = ({
             {!isWorkingCapitalLoanZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {workingCapitalSerial}
+                  {getNextLiabilitiesSerial()}
                 </Text>
                 <Text
                   style={[
@@ -702,9 +715,9 @@ const ProjectedBalanceSheet = ({
                 let cumulative = 0; // ⬅️ initialize cumulative tracker
 
                 // Calculate the correct serial number
-                const serialNumber = isWorkingCapitalLoanZero
-                  ? idx + 5
-                  : idx + 6;
+                // const serialNumber = isWorkingCapitalLoanZero
+                //   ? idx + 5
+                //   : idx + 6;
 
                 return (
                   <View style={styles.tableRow} key={idx}>
@@ -792,6 +805,7 @@ const ProjectedBalanceSheet = ({
           {/* Assets Section */}
 
           <View>
+            {resetCounters()}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -836,7 +850,7 @@ const ProjectedBalanceSheet = ({
             {!isFixedAssetsZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {fixedAssetsSerial}
+                  {getNextAssetsSerial()}
                 </Text>
                 <Text
                   style={[
@@ -872,7 +886,7 @@ const ProjectedBalanceSheet = ({
                 ]}
               >
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {depreciationSerial}
+                  {getNextAssetsSerial()}
                 </Text>
 
                 <Text
@@ -906,7 +920,7 @@ const ProjectedBalanceSheet = ({
               <View style={[styles.tableRow, styles.totalRow]}>
                 {/* Serial Number */}
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                  {netFixedAssetsSerial}
+                  {getNextAssetsSerial()}
                 </Text>
 
                 <Text
@@ -938,7 +952,7 @@ const ProjectedBalanceSheet = ({
             {/*  Cash & Cash Equivalents  */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                {cashSerial}
+                {getNextAssetsSerial()}
               </Text>
               <Text
                 style={[
@@ -973,7 +987,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {inventorySerial}
+                  {getNextAssetsSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1064,7 +1078,8 @@ const ProjectedBalanceSheet = ({
             {!isPreliminaryWriteOffAllZero && (
               <View style={[styles.tableRow, styles.totalRow]}>
                 <Text style={stylesCOP.serialNoCellDetail}>
-                  {preliminarySerialNo}
+                  {/* {preliminarySerialNo} */}
+                  {getNextAssetsSerial()}
                 </Text>
 
                 <Text

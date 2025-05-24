@@ -1303,7 +1303,7 @@ const allZero = (values) => values.every(val => Number(val) === 0);
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {getNextSourcesSerial()}
+                    {getNextUsesSerial()}
                   </Text>
 
                   {/* ✅ Particular Name */}
