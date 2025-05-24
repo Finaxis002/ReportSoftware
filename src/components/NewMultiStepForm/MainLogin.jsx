@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -11,6 +11,9 @@ const MainLogin = ({ onLogin }) => {
   const [captchaValue, setCaptchaValue] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otpValue, setOtpValue] = useState("");
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [captchaTimestamp, setCaptchaTimestamp] = useState(null);
+  const recaptchaRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -64,8 +67,22 @@ const MainLogin = ({ onLogin }) => {
   }, [navigate, onLogin]);
 
   const handleCaptchaChange = (value) => {
-    setCaptchaValue(value);
+    setCaptchaValue(value); 
+    setCaptchaToken(value);
+    setCaptchaTimestamp(Date.now());
   };
+
+  useEffect(() => {
+    if (captchaTimestamp && Date.now() - captchaTimestamp > 60000) {
+      // Invalidate if > 1 minute
+      setCaptchaToken(null);
+      setCaptchaValue(null);
+      setCaptchaTimestamp(null);
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+    }
+  }, [activeTab]);
 
   const handleAdminLogin = async () => {
     const loginTime = new Date().getTime();
@@ -90,10 +107,7 @@ const MainLogin = ({ onLogin }) => {
 
       const loginTime = new Date().getTime();
 
-      
-
-        // ✅ Store token and userRole in localStorage
-
+      // ✅ Store token and userRole in localStorage
 
       if (response.ok) {
         console.log("✅ Admin Login Successful (Admin collection):", data);
@@ -116,26 +130,6 @@ const MainLogin = ({ onLogin }) => {
     } catch (error) {
       console.error("🔥 Error during main admin login:", error);
     }
-
-
-    // ✅ If database login fails, check hardcoded admin credentials
-//     if (
-//       inputUsername === hardcodedAdminCredentials.username &&
-//       inputPassword === hardcodedAdminCredentials.password
-//     ) {
-//       console.log("✅ Admin Login Successful (Hardcoded)");
-
-//       localStorage.setItem("isLoggedIn", "true");
-//       localStorage.setItem("userRole", "admin");
-//       localStorage.setItem("token", "hardcoded-token"); // Dummy token for consistency
-
-//       onLogin(true, "admin");
-//       navigate("/");
-//     } else {
-//       setError("Invalid Admin Credentials!");
-//     }
-//   };
-
 
     // 2️⃣ Try Fallback Login API (MainAdminPassword collection)
     try {
@@ -175,7 +169,6 @@ const MainLogin = ({ onLogin }) => {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -183,7 +176,7 @@ const MainLogin = ({ onLogin }) => {
     if (activeTab === "employee") {
       if (!otpSent) {
         // ✅ STEP 1: CAPTCHA verification BEFORE OTP
-        if (!captchaValue) {
+        if (!captchaToken) {
           setError("Please complete the CAPTCHA.");
           return;
         }
@@ -194,7 +187,7 @@ const MainLogin = ({ onLogin }) => {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: captchaValue }),
+              body: JSON.stringify({ token: captchaToken }),
             }
           );
 
@@ -282,7 +275,7 @@ const MainLogin = ({ onLogin }) => {
 
     // ✅ For Admin Login
     if (activeTab === "admin") {
-      if (!captchaValue) {
+      if (!captchaToken) {
         setError("Please complete the CAPTCHA.");
         return;
       }
@@ -293,7 +286,7 @@ const MainLogin = ({ onLogin }) => {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: captchaValue }),
+            body: JSON.stringify({ token: captchaToken }),
           }
         );
 
@@ -317,7 +310,7 @@ const MainLogin = ({ onLogin }) => {
 
     // ✅ For Client Login
     if (activeTab === "client") {
-      if (!captchaValue) {
+      if (!captchaToken) {
         setError("Please complete the CAPTCHA.");
         return;
       }
@@ -328,7 +321,7 @@ const MainLogin = ({ onLogin }) => {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: captchaValue }),
+            body: JSON.stringify({ token: captchaToken }),
           }
         );
 

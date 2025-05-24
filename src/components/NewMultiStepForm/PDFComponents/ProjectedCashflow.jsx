@@ -16,6 +16,7 @@ Font.register({
   ],
 });
 
+
 const ProjectedCashflow = ({
   formData = {},
   calculations = {},
@@ -436,12 +437,7 @@ const ProjectedCashflow = ({
   ]);
 
   useEffect(() => {
-    // const termLoanValues = Array.from({ length: projectionYears }).map(
-    //   (_, index) =>
-    //     index === 0
-    //       ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
-    //       : "0"
-    // );
+    
     const termLoanValues = Array.from({ length: projectionYears }).map(
       (_, index) =>
         index === 0
@@ -492,7 +488,20 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
   (_, index) => yearlyPrincipalRepayment[index] === 0
 );
 
+const allZero = (values) => values.every(val => Number(val) === 0);
 
+ // Simple counters for each section
+  let sourcesSerial = 0;
+  let usesSerial = 0;
+
+  const getNextSourcesSerial = () => ++sourcesSerial;
+  const getNextUsesSerial = () => ++usesSerial;
+
+  // Reset counters before rendering each section
+  const resetCounters = () => {
+    sourcesSerial = 0;
+    usesSerial = 0;
+  };
 
   return (
     <Page
@@ -615,6 +624,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
 
           {/* Sources Section */}
           <View>
+             {resetCounters()}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -658,7 +668,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {/* ✅ Net Profit before Interest & Taxes */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                1
+                {getNextSourcesSerial()}
               </Text>
               <Text
                 style={[
@@ -690,7 +700,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {/* Promoters’ Capital */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                2
+                {getNextSourcesSerial()}
               </Text>
               <Text
                 style={[
@@ -720,7 +730,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {!isBankTermLoanZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                3
+                {getNextSourcesSerial()}
               </Text>
               <Text
                 style={[
@@ -757,7 +767,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {/* Working Capital Loan */}
             {!isWorkingCapitalInterestZero && (<View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                4
+               {getNextSourcesSerial()}
               </Text>
               <Text
                 style={[
@@ -789,7 +799,8 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {!isDepreciationZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-              {isWorkingCapitalInterestZero ? 4 : 5}
+              {/* {isWorkingCapitalInterestZero ? 4 : 5} */}
+              {getNextSourcesSerial()}
               </Text>
               <Text
                 style={[
@@ -823,7 +834,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   : true
               )
               .map((liabilities, idx) => {
-                const serialNumber = isWorkingCapitalInterestZero ? idx + 5 : idx + 6;
+                // const serialNumber = isWorkingCapitalInterestZero ? idx + 5 : idx + 6;
               
                 return(
                 <View style={styles.tableRow} key={idx}>
@@ -831,7 +842,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {serialNumber}
+                    {getNextSourcesSerial()}
                   </Text>
 
                   {/* ✅ Liabilities Name */}
@@ -938,6 +949,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
 
           {/* Uses Section */}
           <View>
+            {resetCounters()}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -982,7 +994,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
             {!isFixedAssetsZero && (
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                1
+                {getNextUsesSerial()}
               </Text>
               <Text
                 style={[
@@ -1022,7 +1034,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   styleExpenses.bordernone,
                 ]}
               >
-                2
+                {getNextUsesSerial()}
               </Text>
 
               <Text
@@ -1063,7 +1075,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   styleExpenses.bordernone,
                 ]}
               >
-                3
+                {getNextUsesSerial()}
               </Text>
 
               <Text
@@ -1105,7 +1117,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   styleExpenses.bordernone,
                 ]}
               >
-                4
+                {getNextUsesSerial()}
               </Text>
 
               <Text
@@ -1153,7 +1165,8 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {isWorkingCapitalInterestZero ? 4 : 5}
+                  {/* {isWorkingCapitalInterestZero ? 4 : 5} */}
+                  {getNextUsesSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1189,7 +1202,8 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   styleExpenses.bordernone,
                 ]}
               >
-                 {isWorkingCapitalInterestZero ? 5 : 6}
+                 {/* {isWorkingCapitalInterestZero ? 5 : 6} */}
+                 {getNextUsesSerial()}
               </Text>
               <Text
                 style={[
@@ -1237,7 +1251,8 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   styleExpenses.bordernone,
                 ]}
               >
-                 {isWorkingCapitalInterestZero ? 6 : 7}
+                 {/* {isWorkingCapitalInterestZero ? 6 : 7} */}
+                 {getNextUsesSerial()}
               </Text>
               <Text
                 style={[
@@ -1279,7 +1294,8 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
               )
 
               .map((assets, index) => {
-                const serialNumber = isWorkingCapitalInterestZero ? index + 6 : index + 7;
+                // const serialNumber = isWorkingCapitalInterestZero ? index + 6 : index + 7;
+                
                 return(
 
                 <View style={styles.tableRow} key={index}>
@@ -1287,7 +1303,7 @@ const isRepaymentOfTermLoanZero = Array.from({ length: projectionYears }).every(
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                   >
-                    {serialNumber}
+                    {getNextSourcesSerial()}
                   </Text>
 
                   {/* ✅ Particular Name */}
