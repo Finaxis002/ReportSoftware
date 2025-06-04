@@ -675,6 +675,8 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pageNumber={pageNumber}
           orientation={orientation}
+
+            
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
