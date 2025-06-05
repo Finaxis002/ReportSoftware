@@ -1189,9 +1189,9 @@ const isDepreciationZero = totalDepreciationPerYear
                       .trim()
                       .endsWith("%");
                     const ClosingStock =
-                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                      formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex] || 0;
                     const OpeningStock =
-                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+                      formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] || 0;
 
                     if (isRawMaterial && isPercentage) {
                       const baseValue =
