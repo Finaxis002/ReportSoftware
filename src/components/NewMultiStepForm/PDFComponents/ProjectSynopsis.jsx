@@ -19,10 +19,13 @@ const ProjectSynopsis = React.memo(
     receivedAssetsLiabilities = [],
     pdfType,
   }) => {
-    //  console.log("received values : ", receivedBreakEvenPointPercentage);
-    // console.log("received Dscr : " , receivedDscr);
-    //  console.log("received current ratio : ", receivedAssetsLiabilities)
-    // console.log(receivedAssetsLiabilities)
+    // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
+    const getOrdinalYear = (n) => {
+      if (n === 1) return "1st";
+      if (n === 2) return "2nd";
+      if (n === 3) return "3rd";
+      return `${n}th`;
+    };
 
     const convertMonthsToYearsAndMonths = (months) => {
       const years = Math.floor(months / 12);
@@ -41,6 +44,29 @@ const ProjectSynopsis = React.memo(
           : ""
       }`.trim();
     };
+
+    // Returns the first non-zero revenue value as a formatted string
+    const getFirstNonZeroRevenue = (revenueArray) => {
+      const firstValidValue = Array.isArray(revenueArray)
+        ? revenueArray.find((value) => value !== 0)
+        : undefined;
+      return firstValidValue !== undefined
+        ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
+        : " ";
+    };
+    const getFirstNonZeroRevenueYear = (revenueArray) => {
+      const firstValidIndex = Array.isArray(revenueArray)
+        ? revenueArray.findIndex((value) => value !== 0)
+        : -1;
+      return firstValidIndex !== -1 ? firstValidIndex + 1 : 1; // 1-based year
+    };
+    const firstRevenueYear = getFirstNonZeroRevenueYear(
+      receivedtotalRevenueReceipts
+    );
+
+    const receiptsRevenueLabel = `Receipts/ Revenue (${getOrdinalYear(
+      firstRevenueYear
+    )} year onwards)`;
 
     // ✅ Define specific fields to display with their corresponding keys and sources
     const requiredFields = [
@@ -82,7 +108,7 @@ const ProjectSynopsis = React.memo(
       }, // Special Handling
 
       {
-        label: "Receipts/ Revenue (1st year onwards)",
+        label: receiptsRevenueLabel,
         key: "receiptsRevenue",
         source: "AccountInformation",
       },
@@ -103,6 +129,7 @@ const ProjectSynopsis = React.memo(
         format: (value) => convertMonthsToYearsAndMonths(parseInt(value || 0)),
       },
     ];
+
     const formatNumber = (value) => {
       const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
@@ -132,12 +159,12 @@ const ProjectSynopsis = React.memo(
     };
 
     // ✅ Function to get the first non-zero revenue value
-    const getFirstNonZeroRevenue = (revenueArray) => {
-      const firstValidValue = revenueArray.find((value) => value !== 0);
-      return firstValidValue !== undefined
-        ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
-        : " ";
-    };
+    // const getFirstNonZeroRevenue = (revenueArray) => {
+    //   const firstValidValue = revenueArray.find((value) => value !== 0);
+    //   return firstValidValue !== undefined
+    //     ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
+    //     : " ";
+    // };
 
     // ✅ Function to get the first non-zero percentage value and its corresponding year
     const getFirstNonZeroPercentageWithYear = (percentageArray) => {
@@ -168,30 +195,27 @@ const ProjectSynopsis = React.memo(
         receivedBreakEvenPointPercentage?.breakEvenPointPercentage || []
       );
 
-      const parseAmount = (val) => {
-        if (!val) return 0;
-        const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
-        return parseFloat(cleaned) || 0;
-      };
-      
-      const totalCost =
-        (formData?.CostOfProject
-          ? Object.values(formData.CostOfProject).reduce(
-              (sum, field) => sum + parseAmount(field?.amount),
-              0
-            )
-          : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
+    const parseAmount = (val) => {
+      if (!val) return 0;
+      const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
+      return parseFloat(cleaned) || 0;
+    };
+
+    const totalCost =
+      (formData?.CostOfProject
+        ? Object.values(formData.CostOfProject).reduce(
+            (sum, field) => sum + parseAmount(field?.amount),
+            0
+          )
+        : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
 
     const subsidyName = formData?.ProjectReportSetting?.subsidyName;
-
 
     let serialCounter = 13; // Start from 14 since previous ended at 13
     const getNextSerial = () => {
       serialCounter++;
       return serialCounter;
     };
-    
-
 
     return (
       <>
@@ -689,7 +713,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                 {getNextSerial()}
+                  {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -947,7 +971,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                 {getNextSerial()}
+                  {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1199,7 +1223,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                 {getNextSerial()}
+                  {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1239,7 +1263,7 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "10%" },
                   ]}
                 >
-                 {getNextSerial()}
+                  {getNextSerial()}
                 </Text>
                 <Text
                   style={[
@@ -1305,7 +1329,9 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", paddingLeft: "20px", width: "55%" },
                   ]}
                 >
-                  {`${firstNonZeroValue}% (In the I Year itself)`}
+                  {`${firstNonZeroValue}% (In the ${getOrdinalYear(
+                    fromWhichYearWeReceivedValue
+                  )} year itself)`}
                 </Text>
               </View>
               {/* Subsidy Scheme */}
@@ -1345,7 +1371,8 @@ const ProjectSynopsis = React.memo(
                       { padding: 8, paddingLeft: 20, width: "55%" },
                     ]}
                   >
-                    {subsidyName} - {formData?.ProjectReportSetting?.subsidyPercentage}%
+                    {subsidyName} -{" "}
+                    {formData?.ProjectReportSetting?.subsidyPercentage}%
                   </Text>
                 </View>
               )}
@@ -1369,10 +1396,11 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "45%" },
                       ]}
                     >
-                       {formData?.AccountInformation?.registrationType === "Partnership" ||
-        formData?.AccountInformation?.registrationType === "LLP"
-          ? "Name of Partner"
-          : "Name of Director"}
+                      {formData?.AccountInformation?.registrationType ===
+                        "Partnership" ||
+                      formData?.AccountInformation?.registrationType === "LLP"
+                        ? "Name of Partner"
+                        : "Name of Director"}
                     </Text>
                     <Text
                       style={[
@@ -1390,10 +1418,11 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                       {formData?.AccountInformation?.registrationType === "Partnership" ||
-        formData?.AccountInformation?.registrationType === "LLP"
-          ? "Aadhar No. of Partner"
-          : "Aadhar No. of Director"}
+                      {formData?.AccountInformation?.registrationType ===
+                        "Partnership" ||
+                      formData?.AccountInformation?.registrationType === "LLP"
+                        ? "Aadhar No. of Partner"
+                        : "Aadhar No. of Director"}
                     </Text>
                     <Text
                       style={[
@@ -1402,10 +1431,11 @@ const ProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                      {formData?.AccountInformation?.registrationType === "Partnership" ||
-        formData?.AccountInformation?.registrationType === "LLP"
-          ? "DPIN of Partner"
-          : "DIN of Director"}
+                      {formData?.AccountInformation?.registrationType ===
+                        "Partnership" ||
+                      formData?.AccountInformation?.registrationType === "LLP"
+                        ? "DPIN of Partner"
+                        : "DIN of Director"}
                     </Text>
                   </View>
 

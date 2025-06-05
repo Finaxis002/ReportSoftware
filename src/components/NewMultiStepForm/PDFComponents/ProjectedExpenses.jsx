@@ -45,7 +45,7 @@ const ProjectedExpenses = ({
   // const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   // Month Mapping
-   const monthMap = {
+  const monthMap = {
     April: 1,
     May: 2,
     June: 3,
@@ -70,7 +70,7 @@ const ProjectedExpenses = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-    const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
+  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
@@ -93,12 +93,12 @@ const ProjectedExpenses = ({
     return monthsArray;
   };
 
-   const monthsPerYear = calculateMonthsPerYear();
-const isZeroValue = (val) => {
-  const num = Number(val);
-  return !num || num === 0; // covers 0, null, undefined, NaN, ""
-};
-console.log("monthsPerYear", monthsPerYear);
+  const monthsPerYear = calculateMonthsPerYear();
+  const isZeroValue = (val) => {
+    const num = Number(val);
+    return !num || num === 0; // covers 0, null, undefined, NaN, ""
+  };
+  console.log("monthsPerYear", monthsPerYear);
 
   // Function to calculate the expense for each year considering the increment rate
   // const calculateExpense = (annualExpense, yearIndex) => {
@@ -208,13 +208,13 @@ console.log("monthsPerYear", monthsPerYear);
         } else {
           const base = Number(expense.total) || 0;
           expenseValue = calculateExpense(base, yearIndex); // use same logic as JSX
-
-          // console.log(
-          //   `🧾 ${expense.name}: ₹${base} ➤ Escalated (Y${yearIndex + 1}): ₹${expenseValue.toFixed(
-          //     2
-          //   )}`
-          // );
         }
+        // 👇 Add this log for debugging
+        console.log(
+          `[Direct Expense][Year ${yearIndex + 1}] ${
+            expense.name
+          }: ${expenseValue}`
+        );
 
         return sum + expenseValue;
       }, 0);
@@ -237,7 +237,6 @@ console.log("monthsPerYear", monthsPerYear);
 
     return yearTotal;
   });
-
 
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
@@ -476,6 +475,34 @@ console.log("monthsPerYear", monthsPerYear);
     return 0;
   });
 
+  // const totalIndirectExpensesArray = Array.from({
+  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  // }).map((_, yearIndex) => {
+  //   const totalIndirectExpenses = indirectExpense
+  //     .filter((expense) => expense.type === "indirect")
+  //     .reduce((sum, expense) => {
+  //       const annual = Number(expense.total) || 0;
+  //       const escalated = calculateExpense(annual, yearIndex);
+  //       return sum + escalated;
+  //     }, 0);
+
+  //   const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+  //   const interestExpenseOnWorkingCapital =
+  //     calculateInterestOnWorkingCapital(yearIndex);
+  //   const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+  //   const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
+
+  //   const yearTotal =
+  //     totalIndirectExpenses +
+  //     interestOnTermLoan +
+  //     interestExpenseOnWorkingCapital +
+  //     depreciationExpense +
+  //     preliminaryWriteOff;
+
+  //   return yearTotal;
+  // });
+
+  // ✅ Calculate Total (A + B) for each year
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
@@ -491,19 +518,18 @@ console.log("monthsPerYear", monthsPerYear);
     const interestExpenseOnWorkingCapital =
       calculateInterestOnWorkingCapital(yearIndex);
     const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
+    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
 
     const yearTotal =
       totalIndirectExpenses +
       interestOnTermLoan +
       interestExpenseOnWorkingCapital +
       depreciationExpense +
-      preliminaryWriteOff;
+      preliminaryWriteOff; // ✅ ADDED HERE
 
     return yearTotal;
   });
 
-  // ✅ Calculate Total (A + B) for each year
   const totalExpensesArray = totalDirectExpensesArray.map(
     (directExpense, index) => {
       const indirectExpense = totalIndirectExpensesArray[index] || 0;
@@ -539,6 +565,37 @@ console.log("monthsPerYear", monthsPerYear);
     .slice(writeOffStartIndex, writeOffEndIndex)
     .every((value) => value === 0);
 
+  const indirectCount = directExpense.filter((expense) => {
+    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
+      return false;
+    }
+
+    const isAllYearsZero = Array.from({
+      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    }).every((_, yearIndex) => {
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const expenseValue = Number(expense.total) || 0;
+      return expenseValue === 0;
+    });
+
+    return expense.type === "indirect" && !isAllYearsZero;
+  }).length;
+
+  // const renderedIndirectExpenses = directExpense.filter((expense) => {
+  //   if (expense.name.trim() === "Raw Material Expenses / Purchases")
+  //     return false;
+
+  //   const isAllYearsZero = Array.from({
+  //     length: hideFirstYear ? projectionYears - 1 : projectionYears,
+  //   }).every((_, yearIndex) => {
+  //     const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+  //     const escalated = calculateExpense(Number(expense.total) || 0, yearIndex);
+  //     return escalated === 0;
+  //   });
+
+  //   return expense.type === "indirect" && !isAllYearsZero;
+  // }).length;
+
   const renderedIndirectExpenses = directExpense.filter((expense) => {
     if (expense.name.trim() === "Raw Material Expenses / Purchases")
       return false;
@@ -547,7 +604,10 @@ console.log("monthsPerYear", monthsPerYear);
       length: hideFirstYear ? projectionYears - 1 : projectionYears,
     }).every((_, yearIndex) => {
       const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-      const escalated = calculateExpense(Number(expense.total) || 0, yearIndex);
+      const escalated = calculateExpense(
+        Number(expense.total) || 0,
+        adjustedYearIndex
+      );
       return escalated === 0;
     });
 
@@ -555,7 +615,6 @@ console.log("monthsPerYear", monthsPerYear);
   }).length;
 
   const preliminarySerialNo = 3 + renderedIndirectExpenses + 1; // 3 static rows + count + 1
-
 
   return (
     <Page
@@ -682,7 +741,6 @@ console.log("monthsPerYear", monthsPerYear);
             </View>
           </View>
         </View>
-
         {/* Direct Expenses */}
         <View style={[{ borderLeftWidth: 1 }]}>
           {/* <View style={[styles.tableRow, styles.totalRow]}>
@@ -924,52 +982,129 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
               ))}
           </View> */}
 
-        {/* direct expenses */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styles.Total,
-                  { paddingVertical: "10px" },
-                ]}
-              >
-                C
-              </Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  styles.Total,
-                  { paddingVertical: "10px" },
-                ]}
-              >
-                Direct Expenses
-              </Text>
-              {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
-  
-                return (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {/* You can add content here if needed */}
-                  </Text>
-                );
-              })}
-            </View>
-  
-            {/* Salary and wages  */}
-            {normalExpense.map((expense, index) => {
-              if (index !== activeRowIndex) return null; // Only render the active row
-  
+          {/* direct expenses */}
+          <View style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styles.Total,
+                { paddingVertical: "10px" },
+              ]}
+            >
+              C
+            </Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                styles.Total,
+                { paddingVertical: "10px" },
+              ]}
+            >
+              Direct Expenses
+            </Text>
+            {Array.from({ length: projectionYears }).map((_, yearIndex) => {
+              if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+
+              return (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {/* You can add content here if needed */}
+                </Text>
+              );
+            })}
+          </View>
+
+          {/* Salary and wages  */}
+          {normalExpense.map((expense, index) => {
+            if (index !== activeRowIndex) return null; // Only render the active row
+
+            return (
+              <View key={index} style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Salary and Wages
+                </Text>
+
+                {Array.from({ length: projectionYears }).map(
+                  (_, yearIndex) =>
+                    (!hideFirstYear || yearIndex !== 0) && (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          calculateExpense(
+                            Number(fringAndAnnualCalculation) || 0,
+                            yearIndex
+                          )
+                        )}
+                      </Text>
+                    )
+                )}
+              </View>
+            );
+          })}
+
+          {/* Direct Expenses */}
+          {directExpense
+            .filter((expense) => {
+              const isAllYearsZero = Array.from({
+                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              }).every((_, yearIndex) => {
+               
+const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+                // Determine actual value
+                let expenseValue = 0;
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
+                const isPercentage = String(expense.value).trim().endsWith("%");
+                const ClosingStock =
+                  formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                const OpeningStock =
+                  formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                if (isRawMaterial && isPercentage) {
+                  const baseValue =
+                    (parseFloat(expense.value) / 100) *
+                    (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
+                  expenseValue = baseValue + ClosingStock - OpeningStock;
+                } else {
+                  expenseValue = Number(expense.total) || 0;
+                }
+
+                return expenseValue === 0;
+              });
+
+              return expense.type === "direct" && !isAllYearsZero;
+            })
+
+            .map((expense, index) => {
+              const isRawMaterial =
+                expense.name.trim() === "Raw Material Expenses / Purchases";
+              const isPercentage = String(expense.value).trim().endsWith("%");
+              const displayName = isRawMaterial
+                ? "Purchases / RM Expenses"
+                : expense.name;
+
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -977,183 +1112,103 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Salary and Wages
+                    {displayName}
                   </Text>
-  
-                  {Array.from({ length: projectionYears }).map(
-                    (_, yearIndex) =>
-                      (!hideFirstYear || yearIndex !== 0) && (
-                        <Text
-                          key={yearIndex}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                          ]}
-                        >
-                          {formatNumber(
+
+                  {Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).map((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] || 0;
+
+                    if (isRawMaterial && isPercentage) {
+                      const baseValue =
+                        (parseFloat(expense.value) / 100) *
+                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                          0);
+                      expenseValue = baseValue + ClosingStock - OpeningStock;
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+
+                    const formattedExpense =
+                      isRawMaterial && isPercentage
+                        ? formatNumber(expenseValue.toFixed(2))
+                        : formatNumber(
                             calculateExpense(
-                              Number(fringAndAnnualCalculation) || 0,
-                              yearIndex
-                            )
-                          )}
-                        </Text>
-                      )
-                  )}
+                              expenseValue,
+                              adjustedYearIndex
+                            ).toFixed(2)
+                          );
+
+                    return (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formattedExpense}
+                      </Text>
+                    );
+                  })}
                 </View>
               );
             })}
-  
-            {/* Direct Expenses */}
-            {directExpense
-              .filter((expense) => {
-                const isAllYearsZero = Array.from({
-                  length: hideFirstYear ? projectionYears - 1 : projectionYears,
-                }).every((_, yearIndex) => {
-                  const adjustedYearIndex = hideFirstYear
-                    ? yearIndex + 1
-                    : yearIndex;
-  
-                  // Determine actual value
-                  let expenseValue = 0;
-                  const isRawMaterial =
-                    expense.name.trim() === "Raw Material Expenses / Purchases";
-                  const isPercentage = String(expense.value).trim().endsWith("%");
-                  const ClosingStock =
-                    formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-                  const OpeningStock =
-                    formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
-  
-                  if (isRawMaterial && isPercentage) {
-                    const baseValue =
-                      (parseFloat(expense.value) / 100) *
-                      (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-                    expenseValue = baseValue + ClosingStock - OpeningStock;
-                  } else {
-                    expenseValue = Number(expense.total) || 0;
-                  }
-  
-                  return expenseValue === 0;
-                });
-  
-                return expense.type === "direct" && !isAllYearsZero;
-              })
-  
-              .map((expense, index) => {
-                const isRawMaterial =
-                  expense.name.trim() === "Raw Material Expenses / Purchases";
-                const isPercentage = String(expense.value).trim().endsWith("%");
-                const displayName = isRawMaterial
-                  ? "Purchases / RM Expenses"
-                  : expense.name;
-  
-                return (
-                  <View key={index} style={[styles.tableRow, styles.totalRow]}>
-                    <Text style={stylesCOP.serialNoCellDetail}>{index + 2}</Text>
-                    <Text
-                      style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.particularWidth,
-                        styleExpenses.bordernone,
-                      ]}
-                    >
-                      {displayName}
-                    </Text>
-  
-                    {Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
-                    }).map((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
-  
-                      let expenseValue = 0;
-                      const isRawMaterial =
-                        expense.name.trim() ===
-                        "Raw Material Expenses / Purchases";
-                      const isPercentage = String(expense.value)
-                        .trim()
-                        .endsWith("%");
-                      const ClosingStock =
-                        formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-                      const OpeningStock =
-                        formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
-  
-                      if (isRawMaterial && isPercentage) {
-                        const baseValue =
-                          (parseFloat(expense.value) / 100) *
-                          (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
-                            0);
-                        expenseValue = baseValue + ClosingStock - OpeningStock;
-                      } else {
-                        expenseValue = Number(expense.total) || 0;
-                      }
-  
-                      const formattedExpense =
-                        isRawMaterial && isPercentage
-                          ? formatNumber(expenseValue.toFixed(2))
-                          : formatNumber(
-                              calculateExpense(
-                                expenseValue,
-                                adjustedYearIndex
-                              ).toFixed(2)
-                            );
-  
-                      return (
-                        <Text
-                          key={yearIndex}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                          ]}
-                        >
-                          {formattedExpense}
-                        </Text>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-  
-            {/* direct Expenses total  */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              ></Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >
-                Total
-              </Text>
-              {/* ✅ Display Precomputed Total Direct Expenses */}
-              {totalDirectExpensesArray.map(
-                (grandTotal, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        stylesCOP.boldText,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(grandTotal)}
-                    </Text>
-                  )
-              )}
-            </View>
-        </View>
 
+          {/* direct Expenses total  */}
+          <View style={[styles.tableRow, styles.totalRow]}>
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            ></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+                {},
+              ]}
+            >
+              Total
+            </Text>
+            {/* ✅ Display Precomputed Total Direct Expenses */}
+            {totalDirectExpensesArray.map(
+              (grandTotal, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(grandTotal)}
+                  </Text>
+                )
+            )}
+          </View>
+        </View>
         {/* Indirect Expenses  */}
         <View style={[{ borderLeftWidth: 1, borderBottom: 1 }]}>
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -1197,10 +1252,11 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                     fontWeight: "bold",
                   },
                 ]}
-              ></Text>
+              >
+                {/* You can add content here if needed */}
+              </Text>
             ))}
           </View>
-
           {/* Interest On Term Loan */}
           {!isInterestOnTermLoanZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -1227,33 +1283,30 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
 
               {/* Get total projection years */}
               {Array.from({
-                length: hideFirstYear
-                  ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                  : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
-              }).map((_, index) => {
-                const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
-
-                return (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(
-                      yearlyInterestLiabilities?.[adjustedIndex] ?? 0
-                    )}
-                  </Text>
-                );
-              })}
+                length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
+              }).map(
+                (_, index) =>
+                  (!hideFirstYear || index !== 0) && (
+                    <Text
+                      key={index}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(
+                        yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
+                      )}
+                    </Text>
+                  )
+              )}
             </View>
           )}
-
           {/* Interest on Working Capital */}
           {!isWorkingCapitalInterestZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>
+                {" "}
                 {isInterestOnTermLoanZero ? 1 : 2}
               </Text>
 
@@ -1269,21 +1322,16 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
 
               {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
               {Array.from({
-                length: hideFirstYear
-                  ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                  : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
-              }).map((_, index) => {
-                const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
-                // const calculatedInterest = calculateInterestOnWorkingCapital(
-                //   interestOnWorkingCapital[adjustedIndex] || 0,
-                //   adjustedIndex
-                // );
+                length: formData.ProjectReportSetting.ProjectionYears,
+              }).map((_, yearIndex) => {
+                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+
                 const calculatedInterest =
-                  calculateInterestOnWorkingCapital(adjustedIndex);
+                  calculateInterestOnWorkingCapital(yearIndex);
 
                 return (
                   <Text
-                    key={adjustedIndex}
+                    key={yearIndex}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
@@ -1295,7 +1343,6 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
               })}
             </View>
           )}
-
           {/* ✅ Render Depreciation Row */}
           {!isDepreciationZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -1313,29 +1360,24 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
               </Text>
 
               {/* ✅ Display Depreciation Values for Each Year */}
-              {totalDepreciationPerYear
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year dynamically
-                .map((depreciationValue, yearIndex) => (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(depreciationValue)}
-                  </Text>
-                ))}
+              {totalDepreciationPerYear.map(
+                (depreciationValue, yearIndex) =>
+                  (!hideFirstYear || yearIndex !== 0) && (
+                    <Text
+                      key={yearIndex}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(depreciationValue)}
+                    </Text>
+                  )
+              )}
             </View>
           )}
-
           {directExpense
             .filter((expense) => {
-              // ✅ Exclude Raw Material
-              if (expense.name.trim() === "Raw Material Expenses / Purchases") {
-                return false;
-              }
-
               const isAllYearsZero = Array.from({
                 length: hideFirstYear ? projectionYears - 1 : projectionYears,
               }).every((_, yearIndex) => {
@@ -1343,12 +1385,31 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                   ? yearIndex + 1
                   : yearIndex;
 
-                const expenseValue = Number(expense.total) || 0;
+                // Determine actual value
+                let expenseValue = 0;
+                const isRawMaterial =
+                  expense.name.trim() === "Raw Material Expenses / Purchases";
+                const isPercentage = String(expense.value).trim().endsWith("%");
+                const ClosingStock =
+                  formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                const OpeningStock =
+                  formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                if (isRawMaterial && isPercentage) {
+                  const baseValue =
+                    (parseFloat(expense.value) / 100) *
+                    (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
+                  expenseValue = baseValue + ClosingStock - OpeningStock;
+                } else {
+                  expenseValue = Number(expense.total) || 0;
+                }
+
                 return expenseValue === 0;
               });
 
               return expense.type === "indirect" && !isAllYearsZero;
             })
+
             .map((expense, index) => {
               const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
               const isRawMaterial =
@@ -1358,11 +1419,10 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                 : expense.name;
               const serialNumber =
                 isInterestOnTermLoanZero && isDepreciationZero
-                  ? index + 2 // Starts from 2 if both conditions are true
+                  ? index + 2
                   : isWorkingCapitalInterestZero
                   ? index + 3
                   : index + 4;
-
               return (
                 <View key={index} style={[styles.tableRow, styles.totalRow]}>
                   <Text style={stylesCOP.serialNoCellDetail}>
@@ -1388,16 +1448,37 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                       ? yearIndex + 1
                       : yearIndex;
 
-                    const base = Number(expense.total) || 0;
-                    const escalated = calculateExpense(base, yearIndex);
-                    const formattedExpense = formatNumber(escalated.toFixed(2));
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
-                    // ✅ Log value
-                    // console.log(
-                    //   `💰 [Y${adjustedYearIndex + 1}] ${
-                    //     expense.name
-                    //   }: Base = ₹${base} ➤ Escalated = ₹${escalated.toFixed(2)}`
-                    // );
+                    if (isRawMaterial && isPercentage) {
+                      const baseValue =
+                        (parseFloat(expense.value) / 100) *
+                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                          0);
+                      expenseValue = baseValue + ClosingStock - OpeningStock;
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+
+                    const formattedExpense =
+                      isRawMaterial && isPercentage
+                        ? formatNumber(expenseValue.toFixed(2))
+                        : formatNumber(
+                            calculateExpense(
+                              expenseValue,
+                              adjustedYearIndex
+                            ).toFixed(2)
+                          );
 
                     return (
                       <Text
@@ -1414,13 +1495,13 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                 </View>
               );
             })}
-
-          {/* ✅ Render Preliminary Row */}
+          ;{/* ✅ Render Preliminary Row */}
           {!isPreliminaryWriteOffAllZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>
                 {preliminarySerialNo}
               </Text>
+
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -1446,7 +1527,6 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                 ))}
             </View>
           )}
-
           {/* ✅ Total Indirect Expenses Row */}
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text style={stylesCOP.serialNoCellDetail}></Text>
@@ -1455,97 +1535,34 @@ const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] ||
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
+                styles.Total,
+                { paddingVertical: "10px" },
               ]}
             >
-              Total B
+              Total
             </Text>
 
             {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
-            {totalIndirectExpensesArray
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-              .map((totalValue, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    stylesCOP.boldText,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(totalValue.toFixed(2))}
-                </Text>
-              ))}
-          </View>
-
-          {/* blank row */}
-          <View style={[styles.tableRow, styles.totalRow]}>
-            {/* Serial Number */}
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-              ]}
-            ></Text>
-
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            ></Text>
-
-            {/* Get total projection years */}
-            {Array.from({
-              length: hideFirstYear
-                ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
-            }).map((_, index) => {
-              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
-
-              return (
-                <Text
-                  key={index}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                ></Text>
-              );
-            })}
-          </View>
-
-          {/* ✅ Total (A + B) - Combined Direct and Indirect Expenses */}
-          <View style={[styles.tableRow, styles.totalRow]}>
-            <Text style={stylesCOP.serialNoCellDetail}></Text>
-            <Text
-              style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-              ]}
-            >
-              Total Expenses(A + B)
-            </Text>
-
-            {/* ✅ Display the combined total for each year */}
-            {totalExpensesArray
-              .slice(hideFirstYear ? 1 : 0)
-              .map((totalValue, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    stylesCOP.boldText,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(totalValue.toFixed(2))}
-                </Text>
-              ))}
+            {totalIndirectExpensesArray.map(
+              (totalValue, yearIndex) =>
+                (!hideFirstYear || yearIndex !== 0) && (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    {formatNumber(totalValue)}
+                  </Text>
+                )
+            )}
           </View>
         </View>
+        ;
       </View>
 
       {/* businees name and Client Name  */}
