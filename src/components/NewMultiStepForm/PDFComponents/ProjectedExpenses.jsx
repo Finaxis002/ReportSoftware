@@ -1209,6 +1209,7 @@ const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
             )}
           </View>
         </View>
+
         {/* Indirect Expenses  */}
         <View style={[{ borderLeftWidth: 1, borderBottom: 1 }]}>
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -1560,6 +1561,75 @@ const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
                   </Text>
                 )
             )}
+          </View>
+
+          {/* blank row */}
+          <View style={[styles.tableRow, styles.totalRow]}>
+            {/* Serial Number */}
+            <Text
+              style={[
+                stylesCOP.serialNoCellDetail,
+                styleExpenses.sno,
+                styleExpenses.bordernone,
+              ]}
+            ></Text>
+
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            ></Text>
+
+            {/* Get total projection years */}
+            {Array.from({
+              length: hideFirstYear
+                ? formData?.ProjectReportSetting?.ProjectionYears - 1
+                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
+            }).map((_, index) => {
+              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
+
+              return (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                ></Text>
+              );
+            })}
+          </View>
+
+          {/* ✅ Total (A + B) - Combined Direct and Indirect Expenses */}
+          <View style={[styles.tableRow, styles.totalRow]}>
+            <Text style={stylesCOP.serialNoCellDetail}></Text>
+            <Text
+              style={[
+                stylesCOP.detailsCellDetail,
+                styleExpenses.particularWidth,
+                styleExpenses.bordernone,
+              ]}
+            >
+              Total Expenses(A + B)
+            </Text>
+
+            {/* ✅ Display the combined total for each year */}
+            {totalExpensesArray
+              .slice(hideFirstYear ? 1 : 0)
+              .map((totalValue, yearIndex) => (
+                <Text
+                  key={yearIndex}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(totalValue.toFixed(2))}
+                </Text>
+              ))}
           </View>
         </View>
         ;
