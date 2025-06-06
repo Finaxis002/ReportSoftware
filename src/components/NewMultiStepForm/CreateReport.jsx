@@ -109,10 +109,6 @@ const CreateReport = ({ userRole }) => {
   }, [userRole, userName, refreshKey]);
 
 
-  // console.log("✅ User Role:", userRole);
-  // console.log("✅ User Name:", userName);
-  // console.log("✅ Permissions:", permissions);
-
   // ✅ Render the menu bar based on user role
   const renderMenuBar = () => {
     if (!userRole) {

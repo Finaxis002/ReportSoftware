@@ -19,7 +19,6 @@ Font.register({
   ],
 });
 
-
 const ProjectedBalanceSheet = ({
   formData = {},
   pdfType,
@@ -248,7 +247,18 @@ const ProjectedBalanceSheet = ({
 
       const marchBalance = Number(receivedMarchClosingBalances?.[index] || 0);
       const repaymentWithin12 = yearlyPrincipalRepayment[index + 1] || 0; // Shift by 1
-      const termLoan = marchBalance - repaymentWithin12;
+      // const termLoan = marchBalance - repaymentWithin12;
+      const repaymentMonths = parseInt(
+        formData?.ProjectReportSetting?.RepaymentMonths || "0",
+        10
+      );
+      const termLoanAmount = Number(
+        formData?.MeansOfFinance?.termLoan?.termLoan || 0
+      );
+      const termLoan =
+        repaymentMonths === 0
+          ? termLoanAmount
+          : marchBalance - repaymentWithin12;
 
       const bankLoanPayableWithinNext12Months = repaymentWithin12;
 
@@ -365,9 +375,15 @@ const ProjectedBalanceSheet = ({
   const reservesSerial = getNextLiabilitiesSerial();
 
   // Conditional rows for Liabilities
-  const bankTermLoanSerial = !isBankTermLoanZero ? getNextLiabilitiesSerial() : null;
-  const bankPayableSerial = !isBankTermLoanPayableZero ? getNextLiabilitiesSerial() : null;
-  const workingCapitalSerial = !isWorkingCapitalLoanZero ? getNextLiabilitiesSerial() : null;
+  const bankTermLoanSerial = !isBankTermLoanZero
+    ? getNextLiabilitiesSerial()
+    : null;
+  const bankPayableSerial = !isBankTermLoanPayableZero
+    ? getNextLiabilitiesSerial()
+    : null;
+  const workingCapitalSerial = !isWorkingCapitalLoanZero
+    ? getNextLiabilitiesSerial()
+    : null;
 
   // Always visible rows for Assets (Cash)
   const cashSerial = getNextAssetsSerial();
@@ -375,7 +391,9 @@ const ProjectedBalanceSheet = ({
   // Conditional rows for Assets
   const fixedAssetsSerial = !isFixedAssetsZero ? getNextAssetsSerial() : null;
   const depreciationSerial = !isDepreciationZero ? getNextAssetsSerial() : null;
-  const netFixedAssetsSerial = !isNetFixedAssetsZero ? getNextAssetsSerial() : null;
+  const netFixedAssetsSerial = !isNetFixedAssetsZero
+    ? getNextAssetsSerial()
+    : null;
   const inventorySerial = !isInventoryZero ? getNextAssetsSerial() : null;
 
   return (
@@ -545,7 +563,7 @@ const ProjectedBalanceSheet = ({
             {/* ✅ Capital */}
             <View style={styles.tableRow}>
               <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                 {getNextLiabilitiesSerial()}
+                {getNextLiabilitiesSerial()}
               </Text>
               <Text
                 style={[
@@ -610,7 +628,7 @@ const ProjectedBalanceSheet = ({
             {!isBankTermLoanZero && (
               <View style={styles.tableRow}>
                 <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                 {getNextLiabilitiesSerial()}
+                  {getNextLiabilitiesSerial()}
                 </Text>
                 <Text
                   style={[
@@ -626,7 +644,20 @@ const ProjectedBalanceSheet = ({
                     receivedMarchClosingBalances?.[index] || 0;
                   const repaymentValue =
                     repaymentValueswithin12months?.[index] || 0;
-                  const netBalance = marchBalance - repaymentValue;
+
+                  // const netBalance = marchBalance - repaymentValue;
+                  const repaymentMonths = parseInt(
+                    formData?.ProjectReportSetting?.RepaymentMonths || "0",
+                    10
+                  );
+                  const termLoanAmount = Number(
+                    formData?.MeansOfFinance?.termLoan?.termLoan || 0
+                  );
+
+                  const netBalance =
+                    repaymentMonths === 0
+                      ? termLoanAmount
+                      : marchBalance - repaymentValue;
 
                   return (
                     <Text
@@ -725,7 +756,7 @@ const ProjectedBalanceSheet = ({
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                       {getNextLiabilitiesSerial()}
+                      {getNextLiabilitiesSerial()}
                     </Text>
 
                     {/* Particular Name */}
