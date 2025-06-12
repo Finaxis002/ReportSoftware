@@ -39,6 +39,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // import "react-toastify/dist/ReactToastify.css";
 import History from "./components/NewMultiStepForm/History.jsx";
 import Profile from "./components/NewMultiStepForm/Profile.jsx";
+import SharedReportViewer from "./components/NewMultiStepForm/SharedReportViewer.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -121,9 +122,12 @@ const App = () => {
   // }, []);
 
   return (
+    <>
+   
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Routes>
+           <Route path="/shared-report/:token" element={<SharedReportViewer />} />
           <Route
             path="/"
             element={
@@ -367,6 +371,8 @@ const App = () => {
         /> */}
       </QueryClientProvider>
     </Provider>
+
+    </>
   );
 };
 

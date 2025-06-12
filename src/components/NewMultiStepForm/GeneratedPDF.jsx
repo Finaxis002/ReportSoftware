@@ -675,8 +675,6 @@ const GeneratedPDF = ({}) => {
           formatNumber={formatNumber}
           pageNumber={pageNumber}
           orientation={orientation}
-
-            
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -1056,9 +1054,9 @@ const GeneratedPDF = ({}) => {
 
                   {/* Download Button */}
                   {((userRole === "admin" &&
-                    localStorage.getItem("adminName")) ||
-                    (userRole === "employee" &&
-                      permissions.generateReport)) && (
+                    (!localStorage.getItem("adminName") ||
+                      permissions.downloadPDF)) ||
+                    (userRole === "employee" && permissions.downloadPDF)) && (
                     <div className="flex gap-2 px-4">
                       <button
                         onClick={handleDownloadPDF}
