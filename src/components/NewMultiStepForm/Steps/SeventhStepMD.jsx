@@ -177,71 +177,141 @@ const SeventhStepMD = ({
   };
 
   // Handle Form Input Changes
-  const handleFormChange = (event, index, year, type) => {
-    const { name, value } = event.target;
+  // const handleFormChange = (event, index, year, type) => {
+  //   const { name, value } = event.target;
+
+  //   // const rawValue = removeCommas(value);
+  //   const rawValue = value.replace(/,/g, ""); // remove commas
+
+  //   setLocalData((prevData) => {
+  //     const updatedData = { ...prevData };
+  //     if (name === "particular") {
+  //       updatedData[type][index]["particular"] = value;
+  //     } else {
+  //       // updatedData[type][index]["years"][year] = Number(value);
+  //       updatedData[type][index]["years"][year] = value === "" ? "" : parseFloat(value) || 0;
+  //     }
+  //     return updatedData;
+  //   });
+  // };
+
+ const handleFormChange = (event, index, year, type) => {
+  const { name, value } = event.target;
+
+  // Allow numbers, empty, or trailing dot/decimal
+  // Accept "", ".", ".1", "123.", "123.13"
+  const validValue = value.match(/^\d*\.?\d{0,2}$/);
+
+  if (name === "particular") {
     setLocalData((prevData) => {
       const updatedData = { ...prevData };
-      if (name === "particular") {
-        updatedData[type][index]["particular"] = value;
-      } else {
-        updatedData[type][index]["years"][year] = Number(value);
-      }
+      updatedData[type][index]["particular"] = value;
       return updatedData;
     });
-  };
+  } else if (validValue || value === "") {
+    setLocalData((prevData) => {
+      const updatedData = { ...prevData };
+      updatedData[type][index]["years"][year] = value; // keep as string
+      return updatedData;
+    });
+  }
+};
 
-  const handleStockChanges = (name, index, value) => {
-    const numericValue = Number(value);
 
+
+  // const handleStockChanges = (name, index, value) => {
+  //   const numericValue = Number(value);
+
+  //   setLocalData((prevData) => {
+  //     const updatedStock = [
+  //       ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
+  //     ];
+  //     updatedStock[index] = numericValue;
+
+  //     const newState = { ...prevData, [name]: updatedStock };
+
+  //     // Sync ClosingStock → OpeningStock (if not overridden)
+  //     if (name === "ClosingStock" && index < projectionYears - 1) {
+  //       if (!overriddenOpeningStock[index + 1]) {
+  //         newState.OpeningStock = {
+  //           ...(prevData.OpeningStock ?? getEmptyArray()),
+  //           [index + 1]: numericValue,
+  //         };
+  //       }
+  //     }
+
+  //     // If user is editing OpeningStock manually
+  //     if (name === "OpeningStock") {
+  //       setOverriddenOpeningStock((prev) => ({
+  //         ...prev,
+  //         [index]: true,
+  //       }));
+  //     }
+
+  //     return newState;
+  //   });
+  // };
+
+
+  // Format number with commas (Indian format)
+  // const formatNumberWithCommas = (num) => {
+  //   if (num === null || num === undefined || num === "") return "";
+
+  //   const str = num.toString();
+
+  //   // Incomplete decimals: "1000.", ".5", "1000.5"
+  //   if (str.endsWith(".") || /^\d*\.\d?$/.test(str)) return str;
+
+  //   const numericValue = Number(str.replace(/,/g, ""));
+  //   if (isNaN(numericValue)) return str;
+
+  //   return numericValue.toLocaleString("en-IN", {
+  //     minimumFractionDigits: str.includes(".") ? 2 : 0,
+  //     maximumFractionDigits: 2,
+  //   });
+  // };
+ const handleStockChanges = (name, index, value) => {
+  // Accept numbers, empty, or trailing dot/decimal
+  const validValue = value.match(/^\d*\.?\d{0,2}$/);
+
+  if (validValue || value === "") {
     setLocalData((prevData) => {
       const updatedStock = [
         ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
       ];
-      updatedStock[index] = numericValue;
-
-      const newState = { ...prevData, [name]: updatedStock };
-
-      // Sync ClosingStock → OpeningStock (if not overridden)
-      if (name === "ClosingStock" && index < projectionYears - 1) {
-        if (!overriddenOpeningStock[index + 1]) {
-          newState.OpeningStock = {
-            ...(prevData.OpeningStock ?? getEmptyArray()),
-            [index + 1]: numericValue,
-          };
-        }
-      }
-
-      // If user is editing OpeningStock manually
-      if (name === "OpeningStock") {
-        setOverriddenOpeningStock((prev) => ({
-          ...prev,
-          [index]: true,
-        }));
-      }
-
-      return newState;
+      updatedStock[index] = value; // keep as string
+      // ...rest of your logic here (overrides, sync, etc)
+      return { ...prevData, [name]: updatedStock };
     });
-  };
-  // Format number with commas (Indian format)
+  }
+};
+
+
+
+  
   const formatNumberWithCommas = (num) => {
-    if (num === null || num === undefined || num === "") return "";
+  if (num === null || num === undefined || num === "") return "";
 
-    const str = num.toString();
+  const numericValue = typeof num === 'string' ? parseFloat(num.replace(/,/g, '')) : num;
 
-    // Incomplete decimals: "1000.", ".5", "1000.5"
-    if (str.endsWith(".") || /^\d*\.\d?$/.test(str)) return str;
+  if (isNaN(numericValue)) return num.toString(); // If the value is not numeric, return the string
 
-    const numericValue = Number(str.replace(/,/g, ""));
-    if (isNaN(numericValue)) return str;
+  // Check if the number has decimal places
+  const hasDecimal = Number(numericValue) % 1 !== 0;
 
-    return numericValue.toLocaleString("en-IN", {
-      minimumFractionDigits: str.includes(".") ? 2 : 0,
-      maximumFractionDigits: 2,
-    });
-  };
+  // Format the number with commas (Indian format) and decimals if required
+  return numericValue.toLocaleString("en-IN", {
+    minimumFractionDigits: hasDecimal ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
+};
+
+
 
   // Remove commas for raw value
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
+
+  
 
   return (
     <div className="overflow-x-hidden">
@@ -282,13 +352,12 @@ const SeventhStepMD = ({
                       <td key={index} className="md-input">
                         <input
                           name="value"
-                          value={formatNumberWithCommas(
-                            localData?.[stockType]?.[index] ?? ""
-                          )}
+                          value={localData?.[stockType]?.[index] ?? ""}
                           onChange={(event) => {
                             const rawValue = removeCommas(event.target.value); // Remove commas
                             handleStockChanges(stockType, index, rawValue); // Pass raw number to state
                           }}
+                          
                           onKeyDown={(e) => {
                             if (e.key === "," || e.key === "e")
                               e.preventDefault(); // Prevent invalid characters
@@ -386,9 +455,7 @@ const SeventhStepMD = ({
                           <td key={index} className="md-input">
                             <input
                               name="value"
-                              value={formatNumberWithCommas(
-                                entry.years?.[index] ?? ""
-                              )}
+                              value={entry.years?.[index] ?? ""}
                               onChange={(event) => {
                                 const rawValue = removeCommas(
                                   event.target.value
