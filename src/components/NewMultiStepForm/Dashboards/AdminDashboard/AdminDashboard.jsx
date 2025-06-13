@@ -142,7 +142,7 @@ const AdminDashboard = () => {
                         {employees.length}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Active: {employees.filter((emp) => emp.isActive).length}
+                        Active::::: {employees.filter((emp) => emp.isActive).length}
                       </p>
                     </div>
                   </div>
