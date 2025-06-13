@@ -1077,9 +1077,9 @@ const GeneratedPDF = () => {
 
                   {/* Download Button */}
                   {((userRole === "admin" &&
-                    localStorage.getItem("adminName")) ||
-                    (userRole === "employee" &&
-                      permissions.generateReport)) && (
+                    (!localStorage.getItem("adminName") ||
+                      permissions.downloadPDF)) ||
+                    (userRole === "employee" && permissions.downloadPDF)) && (
                     <div className="flex gap-2 px-4">
                       <button
                         onClick={handleDownloadPDF}
