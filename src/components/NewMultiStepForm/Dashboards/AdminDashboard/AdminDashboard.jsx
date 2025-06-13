@@ -109,7 +109,7 @@ const AdminDashboard = () => {
                   {/* ✅ Total Reports */}
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center rounded-lg">
-                      📊📊📊
+                      📊
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -118,14 +118,7 @@ const AdminDashboard = () => {
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {reports.length}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Last Report::{" "}
-                        {reports.length > 0
-                          ? new Date(
-                              reports[reports.length - 1].createdAt
-                            ).toDateString()
-                          : "N/A"}
-                      </p>
+                      
                     </div>
                   </div>
 
