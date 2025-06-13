@@ -3,7 +3,7 @@ name: Deploy React App to VPS
 on:
   push:
     branches:
-      - main  # Replace with your branch if necessary
+      - main 
 
 jobs:
   deploy:
@@ -20,21 +20,26 @@ jobs:
 
     - name: Deploy to VPS
       run: |
-        # Add debugging output
         echo "Deploying to the VPS..."
 
-   
+
         ssh -o StrictHostKeyChecking=no -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+      
+          echo "Changing directory to /var/www/reports.sharda.co.in"
+          cd /var/www/reports.sharda.co.in || exit
 
-          cd /home/ReportSoftware || exit
-
+          echo "Pulling the latest changes from GitHub"
           git pull origin main || exit
 
-
+   
+          echo "Installing dependencies"
           npm install || exit
 
-
+  
+          echo "Building the React app"
           npm run build || exit
 
+      
+          echo "Restarting Nginx to apply changes"
           sudo systemctl restart nginx || exit
         EOF
