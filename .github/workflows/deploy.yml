@@ -35,7 +35,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: root
           TARGET: /var/www/reports.sharda.co.in  # Ensure this is correct for your React app path
-          SOURCE: dist/
+          SOURCE: build/
           SCRIPT_AFTER: |
             chown -R www-data:www-data /var/www/reports.sharda.co.in
             chmod -R 755 /var/www/reports.sharda.co.in
