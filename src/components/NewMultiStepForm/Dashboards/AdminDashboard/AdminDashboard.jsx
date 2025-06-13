@@ -113,13 +113,13 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        Total Reports
+                        Total Reports 
                       </h3>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {reports.length}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Last Report::::::{" "}
+                        Last Report::{" "}
                         {reports.length > 0
                           ? new Date(
                               reports[reports.length - 1].createdAt
@@ -132,6 +132,7 @@ const AdminDashboard = () => {
                   {/* ✅ Total Employees */}
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 flex items-center justify-center rounded-lg">
+                      👨‍💼
                       👨‍💼
                     </div>
                     <div>
