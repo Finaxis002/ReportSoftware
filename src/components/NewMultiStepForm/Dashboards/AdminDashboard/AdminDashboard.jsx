@@ -113,7 +113,7 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        Total Reports view
+                        Total Reports
                       </h3>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {reports.length}
@@ -136,13 +136,13 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        Total Users see
+                        Total Users
                       </h3>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {employees.length}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Active::::: {employees.filter((emp) => emp.isActive).length}
+                        Active: {employees.filter((emp) => emp.isActive).length}
                       </p>
                     </div>
                   </div>
