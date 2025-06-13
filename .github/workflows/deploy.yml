@@ -24,7 +24,7 @@ jobs:
 
       - name: Sync build files to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -T root@${{ secrets.SERVER_IP }} << 'EOF'
             cd /home/ReportSoftware
             git pull origin main
             npm install
@@ -34,7 +34,7 @@ jobs:
 
       - name: Reload Nginx to apply new build
         run: |
-          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -T root@${{ secrets.SERVER_IP }} << 'EOF'
             sudo nginx -t
             sudo systemctl reload nginx
           EOF
