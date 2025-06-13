@@ -20,10 +20,21 @@ jobs:
 
     - name: Deploy to VPS
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          cd /var/www/reports.sharda.co.in || exit
-          git pull origin main || exit  # Pull latest changes from GitHub
-          npm install || exit          # Install dependencies (optional if your dependencies are already on server)
-          npm run build || exit         # Build React app
-          sudo systemctl restart nginx # Restart Nginx to reflect changes
+        # Add debugging output
+        echo "Deploying to the VPS..."
+
+   
+        ssh -o StrictHostKeyChecking=no -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+
+          cd /home/ReportSoftware || exit
+
+          git pull origin main || exit
+
+
+          npm install || exit
+
+
+          npm run build || exit
+
+          sudo systemctl restart nginx || exit
         EOF
