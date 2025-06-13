@@ -290,102 +290,114 @@ const ProjectedCashflow = ({
       : 0;
   });
 
-  const totalSourcesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
-      const promotersCapital =
-        index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
-      const bankTermLoan =
-        index === 0
-          ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
-          : 0;
-      const workingCapitalLoan =
-        index === 0
-          ? parseFloat(formData.MeansOfFinance?.workingCapital?.termLoan || 0)
-          : 0;
-      const depreciation = totalDepreciationPerYear[index] || 0;
-      const currentLiabilitiesTotal =
-        formData?.MoreDetails?.currentLiabilities?.reduce(
-          (sum, liability) => sum + (liability.years?.[index] || 0),
-          0
-        ) || 0;
-      const preliminaryExpenseWriteOff = preliminaryWriteOffPerYear[index] || 0;
+  // console.log("curremt Liabilities : ", formData?.MoreDetails?.currentLiabilities)
+
+const totalSourcesArray = Array.from({ length: projectionYears }).map((_, index) => {
+  // Get each individual value and log it
+  const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
+  // console.log(`netProfitValue[${index}]:`, netProfitValue);
+
+  const promotersCapital = index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
+  // console.log(`promotersCapital[${index}]:`, promotersCapital);
+
+  const bankTermLoan = index === 0 ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0) : 0;
+  // console.log(`bankTermLoan[${index}]:`, bankTermLoan);
+
+  const workingCapitalLoan = index === 0 ? parseFloat(formData.MeansOfFinance?.workingCapital?.termLoan || 0) : 0;
+  // console.log(`workingCapitalLoan[${index}]:`, workingCapitalLoan);
+
+  const depreciation = totalDepreciationPerYear[index] || 0;
+  // console.log(`depreciation[${index}]:`, depreciation);
+
+   const currentLiabilitiesTotal = formData?.MoreDetails?.currentLiabilities?.reduce((sum, liability) => {
+    const liabilityValue = parseFloat(liability.years?.[index]) || 0;  // Ensure each value is a number
+    // console.log(`liability.years[${index}]:`, liability.years?.[index], "parsed value:", liabilityValue);
+    return sum + liabilityValue;
+  }, 0) || 0;
+  // console.log(`currentLiabilitiesTotal[${index}]:`, currentLiabilitiesTotal);
+
+  const preliminaryExpenseWriteOff = preliminaryWriteOffPerYear[index] || 0;
+  // console.log(`preliminaryExpenseWriteOff[${index}]:`, preliminaryExpenseWriteOff);
+
+  // ✅ Sum up all sources and log the result
+  const total = netProfitValue + promotersCapital + bankTermLoan + workingCapitalLoan + depreciation + currentLiabilitiesTotal + preliminaryExpenseWriteOff;
+  // console.log(`Total Sources for Year ${index}:`, total);
+
+  return total;
+});
+
+// console.log("total sources array : ", totalSourcesArray);
+
+
+
+  // console.log("total sources array : ", totalSourcesArray)
   
-      // ✅ Sum up all sources
-      return (
-        netProfitValue +
-        promotersCapital +
-        bankTermLoan +
-        workingCapitalLoan +
-        depreciation +
-        currentLiabilitiesTotal +
-        preliminaryExpenseWriteOff // ✅ Add preliminary expense write-off here
-      );
-    }
-  );
-  
 
-  const totalUsesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const fixedAssets =
-        index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
-      const repaymentOfTermLoan = parseFloat(
-        yearlyPrincipalRepayment[index] || 0
-      );
-      const interestOnTermLoan = parseFloat(
-        yearlyInterestLiabilities[index] || 0
-      );
-      const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(
-        
-        index
-      );
-      const withdrawals = parseFloat(
-        formData?.MoreDetails?.Withdrawals?.[index] || 0
-      );
-      const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
+const totalUsesArray = Array.from({ length: projectionYears }).map((_, index) => {
+  const fixedAssets = index === 0 ? parseFloat(firstYearGrossFixedAssets || 0) : 0;
+  // console.log(`fixedAssets[${index}]:`, fixedAssets);
 
-      // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
-      const currentAssetsTotal = formData?.MoreDetails?.currentAssets
-        ?.filter(
-          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS // ✅ skip ticked assets
-        )
-        .reduce(
-          (sum, asset) => sum + (asset.years[index] ?? 0), // Fill missing values with 0
-          0
-        );
+  const repaymentOfTermLoan = parseFloat(yearlyPrincipalRepayment[index] || 0);
+  // console.log(`repaymentOfTermLoan[${index}]:`, repaymentOfTermLoan);
 
-      // ✅ Ensuring Inventory Calculation - Closing Stock - Opening Stock
-      const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
-      }).map((_, yearIndex) => {
-        const ClosingStock =
-          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-        const OpeningStock =
-          formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
-        const finalStock = ClosingStock - OpeningStock;
-        return finalStock;
-      });
+  const interestOnTermLoan = parseFloat(yearlyInterestLiabilities[index] || 0);
+  // console.log(`interestOnTermLoan[${index}]:`, interestOnTermLoan);
 
-      // ✅ If Inventory is not available, set it to 0
-      const inventoryValue = inventory[index] || 0;
+  const interestOnWorkingCapitalValue = calculateInterestOnWorkingCapital(index);
+  // console.log(`interestOnWorkingCapitalValue[${index}]:`, interestOnWorkingCapitalValue);
 
-      // ✅ Ensure negative values are treated as zero
-      const sanitize = (value) => (value < 0 ? 0 : value);
+  const withdrawals = parseFloat(formData?.MoreDetails?.Withdrawals?.[index] || 0);
+  // console.log(`withdrawals[${index}]:`, withdrawals);
 
-      // ✅ Final Total Uses Calculation (including Inventory)
-      const totalUses =
-        sanitize(fixedAssets) +
-        sanitize(repaymentOfTermLoan) +
-        sanitize(interestOnTermLoan) +
-        sanitize(interestOnWorkingCapitalValue) +
-        sanitize(withdrawals) +
-        sanitize(incomeTaxValue) +
-        sanitize(currentAssetsTotal) +
-        sanitize(inventoryValue); // Add the Inventory for the current year (index)
+  const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
+  // console.log(`incomeTaxValue[${index}]:`, incomeTaxValue);
 
-      return totalUses;
-    }
-  );
+  // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
+  const currentAssetsTotal = formData?.MoreDetails?.currentAssets
+  ?.filter((assets) => assets.particular !== "Inventory" && !assets.dontSendToBS) // ✅ skip ticked assets
+  .reduce((sum, asset) => {
+    // Ensure asset.years[index] is a number and defaults to 0 if undefined
+    const assetValue = typeof asset.years[index] === 'number' ? asset.years[index] : 0;
+    // console.log(`assetValue[${index}] for ${asset.particular}:`, assetValue); // Log asset value for debugging
+    return sum + assetValue;
+  }, 0);
+
+// console.log(`currentAssetsTotal[${index}]:`, currentAssetsTotal);
+
+
+  // ✅ Ensuring Inventory Calculation - Closing Stock - Opening Stock
+  const inventory = Array.from({ length: formData.MoreDetails.OpeningStock.length }).map((_, yearIndex) => {
+    const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+    const OpeningStock = formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+    const finalStock = ClosingStock - OpeningStock;
+    return finalStock;
+  });
+  console.log(`inventory[${index}]:`, inventory);
+
+  // ✅ If Inventory is not available, set it to 0
+  const inventoryValue = inventory[index] || 0;
+  console.log(`inventoryValue[${index}]:`, inventoryValue);
+
+  // ✅ Ensure negative values are treated as zero
+  const sanitize = (value) => (value < 0 ? 0 : value);
+
+  // ✅ Final Total Uses Calculation (including Inventory)
+  const totalUses =
+    sanitize(fixedAssets) +
+    sanitize(repaymentOfTermLoan) +
+    sanitize(interestOnTermLoan) +
+    sanitize(interestOnWorkingCapitalValue) +
+    sanitize(withdrawals) +
+    sanitize(incomeTaxValue) +
+    sanitize(currentAssetsTotal) +
+    sanitize(inventoryValue); // Add the Inventory for the current year (index)
+  console.log(`totalUses[${index}]:`, totalUses);
+
+  return totalUses;
+});
+
+console.log("total uses array : ", totalUsesArray);
+
 
   // console.log(totalUsesArray);
 
