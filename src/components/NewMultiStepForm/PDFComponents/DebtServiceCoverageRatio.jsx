@@ -157,26 +157,26 @@ const DebtServiceCoverageRatio = ({
   //   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
 
    const calculateInterestOnWorkingCapital = useMemo(() => {
-      console.log("moratorium month", moratoriumPeriodMonths);
+      // console.log("moratorium month", moratoriumPeriodMonths);
   
       const principal =
         Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
       const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
       const annualInterestAmount = (principal * rate) / 100;
      
-    console.log("principal:", principal);
-    console.log("rate:", rate);
-    console.log("annualInterestAmount:", annualInterestAmount);
+    // console.log("principal:", principal);
+    // console.log("rate:", rate);
+    // console.log("annualInterestAmount:", annualInterestAmount);
   
       const firstRepaymentYearIndex = monthsPerYear.findIndex(
         (months) => months > 0
       );
-      console.log("Months per year:", monthsPerYear);
-      console.log("First repayment year index:", firstRepaymentYearIndex);
+      // console.log("Months per year:", monthsPerYear);
+      // console.log("First repayment year index:", firstRepaymentYearIndex);
   
       return (yearIndex) => {
         const monthsInYear = monthsPerYear[yearIndex] || 0;
-        console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
+        // console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
         if (monthsInYear === 0) {
           // Entire year in moratorium, no interest
           return 0;
@@ -191,11 +191,11 @@ const DebtServiceCoverageRatio = ({
         (moratoriumPeriodMonths > 0 || monthsInYear < 12)
       ) {
         const prorated = (annualInterestAmount * monthsInYear) / 12;
-        console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
+        // console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
         return prorated;
       }
   
-        console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
+        // console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
         // Full annual interest for other repayment years
         return annualInterestAmount;
       };

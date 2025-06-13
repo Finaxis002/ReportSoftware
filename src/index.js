@@ -39,6 +39,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 // import "react-toastify/dist/ReactToastify.css";
 import History from "./components/NewMultiStepForm/History.jsx";
 import Profile from "./components/NewMultiStepForm/Profile.jsx";
+import DemoPDFView from "./components/NewMultiStepForm/DemoPDFView.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -124,6 +125,7 @@ const App = () => {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Routes>
+          <Route path="/pdf-demo/:reportId" element={<DemoPDFView />} />
           <Route
             path="/"
             element={
@@ -341,7 +343,7 @@ const App = () => {
             }
           />
 
-            <Route
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
@@ -350,7 +352,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-        
         </Routes>
 
         {/* <ToastContainer 
