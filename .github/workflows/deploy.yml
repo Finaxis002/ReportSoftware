@@ -3,43 +3,40 @@ name: Deploy React App to VPS
 on:
   push:
     branches:
-      - main 
+      - main  # Replace with your branch if necessary
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # Step 1: Checkout code from GitHub
+      - uses: actions/checkout@v2
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # Step 2: Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Deploy to VPS
-      run: |
-        echo "Deploying to the VPS..."
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
 
+      # Step 4: Build the React app
+      - name: Build project
+        run: npm run build
 
-        ssh -o StrictHostKeyChecking=no -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-      
-          echo "Changing directory to /var/www/reports.sharda.co.in"
-          cd /var/www/reports.sharda.co.in || exit
-
-          echo "Pulling the latest changes from GitHub"
-          git pull origin main || exit
-
-   
-          echo "Installing dependencies"
-          npm install || exit
-
-  
-          echo "Building the React app"
-          npm run build || exit
-
-      
-          echo "Restarting Nginx to apply changes"
-          sudo systemctl restart nginx || exit
-        EOF
+      # Step 5: Deploy via SSH using ssh-deploy action
+      - name: Deploy via SSH
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
+          REMOTE_USER: root
+          TARGET: /var/www/reports.sharda.co.in  # Ensure this is correct for your React app path
+          SOURCE: dist/
+          SCRIPT_AFTER: |
+            chown -R www-data:www-data /var/www/reports.sharda.co.in
+            chmod -R 755 /var/www/reports.sharda.co.in
+            sudo systemctl restart nginx  # Restart nginx to reflect changes
