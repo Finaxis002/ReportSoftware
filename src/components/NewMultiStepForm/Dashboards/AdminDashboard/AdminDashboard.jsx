@@ -133,7 +133,7 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 flex items-center justify-center rounded-lg">
                       👨‍💼
-                      👨‍💼
+                      
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
