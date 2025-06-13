@@ -18,7 +18,7 @@ import {
 import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
-import { FiDownload } from "react-icons/fi"; // npm i react-icons
+import { FiDownload, FiShare2 } from "react-icons/fi"; // npm i react-icons
 
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
@@ -44,7 +44,7 @@ import PromoterDetails from "./PDFComponents/PromoterDetails";
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 import { FiIconName } from "react-icons/fi";
 
-const GeneratedPDF = ({}) => {
+const GeneratedPDF = () => {
   const userRole = localStorage.getItem("userRole");
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
@@ -126,6 +126,10 @@ const GeneratedPDF = ({}) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(null);
 
+  //share demo pdf
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+
   //for otp
 
   const location = useLocation();
@@ -140,6 +144,12 @@ const GeneratedPDF = ({}) => {
     // console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
     setTotalExpense(expenses); // ✅ Update state
   };
+
+    // window.addEventListener('keydown', e => console.log(e.key));
+    window.addEventListener('keydown', (e) => {
+  console.log('Key:', e.key);
+});
+
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -922,6 +932,19 @@ const GeneratedPDF = ({}) => {
     };
   }, []);
 
+  const handleShareDemoPDF = () => {
+    // Ideally, you’d generate a unique report ID and store it in DB.
+    // For now, let's just use localStorage for demo.
+
+    const reportId = formData1._id; // replace with unique ID from DB
+    localStorage.setItem(`sharedReport-${reportId}`, JSON.stringify(formData));
+
+    // The route '/pdf-demo/:id' should render the PDF in demo mode (see below).
+    const url = `${window.location.origin}/pdf-demo/${reportId}`;
+    setShareLink(url);
+    setShowShareModal(true);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
       {/* ✅ Loader Section */}
@@ -1072,6 +1095,7 @@ const GeneratedPDF = ({}) => {
                       </button>
                     </div>
                   )}
+               
                 </div>
 
                 <div
@@ -1118,6 +1142,8 @@ const GeneratedPDF = ({}) => {
                     }}
                   />
                 </div>
+
+               
               </div>
             </>
           );
