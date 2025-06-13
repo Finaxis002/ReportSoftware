@@ -119,7 +119,7 @@ const AdminDashboard = () => {
                         {reports.length}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Last Report:{" "}
+                        Last Report::::::{" "}
                         {reports.length > 0
                           ? new Date(
                               reports[reports.length - 1].createdAt
