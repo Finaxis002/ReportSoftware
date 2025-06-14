@@ -177,7 +177,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       try {
         console.log(`🔍 Attempt ${attempt} to fetch reportId...`);
         const res = await axios.get(
-          `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
         );
         
         console.log("📡 Response from get-report-id:", res.data);
@@ -232,7 +232,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
   
-      let apiUrl = "https://backend-three-pink.vercel.app/save-step";
+      let apiUrl = "https://reportsbe.sharda.co.in/save-step";
       const isNew = !sessionId || isCreateReportWithExistingClicked;
   
       if (!isNew) {
@@ -312,7 +312,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       // Step 2: Create report
       const createResponse = await axios.post(
-        "https://backend-three-pink.vercel.app/create-new-from-existing",
+        "https://reportsbe.sharda.co.in/create-new-from-existing",
         requestData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -361,7 +361,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 //     }
 
 //     const createResponse = await axios.post(
-//       "https://backend-three-pink.vercel.app/create-new-from-existing",
+//       "https://reportsbe.sharda.co.in/create-new-from-existing",
 //       requestData,
 //       { headers: { "Content-Type": "multipart/form-data" } }
 //     );
@@ -372,7 +372,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
 //     // ✅ Fetch the latest data from backend after creating
 //     const getResponse = await axios.get(
-//       `https://backend-three-pink.vercel.app/get-report-data/${newSessionId}`
+//       `https://reportsbe.sharda.co.in/get-report-data/${newSessionId}`
 //     );
 
 //     if (getResponse.data) {
@@ -414,7 +414,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       };
 
       const response = await axios.post(
-        "https://backend-three-pink.vercel.app/update-step",
+        "https://reportsbe.sharda.co.in/update-step",
         {
           sessionId,
           data: updatedData,
@@ -645,7 +645,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       formDataPayload.append("data", JSON.stringify(requestData));
 
       const response = await axios.post(
-        "https://backend-three-pink.vercel.app/create-new-from-existing",
+        "https://reportsbe.sharda.co.in/create-new-from-existing",
         formDataPayload
       );
 
@@ -698,7 +698,7 @@ const MultiStepForm = ({ userRole, userName }) => {
         role: currentUserRole
       });
   
-      const response = await axios.post("https://backend-three-pink.vercel.app/api/activity/log", {
+      const response = await axios.post("https://reportsbe.sharda.co.in/api/activity/log", {
         action,
         reportTitle,
         reportId,

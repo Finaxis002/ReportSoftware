@@ -48,8 +48,8 @@ const BankDetails = () => {
 
         // ✅ Fetch from both APIs concurrently
         const [response1, response2] = await Promise.all([
-          fetch("https://backend-three-pink.vercel.app/api/get-bank-details"),
-          fetch("https://backend-three-pink.vercel.app/api/bank-details"),
+          fetch("https://reportsbe.sharda.co.in/api/get-bank-details"),
+          fetch("https://reportsbe.sharda.co.in/api/bank-details"),
         ]);
 
         if (!response1.ok || !response2.ok) {
@@ -213,7 +213,7 @@ const BankDetails = () => {
     const fetchFilters = async () => {
       try {
         const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/bank-filters"
+          "https://reportsbe.sharda.co.in/api/bank-filters"
         );
         if (!response.ok) throw new Error("Failed to fetch filter options");
 
@@ -354,7 +354,7 @@ const BankDetails = () => {
       console.log("📤 Sending Payload:", payload); // ✅ Debugging
 
       const response = await fetch(
-        "https://backend-three-pink.vercel.app/api/add-bank-details",
+        "https://reportsbe.sharda.co.in/api/add-bank-details",
         {
           method: "POST",
           headers: {
@@ -495,7 +495,7 @@ const BankDetails = () => {
   //     for (const entry of mappedData) {
   //       try {
   //         const res = await fetch(
-  //           "https://backend-three-pink.vercel.app/api/add-bank-details",
+  //           "https://reportsbe.sharda.co.in/api/add-bank-details",
   //           {
   //             method: "POST",
   //             headers: { "Content-Type": "application/json" },
@@ -556,7 +556,7 @@ const BankDetails = () => {
       for (const entry of mappedData) {
         try {
           const response = await fetch(
-            "https://backend-three-pink.vercel.app/api/add-bank-details",
+            "https://reportsbe.sharda.co.in/api/add-bank-details",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -649,7 +649,7 @@ const BankDetails = () => {
       const idToDelete = detail._id || detail.bankDetails?._id;
 
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/api/delete-bank-details/${idToDelete}`,
+        `https://reportsbe.sharda.co.in/api/delete-bank-details/${idToDelete}`,
         {
           method: "DELETE",
         }
@@ -695,7 +695,7 @@ const BankDetails = () => {
       };
 
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/api/update-bank-details/${id}`,
+        `https://reportsbe.sharda.co.in/api/update-bank-details/${id}`,
         {
           method: "PUT",
           headers: {
@@ -776,7 +776,7 @@ const BankDetails = () => {
   // const handleOTPVerifyAndExport = async () => {
   //   try {
   //     // ✅ Step 1: Request OTP to be sent
-  //     const sendRes = await fetch("https://backend-three-pink.vercel.app/api/otpRouteForExport/send-otp", {
+  //     const sendRes = await fetch("https://reportsbe.sharda.co.in/api/otpRouteForExport/send-otp", {
   //       method: "POST",
   //     });
 
@@ -794,7 +794,7 @@ const BankDetails = () => {
   //     }
 
   //     // ✅ Step 3: Verify OTP
-  //     const verifyRes = await fetch("https://backend-three-pink.vercel.app/api/otpRouteForExport/verify-otp", {
+  //     const verifyRes = await fetch("https://reportsbe.sharda.co.in/api/otpRouteForExport/verify-otp", {
   //       method: "POST",
   //       headers: {
   //         "Content-Type": "application/json",
@@ -823,7 +823,7 @@ const BankDetails = () => {
       }
 
       const verifyRes = await fetch(
-        "https://backend-three-pink.vercel.app/api/otpRouteForExport/verify-otp",
+        "https://reportsbe.sharda.co.in/api/otpRouteForExport/verify-otp",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -876,7 +876,7 @@ const BankDetails = () => {
                 <button
                   onClick={() => {
                     fetch(
-                      "https://backend-three-pink.vercel.app/api/otpRouteForExport/send-otp",
+                      "https://reportsbe.sharda.co.in/api/otpRouteForExport/send-otp",
                       {
                         method: "POST",
                       }

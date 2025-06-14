@@ -25,8 +25,8 @@ const CreateReport = ({ userRole }) => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://backend-three-pink.vercel.app/api/employees"),
-          fetch("https://backend-three-pink.vercel.app/api/admins"),
+          fetch("https://reportsbe.sharda.co.in/api/employees"),
+          fetch("https://reportsbe.sharda.co.in/api/admins"),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {

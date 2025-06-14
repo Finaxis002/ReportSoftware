@@ -90,7 +90,7 @@ const MainLogin = ({ onLogin }) => {
     // 1️⃣ Try Main Admin Login API (Admin collection)
     try {
       const response = await fetch(
-        "https://backend-three-pink.vercel.app/api/admin/login",
+        "https://reportsbe.sharda.co.in/api/admin/login",
         {
           method: "POST",
           headers: {
@@ -134,7 +134,7 @@ const MainLogin = ({ onLogin }) => {
     // 2️⃣ Try Fallback Login API (MainAdminPassword collection)
     try {
       const fallbackResponse = await fetch(
-        "https://backend-three-pink.vercel.app/api/admin/hardcoded-login",
+        "https://reportsbe.sharda.co.in/api/admin/hardcoded-login",
         {
           method: "POST",
           headers: {
@@ -183,7 +183,7 @@ const MainLogin = ({ onLogin }) => {
 
         try {
           const verifyResponse = await fetch(
-            "https://backend-three-pink.vercel.app/api/verify-captcha",
+            "https://reportsbe.sharda.co.in/api/verify-captcha",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -207,7 +207,7 @@ const MainLogin = ({ onLogin }) => {
 
         // ✅ STEP 2: Send OTP
         const sendOtpRes = await fetch(
-          "https://backend-three-pink.vercel.app/api/otp/send-otp",
+          "https://reportsbe.sharda.co.in/api/otp/send-otp",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -229,7 +229,7 @@ const MainLogin = ({ onLogin }) => {
 
       // ✅ STEP 3: Verify OTP
       const verifyRes = await fetch(
-        "https://backend-three-pink.vercel.app/api/otp/verify-otp",
+        "https://reportsbe.sharda.co.in/api/otp/verify-otp",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -245,7 +245,7 @@ const MainLogin = ({ onLogin }) => {
 
       // ✅ STEP 4: Final login
       const loginRes = await fetch(
-        "https://backend-three-pink.vercel.app/api/employees/login",
+        "https://reportsbe.sharda.co.in/api/employees/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -282,7 +282,7 @@ const MainLogin = ({ onLogin }) => {
 
       try {
         const verifyResponse = await fetch(
-          "https://backend-three-pink.vercel.app/api/verify-captcha",
+          "https://reportsbe.sharda.co.in/api/verify-captcha",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -317,7 +317,7 @@ const MainLogin = ({ onLogin }) => {
 
       try {
         const verifyResponse = await fetch(
-          "https://backend-three-pink.vercel.app/api/verify-captcha",
+          "https://reportsbe.sharda.co.in/api/verify-captcha",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

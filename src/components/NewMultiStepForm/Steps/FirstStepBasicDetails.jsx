@@ -196,7 +196,7 @@ const FirstStepBasicDetails = ({
 
     try {
       const response = await axios.post(
-        "https://backend-three-pink.vercel.app/save-step",
+        "https://reportsbe.sharda.co.in/save-step",
         uploadFormData,
         {
           headers: { "Content-Type": "multipart/form-data" },
