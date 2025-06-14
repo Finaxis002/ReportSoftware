@@ -29,7 +29,7 @@ const ReportDropdown = ({ onBusinessSelect }) => {
     const fetchBusinesses = async () => {
       try {
         const response = await axios.get(
-          "https://backend-three-pink.vercel.app/api/businesses"
+          "https://reportsbe.sharda.co.in/api/businesses"
         );
 
         if (response.data && Array.isArray(response.data.businesses)) {
@@ -60,7 +60,7 @@ const ReportDropdown = ({ onBusinessSelect }) => {
   
       try {
         const response = await axios.get(
-          `https://backend-three-pink.vercel.app/fetch-business-data?businessName=${encodeURIComponent(
+          `https://reportsbe.sharda.co.in/fetch-business-data?businessName=${encodeURIComponent(
             businessName
           )}&businessOwner=${encodeURIComponent(businessOwner)}`
         );

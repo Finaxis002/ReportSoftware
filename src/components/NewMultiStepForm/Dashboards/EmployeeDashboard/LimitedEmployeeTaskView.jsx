@@ -9,7 +9,7 @@ const LimitedEmployeeTaskView = ({ employeeId }) => {
     const fetchTasks = async () => {
       try {
         const res = await fetch(
-          `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`
+          `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employeeId}`
         );
         let data = await res.json();
   

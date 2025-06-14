@@ -25,7 +25,7 @@ const AdminDashboard = () => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
+          "https://reportsbe.sharda.co.in//api/employees"
         );
 
         if (!response.ok) {
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     const fetchReports = async () => {
       try {
         const response = await fetch(
-          "https://backend-three-pink.vercel.app/get-report"
+          "https://reportsbe.sharda.co.in//get-report"
         );
         const data = await response.json();
 
