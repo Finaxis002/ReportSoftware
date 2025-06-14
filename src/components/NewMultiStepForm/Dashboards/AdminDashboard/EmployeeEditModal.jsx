@@ -65,7 +65,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
 
     try {
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/api/employees/${employee.employeeId}`,
+        `https://reportsbe.sharda.co.in/api/employees/${employee.employeeId}`,
         {
           method: "PUT", // or "PATCH" if updating only certain fields
           headers: {

@@ -15,7 +15,7 @@ const EmployeeList = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("https://backend-three-pink.vercel.app/api/employees");
+        const response = await fetch("https://reportsbe.sharda.co.in/api/employees");
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }
@@ -45,7 +45,7 @@ const EmployeeList = () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const response = await fetch(
-          `https://backend-three-pink.vercel.app/api/employees/${employeeId}`,
+          `https://reportsbe.sharda.co.in/api/employees/${employeeId}`,
           {
             method: "DELETE",
           }

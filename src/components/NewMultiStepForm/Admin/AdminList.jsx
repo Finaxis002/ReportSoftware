@@ -85,7 +85,7 @@ const AdminList = () => {
   //     // Use the ID of the admin that is being edited (from the state)
   //     const adminId = editingAdmin._id;
   
-  //     const response = await fetch(`https://backend-three-pink.vercel.app/api/admin/update/${adminId}`, {
+  //     const response = await fetch(`https://reportsbe.sharda.co.in//api/admin/update/${adminId}`, {
   //       method: 'PUT',
   //       headers: {
   //         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const AdminList = () => {
     }
 
     // Call update API
-    const response = await fetch(`https://backend-three-pink.vercel.app/api/admin/${id}`, {
+    const response = await fetch(`https://reportsbe.sharda.co.in//api/admin/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -161,7 +161,7 @@ const AdminList = () => {
     setUpdatedPassword("");
 
     if (admin.caSign) {
-      setCaSign(`https://backend-three-pink.vercel.app/api/uploads/${admin.caSign}`);
+      setCaSign(`https://reportsbe.sharda.co.in//api/uploads/${admin.caSign}`);
       setFileName(admin.caSign.split("/").pop());
     } else {
       setFileName("");
@@ -197,7 +197,7 @@ const AdminList = () => {
               <div className="flex items-center mb-4">
                 {admin.caSign ? (
                   <img
-                    src={`https://backend-three-pink.vercel.app/${admin.caSign}`}
+                    src={`https://reportsbe.sharda.co.in//${admin.caSign}`}
                     alt="CA Sign"
                     className="w-[70px] h-[70px] rounded-lg object-cover border-2 border-gray-300 mr-4"
                   />

@@ -27,8 +27,8 @@ const Clients = () => {
     const fetchClientsAndFormData = async () => {
       try {
         const [clientsResponse, formDataResponse] = await Promise.all([
-          axios.get("https://backend-three-pink.vercel.app/api/clients"),
-          axios.get("https://backend-three-pink.vercel.app/api/formdatas"),
+          axios.get("https://reportsbe.sharda.co.in/api/clients"),
+          axios.get("https://reportsbe.sharda.co.in/api/formdatas"),
         ]);
         console.log("Clients Data:", clientsResponse.data);
         console.log("Form Data:", formDataResponse.data);
@@ -54,7 +54,7 @@ const Clients = () => {
   //   const fetchClientsAndFormData = async () => {
   //     try {
   //       const [clientsResponse] = await Promise.all([
-  //         axios.get("https://backend-three-pink.vercel.app/api/client-filetrs"),
+  //         axios.get("https://reportsbe.sharda.co.in/api/client-filetrs"),
   //       ]);
   //       console.log("Client Data:", clientsResponse.data.clientOptions);
 
@@ -122,7 +122,7 @@ const Clients = () => {
   // const handleAddClient = async () => {
   //   try {
   //     const response = await axios.post(
-  //       "https://backend-three-pink.vercel.app/api/clients",
+  //       "https://reportsbe.sharda.co.in/api/clients",
   //       newClientDetails
   //     );
   //     console.log(response.data);
@@ -143,7 +143,7 @@ const Clients = () => {
     if (window.confirm("Are you sure you want to delete this client?")) {
       try {
         await axios.delete(
-          `https://backend-three-pink.vercel.app/api/clients/${clientId}`
+          `https://reportsbe.sharda.co.in/api/clients/${clientId}`
         );
         alert("Client deleted successfully!");
         setClients((prev) => prev.filter((client) => client._id !== clientId));
@@ -171,14 +171,14 @@ const Clients = () => {
       if (selectedClient) {
         // Update client
         await axios.put(
-          `https://backend-three-pink.vercel.app/api/clients/${selectedClient}`,
+          `https://reportsbe.sharda.co.in/api/clients/${selectedClient}`,
           newClientDetails
         );
         alert("Client updated successfully!");
       } else {
         // Add new client
         await axios.post(
-          "https://backend-three-pink.vercel.app/api/clients",
+          "https://reportsbe.sharda.co.in/api/clients",
           newClientDetails
         );
         alert("Client added successfully!");
@@ -194,7 +194,7 @@ const Clients = () => {
       setSelectedClient(null); // Reset
       // Refetch clients
       const response = await axios.get(
-        "https://backend-three-pink.vercel.app/api/clients"
+        "https://reportsbe.sharda.co.in/api/clients"
       );
       setClients(response.data);
     } catch (error) {

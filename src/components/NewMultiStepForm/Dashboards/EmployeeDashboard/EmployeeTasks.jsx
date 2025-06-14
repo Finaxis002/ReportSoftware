@@ -25,7 +25,7 @@ const EmployeeTasks = ({ employeeId }) => {
         console.log(`🚀 Fetching tasks for employeeId: ${employeeId}`);  // Log employeeId
   
         const response = await fetch(
-          `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`
+          `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employeeId}`
         );
   
         console.log("🛡️ Response status:", response.status);  // Log the response status
@@ -57,7 +57,7 @@ const EmployeeTasks = ({ employeeId }) => {
       const employeeId = localStorage.getItem("employeeId");
       const employeeName = localStorage.getItem("employeeName");
   
-      const response = await fetch(`https://backend-three-pink.vercel.app/api/tasks/${taskId}`, {
+      const response = await fetch(`https://reportsbe.sharda.co.in/api/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -20,7 +20,7 @@ const EmployeeNotifications = () => {
       console.log("📢 Calling PUT /api/notifications/mark-seen");
   
       try {
-        const res = await fetch("https://backend-three-pink.vercel.app/api/notifications/mark-seen", {
+        const res = await fetch("https://reportsbe.sharda.co.in/api/notifications/mark-seen", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -47,14 +47,14 @@ const EmployeeNotifications = () => {
 
         let url = "";
         if (role === "admin") {
-          url = "https://backend-three-pink.vercel.app/api/admin/notifications";
+          url = "https://reportsbe.sharda.co.in/api/admin/notifications";
         } else if (role === "employee") {
           const employeeId = localStorage.getItem("employeeId");
           if (!employeeId) {
             console.error("Employee ID not found in localStorage");
             return;
           }
-          url = `https://backend-three-pink.vercel.app/api/notifications/employee?employeeId=${employeeId}`;
+          url = `https://reportsbe.sharda.co.in/api/notifications/employee?employeeId=${employeeId}`;
         }
 
         if (url) {

@@ -30,7 +30,7 @@ const EmployeeDetailsList = () => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
-          "https://backend-three-pink.vercel.app/api/employees"
+          "https://reportsbe.sharda.co.in/api/employees"
         );
 
         if (!response.ok) {
@@ -76,7 +76,7 @@ const EmployeeDetailsList = () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const response = await fetch(
-          `https://backend-three-pink.vercel.app/api/employees/${employeeId}`,
+          `https://reportsbe.sharda.co.in/api/employees/${employeeId}`,
           { method: "DELETE" }
         );
         if (response.ok) {
@@ -127,7 +127,7 @@ const EmployeeDetailsList = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://backend-three-pink.vercel.app/api/employees"
+        "https://reportsbe.sharda.co.in/api/employees"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
