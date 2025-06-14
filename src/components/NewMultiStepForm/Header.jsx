@@ -19,7 +19,7 @@ const Header = ({ dashboardType }) => {
     if (employeeId) {
       try {
         await fetch(
-          "https://backend-three-pink.vercel.app/api/employees/logout",
+          "https://reportsbe.sharda.co.in/api/employees/logout",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -50,7 +50,7 @@ const Header = ({ dashboardType }) => {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(
-        `https://backend-three-pink.vercel.app/api/tasks?employeeId=${employeeId}`,
+        `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employeeId}`,
         { signal: controller.signal }
       );
 

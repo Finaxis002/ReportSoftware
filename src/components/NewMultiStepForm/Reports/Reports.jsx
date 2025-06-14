@@ -30,7 +30,7 @@ const Reports = ({ sendPdfData }) => {
     const fetchReports = async () => {
       try {
         const response = await fetch(
-          "https://backend-three-pink.vercel.app/get-report"
+          "https://reportsbe.sharda.co.in/get-report"
         );
 
         if (!response.ok) {
@@ -61,7 +61,7 @@ const Reports = ({ sendPdfData }) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
       try {
         const response = await fetch(
-          `https://backend-three-pink.vercel.app/delete-report/${reportId}`,
+          `https://reportsbe.sharda.co.in/delete-report/${reportId}`,
           {
             method: "DELETE",
           }
@@ -84,7 +84,7 @@ const Reports = ({ sendPdfData }) => {
   const handleDownload = async (sessionId) => {
     try {
       const response = await fetch(
-        `https://backend-three-pink.vercel.app/get-report-data/${sessionId}`
+        `https://reportsbe.sharda.co.in/get-report-data/${sessionId}`
       );
       if (!response.ok) throw new Error("Failed to fetch report data");
 
@@ -148,7 +148,7 @@ const Reports = ({ sendPdfData }) => {
     setIsLoading(true); // Show loading during refresh too
     try {
       const response = await fetch(
-        "https://backend-three-pink.vercel.app/get-report"
+        "https://reportsbe.sharda.co.in/get-report"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch reports");

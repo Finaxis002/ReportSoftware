@@ -9,7 +9,7 @@ const ClientData = () => {
   // Function to fetch all client names
   const fetchClientNames = async () => {
     try {
-      const response = await axios.get('https://backend-three-pink.vercel.app/api/user/all-names');
+      const response = await axios.get('https://reportsbe.sharda.co.in/api/user/all-names');
       setClientNames(response.data); // Assuming response.data is an array of client names
     } catch (error) {
       console.error('Error fetching client names:', error);
@@ -20,7 +20,7 @@ const ClientData = () => {
   // Function to fetch selected client details
   const fetchClientData = async (clientName) => {
     try {
-      const response = await axios.get(`https://backend-three-pink.vercel.app/api/user/by-name/${clientName}`);
+      const response = await axios.get(`https://reportsbe.sharda.co.in/api/user/by-name/${clientName}`);
       setLocalData(response.data); // Update localData with fetched client details
     } catch (error) {
       console.error('Error fetching client data:', error);

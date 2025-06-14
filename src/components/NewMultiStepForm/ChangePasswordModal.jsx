@@ -26,7 +26,7 @@ const ChangePasswordModal = ({ onClose, onSubmit }) => {
     setError("");
 
     try {
-      const response = await fetch("https://backend-three-pink.vercel.app/api/admin/change-password", {
+      const response = await fetch("https://reportsbe.sharda.co.in/api/admin/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

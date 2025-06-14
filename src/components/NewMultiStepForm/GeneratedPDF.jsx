@@ -474,8 +474,8 @@ const GeneratedPDF = () => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://backend-three-pink.vercel.app/api/employees"),
-          fetch("https://backend-three-pink.vercel.app/api/admins"),
+          fetch("https://reportsbe.sharda.co.in/api/employees"),
+          fetch("https://reportsbe.sharda.co.in/api/admins"),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
@@ -1006,7 +1006,7 @@ const GeneratedPDF = () => {
 
               if (sessionId) {
                 const res = await fetch(
-                  `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+                  `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
                 );
                 const data = await res.json();
                 if (data?.reportId) {
@@ -1015,7 +1015,7 @@ const GeneratedPDF = () => {
               }
 
               await fetch(
-                "https://backend-three-pink.vercel.app/api/activity/log",
+                "https://reportsbe.sharda.co.in/api/activity/log",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },

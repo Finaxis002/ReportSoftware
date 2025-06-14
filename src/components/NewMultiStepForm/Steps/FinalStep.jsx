@@ -439,7 +439,7 @@ const FinalStep = ({ formData, userRole }) => {
     // ✅ Try to fetch reportId via sessionId
     try {
       const res = await fetch(
-        `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+        `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
       );
       const data = await res.json();
       if (data?.reportId) {
@@ -451,7 +451,7 @@ const FinalStep = ({ formData, userRole }) => {
     const reportOwner = formData?.AccountInformation?.businessOwner || "";
     // ✅ Log activity
     try {
-      await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
+      await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -509,8 +509,8 @@ const FinalStep = ({ formData, userRole }) => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://backend-three-pink.vercel.app/api/employees"),
-          fetch("https://backend-three-pink.vercel.app/api/admins"),
+          fetch("https://reportsbe.sharda.co.in/api/employees"),
+          fetch("https://reportsbe.sharda.co.in/api/admins"),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
@@ -611,7 +611,7 @@ const FinalStep = ({ formData, userRole }) => {
     // ✅ Try to fetch reportId via sessionId
     try {
       const res = await fetch(
-        `https://backend-three-pink.vercel.app/api/activity/get-report-id?sessionId=${sessionId}`
+        `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
       );
       const data = await res.json();
       if (data?.reportId) {
@@ -623,7 +623,7 @@ const FinalStep = ({ formData, userRole }) => {
     const reportOwner = formData?.AccountInformation?.businessOwner || "";
     // ✅ Log activity
     try {
-      await fetch("https://backend-three-pink.vercel.app/api/activity/log", {
+      await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

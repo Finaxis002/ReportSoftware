@@ -28,7 +28,7 @@ const MenuBar = ({ userRole }) => {
 
       try {
         const res = await fetch(
-          `https://backend-three-pink.vercel.app/api/notifications/unseen?employeeId=${employeeId}`
+          `https://reportsbe.sharda.co.in/api/notifications/unseen?employeeId=${employeeId}`
         );
         const data = await res.json();
         setUnseenCount(data.length);

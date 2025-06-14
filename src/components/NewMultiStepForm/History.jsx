@@ -46,7 +46,7 @@ const History = ({ userRole }) => {
   useEffect(() => {
     const fetchActivityLog = async () => {
       try {
-        const res = await axios.get("https://backend-three-pink.vercel.app/api/activity/history");
+        const res = await axios.get("https://reportsbe.sharda.co.in/api/activity/history");
         setActivities(res.data);
       } catch (error) {
         console.error("Failed to fetch history:", error);
