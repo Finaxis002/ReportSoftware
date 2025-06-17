@@ -35,14 +35,10 @@ import Reports from "./components/NewMultiStepForm/Reports/Reports.jsx";
 import BankDetails from "./components/NewMultiStepForm/BankDetails.jsx";
 import Clients from "./components/NewMultiStepForm/Clients/Clients.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
 import History from "./components/NewMultiStepForm/History.jsx";
 import Profile from "./components/NewMultiStepForm/Profile.jsx";
-
-import SharedReportViewer from "./components/NewMultiStepForm/SharedReportViewer.jsx";
-
 import DemoPDFView from "./components/NewMultiStepForm/DemoPDFView.jsx";
+import IntroPage from "./components/NewMultiStepForm/IntroPage.jsx";
 
 
 // Initialize query client
@@ -360,20 +356,19 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/intro"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <IntroPage userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
         </Routes>
 
-        {/* <ToastContainer 
-          position="top-right" 
-          autoClose={3000} 
-          hideProgressBar={false}
-          newestOnTop 
-          closeOnClick 
-          rtl={false} 
-          pauseOnFocusLoss 
-          draggable 
-          pauseOnHover 
-          theme="light"
-        /> */}
+       
       </QueryClientProvider>
     </Provider>
 
@@ -389,4 +384,3 @@ root.render(
   </BrowserRouter>
 );
 
-///////////////////////////////////////////////////////////////////////////////////////////
