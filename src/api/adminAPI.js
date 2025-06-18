@@ -2,12 +2,13 @@ import axios from 'axios';
 
 // const API_URL = 'http://localhost:5000/api/admin';
 // const API_URL = 'http://localhost:5000/api';
-const API_URL = 'https://backend-three-pink.vercel.app/api';
+const API_URL = 'https://reportsbe.sharda.co.in/api';
 
 
 export const getAdmins = async () => {
   try {
     const response = await axios.get(`${API_URL}/admins`);
+    console.log("admin ", response)
     return response.data;
   } catch (error) {
     console.error('Error fetching admins:', error);
