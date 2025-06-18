@@ -34,7 +34,7 @@ const IntroPage = () => {
     try {
       // Ensure this matches your backend API endpoint for Gemini
       const res = await axios.post(
-        "http://localhost:5000/api/openai/generate-introduction",
+        "https://reportsbe.sharda.co.in/api/openai/generate-introduction",
         { businessDescription }
       );
 
