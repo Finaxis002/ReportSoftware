@@ -145,11 +145,10 @@ const GeneratedPDF = () => {
     setTotalExpense(expenses); // ✅ Update state
   };
 
-    // window.addEventListener('keydown', e => console.log(e.key));
-    window.addEventListener('keydown', (e) => {
-  console.log('Key:', e.key);
-});
-
+  // window.addEventListener('keydown', e => console.log(e.key));
+  window.addEventListener("keydown", (e) => {
+    console.log("Key:", e.key);
+  });
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -1014,26 +1013,23 @@ const GeneratedPDF = () => {
                 }
               }
 
-              await fetch(
-                "https://reportsbe.sharda.co.in/api/activity/log",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    action: "download",
-                    reportTitle: businessName,
-                    reportOwner: businessOwner,
-                    reportId,
-                    performedBy: {
-                      name:
-                        localStorage.getItem("adminName") ||
-                        localStorage.getItem("employeeName") ||
-                        "Unknown",
-                      role: localStorage.getItem("userRole") || "unknown",
-                    },
-                  }),
-                }
-              );
+              await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  action: "download",
+                  reportTitle: businessName,
+                  reportOwner: businessOwner,
+                  reportId,
+                  performedBy: {
+                    name:
+                      localStorage.getItem("adminName") ||
+                      localStorage.getItem("employeeName") ||
+                      "Unknown",
+                    role: localStorage.getItem("userRole") || "unknown",
+                  },
+                }),
+              });
 
               console.log("✅ Logged PDF download");
             } catch (error) {
@@ -1076,7 +1072,7 @@ const GeneratedPDF = () => {
                   </div>
 
                   {/* Download Button */}
-                  {((userRole === "admin" &&
+                  {/* {((userRole === "admin" &&
                     (!localStorage.getItem("adminName") ||
                       permissions.downloadPDF)) ||
                     (userRole === "employee" && permissions.downloadPDF)) && (
@@ -1094,8 +1090,27 @@ const GeneratedPDF = () => {
                         Download PDF
                       </button>
                     </div>
-                  )}
-               
+                  )} */}
+                  {
+                    // Always show for admin (from localStorage), otherwise use permissions
+                    (localStorage.getItem("userRole") === "admin" ||
+                      (userRole === "employee" && permissions.downloadPDF)) && (
+                      <div className="flex gap-2 px-4">
+                        <button
+                          onClick={handleDownloadPDF}
+                          className={`flex items-center gap-2 ${
+                            loading
+                              ? "bg-gray-300 cursor-not-allowed"
+                              : "bg-white hover:bg-indigo-100"
+                          } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
+                          disabled={loading}
+                        >
+                          <FiDownload size={16} />
+                          Download PDF
+                        </button>
+                      </div>
+                    )
+                  }
                 </div>
 
                 <div
@@ -1142,8 +1157,6 @@ const GeneratedPDF = () => {
                     }}
                   />
                 </div>
-
-               
               </div>
             </>
           );
