@@ -7,6 +7,7 @@ import {
   AlignmentType,
   TextRun,
   BorderStyle,
+  PageBreak,
 } from "docx";
 import { saveAs } from "file-saver";
 
@@ -16,6 +17,7 @@ const SECTIONS = [
   { key: "products_services", label: "Product and Services" },
   { key: "scope", label: "Scope of the Project" },
   { key: "market_potential", label: "Market Potential" },
+  { key: "swot", label: "SWOT Analysis" },
 ];
 
 const SectionHeading = (text) =>
@@ -44,58 +46,192 @@ const ProjectReportWordExport = ({ businessData, sections, loading }) => {
     const lines = sectionText.split(/\r?\n/);
     const paragraphs = [];
 
-    lines.forEach((line, idx) => {
-      const trimmed = line.trim();
+    // lines.forEach((line, idx) => {
+    //   const trimmed = line.trim();
 
-      if (!trimmed) {
-        paragraphs.push(new Paragraph({ text: "", spacing: { after: 150 } }));
-        return;
-      }
+    //   if (!trimmed) {
+    //     paragraphs.push(new Paragraph({ text: "", spacing: { after: 150 } }));
+    //     return;
+    //   }
 
-      // Improved heuristic:
-      // Heading if:
-      // - Length < 55 chars
-      // - No ending period/question mark
-      // - Not the very first paragraph of the section (idx !== 0)
-      // - Not all lower-case
-      const isHeading =
-        trimmed.length < 55 &&
-        !/[.?!]$/.test(trimmed) &&
-        idx !== 0 &&
-        /[A-Z]/.test(trimmed[0]) && // starts with capital
-        trimmed.split(" ").length < 10; // not a long sentence
+    //   // Improved heuristic:
+    //   // Heading if:
+    //   // - Length < 55 chars
+    //   // - No ending period/question mark
+    //   // - Not the very first paragraph of the section (idx !== 0)
+    //   // - Not all lower-case
+    //   const isHeading =
+    //     trimmed.length < 55 &&
+    //     !/[.?!]$/.test(trimmed) &&
+    //     idx !== 0 &&
+    //     /[A-Z]/.test(trimmed[0]) && // starts with capital
+    //     trimmed.split(" ").length < 10; // not a long sentence
 
-      if (isHeading) {
-        paragraphs.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: trimmed,
-                bold: true,
-                size: 28,
-                font: "Times New Roman",
-                color: "17375E",
-              }),
-            ],
-            spacing: { after: 80 },
-          })
-        );
-      } else {
-        paragraphs.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: trimmed,
-                size: 24,
-                font: "Times New Roman",
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { after: 60 },
-          })
-        );
-      }
-    });
+    //   if (isHeading) {
+    //     paragraphs.push(
+    //       new Paragraph({
+    //         children: [
+    //           new TextRun({
+    //             text: trimmed,
+    //             bold: true,
+    //             size: 28,
+    //             font: "Times New Roman",
+    //             color: "17375E",
+    //           }),
+    //         ],
+    //         spacing: { after: 80 },
+    //       })
+    //     );
+    //   } else {
+    //     paragraphs.push(
+    //       new Paragraph({
+    //         children: [
+    //           new TextRun({
+    //             text: trimmed,
+    //             size: 24,
+    //             font: "Times New Roman",
+    //           }),
+    //         ],
+    //         alignment: AlignmentType.JUSTIFIED,
+    //         spacing: { after: 60 },
+    //       })
+    //     );
+    //   }
+    // });
+
+
+// lines.forEach((line, idx) => {
+//   const trimmed = line.trim();
+
+//   if (!trimmed) {
+//     paragraphs.push(new Paragraph({ text: "", spacing: { after: 150 } }));
+//     return;
+//   }
+
+//   // New logic: If line starts and ends with **, treat as bold heading
+//   if (/^\*\*(.+)\*\*$/.test(trimmed)) {
+//     const headingText = trimmed.replace(/^\*\*(.+)\*\*$/, "$1");
+//     paragraphs.push(
+//       new Paragraph({
+//         children: [
+//           new TextRun({
+//             text: headingText,
+//             bold: true,
+//             size: 28,
+//             font: "Times New Roman",
+//             color: "17375E",
+//           }),
+//         ],
+//         spacing: { after: 80 },
+//       })
+//     );
+//   } else {
+//     // Normal paragraph
+//     paragraphs.push(
+//       new Paragraph({
+//         children: [
+//           new TextRun({
+//             text: trimmed,
+//             size: 24,
+//             font: "Times New Roman",
+//           }),
+//         ],
+//         alignment: AlignmentType.JUSTIFIED,
+//         spacing: { after: 60 },
+//       })
+//     );
+//   }
+// });
+lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      paragraphs.push(new Paragraph({ text: "", spacing: { after: 150 } }));
+      return;
+    }
+   const cleanedLine = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
+
+    // 1. If line is a section heading in SWOT ("Strengths", "Weaknesses", etc.)
+    if (/^(Strengths|Weaknesses|Opportunities|Threats)$/i.test(cleanedLine)) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: trimmed,
+              bold: true,
+              size: 28,
+              font: "Times New Roman",
+              color: "17375E",
+            }),
+          ],
+          spacing: { after: 120 },
+        })
+      );
+      return;
+    }
+
+    // 2. If line is a bolded heading via **...** (used in Products & Services)
+    const matchAsterisks = trimmed.match(/^\*\*(.+)\*\*$/);
+    if (matchAsterisks) {
+      const headingText = matchAsterisks[1];
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: headingText,
+              bold: true,
+              size: 28,
+              font: "Times New Roman",
+              color: "17375E",
+            }),
+          ],
+          spacing: { after: 80 },
+        })
+      );
+      return;
+    }
+
+    // 3. If line is a numbered heading: "1. Essential Service"
+    const numberedHeadingMatch = trimmed.match(/^(\d+\.\s)(.+)$/);
+    if (numberedHeadingMatch) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: numberedHeadingMatch[1], // "1. "
+              bold: true,
+              size: 24,
+              font: "Times New Roman",
+              color: "17375E",
+            }),
+            new TextRun({
+              text: numberedHeadingMatch[2], // "Essential Service"
+              bold: true,
+              size: 24,
+              font: "Times New Roman",
+            }),
+          ],
+          spacing: { after: 40 },
+        })
+      );
+      return;
+    }
+
+    // 4. Normal paragraph
+    paragraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: trimmed,
+            size: 24,
+            font: "Times New Roman",
+          }),
+        ],
+        alignment: AlignmentType.JUSTIFIED,
+        spacing: { after: 60 },
+      })
+    );
+  });
 
     return paragraphs;
   };
@@ -143,7 +279,14 @@ const ProjectReportWordExport = ({ businessData, sections, loading }) => {
               alignment: AlignmentType.LEFT,
               spacing: { after: 200 },
             }),
-            ...SECTIONS.flatMap((sec) => [
+            // ...SECTIONS.flatMap((sec) => [
+            //   SectionHeading(sec.label.toUpperCase()),
+            //   ...sectionTextToParagraphs(sections[sec.key] || ""),
+            // ]),
+            ...SECTIONS.flatMap((sec, idx) => [
+              ...(idx === 0
+                ? []
+                : [new Paragraph({ children: [new PageBreak()] })]),
               SectionHeading(sec.label.toUpperCase()),
               ...sectionTextToParagraphs(sections[sec.key] || ""),
             ]),
