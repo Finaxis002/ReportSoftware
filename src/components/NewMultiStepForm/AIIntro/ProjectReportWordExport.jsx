@@ -18,6 +18,7 @@ const SECTIONS = [
   { key: "scope", label: "Scope of the Project" },
   { key: "market_potential", label: "Market Potential" },
   { key: "swot", label: "SWOT Analysis" },
+  { key: "conclusion", label: "Conclusion" },
 ];
 
 const SectionHeading = (text) =>
@@ -152,7 +153,7 @@ lines.forEach((line, idx) => {
    const cleanedLine = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
 
     // 1. If line is a section heading in SWOT ("Strengths", "Weaknesses", etc.)
-    if (/^(Strengths|Weaknesses|Opportunities|Threats)$/i.test(cleanedLine)) {
+    if (/^(Strengths|Weaknesses|Opportunities|Threats)$/i.test(trimmed)) {
       paragraphs.push(
         new Paragraph({
           children: [

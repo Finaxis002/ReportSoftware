@@ -146,6 +146,7 @@ const SECTIONS = [
   { key: "scope", label: "Scope of the Project" },
   { key: "market_potential", label: "Market Potential" },
    { key: "swot", label: "SWOT Analysis" },
+   { key: "conclusion", label: "Conclusion" },
 ];
 
 const IntroPage = () => {
@@ -178,7 +179,7 @@ const IntroPage = () => {
     for (const sec of SECTIONS) {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/openai/generate-section",
+          "https://reportsbe.sharda.co.in/api/openai/generate-section",
           {
             section: sec.key,
             businessName: businessData?.AccountInformation?.businessName || "",
