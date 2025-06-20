@@ -524,7 +524,7 @@ const ProjectedDepreciation = ({
           </View>
 
           {/* Display Gross Fixed Assets (A) with updated values */}
-          {(() => {
+          {/* {(() => {
             let visibleIndex = 0;
 
             return Object.entries(formData.CostOfProject).map(
@@ -537,6 +537,8 @@ const ProjectedDepreciation = ({
                 const depreciationPerYear =
                   depreciationValues[index]?.yearlyDepreciation || [];
 
+                    const numericDepreciation = depreciationPerYear.map(val => Number(val));
+
                 const assetValues = [];
                 let currentValue = assetAmount;
 
@@ -545,7 +547,7 @@ const ProjectedDepreciation = ({
                     assetValues.push(currentValue);
                   } else {
                     const depreciation =
-                      depreciationPerYear[yearIndex - 1] || 0;
+                      numericDepreciation[yearIndex - 1] || 0;
                     currentValue -= depreciation;
                     assetValues.push(currentValue);
                   }
@@ -554,7 +556,13 @@ const ProjectedDepreciation = ({
                 const visibleAssetValues = hideFirstYear
                   ? assetValues.slice(1)
                   : assetValues;
-                if (visibleAssetValues.every((val) => val === 0)) return null;
+                if (visibleAssetValues.every((val) => val === 0))  {
+      console.log(`Skipping Asset: ${asset.name} as depreciation values are zero`);
+      return null; // Skip rendering this asset row
+    }
+
+                 console.log(`Asset: ${asset.name}`);
+      console.log("Depreciation values per year:", visibleAssetValues);
 
                 visibleIndex++;
 
@@ -590,7 +598,81 @@ const ProjectedDepreciation = ({
                 );
               }
             );
-          })()}
+          })()} */}
+          {(() => {
+  let visibleIndex = 0;
+
+  return Object.entries(formData.CostOfProject).map(([key, asset], index) => {
+    if (!asset || !asset.amount || !asset.rate) {
+      // Log any assets that don't have the required properties (amount, rate)
+      console.log(`Skipping invalid asset: ${key}, missing amount or rate.`);
+      return null;
+    }
+
+    const assetAmount = asset.amount || 0;
+    const depreciationPerYear = depreciationValues[index]?.yearlyDepreciation || [];
+
+    if (!depreciationPerYear || depreciationPerYear.length === 0) {
+      console.log(`Skipping asset: ${asset.name} due to missing depreciation values.`);
+      return null;
+    }
+
+    // Ensure depreciation values are numbers (not strings)
+    const numericDepreciation = depreciationPerYear.map(val => Number(val));
+
+    // Log depreciation values to check if conversion worked
+    console.log(`Asset: ${asset.name}`);
+    console.log("Depreciation values per year (numeric):", numericDepreciation);
+
+    // Calculate asset values after depreciation
+    const assetValues = [];
+    let currentValue = assetAmount;
+
+    for (let yearIndex = 0; yearIndex < years; yearIndex++) {
+      if (yearIndex === 0) {
+        assetValues.push(currentValue);
+      } else {
+        const depreciation = numericDepreciation[yearIndex - 1] || 0;
+        currentValue -= depreciation;
+        assetValues.push(currentValue);
+      }
+    }
+
+    const visibleAssetValues = hideFirstYear ? assetValues.slice(1) : assetValues;
+
+    // Check if all depreciation values are zero
+    if (visibleAssetValues.every((val) => val === 0)) {
+      console.log(`Skipping Asset: ${asset.name} as depreciation values are zero`);
+      return null; // Skip rendering this asset row
+    }
+
+    visibleIndex++; // Increment for visible rows
+
+    return (
+      <View key={key} style={styles.tableRow}>
+        <Text style={stylesCOP.serialNoCellDetail}>{visibleIndex}</Text>
+        <Text
+          style={[
+            stylesCOP.detailsCellDetail,
+            styleExpenses.particularWidth,
+            styleExpenses.bordernone,
+          ]}
+        >
+          {asset.name}
+        </Text>
+        <Text style={stylesCOP.serialNoCellDetail}></Text>
+        {assetValues.map((value, yearIndex) =>
+          hideFirstYear && yearIndex === 0 ? null : (
+            <Text key={yearIndex} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+              {formatNumber(value)}
+            </Text>
+          )
+        )}
+      </View>
+    );
+  });
+})()}
+
 
           {/* Depreciation Header */}
           <View style={[styles.tableHeader]}>
