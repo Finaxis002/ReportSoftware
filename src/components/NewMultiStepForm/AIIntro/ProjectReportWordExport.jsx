@@ -150,7 +150,7 @@ lines.forEach((line, idx) => {
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 150 } }));
       return;
     }
-   const cleanedLine = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
+  
 
     // 1. If line is a section heading in SWOT ("Strengths", "Weaknesses", etc.)
     if (/^(Strengths|Weaknesses|Opportunities|Threats)$/i.test(trimmed)) {
@@ -217,13 +217,13 @@ lines.forEach((line, idx) => {
       );
       return;
     }
-
+  const cleanedLine = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
     // 4. Normal paragraph
     paragraphs.push(
       new Paragraph({
         children: [
           new TextRun({
-            text: trimmed,
+            text: cleanedLine,
             size: 24,
             font: "Times New Roman",
           }),
