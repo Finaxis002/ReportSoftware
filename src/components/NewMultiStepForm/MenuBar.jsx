@@ -271,7 +271,7 @@ const MenuBar = ({ userRole }) => {
 
     {
   path: "/intro",
-  label: "IntroPage",
+  label: "Report Word",
   roles: ["admin", "employee"],
   icon: (
     <svg
