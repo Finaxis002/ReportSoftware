@@ -176,13 +176,11 @@ const GeneratedPDF = () => {
 
   // Update the state when data is received from the child
   const handleDataSend = useCallback((data) => {
-    // console.log("Data received in parent: ", data);
     setReceivedData(data);
   });
 
   // ✅ Function to receive data from Repayment component
   const handleInterestCalculated = useCallback((liabilities) => {
-    // console.log("📥 Received Interest Liabilities from Repayment:", liabilities);
     setYearlyInterestLiabilities(liabilities); // Update the state
   });
 
@@ -931,18 +929,32 @@ const GeneratedPDF = () => {
     };
   }, []);
 
-  const handleShareDemoPDF = () => {
-    // Ideally, you’d generate a unique report ID and store it in DB.
-    // For now, let's just use localStorage for demo.
+ const aggregateComputedData = () => ({
+  normalExpense,
+  totalAnnualWages,
+  directExpenses,
+  totalDirectExpensesArray,
+  computedData,
+  computedData1,
+  totalDepreciation,
+  yearlyInterestLiabilities,
+  yearlyPrincipalRepayment,
+  interestOnWorkingCapital,
+  receivedData,
+  marchClosingBalances,
+  workingCapitalvalues,
+  grossFixedAssetsPerYear,
+  incomeTaxCalculation,
+  closingCashBalanceArray,
+  totalLiabilities,
+  assetsliabilities,
+  dscr,
+  averageCurrentRatio,
+  breakEvenPointPercentage,
+  totalExpense,
+  totalRevenueReceipts,
+});
 
-    const reportId = formData1._id; // replace with unique ID from DB
-    localStorage.setItem(`sharedReport-${reportId}`, JSON.stringify(formData));
-
-    // The route '/pdf-demo/:id' should render the PDF in demo mode (see below).
-    const url = `${window.location.origin}/pdf-demo/${reportId}`;
-    setShareLink(url);
-    setShowShareModal(true);
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
@@ -972,6 +984,8 @@ const GeneratedPDF = () => {
         </div>
       )}
 
+      
+
       <BlobProvider document={memoizedPDF}>
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
@@ -993,6 +1007,22 @@ const GeneratedPDF = () => {
 
             // ✅ Save the file locally
             saveAs(blob, `${safeName}.pdf`);
+
+            // ✅ Aggregated computed data
+  const aggregatedComputedData = aggregateComputedData();
+
+  // ✅ API call to save computed data
+  try {
+  await axios.put(
+    `http://localhost:5000/save-computed-data/${formData._id}`,
+    { computedData: aggregatedComputedData }
+  );
+
+  console.log("✅ Computed data saved successfully.");
+} catch (error) {
+  console.error("❌ Failed to save computed data:", error);
+}
+
 
             // ✅ Send activity log
             try {
