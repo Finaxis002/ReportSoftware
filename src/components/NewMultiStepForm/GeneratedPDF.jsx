@@ -1014,7 +1014,7 @@ const GeneratedPDF = () => {
   // ✅ API call to save computed data
   try {
   await axios.put(
-    `http://localhost:5000/save-computed-data/${formData._id}`,
+    `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
     { computedData: aggregatedComputedData }
   );
 
