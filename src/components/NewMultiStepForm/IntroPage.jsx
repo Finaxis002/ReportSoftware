@@ -10,8 +10,8 @@ const SECTIONS = [
   { key: "products_services", label: "Product and Services" },
   { key: "scope", label: "Scope of the Project" },
   { key: "market_potential", label: "Market Potential" },
-   { key: "swot", label: "SWOT Analysis" },
-   { key: "conclusion", label: "Conclusion" },
+  { key: "swot", label: "SWOT Analysis" },
+  { key: "conclusion", label: "Conclusion" },
 ];
 
 const IntroPage = () => {

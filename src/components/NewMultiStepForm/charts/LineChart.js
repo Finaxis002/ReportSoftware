@@ -9,6 +9,8 @@ Chart.register(...registerables);
 const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
   useEffect(() => {
     let mounted = true;
+console.log("values in line chart",values )
+console.log("labels in line chart",labels )
 
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {

@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
-// import { Font } from "@react-pdf/renderer";
-// import { checkAndRegisterFont } from "../checkAndRegisterFont";
-// import ChartColorSelector from "./ChartColorSelector";
+import GraphGenerator from '../GraphGenerator'
 
 const FinalStep = ({ formData, userRole }) => {
   const [permissions, setPermissions] = useState({
@@ -878,6 +874,10 @@ console.log("permissions.generateReport:", permissions?.generateReport);
           </button>
         )}
 
+{(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
+  <GraphGenerator formData={formData} />
+)}
+
         {/* ✅ New Export Data Button */}
       {(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
           <button
@@ -889,11 +889,7 @@ console.log("permissions.generateReport:", permissions?.generateReport);
         )}
       </div>
 
-      {/* <ChartColorSelector chartType="pieChart" />
-<ChartColorSelector chartType="barChart" />
-<ChartColorSelector chartType="dscrChart" />
-<ChartColorSelector chartType="currentRatioChart" /> */}
-
+      
       {/* ✅ Hidden Iframe */}
       <iframe
         ref={iframeRef}
