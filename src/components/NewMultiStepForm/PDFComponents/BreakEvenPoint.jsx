@@ -299,15 +299,27 @@ const isDepreciationZero = totalDepreciationPerYear
   .every((val) => isZeroValue(val));
 
     
-  const adjustedRevenueValues = Array.from({
-    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
-    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+  // const adjustedRevenueValues = Array.from({
+  //   length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+  // }).map((_, yearIndex) => {
+  //   const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
+  //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+  //   const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
-    return totalRevenue + ClosingStock - OpeningStock; // ✅ Final computation
-  });
+  //   return totalRevenue + ClosingStock - OpeningStock; // ✅ Final computation
+  // });
+const adjustedRevenueValues = Array.from({
+  length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+}).map((_, yearIndex) => {
+  const totalRevenue = Number(totalRevenueReceipts?.[yearIndex]) || 0;
+  const ClosingStock = Number(formData?.MoreDetails?.ClosingStock?.[yearIndex]) || 0;
+  const OpeningStock = Number(formData?.MoreDetails?.OpeningStock?.[yearIndex]) || 0;
+
+  const adjusted = totalRevenue + ClosingStock - OpeningStock;
+
+
+  return adjusted;
+});
 
   const { Expenses = {} } = formData;
   const { directExpense = [], indirectExpense = [] } = Expenses;
