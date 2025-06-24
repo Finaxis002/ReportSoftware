@@ -149,8 +149,8 @@ export const generateBarChart = async ({
 // export const generateBarChart = async ({ revenue, expenses, formData }) => {
 //   try {
 //     const canvas = document.createElement("canvas");
-//     canvas.width = 600;
-//     canvas.height = 500;
+//     canvas.width = 800;
+//     canvas.height = 600;
 //     const ctx = canvas.getContext("2d");
 
 //     const revenueType = formData?.Revenue?.formType;
@@ -219,12 +219,14 @@ export const generateBarChart = async ({
 //           y: {
 //             beginAtZero: true,
 //             min: 0,
-//             max: maxYValue,
+//             suggestedMax: maxYValue,
 //             ticks: {
 //               stepSize: yInterval,
+//               beginAtZero: true,
 //               callback: value => value.toFixed(1) + " Cr",
 //               font: { size: 12 },
 //               color: "#000000",
+//               font: { size: 12 },
 //             },
 //             title: {
 //               display: true,

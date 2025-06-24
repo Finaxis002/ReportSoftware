@@ -499,15 +499,40 @@ const isDepreciationZero = totalDepreciationPerYear
   }, [workingCapitalLoan, interestRate, projectionYears, repaymentStartMonth]);
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
-  const adjustedRevenueValues = Array.from({
-    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
-    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+//   const adjustedRevenueValues = Array.from({
+//     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+//   }).map((_, yearIndex) => {
+//     const totalRevenue =
+//   receivedtotalRevenueReceipts?.[yearIndex] ?? totalRevenueReceipts?.[yearIndex] ?? 0;
 
-    return totalRevenue + ClosingStock - OpeningStock; // ✅ Final computation
-  });
+//     const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+//     const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+//  console.log("total revenue",totalRevenue)
+//   console.log("closing stock" ,ClosingStock)
+//   console.log("opening stoack", OpeningStock)
+//     return totalRevenue + ClosingStock - OpeningStock; // ✅ Final computation
+//   });
+const adjustedRevenueValues = Array.from({
+  length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+}).map((_, yearIndex) => {
+  const totalRevenue = Number(totalRevenueReceipts?.[yearIndex]) || 0;
+  const ClosingStock = Number(formData?.MoreDetails?.ClosingStock?.[yearIndex]) || 0;
+  const OpeningStock = Number(formData?.MoreDetails?.OpeningStock?.[yearIndex]) || 0;
+
+  const adjusted = totalRevenue + ClosingStock - OpeningStock;
+
+  console.log("Year", yearIndex + 1);
+  console.log("total revenue", totalRevenue);
+  console.log("closing stock", ClosingStock);
+  console.log("opening stock", OpeningStock);
+  console.log("adjusted revenue", adjusted);
+
+  return adjusted;
+});
+
+
+  console.log("adjusted revenue values",adjustedRevenueValues )
+ 
 
   // ✅ Step 2: Compute Gross Profit Values for Each Year After `totalDirectExpenses` is Defined
   const grossProfitValues = adjustedRevenueValues.map(
@@ -516,6 +541,8 @@ const isDepreciationZero = totalDepreciationPerYear
       return adjustedRevenue - totalDirectExpenses; // Subtract expenses from adjusted revenue to get gross profit
     }
   );
+
+console.log( "gross Profit Values", grossProfitValues)
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
   const netProfitBeforeTax = grossProfitValues.map((grossProfit, yearIndex) => {
@@ -1346,8 +1373,6 @@ const isDepreciationZero = totalDepreciationPerYear
                       {
                         borderWidth: "1.2px",
                         borderLeftWidth: "0px",
-
-                        //
                       },
                     ]}
                   >
