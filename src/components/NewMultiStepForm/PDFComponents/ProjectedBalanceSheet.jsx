@@ -118,14 +118,14 @@ const ProjectedBalanceSheet = ({
   // ✅ Compute Corrected Total Assets for Each Year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
-  const inventory = Array.from({
-    length: formData.MoreDetails.OpeningStock.length,
-  }).map((_, yearIndex) => {
-    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    const finalStock = ClosingStock;
+  // const inventory = Array.from({
+  //   length: formData.MoreDetails.OpeningStock.length,
+  // }).map((_, yearIndex) => {
+  //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+  //   const finalStock = ClosingStock;
 
-    return finalStock;
-  });
+  //   return finalStock;
+  // });
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -161,6 +161,16 @@ const ProjectedBalanceSheet = ({
     return 0;
   });
 
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        return ClosingStock;
+      });
+
+      console.log("inventory in total assest", inventory)
+
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
@@ -174,13 +184,6 @@ const ProjectedBalanceSheet = ({
 
       cumulativeCurrentAssets += currentYearAssets;
 
-      const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
-      }).map((_, yearIndex) => {
-        const ClosingStock =
-          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-        return ClosingStock;
-      });
 
       const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
 
@@ -188,7 +191,7 @@ const ProjectedBalanceSheet = ({
         netFixedAssetValue +
         cashEquivalent +
         cumulativeCurrentAssets +
-        (inventory[index] || 0) +
+        Number(inventory[index])  +
         preliminaryAsset; // ✅ INCLUDED
 
       return totalAssets;

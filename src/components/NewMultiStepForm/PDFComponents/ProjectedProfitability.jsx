@@ -521,11 +521,6 @@ const adjustedRevenueValues = Array.from({
 
   const adjusted = totalRevenue + ClosingStock - OpeningStock;
 
-  console.log("Year", yearIndex + 1);
-  console.log("total revenue", totalRevenue);
-  console.log("closing stock", ClosingStock);
-  console.log("opening stock", OpeningStock);
-  console.log("adjusted revenue", adjusted);
 
   return adjusted;
 });
