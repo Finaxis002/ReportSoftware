@@ -4,7 +4,7 @@ import { generateGraphsPdf } from "./Utils/generateGraphsPdf";
 
 const GraphGenerator = ({ formData }) => {
   const [loading, setLoading] = useState(false);
-console.log("form data here", formData)
+  console.log("form data here", formData);
   const handleClick = async () => {
     if (!formData) return;
     setLoading(true);

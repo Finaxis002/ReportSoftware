@@ -366,11 +366,7 @@ const ProjectedCashflow = ({
       const incomeTaxValue = parseFloat(incomeTaxCalculation2[index] || 0);
       // console.log(`incomeTaxValue[${index}]:`, incomeTaxValue);
 
-      console.log("✅ Current Assets Deep Log:", formData?.MoreDetails?.currentAssets?.map(ca => ({
-  particular: ca.particular,
-  years: ca.years,
-  dontSendToBS: ca.dontSendToBS
-})));
+     
 
       // ✅ Skip Inventory and ensure Projection Years Match for Current Assets
       // const currentAssetsTotal = formData?.MoreDetails?.currentAssets
@@ -409,11 +405,11 @@ const ProjectedCashflow = ({
         const finalStock = ClosingStock - OpeningStock;
         return finalStock;
       });
-      console.log(`inventory[${index}]:`, inventory);
+     
 
       // ✅ If Inventory is not available, set it to 0
       const inventoryValue = inventory[index] || 0;
-      console.log(`inventoryValue[${index}]:`, inventoryValue);
+      
 
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
@@ -428,14 +424,12 @@ const ProjectedCashflow = ({
         sanitize(incomeTaxValue) +
         sanitize(currentAssetsTotal) +
         sanitize(inventoryValue); // Add the Inventory for the current year (index)
-      console.log(`totalUses[${index}]:`, totalUses);
-
+      
       return totalUses;
     }
   );
 
-  console.log("total uses array : ", totalUsesArray);
-
+ 
   // console.log(totalUsesArray);
 
   // ✅ Initial Opening Cash Balance
