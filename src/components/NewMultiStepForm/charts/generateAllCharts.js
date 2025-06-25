@@ -1,7 +1,7 @@
 import { extractChartData } from "../Utils/chartDataExtractor";
 // import { generateBarChart } from "./barChart";
 import {generateBarChart} from './newgenerateRevenueExpenseChart'
-import { generateChart as generatePieChart } from "./chart";
+import { generatePieChart } from "./newgeneratePieChart";
 
 
 const loadLineChartBase64 = (Comp, labels, values) =>
@@ -33,7 +33,7 @@ export const generateAllCharts = async (formData) => {
   const revenueExpenseChartBase64 = await generateBarChart({ formData });
 
   const pie = await generatePieChart(pieData);
- console.log("pie chart", pie)
+ 
   const dscrB64 = await loadLineChartBase64(
     (await import("./LineChart")).default,
     years,

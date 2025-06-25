@@ -44,7 +44,7 @@ export const generateGraphsPdf = async (imgs) => {
   await add("DSCR Trend", imgs.dscrChartBase64);
   await add("Current Ratio Trend", imgs.currentRatioBase64);
 
-  console.log('pie chart image ',imgs.pieChartBase64 )
+ 
   // Preview in new tab (change to `pdf.save(...)` to force download)
   const blob = pdf.output("blob");
   const url = URL.createObjectURL(blob);
