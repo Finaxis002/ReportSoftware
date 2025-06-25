@@ -4,6 +4,8 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
+const num = (v) => Number((v ?? '').toString().replace(/,/g, "")) || 0;
+
 const ProjectedExpenses = ({
   formData,
   yearlyInterestLiabilities,
@@ -186,54 +188,36 @@ const ProjectedExpenses = ({
         const isPercentage = String(expense.value).trim().endsWith("%");
 
         const ClosingStock =
-          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+          Number(formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0);
         const OpeningStock =
-          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+          Number(formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0);
 
         let expenseValue = 0;
 
         if (isRawMaterial && isPercentage) {
           const baseValue =
             (parseFloat(expense.value) / 100) *
-            (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+            Number(receivedtotalRevenueReceipts?.[yearIndex] || 0);
           expenseValue = baseValue + ClosingStock - OpeningStock;
-
-          // console.log(
-          //   `🧾 ${expense.name} [Raw Material - %]: (${expense.value} of revenue) = ₹${baseValue.toFixed(
-          //     2
-          //   )}, Adj. ClosingStock: ₹${ClosingStock}, OpeningStock: ₹${OpeningStock} ➤ Final: ₹${expenseValue.toFixed(
-          //     2
-          //   )}`
-          // );
         } else {
           const base = Number(expense.total) || 0;
           expenseValue = calculateExpense(base, yearIndex); // use same logic as JSX
         }
-        // 👇 Add this log for debugging
-        // console.log(
-        //   `[Direct Expense][Year ${yearIndex + 1}] ${
-        //     expense.name
-        //   }: ${expenseValue}`
-        // );
-
-        return sum + expenseValue;
+        
+        return sum + Number(expenseValue);
       }, 0);
 
     // Salary and Wages - apply the same formula
     const salaryBase = Number(fringAndAnnualCalculation) || 0;
     const totalSalaryWages = calculateExpense(salaryBase, yearIndex); // MATCH JSX
 
-    // console.log(
-    //   `👨‍💼 Salary and Wages: ₹${salaryBase} ➤ Escalated (Y${
-    //     yearIndex + 1
-    //   }): ₹${totalSalaryWages.toFixed(2)}`
-    // );
+    
 
     const yearTotal = totalDirectExpenses + totalSalaryWages;
 
-    // console.log(
-    //   `✅ TOTAL Direct Expenses (Y${yearIndex + 1}): ₹${yearTotal.toFixed(2)}`
-    // );
+    
+
+   console.log("total direct expense",totalDirectExpenses )
 
     return yearTotal;
   });
@@ -1136,16 +1120,25 @@ const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
                     const OpeningStock =
                       formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] || 0;
 
-                    if (isRawMaterial && isPercentage) {
-                      const baseValue =
-                        (parseFloat(expense.value) / 100) *
-                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
-                          0);
-                      expenseValue = baseValue + ClosingStock - OpeningStock;
-                    } else {
-                      expenseValue = Number(expense.total) || 0;
-                    }
-
+                    // if (isRawMaterial && isPercentage) {
+                    //   const baseValue =
+                    //     (parseFloat(expense.value) / 100) *
+                    //     (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                    //       0);
+                    //   expenseValue = baseValue + ClosingStock - OpeningStock;
+                    // } else {
+                    //   expenseValue = Number(expense.total) || 0;
+                    // }
+ if (isRawMaterial && isPercentage) {
+  const baseValue =
+    (parseFloat(expense.value) / 100) *
+    (Number(receivedtotalRevenueReceipts?.[adjustedYearIndex]) || 0);
+  expenseValue = baseValue +
+    (Number(formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex]) || 0) -
+    (Number(formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex]) || 0);
+} else {
+  expenseValue = calculateExpense(Number(expense.total) || 0, adjustedYearIndex);
+}
                     const formattedExpense =
                       isRawMaterial && isPercentage
                         ? formatNumber(expenseValue.toFixed(2))
@@ -1456,20 +1449,29 @@ const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
                     const isPercentage = String(expense.value)
                       .trim()
                       .endsWith("%");
-                    const ClosingStock =
-                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-                    const OpeningStock =
-                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+                    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                    // if (isRawMaterial && isPercentage) {
+                    //   const baseValue =
+                    //     (parseFloat(expense.value) / 100) *
+                    //     (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                    //       0);
+                    //   expenseValue = baseValue + ClosingStock - OpeningStock;
+                    // } else {
+                    //   expenseValue = Number(expense.total) || 0;
+                    // }
 
                     if (isRawMaterial && isPercentage) {
-                      const baseValue =
-                        (parseFloat(expense.value) / 100) *
-                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
-                          0);
-                      expenseValue = baseValue + ClosingStock - OpeningStock;
-                    } else {
-                      expenseValue = Number(expense.total) || 0;
-                    }
+  const baseValue =
+    (parseFloat(expense.value) / 100) *
+    (Number(receivedtotalRevenueReceipts?.[adjustedYearIndex]) || 0);
+  expenseValue = baseValue +
+    (Number(formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex]) || 0) -
+    (Number(formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex]) || 0);
+} else {
+  expenseValue = calculateExpense(Number(expense.total) || 0, adjustedYearIndex);
+}
 
                     const formattedExpense =
                       isRawMaterial && isPercentage
