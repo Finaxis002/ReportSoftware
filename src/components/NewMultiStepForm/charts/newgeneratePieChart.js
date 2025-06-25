@@ -10,15 +10,20 @@ export const generatePieChart = (pieData) => {
     mountPoint.style.left = "-9999px";
     document.body.appendChild(mountPoint);
 
-    function solidFullCirclePieData(pieData) {
+    function normalizePieData(pieData) {
       let percentTotal = 0;
       let rupeeTotal = 0;
       let percentSlices = [];
       let rupeeSlices = [];
 
-      // Step 1: Separate % and rupee slices
-      pieData.forEach((item) => {
+      // Separate % and rupee slices
+      pieData.forEach(item => {
         let value = item.value;
+
+        if (item.isRawMaterial && item.isPercentage) {
+          value = parseFloat(item.value);  // Adjust based on your data
+        }
+
         if (typeof value === "string" && value.trim().endsWith("%")) {
           let percent = parseFloat(value);
           if (percent > 0) {
@@ -34,68 +39,54 @@ export const generatePieChart = (pieData) => {
         }
       });
 
-      // Step 2: Guard against >100% (this will always fill the pie!)
-      if (percentTotal >= 100) {
-        // Only keep percent slices, scaled to sum exactly 100
-        return percentSlices.map((slice) => ({
-          ...slice,
-          value: (slice.value / percentTotal) * 100,
-        }));
-      }
-
-      // Step 3: Calculate rupee slices as percent of available
+      // Scale rupee slices to fit the remaining percentage space
       const rupeeAvailable = 100 - percentTotal;
       const result = [];
 
       if (rupeeSlices.length && rupeeAvailable > 0) {
-        rupeeSlices.forEach((slice) => {
-          // Scale value to percent
+        rupeeSlices.forEach(slice => {
           result.push({
             ...slice,
-            value: (slice.value / rupeeTotal) * rupeeAvailable,
+            value: (slice.value / rupeeTotal) * rupeeAvailable
           });
         });
       }
 
-      // Add percent slices
-      percentSlices.forEach((slice) =>
-        result.push({ ...slice, value: slice.value })
-      );
+      percentSlices.forEach(slice => result.push({ ...slice, value: slice.value }));
 
-      // Step 4: Remove near-zero/negative values
-      let filtered = result.filter((item) => item.value > 0.0001);
+      // Remove near-zero/negative values
+      let filtered = result.filter(item => item.value > 0.01);
 
-      // Step 5: FINAL FIX — Force sum to EXACTLY 100 (fix float gaps forever)
+      // Ensure sum is 100 by proportionally scaling the values if needed
       const total = filtered.reduce((a, b) => a + b.value, 0);
-
       if (Math.abs(total - 100) > 0.0001 && total > 0) {
-        // Proportionally scale all values to sum exactly 100
-        filtered = filtered.map((item, i) => ({
+        filtered = filtered.map(item => ({
           ...item,
-          value: (item.value / total) * 100,
+          value: (item.value / total) * 100
         }));
       }
 
-      // Step 6: If float rounding still leaves a micro-gap, assign remainder to the biggest slice (last-resort fix)
-      let sumAfter = filtered.reduce((a, b) => a + b.value, 0);
+      // Fix rounding errors by giving the remaining discrepancy to the largest slice
+      const sumAfter = filtered.reduce((a, b) => a + b.value, 0);
       if (Math.abs(sumAfter - 100) > 0.0001 && filtered.length > 0) {
         let maxIdx = 0,
-          maxVal = filtered[0].value;
+            maxVal = filtered[0].value;
         for (let i = 1; i < filtered.length; i++) {
           if (filtered[i].value > maxVal) {
             maxIdx = i;
             maxVal = filtered[i].value;
           }
         }
-        // Fix remainder to the biggest slice
-        filtered[maxIdx].value += 100 - sumAfter;
+        filtered[maxIdx].value += 100 - sumAfter; // Fix the rounding error by adjusting the largest slice
       }
 
-      // Step 7: Re-round values to a reasonable precision for display
-      return filtered.map((item) => ({
+      // Ensure two decimal precision for visual consistency
+      filtered = filtered.map(item => ({
         ...item,
-        value: +item.value.toFixed(6),
+        value: parseFloat(item.value.toFixed(2))
       }));
+
+      return filtered;
     }
 
     const ChartComponent = () => {
@@ -113,7 +104,7 @@ export const generatePieChart = (pieData) => {
         }, 400);
       }, [pieData]);
 
-      const filteredPieData = solidFullCirclePieData(pieData);
+      const filteredPieData = normalizePieData(pieData);
 
       const sum = filteredPieData.reduce((a, b) => a + b.value, 0);
       console.log("Filtered Pie Data:", filteredPieData);
@@ -132,15 +123,22 @@ export const generatePieChart = (pieData) => {
               "rgba(87, 143, 202, 0.6)",
               "rgb(71, 130, 192)",
               "rgb(124, 185, 226)",
-              "rgb(87, 143, 202)",
-            ],
-          },
-        ],
+              "rgb(87, 143, 202)"
+            ]
+          }
+        ]
       };
 
       const chartOptions = {
-        responsive: false,
+        responsive: true,
         plugins: { legend: { position: "top" } },
+        cutout: 2, // Small cutout (to avoid donut effect)
+        maintainAspectRatio: true, // Ensures the aspect ratio remains square
+        rotation: 0, // Start the pie chart from the top
+        circumference: 360, // Full circle (360 degrees)
+        layout: {
+          padding: 0, // No padding to ensure full coverage
+        },
       };
 
       return (
