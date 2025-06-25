@@ -356,16 +356,16 @@ const isDepreciationZero = totalDepreciationPerYear
         const isPercentage = String(expense.value).trim().endsWith("%");
 
         const ClosingStock =
-          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+          Number(formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0);
         const OpeningStock =
-          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+          Number(formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0);
 
         let expenseValue = 0;
 
         if (isRawMaterial && isPercentage) {
           const baseValue =
             (parseFloat(expense.value) / 100) *
-            (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+            Number(receivedtotalRevenueReceipts?.[yearIndex] || 0);
           expenseValue = baseValue + ClosingStock - OpeningStock;
 
           // console.log(
@@ -386,7 +386,7 @@ const isDepreciationZero = totalDepreciationPerYear
           // );
         }
 
-        return sum + expenseValue;
+        return sum + Number(expenseValue);
       }, 0);
 
     // Salary and Wages - apply the same formula
@@ -1145,14 +1145,24 @@ console.log( "gross Profit Values", grossProfitValues)
                 const OpeningStock =
                   formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
+                // if (isRawMaterial && isPercentage) {
+                //   const baseValue =
+                //     (parseFloat(expense.value) / 100) *
+                //     (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
+                //   expenseValue = baseValue + ClosingStock - OpeningStock;
+                // } else {
+                //   expenseValue = Number(expense.total) || 0;
+                // }
                 if (isRawMaterial && isPercentage) {
-                  const baseValue =
-                    (parseFloat(expense.value) / 100) *
-                    (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-                  expenseValue = baseValue + ClosingStock - OpeningStock;
-                } else {
-                  expenseValue = Number(expense.total) || 0;
-                }
+  const baseValue =
+    (parseFloat(expense.value) / 100) *
+    (Number(receivedtotalRevenueReceipts?.[adjustedYearIndex]) || 0);
+  expenseValue = baseValue +
+    (Number(formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex]) || 0) -
+    (Number(formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex]) || 0);
+} else {
+  expenseValue = calculateExpense(Number(expense.total) || 0, adjustedYearIndex);
+}
 
                 return expenseValue === 0;
               });
@@ -1203,14 +1213,15 @@ console.log( "gross Profit Values", grossProfitValues)
                       formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] || 0;
 
                     if (isRawMaterial && isPercentage) {
-                      const baseValue =
-                        (parseFloat(expense.value) / 100) *
-                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
-                          0);
-                      expenseValue = baseValue + ClosingStock - OpeningStock;
-                    } else {
-                      expenseValue = Number(expense.total) || 0;
-                    }
+  const baseValue =
+    (parseFloat(expense.value) / 100) *
+    (Number(receivedtotalRevenueReceipts?.[adjustedYearIndex]) || 0);
+  expenseValue = baseValue +
+    (Number(formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex]) || 0) -
+    (Number(formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex]) || 0);
+} else {
+  expenseValue = calculateExpense(Number(expense.total) || 0, adjustedYearIndex);
+}
 
                     const formattedExpense =
                       isRawMaterial && isPercentage
