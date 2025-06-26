@@ -158,3 +158,101 @@ export const generatePieChart = (pieData) => {
     });
   });
 };
+
+
+
+
+
+
+// PieChartGenerator.js
+
+// import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+
+// Chart.register(ArcElement, Tooltip, Legend);
+
+// export const generatePieChart = async ({ labels, values }) => {
+//   console.log("generatePieChart received:", { labels, values });
+//   console.log('pieLabels:', labels);
+// console.log('pieValues:', values);
+// console.log('Sum of pieValues:', values.reduce((a, b) => a + b, 0));
+
+
+//   // Hard fail if not arrays:
+//   if (!Array.isArray(values) || !Array.isArray(labels)) {
+//     throw new Error(
+//       `generatePieChart: labels and values must be arrays. Got: ${typeof labels}, ${typeof values}`
+//     );
+//   }
+//   // Remove zero and invalid values (important)
+//   const filteredLabels = [];
+//   const filteredValues = [];
+
+//   values.forEach((v, idx) => {
+//     const val = typeof v === "string" ? parseFloat(v) : v;
+//     if (val && val > 0) {
+//       filteredLabels.push(labels[idx]);
+//       filteredValues.push(val);
+//     }
+//   });
+
+//   // Chart.js works best when you only feed it clean numbers!
+//   const canvas = document.createElement('canvas');
+//   canvas.width = 400;
+//   canvas.height = 400;
+//   const ctx = canvas.getContext('2d');
+
+//   const backgroundColors = [
+//     'rgb(54, 116, 181)',
+//     'rgba(32, 164, 243, 1)',
+//     'rgb(121, 206, 241)',
+//     'rgb(32, 164, 243)',
+//     'rgba(87, 143, 202, 0.6)',
+//     'rgb(71, 130, 192)',
+//     'rgb(124, 185, 226)',
+//     'rgb(87, 143, 202)',
+//   ];
+
+//   // Destroy any previous chart on this canvas context
+//   if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+
+//   // Create the pie chart
+//   new Chart(ctx, {
+//     type: 'pie',
+//     data: {
+//       labels: filteredLabels,
+//       datasets: [{
+//         data: filteredValues,
+//         backgroundColor: backgroundColors,
+//         borderColor: '#fff',
+//         borderWidth: 2,
+//       }],
+//     },
+//     options: {
+//       responsive: false,
+//       maintainAspectRatio: false,
+ 
+//       plugins: {
+//         legend: {
+//           display: true,
+//           position: 'right',
+//           labels: {
+//             color: '#000',
+//             font: { size: 12, weight: 'bold' },
+//             usePointStyle: true,
+//             boxWidth: 8,
+//             padding: 20,
+//           },
+//         },
+//         tooltip: { enabled: true },
+//       },
+//       animation: {
+//         animateRotate: true,
+//         animateScale: true,
+//       },
+//     }
+//   });
+
+//   // Wait for rendering
+//   await new Promise(resolve => setTimeout(resolve, 200));
+//   return canvas.toDataURL('image/png');
+// };

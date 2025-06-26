@@ -339,63 +339,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-//   const handleCreateNewFromExisting = async () => {
-//   try {
-//     console.log("🔄 Creating new report from existing...");
-//     setSessionId(null);
-
-//     let newData = JSON.parse(JSON.stringify(formData));
-//     delete newData._id;
-//     delete newData.sessionId;
-//     newData.cloneFromExisting = true;
-
-//     if (!newData.AccountInformation) newData.AccountInformation = {};
-//     newData.AccountInformation.userRole = userRole;
-//     newData.AccountInformation.createdBy = userName;
-
-//     const requestData = new FormData();
-//     requestData.append("data", JSON.stringify(newData));
-
-//     if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-//       requestData.append("file", formData.AccountInformation.logoOfBusiness);
-//     }
-
-//     const createResponse = await axios.post(
-//       "https://reportsbe.sharda.co.in/create-new-from-existing",
-//       requestData,
-//       { headers: { "Content-Type": "multipart/form-data" } }
-//     );
-
-//     const newSessionId = createResponse.data.sessionId;
-//     setSessionId(newSessionId);
-//     localStorage.setItem("activeSessionId", newSessionId);
-
-//     // ✅ Fetch the latest data from backend after creating
-//     const getResponse = await axios.get(
-//       `https://reportsbe.sharda.co.in/get-report-data/${newSessionId}`
-//     );
-
-//     if (getResponse.data) {
-//       console.log("🆕 Refreshed new data from MongoDB");
-//       setFormData(getResponse.data); // ✅ Critical to show updated data
-//     }
-
-//     const reportId = await waitForReportId(newSessionId);
-//     if (!reportId) {
-//       console.warn("❌ Could not fetch reportId, skipping activity log.");
-//       return;
-//     }
-
-//     const reportTitle = newData.AccountInformation?.businessName || "Untitled";
-//     await logActivity("create", reportTitle, reportId);
-
-//     alert("✅ New Report Created Successfully!");
-//   } catch (error) {
-//     console.error("🔥 Error in create from existing:", error);
-//     alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
-//   }
-// };
-
   
 
   const handleUpdate = async () => {
