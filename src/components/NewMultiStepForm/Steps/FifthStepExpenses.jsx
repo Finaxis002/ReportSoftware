@@ -1,9 +1,34 @@
 import React, { useState, useEffect } from "react";
 import deleteImg from "../delete.png";
 import checkImg from "../check.png";
+const getYearsList = (projectionCount, startYear) =>
+  Array.from({ length: projectionCount }, (_, i) => {
+    const fromYear = startYear + i;
+    const toYear = (startYear + i + 1).toString().slice(-2);
+    return `${fromYear}-${toYear}`;
+  });
 
-const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
+const FifthStepExpenses = ({ onFormDataChange, expenseData, formData }) => {
   const [message, setMessage] = useState("");
+  const projectionCount =
+    Number(formData?.ProjectReportSetting?.ProjectionYears) || 8; // default to 8 if missing
+  const startYear = FormData?.ProjectReportSetting?.FinancialYear || 2025; // replace with your actual starting year logic
+
+  const yearsList = React.useMemo(
+    () => getYearsList(projectionCount, startYear),
+    [projectionCount, startYear]
+  );
+
+  const defaultAdvance = React.useMemo(
+    () => ({
+      name: "",
+      type: "direct",
+      values: yearsList.reduce((acc, year) => ({ ...acc, [year]: "" }), {}),
+      isCustom: true,
+    }),
+    [yearsList]
+  );
+
   const [localData, setLocalData] = useState(() => {
     // ✅ Predefined Direct Expense Categories (from image)
     const defaultDirectExpenses = [
@@ -130,6 +155,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       const updatedNormal = (expenseData.normalExpense || []).map((item) => {
         const amount = parseFloat(item.amount) || 0;
         const quantity = parseFloat(item.quantity) || 1;
+
         return {
           ...item,
           value: item.value || (amount * quantity * 12).toFixed(2),
@@ -152,6 +178,17 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
         ...expenseData,
         normalExpense: updatedNormal,
         directExpense: updatedDirect,
+        advanceExpenses: [
+          {
+            name: "",
+            type: "direct",
+            values: yearsList.reduce(
+              (acc, year) => ({ ...acc, [year]: "" }),
+              {}
+            ),
+            isCustom: true,
+          },
+        ],
       };
     }
 
@@ -170,8 +207,10 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       ],
       directExpense: defaultDirectExpenses,
       totalExpense: 0,
+      advanceExpenses: [defaultAdvance],
     };
   });
+
   const [lastEditedField, setLastEditedField] = useState(null);
 
   // Save data changes to localStorage
@@ -179,7 +218,6 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
     localStorage.setItem("FifthStepExpenses", JSON.stringify(localData));
   }, [localData]);
 
-  
   // Update parent component and calculate totals
   useEffect(() => {
     calculateTotalExpense();
@@ -193,7 +231,6 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
 
   // Format number with commas (Indian format)
 
-
   // Remove commas for raw value
   // const removeCommas = (str) => str.replace(/,/g, "");
   const removeCommas = (str) =>
@@ -201,32 +238,28 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       ? str.toString().replace(/,/g, "")
       : "";
 
-
-    
-      const sanitizeForPDF = (data) => {
+  const sanitizeForPDF = (data) => {
+    return {
+      ...data,
+      normalExpense: data.normalExpense.map((item) => ({
+        ...item,
+        amount: Number(removeCommas(item.amount)),
+        quantity: Number(removeCommas(item.quantity)),
+        value: Number(removeCommas(item.value)),
+      })),
+      directExpense: data.directExpense.map((item) => {
+        const valueStr = String(item.value).trim();
         return {
-          ...data,
-          normalExpense: data.normalExpense.map(item => ({
-            ...item,
-            amount: Number(removeCommas(item.amount)),
-            quantity: Number(removeCommas(item.quantity)),
-            value: Number(removeCommas(item.value)),
-          })),
-          directExpense: data.directExpense.map(item => {
-            const valueStr = String(item.value).trim();
-            return {
-              ...item,
-              value: valueStr.endsWith("%")
-                ? valueStr // ✅ Keep percentage string as-is
-                : Number(removeCommas(valueStr)),
-              total: Number(removeCommas(item.total)),
-            };
-          }),
-          totalExpense: Number(removeCommas(data.totalExpense)),
+          ...item,
+          value: valueStr.endsWith("%")
+            ? valueStr // ✅ Keep percentage string as-is
+            : Number(removeCommas(valueStr)),
+          total: Number(removeCommas(item.total)),
         };
-      };
-      
-
+      }),
+      totalExpense: Number(removeCommas(data.totalExpense)),
+    };
+  };
 
   // Ensure that at least empty arrays are provided
   const handleFormChange = (event, index, form, type) => {
@@ -472,6 +505,45 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       : numericValue.toLocaleString("en-IN");
   };
 
+  const addAdvanceExpenseRow = () => {
+    setLocalData((prev) => ({
+      ...prev,
+      advanceExpenses: [
+        ...prev.advanceExpenses,
+        {
+          name: "",
+          type: "direct",
+          values: yearsList.reduce((acc, year) => ({ ...acc, [year]: "" }), {}),
+          isCustom: true,
+        },
+      ],
+    }));
+  };
+
+  const removeAdvanceExpenseRow = (idx) => {
+    setLocalData((prev) => ({
+      ...prev,
+      advanceExpenses: prev.advanceExpenses.filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleAdvanceExpenseChange = (rowIdx, field, value) => {
+    setLocalData((prev) => {
+      const updated = [...prev.advanceExpenses];
+      const rowCopy = { ...updated[rowIdx] }; // 🟢 create a shallow copy!
+      if (field === "name") {
+        rowCopy.name = value;
+      } else {
+        rowCopy.values = {
+          ...rowCopy.values,
+          [field]: value,
+        };
+      }
+      updated[rowIdx] = rowCopy; // replace with the new object
+      return { ...prev, advanceExpenses: updated };
+    });
+  };
+
   return (
     <div>
       <form onSubmit={submit} className="form-scroll">
@@ -580,15 +652,16 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
               Total Expected Salary:{" "}
             </strong>
             <span className="ms-2">
-
-              {formatNumberWithCommas(normalExpenses
-                .reduce((total, form) => {
-                  const amount = parseFloat(removeCommas(form.amount)) || 0;
-                  const quantity = parseFloat(removeCommas(form.quantity)) || 0;
-                  return total + amount * quantity * 12; // ✅ Corrected calculation
-                }, 0)
-                .toFixed(2))}
-
+              {formatNumberWithCommas(
+                normalExpenses
+                  .reduce((total, form) => {
+                    const amount = parseFloat(removeCommas(form.amount)) || 0;
+                    const quantity =
+                      parseFloat(removeCommas(form.quantity)) || 0;
+                    return total + amount * quantity * 12; // ✅ Corrected calculation
+                  }, 0)
+                  .toFixed(2)
+              )}
             </span>
           </div>
         )}
@@ -667,16 +740,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
                         Annually
                       </label>
                     )}
-                    {/* <input
-                      name="total"
-                      placeholder="0"
-                      value={(parseFloat(form.value) || 0) * 12}
-                      className="form-control"
-                      type="text"
-                      onChange={(event) =>
-                        handleFormChange(event, index, form, "directExpense")
-                      }
-                    /> */}
+
                     <input
                       name="total"
                       placeholder="Annual Value"
@@ -724,6 +788,76 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
           );
         })}
 
+        <h5 className="text-center text-light bg-warning">Advance Expenses</h5>
+        <div className="overflow-auto">
+          {localData.advanceExpenses.map((row, idx) => (
+            <div key={idx} className="d-flex gap-2 my-3 align-items-center">
+              <input
+                className="form-control w-25"
+                type="text"
+                name="name"
+                style={{ minWidth: "200px" }}
+                placeholder="Expense Name"
+                value={row.name || ""}
+                onChange={(e) =>
+                  handleAdvanceExpenseChange(idx, "name", e.target.value)
+                }
+              />
+
+              <select
+                className="form-select"
+                style={{ width: "120px" }}
+                value={row.type || "direct"}
+                onChange={(e) => {
+                  setLocalData((prev) => {
+                    const updated = [...prev.advanceExpenses];
+                    updated[idx] = {
+                      ...updated[idx],
+                      type: e.target.value,
+                    };
+                    return { ...prev, advanceExpenses: updated };
+                  });
+                }}
+              >
+                <option value="direct">Direct</option>
+                <option value="indirect">Indirect</option>
+              </select>
+
+              {yearsList.map((year) => (
+                <input
+                  key={year}
+                  name={year}
+                  placeholder={year}
+                  value={row.values?.[year] || ""}
+                  onChange={(e) =>
+                    handleAdvanceExpenseChange(idx, year, e.target.value)
+                  }
+                  className="form-control mx-2"
+                  type="number"
+                  style={{ width: "100px" }}
+                />
+              ))}
+              {localData.advanceExpenses.length > 1 && (
+                <button
+                  className="btn"
+                  onClick={() => removeAdvanceExpenseRow(idx)}
+                  style={{ border: "none", minWidth: "40px" }}
+                  type="button"
+                >
+                  <img src={deleteImg} alt="Remove" style={{ width: "24px" }} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        <button
+          className="btn btn-warning my-2"
+          type="button"
+          onClick={addAdvanceExpenseRow}
+        >
+          + Add Advance Expense
+        </button>
+
         <div className="mt-6 flex justify-end items-center gap-4">
           <strong className="text-sm font-bold text-gray-900 dark:text-green-50">
             Total Projected Expenses:
@@ -736,17 +870,6 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData }) => {
       </form>
 
       <div className="my-2 d-flex gap-5 justify-content-end position-fixed">
-        {/* <div>
-          {message && <p className="text-danger">{message}</p>}
-          <button
-            className="btn text-light btn-info px-4"
-            onClick={addFields}
-            disabled={normalExpenses.length >= 10}
-          >
-            + Add Designation
-          </button>
-        </div> */}
-
         <div>
           <button
             className="btn btn-secondary px-4 me-auto ms-4"

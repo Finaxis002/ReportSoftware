@@ -33,6 +33,35 @@ export const generateAllCharts = async (formData) => {
   const revenueExpenseChartBase64 = await generateBarChart({ formData });
 
   const pie = await generatePieChart(pieData);
+  const pieLabels = pieData.map(x => x.name);
+const pieValues = pieData.map(x => Number(x.value));
+// Clean and normalize pie data
+// const pieLabels = [];
+// const pieValues = [];
+// pieData.forEach(item => {
+//   const val = Number(item.value);
+//   if (!isNaN(val) && val > 0) {
+//     pieLabels.push(item.name);
+//     pieValues.push(val);
+//   }
+// });
+// const total = pieValues.reduce((a, b) => a + b, 0);
+// const normalizedPieValues = total > 0 ? pieValues.map(v => (v / total) * 100) : [];
+
+// const testLabels = ['A', 'B', 'C', 'D'];
+// const testValues = [25, 25, 25, 25]; // Sums to 100
+
+// const pie = await generatePieChart({
+//   labels: testLabels,
+//   values: testValues,
+// });
+
+// const pie = await generatePieChart({
+//   labels: pieLabels,
+//   values: normalizedPieValues
+// });
+
+
  
   const dscrB64 = await loadLineChartBase64(
     (await import("./LineChart")).default,
