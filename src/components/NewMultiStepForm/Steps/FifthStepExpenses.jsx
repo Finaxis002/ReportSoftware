@@ -178,17 +178,21 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData, formData }) => {
         ...expenseData,
         normalExpense: updatedNormal,
         directExpense: updatedDirect,
-        advanceExpenses: [
-          {
-            name: "",
-            type: "direct",
-            values: yearsList.reduce(
-              (acc, year) => ({ ...acc, [year]: "" }),
-              {}
-            ),
-            isCustom: true,
-          },
-        ],
+        // advanceExpenses: [
+        //   {
+        //     name: "",
+        //     type: "direct",
+        //     values: yearsList.reduce(
+        //       (acc, year) => ({ ...acc, [year]: "" }),
+        //       {}
+        //     ),
+        //     isCustom: true,
+        //   },
+        // ],
+        advanceExpenses:
+      Array.isArray(expenseData.advanceExpenses) && expenseData.advanceExpenses.length > 0
+        ? expenseData.advanceExpenses
+        : [defaultAdvance],
       };
     }
 
@@ -217,6 +221,10 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData, formData }) => {
   useEffect(() => {
     localStorage.setItem("FifthStepExpenses", JSON.stringify(localData));
   }, [localData]);
+  // In FifthStepExpenses.js
+  useEffect(() => {
+    console.log("Current advanceExpenses:", localData.advanceExpenses);
+  }, [localData.advanceExpenses]);
 
   // Update parent component and calculate totals
   useEffect(() => {
@@ -224,10 +232,7 @@ const FifthStepExpenses = ({ onFormDataChange, expenseData, formData }) => {
     const sanitizedData = sanitizeForPDF(localData);
     onFormDataChange({ Expenses: sanitizedData });
   }, [localData]);
-  // useEffect(() => {
-  //   calculateTotalExpense();
-  //   onFormDataChange({ Expenses: localData });
-  // }, [localData]);
+  
 
   // Format number with commas (Indian format)
 
