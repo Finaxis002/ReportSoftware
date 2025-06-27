@@ -1786,39 +1786,72 @@ const isDepreciationZero = totalDepreciationPerYear
 };
 
 // ✅ Initialize Total Variable Expenses Array (including Preliminary Expenses)
+
+// const totalVariableExpenses = Array.from({ length: projectionYears }).map(
+//   (_, yearIndex) => {
+//     const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+//     const totalFromExpenses = allExpenses.reduce((total, expense) => {
+//       const isRawMaterial =
+//         expense.name.trim() === "Raw Material Expenses / Purchases";
+//       const isPercentage = String(expense.value).trim().endsWith("%");
+
+//       let expenseValue = 0;
+//       const ClosingStock =
+//         formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+//       const OpeningStock =
+//         formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+//       if (isRawMaterial && isPercentage) {
+//         // const baseValue =
+//         //   (parseFloat(expense.value) / 100) *
+//         //   (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+//         // expenseValue = baseValue + ClosingStock - OpeningStock;
+//          expenseValue = calculateRawMaterialExpense(expense, receivedtotalRevenueReceipts, adjustedYearIndex);
+//       } else {
+//         const annual = Number(expense.total) || 0;
+//         expenseValue = calculateExpense(annual, yearIndex);
+//       }
+
+//       return total + expenseValue;
+//     }, 0);
+
+//     const preliminaryExpense = preliminaryWriteOffPerYear[yearIndex] || 0;
+
+//     return totalFromExpenses + preliminaryExpense;
+//   }
+// );
+
 const totalVariableExpenses = Array.from({ length: projectionYears }).map(
   (_, yearIndex) => {
     const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
     const totalFromExpenses = allExpenses.reduce((total, expense) => {
+      // Match display logic
       const isRawMaterial =
         expense.name.trim() === "Raw Material Expenses / Purchases";
       const isPercentage = String(expense.value).trim().endsWith("%");
 
       let expenseValue = 0;
-      const ClosingStock =
-        formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-      const OpeningStock =
-        formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
-
       if (isRawMaterial && isPercentage) {
-        // const baseValue =
-        //   (parseFloat(expense.value) / 100) *
-        //   (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-        // expenseValue = baseValue + ClosingStock - OpeningStock;
-         expenseValue = calculateRawMaterialExpense(expense, receivedtotalRevenueReceipts, adjustedYearIndex);
+        expenseValue = calculateRawMaterialExpense(
+          expense,
+          receivedtotalRevenueReceipts,
+          adjustedYearIndex
+        );
+        // For raw material, your table may just display this
       } else {
-        const annual = Number(expense.total) || 0;
-        expenseValue = calculateExpense(annual, yearIndex);
+        expenseValue = calculateExpense(
+          Number(expense.total) || 0,
+          adjustedYearIndex // <--- use the same index as your visible cell
+        );
       }
-
       return total + expenseValue;
     }, 0);
 
-    const preliminaryExpense = preliminaryWriteOffPerYear[yearIndex] || 0;
-
+    const preliminaryExpense = preliminaryWriteOffPerYear[adjustedYearIndex] || 0;
     return totalFromExpenses + preliminaryExpense;
   }
 );
+
 
   // console.log("Total Expenses for Each Year:", totalVariableExpenses);
 
