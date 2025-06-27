@@ -3438,6 +3438,61 @@ if (isRawMaterial && isPercentage) {
               );
             })}
 
+{/* Advance Expenses of type "direct" */}
+          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+            formData.Expenses.advanceExpenses
+              .filter(
+                (row) =>
+                  row.type === "direct" && row.name && row.name.trim() !== ""
+              )
+              .map((row, advIdx) => (
+                <View
+                  key={"adv-direct-" + advIdx}
+                  style={[styles.tableRow, styles.totalRow]}
+                >
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {"A" + (advIdx + 1)}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {row.name}
+                  </Text>
+
+                  {Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).map((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+                    // Value for this year:
+                    const value =
+                      (row.values &&
+                        row.values[financialYearLabels[adjustedYearIndex]]) ||
+                      (row.values && row.values[adjustedYearIndex]) ||
+                      0;
+                    // Defensive: treat missing or invalid values as 0
+                    return (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(Number(value) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              ))}
+
           {/* direct Expenses total  */}
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text
