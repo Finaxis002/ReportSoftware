@@ -24,11 +24,11 @@ export const generateGraphsPdf = async (imgs) => {
 
     // Load the image and get its dimensions
     const loadedImage = await loadImage(img);
-    const imgWidth = maxImgW; // Use the maximum image width available
+    const imgWidth = 340; // Use the maximum image width available
     const imgHeight = (loadedImage.height / loadedImage.width) * imgWidth; // Calculate height based on aspect ratio
-
+const x = (pageW - imgWidth) / 2;
     // Add the image to the PDF with the calculated dimensions
-    pdf.addImage(img, "PNG", 40, y, imgWidth, imgHeight);
+    pdf.addImage(img, "PNG", x, y, imgWidth, imgHeight);
     y += imgHeight + 20; // Move the y position down by the height of the image
 
     // If the current position exceeds the page height, add a new page

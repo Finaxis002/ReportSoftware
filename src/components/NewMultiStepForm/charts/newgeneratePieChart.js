@@ -4,90 +4,163 @@ import { Pie } from "react-chartjs-2";
 export const generatePieChart = (pieData) => {
   return new Promise((resolve) => {
     const mountPoint = document.createElement("div");
-    mountPoint.style.width = "400px";
+    mountPoint.style.width = "1200px";
     mountPoint.style.height = "400px";
     mountPoint.style.position = "fixed";
     mountPoint.style.left = "-9999px";
     document.body.appendChild(mountPoint);
 
-    function normalizePieData(pieData) {
-      let percentTotal = 0;
-      let rupeeTotal = 0;
-      let percentSlices = [];
-      let rupeeSlices = [];
+//    function normalizePieData(pieData) {
+//   let percentTotal = 0;
+//   let rupeeTotal = 0;
+//   let percentSlices = [];
+//   let rupeeSlices = [];
 
-      // Separate % and rupee slices
-      pieData.forEach(item => {
-        let value = item.value;
+//   pieData.forEach(item => {
+//     let value = item.value;
+//     if (item.isRawMaterial && item.isPercentage) {
+//       value = parseFloat(item.value);
+//     }
+//     if (typeof value === "string" && value.trim().endsWith("%")) {
+//       let percent = parseFloat(value);
+//       if (percent > 0) {
+//         percentTotal += percent;
+//         percentSlices.push({ ...item, value: percent, type: "percent" });
+//       }
+//     } else {
+//       value = parseFloat(value);
+//       if (value > 0) {
+//         rupeeTotal += value;
+//         rupeeSlices.push({ ...item, value, type: "rupee" });
+//       }
+//     }
+//   });
 
-        if (item.isRawMaterial && item.isPercentage) {
-          value = parseFloat(item.value);  // Adjust based on your data
-        }
+//   // Scale rupee slices to fit the remaining percentage space
+//   const rupeeAvailable = 100 - percentTotal;
+//   const result = [];
+//   if (rupeeSlices.length && rupeeAvailable > 0) {
+//     rupeeSlices.forEach(slice => {
+//       result.push({
+//         ...slice,
+//         value: (slice.value / rupeeTotal) * rupeeAvailable
+//       });
+//     });
+//   }
+//   percentSlices.forEach(slice => result.push({ ...slice, value: slice.value }));
 
-        if (typeof value === "string" && value.trim().endsWith("%")) {
-          let percent = parseFloat(value);
-          if (percent > 0) {
-            percentTotal += percent;
-            percentSlices.push({ ...item, value: percent, type: "percent" });
-          }
-        } else {
-          value = parseFloat(value);
-          if (value > 0) {
-            rupeeTotal += value;
-            rupeeSlices.push({ ...item, value, type: "rupee" });
-          }
-        }
-      });
+//   let filtered = result.filter(item => item.value > 0.01);
 
-      // Scale rupee slices to fit the remaining percentage space
-      const rupeeAvailable = 100 - percentTotal;
-      const result = [];
+//   // Scale so sum is 100
+//   const total = filtered.reduce((a, b) => a + b.value, 0);
+//   if (Math.abs(total - 100) > 0.0001 && total > 0) {
+//     filtered = filtered.map(item => ({
+//       ...item,
+//       value: (item.value / total) * 100
+//     }));
+//   }
+// // --- NEW FIX: Adjust the last slice so sum is exactly 100 ---
+// filtered = filtered.map(item => ({
+//   ...item,
+//   value: parseFloat(item.value.toFixed(2))
+// }));
 
-      if (rupeeSlices.length && rupeeAvailable > 0) {
-        rupeeSlices.forEach(slice => {
-          result.push({
-            ...slice,
-            value: (slice.value / rupeeTotal) * rupeeAvailable
-          });
-        });
-      }
+// let sum = filtered.reduce((a, b) => a + b.value, 0);
+// const diff = parseFloat((100 - sum).toFixed(2));
+// if (filtered.length > 0 && Math.abs(diff) > 0.001) {
+//   filtered[filtered.length - 1].value = parseFloat((filtered[filtered.length - 1].value + diff).toFixed(2));
+// }
 
-      percentSlices.forEach(slice => result.push({ ...slice, value: slice.value }));
 
-      // Remove near-zero/negative values
-      let filtered = result.filter(item => item.value > 0.01);
+//   return filtered;
+// }
+function normalizePieData(pieData) {
+  // 1. Convert all values to numbers, separate percent and rupee slices
+  let percentTotal = 0;
+  let rupeeTotal = 0;
+  let percentSlices = [];
+  let rupeeSlices = [];
 
-      // Ensure sum is 100 by proportionally scaling the values if needed
-      const total = filtered.reduce((a, b) => a + b.value, 0);
-      if (Math.abs(total - 100) > 0.0001 && total > 0) {
-        filtered = filtered.map(item => ({
-          ...item,
-          value: (item.value / total) * 100
-        }));
-      }
-
-      // Fix rounding errors by giving the remaining discrepancy to the largest slice
-      const sumAfter = filtered.reduce((a, b) => a + b.value, 0);
-      if (Math.abs(sumAfter - 100) > 0.0001 && filtered.length > 0) {
-        let maxIdx = 0,
-            maxVal = filtered[0].value;
-        for (let i = 1; i < filtered.length; i++) {
-          if (filtered[i].value > maxVal) {
-            maxIdx = i;
-            maxVal = filtered[i].value;
-          }
-        }
-        filtered[maxIdx].value += 100 - sumAfter; // Fix the rounding error by adjusting the largest slice
-      }
-
-      // Ensure two decimal precision for visual consistency
-      filtered = filtered.map(item => ({
-        ...item,
-        value: parseFloat(item.value.toFixed(2))
-      }));
-
-      return filtered;
+  pieData.forEach(item => {
+    let value = item.value;
+    if (item.isRawMaterial && item.isPercentage) {
+      value = parseFloat(item.value);
     }
+    if (typeof value === "string" && value.trim().endsWith("%")) {
+      let percent = parseFloat(value);
+      if (percent > 0) {
+        percentTotal += percent;
+        percentSlices.push({ ...item, value: percent, type: "percent" });
+      }
+    } else {
+      value = parseFloat(value);
+      if (value > 0) {
+        rupeeTotal += value;
+        rupeeSlices.push({ ...item, value, type: "rupee" });
+      }
+    }
+  });
+
+  // 2. Scale rupee slices to fit the remaining percent space
+  const rupeeAvailable = 100 - percentTotal;
+  const combined = [];
+  if (rupeeSlices.length && rupeeAvailable > 0) {
+    rupeeSlices.forEach(slice => {
+      combined.push({
+        ...slice,
+        value: (slice.value / rupeeTotal) * rupeeAvailable
+      });
+    });
+  }
+  percentSlices.forEach(slice => combined.push({ ...slice, value: slice.value }));
+
+  // 3. Remove near-zero/negative slices, and round to 2 decimals
+  let filtered = combined.filter(item => item.value > 0.01)
+    .map(item => ({
+      ...item,
+      value: parseFloat(item.value.toFixed(2))
+    }));
+
+  // 4. Combine all slices below 2% into "Other"
+  const minSlice = 0.2;
+  let mainSlices = filtered.filter(item => item.value >= minSlice);
+  let smallSlices = filtered.filter(item => item.value < minSlice);
+
+  let smallSum = smallSlices.reduce((sum, s) => sum + s.value, 0);
+  if (smallSum > 0) {
+    mainSlices.push({
+      name: "Other",
+      value: parseFloat(smallSum.toFixed(2))
+    });
+  }
+
+  // 5. Normalize all slices to sum to exactly 100
+  let sum = mainSlices.reduce((a, b) => a + b.value, 0);
+  if (Math.abs(sum - 100) > 0.0001 && sum > 0) {
+    mainSlices = mainSlices.map(item => ({
+      ...item,
+      value: parseFloat(((item.value / sum) * 100).toFixed(2))
+    }));
+  }
+
+  // 6. Assign any final tiny difference to the largest slice
+  let newSum = mainSlices.reduce((a, b) => a + b.value, 0);
+  const diff = parseFloat((100 - newSum).toFixed(2));
+  if (mainSlices.length > 0 && Math.abs(diff) > 0.01) {
+    // Find largest slice
+    let maxIdx = 0, maxVal = mainSlices[0].value;
+    for (let i = 1; i < mainSlices.length; i++) {
+      if (mainSlices[i].value > maxVal) {
+        maxIdx = i;
+        maxVal = mainSlices[i].value;
+      }
+    }
+    mainSlices[maxIdx].value = parseFloat((mainSlices[maxIdx].value + diff).toFixed(2));
+  }
+
+  return mainSlices;
+}
+
 
     const ChartComponent = () => {
       const chartRef = useRef();
@@ -107,9 +180,7 @@ export const generatePieChart = (pieData) => {
       const filteredPieData = normalizePieData(pieData);
 
       const sum = filteredPieData.reduce((a, b) => a + b.value, 0);
-      console.log("Filtered Pie Data:", filteredPieData);
-      console.log("Pie chart sum (should match full circle):", sum);
-
+     
       const chartData = {
         labels: filteredPieData.map((item) => item.name),
         datasets: [
@@ -124,14 +195,29 @@ export const generatePieChart = (pieData) => {
               "rgb(71, 130, 192)",
               "rgb(124, 185, 226)",
               "rgb(87, 143, 202)"
-            ]
+            ],
+              borderWidth: 0,
           }
         ]
       };
 
       const chartOptions = {
         responsive: true,
-        plugins: { legend: { position: "top" } },
+        plugins: { legend: {
+            display: true,
+            position: 'right', // <-- legend on right
+            labels: {
+              font: {
+                size: 10,
+                family: 'Arial',
+                weight: 'normal',
+              },
+              color: '#000000',
+              usePointStyle: true,
+              boxWidth: 18,
+              padding: 18,
+            }
+          }, },
         cutout: 2, // Small cutout (to avoid donut effect)
         maintainAspectRatio: true, // Ensures the aspect ratio remains square
         rotation: 0, // Start the pie chart from the top
@@ -139,6 +225,7 @@ export const generatePieChart = (pieData) => {
         layout: {
           padding: 0, // No padding to ensure full coverage
         },
+         animation: false,
       };
 
       return (
@@ -146,8 +233,8 @@ export const generatePieChart = (pieData) => {
           ref={chartRef}
           data={chartData}
           options={chartOptions}
-          width={400}
-          height={400}
+          width={1200}
+          height={1200}
         />
       );
     };

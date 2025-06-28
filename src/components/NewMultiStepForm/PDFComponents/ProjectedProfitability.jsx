@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; 
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
@@ -443,6 +443,37 @@ const ProjectedProfitability = ({
     return 0;
   });
 
+
+ // const totalIndirectExpensesArray = Array.from({
+  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  // }).map((_, yearIndex) => {
+  //   const totalIndirectExpenses = indirectExpense
+  //     .filter((expense) => expense.type === "indirect")
+  //     .reduce((sum, expense) => {
+  //       const annual = Number(expense.total) || 0;
+  //       const escalated = calculateExpense(annual, yearIndex);
+  //       return sum + escalated;
+  //     }, 0);
+  
+  //   const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+  //   const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
+     
+  //     yearIndex
+  //   );
+  //   const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+  //   const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
+  
+  //   const yearTotal =
+  //     totalIndirectExpenses +
+  //     interestOnTermLoan +
+  //     interestExpenseOnWorkingCapital +
+  //     depreciationExpense +
+  //     preliminaryWriteOff; // ✅ ADDED HERE
+  
+  //   return yearTotal;
+  // });
+  
+
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
@@ -470,7 +501,58 @@ const ProjectedProfitability = ({
     return yearTotal;
   });
 
+
   // ✅ Extract required values from formData
+  
+  const totalIndirectExpensesArray = Array.from({
+  length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+}).map((_, yearIndex) => {
+  let indirectRows = [];
+  // 1. All regular indirect expenses, escalated if required
+  const indirectTotal = indirectExpense
+    .filter((expense) => expense.type === "indirect")
+    .reduce((sum, expense) => {
+      const annual = Number(expense.total) || 0;
+      const escalated = calculateExpense(annual, yearIndex);
+      indirectRows.push({ name: expense.name, value: escalated });
+      return sum + escalated;
+    }, 0);
+
+  // 2. Advance expenses of type "indirect"
+  let advanceIndirectTotal = 0;
+  if (
+    Array.isArray(formData?.Expenses?.advanceExpenses) &&
+    formData.Expenses.advanceExpenses.length > 0
+  ) {
+    advanceIndirectTotal = formData.Expenses.advanceExpenses
+      .filter((row) => row.type === "indirect" && row.name && row.values)
+      .reduce((sum, row) => {
+        const value =
+          row.values?.[financialYearLabels[yearIndex]] ??
+          row.values?.[yearIndex] ??
+          0;
+        indirectRows.push({ name: row.name + " (Advance)", value: Number(value) || 0 });
+        return sum + (Number(value) || 0);
+      }, 0);
+  }
+
+  // 3. Interest, Depreciation, Write-off (rest as before)
+  const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+  const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(yearIndex);
+  const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+  const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
+
+  // FINAL indirect expenses for this year
+  return (
+    indirectTotal +
+    advanceIndirectTotal +
+    interestOnTermLoan +
+    interestExpenseOnWorkingCapital +
+    depreciationExpense +
+    preliminaryWriteOff
+  );
+});
+  
   const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
   const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
 
@@ -1699,8 +1781,63 @@ const ProjectedProfitability = ({
                     })}
                   </View>
                 );
-              })}
-            ;{/* ✅ Render Preliminary Row */}
+              })};
+
+{/* Advance Expenses of type "indirect" */}
+{Array.isArray(formData?.Expenses?.advanceExpenses) &&
+  formData.Expenses.advanceExpenses
+    .filter(
+      (row) =>
+        row.type === "indirect" && row.name && row.name.trim() !== ""
+    )
+    .map((row, advIdx) => (
+      <View
+        key={"adv-indirect-" + advIdx}
+        style={[styles.tableRow, styles.totalRow]}
+      >
+        <Text style={stylesCOP.serialNoCellDetail}>
+          {"I" + (advIdx + 1)}
+        </Text>
+        <Text
+          style={[
+            stylesCOP.detailsCellDetail,
+            styleExpenses.particularWidth,
+            styleExpenses.bordernone,
+          ]}
+        >
+          {row.name}
+        </Text>
+
+        {Array.from({
+          length: hideFirstYear
+            ? projectionYears - 1
+            : projectionYears,
+        }).map((_, yearIndex) => {
+          const adjustedYearIndex = hideFirstYear
+            ? yearIndex + 1
+            : yearIndex;
+          const value =
+            (row.values &&
+              row.values[financialYearLabels[adjustedYearIndex]]) ||
+            (row.values && row.values[adjustedYearIndex]) ||
+            0;
+          return (
+            <Text
+              key={yearIndex}
+              style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+              ]}
+            >
+              {formatNumber(Number(value) || 0)}
+            </Text>
+          );
+        })}
+      </View>
+    ))}
+
+
+            {/* ✅ Render Preliminary Row */}
             {!isPreliminaryWriteOffAllZero && (
               <View style={[styles.tableRow, styles.totalRow]}>
                 <Text style={stylesCOP.serialNoCellDetail}>

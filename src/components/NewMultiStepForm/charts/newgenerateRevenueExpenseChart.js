@@ -36,12 +36,10 @@ export const generateBarChart = async ({ formData }) => {
     // Expenses data
     selectedExpenses = getCleanData(formData?.computedData?.totalExpense);
 
-    console.log("Revenue Data:", selectedRevenue);
-    console.log("Expenses Data:", selectedExpenses);
-
+   
     // Validation
     if (selectedRevenue.length === 0 || selectedExpenses.length === 0) {
-      console.error("Missing valid data");
+      
       return null;
     }
 
@@ -59,14 +57,14 @@ export const generateBarChart = async ({ formData }) => {
           {
             label: "Revenue",
             data: selectedRevenue,
-            backgroundColor: "rgba(54, 116, 181, 0.7)",
+            backgroundColor: "rgba(54, 116, 181)",
             borderColor: "rgba(54, 116, 181, 1)",
             borderWidth: 1
           },
           {
             label: "Expenses",
             data: selectedExpenses,
-            backgroundColor: "rgba(124, 185, 226, 0.7)",
+            backgroundColor: "rgba(124, 185, 226)",
             borderColor: "rgba(124, 185, 226, 1)",
             borderWidth: 1
           }

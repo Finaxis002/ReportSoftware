@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 import GraphGenerator from "../GraphGenerator";
 
+import IntroPage from "../IntroPage";
+import { useNavigate } from "react-router-dom";
+
+
+
 const FinalStep = ({ formData, userRole }) => {
+   const navigate = useNavigate();
   const [permissions, setPermissions] = useState({
     generateReport: false,
     updateReport: false,
@@ -854,7 +860,6 @@ const FinalStep = ({ formData, userRole }) => {
           {isLoading ? "Loading..." : "Check Profit"}
         </button>
 
-    
         {(userRole === "admin" ||
           (userRole === "employee" && permissions.generateReport)) && (
           <button
@@ -870,7 +875,6 @@ const FinalStep = ({ formData, userRole }) => {
           <GraphGenerator formData={formData} />
         )}
 
-      
         {(userRole === "admin" ||
           (userRole === "employee" && permissions.generateReport)) && (
           <button
@@ -962,6 +966,18 @@ const FinalStep = ({ formData, userRole }) => {
             </button>
           )}
 
+
+      {(userRole === "admin" ||
+        (userRole === "employee" && permissions.generateReport)) && (
+        // <IntroPage formData={formData} />
+        <button
+      onClick={() => navigate("/intro", { state: { formData } })}
+      className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    >
+      Generate Word
+    </button>
+      )}
+
           {/* ✅ Export Data Button */}
           {(userRole === "admin" ||
             (userRole === "employee" && permissions.generateReport)) && (
@@ -1004,6 +1020,7 @@ const FinalStep = ({ formData, userRole }) => {
       </div>
 
     
+
 
       {/* ✅ Hidden Iframe */}
       <iframe
