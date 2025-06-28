@@ -2001,12 +2001,12 @@ const ProjectedExpenses = ({
   }
 
   // LOGGING the row values for this year:
-  console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
-  directRows.forEach((row, i) =>
-    console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-  );
-  console.log(`   Salary and Wages: ${salaryTotal}`);
-  console.log(`   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`);
+  // console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
+  // directRows.forEach((row, i) =>
+  //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
+  // );
+  // console.log(`   Salary and Wages: ${salaryTotal}`);
+  // console.log(`   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`);
 
   // FINAL direct expenses for this year
   return directTotal + salaryTotal + advanceDirectTotal;

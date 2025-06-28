@@ -605,9 +605,9 @@ const ProjectedDepreciation = ({
               ([key, asset], index) => {
                 if (!asset || !asset.amount || !asset.rate) {
                   // Log any assets that don't have the required properties (amount, rate)
-                  console.log(
-                    `Skipping invalid asset: ${key}, missing amount or rate.`
-                  );
+                  // console.log(
+                  //   `Skipping invalid asset: ${key}, missing amount or rate.`
+                  // );
                   return null;
                 }
 
@@ -616,9 +616,9 @@ const ProjectedDepreciation = ({
                   depreciationValues[index]?.yearlyDepreciation || [];
 
                 if (!depreciationPerYear || depreciationPerYear.length === 0) {
-                  console.log(
-                    `Skipping asset: ${asset.name} due to missing depreciation values.`
-                  );
+                  // console.log(
+                  //   `Skipping asset: ${asset.name} due to missing depreciation values.`
+                  // );
                   return null;
                 }
 
@@ -628,11 +628,11 @@ const ProjectedDepreciation = ({
                 );
 
                 // Log depreciation values to check if conversion worked
-                console.log(`Asset: ${asset.name}`);
-                console.log(
-                  "Depreciation values per year (numeric):",
-                  numericDepreciation
-                );
+                // console.log(`Asset: ${asset.name}`);
+                // console.log(
+                //   "Depreciation values per year (numeric):",
+                //   numericDepreciation
+                // );
 
                 // Calculate asset values after depreciation
                 const assetValues = [];
@@ -655,9 +655,9 @@ const ProjectedDepreciation = ({
 
                 // Check if all depreciation values are zero
                 if (visibleAssetValues.every((val) => val === 0)) {
-                  console.log(
-                    `Skipping Asset: ${asset.name} as depreciation values are zero`
-                  );
+                  // console.log(
+                  //   `Skipping Asset: ${asset.name} as depreciation values are zero`
+                  // );
                   return null; // Skip rendering this asset row
                 }
 

@@ -176,24 +176,7 @@ const SeventhStepMD = ({
     }));
   };
 
-  // Handle Form Input Changes
-  // const handleFormChange = (event, index, year, type) => {
-  //   const { name, value } = event.target;
 
-  //   // const rawValue = removeCommas(value);
-  //   const rawValue = value.replace(/,/g, ""); // remove commas
-
-  //   setLocalData((prevData) => {
-  //     const updatedData = { ...prevData };
-  //     if (name === "particular") {
-  //       updatedData[type][index]["particular"] = value;
-  //     } else {
-  //       // updatedData[type][index]["years"][year] = Number(value);
-  //       updatedData[type][index]["years"][year] = value === "" ? "" : parseFloat(value) || 0;
-  //     }
-  //     return updatedData;
-  //   });
-  // };
 
  const handleFormChange = (event, index, year, type) => {
   const { name, value } = event.target;
@@ -218,99 +201,101 @@ const SeventhStepMD = ({
 };
 
 
+//  const handleStockChanges = (name, index, value) => {
+//   // Accept numbers, empty, or trailing dot/decimal
+//   const validValue = value.match(/^\d*\.?\d{0,2}$/);
 
-  // const handleStockChanges = (name, index, value) => {
-  //   const numericValue = Number(value);
-
-  //   setLocalData((prevData) => {
-  //     const updatedStock = [
-  //       ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
-  //     ];
-  //     updatedStock[index] = numericValue;
-
-  //     const newState = { ...prevData, [name]: updatedStock };
-
-  //     // Sync ClosingStock → OpeningStock (if not overridden)
-  //     if (name === "ClosingStock" && index < projectionYears - 1) {
-  //       if (!overriddenOpeningStock[index + 1]) {
-  //         newState.OpeningStock = {
-  //           ...(prevData.OpeningStock ?? getEmptyArray()),
-  //           [index + 1]: numericValue,
-  //         };
-  //       }
-  //     }
-
-  //     // If user is editing OpeningStock manually
-  //     if (name === "OpeningStock") {
-  //       setOverriddenOpeningStock((prev) => ({
-  //         ...prev,
-  //         [index]: true,
-  //       }));
-  //     }
-
-  //     return newState;
-  //   });
-  // };
-
-
-  // Format number with commas (Indian format)
-  // const formatNumberWithCommas = (num) => {
-  //   if (num === null || num === undefined || num === "") return "";
-
-  //   const str = num.toString();
-
-  //   // Incomplete decimals: "1000.", ".5", "1000.5"
-  //   if (str.endsWith(".") || /^\d*\.\d?$/.test(str)) return str;
-
-  //   const numericValue = Number(str.replace(/,/g, ""));
-  //   if (isNaN(numericValue)) return str;
-
-  //   return numericValue.toLocaleString("en-IN", {
-  //     minimumFractionDigits: str.includes(".") ? 2 : 0,
-  //     maximumFractionDigits: 2,
-  //   });
-  // };
- const handleStockChanges = (name, index, value) => {
-  // Accept numbers, empty, or trailing dot/decimal
-  const validValue = value.match(/^\d*\.?\d{0,2}$/);
-
-  if (validValue || value === "") {
-    setLocalData((prevData) => {
-      const updatedStock = [
-        ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
-      ];
-      updatedStock[index] = value; // keep as string
-      // ...rest of your logic here (overrides, sync, etc)
-      return { ...prevData, [name]: updatedStock };
-    });
-  }
-};
+//   if (validValue || value === "") {
+//     setLocalData((prevData) => {
+//       const updatedStock = [
+//         ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
+//       ];
+//       updatedStock[index] = value; // keep as string
+//       // ...rest of your logic here (overrides, sync, etc)
+//       return { ...prevData, [name]: updatedStock };
+//     });
+//   }
+// };
 
 
 
   
-  const formatNumberWithCommas = (num) => {
-  if (num === null || num === undefined || num === "") return "";
-
-  const numericValue = typeof num === 'string' ? parseFloat(num.replace(/,/g, '')) : num;
-
-  if (isNaN(numericValue)) return num.toString(); // If the value is not numeric, return the string
-
-  // Check if the number has decimal places
-  const hasDecimal = Number(numericValue) % 1 !== 0;
-
-  // Format the number with commas (Indian format) and decimals if required
-  return numericValue.toLocaleString("en-IN", {
-    minimumFractionDigits: hasDecimal ? 2 : 0,
-    maximumFractionDigits: 2,
-  });
-};
-
 
 
   // Remove commas for raw value
+  
+  const handleStockChanges = (name, index, value) => {
+  // Accept numbers, empty, or trailing dot/decimal
+  const validValue = value.match(/^\d*\.?\d{0,2}$/);
+
+  if (!(validValue || value === "")) return; // Only allow valid numbers
+
+  setLocalData((prevData) => {
+    const updatedStock = [
+      ...(Array.isArray(prevData[name]) ? prevData[name] : getEmptyArray()),
+    ];
+    updatedStock[index] = value; // keep as string
+
+    let newState = { ...prevData, [name]: updatedStock };
+
+    // ClosingStock logic: auto-fill OpeningStock for next year, if not overridden
+    if (name === "ClosingStock" && index < projectionYears - 1) {
+      // If OpeningStock for next year has NOT been overridden
+      if (!overriddenOpeningStock[index + 1]) {
+        // Copy closing stock to opening stock of next year
+        const opening = [
+          ...(Array.isArray(prevData.OpeningStock)
+            ? prevData.OpeningStock
+            : getEmptyArray()),
+        ];
+        opening[index + 1] = value;
+        newState.OpeningStock = opening;
+      }
+    }
+
+    // If user is clearing OpeningStock cell, also clear its override flag
+    if (name === "OpeningStock" && value === "") {
+      setOverriddenOpeningStock((prev) => {
+        const copy = { ...prev };
+        delete copy[index];
+        return copy;
+      });
+    }
+
+    return newState;
+  });
+
+  // If user manually edits OpeningStock, flag as overridden
+  if (name === "OpeningStock") {
+    setOverriddenOpeningStock((prev) => ({
+      ...prev,
+      [index]: true,
+    }));
+  }
+};
+
+  
+  
   const removeCommas = (str) => str?.toString().replace(/,/g, "");
 
+  
+  // Format number with commas (Indian format)
+  const formatNumberWithCommas = (num) => {
+    if (num === null || num === undefined || num === "") return "";
+
+    const str = num.toString();
+
+    // Allow incomplete decimals like "1000.", "1000.5"
+    if (/^\d+\.\d{0,1}$/.test(str) || str.endsWith(".")) return str;
+
+    const numericValue = parseFloat(str.replace(/,/g, ""));
+    if (isNaN(numericValue)) return str;
+
+    return numericValue.toLocaleString("en-IN", {
+      minimumFractionDigits: str.includes(".") ? 2 : 0,
+      maximumFractionDigits: 2,
+    });
+  };
   
 
   return (
@@ -352,7 +337,7 @@ const SeventhStepMD = ({
                       <td key={index} className="md-input">
                         <input
                           name="value"
-                          value={localData?.[stockType]?.[index] ?? ""}
+                          value={formatNumberWithCommas(localData?.[stockType]?.[index] ?? "")}
                           onChange={(event) => {
                             const rawValue = removeCommas(event.target.value); // Remove commas
                             handleStockChanges(stockType, index, rawValue); // Pass raw number to state
@@ -408,7 +393,7 @@ const SeventhStepMD = ({
                       <td className="md-input">
                         <input
                           name="particular"
-                          value={entry.particular}
+                          value={formatNumberWithCommas(entry.particular)}
                           onChange={(event) =>
                             handleFormChange(event, i, null, dataType)
                           }
@@ -455,7 +440,7 @@ const SeventhStepMD = ({
                           <td key={index} className="md-input">
                             <input
                               name="value"
-                              value={entry.years?.[index] ?? ""}
+                              value={formatNumberWithCommas(entry.years?.[index] ?? "")}
                               onChange={(event) => {
                                 const rawValue = removeCommas(
                                   event.target.value

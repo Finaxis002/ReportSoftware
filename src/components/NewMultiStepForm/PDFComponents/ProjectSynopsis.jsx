@@ -18,6 +18,7 @@ const ProjectSynopsis = React.memo(
     receivedBreakEvenPointPercentage = [],
     receivedAssetsLiabilities = [],
     pdfType,
+    handleContextMenu
   }) => {
     // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
     const getOrdinalYear = (n) => {
@@ -219,7 +220,7 @@ const ProjectSynopsis = React.memo(
 
     return (
       <>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={styles.page}  ref={handleContextMenu}>
           <View>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Bame"}

@@ -5,6 +5,8 @@ import React, {
   useRef,
   useCallback,
 } from "react";
+import Swal from "sweetalert2";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import "./View.css";
 import "../generatedPdf.css";
@@ -158,6 +160,24 @@ const GeneratedPDF = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Poll for the iframe created by @react-pdf/renderer
+    const pollIframe = setInterval(() => {
+      const iframe = pdfContainerRef.current?.querySelector("iframe");
+      if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+        // Prevent right-click inside PDF
+        iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          // Optional: show a message
+          // alert("Right-click is disabled on this PDF.");
+        });
+        clearInterval(pollIframe);
+      }
+    }, 300);
+
+    return () => clearInterval(pollIframe);
+  }, []);
+
   // ✅ Receiving data from Child A
   const handleTotalLiabilitiesArray = useCallback((data) => {
     //  console.log("Updated Total Liabilities from Child A:", data);
@@ -239,7 +259,7 @@ const GeneratedPDF = () => {
     return JSON.parse(localStorage.getItem("formData")) || {};
   });
 
-  console.log("formData1", formData1);
+  // console.log("formData1", formData1);
 
   const formData = pdfData || formData1;
 
@@ -370,9 +390,9 @@ const GeneratedPDF = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("🔄 GeneratedPDF is re-rendering");
-  });
+  // useEffect(() => {
+  //   console.log("🔄 GeneratedPDF is re-rendering");
+  // });
 
   //saving data to Local Storage
 
@@ -929,32 +949,31 @@ const GeneratedPDF = () => {
     };
   }, []);
 
- const aggregateComputedData = () => ({
-  normalExpense,
-  totalAnnualWages,
-  directExpenses,
-  totalDirectExpensesArray,
-  computedData,
-  computedData1,
-  totalDepreciation,
-  yearlyInterestLiabilities,
-  yearlyPrincipalRepayment,
-  interestOnWorkingCapital,
-  receivedData,
-  marchClosingBalances,
-  workingCapitalvalues,
-  grossFixedAssetsPerYear,
-  incomeTaxCalculation,
-  closingCashBalanceArray,
-  totalLiabilities,
-  assetsliabilities,
-  dscr,
-  averageCurrentRatio,
-  breakEvenPointPercentage,
-  totalExpense,
-  totalRevenueReceipts,
-});
-
+  const aggregateComputedData = () => ({
+    normalExpense,
+    totalAnnualWages,
+    directExpenses,
+    totalDirectExpensesArray,
+    computedData,
+    computedData1,
+    totalDepreciation,
+    yearlyInterestLiabilities,
+    yearlyPrincipalRepayment,
+    interestOnWorkingCapital,
+    receivedData,
+    marchClosingBalances,
+    workingCapitalvalues,
+    grossFixedAssetsPerYear,
+    incomeTaxCalculation,
+    closingCashBalanceArray,
+    totalLiabilities,
+    assetsliabilities,
+    dscr,
+    averageCurrentRatio,
+    breakEvenPointPercentage,
+    totalExpense,
+    totalRevenueReceipts,
+  });
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
@@ -984,8 +1003,6 @@ const GeneratedPDF = () => {
         </div>
       )}
 
-      
-
       <BlobProvider document={memoizedPDF}>
         {({ blob, url, loading }) => {
           // ✅ Save to ref or state
@@ -1009,20 +1026,19 @@ const GeneratedPDF = () => {
             saveAs(blob, `${safeName}.pdf`);
 
             // ✅ Aggregated computed data
-  const aggregatedComputedData = aggregateComputedData();
+            const aggregatedComputedData = aggregateComputedData();
 
-  // ✅ API call to save computed data
-  try {
-  await axios.put(
-    `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
-    { computedData: aggregatedComputedData }
-  );
+            // ✅ API call to save computed data
+            try {
+              await axios.put(
+                `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
+                { computedData: aggregatedComputedData }
+              );
 
-  console.log("✅ Computed data saved successfully.");
-} catch (error) {
-  console.error("❌ Failed to save computed data:", error);
-}
-
+              // console.log("✅ Computed data saved successfully.");
+            } catch (error) {
+              console.error("❌ Failed to save computed data:", error);
+            }
 
             // ✅ Send activity log
             try {
@@ -1061,7 +1077,7 @@ const GeneratedPDF = () => {
                 }),
               });
 
-              console.log("✅ Logged PDF download");
+              // console.log("✅ Logged PDF download");
             } catch (error) {
               console.warn("❌ Failed to log download activity:", error);
             }
@@ -1172,12 +1188,18 @@ const GeneratedPDF = () => {
                       height: "100%",
                       zIndex: 10,
                       backgroundColor: "transparent",
-
-                      pointerEvents: "auto",
                     }}
                     onContextMenu={(e) => {
                       e.preventDefault();
-                      alert("Right-click is disabled on this PDF.");
+                      Swal.fire({
+                        icon: "error",
+                        title: "Right-click Disabled",
+                        text: "Right-click is disabled on this PDF for security reasons.",
+                        confirmButtonColor: "#6366f1", // Indigo-500, optional
+                        background: "#fff", // optional, matches most UIs
+                        timer: 1600,
+                        showConfirmButton: false,
+                      });
                     }}
                     onWheel={(e) => {
                       const pdfIframe = document.querySelector("iframe");
