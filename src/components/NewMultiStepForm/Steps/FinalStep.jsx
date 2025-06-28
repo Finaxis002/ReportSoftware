@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
-import GraphGenerator from '../GraphGenerator'
+import GraphGenerator from "../GraphGenerator";
+import IntroPage from "../IntroPage";
+import { useNavigate } from "react-router-dom";
+
 
 const FinalStep = ({ formData, userRole }) => {
+   const navigate = useNavigate();
   const [permissions, setPermissions] = useState({
     generateReport: false,
     updateReport: false,
@@ -564,7 +568,6 @@ const FinalStep = ({ formData, userRole }) => {
     fetchPermissions(); // 🔁 Only fetch once when dependencies change
   }, [userRole, userName]);
 
-
   const getColorHex = (color) => {
     const colorMap = {
       Red: "#ef4444", // Tailwind red-500 (vibrant)
@@ -592,66 +595,63 @@ const FinalStep = ({ formData, userRole }) => {
     };
   }, []);
 
-
   const handleGeneratePdfClick = async () => {
     try {
       console.log("🚀 Logging 'generated-pdf' activity...");
-  
+
       const reportTitle =
-      formData?.AccountInformation?.businessName || "Untitled";
-    const sessionId =
-      localStorage.getItem("activeSessionId") || formData?.sessionId;
+        formData?.AccountInformation?.businessName || "Untitled";
+      const sessionId =
+        localStorage.getItem("activeSessionId") || formData?.sessionId;
 
-    let reportId = null;
+      let reportId = null;
 
-    // ✅ Try to fetch reportId via sessionId
-    try {
-      const res = await fetch(
-        `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
-      );
-      const data = await res.json();
-      if (data?.reportId) {
-        reportId = data.reportId;
+      // ✅ Try to fetch reportId via sessionId
+      try {
+        const res = await fetch(
+          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+        );
+        const data = await res.json();
+        if (data?.reportId) {
+          reportId = data.reportId;
+        }
+      } catch (err) {
+        console.warn("⚠️ Could not fetch reportId for generated_pdf log");
       }
-    } catch (err) {
-      console.warn("⚠️ Could not fetch reportId for generated_pdf log");
-    }
-    const reportOwner = formData?.AccountInformation?.businessOwner || "";
-    // ✅ Log activity
-    try {
-      await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "generated_pdf",
-          reportTitle,
-          reportId,
-          reportOwner, // ✅ send this
-          performedBy: {
-            name: userName || "Unknown",
-            role: userRole || "unknown",
-          },
-        }),
-      });
-      console.log("✅ Logged 'generated_pdf' activity");
-    } catch (error) {
-      console.warn("❌ Failed to log 'generated_pdf' activity:", error);
-    }
-  
+      const reportOwner = formData?.AccountInformation?.businessOwner || "";
+      // ✅ Log activity
+      try {
+        await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "generated_pdf",
+            reportTitle,
+            reportId,
+            reportOwner, // ✅ send this
+            performedBy: {
+              name: userName || "Unknown",
+              role: userRole || "unknown",
+            },
+          }),
+        });
+        console.log("✅ Logged 'generated_pdf' activity");
+      } catch (error) {
+        console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+      }
+
       console.log("✅ Logged 'generated-pdf' activity");
-  
+
       // ✅ Open PDF in new tab
       window.open("/generated-pdf", "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("❌ Failed to log 'generated-pdf' activity:", error);
     }
   };
-  
 
   console.log("userRole:", userRole);
-console.log("adminName:", localStorage.getItem("adminName"));
-console.log("permissions.generateReport:", permissions?.generateReport);
-  
+  console.log("adminName:", localStorage.getItem("adminName"));
+  console.log("permissions.generateReport:", permissions?.generateReport);
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
@@ -865,7 +865,8 @@ console.log("permissions.generateReport:", permissions?.generateReport);
         </button>
 
         {/* ✅ Generate PDF Button */}
-      {(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
+        {(userRole === "admin" ||
+          (userRole === "employee" && permissions.generateReport)) && (
           <button
             onClick={handleGeneratePdfClick}
             className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -874,12 +875,14 @@ console.log("permissions.generateReport:", permissions?.generateReport);
           </button>
         )}
 
-{(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
-  <GraphGenerator formData={formData} />
-)}
+        {(userRole === "admin" ||
+          (userRole === "employee" && permissions.generateReport)) && (
+          <GraphGenerator formData={formData} />
+        )}
 
         {/* ✅ New Export Data Button */}
-      {(userRole === "admin" || (userRole === "employee" && permissions.generateReport)) && (
+        {(userRole === "admin" ||
+          (userRole === "employee" && permissions.generateReport)) && (
           <button
             onClick={handleExportData}
             className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
@@ -889,7 +892,16 @@ console.log("permissions.generateReport:", permissions?.generateReport);
         )}
       </div>
 
-      
+      {(userRole === "admin" ||
+        (userRole === "employee" && permissions.generateReport)) && (
+        // <IntroPage formData={formData} />
+        <button
+      onClick={() => navigate("/intro", { state: { formData } })}
+      className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    >
+      Generate Word
+    </button>
+      )}
       {/* ✅ Hidden Iframe */}
       <iframe
         ref={iframeRef}

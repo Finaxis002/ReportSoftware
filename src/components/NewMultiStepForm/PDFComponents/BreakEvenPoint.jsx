@@ -1575,6 +1575,8 @@ const BreakEvenPoint = ({
     March: 12,
   };
 
+  
+
   const selectedMonth =
     formData?.ProjectReportSetting?.SelectStartingMonth || "April";
   const x = monthMap[selectedMonth]; // Starting month mapped to FY index
@@ -1785,6 +1787,16 @@ const isDepreciationZero = totalDepreciationPerYear
   return expenseValue;
 };
 
+// At the top of BreakEvenPoint (after extracting Expenses)
+const advanceExpenses = Array.isArray(Expenses?.advanceExpenses)
+  ? Expenses.advanceExpenses.filter((row) => row && row.name && row.type)
+  : [];
+
+// Utility to fetch advance value for a year
+const getAdvanceExpenseValueForYear = (row, yearLabelOrIndex) => {
+  // Support for both "FY2024-25" or array index
+  return num(row?.values?.[yearLabelOrIndex]) || 0;
+};
 // ✅ Initialize Total Variable Expenses Array (including Preliminary Expenses)
 
 // const totalVariableExpenses = Array.from({ length: projectionYears }).map(
@@ -1824,6 +1836,7 @@ const isDepreciationZero = totalDepreciationPerYear
 const totalVariableExpenses = Array.from({ length: projectionYears }).map(
   (_, yearIndex) => {
     const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const yearLabel = financialYearLabels[adjustedYearIndex];
     const totalFromExpenses = allExpenses.reduce((total, expense) => {
       // Match display logic
       const isRawMaterial =
@@ -1847,18 +1860,22 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
       return total + expenseValue;
     }, 0);
 
+    // Sum advance expenses (direct and indirect) for this year
+    const totalAdvanceForYear = advanceExpenses.reduce((total, row) => {
+      // Pick value by year label or index, as per your values object/array
+      const advValue =
+        getAdvanceExpenseValueForYear(row, yearLabel) ||
+        getAdvanceExpenseValueForYear(row, adjustedYearIndex);
+      return total + advValue;
+    }, 0);
+
     const preliminaryExpense = preliminaryWriteOffPerYear[adjustedYearIndex] || 0;
-    return totalFromExpenses + preliminaryExpense;
+    return totalFromExpenses + preliminaryExpense + totalAdvanceForYear;
   }
 );
 
-
-  // console.log("Total Expenses for Each Year:", totalVariableExpenses);
-
-  // ✅ Compute Contribution for Each Year
-  // const contribution = adjustedRevenueValues.map(
-  //   (value, index) => num(value) - num(totalVariableExpenses[index])
-  // );
+  
+  
   const contribution = adjustedRevenueValues.map((value, index) => {
   // Ensure both adjusted revenue and variable expenses are numbers
   const revenueValue = toNumber(value);
@@ -2450,6 +2467,46 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
                   </View>
                 );
               })}
+
+{/* ADVANCE EXPENSES RENDERING */}
+{advanceExpenses.length > 0 &&
+  advanceExpenses.map((row, advIdx) => (
+    <View key={"adv-exp-" + advIdx} style={[styles.tableRow, styles.totalRow]}>
+      <Text style={stylesCOP.serialNoCellDetail}>
+        {visibleAllExpenses.length + advIdx + 1}
+      </Text>
+      <Text
+        style={[
+          stylesCOP.detailsCellDetail,
+          styleExpenses.particularWidth,
+          styleExpenses.bordernone,
+        ]}
+      >
+        {row.name} (Advance)
+      </Text>
+      {Array.from({
+        length: hideFirstYear ? projectionYears - 1 : projectionYears,
+      }).map((_, yearIndex) => {
+        const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+        const yearLabel = financialYearLabels[adjustedYearIndex];
+        const value =
+          getAdvanceExpenseValueForYear(row, yearLabel) ||
+          getAdvanceExpenseValueForYear(row, adjustedYearIndex) ||
+          0;
+        return (
+          <Text
+            key={yearIndex}
+            style={[
+              stylesCOP.particularsCellsDetail,
+              styleExpenses.fontSmall,
+            ]}
+          >
+            {formatNumber(value)}
+          </Text>
+        );
+      })}
+    </View>
+  ))}
 
             {/* ✅ Render Preliminary Row */}
             {!isPreliminaryWriteOffAllZero && (

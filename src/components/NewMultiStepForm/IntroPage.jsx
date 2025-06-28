@@ -1,8 +1,10 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReportDropdown from "./Dropdown/ReportDropdown";
 import ProjectReportWordExport from './AIIntro/ProjectReportWordExport';
 import axios from "axios";
+import MenuBar from "./MenuBar";
+import { useLocation } from "react-router-dom";
 
 const SECTIONS = [
   { key: "introduction", label: "Introduction" },
@@ -14,14 +16,28 @@ const SECTIONS = [
   { key: "conclusion", label: "Conclusion" },
 ];
 
-const IntroPage = () => {
-  const [businessData, setBusinessData] = useState(null);
-  const [businessDescription, setBusinessDescription] = useState("");
-  const [bep, setBep] = useState("");
+const IntroPage = ({ userRole }) => {
+  const location = useLocation();
+
+  const [businessData, setBusinessData] = useState( location.state?.formData || null);
+  const [businessDescription, setBusinessDescription] = useState(  location.state?.formData?.AccountInformation?.businessDescription || "");
+  const [bep, setBep] = useState(location.state?.formData?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage?.[1] || "");
   const [sections, setSections] = useState({});
   const [loading, setLoading] = useState(false);
   const [showProjectReport, setShowProjectReport] = useState(false);
   const [error, setError] = useState("");
+
+//   useEffect(() => {
+//   if (location.state?.formData) {
+//     setBusinessData(location.state.formData);
+//     setBusinessDescription(
+//       location.state.formData?.AccountInformation?.businessDescription || ""
+//     );
+//     setBep(
+//       location.state.formData?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage?.[1] || ""
+//     );
+//   }
+// }, [location.state]);
 
   const handleBusinessSelect = (data) => {
     setBusinessData(data);
@@ -70,7 +86,9 @@ console.log('break even point', bep )
   };
 
   return (
-    <div className="p-6">
+    <div className="flex min-h-screen bg-gray-50">
+      <MenuBar userRole={userRole} />
+    <div className="flex-1 p-8">
       <h2 className="text-xl font-bold mb-4">
         AI Project Report Generator
       </h2>
@@ -117,6 +135,7 @@ console.log('break even point', bep )
         />
       )}
     </div>
+     </div>
   );
 };
 
