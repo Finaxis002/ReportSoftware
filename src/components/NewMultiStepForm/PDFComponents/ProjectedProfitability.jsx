@@ -474,32 +474,32 @@ const ProjectedProfitability = ({
   // });
   
 
-  const totalIndirectExpensesArray = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    const totalIndirectExpenses = indirectExpense
-      .filter((expense) => expense.type === "indirect")
-      .reduce((sum, expense) => {
-        const annual = Number(expense.total) || 0;
-        const escalated = calculateExpense(annual, yearIndex);
-        return sum + escalated;
-      }, 0);
+  // const totalIndirectExpensesArray = Array.from({
+  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  // }).map((_, yearIndex) => {
+  //   const totalIndirectExpenses = indirectExpense
+  //     .filter((expense) => expense.type === "indirect")
+  //     .reduce((sum, expense) => {
+  //       const annual = Number(expense.total) || 0;
+  //       const escalated = calculateExpense(annual, yearIndex);
+  //       return sum + escalated;
+  //     }, 0);
 
-    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-    const interestExpenseOnWorkingCapital =
-      calculateInterestOnWorkingCapital(yearIndex);
-    const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
+  //   const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+  //   const interestExpenseOnWorkingCapital =
+  //     calculateInterestOnWorkingCapital(yearIndex);
+  //   const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+  //   const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
 
-    const yearTotal =
-      totalIndirectExpenses +
-      interestOnTermLoan +
-      interestExpenseOnWorkingCapital +
-      depreciationExpense +
-      preliminaryWriteOff; // ✅ ADDED HERE
+  //   const yearTotal =
+  //     totalIndirectExpenses +
+  //     interestOnTermLoan +
+  //     interestExpenseOnWorkingCapital +
+  //     depreciationExpense +
+  //     preliminaryWriteOff; // ✅ ADDED HERE
 
-    return yearTotal;
-  });
+  //   return yearTotal;
+  // });
 
 
   // ✅ Extract required values from formData
