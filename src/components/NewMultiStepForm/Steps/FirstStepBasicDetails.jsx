@@ -921,11 +921,4 @@ const FirstStepBasicDetails = ({
   );
 };
 
-// At the bottom of your component, before `export default`
-const isBusinessDescriptionValid = () => {
-  const value = localData.businessDescription?.trim() || "";
-  const wordCount = value.split(/\s+/).filter(Boolean).length;
-  return value && wordCount >= 30;
-};
-
 export default FirstStepBasicDetails;
