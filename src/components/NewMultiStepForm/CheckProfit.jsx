@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
 import { useNavigate } from "react-router-dom";
+// Add this import at the top of your file
+import { usePDF } from 'react-to-pdf';
 
 const CheckProfit = () => {
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
@@ -14,6 +16,8 @@ const CheckProfit = () => {
     totalDirectExpensesArray: [],
     totalIndirectExpensesArray: [],
   });
+
+  const { toPDF, targetRef } = usePDF({ filename: 'profit-statements.pdf' });
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -104,14 +108,24 @@ const CheckProfit = () => {
     projectionYears
   );
 
+  // const adjustedRevenueValues = Array.from({
+  //   length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+  // }).map((_, yearIndex) => {
+  //   const totalRevenue = storedData?.totalRevenueReceipts?.[yearIndex] ?? 0; // Ensure safe access
+  //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] ?? 0;
+  //   const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] ?? 0;
+
+  //   return totalRevenue + ClosingStock - OpeningStock;
+  // });
+
   const adjustedRevenueValues = Array.from({
     length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    const totalRevenue = storedData?.totalRevenueReceipts?.[yearIndex] ?? 0; // Ensure safe access
-    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] ?? 0;
-    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] ?? 0;
+    const totalRevenue = storedData?.totalRevenueReceipts?.[yearIndex] ?? 0;
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
-    return totalRevenue + ClosingStock - OpeningStock;
+    return totalRevenue + Number(ClosingStock) - Number(OpeningStock); // ✅ Final computation
   });
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
@@ -259,25 +273,87 @@ const CheckProfit = () => {
   });
 
   // Function to calculate interest on working capital considering moratorium period
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   return (interestAmount, yearIndex) => {
+  //     const principal =
+  //       Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
+  //     const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+  //     const annualInterestAmount = (principal * rate) / 100;
+  //     const firstRepaymentYearIndex = monthsPerYear.findIndex(
+  //       (months) => months > 0
+  //     );
+  //     const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
+  //     const monthsInYear = monthsPerYear[yearIndex];
+  //     if (monthsInYear === 0) {
+  //       return 0; // No interest during moratorium
+  //     } else {
+  //       if (yearIndex === repaymentStartYear) {
+  //         const monthsRemainingAfterMoratorium =
+  //           12 - (moratoriumPeriodMonths % 12);
+  //         return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
+  //       } else if (yearIndex > repaymentStartYear) {
+  //         return interestAmount; // From second year onwards, apply full interest
+  //       } else {
+  //         return 0; // No interest during moratorium
+  //       }
+  //     }
+  //   };
+  // }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+
   const calculateInterestOnWorkingCapital = useMemo(() => {
-    return (interestAmount, yearIndex) => {
-      const repaymentStartYear = Math.floor(moratoriumPeriodMonths / 12);
-      const monthsInYear = monthsPerYear[yearIndex];
+    const principal =
+      Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
+    const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+    const annualInterestAmount = (principal * rate) / 100;
+
+    const firstRepaymentYearIndex = monthsPerYear.findIndex(
+      (months) => months > 0
+    );
+
+    return (yearIndex) => {
+      const monthsInYear = monthsPerYear[yearIndex] || 0;
+      let calculatedInterest = 0;
+      let type = "";
+
       if (monthsInYear === 0) {
-        return 0; // No interest during moratorium
+        type = "Moratorium";
+        calculatedInterest = 0;
+      } else if (
+        yearIndex === firstRepaymentYearIndex &&
+        (moratoriumPeriodMonths > 0 || monthsInYear < 12)
+      ) {
+        type = "First Repayment Year (Prorated)";
+        calculatedInterest = (annualInterestAmount * monthsInYear) / 12;
       } else {
-        if (yearIndex === repaymentStartYear) {
-          const monthsRemainingAfterMoratorium =
-            12 - (moratoriumPeriodMonths % 12);
-          return (interestAmount / 12) * monthsRemainingAfterMoratorium; // Apply partial interest in first repayment year
-        } else if (yearIndex > repaymentStartYear) {
-          return interestAmount; // From second year onwards, apply full interest
-        } else {
-          return 0; // No interest during moratorium
-        }
+        type = "Full Year Repayment";
+        calculatedInterest = annualInterestAmount;
       }
+
+      // Only log if yearIndex is a real number (not some weird value)
+      if (typeof yearIndex === "number" && !isNaN(yearIndex)) {
+        // console.table([
+        //   {
+        //     "Year Index": yearIndex + 1,
+        //     "Months in Year": monthsInYear,
+        //     "Principal": principal,
+        //     "Interest Rate (%)": rate,
+        //     "Annual Interest Amount": annualInterestAmount,
+        //     "Type": type,
+        //     "Calculated Interest": calculatedInterest,
+        //   },
+        // ]);
+      }
+
+      return calculatedInterest;
     };
-  }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
+  }, [formData, moratoriumPeriodMonths, monthsPerYear]);
+
+  const isWorkingCapitalInterestZero = Array.from({
+    length: projectionYears,
+  }).every((_, yearIndex) => {
+    const calculatedInterest = calculateInterestOnWorkingCapital(yearIndex);
+    return calculatedInterest === 0;
+  });
 
   // Function to calculate indirect expenses considering the increment rate
   const calculateIndirectExpense = (annualExpense, yearIndex) => {
@@ -303,18 +379,19 @@ const CheckProfit = () => {
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map((_, yearIndex) => {
-    const totalIndirectExpenses = indirectExpense.reduce((sum, expense) => {
-      const annualTotal = Number(expense.total) || 0; // ✅ Use annual total directly
-      return sum + calculateIndirectExpense(annualTotal, yearIndex);
-    }, 0);
+    const totalIndirectExpenses = indirectExpense
+      .filter((expense) => expense.type === "indirect")
+      .reduce((sum, expense) => {
+        const annual = Number(expense.total) || 0;
+        const escalated = calculateExpense(annual, yearIndex);
+        return sum + escalated;
+      }, 0);
 
     const interestOnTermLoan =
       storedData?.yearlyInterestLiabilities[yearIndex] || 0;
 
-    const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
-      interestOnWorkingCapital[yearIndex] || 0,
-      yearIndex
-    );
+    const interestExpenseOnWorkingCapital =
+      calculateInterestOnWorkingCapital(yearIndex);
 
     const depreciationExpense =
       storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0;
@@ -324,6 +401,18 @@ const CheckProfit = () => {
       interestOnTermLoan +
       interestExpenseOnWorkingCapital +
       depreciationExpense;
+
+    // 👇 Console log in table format per year
+    // console.table([
+    //   {
+    //     Year: yearIndex + 1,
+    //     "Total Indirect Expenses": totalIndirectExpenses,
+    //     "Interest on Term Loan": interestOnTermLoan,
+    //     "Interest on Working Capital": interestExpenseOnWorkingCapital,
+    //     Depreciation: depreciationExpense,
+    //     "Year Total": total,
+    //   },
+    // ]);
 
     return total;
   });
@@ -351,6 +440,16 @@ const CheckProfit = () => {
       npbt - (formData.MoreDetails.Withdrawals?.[yearIndex] || 0)
   );
 
+  // Log as a table for clarity:
+  // console.table(
+  //   balanceTransferred.map((val, i) => ({
+  //     "Year Index": i + 1,
+  //     "Net Profit After Tax (NPAT)": netProfitAfterTax[i],
+  //     Withdrawals: formData.MoreDetails.Withdrawals?.[i] || 0,
+  //     "Balance Transferred": val,
+  //   }))
+  // );
+
   // Precompute Cumulative Balance Transferred to Balance Sheet
   const cumulativeBalanceTransferred = [];
   balanceTransferred.forEach((amount, index) => {
@@ -368,15 +467,25 @@ const CheckProfit = () => {
   const totalA = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, yearIndex) => {
-    return (
-      (netProfitAfterTax[yearIndex] || 0) +
-      (storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0) +
-      (storedData?.yearlyInterestLiabilities[yearIndex] || 0) +
-      (calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0,
-        yearIndex
-      ) || 0) // ✅ Correctly calling the function
-    );
+    const npat = netProfitAfterTax[yearIndex] || 0;
+    const depreciation =
+      storedData?.computedData1?.totalDepreciationPerYear[yearIndex] || 0;
+    const interestTL = storedData?.yearlyInterestLiabilities[yearIndex] || 0;
+    const interestWC = calculateInterestOnWorkingCapital(yearIndex);
+
+    const total = npat + depreciation + interestTL + interestWC;
+
+    // Debug table for this year
+    // console.table([{
+    //   "Year Index": yearIndex + 1,
+    //   "Net Profit After Tax (NPAT)": npat,
+    //   "Depreciation": depreciation,
+    //   "Interest on Term Loan": interestTL,
+    //   "Interest on Working Capital": interestWC,
+    //   "Total A": total,
+    // }]);
+
+    return total;
   });
 
   // ✅ Compute Total (B) for Each Year
@@ -385,19 +494,50 @@ const CheckProfit = () => {
   }).map((_, yearIndex) => {
     return (
       (storedData?.yearlyInterestLiabilities[yearIndex] || 0) + // ✅ Interest on Term Loan
-      (calculateInterestOnWorkingCapital(
-        interestOnWorkingCapital[yearIndex] || 0, // Pass interest amount
-        yearIndex // Pass current year index
-      ) || 0) + // ✅ Interest on Working Capital
+      calculateInterestOnWorkingCapital(yearIndex) + // ✅ Interest on Working Capital
       (storedData?.yearlyPrincipalRepayment[yearIndex] || 0) // ✅ Repayment of Term Loan
     );
   });
+
+  // console.table(
+  //   Array.from({
+  //     length: formData.ProjectReportSetting.ProjectionYears || 0,
+  //   }).map((_, yearIndex) => ({
+  //     "Year Index": yearIndex + 1,
+  //     "Interest on Term Loan":
+  //       storedData?.yearlyInterestLiabilities[yearIndex] || 0,
+  //     "Interest on Working Capital":
+  //       calculateInterestOnWorkingCapital(yearIndex),
+  //     "Principal Repayment":
+  //       storedData?.yearlyPrincipalRepayment[yearIndex] || 0,
+  //     "Total B":
+  //       (storedData?.yearlyInterestLiabilities[yearIndex] || 0) +
+  //       (calculateInterestOnWorkingCapital(yearIndex)) +
+  //       (storedData?.yearlyPrincipalRepayment[yearIndex] || 0),
+  //   }))
+  // );
+
+  // const DSCR = Array.from({
+  //   length: formData.ProjectReportSetting.ProjectionYears || 0,
+  // }).map((_, yearIndex) => {
+  //   return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
+  // });
 
   const DSCR = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, yearIndex) => {
     return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
   });
+
+  // console.table(
+  //   DSCR.map((value, yearIndex) => ({
+  //     "Year Index": yearIndex + 1,
+  //     "Total A": totalA[yearIndex],
+  //     "Total B": totalB[yearIndex],
+  //     DSCR: value,
+  //   }))
+  // );
+
   const validDSCRValues = DSCR.filter(
     (value, index) => !(index === 0 && value === 0)
   );
@@ -536,40 +676,93 @@ const CheckProfit = () => {
     return 0;
   });
 
-  const totalAssetArray = Array.from({ length: projectionYears }).map(
+  // const totalAssetArray = Array.from({ length: projectionYears }).map(
+  //   (_, index) => {
+  //     const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+  //     const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0;
+
+  //     // ✅ Filter out "Inventory" and dontSendToBS before summing
+  //     const currentYearAssets =
+  //       formData?.MoreDetails?.currentAssets
+  //         ?.filter(
+  //           (asset) =>
+  //             asset.particular !== "Inventory" &&
+  //             !asset.dontSendToBS &&
+  //             asset.years?.[index]
+  //         )
+  //         .reduce((sum, asset) => sum + Number(asset.years[index] || 0), 0) ||
+  //       0;
+
+  //     cumulativeCurrentAssets += currentYearAssets;
+
+  //     const inventoryValue = inventory[index] || 0; // ✅ Add inventory here
+
+  //     const preliminaryWriteOffcalculation =
+  //       preliminaryWriteOffPerYear[index] || 0;
+
+  //     const totalAssets =
+  //       netFixedAssetValue +
+  //       cashEquivalent +
+  //       currentYearAssets + // <-- NOT cumulative!
+  //       preliminaryWriteOffcalculation +
+  //       inventoryValue;
+
+  //     // Console table per year
+  //     console.table([
+  //       {
+  //         "Year Index": index + 1,
+  //         "Net Fixed Assets": netFixedAssetValue,
+  //         "Cash & Cash Equivalents": cashEquivalent,
+  //         "Current Year Assets": currentYearAssets, // only current
+  //         "Cumulative Current Assets": cumulativeCurrentAssets,
+  //         Inventory: inventoryValue,
+  //         "Preliminary Write Off": preliminaryWriteOffcalculation,
+  //         "Total Assets (Current Year Only)":
+  //           netFixedAssetValue +
+  //           cashEquivalent +
+  //           currentYearAssets +
+  //           preliminaryWriteOffcalculation +
+  //           inventoryValue,
+  //         "Total Assets (Buggy - Cumulative)":
+  //           netFixedAssetValue +
+  //           cashEquivalent +
+  //           cumulativeCurrentAssets +
+  //           preliminaryWriteOffcalculation +
+  //           inventoryValue,
+  //       },
+  //     ]);
+
+  //     return totalAssets;
+  //   }
+  // );
+
+
+    const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
       const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0;
 
-      // ✅ Filter out "Inventory" and dontSendToBS before summing
-      const currentYearAssets =
-        formData?.MoreDetails?.currentAssets
-          ?.filter(
-            (asset) =>
-              asset.particular !== "Inventory" &&
-              !asset.dontSendToBS &&
-              asset.years?.[index]
-          )
-          .reduce((sum, asset) => sum + Number(asset.years[index] || 0), 0) ||
-        0;
+      const currentYearAssets = formData?.MoreDetails?.currentAssets
+        ?.filter(
+          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+        )
+        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       cumulativeCurrentAssets += currentYearAssets;
 
-      const inventoryValue = inventory[index] || 0; // ✅ Add inventory here
 
-      const preliminaryWriteOffcalculation = preliminaryWriteOffPerYear[index] || 0;
+      const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
 
       const totalAssets =
-        netFixedAssetValue +
-        cashEquivalent +
-        cumulativeCurrentAssets +
-        preliminaryWriteOffcalculation+
-        inventoryValue; // ✅ Added
+        Number(netFixedAssetValue) +
+        Number(cashEquivalent) +
+        Number(cumulativeCurrentAssets) +
+        Number(inventory[index]) +
+        Number(preliminaryAsset); // ✅ INCLUDED
 
       return totalAssets;
     }
   );
-
   const repaymentValueswithin12months = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, index) => {
@@ -651,14 +844,16 @@ const CheckProfit = () => {
     <div className="p-2 w-full">
       {/* ✅ Corrected inline styles using spread operator */}
       <div className="p-20 pt-4 flex flex-col items-center w-full">
-        <div className=""></div>
+          {/* Download PDF Button */}
+  
         <h2 className="text-xl font-bold mb-4">Profit Statements</h2>
 
-        <div className="w-full">
+        <div ref={targetRef} className="p-2 w-full">
           {/* Profit Statement Heading */}
           <div className="bg-blue-950 text-white text-center py-2 text-[11px]">
             PROJECTED PROFITABILITY STATEMENT
           </div>
+          
 
           <table
             className="w-full  mt-3"
@@ -1000,38 +1195,39 @@ const CheckProfit = () => {
               </tr>
 
               {/* Interest On Working Capital */}
-              <tr className="font-normal text-[11px] border-0 mt-2">
-                <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
-                  2
-                </td>
-                <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
-                  Interest On Working Capital
-                </td>
+              {!isWorkingCapitalInterestZero && (
+                <tr className="font-normal text-[11px] border-0 mt-2">
+                  <td className="border border-black px-1 py-2 text-center font-normal text-[11px]">
+                    2
+                  </td>
+                  <td className="border border-black px-1 py-2 font-normal text-[11px] text-left w-1/3">
+                    Interest On Working Capital
+                  </td>
 
-                {Array.from({
-                  length:
-                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                    0,
-                })
-                  .map((_, yearIndex) => {
-                    const value = calculateInterestOnWorkingCapital(
-                      interestOnWorkingCapital?.[yearIndex] || 0,
-                      yearIndex
-                    );
-                    return { value, yearIndex };
+                  {Array.from({
+                    length:
+                      parseInt(formData.ProjectReportSetting.ProjectionYears) ||
+                      0,
                   })
-                  .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
-                  )
-                  .map(({ value, yearIndex }) => (
-                    <td
-                      key={`workingCapitalInterest-${yearIndex}`}
-                      className="border border-black px-1 py-2 text-center font-normal text-[11px]"
-                    >
-                      {formatNumber(value)}
-                    </td>
-                  ))}
-              </tr>
+                    .map((_, yearIndex) => {
+                      const value =
+                        calculateInterestOnWorkingCapital(yearIndex);
+
+                      return { value, yearIndex };
+                    })
+                    .filter(
+                      ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    )
+                    .map(({ value, yearIndex }) => (
+                      <td
+                        key={`workingCapitalInterest-${yearIndex}`}
+                        className="border border-black px-1 py-2 text-center font-normal text-[11px]"
+                      >
+                        {formatNumber(value)}
+                      </td>
+                    ))}
+                </tr>
+              )}
 
               {/* Depreciation */}
               <tr className="font-normal text-[11px] border-0 mt-2">
@@ -1248,18 +1444,8 @@ const CheckProfit = () => {
                   Balance Trf. To Balance Sheet
                 </td>
 
-                {Array.from({
-                  length:
-                    parseInt(formData.ProjectReportSetting.ProjectionYears) ||
-                    0,
-                })
-                  .map((_, yearIndex) => ({
-                    amount:
-                      formData.MoreDetails.balanceTrfToBalanceSheet?.[
-                        yearIndex
-                      ] ?? 0,
-                    yearIndex,
-                  }))
+                {balanceTransferred
+                  .map((amount, yearIndex) => ({ amount, yearIndex }))
                   .filter(
                     ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
                   )

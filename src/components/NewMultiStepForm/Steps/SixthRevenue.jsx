@@ -60,41 +60,37 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   // }, [projectionYears, noOfMonths, totalMonthlyRevenue]); // ✅ Add projectionYears as dependency
 
   // ✅ Initialize togglerType (boolean) from revenueData, default to false
-  
-  
-useEffect(() => {
-  setLocalData((prevData) => {
-    const safeYears = projectionYears || 1;
 
-    // Trim formFields years array
-    const trimmedFormFields = (prevData.formFields || []).map((item) => ({
-      ...item,
-      years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
-    }));
+  useEffect(() => {
+    setLocalData((prevData) => {
+      const safeYears = projectionYears || 1;
 
-    // Trim formFields2 years array
-    const trimmedFormFields2 = (prevData.formFields2 || []).map((item) => ({
-      ...item,
-      years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
-    }));
+      // Trim formFields years array
+      const trimmedFormFields = (prevData.formFields || []).map((item) => ({
+        ...item,
+        years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
+      }));
 
-    return {
-      ...prevData,
-      formFields: trimmedFormFields,
-      formFields2: trimmedFormFields2,
-      totalRevenue: prevData.totalRevenue?.slice(0, safeYears) || [],
-      totalMonthlyRevenue:
-        prevData.totalMonthlyRevenue?.slice(0, safeYears) || [],
-      totalRevenueForOthers:
-        prevData.totalRevenueForOthers?.slice(0, safeYears) || [],
-      noOfMonths: prevData.noOfMonths?.slice(0, safeYears) || [],
-    };
-  });
-}, [projectionYears]);
+      // Trim formFields2 years array
+      const trimmedFormFields2 = (prevData.formFields2 || []).map((item) => ({
+        ...item,
+        years: item.years?.slice(0, safeYears) || Array(safeYears).fill(0),
+      }));
 
+      return {
+        ...prevData,
+        formFields: trimmedFormFields,
+        formFields2: trimmedFormFields2,
+        totalRevenue: prevData.totalRevenue?.slice(0, safeYears) || [],
+        totalMonthlyRevenue:
+          prevData.totalMonthlyRevenue?.slice(0, safeYears) || [],
+        totalRevenueForOthers:
+          prevData.totalRevenueForOthers?.slice(0, safeYears) || [],
+        noOfMonths: prevData.noOfMonths?.slice(0, safeYears) || [],
+      };
+    });
+  }, [projectionYears]);
 
-  
-  
   const [togglerType, setTogglerType] = useState(
     revenueData?.togglerType ?? false
   );
@@ -238,29 +234,30 @@ useEffect(() => {
   }, [formType]);
 
   // ✅ Ensure `onFormDataChange` updates only when `localData` changes
-useEffect(() => {
-  const safeYears = projectionYears || 1;
+  useEffect(() => {
+    const safeYears = projectionYears || 1;
 
-  // Safely prepare clean data before submission
-  const trimmedData = {
-    ...localData,
-    formFields: (localData.formFields || []).map((item) => ({
-      ...item,
-      years: item.years?.slice(0, safeYears) || [],
-    })),
-    formFields2: (localData.formFields2 || []).map((item) => ({
-      ...item,
-      years: item.years?.slice(0, safeYears) || [],
-    })),
-    totalRevenue: localData.totalRevenue?.slice(0, safeYears) || [],
-    totalMonthlyRevenue: localData.totalMonthlyRevenue?.slice(0, safeYears) || [],
-    totalRevenueForOthers: localData.totalRevenueForOthers?.slice(0, safeYears) || [],
-    noOfMonths: localData.noOfMonths?.slice(0, safeYears) || [],
-  };
+    // Safely prepare clean data before submission
+    const trimmedData = {
+      ...localData,
+      formFields: (localData.formFields || []).map((item) => ({
+        ...item,
+        years: item.years?.slice(0, safeYears) || [],
+      })),
+      formFields2: (localData.formFields2 || []).map((item) => ({
+        ...item,
+        years: item.years?.slice(0, safeYears) || [],
+      })),
+      totalRevenue: localData.totalRevenue?.slice(0, safeYears) || [],
+      totalMonthlyRevenue:
+        localData.totalMonthlyRevenue?.slice(0, safeYears) || [],
+      totalRevenueForOthers:
+        localData.totalRevenueForOthers?.slice(0, safeYears) || [],
+      noOfMonths: localData.noOfMonths?.slice(0, safeYears) || [],
+    };
 
-  onFormDataChange({ Revenue: trimmedData });
-}, [localData, projectionYears]);
-
+    onFormDataChange({ Revenue: trimmedData });
+  }, [localData, projectionYears]);
 
   // ✅ Toggle function to correctly update both `formType` and `togglerType`
   const toggleType = (isChecked) => {
@@ -502,19 +499,53 @@ useEffect(() => {
         formData?.ProjectReportSetting?.ProjectionYears || 5
       );
 
+      // const getYearValues = (row, startIndex) => {
+      //   return row
+      //     .slice(startIndex, startIndex + projectionYears)
+      //     .map((val) => {
+      //       if (val === undefined || val === null) return "";
+      //       if (typeof val === "string") {
+      //         const trimmed = val.trim();
+      //         if (trimmed === "") return "";
+      //         // If already has % sign, keep as is
+      //         if (trimmed.endsWith("%")) return trimmed;
+      //         // Otherwise, parse number or keep as text if not a number
+      //         const numVal = Number(trimmed.replace(/,/g, ""));
+      //         return isNaN(numVal) ? trimmed : numVal;
+      //       }
+      //       // If number, just return as is (no conversion to percent!)
+      //       if (typeof val === "number") {
+      //         return val;
+      //       }
+      //       // Fallback: just toString
+      //       return String(val);
+      //     });
+      // };
+
       const getYearValues = (row, startIndex) => {
-        const values = row
-          .slice(startIndex, startIndex + projectionYears)
-          .map((val) => {
-            const trimmed = String(val).trim();
-            return trimmed === "" ? "" : Number(val);
-          });
-
-        while (values.length < projectionYears) {
-          values.push(""); // fill missing years with blank instead of 0
-        }
-
-        return values;
+        // Check if the entire row appears to be percent (all values 0<x<=1)
+        const valueCells = row.slice(startIndex, startIndex + projectionYears);
+        const percentLike = valueCells.every(
+          (v) => typeof v === "number" && v > 0 && v < 1
+        );
+        return valueCells.map((val) => {
+          if (val === undefined || val === null) return "";
+          // If value is a string and ends with %, return as is
+          if (typeof val === "string") {
+            const trimmed = val.trim();
+            if (trimmed === "") return "";
+            if (trimmed.endsWith("%")) return trimmed;
+            // Try parse as number, if fails return as-is
+            const numVal = Number(trimmed.replace(/,/g, ""));
+            return isNaN(numVal) ? trimmed : numVal;
+          }
+          // If number and looks like percent, AND row appears to be percent row, show as %
+          if (typeof val === "number" && percentLike) {
+            return `${(val * 100).toFixed(2).replace(/\.00$/, "")}%`;
+          }
+          // Else, just show as number
+          return val;
+        });
       };
 
       if (formType) {
@@ -549,7 +580,12 @@ useEffect(() => {
             serialNumber: row[0] ?? "",
             particular: row[1] ?? "",
             years: getYearValues(row, 2),
-            rowType: "0",
+            // rowType: "0",
+            rowType:
+              row[2 + projectionYears] !== undefined &&
+              row[2 + projectionYears] !== ""
+                ? String(row[2 + projectionYears]).trim()
+                : "0", // <-- This picks up Row Type
             increaseBy: "",
           }));
 
@@ -614,6 +650,7 @@ useEffect(() => {
     for (let i = 1; i <= projectionYears; i++) {
       headers.push(`Year ${i}`);
     }
+    headers.push("Row Type");
 
     const data = [headers];
 
@@ -625,8 +662,10 @@ useEffect(() => {
           item.serialNumber ?? "",
           item.particular ?? "",
           ...(item.years ?? []).slice(0, projectionYears),
+          item.rowType ?? "0",
         ];
-        while (row.length < 2 + projectionYears) row.push("");
+        // while (row.length < 2 + projectionYears) row.push("");
+        while (row.length < 2 + projectionYears + 1) row.push("");
         data.push(row);
       });
 
@@ -636,7 +675,7 @@ useEffect(() => {
         "Total Revenue From Operations",
         ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
       ];
-      while (totalRow.length < 2 + projectionYears) totalRow.push("");
+      while (totalRow.length < 2 + projectionYears + 1) totalRow.push("");
       data.push(totalRow);
     } else if (!formType && localData?.formFields2?.length > 0) {
       // Monthly Template
@@ -683,6 +722,19 @@ useEffect(() => {
       maximumFractionDigits: 2,
     });
   };
+
+  function formatNumberWithCommasAndPercent(val, isPercent) {
+    if (val === null || val === undefined || val === "") return "";
+    let str = val.toString().replace(/,/g, "");
+    if (str.endsWith("%")) {
+      str = str.replace("%", "");
+      const num = Number(str);
+      if (isNaN(num)) return val;
+      return num.toLocaleString("en-IN") + "%";
+    }
+    // If isPercent true, but value is not string with %—treat as number
+    return Number(str).toLocaleString("en-IN");
+  }
 
   // Remove commas for raw value
   const removeCommas = (str) => {
@@ -840,26 +892,25 @@ useEffect(() => {
 
                       return (
                         <tr
-                        key={i}
-                        className={`rowHover ${
-                          entry.rowType === "0"
-                            ? "normalRow"
-                            : entry.rowType === "1"
-                            ? "headingRow"
-                            : entry.rowType === "2"
-                            ? "boldRow"
-                            : entry.rowType === "3"
-                            ? "boldUnderlineRow"
-                            : entry.rowType === "4"
-                            ? "underlineRow"
-                            : entry.rowType === "5"
-                            ? "totalRow"
-                            : entry.rowType === "6"
-                            ? "showRow"
-                            : ""
-                        }`}
-                      >
-                      
+                          key={i}
+                          className={`rowHover ${
+                            entry.rowType === "0"
+                              ? "normalRow"
+                              : entry.rowType === "1"
+                              ? "headingRow"
+                              : entry.rowType === "2"
+                              ? "boldRow"
+                              : entry.rowType === "3"
+                              ? "boldUnderlineRow"
+                              : entry.rowType === "4"
+                              ? "underlineRow"
+                              : entry.rowType === "5"
+                              ? "totalRow"
+                              : entry.rowType === "6"
+                              ? "showRow"
+                              : ""
+                          }`}
+                        >
                           {/* ✅ Editable Serial Number (Now Alphanumeric) */}
                           <td>
                             <input
@@ -900,7 +951,12 @@ useEffect(() => {
                                 placeholder=""
                                 className="table-input"
                                 type="text"
-                                value={formatNumberWithCommas(yr || 0)}
+                                value={
+                                  typeof yr === "string" &&
+                                  yr.trim().endsWith("%")
+                                    ? formatNumberWithCommasAndPercent(yr, true)
+                                    : formatNumberWithCommas(yr)
+                                }
                                 onChange={(event) => {
                                   const rawValue = removeCommas(
                                     event.target.value
@@ -1204,7 +1260,12 @@ useEffect(() => {
                                 placeholder=""
                                 className="table-input"
                                 type="text" // ✅ change to text so we can show commas
-                                value={formatNumberWithCommas(yr || "")}
+                                value={
+                                  typeof yr === "string" &&
+                                  yr.trim().endsWith("%")
+                                    ? formatNumberWithCommasAndPercent(yr, true)
+                                    : formatNumberWithCommas(yr)
+                                }
                                 onChange={(event) => {
                                   const rawValue = removeCommas(
                                     event.target.value

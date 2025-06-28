@@ -161,15 +161,14 @@ const ProjectedBalanceSheet = ({
     return 0;
   });
 
-      const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
-      }).map((_, yearIndex) => {
-        const ClosingStock =
-          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-        return ClosingStock;
-      });
+  const inventory = Array.from({
+    length: formData.MoreDetails.OpeningStock.length,
+  }).map((_, yearIndex) => {
+    const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+    return ClosingStock;
+  });
 
-      console.log("inventory in total assest", inventory)
+  // console.log("inventory in total assest", inventory);
 
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -184,14 +183,13 @@ const ProjectedBalanceSheet = ({
 
       cumulativeCurrentAssets += currentYearAssets;
 
-
       const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
 
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
         cumulativeCurrentAssets +
-        Number(inventory[index])  +
+        Number(inventory[index]) +
         preliminaryAsset; // ✅ INCLUDED
 
       return totalAssets;

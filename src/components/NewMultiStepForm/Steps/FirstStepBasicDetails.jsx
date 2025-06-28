@@ -1,5 +1,11 @@
-
-import React, { useState, useEffect, useCallback ,useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 
 import deleteImg from "../delete.png";
 import axios from "axios";
@@ -83,21 +89,17 @@ const FirstStepBasicDetails = ({
     });
   }, [localData, onFormDataChange]);
 
-
-
-  
-
   const firstLoad = useRef(true);
 
   useEffect(() => {
     const accountInfo = formData?.AccountInformation;
-  
+
     // Only proceed if we have data from backend
     const hasData =
       accountInfo &&
       Object.keys(accountInfo).length > 0 &&
       accountInfo.clientName; // or any key you expect from backend
-  
+
     if (firstLoad.current && hasData) {
       setLocalData({
         ...accountInfo,
@@ -108,12 +110,11 @@ const FirstStepBasicDetails = ({
       firstLoad.current = false;
     }
   }, [formData?.AccountInformation]);
-  
+
   useEffect(() => {
     firstLoad.current = true;
   }, [sessionId]);
-  
-  
+
   useEffect(() => {
     setFieldErrors(requiredFieldErrors || {});
   }, [requiredFieldErrors]);
@@ -237,27 +238,30 @@ const FirstStepBasicDetails = ({
 
   // const handlePartnerChange = (e, index) => {
   //   const { name, value } = e.target;
-    
+
   //   setLocalData((prevData) => {
   //     const updatedPartners = [...prevData.allPartners];
   //     updatedPartners[index] = { ...updatedPartners[index], [name]: value };
-      
+
   //     return { ...prevData, allPartners: updatedPartners };
   //   });
   // };
-  
-  const handlePartnerChange = useCallback((e, index) => {
-    const { name, value } = e.target;
-  
-    setLocalData((prevData) => {
-      const updatedPartners = [...prevData.allPartners];
-      updatedPartners[index] = { ...updatedPartners[index], [name]: value };
-  
-      // Update state only if the partners array changes
-      return { ...prevData, allPartners: updatedPartners };
-    });
-  }, [setLocalData]);
-  
+
+  const handlePartnerChange = useCallback(
+    (e, index) => {
+      const { name, value } = e.target;
+
+      setLocalData((prevData) => {
+        const updatedPartners = [...prevData.allPartners];
+        updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+
+        // Update state only if the partners array changes
+        return { ...prevData, allPartners: updatedPartners };
+      });
+    },
+    [setLocalData]
+  );
+
   // Effect to automatically save the data when the form is updated
   useEffect(() => {
     // Make sure to update AccountInformation instead of CostOfProject
@@ -286,6 +290,15 @@ const FirstStepBasicDetails = ({
 
     if (!localData.businessName || localData.businessName.trim() === "") {
       errors.businessName = "Business Name is required";
+    }
+    // Add this for businessDescription (min 30 words)
+    const businessDesc = localData.businessDescription?.trim() || "";
+    const businessDescWordCount = businessDesc
+      .split(/\s+/)
+      .filter(Boolean).length;
+    if (!businessDesc) {
+  
+    } else if (businessDescWordCount < 10) {
     }
 
     setRequiredErrors(errors);
@@ -391,8 +404,22 @@ const FirstStepBasicDetails = ({
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="businessDescription">Business Description</label>
+              <label htmlFor="businessDescription">
+                Business Description<span className="text-red-600">*</span>{" "}
+              </label>
+              {/* Show requiredFieldErrors like other fields */}
+              {requiredFieldErrors.businessDescription && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.businessDescription}
+                </p>
+              )}
+              {validationErrors.businessDescription && (
+                <p className="text-red-600 text-sm mt-1">
+                  {validationErrors.businessDescription}
+                </p>
+              )}
             </div>
+
             <div className="input">
               <input
                 id="businessOwner"

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 import GraphGenerator from "../GraphGenerator";
+
 import IntroPage from "../IntroPage";
 import { useNavigate } from "react-router-dom";
+
 
 
 const FinalStep = ({ formData, userRole }) => {
@@ -162,28 +164,6 @@ const FinalStep = ({ formData, userRole }) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     };
 
-    // ✅ Function to format array-based data in a structured table format
-    const addArraySheet = (data, sheetName) => {
-      const headerRow = [
-        "Parameter",
-        "Year 1",
-        "Year 2",
-        "Year 3",
-        "Year 4",
-        "Year 5",
-      ];
-      const rows = [headerRow];
-
-      Object.keys(data).forEach((key) => {
-        if (Array.isArray(data[key])) {
-          rows.push([key, ...data[key]]);
-        }
-      });
-
-      const worksheet = XLSX.utils.aoa_to_sheet(rows);
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    };
-
     // ✅ Add individual sheets for each section
     if (Object.keys(sections["Account Information"]).length > 0) {
       addKeyValueSheet(sections["Account Information"], "Account Info");
@@ -194,14 +174,18 @@ const FinalStep = ({ formData, userRole }) => {
     }
 
     if (formData?.CostOfProject) {
-      const rows = [["Name", "Amount"]];
-
-      Object.values(formData.CostOfProject).forEach((item) => {
-        if (item?.name && typeof item.amount === "number") {
-          rows.push([item.name, item.amount]);
-        }
-      });
-
+      const rows = [["Name", "Amount", "Rate"]];
+      Object.values(formData.CostOfProject)
+        .filter(
+          (item) =>
+            typeof item === "object" &&
+            item !== null &&
+            "name" in item &&
+            "amount" in item
+        )
+        .forEach((item) => {
+          rows.push([item.name, item.amount, item.rate]);
+        });
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Cost of Project");
     }
@@ -416,8 +400,20 @@ const FinalStep = ({ formData, userRole }) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "More Details");
     }
 
-    if (Object.keys(sections["Other Data"]).length > 0) {
-      addKeyValueSheet(sections["Other Data"], "Other Data");
+    if (
+      formData?.ProjectReportSetting &&
+      Object.keys(formData.ProjectReportSetting).length > 0
+    ) {
+      const rows = [["Key", "Value"]]; // Header row
+      Object.entries(formData.ProjectReportSetting).forEach(([key, value]) => {
+        rows.push([key, value]);
+      });
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Project Report Setting"
+      );
     }
 
     // ✅ Save the file
@@ -654,7 +650,7 @@ const FinalStep = ({ formData, userRole }) => {
   console.log("permissions.generateReport:", permissions?.generateReport);
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
+    <div className="max-full mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">
         Final Step: Generate PDF
       </h2>
@@ -855,8 +851,8 @@ const FinalStep = ({ formData, userRole }) => {
         </div>
       )}
 
-      <div className="flex gap-5">
-        {/* ✅ Check Profit Button */}
+      {/* <div className="flex gap-5">
+   
         <button
           onClick={handleCheckProfit}
           className="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -864,7 +860,6 @@ const FinalStep = ({ formData, userRole }) => {
           {isLoading ? "Loading..." : "Check Profit"}
         </button>
 
-        {/* ✅ Generate PDF Button */}
         {(userRole === "admin" ||
           (userRole === "employee" && permissions.generateReport)) && (
           <button
@@ -880,7 +875,6 @@ const FinalStep = ({ formData, userRole }) => {
           <GraphGenerator formData={formData} />
         )}
 
-        {/* ✅ New Export Data Button */}
         {(userRole === "admin" ||
           (userRole === "employee" && permissions.generateReport)) && (
           <button
@@ -890,7 +884,88 @@ const FinalStep = ({ formData, userRole }) => {
             Export Data
           </button>
         )}
-      </div>
+      </div> */}
+      <div className="w-full h-[15vh] bg-white rounded-xl shadow-lg p-2">
+        <div className="h-full flex justify-between items-center gap-4">
+          {/* ✅ Check Profit Button */}
+          <button
+            onClick={handleCheckProfit}
+            className="h-full flex-1 flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group"
+            disabled={isLoading}
+          >
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-blue-200 transition-colors">
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-6 w-6 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+                  />
+                </svg>
+              )}
+            </div>
+            <span className="text-sm font-medium text-blue-800">
+              {isLoading ? "Loading..." : "Check Profit"}
+            </span>
+          </button>
+
+          {/* ✅ Generate PDF Button */}
+          {(userRole === "admin" ||
+            (userRole === "employee" && permissions.generateReport)) && (
+            <button
+              onClick={handleGeneratePdfClick}
+              className="h-full flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:border-green-300 transition-all hover:shadow-md group"
+            >
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-green-200 transition-colors">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-green-800">
+                Generate PDF
+              </span>
+            </button>
+          )}
+
 
       {(userRole === "admin" ||
         (userRole === "employee" && permissions.generateReport)) && (
@@ -902,6 +977,51 @@ const FinalStep = ({ formData, userRole }) => {
       Generate Word
     </button>
       )}
+
+          {/* ✅ Export Data Button */}
+          {(userRole === "admin" ||
+            (userRole === "employee" && permissions.generateReport)) && (
+            <button
+              onClick={handleExportData}
+              className="h-full flex-1 flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg border border-amber-200 hover:border-amber-300 transition-all hover:shadow-md group"
+            >
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-amber-200 transition-colors">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-amber-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-amber-800">
+                Export Data
+              </span>
+            </button>
+          )}
+
+            {/* ✅ Graph Generator Button */}
+      {(userRole === "admin" ||
+        (userRole === "employee" && permissions.generateReport)) && (
+        <GraphGenerator
+          formData={formData}
+          className="h-full flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group"
+        />
+      )}
+      
+        </div>
+      </div>
+
+    
+
+
       {/* ✅ Hidden Iframe */}
       <iframe
         ref={iframeRef}

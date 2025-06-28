@@ -21,6 +21,7 @@ import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
+import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
@@ -391,7 +392,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const handleSubmitFirstStep = () => {
     const errors = {};
-    const { clientName, businessOwner, businessName } =
+    const { clientName, businessOwner, businessName, businessDescription } =
       formData?.AccountInformation || {};
 
     if (!clientName || clientName.trim() === "") {
@@ -406,6 +407,15 @@ const MultiStepForm = ({ userRole, userName }) => {
       errors.businessName = "Business Name is required";
     }
 
+    if (!businessDescription || businessDescription.trim() === "") {
+  errors.businessDescription = "Business Description is required";
+} else {
+  const wordCount = businessDescription.trim().split(/\s+/).length;
+  if (wordCount < 10) {
+    errors.businessDescription = "Business Description must be at least 10 words";
+  }
+}
+
     // if (Object.keys(errors).length > 0) {
     //   // 👇 Show alert
     //   alert("Please fill the required fields: " + Object.keys(errors).join(", "));
@@ -414,13 +424,20 @@ const MultiStepForm = ({ userRole, userName }) => {
       clientName: "Client Name",
       businessOwner: "Business Owner",
       businessName: "Business Name",
+      businessDescription: "Business Description"
     };
 
     if (Object.keys(errors).length > 0) {
       const missing = Object.keys(errors).map(
         (k) => friendlyFieldNames[k] || k
       );
-      alert("Please fill the required fields: " + missing.join(", "));
+      Swal.fire({
+  icon: 'error',
+  title: 'Required Fields Missing',
+  html: `<div style="text-align:left;"><ul style="padding-left:1.5em;">${missing.map(m => `<li>${m}</li>`).join('')}</ul></div>`,
+  confirmButtonColor: '#3085d6'
+});
+
     }
 
     setRequiredFieldErrors(errors); // 👈 this sends the message to FirstStep
