@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { generateAllCharts } from "./charts/generateAllCharts";
 import { generateGraphsPdf } from "./Utils/generateGraphsPdf";
 
-const GraphGenerator = ({ formData }) => {
+const GraphGenerator = ({ formData, selectedColor }) => {
   const [loading, setLoading] = useState(false);
-  console.log("form data here", formData);
+
   const handleClick = async () => {
     if (!formData) return;
     setLoading(true);
     try {
-      const charts = await generateAllCharts(formData);
+      const charts = await generateAllCharts(formData, selectedColor);
       await generateGraphsPdf(charts);
     } catch (e) {
       console.error(e);
