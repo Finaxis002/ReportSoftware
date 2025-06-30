@@ -6,11 +6,41 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 Chart.register(...registerables);
 
-const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
+const COLOR_NAME_MAP = {
+  Red: "#ef4444",
+  Blue: "#3b82f6",
+  Green: "#22c55e",
+  Purple: "#8b5cf6",
+  SkyBlue: "#0ea5e9",
+  Orange: "#f97316",
+  Pink: "#ec4899",
+  Teal: "#14b8a6",
+};
+
+function toHex(color) {
+  if (!color) return "#3674b5";
+  if (color.startsWith("#")) return color;
+  return COLOR_NAME_MAP[color] || color;
+}
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(54,116,181,${alpha})`;
+  if (!hex.startsWith("#")) return `rgba(54,116,181,${alpha})`;
+  let h = hex.slice(1);
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((x) => x + x)
+      .join("");
+  const num = parseInt(h, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor }) => {
   useEffect(() => {
     let mounted = true;
-// console.log("values in line chart",values )
-// console.log("labels in line chart",labels )
 
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
@@ -46,12 +76,12 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
         let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
         const yInterval = Number((maxYValue / 4).toFixed(2)); // ✅ Divide into 4 equal parts with decimals
 
-        // console.log("✅ Last Year Value:", lastYearValue);
-        // console.log("✅ Max Y Value:", maxYValue);
-        // console.log("✅ Y Interval:", yInterval);
 
         Chart.defaults.font.family = "Times New Roman";
 
+        const hexColor = toHex(selectedColor);
+        const lineColor = hexToRgba(hexColor, 1); // Solid line
+        const fillColor = hexToRgba(hexColor, 0.18); 
         // ✅ Create Chart Instance
         new Chart(ctx, {
           type: "line",
@@ -61,12 +91,12 @@ const LineChart = ({ labels = [], values = [], onBase64Generated }) => {
               {
                 label: "DSCR",
                 data: values,
-                borderColor: "rgba(54, 116, 181, 0.8)", //lineColor // ✅ Blue line color
-                backgroundColor: gradient,
+                borderColor: lineColor, //lineColor // ✅ Blue line color
+                backgroundColor: fillColor,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: "rgba(121, 206, 241, 0.5)",// pointColor,
-                pointBorderColor: "rgb(54, 116, 181)",
+                pointBackgroundColor: fillColor,// pointColor,
+                pointBorderColor: lineColor,
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8,

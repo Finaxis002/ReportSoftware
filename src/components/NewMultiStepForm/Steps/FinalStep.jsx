@@ -6,10 +6,8 @@ import GraphGenerator from "../GraphGenerator";
 import IntroPage from "../IntroPage";
 import { useNavigate } from "react-router-dom";
 
-
-
 const FinalStep = ({ formData, userRole }) => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [permissions, setPermissions] = useState({
     generateReport: false,
     updateReport: false,
@@ -966,17 +964,43 @@ const FinalStep = ({ formData, userRole }) => {
             </button>
           )}
 
-
-      {(userRole === "admin" ||
+          {/* {(userRole === "admin" ||
         (userRole === "employee" && permissions.generateReport)) && (
-        // <IntroPage formData={formData} />
         <button
       onClick={() => navigate("/intro", { state: { formData } })}
       className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
     >
       Generate Word
     </button>
-      )}
+      )} */}
+
+          {(userRole === "admin" ||
+            (userRole === "employee" && permissions.generateReport)) && (
+            <button
+              onClick={() => navigate("/intro", { state: { formData } })}
+              className="h-full flex-1 flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg border border-amber-200 hover:border-amber-300 transition-all hover:shadow-md group"
+            >
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-amber-200 transition-colors">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-amber-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-amber-800">
+                Generate Word
+              </span>
+            </button>
+          )}
 
           {/* ✅ Export Data Button */}
           {(userRole === "admin" ||
@@ -1007,20 +1031,17 @@ const FinalStep = ({ formData, userRole }) => {
             </button>
           )}
 
-            {/* ✅ Graph Generator Button */}
-      {(userRole === "admin" ||
-        (userRole === "employee" && permissions.generateReport)) && (
-        <GraphGenerator
-          formData={formData}
-          className="h-full flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group"
-        />
-      )}
-      
+          {/* ✅ Graph Generator Button */}
+          {(userRole === "admin" ||
+            (userRole === "employee" && permissions.generateReport)) && (
+            <GraphGenerator
+              formData={formData}
+              selectedColor={selectedColor}
+              className="h-full flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group"
+            />
+          )}
         </div>
       </div>
-
-    
-
 
       {/* ✅ Hidden Iframe */}
       <iframe

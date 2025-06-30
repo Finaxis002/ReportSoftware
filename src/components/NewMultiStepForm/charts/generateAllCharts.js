@@ -4,7 +4,7 @@ import {generateBarChart} from './newgenerateRevenueExpenseChart'
 import { generatePieChart } from "./newgeneratePieChart";
 
 
-const loadLineChartBase64 = (Comp, labels, values) =>
+const loadLineChartBase64 = (Comp, labels, values, selectedColor) =>
   new Promise((resolve) => {
     const mountPoint = document.createElement("div");
     document.body.appendChild(mountPoint);
@@ -16,6 +16,7 @@ const loadLineChartBase64 = (Comp, labels, values) =>
         <Comp
           labels={labels}
           values={values}
+          selectedColor={selectedColor}
           onBase64Generated={(b64) => {
             root.unmount();
             document.body.removeChild(mountPoint);
@@ -26,13 +27,13 @@ const loadLineChartBase64 = (Comp, labels, values) =>
     });
   });
 
-export const generateAllCharts = async (formData) => {
+export const generateAllCharts = async (formData, selectedColor) => {
   const { years, revenue, expenses, pieData, dscr, currentRatio } =
     extractChartData(formData);
 
-  const revenueExpenseChartBase64 = await generateBarChart({ formData });
+  const revenueExpenseChartBase64 = await generateBarChart({ formData, selectedColor });
 
-  const pie = await generatePieChart(pieData);
+  const pie = await generatePieChart(pieData, selectedColor);
   const pieLabels = pieData.map(x => x.name);
 const pieValues = pieData.map(x => Number(x.value));
 // Clean and normalize pie data
@@ -66,12 +67,12 @@ const pieValues = pieData.map(x => Number(x.value));
   const dscrB64 = await loadLineChartBase64(
     (await import("./LineChart")).default,
     years,
-    dscr
+    dscr, selectedColor
   );
   const currentRatioB64 = await loadLineChartBase64(
     (await import("./CurrentRatioChart")).default,
     years,
-    currentRatio
+    currentRatio, selectedColor
   );
 
   return {

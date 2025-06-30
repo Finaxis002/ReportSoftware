@@ -40,6 +40,15 @@ const IntroPage = ({ userRole }) => {
 // }, [location.state]);
 
   const handleBusinessSelect = (data) => {
+  //    if (!data) {
+  //   setBusinessData(null);
+  //   setBusinessDescription("");
+  //   setBep("");
+  //   setSections({});
+  //   setShowProjectReport(false);
+  //   setError("");
+  //   return;
+  // }
     setBusinessData(data);
     setBusinessDescription(data?.AccountInformation?.businessDescription || "");
     setBep(data?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage[1] || '')

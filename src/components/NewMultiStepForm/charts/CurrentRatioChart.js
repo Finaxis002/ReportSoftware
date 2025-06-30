@@ -23,7 +23,45 @@ const shadowPlugin = {
 
 Chart.register(shadowPlugin);
 
-const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
+const COLOR_NAME_MAP = {
+  Red: "#ef4444",
+  Blue: "#3b82f6",
+  Green: "#22c55e",
+  Purple: "#8b5cf6",
+  SkyBlue: "#0ea5e9",
+  Orange: "#f97316",
+  Pink: "#ec4899",
+  Teal: "#14b8a6",
+};
+
+function toHex(color) {
+  if (!color) return "#3674b5";
+  if (color.startsWith("#")) return color;
+  return COLOR_NAME_MAP[color] || color;
+}
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(54,116,181,${alpha})`;
+  if (!hex.startsWith("#")) return `rgba(54,116,181,${alpha})`;
+  let h = hex.slice(1);
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((x) => x + x)
+      .join("");
+  const num = parseInt(h, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+const CurrentRatioChart = ({
+  labels = [],
+  values = [],
+  onBase64Generated,
+  selectedColor,
+}) => {
+  console.log('selectedColor', selectedColor);
   useEffect(() => {
     let mounted = true;
     // console.log("current ratio value in current ratio chart", values);
@@ -51,14 +89,12 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         // gradient.addColorStop(1, "rgba(75, 192, 192, 0.2)");
         gradient.addColorStop(0, "rgba(128, 196, 233, 0.5)");
         gradient.addColorStop(1, "rgba(128, 196, 233, 0.2)");
-        
 
         const lastYearValue = values[values.length - 1] || 0;
-        let maxYValue = lastYearValue + lastYearValue * 0.5 + 1; 
+        let maxYValue = lastYearValue + lastYearValue * 0.5 + 1;
         // let maxYValue = lastYearValue + lastYearValue * 0.2;
 
-       
-// maxYValue = Math.ceil(maxYValue / 0.1) * 0.1;
+        // maxYValue = Math.ceil(maxYValue / 0.1) * 0.1;
         // Calculate the yInterval and ensure it's a number
         let yInterval = maxYValue / 4;
         yInterval = parseFloat(yInterval.toFixed(2)); // Fix the interval calculation to have decimal points.
@@ -66,6 +102,14 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
         maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
 
         Chart.defaults.font.family = "Times New Roman";
+
+        // 👇 Add after context creation
+        const hexColor = toHex(selectedColor);
+        const lineColor = hexToRgba(hexColor, 1); // Solid line
+        const fillColor = hexToRgba(hexColor, 0.18); // Faded fill (adjust opacity as desired)
+        console.log("lineColor", lineColor);
+        console.log("fillColor", fillColor);
+        console.log("hexColor", hexColor);
 
         // ✅ Create Chart Instance
         new Chart(ctx, {
@@ -76,12 +120,15 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
               {
                 label: "CurrentRatio",
                 data: values,
-                borderColor: "rgba(54, 116, 181, 0.8)",
-                backgroundColor: gradient,
+                // borderColor: "rgba(54, 116, 181, 0.8)",
+                // backgroundColor: gradient,
+                borderColor: lineColor,
+                backgroundColor: fillColor,
+
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: "rgba(121, 206, 241, 0.5)",
-                pointBorderColor: "rgb(54, 116, 181)",
+                pointBackgroundColor: fillColor,
+                pointBorderColor: lineColor,
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8,
@@ -93,7 +140,7 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
             responsive: false,
             maintainAspectRatio: false,
             layout: {
-              padding: { top: 40, left: 0, right: 0, bottom: 20 }  // Adjust padding to avoid clipping
+              padding: { top: 40, left: 0, right: 0, bottom: 20 }, // Adjust padding to avoid clipping
             },
             plugins: {
               legend: {
@@ -188,10 +235,6 @@ const CurrentRatioChart = ({ labels = [], values = [], onBase64Generated }) => {
 };
 
 export default CurrentRatioChart;
-
-
-
-
 
 // import React, { useEffect } from 'react';
 // import { Line } from 'react-chartjs-2';

@@ -1,7 +1,40 @@
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
-export const generateBarChart = async ({ formData }) => {
+const COLOR_NAME_MAP = {
+  Red: "#ef4444",
+  Blue: "#3b82f6",
+  Green: "#22c55e",
+  Purple: "#8b5cf6",
+  SkyBlue: "#0ea5e9",
+  Orange: "#f97316",
+  Pink: "#ec4899",
+  Teal: "#14b8a6",
+};
+
+function toHex(color) {
+  if (!color) return "#3674b5";
+  if (color.startsWith("#")) return color;
+  return COLOR_NAME_MAP[color] || color;
+}
+
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(54,116,181,${alpha})`;
+  if (!hex.startsWith("#")) {
+    // If not hex (i.e. unknown named color), opacity will NOT work, fallback to default with alpha
+    return `rgba(54,116,181,${alpha})`;
+  }
+  let h = hex.slice(1);
+  if (h.length === 3) h = h.split("").map(x => x + x).join("");
+  const num = parseInt(h, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+export const generateBarChart = async ({ formData, selectedColor }) => {
+  console.log('formData', formData);
   try {
     // Create and isolate canvas
     const canvas = document.createElement("canvas");
@@ -48,6 +81,10 @@ export const generateBarChart = async ({ formData }) => {
     const maxValue = Math.max(...[...selectedRevenue, ...selectedExpenses]);
     const chartPadding = maxValue * 0.2; // 20% padding
 
+  const mainColor = hexToRgba(toHex(selectedColor), 1);      // full
+    const expensesColor = hexToRgba(toHex(selectedColor), 0.5);   // faded
+
+      
     // Create fresh Chart instance
     const chart = new Chart(ctx, {
       type: "bar",
@@ -57,15 +94,19 @@ export const generateBarChart = async ({ formData }) => {
           {
             label: "Revenue",
             data: selectedRevenue,
-            backgroundColor: "rgba(54, 116, 181)",
-            borderColor: "rgba(54, 116, 181, 1)",
+            // backgroundColor: "rgba(54, 116, 181)",
+            // borderColor: "rgba(54, 116, 181, 1)",
+            backgroundColor: mainColor,
+            borderColor: mainColor,
             borderWidth: 1
           },
           {
             label: "Expenses",
             data: selectedExpenses,
-            backgroundColor: "rgba(124, 185, 226)",
-            borderColor: "rgba(124, 185, 226, 1)",
+            // backgroundColor: "rgba(124, 185, 226)",
+            // borderColor: "rgba(124, 185, 226, 1)",
+             backgroundColor: expensesColor,
+            borderColor: expensesColor,
             borderWidth: 1
           }
         ]
