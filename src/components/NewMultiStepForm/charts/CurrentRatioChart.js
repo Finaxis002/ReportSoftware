@@ -61,7 +61,7 @@ const CurrentRatioChart = ({
   onBase64Generated,
   selectedColor,
 }) => {
-  console.log('selectedColor', selectedColor);
+  
   useEffect(() => {
     let mounted = true;
     // console.log("current ratio value in current ratio chart", values);
@@ -107,9 +107,7 @@ const CurrentRatioChart = ({
         const hexColor = toHex(selectedColor);
         const lineColor = hexToRgba(hexColor, 1); // Solid line
         const fillColor = hexToRgba(hexColor, 0.18); // Faded fill (adjust opacity as desired)
-        console.log("lineColor", lineColor);
-        console.log("fillColor", fillColor);
-        console.log("hexColor", hexColor);
+        
 
         // ✅ Create Chart Instance
         new Chart(ctx, {

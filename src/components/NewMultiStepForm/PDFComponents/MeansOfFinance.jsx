@@ -6,6 +6,7 @@ import CAWatermark from "../Assets/CAWatermark";
 
 
 const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
+  console.log('form data', formData)
   return (
     <Page style={[styles.page]}>
       {/* watermark  */}
@@ -125,7 +126,8 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               Amount
             </Text>
           </View>
-
+{Number(formData?.MeansOfFinance?.totalTermLoan) > 0 && (
+  <>
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
@@ -201,7 +203,10 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
             ></Text>
           </View>
+</>)}
 
+{Number(formData?.MeansOfFinance?.totalWorkingCapital) > 0 && (
+  <>
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
@@ -282,7 +287,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               style={[stylesMOF.cell, stylesMOF.total, { textAlign: "right" }]}
             ></Text>
           </View>
-
+</>)}
           <View
             style={[
               [stylesMOF.row, styles.noBorder],
@@ -357,7 +362,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
          {formData.MeansOfFinance?.total &&
            formData.ProjectReportSetting.subsidyAmount &&
            `. And thus the Net Bank Loan would be Rs. ${formatNumber(
-             Number(formData.MeansOfFinance.total) -
+             Number(formData.MeansOfFinance.totalTL) -
                Number(formData.ProjectReportSetting.subsidyAmount)
            )}`}
          .
