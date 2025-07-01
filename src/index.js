@@ -39,6 +39,8 @@ import History from "./components/NewMultiStepForm/History.jsx";
 import Profile from "./components/NewMultiStepForm/Profile.jsx";
 import DemoPDFView from "./components/NewMultiStepForm/DemoPDFView.jsx";
 import IntroPage from "./components/NewMultiStepForm/IntroPage.jsx";
+import Database from './components/NewMultiStepForm/Database.jsx'
+import SettingsPage from "./components/NewMultiStepForm/SettingsPage.jsx";
 
 
 // Initialize query client
@@ -207,7 +209,7 @@ const App = () => {
             }
           />
           {/* Protect MongoDB route */}
-          <Route
+          {/* <Route
             path="/database"
             element={
               isAuthenticated ? (
@@ -216,7 +218,7 @@ const App = () => {
                 <DatabaseLogin onLogin={handleLogin} />
               )
             }
-          />
+          /> */}
           <Route
             path="/createreport"
             element={
@@ -280,7 +282,7 @@ const App = () => {
           />
 
           {/* Protect MongoDB route */}
-          <Route
+          {/* <Route
             path="/database"
             element={
               isAuthenticated ? (
@@ -289,7 +291,7 @@ const App = () => {
                 <DatabaseLogin onLogin={handleLogin} />
               )
             }
-          />
+          /> */}
           <Route
             path="/createreport"
             element={
@@ -363,6 +365,26 @@ const App = () => {
               <ProtectedRoute>
                 {" "}
                 <IntroPage userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/database"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Database userRole={userRole} />{" "}
+              </ProtectedRoute>
+            }
+          />
+
+           <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <SettingsPage userRole={userRole} />{" "}
               </ProtectedRoute>
             }
           />
