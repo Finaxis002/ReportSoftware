@@ -30,7 +30,7 @@ const GraphGenerator = ({ formData, selectedColor }) => {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="h-full flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group"
+      className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group px-2"
     >
       <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-purple-200 transition-colors">
         {loading ? (

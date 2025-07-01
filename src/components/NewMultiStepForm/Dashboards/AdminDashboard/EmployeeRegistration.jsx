@@ -16,6 +16,8 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
       createNewWithExisting: false,
       downloadPDF: false,
       exportData: false,
+      generateWord: false,
+      advanceReport: false,
     },
   });
   
@@ -61,6 +63,9 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
           updateReport: false,
           createNewWithExisting: false,
           downloadPDF: false,
+          exportData: false,
+          generateWord: false,
+          advanceReport: false,
         },
       });
     } catch (error) {
@@ -208,6 +213,28 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
                 className="mr-2"
               />
               Export Report Data
+            </label>
+
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                name="generateWord"
+                checked={formData.permissions.generateWord}
+                onChange={handleCheckboxChange}
+                className="mr-2"
+              />
+              Generate Word
+            </label>
+
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                name="advanceReport"
+                checked={formData.permissions.advanceReport}
+                onChange={handleCheckboxChange}
+                className="mr-2"
+              />
+              Advance Report
             </label>
           </div>
         </div>
