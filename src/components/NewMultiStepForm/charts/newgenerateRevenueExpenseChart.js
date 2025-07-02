@@ -33,7 +33,7 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-export const generateBarChart = async ({ formData, selectedColor }) => {
+export const generateBarChart = async ({ formData, selectedColor, selectedFont }) => {
   console.log('formData', formData);
   try {
     // Create and isolate canvas
@@ -84,7 +84,7 @@ export const generateBarChart = async ({ formData, selectedColor }) => {
   const mainColor = hexToRgba(toHex(selectedColor), 1);      // full
     const expensesColor = hexToRgba(toHex(selectedColor), 0.5);   // faded
 
-      
+       const chartFont = selectedFont || "Arial";
     // Create fresh Chart instance
     const chart = new Chart(ctx, {
       type: "bar",
@@ -123,7 +123,12 @@ export const generateBarChart = async ({ formData, selectedColor }) => {
             },
             title: {
               display: true,
-              text: "Amount (Millions)"
+              text: "Amount (Millions)",
+              font: {
+                family: chartFont, // Set the font dynamically
+                size: 14,
+                weight: "normal"
+              }
             }
           },
           x: {
@@ -131,7 +136,15 @@ export const generateBarChart = async ({ formData, selectedColor }) => {
           }
         },
         plugins: {
-          legend: { position: "bottom" },
+          legend: { position: "bottom" ,
+            labels: {
+              font: {
+                family: chartFont, // Set the font dynamically
+                size: 12,
+                weight: "normal"
+              }
+            }
+          },
           tooltip: {
             callbacks: {
               label: (ctx) => 

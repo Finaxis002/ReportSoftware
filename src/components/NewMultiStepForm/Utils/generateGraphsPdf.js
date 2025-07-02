@@ -1,11 +1,20 @@
 import jsPDF from "jspdf";
 
-export const generateGraphsPdf = async (imgs) => {
+const addFontToPdf = (pdf, selectedFont) => {
+  // Register custom fonts if selectedFont is not the default one
+  if (selectedFont && selectedFont !== "Arial") {
+    pdf.addFont("path/to/font.ttf", selectedFont, "normal"); // Provide the correct font file path
+  }
+  pdf.setFont(selectedFont || "Arial"); // Fallback to Arial if no font is selected
+};
+
+export const generateGraphsPdf = async (imgs, selectedFont) => {
   const pdf = new jsPDF("p", "pt", "a4");
   const pageW = pdf.internal.pageSize.getWidth();
   const maxImgW = pageW - 80; // left/right margin 40
   let y = 40;
 
+   addFontToPdf(pdf, selectedFont);
   // Function to load image and get its dimensions
   const loadImage = async (imgData) => {
     return new Promise((resolve) => {

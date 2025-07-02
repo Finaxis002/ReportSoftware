@@ -101,9 +101,7 @@ function generateColorVariations(hex, n) {
 
 
 
-export const generatePieChart = (pieData, selectedColor) => {
-
-  console.log('pieData', pieData);
+export const generatePieChart = (pieData, selectedColor, selectedFont) => {
 
   function makePieSliceColors(selectedColor, n) {
     const base = toHex(selectedColor);
@@ -346,7 +344,7 @@ export const generatePieChart = (pieData, selectedColor) => {
             labels: {
               font: {
                 size: 10,
-                family: "Arial",
+                family: selectedFont || "Arial",
                 weight: "normal",
               },
               color: "#000000",
@@ -383,6 +381,7 @@ export const generatePieChart = (pieData, selectedColor) => {
     });
   });
 };
+
 
 // PieChartGenerator.js
 

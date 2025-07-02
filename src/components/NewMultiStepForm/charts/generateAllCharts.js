@@ -4,7 +4,7 @@ import {generateBarChart} from './newgenerateRevenueExpenseChart'
 import { generatePieChart } from "./newgeneratePieChart";
 
 
-const loadLineChartBase64 = (Comp, labels, values, selectedColor) =>
+const loadLineChartBase64 = (Comp, labels, values, selectedColor, selectedFont) =>
   new Promise((resolve) => {
     const mountPoint = document.createElement("div");
     document.body.appendChild(mountPoint);
@@ -17,6 +17,7 @@ const loadLineChartBase64 = (Comp, labels, values, selectedColor) =>
           labels={labels}
           values={values}
           selectedColor={selectedColor}
+          selectedFont={selectedFont}
           onBase64Generated={(b64) => {
             root.unmount();
             document.body.removeChild(mountPoint);
@@ -27,13 +28,13 @@ const loadLineChartBase64 = (Comp, labels, values, selectedColor) =>
     });
   });
 
-export const generateAllCharts = async (formData, selectedColor) => {
+export const generateAllCharts = async (formData, selectedColor, selectedFont) => {
   const { years, revenue, expenses, pieData, dscr, currentRatio } =
     extractChartData(formData);
 
-  const revenueExpenseChartBase64 = await generateBarChart({ formData, selectedColor });
+  const revenueExpenseChartBase64 = await generateBarChart({ formData, selectedColor ,selectedFont});
 
-  const pie = await generatePieChart(pieData, selectedColor);
+  const pie = await generatePieChart(pieData, selectedColor, selectedFont);
   const pieLabels = pieData.map(x => x.name);
 const pieValues = pieData.map(x => Number(x.value));
 // Clean and normalize pie data
@@ -67,12 +68,12 @@ const pieValues = pieData.map(x => Number(x.value));
   const dscrB64 = await loadLineChartBase64(
     (await import("./LineChart")).default,
     years,
-    dscr, selectedColor
+    dscr, selectedColor, selectedFont
   );
   const currentRatioB64 = await loadLineChartBase64(
     (await import("./CurrentRatioChart")).default,
     years,
-    currentRatio, selectedColor
+    currentRatio, selectedColor, selectedFont
   );
 
   return {

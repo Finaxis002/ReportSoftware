@@ -1212,14 +1212,18 @@ const FinalStep = ({ formData, userRole }) => {
           </div>
 
           {/* Font Selection */}
-          <div>
-            <label className="block text-gray-700 font-medium">
+         <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
               Choose Font:
             </label>
-            <select
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+             <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={selectedFont}
+              onChange={(e) => {
+                const font = e.target.value;
+                setSelectedFont(font);
+                localStorage.setItem("selectedFont", font);
+              }}
             >
               {[
                 "Roboto",
@@ -1227,8 +1231,16 @@ const FinalStep = ({ formData, userRole }) => {
                 "Times New Roman",
                 "Open Sans",
                 "Inter",
+                "Montserrat",
+                "Lato",
+                "Nunito",
+                "Playfair Display",
+                "Raleway",
+                "Merriweather",
+                "Ubuntu",
+                "Oswald",
               ].map((font) => (
-                <option key={font} value={font}>
+                <option key={font} value={font} style={{ fontFamily: font }}>
                   {font}
                 </option>
               ))}
@@ -1275,6 +1287,7 @@ const FinalStep = ({ formData, userRole }) => {
           <GraphGenerator
             formData={formData}
             selectedColor={selectedColor}
+            selectedFont={selectedFont}
             className="flex items-center justify-center w-5 bg-gradient-to-br from-purple-500 to-purple-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
           />
 

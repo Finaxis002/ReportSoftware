@@ -22,6 +22,8 @@ const Clients = () => {
     emailId: "",
     address: "",
   });
+const [currentSource, setCurrentSource] = useState("clients");
+const [currentSessionId, setCurrentSessionId] = useState(null); 
 
   // Fetch Clients and Form Data
   useEffect(() => {
@@ -141,64 +143,152 @@ const Clients = () => {
   //   setSelectedClient(client._id);
   // };
 
-  const handleEditClient = (client, source = "clients") => {
-    if (source === "clients") {
+const handleEditClient = (client, source = "clients") => {
+  console.log("Editing client from source:", source);
+  console.log("Client Object:", client);
+
+  // Check if we are editing from "clients"
+  if (source === "clients") {
+    setNewClientDetails({
+      clientName: client.clientName || "", // Use clientName directly
+      contactNo: client.contactNo || "",   // Use contactNo directly
+      emailId: client.emailId || "",       // Use emailId directly
+      address: client.address || "",       // Use address directly
+    });
+    setSelectedClient(client._id);        // Set selected client ID
+    setCurrentSessionId(null);             // No sessionId for clients
+    setCurrentSource("clients");          // Mark the source as "clients"
+  }
+  // Check if we are editing from "formData"
+  else if (source === "formData") {
+    if (client.AccountInformation) {
       setNewClientDetails({
-        clientName: client.clientName,
-        contactNo: client.contactNo,
-        emailId: client.emailId,
-        address: client.address,
+        clientName: client.AccountInformation.clientName || "",
+        contactNo: client.AccountInformation.clientPhone || "",
+        emailId: client.AccountInformation.clientEmail || "",
+        address: client.AccountInformation.location || "",
       });
-      setSelectedClient(client._id);
-    } else if (source === "formData") {
+      setSelectedClient(null);               // For formData, don't need client _id
+      setCurrentSessionId(client.sessionId); // Use sessionId for formData
+      setCurrentSource("formData");          // Mark the source as "formData"
+    } else {
+      // If AccountInformation is missing, fallback to direct client properties
       setNewClientDetails({
         clientName: client.clientName || "",
         contactNo: client.clientPhone || "",
         emailId: client.clientEmail || "",
-        address: client.location || '', // Address isn't available in formData, you may leave this empty or fetch if available
+        address: client.location || "",
       });
-      setSelectedClient(null); // formData does not have an _id yet
+      setSelectedClient(null);
+      setCurrentSessionId(client.sessionId || null); // Use sessionId for formData
+      setCurrentSource("formData");
     }
+  }
 
-    setShowAddModal(true);
-  };
+  // Open the modal for editing
+  setShowAddModal(true);
+};
 
-  const handleAddClient = async () => {
-    try {
-      if (selectedClient) {
-        // Update client
-        await axios.put(
-          `https://reportsbe.sharda.co.in/api/clients/${selectedClient}`,
-          newClientDetails
-        );
-        alert("Client updated successfully!");
-      } else {
-        // Add new client
-        await axios.post(
-          "https://reportsbe.sharda.co.in/api/clients",
-          newClientDetails
-        );
-        alert("Client added successfully!");
-      }
 
-      setShowAddModal(false);
-      setNewClientDetails({
-        clientName: "",
-        contactNo: "",
-        emailId: "",
-        address: "",
-      });
-      setSelectedClient(null); // Reset
-      // Refetch clients
-      const response = await axios.get(
-        "https://reportsbe.sharda.co.in/api/clients"
+
+  // const handleAddClient = async () => {
+  //   try {
+  //     if (selectedClient) {
+  //       // Update client
+  //       await axios.put(
+  //         `https://reportsbe.sharda.co.in/api/clients/${selectedClient}`,
+  //         newClientDetails
+  //       );
+  //       alert("Client updated successfully!");
+  //     } else {
+  //       // Add new client
+  //       await axios.post(
+  //         "https://reportsbe.sharda.co.in/api/clients",
+  //         newClientDetails
+  //       );
+  //       alert("Client added successfully!");
+  //     }
+
+  //     setShowAddModal(false);
+  //     setNewClientDetails({
+  //       clientName: "",
+  //       contactNo: "",
+  //       emailId: "",
+  //       address: "",
+  //     });
+  //     setSelectedClient(null); // Reset
+  //     // Refetch clients
+  //     const response = await axios.get(
+  //       "https://reportsbe.sharda.co.in/api/clients"
+  //     );
+  //     setClients(response.data);
+  //   } catch (error) {
+  //     console.error("Error saving client:", error);
+  //     alert("Failed to save client!");
+  //   }
+  // };
+
+ const handleAddClient = async () => {
+  console.log("SelectedClient ID:", selectedClient);
+  console.log("Current Source:", currentSource);
+  console.log("Current SessionId:", currentSessionId);
+  console.log("New Client Details:", newClientDetails);
+
+  try {
+    // ✅ Update manually added clients (PUT /api/clients/:id)
+    if (selectedClient && currentSource === "clients") {
+      await axios.put(
+        `https://reportsbe.sharda.co.in/api/clients/${selectedClient}`, // PUT request for updating the client
+        newClientDetails
       );
-      setClients(response.data);
-    } catch (error) {
-      console.error("Error saving client:", error);
-      alert("Failed to save client!");
+      alert("Client updated successfully!");
     }
-  };
+    // ✅ Update formData clients using sessionId (POST /update-step)
+    else if (currentSource === "formData" && currentSessionId) {
+      await axios.post("https://reportsbe.sharda.co.in/update-step", {
+        sessionId: currentSessionId,  // Pass the sessionId to update formData client
+        data: {
+          clientName: newClientDetails.clientName,
+          clientPhone: newClientDetails.contactNo,
+          clientEmail: newClientDetails.emailId,
+          location: newClientDetails.address,
+        },
+      });
+      alert("Form Data client updated successfully!");
+    }
+    // ✅ Create new client (POST /api/clients) if neither updating nor formData
+    else {
+      await axios.post("https://reportsbe.sharda.co.in/api/clients", newClientDetails);
+      alert("New client added successfully!");
+    }
+
+    // Reset modal and data
+    setShowAddModal(false);
+    setNewClientDetails({
+      clientName: "",
+      contactNo: "",
+      emailId: "",
+      address: "",
+    });
+    setSelectedClient(null);  // Reset selected client
+    setCurrentSessionId(null); // Reset sessionId
+    setCurrentSource("clients"); // Reset source to "clients"
+
+    // Refetch updated data
+    const [clientsRes, formDataRes] = await Promise.all([
+      axios.get("https://reportsbe.sharda.co.in/api/clients"),
+      axios.get("https://reportsbe.sharda.co.in/api/formdatas"),
+    ]);
+    setClients(clientsRes.data);
+    setFormData(formDataRes.data);
+    setFilteredClients([...clientsRes.data, ...formDataRes.data]);
+
+  } catch (error) {
+    console.error("❌ Error saving client:", error);
+    alert("Failed to save client!");
+  }
+};
+
 
   return (
     <div className="flex h-[100vh] bg-gray-100 dark:bg">
