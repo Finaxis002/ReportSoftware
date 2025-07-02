@@ -4,6 +4,7 @@ import axios from "axios";
 import MenuBar from "../MenuBar";
 import Header from "../Header";
 import Select from "react-select";
+import ExportClientsButton from "./ExportClientsButton";
 
 const Clients = () => {
   const navigate = useNavigate();
@@ -48,33 +49,6 @@ const Clients = () => {
 
     fetchClientsAndFormData();
   }, []);
-
-  // Fetch Clients and Form Data
-  // useEffect(() => {
-  //   const fetchClientsAndFormData = async () => {
-  //     try {
-  //       const [clientsResponse] = await Promise.all([
-  //         axios.get("https://reportsbe.sharda.co.in/api/client-filetrs"),
-  //       ]);
-  //       console.log("Client Data:", clientsResponse.data.clientOptions);
-
-  //       // Add "All" to the client options as an object with label and value
-  //       const names = clientsResponse.data.clientOptions.map((client) => ({
-  //         label: client.label, // Client name for display
-  //         value: client.value, // Client email for selection
-  //       }));
-
-  //       // Set the client options with "All" as an object
-  //       setClientNames([{ label: "All", value: "All" }, ...names]); // Add "All" to filter all clients
-  //       setClients(clientsResponse.data.clientOptions);
-  //       setFilteredClients(clientsResponse.data.clientOptions);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   };
-
-  //   fetchClientsAndFormData();
-  // }, []);
 
   const handleClientFilterChange = (selectedOption) => {
     const selectedClientEmail = selectedOption ? selectedOption.value : "All";
@@ -139,6 +113,7 @@ const Clients = () => {
   //     alert("Failed to add client!");
   //   }
   // };
+
   const handleDeleteClient = async (clientId) => {
     if (window.confirm("Are you sure you want to delete this client?")) {
       try {
@@ -154,16 +129,38 @@ const Clients = () => {
     }
   };
 
-  const handleEditClient = (client) => {
-    setNewClientDetails({
-      clientName: client.clientName,
-      contactNo: client.contactNo,
-      emailId: client.emailId,
-      address: client.address,
-    });
+  // const handleEditClient = (client) => {
+  //   setNewClientDetails({
+  //     clientName: client.clientName,
+  //     contactNo: client.contactNo,
+  //     emailId: client.emailId,
+  //     address: client.address,
+  //   });
+  //   setShowAddModal(true);
+  //   // Store client ID to update later
+  //   setSelectedClient(client._id);
+  // };
+
+  const handleEditClient = (client, source = "clients") => {
+    if (source === "clients") {
+      setNewClientDetails({
+        clientName: client.clientName,
+        contactNo: client.contactNo,
+        emailId: client.emailId,
+        address: client.address,
+      });
+      setSelectedClient(client._id);
+    } else if (source === "formData") {
+      setNewClientDetails({
+        clientName: client.clientName || "",
+        contactNo: client.clientPhone || "",
+        emailId: client.clientEmail || "",
+        address: client.location || '', // Address isn't available in formData, you may leave this empty or fetch if available
+      });
+      setSelectedClient(null); // formData does not have an _id yet
+    }
+
     setShowAddModal(true);
-    // Store client ID to update later
-    setSelectedClient(client._id);
   };
 
   const handleAddClient = async () => {
@@ -227,6 +224,8 @@ const Clients = () => {
             >
               + Add Client
             </button>
+
+            <ExportClientsButton clients={clients} formData={formData} />
           </div>
 
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-white dark:text-gray-100 mb-6">
@@ -234,7 +233,7 @@ const Clients = () => {
           </h2>
 
           {/* Clients Card Layout */}
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-3 gap-8 px-4 py-6">
             {clients.length > 0 ? (
               clients.map((client) => (
@@ -336,6 +335,20 @@ const Clients = () => {
                         📞
                       </span>
                       <span>{data.clientPhone || "Phone not available"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                      <span className="text-red-400 dark:text-red-300">📍</span>
+                      <span>{data.location || "Not Provided"}</span>
+                    </div>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => handleEditClient(data, "formData")}
+                        className="text-sm px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >
+                        Edit
+                      </button>
                     </div>
                   </div>
                 </div>
