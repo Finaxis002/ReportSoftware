@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 
 const addFontToPdf = (pdf, selectedFont) => {
+  console.log("Adding font to PDF:", selectedFont);
   // Register custom fonts if selectedFont is not the default one
   if (selectedFont && selectedFont !== "Arial") {
     pdf.addFont("path/to/font.ttf", selectedFont, "normal"); // Provide the correct font file path

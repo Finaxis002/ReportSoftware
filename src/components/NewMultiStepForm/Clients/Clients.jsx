@@ -310,7 +310,7 @@ const handleEditClient = (client, source = "clients") => {
                 });
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105"
             >
               + Add Client
             </button>

@@ -42,7 +42,7 @@ const ExportClientsButton = ({ clients, formData }) => {
   return (
     <button
       onClick={handleExport}
-      className="px-6 py-3 bg-green-600 text-white rounded-xl shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105"
+      className="px-6 py-3 ms-2 bg-green-600 text-white rounded-xl shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105"
     >
       Export All Clients Data
     </button>

@@ -6,6 +6,7 @@ import { generatePieChart } from "./newgeneratePieChart";
 
 const loadLineChartBase64 = (Comp, labels, values, selectedColor, selectedFont) =>
   new Promise((resolve) => {
+    console.log('selected font', selectedFont);
     const mountPoint = document.createElement("div");
     document.body.appendChild(mountPoint);
 
