@@ -99,9 +99,14 @@ let monthsLeft = repaymentMonths;
         principalOpeningBalance - principalRepayment
       );
 
-      let interestLiability = isMoratorium
-        ? principalOpeningBalance * (interestRate / 12)
-        : principalClosingBalance * (interestRate / 12);
+      // let interestLiability = isMoratorium
+      //   ? principalOpeningBalance * (interestRate / 12)
+      //   : principalClosingBalance * (interestRate / 12);
+      let interestLiability = principalOpeningBalance * (interestRate / 12);
+      console.log(`Month: ${months[i]}`);
+console.log(`Principal Opening Balance: ${principalOpeningBalance}`);
+console.log(`Interest Liability Calculation: ${principalOpeningBalance} * (${interestRate}/12) = ${interestLiability}`);
+
 
       let totalRepayment = principalRepayment + interestLiability;
 
