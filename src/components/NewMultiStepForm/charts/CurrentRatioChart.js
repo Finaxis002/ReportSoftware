@@ -60,6 +60,7 @@ const CurrentRatioChart = ({
   values = [],
   onBase64Generated,
   selectedColor,
+  selectedFont = "Arial",
 }) => {
   
   useEffect(() => {
@@ -102,7 +103,7 @@ const CurrentRatioChart = ({
         maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
 
         Chart.defaults.font.family = "Times New Roman";
-
+  const chartFont = selectedFont || "Arial";
         // 👇 Add after context creation
         const hexColor = toHex(selectedColor);
         const lineColor = hexToRgba(hexColor, 1); // Solid line
@@ -148,6 +149,7 @@ const CurrentRatioChart = ({
                   color: "#000",
                   padding: 16,
                   font: {
+                    family: chartFont,
                     size: 14,
                     weight: "bold",
                   },

@@ -38,7 +38,7 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor }) => {
+const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor , selectedFont = "Arial"}) => {
   useEffect(() => {
     let mounted = true;
 
@@ -78,7 +78,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
 
 
         Chart.defaults.font.family = "Times New Roman";
-
+  const chartFont = selectedFont || "Arial";
         const hexColor = toHex(selectedColor);
         const lineColor = hexToRgba(hexColor, 1); // Solid line
         const fillColor = hexToRgba(hexColor, 0.18); 
@@ -116,6 +116,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
                   font: {
                     size: 14,
                     weight: "bold",
+                    family: chartFont,
                   },
                 },
                 ticks: {
