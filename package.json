@@ -34,6 +34,7 @@
     "docx-pdf": "^0.0.1",
     "docx-preview": "^0.3.5",
     "docxtemplater": "^3.60.2",
+    "exceljs": "^4.4.0",
     "faker": "^6.6.6",
     "file-saver": "^2.0.5",
     "file-system": "^2.2.2",

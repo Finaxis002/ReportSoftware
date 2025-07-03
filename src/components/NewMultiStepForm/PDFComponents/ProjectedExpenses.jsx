@@ -842,7 +842,6 @@
 // const ClosingStock = formData?.MoreDetails?.ClosingStock?.[adjustedYearIndex] || 0;
 // const OpeningStock = formData?.MoreDetails?.OpeningStock?.[adjustedYearIndex] || 0;
 
-
 //                 if (isRawMaterial && isPercentage) {
 //                   const baseValue =
 //                     (parseFloat(expense.value) / 100) *
@@ -1067,7 +1066,7 @@
 //               const isAllYearsZero = Array.from({
 //                 length: hideFirstYear ? projectionYears - 1 : projectionYears,
 //               }).every((_, yearIndex) => {
-               
+
 // const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
 //                 // Determine actual value
 //                 let expenseValue = 0;
@@ -1661,17 +1660,6 @@
 
 // export default React.memo(ProjectedExpenses);
 
-
-
-
-
-
-
-
-
-
-
-
 import React, { useMemo, useEffect } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
@@ -1873,7 +1861,7 @@ const ProjectedExpenses = ({
   // const totalDirectExpensesArray = Array.from({
   //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   // }).map((_, yearIndex) => {
-    
+
   //   const totalDirectExpenses = directExpense
   //     .filter((expense) => expense.type === "direct")
   //     // .reduce((sum, expense) => {
@@ -1951,69 +1939,79 @@ const ProjectedExpenses = ({
 
   //   const salaryBase = Number(fringAndAnnualCalculation) || 0;
   //   const totalSalaryWages = calculateExpense(salaryBase, yearIndex); // MATCH JSX
-    
+
   //    const yearTotal = totalDirectExpenses + totalAdvanceDirect + totalSalaryWages;
   //   return yearTotal;
   // });
 
-  
   // ✅ Calculate Interest on Working Capital for each projection year
   const totalDirectExpensesArray = Array.from({
-  length: projectionYears,
-}).map((_, yearIndex) => {
-  let directRows = [];
-  // 1. All regular direct expenses, escalated if required
-  const directTotal = directExpense
-    .filter((expense) => expense.type === "direct")
-    .reduce((sum, expense) => {
-      let value;
-      if (expense.name.trim() === "Raw Material Expenses / Purchases" && String(expense.value).trim().endsWith("%")) {
-        value = calculateRawMaterialExpense(expense, receivedtotalRevenueReceipts, yearIndex);
-      } else {
-        value = calculateExpense(Number(expense.total) || 0, yearIndex); // PATCHED!
-      }
-      directRows.push({ name: expense.name, value });
-      return sum + value;
-    }, 0);
-
-  // 2. Salary/wages (from normalExpense, always only one row)
-  let salaryTotal = 0;
-  if (Array.isArray(normalExpense) && normalExpense.length > 0) {
-    salaryTotal = calculateExpense(Number(fringAndAnnualCalculation) || 0, yearIndex);
-  }
-
-  // 3. Advance expenses of type "direct"
-  let advanceDirectTotal = 0;
-  if (
-    Array.isArray(formData?.Expenses?.advanceExpenses) &&
-    formData.Expenses.advanceExpenses.length > 0
-  ) {
-    advanceDirectTotal = formData.Expenses.advanceExpenses
-      .filter((row) => row.type === "direct" && row.name && row.values)
-      .reduce((sum, row) => {
-        const value =
-          row.values?.[financialYearLabels[yearIndex]] ??
-          row.values?.[yearIndex] ??
-          0;
-        directRows.push({ name: row.name + " (Advance)", value: Number(value) || 0 });
-        return sum + (Number(value) || 0);
+    length: projectionYears,
+  }).map((_, yearIndex) => {
+    let directRows = [];
+    // 1. All regular direct expenses, escalated if required
+    const directTotal = directExpense
+      .filter((expense) => expense.type === "direct")
+      .reduce((sum, expense) => {
+        let value;
+        if (
+          expense.name.trim() === "Raw Material Expenses / Purchases" &&
+          String(expense.value).trim().endsWith("%")
+        ) {
+          value = calculateRawMaterialExpense(
+            expense,
+            receivedtotalRevenueReceipts,
+            yearIndex
+          );
+        } else {
+          value = calculateExpense(Number(expense.total) || 0, yearIndex); // PATCHED!
+        }
+        directRows.push({ name: expense.name, value });
+        return sum + value;
       }, 0);
-  }
 
-  // LOGGING the row values for this year:
-  // console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
-  // directRows.forEach((row, i) =>
-  //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-  // );
-  // console.log(`   Salary and Wages: ${salaryTotal}`);
-  // console.log(`   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`);
+    // 2. Salary/wages (from normalExpense, always only one row)
+    let salaryTotal = 0;
+    if (Array.isArray(normalExpense) && normalExpense.length > 0) {
+      salaryTotal = calculateExpense(
+        Number(fringAndAnnualCalculation) || 0,
+        yearIndex
+      );
+    }
 
-  // FINAL direct expenses for this year
-  return directTotal + salaryTotal + advanceDirectTotal;
-});
+    // 3. Advance expenses of type "direct"
+    let advanceDirectTotal = 0;
+    if (
+      Array.isArray(formData?.Expenses?.advanceExpenses) &&
+      formData.Expenses.advanceExpenses.length > 0
+    ) {
+      advanceDirectTotal = formData.Expenses.advanceExpenses
+        .filter((row) => row.type === "direct" && row.name && row.values)
+        .reduce((sum, row) => {
+          const value =
+            row.values?.[financialYearLabels[yearIndex]] ??
+            row.values?.[yearIndex] ??
+            0;
+          directRows.push({
+            name: row.name + " (Advance)",
+            value: Number(value) || 0,
+          });
+          return sum + (Number(value) || 0);
+        }, 0);
+    }
 
-  
-  
+    // LOGGING the row values for this year:
+    // console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
+    // directRows.forEach((row, i) =>
+    //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
+    // );
+    // console.log(`   Salary and Wages: ${salaryTotal}`);
+    // console.log(`   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`);
+
+    // FINAL direct expenses for this year
+    return directTotal + salaryTotal + advanceDirectTotal;
+  });
+
   const interestOnWorkingCapital = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
   }).map(() => {
@@ -2173,64 +2171,67 @@ const ProjectedExpenses = ({
   //   return yearTotal;
   // });
   const totalIndirectExpensesArray = Array.from({
-  length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-}).map((_, yearIndex) => {
-  let indirectRows = [];
-  // 1. All regular indirect expenses, escalated if required
-  const indirectTotal = indirectExpense
-    .filter((expense) => expense.type === "indirect")
-    .reduce((sum, expense) => {
-      const annual = Number(expense.total) || 0;
-      const escalated = calculateExpense(annual, yearIndex);
-      indirectRows.push({ name: expense.name, value: escalated });
-      return sum + escalated;
-    }, 0);
-
-  // 2. Advance expenses of type "indirect"
-  let advanceIndirectTotal = 0;
-  if (
-    Array.isArray(formData?.Expenses?.advanceExpenses) &&
-    formData.Expenses.advanceExpenses.length > 0
-  ) {
-    advanceIndirectTotal = formData.Expenses.advanceExpenses
-      .filter((row) => row.type === "indirect" && row.name && row.values)
-      .reduce((sum, row) => {
-        const value =
-          row.values?.[financialYearLabels[yearIndex]] ??
-          row.values?.[yearIndex] ??
-          0;
-        indirectRows.push({ name: row.name + " (Advance)", value: Number(value) || 0 });
-        return sum + (Number(value) || 0);
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    let indirectRows = [];
+    // 1. All regular indirect expenses, escalated if required
+    const indirectTotal = indirectExpense
+      .filter((expense) => expense.type === "indirect")
+      .reduce((sum, expense) => {
+        const annual = Number(expense.total) || 0;
+        const escalated = calculateExpense(annual, yearIndex);
+        indirectRows.push({ name: expense.name, value: escalated });
+        return sum + escalated;
       }, 0);
-  }
 
-  // 3. Interest, Depreciation, Write-off (rest as before)
-  const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-  const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(yearIndex);
-  const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-  const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
+    // 2. Advance expenses of type "indirect"
+    let advanceIndirectTotal = 0;
+    if (
+      Array.isArray(formData?.Expenses?.advanceExpenses) &&
+      formData.Expenses.advanceExpenses.length > 0
+    ) {
+      advanceIndirectTotal = formData.Expenses.advanceExpenses
+        .filter((row) => row.type === "indirect" && row.name && row.values)
+        .reduce((sum, row) => {
+          const value =
+            row.values?.[financialYearLabels[yearIndex]] ??
+            row.values?.[yearIndex] ??
+            0;
+          indirectRows.push({
+            name: row.name + " (Advance)",
+            value: Number(value) || 0,
+          });
+          return sum + (Number(value) || 0);
+        }, 0);
+    }
 
-  // Optionally, console log for debugging:
-  // console.log(`Indirect Expense Breakdown for Year ${yearIndex + 1}:`);
-  // indirectRows.forEach((row, i) =>
-  //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-  // );
-  // console.log(`   Advance Indirect: ${advanceIndirectTotal}`);
-  // console.log(
-  //   `   Total Indirect (sum): ${indirectTotal + advanceIndirectTotal + interestOnTermLoan + interestExpenseOnWorkingCapital + depreciationExpense + preliminaryWriteOff}`
-  // );
+    // 3. Interest, Depreciation, Write-off (rest as before)
+    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+    const interestExpenseOnWorkingCapital =
+      calculateInterestOnWorkingCapital(yearIndex);
+    const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
 
-  // FINAL indirect expenses for this year
-  return (
-    indirectTotal +
-    advanceIndirectTotal +
-    interestOnTermLoan +
-    interestExpenseOnWorkingCapital +
-    depreciationExpense +
-    preliminaryWriteOff
-  );
-});
+    // Optionally, console log for debugging:
+    // console.log(`Indirect Expense Breakdown for Year ${yearIndex + 1}:`);
+    // indirectRows.forEach((row, i) =>
+    //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
+    // );
+    // console.log(`   Advance Indirect: ${advanceIndirectTotal}`);
+    // console.log(
+    //   `   Total Indirect (sum): ${indirectTotal + advanceIndirectTotal + interestOnTermLoan + interestExpenseOnWorkingCapital + depreciationExpense + preliminaryWriteOff}`
+    // );
 
+    // FINAL indirect expenses for this year
+    return (
+      indirectTotal +
+      advanceIndirectTotal +
+      interestOnTermLoan +
+      interestExpenseOnWorkingCapital +
+      depreciationExpense +
+      preliminaryWriteOff
+    );
+  });
 
   const totalExpensesArray = totalDirectExpensesArray.map(
     (directExpense, index) => {
@@ -2330,59 +2331,51 @@ const ProjectedExpenses = ({
           </View>
         )}
 
-      {/* businees name and financial year  */}
-      <View>
-        <Text style={styles.businessName}>
-          {formData?.AccountInformation?.businessName || "Business Bame"}
-        </Text>
-        <Text style={styles.FinancialYear}>
-          Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear
-            ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
-            : "2025-26"}
-        </Text>
-      </View>
+      <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Bame"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
+          </Text>
+        </View>
 
-      {/* Amount format */}
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
 
-      <View
-        style={{
-          display: "flex",
-          alignContent: "flex-end",
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-        <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {
-            formData?.ProjectReportSetting?.AmountIn === "rupees"
-              ? "Rs." // Show "Rupees" if "rupees" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "thousand"
-              ? "Thousands" // Show "Thousands" if "thousand" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "crores"
-              ? "Crores" // Show "Crores" if "crores" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "millions"
-              ? "Millions" // Show "Millions" if "millions" is selected
-              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-          }
-          )
-        </Text>
-      </View>
-
-      <View style={[styleExpenses.paddingx]}>
         <View>
           <View style={stylesCOP.heading}>
             <Text>Projected Expenses</Text>
           </View>
 
-          <View style={[styles.table]}>
+          <View style={[styles.table, {borderRightWidth:0}]}>
             <View style={styles.tableHeader}>
               <Text
                 style={[
@@ -3005,62 +2998,58 @@ const ProjectedExpenses = ({
                 </View>
               );
             })}
-          ;
-          
-          {/* Advance Expenses of type "indirect" */}
-{Array.isArray(formData?.Expenses?.advanceExpenses) &&
-  formData.Expenses.advanceExpenses
-    .filter(
-      (row) =>
-        row.type === "indirect" && row.name && row.name.trim() !== ""
-    )
-    .map((row, advIdx) => (
-      <View
-        key={"adv-indirect-" + advIdx}
-        style={[styles.tableRow, styles.totalRow]}
-      >
-        <Text style={stylesCOP.serialNoCellDetail}>
-          {"I" + (advIdx + 1)}
-        </Text>
-        <Text
-          style={[
-            stylesCOP.detailsCellDetail,
-            styleExpenses.particularWidth,
-            styleExpenses.bordernone,
-          ]}
-        >
-          {row.name}
-        </Text>
+          ;{/* Advance Expenses of type "indirect" */}
+          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+            formData.Expenses.advanceExpenses
+              .filter(
+                (row) =>
+                  row.type === "indirect" && row.name && row.name.trim() !== ""
+              )
+              .map((row, advIdx) => (
+                <View
+                  key={"adv-indirect-" + advIdx}
+                  style={[styles.tableRow, styles.totalRow]}
+                >
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {"I" + (advIdx + 1)}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {row.name}
+                  </Text>
 
-        {Array.from({
-          length: hideFirstYear
-            ? projectionYears - 1
-            : projectionYears,
-        }).map((_, yearIndex) => {
-          const adjustedYearIndex = hideFirstYear
-            ? yearIndex + 1
-            : yearIndex;
-          const value =
-            (row.values &&
-              row.values[financialYearLabels[adjustedYearIndex]]) ||
-            (row.values && row.values[adjustedYearIndex]) ||
-            0;
-          return (
-            <Text
-              key={yearIndex}
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-              ]}
-            >
-              {formatNumber(Number(value) || 0)}
-            </Text>
-          );
-        })}
-      </View>
-    ))}
-
-          
+                  {Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).map((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+                    const value =
+                      (row.values &&
+                        row.values[financialYearLabels[adjustedYearIndex]]) ||
+                      (row.values && row.values[adjustedYearIndex]) ||
+                      0;
+                    return (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(Number(value) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              ))}
           {/* ✅ Render Preliminary Row */}
           {!isPreliminaryWriteOffAllZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -3195,28 +3184,27 @@ const ProjectedExpenses = ({
               ))}
           </View>
         </View>
-        ;
-      </View>
 
-      {/* businees name and Client Name  */}
-      <View
-        style={[
-          {
-            display: "flex",
-            flexDirection: "column",
-            gap: "80px",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            marginTop: "60px",
-          },
-        ]}
-      >
-        <Text style={[styles.businessName, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.businessName || "Business Name"}
-        </Text>
-        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.businessOwner || "businessOwner"}
-        </Text>
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View>
       </View>
     </Page>
   );

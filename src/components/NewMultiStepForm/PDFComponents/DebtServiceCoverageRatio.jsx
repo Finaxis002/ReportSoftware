@@ -964,11 +964,12 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
 
           {financialYearLabels
             .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-            .map((yearLabel, yearIndex) => {
+            .map((yearLabel, yearIndex , arr) => {
               const visibleLabels = financialYearLabels.slice(
                 hideFirstYear ? 1 : 0
               );
               const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
+              const isLast = yearIndex === arr.length - 1;
 
               return (
                 <Text
@@ -980,7 +981,8 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
                       fontWeight: "bold",
                       
                       textAlign: "center",
-                      borderLeftWidth: 0,
+                      borderWidth: 0,
+                      ...(isLast && { borderRightWidth:1 }),
                     },
                   ]}
                 >
