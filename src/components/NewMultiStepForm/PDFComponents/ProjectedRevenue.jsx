@@ -75,7 +75,7 @@ const ProjectedRevenue = ({
       orientation={orientation}
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+      style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -148,13 +148,13 @@ const ProjectedRevenue = ({
         </Text>
       </View>
 
-      <View style={styleExpenses.paddingx}>
+      <View style={[styleExpenses.paddingx, { borderRightWidth: 0 }]}>
         {/* Heading */}
         <View style={stylesCOP.heading}>
           <Text>Projected Revenue/ Sales</Text>
         </View>
         {/* ✅ Table Rendering Based on `formType` */}
-        <View style={[styles.table]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* ✅ Table Header */}
           <View style={styles.tableHeader}>
             <Text
@@ -292,7 +292,7 @@ const ProjectedRevenue = ({
                           paddingTop: 2,
                           paddingBottom: 2,
                         },
-                        { borderBottomWidth: "0px" }, // default bottom (overridden if Total)
+                        { borderBottomWidth: "0px", borderRightWidth: 0 }, // default bottom (overridden if Total)
                       ]}
                     ></Text>
                   ))}
@@ -360,13 +360,12 @@ const ProjectedRevenue = ({
                         fontWeight: "bold",
                         textAlign: "center",
                         borderTopWidth: 1,
-                        borderBottomWidth: 1,
+                        borderBottomWidth: 0,
                       },
                     ]}
                   >
                     {/* If heading and empty row, blank text */}
                     {isEmptyRow ? "" : formatNumber(yearValue)}
-
                   </Text>
                 ))}
               </View>
@@ -376,12 +375,14 @@ const ProjectedRevenue = ({
           {/* ✅ Show No. of Months in each year column for Monthly form */}
           {formType?.trim() === "Monthly" &&
             Array.isArray(formData?.Revenue?.noOfMonths) && (
-              <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-                <Text
-                  style={[
-                    stylesCOP.serialNoCellDetail,
-                  ]}
-                ></Text>
+              <View
+                style={[
+                  stylesMOF.row,
+                  styleExpenses.totalRow,
+                  { borderBottomWidth: 0 },
+                ]}
+              >
+                <Text style={[stylesCOP.serialNoCellDetail]}></Text>
 
                 <Text
                   style={[
@@ -402,7 +403,7 @@ const ProjectedRevenue = ({
                       style={[
                         stylesCOP.particularsCellsDetail,
                         styleExpenses.fontSmall,
-                        { textAlign: "center" , borderTopWidth:1 },
+                        { textAlign: "center", borderTopWidth: 1 },
                       ]}
                     >
                       {monthValue}
@@ -412,20 +413,21 @@ const ProjectedRevenue = ({
             )}
 
           {/* ✅ Compute & Display Revenue Based on formType */}
-          <View style={[stylesMOF.row, styleExpenses.totalRow]}>
-            <Text
-              style={[
-                stylesCOP.serialNoCellDetail,
-              ]}
-            ></Text>
+          <View
+            style={[
+              stylesMOF.row,
+              styleExpenses.totalRow,
+              { borderBottomWidth: 0 },
+            ]}
+          >
+            <Text style={[stylesCOP.serialNoCellDetail]}></Text>
 
             {/* ✅ Conditional Label Based on formType */}
             <Text
               style={[
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
-                { fontWeight: "bold", paddingLeft: 10, },
-
+                { fontWeight: "bold", paddingLeft: 10 },
               ]}
             >
               {formType?.trim() === "Monthly"
@@ -440,7 +442,13 @@ const ProjectedRevenue = ({
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { textAlign: "center", fontWeight: "bold", borderWidth:1 },
+                  {
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    borderWidth: 1,
+                    borderBottom: 0,
+                    borderLeftWidth: 0,
+                  },
                 ]}
               >
                 {

@@ -403,7 +403,7 @@ const ProjectedBalanceSheet = ({
       orientation={orientation}
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+      style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -483,7 +483,7 @@ const ProjectedBalanceSheet = ({
           <Text>Projected Balance Sheet </Text>
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table,{borderRightWidth:0}]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -1142,7 +1142,7 @@ const ProjectedBalanceSheet = ({
 
             {/* Total assets Calculation */}
             <View
-              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
+              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow , {borderBottomWidth:0}]}
             >
               <Text
                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
@@ -1153,7 +1153,6 @@ const ProjectedBalanceSheet = ({
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-
                     fontWeight: "bold",
                   },
                 ]}

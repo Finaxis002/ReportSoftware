@@ -228,7 +228,7 @@ const CurrentRatio = ({
             ))}
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* currect Assets  */}
           <View style={styles.tableRow}>
             <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
@@ -396,7 +396,6 @@ const CurrentRatio = ({
 
                         textAlign: "center",
                         borderLeftWidth: 0,
-                        borderRightWidth: 0,
                       },
                     ]}
                   >

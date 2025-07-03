@@ -351,7 +351,6 @@ const styles = StyleSheet.create({
   barChart: {
     width: 400,
     height: 300,
-    borderColor: "#ccc",
     backgroundColor: "#ffffff",
   },
   Width60: {
@@ -427,7 +426,7 @@ const styles = StyleSheet.create({
     fontFamily: selectedFont,
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    paddingHorizontal: 30,
+    paddingHorizontal: 40,
     paddingVertical: 10,
     wrap: false,
   },
@@ -454,7 +453,6 @@ const styles = StyleSheet.create({
     width: "100%",
     borderStyle: "solid",
     borderWidth: 1,
-    borderColor: "#000",
     fontFamily: selectedFont,
     wrap: false,
   },
@@ -484,7 +482,6 @@ const styles = StyleSheet.create({
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
-    borderColor: "#000",
     fontSize: "9px",
     fontFamily: selectedFont,
     textAlign: "center",
@@ -502,7 +499,6 @@ const styles = StyleSheet.create({
     padding: 3,
     borderStyle: "solid",
     borderWidth: 1,
-    borderColor: "#000",
     fontFamily: selectedFont,
     fontSize: "9px",
     wrap: false,
@@ -570,7 +566,6 @@ const styles = StyleSheet.create({
     padding: 2,
     borderStyle: "solid",
     borderWidth: 1,
-    borderColor: "#000",
     fontSize: "9px",
     fontFamily: selectedFont,
     wrap: false,
@@ -598,7 +593,7 @@ const stylesMOF = StyleSheet.create({
   page: {
     width: "100%",
     height: "100%",
-    padding: 8,
+    paddingHorizontal: 40,
     backgroundColor: "white",
     fontFamily: selectedFont,
     wrap: false,
@@ -701,7 +696,6 @@ const stylesCOP = StyleSheet.create({
   table: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#d1d5db",
     fontFamily: selectedFont,
     wrap: false,
   },
@@ -730,7 +724,6 @@ const stylesCOP = StyleSheet.create({
   tableCell: {
     padding: 4,
     borderWidth: 1,
-    borderColor: "black",
     fontFamily: selectedFont,
     wrap: false,
   },
@@ -897,12 +890,10 @@ const stylesRepayment = {
     textAlign: "center",
     flex: 1,
     borderRightWidth: 1,
-    borderColor: "#ffffff", // White borders inside header
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: "#ccc",
     backgroundColor: "#f9f9f9", // Light gray background for rows
   },
   tableCell: {
@@ -911,8 +902,7 @@ const stylesRepayment = {
     fontSize: 12,
     textAlign: "center",
     flex: 1,
-    borderRightWidth: 1,
-    borderColor: "#ccc", // Gray borders inside row
+    borderRightWidth: 1, // Gray borders inside row
   },
 };
 

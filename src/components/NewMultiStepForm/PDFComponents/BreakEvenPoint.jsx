@@ -1999,7 +1999,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
       orientation={orientation}
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+     style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -2088,7 +2088,7 @@ const totalVariableExpenses = Array.from({ length: projectionYears }).map(
           <Text>Break-Even Point</Text>
         </View>
 
-        <View style={[styles.table]}>
+         <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text

@@ -475,7 +475,7 @@ const ProjectSynopsis = React.memo(
                           padding: "8px",
                           width: "27.5%",
                           textAlign: "center",
-                          borderLeftWidth: "1px",
+                          // borderLeftWidth: "1px",
                         },
                       ]}
                     >
@@ -543,7 +543,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        borderLeftWidth: "1px",
+                        // borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -607,7 +607,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        borderLeftWidth: "1px",
+                        // borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -669,7 +669,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        borderLeftWidth: "1px",
+                        // borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -768,8 +768,8 @@ const ProjectSynopsis = React.memo(
                           {
                             padding: "8px",
                             width: "10%",
-                            borderBottomWidth: "0px",
-                            borderTopWidth: "0px",
+                            // borderBottomWidth: "0px",
+                            // borderTopWidth: "0px",
                           },
                         ]}
                       ></Text>
@@ -781,8 +781,8 @@ const ProjectSynopsis = React.memo(
                           {
                             padding: "8px",
                             width: "45%",
-                            borderBottomWidth: "0px",
-                            borderTopWidth: "0px",
+                            // borderBottomWidth: "0px",
+                            // borderTopWidth: "0px",
                           },
                         ]}
                       ></Text>
@@ -795,8 +795,8 @@ const ProjectSynopsis = React.memo(
                             padding: "8px",
                             textAlign: "left",
                             width: "5%",
-                            borderBottomWidth: "0px",
-                            borderTopWidth: "0px",
+                            // borderBottomWidth: "0px",
+                            // borderTopWidth: "0px",
                           },
                         ]}
                       >
@@ -821,7 +821,7 @@ const ProjectSynopsis = React.memo(
                             padding: "8px",
                             width: "20%",
                             textAlign: "center",
-                            borderLeftWidth: "1px",
+                            // borderLeftWidth: "1px",
                           },
                         ]}
                       >
@@ -850,8 +850,8 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "10%",
-                        borderBottomWidth: "0px",
-                        borderTopWidth: "0px",
+                        // borderBottomWidth: "0px",
+                        // borderTopWidth: "0px",
                       },
                     ]}
                   ></Text>
@@ -861,8 +861,8 @@ const ProjectSynopsis = React.memo(
                       {
                         padding: "8px",
                         width: "45%",
-                        borderBottomWidth: "0px",
-                        borderTopWidth: "0px",
+                        // borderBottomWidth: "0px",
+                        // borderTopWidth: "0px",
                       },
                     ]}
                   ></Text>
@@ -873,8 +873,8 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         textAlign: "left",
                         width: "5%",
-                        borderBottomWidth: "0px",
-                        borderTopWidth: "0px",
+                        // borderBottomWidth: "0px",
+                        // borderTopWidth: "0px",
                       },
                     ]}
                   ></Text>
@@ -893,7 +893,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "20%",
                         textAlign: "center",
-                        borderLeftWidth: "1px",
+                        // borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -910,8 +910,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "10%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -921,8 +921,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "45%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -953,7 +953,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      borderLeftWidth: "1px",
+                      // borderLeftWidth: "1px",
                     },
                   ]}
                 >
@@ -1020,8 +1020,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "10%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1031,8 +1031,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "45%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1043,8 +1043,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       textAlign: "center",
                       width: "5%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1055,8 +1055,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                       paddingTop: "20px",
                     },
                   ]}
@@ -1070,9 +1070,9 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      borderLeftWidth: "1px",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderLeftWidth: "1px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                       paddingTop: "20px",
                     },
                   ]}
@@ -1089,8 +1089,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "10%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1100,8 +1100,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "45%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1112,8 +1112,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       textAlign: "center",
                       width: "5%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1124,8 +1124,8 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "35%",
                       textAlign: "left",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 >
@@ -1138,9 +1138,9 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      borderLeftWidth: "1px",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderLeftWidth: "1px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 >
@@ -1156,8 +1156,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "10%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1167,8 +1167,8 @@ const ProjectSynopsis = React.memo(
                     {
                       padding: "8px",
                       width: "45%",
-                      borderBottomWidth: "0px",
-                      borderTopWidth: "0px",
+                      // borderBottomWidth: "0px",
+                      // borderTopWidth: "0px",
                     },
                   ]}
                 ></Text>
@@ -1187,7 +1187,7 @@ const ProjectSynopsis = React.memo(
                       textAlign: "left",
 
                       // fontSize: "9px",
-                      borderTop: "1px",
+                      // borderTop: "1px",
                     },
                   ]}
                 >
@@ -1200,9 +1200,9 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      borderLeftWidth: "1px",
+                      // borderLeftWidth: "1px",
 
-                      borderTop: "1px",
+                      // borderTop: "1px",
                     },
                   ]}
                 >
@@ -1215,7 +1215,8 @@ const ProjectSynopsis = React.memo(
             <View>
               {/* Debt Service Coverage Ratio */}
               <View
-                style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
+                style={[styles.tableRow, 
+                  { }]}
                 key={16}
               >
                 <Text
@@ -1255,7 +1256,8 @@ const ProjectSynopsis = React.memo(
               </View>
               {/* Current Ratio */}
               <View
-                style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
+                style={[styles.tableRow, 
+                  { }]}
                 key={16}
               >
                 <Text
@@ -1297,7 +1299,8 @@ const ProjectSynopsis = React.memo(
               </View>
               {/* Breakeven Point */}
               <View
-                style={[styles.tableRow, { borderTopWidth: "0.6px" }]}
+                style={[styles.tableRow, 
+                  { }]}
                 key={16}
               >
                 <Text
@@ -1495,7 +1498,7 @@ const ProjectSynopsis = React.memo(
                               padding: "8px",
                               width: "27.5%",
                               textAlign: "center",
-                              borderLeftWidth: "1px",
+                              // borderLeftWidth: "1px",
                             },
                           ]}
                         >

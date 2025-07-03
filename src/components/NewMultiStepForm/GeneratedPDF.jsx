@@ -1118,25 +1118,7 @@ const GeneratedPDF = () => {
                   </div>
 
                   {/* Download Button */}
-                  {/* {((userRole === "admin" &&
-                    (!localStorage.getItem("adminName") ||
-                      permissions.downloadPDF)) ||
-                    (userRole === "employee" && permissions.downloadPDF)) && (
-                    <div className="flex gap-2 px-4">
-                      <button
-                        onClick={handleDownloadPDF}
-                        className={`flex items-center gap-2 ${
-                          loading
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-white hover:bg-indigo-100"
-                        } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
-                        disabled={loading}
-                      >
-                        <FiDownload size={16} />
-                        Download PDF
-                      </button>
-                    </div>
-                  )} */}
+
                   {
                     // Always show for admin (from localStorage), otherwise use permissions
                     (localStorage.getItem("userRole") === "admin" ||
@@ -1163,20 +1145,23 @@ const GeneratedPDF = () => {
                   style={{
                     position: "relative",
                     width: "100%",
-                    height: "800px",
                   }}
                 >
-                  <PDFViewer
-                    width="100%"
-                    height="800"
-                    showToolbar={false}
-                    style={{
-                      overflow: "auto",
-                    }}
-                    key={orientation}
-                  >
-                    {memoizedPDF}
-                  </PDFViewer>
+                  <div style={{ height: "100vh", width: "100%" }}>
+                    <PDFViewer
+                      width="100%"
+                      height="100%"
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        overflow: "auto",
+                      }}
+                      showToolbar={false}
+                      key={orientation}
+                    >
+                      {memoizedPDF}
+                    </PDFViewer>
+                  </div>
 
                   <div
                     style={{

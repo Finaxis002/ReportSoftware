@@ -2301,7 +2301,7 @@ const ProjectedExpenses = ({
       orientation={orientation} // ✅ Now using prop
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+      style={styles.page}
     >
       {/* watermark  */}
       {pdfType &&
