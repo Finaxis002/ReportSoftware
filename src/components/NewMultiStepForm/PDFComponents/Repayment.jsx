@@ -314,7 +314,7 @@ let monthsLeft = repaymentMonths;
         //     : "portrait"
         // }
         // wrap={false}
-        style={[{ padding: "20px" }]}
+        style={styles.page}
       >
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}

@@ -781,7 +781,7 @@ const ProjectedProfitability = ({
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       orientation={orientation}
-      style={[{ padding: "20px" }]}
+      style={styles.page}
       wrap={false}
       break
     >
@@ -860,7 +860,7 @@ const ProjectedProfitability = ({
         >
           <Text>Projected Profitability Statement</Text>
         </View>
-        <View style={[styles.table]}>
+        <View style={[styles.table , {borderRightWidth:0}]}>
           <View style={styles.tableHeader}>
             <Text
               style={[
@@ -2226,7 +2226,7 @@ const ProjectedProfitability = ({
         </View>
       </View>
 
-      <view>
+      <View>
         {formData?.ProjectReportSetting?.CAName?.value ? (
           <Text
             style={[
@@ -2252,7 +2252,7 @@ const ProjectedProfitability = ({
             occur as expected, and the variation might be material.
           </Text>
         ) : null}
-      </view>
+      </View>
 
       <View
         style={[

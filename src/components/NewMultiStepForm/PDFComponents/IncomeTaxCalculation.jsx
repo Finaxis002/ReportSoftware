@@ -59,7 +59,7 @@ const IncomeTaxCalculation = ({
       orientation={
        orientation
       }
-      style={[{ padding: "20px" }]}
+     style={styles.page}
       wrap
       break
     >
@@ -140,7 +140,7 @@ const IncomeTaxCalculation = ({
           <Text>Income Tax Calculation</Text>
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table , {borderRightWidth:0}]}>
           {/* table header  */}
           <View style={styles.tableHeader}>
             <Text

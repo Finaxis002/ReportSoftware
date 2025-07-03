@@ -381,7 +381,7 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
                   )
                 </Text>
       </View>
-      <View style={[styles.table]}>
+       <View style={[styles.table, { borderRightWidth: 0 }]}>
         <View
           style={[
             stylesCOP.heading,
@@ -981,7 +981,6 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
                       
                       textAlign: "center",
                       borderLeftWidth: 0,
-                      borderRightWidth: 0,
                     },
                   ]}
                 >
