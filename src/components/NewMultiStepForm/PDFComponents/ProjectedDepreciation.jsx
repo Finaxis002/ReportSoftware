@@ -422,7 +422,7 @@ const ProjectedDepreciation = ({
 
         {/* Table Container */}
 
-        <View style={styles.table}>
+        <View style={[styles.table, {borderRightWidth:0}]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text

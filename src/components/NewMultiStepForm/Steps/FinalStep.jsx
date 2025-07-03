@@ -22,7 +22,7 @@ const FinalStep = ({ formData, userRole }) => {
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
   const [showError, setShowError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("select option");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColor, setSelectedColor] = useState("select color");
   const [isLoading, setIsLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedFont, setSelectedFont] = useState(
@@ -38,6 +38,12 @@ const FinalStep = ({ formData, userRole }) => {
       localStorage.setItem("pdfType", selectedOption);
     }
   }, [selectedOption]);
+
+  useEffect(()=>{
+    if(selectedColor !== "select color"){
+      localStorage.setItem("selectedColor",selectedColor)
+    }
+  })
 
   useEffect(() => {
     isComponentMounted.current = true;
