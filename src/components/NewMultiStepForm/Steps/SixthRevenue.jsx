@@ -940,13 +940,50 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
 
       // ---------------- Others Mode -----------------
       if (formType) {
+        // Helper: is this a "total revenue" row?
+        const isTotalRevenueRow = (row) => {
+          if (!row) return false;
+          // check column 1 or 2, trim, lower, ignore extra spaces
+          const c1 = String(row[0] || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          const c2 = String(row[1] || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          return (
+            c1 === "total revenue from operations" ||
+            c2 === "total revenue from operations"
+          );
+        };
+
         const formFields = [];
+        let totalRevenueForOthers = Array(projectionYears).fill("");
         const ROW_TYPE_COL_INDEX = 330;
         worksheetJS.eachRow({ includeEmpty: false }, (row, rowNumber) => {
           if (rowNumber === 1) return; // Skip header
 
           const serialNumber = row.getCell(1).value || "";
           const particular = row.getCell(2).value || "";
+          // Robustly skip TOTAL row and handle it separately
+          const rowLabel = String(particular || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+          if (rowLabel === "total revenue from operations") {
+            // Copy its values for "totals" row
+            for (let col = 3; col < 3 + projectionYears; col++) {
+              let cell = row.getCell(col);
+              let val = cell.value;
+              if (val && typeof val === "object" && val.result !== undefined) {
+                val = val.result;
+              }
+              totalRevenueForOthers[col - 3] = val || "";
+            }
+            return; // Don't add this row to formFields!
+          }
+
           const years = [];
           const formulas = [];
 
@@ -986,7 +1023,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         });
 
         // Handle total revenue
-        let totalRevenueForOthers = [];
+        // let totalRevenueForOthers = [];
         const lastRow = worksheetJS.lastRow;
         if (
           lastRow &&
