@@ -280,7 +280,7 @@ const Assumptions = ({
             style={[
               styles.particularsCell,
               stylesCOP.boldText,
-              { textAlign: "left" },
+              { textAlign: "left" , width:"30%" },
             ]}
           >
             Rates
