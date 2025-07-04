@@ -580,134 +580,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   // };
 
 
-const handleDownloadTemplate = async () => {
-  const businessName =
-    formData?.AccountInformation?.businessName || "Template";
 
-  const projectionYears = parseInt(
-    formData?.ProjectReportSetting?.ProjectionYears || 5
-  );
-
-  const TOTAL_COLUMNS = 330;
-  const fixedColumns = 2; // S.No, Particular
-  const blanksNeeded =
-    TOTAL_COLUMNS - (fixedColumns + projectionYears + 1); // +1 for Row Type
-
-  // Build headers
-  const headers = ["S.No", "Particular"];
-  for (let i = 1; i <= projectionYears; i++) headers.push(`Year ${i}`);
-  if (formType) {
-    for (let i = 0; i < blanksNeeded; i++) headers.push("");
-    headers.push("Row Type");
-  }
-
-  const data = [headers];
-
-  if (formType && localData?.formFields?.length > 0) {
-    localData.formFields.forEach((item) => {
-      const row = [
-        item.serialNumber ?? "",
-        item.particular ?? "",
-        ...(item.years ?? []).slice(0, projectionYears),
-      ];
-      while (row.length < TOTAL_COLUMNS - 1) row.push("");
-      row.push(item.rowType ?? "0");
-      data.push(row);
-    });
-    // Add Total Row
-    const totalRow = [
-      "",
-      "Total Revenue From Operations",
-      ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
-    ];
-    while (totalRow.length < TOTAL_COLUMNS - 1) totalRow.push("");
-    totalRow.push("");
-    data.push(totalRow);
-  } else if (!formType && localData?.formFields2?.length > 0) {
-    localData.formFields2.forEach((item) => {
-      const row = [
-        "",
-        item.particular ?? "",
-        ...(item.years ?? []).slice(0, projectionYears),
-      ];
-      while (row.length < 2 + projectionYears) row.push("");
-      data.push(row);
-    });
-  } else {
-    const row = ["1", "Sample Entry", ...Array(projectionYears).fill("")];
-    while (row.length < (formType ? TOTAL_COLUMNS : 2 + projectionYears)) row.push("");
-    data.push(row);
-  }
-
-  // ---- 1. Create sheet & workbook with SheetJS for data/formulas
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Template");
-
-  // ---- 2. Add formulas if present (SheetJS way)
-  if (localData.formulaMap) {
-    Object.entries(localData.formulaMap).forEach(([cell, formula]) => {
-      if (!ws[cell]) ws[cell] = {};
-      ws[cell].f = formula;
-    });
-  }
-
-  // ---- 3. Write to buffer, then use ExcelJS for styling
-  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-
-  // Now style with ExcelJS
-  const workbookJS = new ExcelJS.Workbook();
-  await workbookJS.xlsx.load(wbout);
-  const worksheetJS = workbookJS.worksheets[0];
-
-  if (formType && localData?.formFields?.length > 0) {
-    // Loop data rows (skip header, which is row 1)
-    localData.formFields.forEach((item, idx) => {
-      // Row in ExcelJS is idx + 2 (header is row 1)
-      const excelRow = worksheetJS.getRow(idx + 2);
-
-      if (item.rowType === "2" || item.rowType === "3") {
-        // Bold or Bold+Underline
-        for (let col = 2; col <= 2 + projectionYears ; col++) {
-          const cell = excelRow.getCell(col);
-          cell.font = {
-            ...cell.font,
-            bold: true,
-            underline: item.rowType === "3" ? true : undefined,
-          };
-        }
-      } else if (item.rowType === "4") {
-        // Underline only
-        for (let col = 2; col <= 2 + projectionYears ; col++) {
-          const cell = excelRow.getCell(col);
-          cell.font = {
-            ...cell.font,
-            underline: true,
-            bold: undefined,
-          };
-        }
-      }
-      // You can style S.No and Particular also if needed; right now, only data columns are styled
-    });
-  }
-
-  // ---- 4. Download using ExcelJS
-  const fileName = `${businessName.replace(
-    /[/\\?%*:|"<>]/g,
-    "-"
-  )}_Template.xlsx`;
-
-  const buffer = await workbookJS.xlsx.writeBuffer();
-
-  // Download via blob
-  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  a.click();
-  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-};
 
 
   //  const handleImportExcel = (file) => {
@@ -912,6 +785,111 @@ const handleDownloadTemplate = async () => {
 
   //   reader.readAsBinaryString(file);
   // };
+
+
+
+const handleDownloadTemplate = async () => {
+  const businessName = formData?.AccountInformation?.businessName || "Template";
+  const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+  const TOTAL_COLUMNS = 330;
+  const fixedColumns = 2; // S.No, Particular
+  const blanksNeeded = TOTAL_COLUMNS - (fixedColumns + projectionYears + 1); // +1 for Row Type
+
+  // Build headers
+  const headers = ["S.No", "Particular"];
+  for (let i = 1; i <= projectionYears; i++) headers.push(`Year ${i}`);
+  if (formType) {
+    for (let i = 0; i < blanksNeeded; i++) headers.push("");
+    headers.push("Row Type");
+  }
+
+  const data = [headers];
+
+  if (formType && localData?.formFields?.length > 0) {
+    localData.formFields.forEach((item) => {
+      const row = [
+        item.serialNumber ?? "",
+        item.particular ?? "",
+        ...(item.years ?? []).slice(0, projectionYears),
+      ];
+      while (row.length < TOTAL_COLUMNS - 1) row.push("");
+      row.push(item.rowType ?? "0");
+      data.push(row);
+    });
+    // Add Total Row
+    const totalRow = [
+      "",
+      "Total Revenue From Operations",
+      ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
+    ];
+    while (totalRow.length < TOTAL_COLUMNS - 1) totalRow.push("");
+    totalRow.push("");
+    data.push(totalRow);
+  } else if (!formType && localData?.formFields2?.length > 0) {
+    localData.formFields2.forEach((item) => {
+      const row = [
+        "",
+        item.particular ?? "",
+        ...(item.years ?? []).slice(0, projectionYears),
+      ];
+      while (row.length < 2 + projectionYears) row.push("");
+      data.push(row);
+    });
+  } else {
+    const row = ["1", "Sample Entry", ...Array(projectionYears).fill("")];
+    while (row.length < (formType ? TOTAL_COLUMNS : 2 + projectionYears)) row.push("");
+    data.push(row);
+  }
+
+  // 1. Create workbook and worksheet
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Template");
+
+  // 2. Add data
+  data.forEach((row) => worksheet.addRow(row));
+
+  // 3. Add formulas (if any)
+  if (localData.formulaMap) {
+    Object.entries(localData.formulaMap).forEach(([cell, formula]) => {
+      worksheet.getCell(cell).value = { formula: formula };
+    });
+  }
+
+  // 4. Styling
+  if (formType && localData?.formFields?.length > 0) {
+    localData.formFields.forEach((item, idx) => {
+      const excelRow = worksheet.getRow(idx + 2); // header is row 1
+      if (item.rowType === "2" || item.rowType === "3") {
+        for (let col = 2; col <= 2 + projectionYears; col++) {
+          const cell = excelRow.getCell(col);
+          cell.font = {
+            bold: true,
+            underline: item.rowType === "3" ? true : undefined,
+          };
+        }
+      } else if (item.rowType === "4") {
+        for (let col = 2; col <= 2 + projectionYears; col++) {
+          const cell = excelRow.getCell(col);
+          cell.font = {
+            underline: true,
+            bold: undefined,
+          };
+        }
+      }
+    });
+  }
+
+  // 5. Download
+  const buffer = await workbook.xlsx.writeBuffer();
+  const fileName = `${businessName.replace(/[/\\?%*:|"<>]/g, "-")}_Template.xlsx`;
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  setTimeout(() => window.URL.revokeObjectURL(url), 100);
+};
 
   const handleImportExcel = (file) => {
   const reader = new FileReader();
