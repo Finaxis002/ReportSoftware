@@ -1840,6 +1840,7 @@ const ProjectedExpenses = ({
 
     return incrementedExpense;
   };
+
   const calculateRawMaterialExpense = (
     expense,
     receivedtotalRevenueReceipts,
@@ -2141,6 +2142,7 @@ const ProjectedExpenses = ({
       return yearlyWriteOffAmount;
     }
 
+   
     // 👇 Insert 0 for all other years (including hidden first year)
     return 0;
   });
@@ -2294,6 +2296,9 @@ const ProjectedExpenses = ({
   }).length;
 
   const preliminarySerialNo = 3 + renderedIndirectExpenses + 1; // 3 static rows + count + 1
+
+
+   
 
   return (
     <Page

@@ -326,13 +326,21 @@ const GeneratedPDF = () => {
     return parseFloat(cleaned) || 0;
   };
 
+  // const firstYearGrossFixedAssets = useMemo(() => {
+  //   return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
+  //     if (asset?.isSelected) return sum; // ✅ Skip selected assets
+  //     const netAsset = parseAmount(asset.amount);
+  //     return sum + netAsset;
+  //   }, 0);
+  // }, [formData?.CostOfProject]);
   const firstYearGrossFixedAssets = useMemo(() => {
-    return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
-      if (asset?.isSelected) return sum; // ✅ Skip selected assets
-      const netAsset = parseAmount(asset.amount);
-      return sum + netAsset;
-    }, 0);
-  }, [formData?.CostOfProject]);
+  return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
+    if (asset?.isSelected || asset?.isPreliminary) return sum;
+    const netAsset = parseAmount(asset.amount);
+    return sum + netAsset;
+  }, 0);
+}, [formData?.CostOfProject]);
+
 
   // Function to generate correct financial year labels
   const generateFinancialYearLabels = useMemo(

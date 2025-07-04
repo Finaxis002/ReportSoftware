@@ -414,6 +414,12 @@ const ProjectedCashflow = ({
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
 
+      const preliminaryExpenseInUses =
+      index === 0
+        ? Number(formData?.CostOfProject?.preliminaryExpensesTotal || 0)
+        : 0;
+
+        console.log('preliminary Expense In Uses', preliminaryExpenseInUses)
       // ✅ Final Total Uses Calculation (including Inventory)
       const totalUses =
         sanitize(fixedAssets) +
@@ -423,8 +429,8 @@ const ProjectedCashflow = ({
         sanitize(withdrawals) +
         sanitize(incomeTaxValue) +
         sanitize(currentAssetsTotal) +
-        sanitize(inventoryValue); // Add the Inventory for the current year (index)
-      
+        sanitize(inventoryValue)+ // Add the Inventory for the current year (index)
+       sanitize(preliminaryExpenseInUses); 
       return totalUses;
     }
   );
@@ -936,7 +942,7 @@ const ProjectedCashflow = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Preliminary Expenses
+                  Preliminary Expenses <br /> written off
                 </Text>
 
                 {preliminaryWriteOffPerYear.map((value, yearIndex) => (
@@ -1384,6 +1390,38 @@ const ProjectedCashflow = ({
                   </View>
                 );
               })}
+{/* Preliminary Expenses in Uses (year 1 only) */}
+{Number(formData?.CostOfProject?.preliminaryExpensesTotal) > 0 && (
+  <View style={styles.tableRow}>
+    <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+      {getNextUsesSerial()}
+    </Text>
+    <Text
+      style={[
+        stylesCOP.detailsCellDetail,
+        styleExpenses.particularWidth,
+        styleExpenses.bordernone,
+      ]}
+    >
+      Preliminary Expenses
+    </Text>
+    {Array.from({ length: projectionYears }).map((_, index) => (
+      <Text
+        key={index}
+        style={[
+          stylesCOP.particularsCellsDetail,
+          styleExpenses.fontSmall,
+        ]}
+      >
+        {formatNumber(
+          index === 0
+            ? Number(formData?.CostOfProject?.preliminaryExpensesTotal) || 0
+            : 0
+        )}
+      </Text>
+    ))}
+  </View>
+)}
 
             {/* Total Uses Calculation */}
             <View

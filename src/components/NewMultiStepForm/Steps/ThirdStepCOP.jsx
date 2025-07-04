@@ -83,7 +83,7 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   });
   const [infoMessage, setInfoMessage] = useState("");
   const [preliminaryWriteOffYears, setPreliminaryWriteOffYears] = useState(
-    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+    formData?.CostOfProject?.preliminaryWriteOffYears || 5
   );
 
   const formatNumberWithCommas = (num) => {
@@ -133,7 +133,9 @@ const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
         setPreliminaryWriteOffYears(
           formData.CostOfProject.preliminaryWriteOffYears
         );
-      }
+      }else if (!preliminaryWriteOffYears) {
+      setPreliminaryWriteOffYears(5); // Fallback
+    }
 
       // Calculate or use existing preliminary expenses total
       newData.preliminaryExpensesTotal =
