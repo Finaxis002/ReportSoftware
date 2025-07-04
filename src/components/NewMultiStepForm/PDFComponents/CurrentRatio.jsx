@@ -100,9 +100,7 @@ const CurrentRatio = ({
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
       orientation={orientation}
-      style={[{ padding: "20px", paddingVertical: "40px" }]}
-      //   wrap={false}
-      //   break
+       style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&

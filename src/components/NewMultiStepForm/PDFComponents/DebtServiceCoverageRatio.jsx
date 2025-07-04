@@ -304,9 +304,7 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
       orientation={
         orientation
       }
-      style={[
-        { paddingBottom: "30px", paddingLeft: "20px", paddingRight: "20px" },
-      ]}
+      style={styles.page}
       wrap={false}
       break
     >
