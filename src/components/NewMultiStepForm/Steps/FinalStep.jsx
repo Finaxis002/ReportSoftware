@@ -1298,7 +1298,10 @@ const FinalStep = ({ formData, userRole }) => {
           />
 
           <button
-            onClick={""}
+              onClick={() => {
+    localStorage.setItem("cmaAdvanceFormData", JSON.stringify(formData));
+    window.open("/cma-advance-report", "_blank", "noopener,noreferrer");
+  }}
             className="flex items-center bg-gradient-to-br from-orange-500 to-orange-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
           >
             <svg

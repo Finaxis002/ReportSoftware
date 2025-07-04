@@ -41,6 +41,7 @@ import DemoPDFView from "./components/NewMultiStepForm/DemoPDFView.jsx";
 import IntroPage from "./components/NewMultiStepForm/IntroPage.jsx";
 import Database from './components/NewMultiStepForm/Database.jsx'
 import SettingsPage from "./components/NewMultiStepForm/SettingsPage.jsx";
+import CMADataPdfGeneration from "./components/NewMultiStepForm/CMADataPdfGeneration.jsx";
 
 
 // Initialize query client
@@ -388,6 +389,17 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/cma-advance-report"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <CMADataPdfGeneration />{" "}
+              </ProtectedRoute>
+            }
+          />
+         
         </Routes>
 
        
