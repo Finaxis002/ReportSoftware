@@ -579,10 +579,6 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   //   XLSX.writeFile(wb, fileName);
   // };
 
-
-
-
-
   //  const handleImportExcel = (file) => {
   //   const reader = new FileReader();
   //   const ROW_TYPE_COL_INDEX = 329;
@@ -786,302 +782,314 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   //   reader.readAsBinaryString(file);
   // };
 
-
-
-const handleDownloadTemplate = async () => {
-  const businessName = formData?.AccountInformation?.businessName || "Template";
-  const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  const TOTAL_COLUMNS = 330;
-  const fixedColumns = 2; // S.No, Particular
-  const blanksNeeded = TOTAL_COLUMNS - (fixedColumns + projectionYears + 1); // +1 for Row Type
-
-  // Build headers
-  const headers = ["S.No", "Particular"];
-  for (let i = 1; i <= projectionYears; i++) headers.push(`Year ${i}`);
-  if (formType) {
-    for (let i = 0; i < blanksNeeded; i++) headers.push("");
-    headers.push("Row Type");
-  }
-
-  const data = [headers];
-
-  if (formType && localData?.formFields?.length > 0) {
-    localData.formFields.forEach((item) => {
-      const row = [
-        item.serialNumber ?? "",
-        item.particular ?? "",
-        ...(item.years ?? []).slice(0, projectionYears),
-      ];
-      while (row.length < TOTAL_COLUMNS - 1) row.push("");
-      row.push(item.rowType ?? "0");
-      data.push(row);
-    });
-    // Add Total Row
-    const totalRow = [
-      "",
-      "Total Revenue From Operations",
-      ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
-    ];
-    while (totalRow.length < TOTAL_COLUMNS - 1) totalRow.push("");
-    totalRow.push("");
-    data.push(totalRow);
-  } else if (!formType && localData?.formFields2?.length > 0) {
-    localData.formFields2.forEach((item) => {
-      const row = [
-        "",
-        item.particular ?? "",
-        ...(item.years ?? []).slice(0, projectionYears),
-      ];
-      while (row.length < 2 + projectionYears) row.push("");
-      data.push(row);
-    });
-  } else {
-    const row = ["1", "Sample Entry", ...Array(projectionYears).fill("")];
-    while (row.length < (formType ? TOTAL_COLUMNS : 2 + projectionYears)) row.push("");
-    data.push(row);
-  }
-
-  // 1. Create workbook and worksheet
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("Template");
-
-  // 2. Add data
-  data.forEach((row) => worksheet.addRow(row));
-
-  // 3. Add formulas (if any)
-  if (localData.formulaMap) {
-    Object.entries(localData.formulaMap).forEach(([cell, formula]) => {
-      worksheet.getCell(cell).value = { formula: formula };
-    });
-  }
-
-  // 4. Styling
-  if (formType && localData?.formFields?.length > 0) {
-    localData.formFields.forEach((item, idx) => {
-      const excelRow = worksheet.getRow(idx + 2); // header is row 1
-      if (item.rowType === "2" || item.rowType === "3") {
-        for (let col = 2; col <= 2 + projectionYears; col++) {
-          const cell = excelRow.getCell(col);
-          cell.font = {
-            bold: true,
-            underline: item.rowType === "3" ? true : undefined,
-          };
-        }
-      } else if (item.rowType === "4") {
-        for (let col = 2; col <= 2 + projectionYears; col++) {
-          const cell = excelRow.getCell(col);
-          cell.font = {
-            underline: true,
-            bold: undefined,
-          };
-        }
-      }
-    });
-  }
-
-  // 5. Download
-  const buffer = await workbook.xlsx.writeBuffer();
-  const fileName = `${businessName.replace(/[/\\?%*:|"<>]/g, "-")}_Template.xlsx`;
-  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  a.click();
-  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-};
-
-  const handleImportExcel = (file) => {
-  const reader = new FileReader();
-
-  reader.onload = async (evt) => {
-    const buffer = evt.target.result;
+  const handleDownloadTemplate = async () => {
+    const businessName =
+      formData?.AccountInformation?.businessName || "Template";
     const projectionYears = parseInt(
       formData?.ProjectReportSetting?.ProjectionYears || 5
     );
+    const TOTAL_COLUMNS = 330;
+    const fixedColumns = 2; // S.No, Particular
+    const blanksNeeded = TOTAL_COLUMNS - (fixedColumns + projectionYears + 1); // +1 for Row Type
 
-    // SheetJS for formulas
-    const data = new Uint8Array(buffer);
-    const workbookXLSX = XLSX.read(data, { type: "array", cellStyles: true });
-    const sheetName = workbookXLSX.SheetNames[0];
-    const sheetXLSX = workbookXLSX.Sheets[sheetName];
-    const json = XLSX.utils.sheet_to_json(sheetXLSX, { header: 1 }); // array of arrays
-
-    // ExcelJS for styles (only needed for Others)
-    const workbookJS = new ExcelJS.Workbook();
-    await workbookJS.xlsx.load(buffer);
-    const worksheetJS = workbookJS.worksheets[0];
-
-    // Helper to convert col index (1-based) to Excel letter
-    const colToLetter = (colIdx) => {
-      let s = "";
-      while (colIdx > 0) {
-        let m = (colIdx - 1) % 26;
-        s = String.fromCharCode(65 + m) + s;
-        colIdx = Math.floor((colIdx - m) / 26);
-      }
-      return s;
-    };
-
-    // Style detection for "Others"
-    function getRowType(excelRow, cellIndex = 2) {
-      const cell = excelRow.getCell(cellIndex);
-      const font = cell.font || {};
-      const bold = font.bold === true || font.bold === 1;
-      const underline = font.underline === true || font.underline === 1;
-      if (bold && underline) return "3";
-      if (bold) return "2";
-      if (underline) return "4";
-      return "0";
-    }
-
-    // ---------------- Others Mode -----------------
+    // Build headers
+    const headers = ["S.No", "Particular"];
+    for (let i = 1; i <= projectionYears; i++) headers.push(`Year ${i}`);
     if (formType) {
-      const formFields = [];
-      const ROW_TYPE_COL_INDEX = 330;
-      worksheetJS.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-        if (rowNumber === 1) return; // Skip header
+      for (let i = 0; i < blanksNeeded; i++) headers.push("");
+      headers.push("Row Type");
+    }
 
-        const serialNumber = row.getCell(1).value || "";
-        const particular = row.getCell(2).value || "";
-        const years = [];
-        const formulas = [];
+    const data = [headers];
 
-        for (let col = 3; col < 3 + projectionYears; col++) {
-          const colLetter = colToLetter(col);
-          const cellAddress = `${colLetter}${rowNumber}`;
-          let cellValue = row.getCell(col).value;
-          let xlsxCell = sheetXLSX[cellAddress];
-          let formula = xlsxCell && xlsxCell.f ? xlsxCell.f : null;
-          if (cellValue && typeof cellValue === "object") {
-            cellValue = cellValue.result !== undefined ? cellValue.result : "";
-          }
-          years.push(cellValue || "");
-          formulas.push(formula);
-        }
-
-        // Prefer explicit Row Type, fallback to styling
-        let explicitRowType = "";
-        if (row.getCell(ROW_TYPE_COL_INDEX)) {
-          explicitRowType = String(
-            row.getCell(ROW_TYPE_COL_INDEX).value || ""
-          ).trim();
-        }
-        const rowType = explicitRowType || getRowType(row, 2);
-
-        if (!particular && years.every((y) => !y)) return;
-
-        formFields.push({
-          serialNumber,
-          particular,
-          years,
-          formulas,
-          rowType,
-          increaseBy: "",
-        });
+    if (formType && localData?.formFields?.length > 0) {
+      localData.formFields.forEach((item) => {
+        const row = [
+          item.serialNumber ?? "",
+          item.particular ?? "",
+          ...(item.years ?? []).slice(0, projectionYears),
+        ];
+        while (row.length < TOTAL_COLUMNS - 1) row.push("");
+        row.push(item.rowType ?? "0");
+        data.push(row);
       });
+      // Add Total Row
+      const totalRow = [
+        "",
+        "Total Revenue From Operations",
+        ...(localData.totalRevenueForOthers ?? []).slice(0, projectionYears),
+      ];
+      while (totalRow.length < TOTAL_COLUMNS - 1) totalRow.push("");
+      totalRow.push("");
+      data.push(totalRow);
+    } else if (!formType && localData?.formFields2?.length > 0) {
+      localData.formFields2.forEach((item) => {
+        const row = [
+          "",
+          item.particular ?? "",
+          ...(item.years ?? []).slice(0, projectionYears),
+        ];
+        while (row.length < 2 + projectionYears) row.push("");
+        data.push(row);
+      });
+    } else {
+      const row = ["1", "Sample Entry", ...Array(projectionYears).fill("")];
+      while (row.length < (formType ? TOTAL_COLUMNS : 2 + projectionYears))
+        row.push("");
+      data.push(row);
+    }
 
-      // Handle total revenue
-      let totalRevenueForOthers = [];
-      const lastRow = worksheetJS.lastRow;
-      if (
-        lastRow &&
-        (String(lastRow.getCell(1).value || "")
-          .toLowerCase()
-          .includes("total revenue from operations") ||
-          String(lastRow.getCell(2).value || "")
-            .toLowerCase()
-            .includes("total revenue from operations"))
-      ) {
-        for (let col = 3; col < 3 + projectionYears; col++) {
-          let cell = lastRow.getCell(col);
-          let cellValue = cell.value;
-          if (
-            cellValue &&
-            typeof cellValue === "object" &&
-            cellValue.result !== undefined
-          ) {
-            cellValue = cellValue.result;
+    // 1. Create workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Template");
+
+    // 2. Add data
+    data.forEach((row) => worksheet.addRow(row));
+
+    // 3. Add formulas (if any)
+    if (localData.formulaMap) {
+      Object.entries(localData.formulaMap).forEach(([cell, formula]) => {
+        worksheet.getCell(cell).value = { formula: formula };
+      });
+    }
+
+    // 4. Styling
+    if (formType && localData?.formFields?.length > 0) {
+      localData.formFields.forEach((item, idx) => {
+        const excelRow = worksheet.getRow(idx + 2); // header is row 1
+        if (item.rowType === "2" || item.rowType === "3") {
+          for (let col = 2; col <= 2 + projectionYears; col++) {
+            const cell = excelRow.getCell(col);
+            cell.font = {
+              bold: true,
+              underline: item.rowType === "3" ? true : undefined,
+            };
           }
-          totalRevenueForOthers.push(cellValue || "");
+        } else if (item.rowType === "4") {
+          for (let col = 2; col <= 2 + projectionYears; col++) {
+            const cell = excelRow.getCell(col);
+            cell.font = {
+              underline: true,
+              bold: undefined,
+            };
+          }
         }
+      });
+    }
+
+    // 5. Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const fileName = `${businessName.replace(
+      /[/\\?%*:|"<>]/g,
+      "-"
+    )}_Template.xlsx`;
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+  };
+
+  const handleImportExcel = (file) => {
+    const reader = new FileReader();
+
+    reader.onload = async (evt) => {
+      const buffer = evt.target.result;
+      const projectionYears = parseInt(
+        formData?.ProjectReportSetting?.ProjectionYears || 5
+      );
+
+      // SheetJS for formulas
+      const data = new Uint8Array(buffer);
+      const workbookXLSX = XLSX.read(data, { type: "array", cellStyles: true });
+      const sheetName = workbookXLSX.SheetNames[0];
+      const sheetXLSX = workbookXLSX.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheetXLSX, { header: 1 }); // array of arrays
+
+      // ExcelJS for styles (only needed for Others)
+      const workbookJS = new ExcelJS.Workbook();
+      await workbookJS.xlsx.load(buffer);
+      const worksheetJS = workbookJS.worksheets[0];
+
+      // Helper to convert col index (1-based) to Excel letter
+      const colToLetter = (colIdx) => {
+        let s = "";
+        while (colIdx > 0) {
+          let m = (colIdx - 1) % 26;
+          s = String.fromCharCode(65 + m) + s;
+          colIdx = Math.floor((colIdx - m) / 26);
+        }
+        return s;
+      };
+
+      // Style detection for "Others"
+      function getRowType(excelRow, cellIndex = 2) {
+        const cell = excelRow.getCell(cellIndex);
+        const font = cell.font || {};
+        const bold = font.bold === true || font.bold === 1;
+        const underline = font.underline === true || font.underline === 1;
+        if (bold && underline) return "3";
+        if (bold) return "2";
+        if (underline) return "4";
+        return "0";
       }
 
-      setLocalData((prev) => ({
-        ...prev,
-        formFields,
-        totalRevenueForOthers,
-        formulaMap: (() => {
-          const map = {};
-          formFields.forEach((row, rowIdx) => {
-            row.formulas.forEach((f, yearIdx) => {
-              if (f) {
-                const col = 3 + yearIdx;
-                const cellAddr = `${colToLetter(col)}${rowIdx + 2}`;
-                map[cellAddr] = f;
-              }
-            });
-          });
-          return map;
-        })(),
-      }));
-    }
-    // ------------- Monthly Mode -------------------
-    else {
-      // Monthly: Only values and formulas, no style/rowType
-      const [, ...rows] = json; // skip header row
-      const formFields2 = rows
-        .filter(
-          (row) =>
-            !String(row[0] || "").toLowerCase().includes("total") // skip total rows
-        )
-        .map((row, rowIdx) => {
-          // row[1] = particular
-          const particular = row[1] ?? "";
-          // Get years and formulas for columns 2..(2+projectionYears)
+      // ---------------- Others Mode -----------------
+      if (formType) {
+        const formFields = [];
+        const ROW_TYPE_COL_INDEX = 330;
+        worksheetJS.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+          if (rowNumber === 1) return; // Skip header
+
+          const serialNumber = row.getCell(1).value || "";
+          const particular = row.getCell(2).value || "";
           const years = [];
           const formulas = [];
-          for (let i = 0; i < projectionYears; i++) {
-            // SheetJS cell address
-            const colLetter = colToLetter(i + 3); // Years start from column 3 (C)
-            const cellAddress = `${colLetter}${rowIdx + 2}`; // +2: header skipped
-            let value = row[2 + i] ?? "";
-            let formula = sheetXLSX[cellAddress] && sheetXLSX[cellAddress].f ? sheetXLSX[cellAddress].f : null;
-            years.push(value);
+
+          for (let col = 3; col < 3 + projectionYears; col++) {
+            const colLetter = colToLetter(col);
+            const cellAddress = `${colLetter}${rowNumber}`;
+            let cellValue = row.getCell(col).value;
+            let xlsxCell = sheetXLSX[cellAddress];
+            let formula = xlsxCell && xlsxCell.f ? xlsxCell.f : null;
+            if (cellValue && typeof cellValue === "object") {
+              cellValue =
+                cellValue.result !== undefined ? cellValue.result : "";
+            }
+            years.push(cellValue || "");
             formulas.push(formula);
           }
-          return {
+
+          // Prefer explicit Row Type, fallback to styling
+          let explicitRowType = "";
+          if (row.getCell(ROW_TYPE_COL_INDEX)) {
+            explicitRowType = String(
+              row.getCell(ROW_TYPE_COL_INDEX).value || ""
+            ).trim();
+          }
+          const rowType = explicitRowType || getRowType(row, 2);
+
+          if (!particular && years.every((y) => !y)) return;
+
+          formFields.push({
+            serialNumber,
             particular,
             years,
             formulas,
-            amount: 0,
+            rowType,
             increaseBy: "",
-          };
+          });
         });
 
-      setLocalData((prev) => ({
-        ...prev,
-        formFields2,
-        formulaMap: (() => {
-          const map = {};
-          formFields2.forEach((row, rowIdx) => {
-            row.formulas.forEach((f, yearIdx) => {
-              if (f) {
-                const col = 3 + yearIdx;
-                const cellAddr = `${colToLetter(col)}${rowIdx + 2}`;
-                map[cellAddr] = f;
-              }
+        // Handle total revenue
+        let totalRevenueForOthers = [];
+        const lastRow = worksheetJS.lastRow;
+        if (
+          lastRow &&
+          (String(lastRow.getCell(1).value || "")
+            .toLowerCase()
+            .includes("total revenue from operations") ||
+            String(lastRow.getCell(2).value || "")
+              .toLowerCase()
+              .includes("total revenue from operations"))
+        ) {
+          for (let col = 3; col < 3 + projectionYears; col++) {
+            let cell = lastRow.getCell(col);
+            let cellValue = cell.value;
+            if (
+              cellValue &&
+              typeof cellValue === "object" &&
+              cellValue.result !== undefined
+            ) {
+              cellValue = cellValue.result;
+            }
+            totalRevenueForOthers.push(cellValue || "");
+          }
+        }
+
+        setLocalData((prev) => ({
+          ...prev,
+          formFields,
+          totalRevenueForOthers,
+          formulaMap: (() => {
+            const map = {};
+            formFields.forEach((row, rowIdx) => {
+              row.formulas.forEach((f, yearIdx) => {
+                if (f) {
+                  const col = 3 + yearIdx;
+                  const cellAddr = `${colToLetter(col)}${rowIdx + 2}`;
+                  map[cellAddr] = f;
+                }
+              });
             });
+            return map;
+          })(),
+        }));
+      }
+      // ------------- Monthly Mode -------------------
+      else {
+        // Monthly: Only values and formulas, no style/rowType
+        const [, ...rows] = json; // skip header row
+        const formFields2 = rows
+          .filter(
+            (row) =>
+              !String(row[0] || "")
+                .toLowerCase()
+                .includes("total") // skip total rows
+          )
+          .map((row, rowIdx) => {
+            // row[1] = particular
+            const particular = row[1] ?? "";
+            // Get years and formulas for columns 2..(2+projectionYears)
+            const years = [];
+            const formulas = [];
+            for (let i = 0; i < projectionYears; i++) {
+              // SheetJS cell address
+              const colLetter = colToLetter(i + 3); // Years start from column 3 (C)
+              const cellAddress = `${colLetter}${rowIdx + 2}`; // +2: header skipped
+              let value = row[2 + i] ?? "";
+              let formula =
+                sheetXLSX[cellAddress] && sheetXLSX[cellAddress].f
+                  ? sheetXLSX[cellAddress].f
+                  : null;
+              years.push(value);
+              formulas.push(formula);
+            }
+            return {
+              particular,
+              years,
+              formulas,
+              amount: 0,
+              increaseBy: "",
+            };
           });
-          return map;
-        })(),
-      }));
-    }
+
+        setLocalData((prev) => ({
+          ...prev,
+          formFields2,
+          formulaMap: (() => {
+            const map = {};
+            formFields2.forEach((row, rowIdx) => {
+              row.formulas.forEach((f, yearIdx) => {
+                if (f) {
+                  const col = 3 + yearIdx;
+                  const cellAddr = `${colToLetter(col)}${rowIdx + 2}`;
+                  map[cellAddr] = f;
+                }
+              });
+            });
+            return map;
+          })(),
+        }));
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
-
-  reader.readAsArrayBuffer(file);
-};
-
 
   // const handleImportExcel = (file) => {
   //   const reader = new FileReader();
