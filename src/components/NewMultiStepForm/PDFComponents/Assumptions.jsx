@@ -61,14 +61,7 @@ const Assumptions = ({
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
       orientation={orientation}
-      style={[
-        {
-          paddingVertical: "70px",
-          paddingBottom: "200px",
-          paddingLeft: "20px",
-          paddingRight: "20px",
-        },
-      ]}
+     style={styles.page}
       wrap={false}
     >
       {pdfType &&

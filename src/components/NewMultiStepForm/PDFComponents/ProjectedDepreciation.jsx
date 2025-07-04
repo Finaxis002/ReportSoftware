@@ -347,7 +347,7 @@ const ProjectedDepreciation = ({
       orientation={orientation} // ✅ Now using prop
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+       style={styles.page}
     >
       {/* watermark  */}
       {pdfType &&
@@ -422,7 +422,7 @@ const ProjectedDepreciation = ({
 
         {/* Table Container */}
 
-        <View style={styles.table}>
+        <View style={[styles.table, {borderRightWidth:0}]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text
@@ -470,7 +470,7 @@ const ProjectedDepreciation = ({
               ))}
           </View>
 
-          <View style={[styles.tableHeader, { marginTop: "20px" }]}>
+          <View style={[styles.tableHeader, { marginTop: "20px", borderRightWidth:0 }]}>
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -522,82 +522,7 @@ const ProjectedDepreciation = ({
               )}
           </View>
 
-          {/* Display Gross Fixed Assets (A) with updated values */}
-          {/* {(() => {
-            let visibleIndex = 0;
-
-            return Object.entries(formData.CostOfProject).map(
-              ([key, asset], index) => {
-                const assetAmount = asset.amount || 0;
-
-                // ❌ Skip any selected or preliminary asset
-                if (asset.isSelected || asset.isPreliminary) return null;
-
-                const depreciationPerYear =
-                  depreciationValues[index]?.yearlyDepreciation || [];
-
-                    const numericDepreciation = depreciationPerYear.map(val => Number(val));
-
-                const assetValues = [];
-                let currentValue = assetAmount;
-
-                for (let yearIndex = 0; yearIndex < years; yearIndex++) {
-                  if (yearIndex === 0) {
-                    assetValues.push(currentValue);
-                  } else {
-                    const depreciation =
-                      numericDepreciation[yearIndex - 1] || 0;
-                    currentValue -= depreciation;
-                    assetValues.push(currentValue);
-                  }
-                }
-
-                const visibleAssetValues = hideFirstYear
-                  ? assetValues.slice(1)
-                  : assetValues;
-                if (visibleAssetValues.every((val) => val === 0))  {
-      console.log(`Skipping Asset: ${asset.name} as depreciation values are zero`);
-      return null; // Skip rendering this asset row
-    }
-
-                 console.log(`Asset: ${asset.name}`);
-      console.log("Depreciation values per year:", visibleAssetValues);
-
-                visibleIndex++;
-
-                return (
-                  <View key={key} style={styles.tableRow}>
-                    <Text style={stylesCOP.serialNoCellDetail}>
-                      {visibleIndex}
-                    </Text>
-                    <Text
-                      style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.particularWidth,
-                        styleExpenses.bordernone,
-                      ]}
-                    >
-                      {asset.name}
-                    </Text>
-                    <Text style={stylesCOP.serialNoCellDetail}></Text>
-                    {assetValues.map((value, yearIndex) =>
-                      hideFirstYear && yearIndex === 0 ? null : (
-                        <Text
-                          key={yearIndex}
-                          style={[
-                            stylesCOP.particularsCellsDetail,
-                            styleExpenses.fontSmall,
-                          ]}
-                        >
-                          {formatNumber(value)}
-                        </Text>
-                      )
-                    )}
-                  </View>
-                );
-              }
-            );
-          })()} */}
+        
           {(() => {
             let visibleIndex = 0;
 
@@ -664,7 +589,7 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment for visible rows
 
                 return (
-                  <View key={key} style={styles.tableRow}>
+                  <View key={key} style={[styles.tableRow, {borderRightWidth:0}]}>
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
                     </Text>
@@ -770,7 +695,7 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment for visible rows only
 
                 return (
-                  <View key={key} style={styles.tableRow}>
+                  <View key={key} style={[styles.tableRow , {borderRightWidth:0}]}>
                     {/* ✅ Corrected Serial Number */}
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
@@ -883,7 +808,7 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment only for rows that are displayed
 
                 return (
-                  <View key={key} style={styles.tableRow}>
+                  <View key={key} style={[styles.tableRow, {borderRightWidth:0}]}>
                     {/* ✅ Correct Serial Number */}
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
@@ -1014,7 +939,7 @@ const ProjectedDepreciation = ({
                 visibleIndex++;
 
                 return (
-                  <View key={assetKey} style={styles.tableRow}>
+                  <View key={assetKey} style={[styles.tableRow, {borderRightWidth:0}]}>
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
                     </Text>

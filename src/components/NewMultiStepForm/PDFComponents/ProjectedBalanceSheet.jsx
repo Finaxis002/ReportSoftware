@@ -416,7 +416,7 @@ console.log('preliminary Asset', preliminaryAsset)
       orientation={orientation}
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+      style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -496,7 +496,7 @@ console.log('preliminary Asset', preliminaryAsset)
           <Text>Projected Balance Sheet </Text>
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table,{borderRightWidth:0}]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -1155,7 +1155,7 @@ console.log('preliminary Asset', preliminaryAsset)
 
             {/* Total assets Calculation */}
             <View
-              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
+              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow , {borderBottomWidth:0}]}
             >
               <Text
                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
@@ -1166,7 +1166,6 @@ console.log('preliminary Asset', preliminaryAsset)
                   styleExpenses.particularWidth,
                   {
                     paddingVertical: "8px",
-
                     fontWeight: "bold",
                   },
                 ]}

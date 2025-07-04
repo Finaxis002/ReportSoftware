@@ -354,10 +354,12 @@ body.dark {
 .showRow td,
 .showRow td input,
 .showRow td select {
-  background: rgb(255, 255, 255) !important; /* Same as normal (white) */
-  height: 12px; /* Extra spacing for blank row */
+  background: rgb(255, 255, 255) !important;
+  /* Remove or comment out the height property */
+  /* height: 12px; */
+  padding: 3px; /* Match normal row padding */
+  min-height: 24px; /* Optional: ensure minimum height */
 }
-
 
 /* --------------------------------------------------------------- */
 

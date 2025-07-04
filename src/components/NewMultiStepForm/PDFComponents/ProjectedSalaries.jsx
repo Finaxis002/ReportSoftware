@@ -17,7 +17,7 @@ const ProjectedSalaries = ({
   pdfType,
 }) => {
   return (
-    <Page size="A4" style={stylesCOP.styleCOP}>
+    <Page size="A4" style={styles.page}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -154,6 +154,7 @@ const ProjectedSalaries = ({
               style={[
                 stylesCOP.particularsCellsDetail,
                 stylesCOP.textCenter,
+                {borderRight:0},
                 index === 0 && { paddingTop: 20 },
                 index === normalExpense.length - 1 && { paddingBottom: 20 },
               ]}
@@ -194,7 +195,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.boldText,
-              { borderTop: "1px solid #000", borderBottom: "1px solid #000" },
+              { borderTop: "1px solid #000", borderBottom: "1px solid #000" , borderRightWidth:0},
             ]}
           >
             {formatNumber(totalAnnualWages)}
@@ -225,6 +226,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
+              {borderRight:0,}
             ]}
           >
             {" "}
@@ -247,10 +249,10 @@ const ProjectedSalaries = ({
               styles.Total,
               {
                 borderTopWidth: "1px",
-                borderBottomWidth: "1px",
                 fontSize: "10px",
                 paddingVertical: "6px",
-                width:"110%"
+                width:"110%",
+                borderBottomWidth: 0,
               },
             ]}
           >
@@ -262,7 +264,7 @@ const ProjectedSalaries = ({
            style={[
             stylesCOP.particularsCellsDetail,
             stylesCOP.textCenter,
-            {borderTopWidth:1}
+            {borderTopWidth:1, borderBottomWidth:0 , borderRightWidth:0}
           ]}
           >
             {" "}

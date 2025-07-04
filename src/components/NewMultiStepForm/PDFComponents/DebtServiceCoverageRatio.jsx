@@ -304,9 +304,7 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
       orientation={
         orientation
       }
-      style={[
-        { paddingBottom: "30px", paddingLeft: "20px", paddingRight: "20px" },
-      ]}
+      style={styles.page}
       wrap={false}
       break
     >
@@ -381,7 +379,7 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
                   )
                 </Text>
       </View>
-      <View style={[styles.table]}>
+       <View style={[styles.table, { borderRightWidth: 0 }]}>
         <View
           style={[
             stylesCOP.heading,
@@ -964,11 +962,12 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
 
           {financialYearLabels
             .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-            .map((yearLabel, yearIndex) => {
+            .map((yearLabel, yearIndex , arr) => {
               const visibleLabels = financialYearLabels.slice(
                 hideFirstYear ? 1 : 0
               );
               const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
+              const isLast = yearIndex === arr.length - 1;
 
               return (
                 <Text
@@ -980,8 +979,8 @@ const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every((val) => val =
                       fontWeight: "bold",
                       
                       textAlign: "center",
-                      borderLeftWidth: 0,
-                      borderRightWidth: 0,
+                      borderWidth: 0,
+                      ...(isLast && { borderRightWidth:1 }),
                     },
                   ]}
                 >

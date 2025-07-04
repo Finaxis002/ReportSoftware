@@ -307,15 +307,7 @@ let monthsLeft = repaymentMonths;
 
   return (
     <>
-      <Page
-        // orientation={
-        //   formData.ProjectReportSetting.ProjectionYears > 7
-        //     ? "landscape"
-        //     : "portrait"
-        // }
-        // wrap={false}
-        style={[{ padding: "20px" }]}
-      >
+     <Page style={[styles.page, { paddingTop: 40 }]}>
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}
           <View>
@@ -443,6 +435,7 @@ let monthsLeft = repaymentMonths;
                   style={[
                     styles.serialNoCell,
                     styleExpenses.sno,
+                    styleExpenses.fontBold,
                     {
                       width: "8%",
                       paddingHorizontal: "1px",
@@ -457,6 +450,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",
@@ -471,6 +465,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",
@@ -485,6 +480,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",
@@ -499,6 +495,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",
@@ -513,6 +510,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",
@@ -527,6 +525,7 @@ let monthsLeft = repaymentMonths;
                 <Text
                   style={[
                     styles.detailsCell,
+                    styleExpenses.fontBold,
                     {
                       textAlign: "center",
                       width: "15.35%",

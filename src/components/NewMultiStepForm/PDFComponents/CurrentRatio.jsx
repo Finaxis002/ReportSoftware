@@ -55,24 +55,23 @@ const CurrentRatio = ({
     let validRatios = currentRatio
       .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
       .map((r) => parseFloat(r));
-  
+
     // ✅ Remove the first year's value if it's hidden
     if (hideFirstYear) {
       validRatios = validRatios.slice(1); // Remove first index
     }
-  
+
     // ✅ If there are no valid ratios left, return "-"
     if (validRatios.length === 0) {
       return "-";
     }
-  
+
     // ✅ Calculate the average of valid ratios
     const total = validRatios.reduce((sum, value) => sum + value, 0);
     const average = (total / validRatios.length).toFixed(2);
-  
+
     return average;
   })();
-  
 
   useEffect(() => {
     if (averageCurrentRatio !== "-") {
@@ -82,8 +81,6 @@ const CurrentRatio = ({
       }));
     }
   }, [averageCurrentRatio]);
-  
-
 
   useEffect(() => {
     if (currentRatio.length > 0) {
@@ -103,9 +100,7 @@ const CurrentRatio = ({
     <Page
       size={projectionYears > 12 ? "A3" : "A4"}
       orientation={orientation}
-      style={[{ padding: "20px", paddingVertical: "40px" }]}
-      //   wrap={false}
-      //   break
+       style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -228,7 +223,7 @@ const CurrentRatio = ({
             ))}
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* currect Assets  */}
           <View style={styles.tableRow}>
             <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
@@ -359,32 +354,15 @@ const CurrentRatio = ({
               Average Current Ratio
             </Text>
 
-            {/* ✅ Display the Average Current Ratio in JSX */}
-            {/* <Text
-              style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-                {
-                  width: `${financialYearLabels.length * 210}px`, // ✅ Adjust width dynamically
-                  fontWeight: "bold",
-                  ,
-                  textAlign: "center",
-                  borderRightWidth: 0,
-                  fontSize: "10px",
-                },
-              ]}
-            >
-              {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
-            </Text> */}
-
+         
             {financialYearLabels
               .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-              .map((yearLabel, yearIndex) => {
+              .map((yearLabel, yearIndex , arr) => {
                 const visibleLabels = financialYearLabels.slice(
                   hideFirstYear ? 1 : 0
                 );
                 const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
-
+                const isLast = yearIndex === arr.length - 1;
                 return (
                   <Text
                     key={yearIndex}
@@ -393,10 +371,9 @@ const CurrentRatio = ({
                       styleExpenses.fontSmall,
                       {
                         fontWeight: "bold",
-
                         textAlign: "center",
-                        borderLeftWidth: 0,
-                        borderRightWidth: 0,
+                        borderWidth: 0,
+                        ...(isLast && { borderRightWidth:1 }),
                       },
                     ]}
                   >

@@ -461,7 +461,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
       orientation={orientation}
       wrap={false}
       break
-      style={[{ padding: "20px" }]}
+      style={styles.page}
     >
       {pdfType &&
         pdfType !== "select option" &&
@@ -534,14 +534,14 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
           )
         </Text>
       </View>
-      <View style={[styleExpenses.paddingx]}>
+      <View>
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
         >
           <Text>Ratio Analysis </Text>
         </View>
 
-        <View style={[styles.table]}>
+         <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -549,7 +549,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 styles.serialNoCell,
                 styleExpenses.sno,
                 styleExpenses.fontBold,
-                { textAlign: "center" },
+                { textAlign: "center" , borderLeftWidth:0},
               ]}
             >
               S. No.
@@ -592,7 +592,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px", paddingTop: "20px" },
+                  { paddingTop: "20px" },
                 ]}
               >
                 1
@@ -643,7 +643,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 2
@@ -687,7 +687,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 3
@@ -732,7 +732,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 4
@@ -777,7 +777,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 5
@@ -823,7 +823,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 6
@@ -869,7 +869,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 7
@@ -915,7 +915,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 8
@@ -962,7 +962,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 9
@@ -1008,7 +1008,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 10
@@ -1054,7 +1054,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { borderLeftWidth: "1px" },
+                  { },
                 ]}
               >
                 11
@@ -1189,7 +1189,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px", paddingTop: "20px" },
+                    { paddingTop: "20px", borderLeftWidth:0 },
                   ]}
                 >
                   1
@@ -1247,7 +1247,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   2
@@ -1299,7 +1299,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   3
@@ -1350,7 +1350,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   4
@@ -1402,7 +1402,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   5
@@ -1453,7 +1453,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   6
@@ -1504,7 +1504,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   7
@@ -1555,7 +1555,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   8
@@ -1606,7 +1606,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   9
@@ -1661,7 +1661,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   10
@@ -1710,7 +1710,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { borderLeftWidth: "1px" },
+                    {  },
                   ]}
                 >
                   11
