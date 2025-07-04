@@ -58,7 +58,7 @@ const CMADataPdfGeneration = () => {
         </PDFViewer>
       </div>
       {/* Download Button */}
-      <div style={{ textAlign: "center" }}>
+      {/* <div style={{ textAlign: "center" }}>
         <PDFDownloadLink
           document={<CMAOperatingStatementPDF formData={formData} />}
           fileName="CMA-Operating-Statement.pdf"
@@ -76,7 +76,7 @@ const CMADataPdfGeneration = () => {
         >
           {({ loading }) => (loading ? "Preparing PDF..." : "Download PDF")}
         </PDFDownloadLink>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -161,6 +161,15 @@ const ProjectedBalanceSheet = ({
     return 0;
   });
 
+  const preliminaryExpenseBalanceSheet = [];
+for (let i = 0; i < projectionYears; i++) {
+  if (i === 0) {
+    preliminaryExpenseBalanceSheet[i] = Math.max(preliminaryExpensesTotal - yearlyWriteOffAmount, 0);
+  } else {
+    preliminaryExpenseBalanceSheet[i] = Math.max(preliminaryExpenseBalanceSheet[i - 1] - yearlyWriteOffAmount, 0);
+  }
+}
+
   const inventory = Array.from({
     length: formData.MoreDetails.OpeningStock.length,
   }).map((_, yearIndex) => {
@@ -183,8 +192,8 @@ const ProjectedBalanceSheet = ({
 
       cumulativeCurrentAssets += currentYearAssets;
 
-      const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
-
+      const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
+console.log('preliminary Asset', preliminaryAsset)
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
@@ -311,12 +320,16 @@ const ProjectedBalanceSheet = ({
     JSON.stringify(repaymentValueswithin12months),
   ]);
 
+  // const isPreliminaryWriteOffAllZero = Array.from({
+  //   length: projectionYears,
+  // }).every((_, yearIndex) => {
+  //   const adjustedYearIndex = yearIndex; // ✅ Fix index offset
+  //   return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
+  // });
   const isPreliminaryWriteOffAllZero = Array.from({
-    length: projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = yearIndex; // ✅ Fix index offset
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
+  length: projectionYears,
+}).every((_, yearIndex) => preliminaryExpenseBalanceSheet[yearIndex] === 0);
+
 
   const visibleLiabilitiesCount =
     formData?.MoreDetails?.currentAssets?.filter(
@@ -1126,7 +1139,7 @@ const ProjectedBalanceSheet = ({
                   </Text>
                 </Text>
 
-                {preliminaryWriteOffPerYear.map((value, yearIndex) => (
+                {preliminaryExpenseBalanceSheet.map((value, yearIndex) => (
                   <Text
                     key={yearIndex}
                     style={[

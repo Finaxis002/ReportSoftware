@@ -409,6 +409,12 @@ const ProjectedCashflow = ({
       // ✅ Ensure negative values are treated as zero
       const sanitize = (value) => (value < 0 ? 0 : value);
 
+      const preliminaryExpenseInUses =
+      index === 0
+        ? Number(formData?.CostOfProject?.preliminaryExpensesTotal || 0)
+        : 0;
+
+        console.log('preliminary Expense In Uses', preliminaryExpenseInUses)
       // ✅ Final Total Uses Calculation (including Inventory)
       const totalUses =
         sanitize(fixedAssets) +
@@ -418,7 +424,9 @@ const ProjectedCashflow = ({
         sanitize(withdrawals) +
         sanitize(incomeTaxValue) +
         sanitize(currentAssetsTotal) +
-        sanitize(inventoryValue); // Add the Inventory for the current year (index)
+
+        sanitize(inventoryValue)+ // Add the Inventory for the current year (index)
+       sanitize(preliminaryExpenseInUses); 
 
       return totalUses;
     }
@@ -833,6 +841,44 @@ const ProjectedCashflow = ({
                 </View>
               )}
 
+
+                    {/* ✅ Loop through Projection Years */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(liabilities.years[yearIndex] || "0")}
+                        </Text>
+                      )
+                    )}
+                  </View>
+                );
+              })}
+
+            {/* ✅ Render Preliminary Row */}
+            {!isPreliminaryWriteOffAllZero && (
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>
+                  {preliminarySerialNo}
+                </Text>
+
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Preliminary Expenses <br /> written off
+                </Text>
+
+                {preliminaryWriteOffPerYear.map((value, yearIndex) => (
+
               {/* Depreciation */}
               {!isDepreciationZero && (
                 <View style={styles.tableRow}>
@@ -842,6 +888,7 @@ const ProjectedCashflow = ({
                     {/* {isWorkingCapitalInterestZero ? 4 : 5} */}
                     {getNextSourcesSerial()}
                   </Text>
+
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1464,6 +1511,106 @@ const ProjectedCashflow = ({
                   </Text>
                 ))}
               </View>
+
+            )}
+
+            {/* ✅ Current Assets from More Details */}
+            {formData?.MoreDetails?.currentAssets
+              ?.filter(
+                (assets) =>
+                  assets.particular !== "Inventory" &&
+                  !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
+                  assets.years.some((value) => Number(value) !== 0)
+              )
+
+              .map((assets, index) => {
+                // const serialNumber = isWorkingCapitalInterestZero ? index + 6 : index + 7;
+
+                return (
+                  <View style={styles.tableRow} key={index}>
+                    {/* ✅ Adjust Serial Number after filtering */}
+                    <Text
+                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                    >
+                      {getNextUsesSerial()}
+                    </Text>
+
+                    {/* ✅ Particular Name */}
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {assets.particular}
+                    </Text>
+
+                    {/* ✅ Ensure Projection Years Match */}
+                    {Array.from({ length: projectionYears }).map(
+                      (_, yearIndex) => (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
+                          {/* Fill missing values with 0 */}
+                        </Text>
+                      )
+                    )}
+                  </View>
+                );
+              })}
+{/* Preliminary Expenses in Uses (year 1 only) */}
+{Number(formData?.CostOfProject?.preliminaryExpensesTotal) > 0 && (
+  <View style={styles.tableRow}>
+    <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+      {getNextUsesSerial()}
+    </Text>
+    <Text
+      style={[
+        stylesCOP.detailsCellDetail,
+        styleExpenses.particularWidth,
+        styleExpenses.bordernone,
+      ]}
+    >
+      Preliminary Expenses
+    </Text>
+    {Array.from({ length: projectionYears }).map((_, index) => (
+      <Text
+        key={index}
+        style={[
+          stylesCOP.particularsCellsDetail,
+          styleExpenses.fontSmall,
+        ]}
+      >
+        {formatNumber(
+          index === 0
+            ? Number(formData?.CostOfProject?.preliminaryExpensesTotal) || 0
+            : 0
+        )}
+      </Text>
+    ))}
+  </View>
+)}
+
+            {/* Total Uses Calculation */}
+            <View
+              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
+            >
+              <Text
+                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  {
+                    paddingVertical: "8px",
+
 
               {/* Surplus During the Year */}
               <View style={styles.tableRow}>
