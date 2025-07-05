@@ -1,99 +1,23 @@
-// // cmaExtractors.js
-
-// import { getExpenseRows, extractPerYearValues, sumExpenseRowsPerYear, addArrays, subArrays, calculateRawMaterialExpense } from "./financialCalcs";
-
-// // Each extractor gets (formData)
-// export const makeCMAExtractors = (formData) => {
-//   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
-
-//   const directExpense = formData?.Expenses?.directExpense || [];
-// const receivedtotalRevenueReceipts = formData?.computedData?.totalRevenueReceipts || [];
-
-//   // Dynamic direct/indirect expense rows
-//   const directRows = getExpenseRows(formData?.Expenses?.directExpense, "direct");
-//   const indirectRows = getExpenseRows(formData?.Expenses?.directExpense, "indirect");
-//   const salaryRows = getExpenseRows(formData?.Expenses?.normalExpense, "normal");
-
-//   // Example: assume gross sales = totalRevenueReceipts (could be elsewhere in your computedData)
-//   return {
-//     grossSales: () => formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
-//     dutiesTaxes: () => Array(years).fill(0),
-//     netSales: () => formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
-//     // Dynamic direct expenses (return per-year array)
-//     ...Object.fromEntries(
-//   directRows.map((row, idx) => [
-//     `directExpense_${idx}`,
-//     () => {
-//       if (row.name.trim() === "Raw Material Expenses / Purchases") {
-//         // Skip: Will handle separately
-//         return [];
-//       }
-//       // Annualize if needed:
-//       return extractPerYearValues(row, years).map(v => Number(v) * 12);
-//     }
-//   ])
-// ),
-
-    
-//    // Combine all salary rows into one yearly total (single row)
-// salary: () => {
-//   // Sum all salary rows for each year
-//   const totals = Array(years).fill(0);
-//   salaryRows.forEach(row => {
-//     const vals = extractPerYearValues(row, years);
-//     vals.forEach((v, i) => { totals[i] += Number(v) * 12; }); // <-- *12 if v is monthly, else remove *12 if already annual
-//   });
-//   return totals;
-// },
-
-// //raw material
-//      rawMaterial: () => {
-//   const row = directExpense.find(e => e.name.trim() === "Raw Material Expenses / Purchases");
-//   if (!row) return Array(years).fill(0);
-//   return Array.from({ length: Number(formData?.ProjectReportSetting?.ProjectionYears) || 5 }).map(
-//     (_, yearIdx) =>
-//       calculateRawMaterialExpense(row, receivedtotalRevenueReceipts, yearIdx, formData)
-//   );
-// },
-
-//     // Indirect expenses (if you want them)
-//     ...Object.fromEntries(
-//       indirectRows.map((row, idx) => [
-//         `indirectExpense_${idx}`,
-//         () => extractPerYearValues(row, years)
-//       ])
-//     ),
-//     // Total cost of sales: sum of all direct expense and salary rows
-//     totalCostOfSales: () => {
-//       const total = sumExpenseRowsPerYear([...directRows, ...salaryRows], years);
-//       return total;
-//     },
-//     grossProfit: () => {
-//       const netSales = formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [];
-//       const costOfSales = sumExpenseRowsPerYear([...directRows, ...salaryRows], years);
-//       return subArrays(netSales, costOfSales);
-//     },
-//     // Add more extractors as needed
-//   };
-// };
-
-
-
 // cmaExtractors.js
 
 import {
   getMonthsPerYear,
   calculateEscalatedExpense,
-  calculateDirectExpense,
   calculateRawMaterialExpense,
-  calculateExpense,
-   getFringeAndAnnualCalculation,
-   filterActiveDirectExpenses
+  getFringeAndAnnualCalculation,
+  filterActiveDirectExpenses,
+  depreciation,
+  calculateCostOfSalesData,
+  calculateInterestOnWorkingCapital,
+  totalRevenueReceipts,
 } from "./financialCalcs";
+
+import { calculateTermLoanRepayment } from "./TermloanCalculations";
 
 export const makeCMAExtractors = (formData) => {
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  const receivedtotalRevenueReceipts = formData?.computedData?.totalRevenueReceipts || [];
+  const receivedtotalRevenueReceipts =
+    formData?.computedData?.totalRevenueReceipts || [];
 
   // Set up expense lists
   const directExpense = formData?.Expenses?.directExpense || [];
@@ -101,86 +25,272 @@ export const makeCMAExtractors = (formData) => {
   const advanceExpenses = formData?.Expenses?.advanceExpenses || [];
 
   // Core params for escalation/moratorium
-  const rateOfExpense = (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
-  const moratoriumPeriodMonths = parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-  const projectionYears = parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 5;
-  const startingMonth = formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const monthsPerYear = getMonthsPerYear(projectionYears, moratoriumPeriodMonths, startingMonth);
- // 1. Salary & wages (using same escalation/moratorium as ProjectedProfitability)
-  
- const baseSalary = getFringeAndAnnualCalculation(formData);
+  const rateOfExpense =
+    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
+  const moratoriumPeriodMonths =
+    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
+  const projectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 5;
+  const startingMonth =
+    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
+  const monthsPerYear = getMonthsPerYear(
+    projectionYears,
+    moratoriumPeriodMonths,
+    startingMonth
+  );
+  const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
+  const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
+  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
+  // 1. Salary & wages (using same escalation/moratorium as ProjectedProfitability)
 
-const salaryAndWages = Array.from({ length: years }, (_, yearIndex) =>
-  calculateEscalatedExpense(baseSalary, yearIndex, monthsPerYear, rateOfExpense)
-);
-  
+  const hideFirstYear = totalRevenueReceipts?.[0] === 0;
 
-  // 2. Each direct expense row
- const getDirectExpenseValueForYear = (row, yearIndex) => {
-  if (
-    row.name.trim() === "Raw Material Expenses / Purchases" &&
-    String(row.value).trim().endsWith("%")
-  ) {
-    return calculateRawMaterialExpense(row, receivedtotalRevenueReceipts, yearIndex, formData);
-  }
-  return calculateEscalatedExpense(Number(row.total) || 0, yearIndex, monthsPerYear, rateOfExpense);
-};
+  const baseSalary = getFringeAndAnnualCalculation(formData);
 
-const filteredDirectExpense = filterActiveDirectExpenses(
-  directExpense.filter(row => row.name.trim() !== "Raw Material Expenses / Purchases"),
-  years,
-  getDirectExpenseValueForYear
-);
+  const salaryAndWages = Array.from({ length: years }, (_, yearIndex) =>
+    calculateEscalatedExpense(
+      baseSalary,
+      yearIndex,
+      monthsPerYear,
+      rateOfExpense
+    )
+  );
 
-const directExpenseRows = filteredDirectExpense.map((row, idx) => ({
-  key: `directExpense_${idx}`,
-  values: Array.from({ length: years }).map((_, yearIndex) =>
-    getDirectExpenseValueForYear(row, yearIndex)
-  ),
-  name: row.name,
-}));
+  const getDirectExpenseValueForYear = (row, yearIndex) => {
+    if (
+      row.name.trim() === "Raw Material Expenses / Purchases" &&
+      String(row.value).trim().endsWith("%")
+    ) {
+      return calculateRawMaterialExpense(
+        row,
+        receivedtotalRevenueReceipts,
+        yearIndex,
+        formData
+      );
+    }
+    return calculateEscalatedExpense(
+      Number(row.total) || 0,
+      yearIndex,
+      monthsPerYear,
+      rateOfExpense
+    );
+  };
+
+  const filteredDirectExpense = filterActiveDirectExpenses(
+    directExpense.filter(
+      (row) => row.name.trim() !== "Raw Material Expenses / Purchases"
+    ),
+    years,
+    getDirectExpenseValueForYear
+  );
+
+  const directExpenseRows = filteredDirectExpense
+    .filter((row) => row.name.trim() !== "Administrative Expenses") // Only direct type rows
+    .map((row, idx) => {
+      // Now, all rows here are type "direct"
+      console.log("row type", row.type);
+      return {
+        key: `directExpense_${idx}`,
+        values: Array.from({ length: years }).map((_, yearIndex) =>
+          getDirectExpenseValueForYear(row, yearIndex)
+        ),
+        name: row.name,
+        type: row.type,
+      };
+    });
+
+  const administrativeExpenseRows = filteredDirectExpense
+    .filter((row) => row.name.trim() === "Administrative Expenses")
+    .map((row, idx) => {
+      // For uniqueness, use a prefix like "adminExpense"
+      return {
+        key: `adminExpense_${idx}`,
+        values: Array.from({ length: years }).map((_, yearIndex) =>
+          getDirectExpenseValueForYear(row, yearIndex)
+        ),
+        name: row.name,
+        type: row.type,
+      };
+    });
+
+  const adminValues = administrativeExpenseRows[0]?.values || [];
+
+  console.log("Admin Expense Rows", administrativeExpenseRows);
+
+  console.log("direct Expense Rows", directExpenseRows);
 
   // 3. Raw Material row
-  const rawMatRow = directExpense.find(row => row.name.trim() === "Raw Material Expenses / Purchases");
+  const rawMatRow = directExpense.find(
+    (row) => row.name.trim() === "Raw Material Expenses / Purchases"
+  );
+
   const rawMaterial = rawMatRow
-    ? Array.from({length: years}).map((_, yearIdx) =>
-        calculateRawMaterialExpense(rawMatRow, receivedtotalRevenueReceipts, yearIdx, formData)
+    ? Array.from({ length: years }).map((_, yearIdx) =>
+        calculateRawMaterialExpense(
+          rawMatRow,
+          receivedtotalRevenueReceipts,
+          yearIdx,
+          formData
+        )
       )
     : Array(years).fill(0);
 
   // 4. Advance direct expenses (uses values array per year)
   const advanceDirectRows = advanceExpenses
-    .filter(row => row.type === "direct" && row.name && row.values)
+    .filter((row) => row.type === "direct" && row.name && row.values)
     .map((row, idx) => ({
       key: `advanceDirectExpense_${idx}`,
-      values: Array.from({length: years}).map((_, yearIdx) =>
-        Number(row.values?.[yearIdx]) || 0
+      values: Array.from({ length: years }).map(
+        (_, yearIdx) => Number(row.values?.[yearIdx]) || 0
       ),
-      name: row.name
+      name: row.name,
     }));
+
+  const costData = calculateCostOfSalesData({
+    years,
+    salaryAndWages,
+    rawMaterial,
+    directExpenseRows,
+    advanceDirectRows,
+    formData,
+  });
+
+  const openingStocks =
+    formData?.MoreDetails?.OpeningStock?.slice(0, years) || [];
+  const closingStocks =
+    formData?.MoreDetails?.ClosingStock?.slice(0, years) || [];
+
+  const TotalCostofSales = Array.from({ length: years }).map(
+    (_, i) =>
+      (Number(costData.TotalCostofSales[i]) || 0) +
+      (Number(openingStocks[i]) || 0) -
+      (Number(closingStocks[i]) || 0)
+  );
+
+  const yearlyInterestLiabilities = calculateTermLoanRepayment({
+    termLoan,
+    interestRate,
+    moratoriumPeriod:
+      parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0,
+    repaymentMonths,
+    startMonthName: formData.ProjectReportSetting.SelectStartingMonth,
+    financialYearStart: parseInt(
+      formData.ProjectReportSetting.FinancialYear || 2025
+    ),
+  });
+
+  const interestOnWC = calculateInterestOnWorkingCapital(
+    formData,
+    moratoriumPeriodMonths,
+    monthsPerYear
+  );
+
+  const interestOnWCArray = Array.from({ length: years }).map((_, yearIdx) =>
+    interestOnWC(yearIdx)
+  );
+
+  const preliminaryExpensesTotal = Number(
+    formData?.CostOfProject?.preliminaryExpensesTotal || 0
+  );
+
+  const preliminaryWriteOffYears = Number(
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+  );
+
+  // Calculate yearly write-off value
+  const yearlyWriteOffAmount =
+    preliminaryWriteOffYears > 0
+      ? preliminaryExpensesTotal / preliminaryWriteOffYears
+      : 0;
+
+  // Generate the array for yearly values
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, index) => {
+    const startIndex = hideFirstYear ? 1 : 0;
+    const endIndex = startIndex + preliminaryWriteOffYears;
+
+    // 👇 Only insert value if it's within the write-off window
+    if (index >= startIndex && index < endIndex) {
+      return yearlyWriteOffAmount;
+    }
+
+    // 👇 Insert 0 for all other years (including hidden first year)
+    return 0;
+  });
+
+  const OperatingProfit = (
+    formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []
+  ).map((n, i) => {
+    const grossProfit = (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0);
+    const interestTL =
+      Number(yearlyInterestLiabilities.yearlyInterestLiabilities[i]) || 0;
+    const interestWC = Number(interestOnWCArray[i]) || 0;
+    const adminExp = Number(adminValues[i]) || 0;
+    const prelim = Number(preliminaryWriteOffPerYear[i]) || 0;
+    const operatingProfit =
+      grossProfit - interestTL - interestWC - adminExp - prelim;
+
+    // Log breakdown for this year
+    // console.log(
+    //   `Year ${i + 1} Calculation:\n` +
+    //   `  Gross Profit: ${grossProfit}\n` +
+    //   `  - Interest on TL: ${interestTL}\n` +
+    //   `  - Interest on WC: ${interestWC}\n` +
+    //   `  - Administrative Expenses: ${adminExp}\n` +
+    //   `  - Preliminary Write Off: ${prelim}\n` +
+    //   `= Operating Profit: ${operatingProfit}\n`
+    // );
+
+    return operatingProfit;
+  });
+
+  console.log("OperatingProfit (per year):", OperatingProfit);
 
   // Build the final extractors object
   return {
-    grossSales: () => formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
-     dutiesTaxes: () => Array(years).fill(0),
-     netSales: () => formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+    year: () => Number(formData?.ProjectReportSetting?.ProjectionYears || 5),
+    yearLabels: () =>
+      Array.from(
+        { length: years },
+        (_, i) =>
+          (Number(formData?.ProjectReportSetting?.StartYear) || 2024) + i
+      ),
+    grossSales: () =>
+      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+    dutiesTaxes: () => Array(years).fill(0),
+    netSales: () =>
+      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
     salary: () => salaryAndWages,
-    ...Object.fromEntries(directExpenseRows.map(row => [row.key, () => row.values])),
+    ...Object.fromEntries(
+      directExpenseRows.map((row) => [row.key, () => row.values])
+    ),
     rawMaterial: () => rawMaterial,
-    ...Object.fromEntries(advanceDirectRows.map(row => [row.key, () => row.values])),
-
+    ...Object.fromEntries(
+      advanceDirectRows.map((row) => [row.key, () => row.values])
+    ),
+    // depreciation: () => depreciation(formData),
+    depreciation: () => depreciation(formData).totalDepreciationPerYear,
+    directExpenses: () => directExpenseRows,
     // totalDirect (for quick sum)
-    totalDirect: () => {
-      // sum all direct expenses, salary, and raw material for each year
-      return Array.from({length: years}).map((_, yearIndex) =>
-        salaryAndWages[yearIndex]
-        + rawMaterial[yearIndex]
-        + directExpenseRows.reduce((sum, row) => sum + row.values[yearIndex], 0)
-        + advanceDirectRows.reduce((sum, row) => sum + row.values[yearIndex], 0)
-      );
-    }
-    // Add other extractors (grossSales etc) as you like
+
+    OpeningStockinProcess: () => Array(years).fill(0),
+    StockAdjustment: () => Array(years).fill(0),
+    SubTotalCostofSales: () => costData.TotalCostofSales,
+    openingStocks: () => openingStocks,
+    closingStocks: () => closingStocks,
+    TotalCostofSales: () => TotalCostofSales,
+    GrossProfit: () =>
+      (formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []).map(
+        (n, i) => (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0)
+      ),
+
+    yearlyInterestLiabilities: () =>
+      yearlyInterestLiabilities.yearlyInterestLiabilities,
+    // interestOnWorkingCapital: () => com
+    interestOnWCArray: () => interestOnWCArray,
+    administrativeExpenseRows: () => administrativeExpenseRows,
+    preliminaryWriteOffPerYear: () => preliminaryWriteOffPerYear,
+    OperatingProfit: () => OperatingProfit,
   };
 };
-
-
