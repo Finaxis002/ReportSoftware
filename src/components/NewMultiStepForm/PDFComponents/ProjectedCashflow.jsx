@@ -1891,7 +1891,7 @@ const ProjectedCashflow = ({
         ? Number(formData?.CostOfProject?.preliminaryExpensesTotal || 0)
         : 0;
 
-        console.log('preliminary Expense In Uses', preliminaryExpenseInUses)
+       
       // ✅ Final Total Uses Calculation (including Inventory)
       const totalUses =
         sanitize(fixedAssets) +
@@ -2112,7 +2112,7 @@ const ProjectedCashflow = ({
           <Text>Projected Cashflow</Text>
         </View>
 
-        <View style={[styles.table]}>
+        <View style={[styles.table, {borderRight: 0 }]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text

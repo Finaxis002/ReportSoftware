@@ -19,6 +19,8 @@ Font.register({
   ],
 });
 
+const safeNumber = (val) => (val === undefined || val === null || val === "" ? 0 : Number(val) || 0);
+
 const ProjectedBalanceSheet = ({
   formData = {},
   pdfType,
@@ -174,10 +176,50 @@ for (let i = 0; i < projectionYears; i++) {
     length: formData.MoreDetails.OpeningStock.length,
   }).map((_, yearIndex) => {
     const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
-    return ClosingStock;
+    return safeNumber(ClosingStock);
   });
 
-  // console.log("inventory in total assest", inventory);
+ // Diagnostic: Show table of asset composition year-wise
+
+const assetDebugTable = [];
+
+for (let index = 0; index < projectionYears; index++) {
+  const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+  const cashEquivalent = closingCashBalanceArray[index] || 0;
+
+  const filteredAssets = formData?.MoreDetails?.currentAssets
+    ?.filter(
+      (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+    ) || [];
+
+  const currentYearAssets = filteredAssets
+    .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+
+  cumulativeCurrentAssets += currentYearAssets;
+
+  const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0;
+  const inventoryValue = Number(inventory[index]);
+
+  const totalAssets =
+    netFixedAssetValue +
+    cashEquivalent +
+    cumulativeCurrentAssets +
+    inventoryValue +
+    preliminaryAsset;
+
+  assetDebugTable.push({
+    Year: index + 1,
+    netFixedAssetValue,
+    cashEquivalent,
+    cumulativeCurrentAssets,
+    inventoryValue,
+    preliminaryAsset,
+    totalAssets,
+  });
+}
+
+console.table(assetDebugTable);
+
 
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -193,7 +235,7 @@ for (let i = 0; i < projectionYears; i++) {
       cumulativeCurrentAssets += currentYearAssets;
 
       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
-console.log('preliminary Asset', preliminaryAsset)
+
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
@@ -205,7 +247,7 @@ console.log('preliminary Asset', preliminaryAsset)
     }
   );
 
-  //  console.log("yearly principal repayment" , yearlyPrincipalRepayment)
+  
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 

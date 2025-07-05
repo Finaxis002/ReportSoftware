@@ -210,7 +210,7 @@ const GeneratedPDF = () => {
       setYearlyPrincipalRepayment(calculatedRepayment);
     }
   );
-
+console.log('interest On Working Capital',interestOnWorkingCapital)
   const getStoredData = () => {
     try {
       const savedData = localStorage.getItem("FourthStepPRS");
