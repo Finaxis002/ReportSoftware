@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import ReportDropdown from "./Dropdown/ReportDropdown";
-import ProjectReportWordExport from './AIIntro/ProjectReportWordExport';
+import ProjectReportWordExport from "./AIIntro/ProjectReportWordExport";
 import axios from "axios";
 import MenuBar from "./MenuBar";
 import { useLocation } from "react-router-dom";
@@ -19,45 +18,34 @@ const SECTIONS = [
 const IntroPage = ({ userRole }) => {
   const location = useLocation();
 
-  const [businessData, setBusinessData] = useState( location.state?.formData || null);
-  const [businessDescription, setBusinessDescription] = useState(  location.state?.formData?.AccountInformation?.businessDescription || "");
-  const [bep, setBep] = useState(location.state?.formData?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage?.[1] || "");
+  const [businessData, setBusinessData] = useState(
+    location.state?.formData || null
+  );
+  const [businessDescription, setBusinessDescription] = useState(
+    location.state?.formData?.AccountInformation?.businessDescription || ""
+  );
+  const [bep, setBep] = useState(
+    location.state?.formData?.computedData?.breakEvenPointPercentage
+      ?.breakEvenPointPercentage?.[1] || ""
+  );
   const [sections, setSections] = useState({});
   const [loading, setLoading] = useState(false);
   const [showProjectReport, setShowProjectReport] = useState(false);
   const [error, setError] = useState("");
 
-//   useEffect(() => {
-//   if (location.state?.formData) {
-//     setBusinessData(location.state.formData);
-//     setBusinessDescription(
-//       location.state.formData?.AccountInformation?.businessDescription || ""
-//     );
-//     setBep(
-//       location.state.formData?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage?.[1] || ""
-//     );
-//   }
-// }, [location.state]);
-
   const handleBusinessSelect = (data) => {
-  //    if (!data) {
-  //   setBusinessData(null);
-  //   setBusinessDescription("");
-  //   setBep("");
-  //   setSections({});
-  //   setShowProjectReport(false);
-  //   setError("");
-  //   return;
-  // }
     setBusinessData(data);
     setBusinessDescription(data?.AccountInformation?.businessDescription || "");
-    setBep(data?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage[1] || '')
+    setBep(
+      data?.computedData?.breakEvenPointPercentage
+        ?.breakEvenPointPercentage[1] || ""
+    );
     setSections({});
     setShowProjectReport(false);
     setError("");
   };
-console.log('break even point', bep )
-  
+  console.log("break even point", bep);
+
   // THIS function triggers ALL section generation in parent
   const handleGenerateProjectReport = async () => {
     if (!businessDescription) {
@@ -76,14 +64,19 @@ console.log('break even point', bep )
           {
             section: sec.key,
             businessName: businessData?.AccountInformation?.businessName || "",
-            averageCurrentRatio: businessData?.computedData?.averageCurrentRatio?.averageCurrentRatio || '',
-            averageDSCR: businessData?.computedData?.dscr?.averageDSCR || '',
-            BEP : businessData?.computedData?.breakEvenPointPercentage?.breakEvenPointPercentage[1] || '',
+            averageCurrentRatio:
+              businessData?.computedData?.averageCurrentRatio
+                ?.averageCurrentRatio || "",
+            averageDSCR: businessData?.computedData?.dscr?.averageDSCR || "",
+            BEP:
+              businessData?.computedData?.breakEvenPointPercentage
+                ?.breakEvenPointPercentage[1] || "",
             businessDescription,
             wordLimit: 1000,
           }
         );
-        generatedSections[sec.key] = res.data.sectionText || "No text generated.";
+        generatedSections[sec.key] =
+          res.data.sectionText || "No text generated.";
         // Optionally, update state after each section for progressive display:
         setSections({ ...generatedSections });
       } catch (err) {
@@ -97,56 +90,55 @@ console.log('break even point', bep )
   return (
     <div className="flex min-h-screen bg-gray-50">
       <MenuBar userRole={userRole} />
-    <div className="flex-1 p-8">
-      <h2 className="text-xl font-bold mb-4">
-        AI Project Report Generator
-      </h2>
+      <div className="flex-1 p-8">
+        <h2 className="text-xl font-bold mb-4">AI Project Report Generator</h2>
 
-      <ReportDropdown onBusinessSelect={handleBusinessSelect} />
+        <ReportDropdown onBusinessSelect={handleBusinessSelect} />
 
-      {businessDescription && (
-        <div className="mt-6">
-          <label
-            htmlFor="business-description"
-            className="block font-medium mb-1 dark:text-white"
-          >
-            Business Description
-          </label>
-          <textarea
-            id="business-description"
-            className="w-full p-2 border rounded min-h-[100px] dark:bg-gray-800 dark:text-white resize-y"
-            value={businessDescription}
-            onChange={(e) => setBusinessDescription(e.target.value)}
+        {businessDescription && (
+          <div className="mt-6">
+            <label
+              htmlFor="business-description"
+              className="block font-medium mb-1 dark:text-white"
+            >
+              Business Description
+            </label>
+            <textarea
+              id="business-description"
+              className="w-full p-2 border rounded min-h-[100px] dark:bg-gray-800 dark:text-white resize-y"
+              value={businessDescription}
+              onChange={(e) => setBusinessDescription(e.target.value)}
+            />
+          </div>
+        )}
+
+        <button
+          className={`mt-4 px-4 py-2 rounded transition duration-300 ease-in-out ${
+            !businessDescription || loading
+              ? "bg-blue-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
+          onClick={handleGenerateProjectReport}
+          disabled={!businessDescription || loading}
+        >
+          {loading
+            ? "Generating All Sections..."
+            : "Generate Full Project Report"}
+        </button>
+
+        {error && <p className="text-red-500 mt-3">{error}</p>}
+
+        {/* The component below now just shows sections & export button */}
+        {showProjectReport && businessData && (
+          <ProjectReportWordExport
+            businessData={businessData}
+            sections={sections}
+            loading={loading}
           />
-        </div>
-      )}
-
-      <button
-        className={`mt-4 px-4 py-2 rounded transition duration-300 ease-in-out ${
-          !businessDescription || loading
-            ? "bg-blue-300 text-gray-500 cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700"
-        }`}
-        onClick={handleGenerateProjectReport}
-        disabled={!businessDescription || loading}
-      >
-        {loading ? "Generating All Sections..." : "Generate Full Project Report"}
-      </button>
-
-      {error && <p className="text-red-500 mt-3">{error}</p>}
-
-      {/* The component below now just shows sections & export button */}
-      {showProjectReport && businessData && (
-        <ProjectReportWordExport
-          businessData={businessData}
-          sections={sections}
-          loading={loading}
-        />
-      )}
+        )}
+      </div>
     </div>
-     </div>
   );
 };
 
 export default IntroPage;
-

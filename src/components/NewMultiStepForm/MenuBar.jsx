@@ -272,8 +272,8 @@ const MenuBar = ({ userRole }) => {
     },
 
     {
-      path: "/CMAData",
-      label: "CMA Data",
+      path: "/cma-report",
+      label: "CMA Report",
       roles: ["admin", "employee", "client"],
       icon: (
         <svg
