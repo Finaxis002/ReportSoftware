@@ -123,16 +123,56 @@ const ReportDropdown = ({ onBusinessSelect }) => {
   };
   return (
     <div className="m-1 flex items-center justify-center gap-4 dark">
-      <label className="dark:text-white">Select Business</label>
-      <Select
-        className="w-[30rem]"
-        options={businessOptions}
-        value={selectedBusiness}
-        onChange={handleSelect}
-        placeholder="Select a business..."
-        isClearable
-        styles={customStyles}
-      />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+  
+    <Select
+      className="w-full sm:w-[30rem]"
+      options={businessOptions}
+      value={selectedBusiness}
+      onChange={handleSelect}
+      placeholder={
+        <span className="text-gray-400 dark:text-gray-400">
+          Select a business...
+        </span>
+      }
+      isClearable
+      styles={{
+        control: (base) => ({
+          ...base,
+          backgroundColor: 'transparent',
+          borderColor: '#e2e8f0',
+          '&:hover': {
+            borderColor: '#cbd5e1'
+          },
+          minHeight: '40px',
+          boxShadow: 'none',
+          borderRadius: '8px',
+        }),
+        menu: (base) => ({
+          ...base,
+          backgroundColor: '#ffffff',
+          borderColor: '#e2e8f0',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            zIndex: 9999,
+        }),
+        option: (base, { isFocused, isSelected }) => ({
+          ...base,
+          backgroundColor: isSelected
+            ? '#3b82f6'
+            : isFocused
+            ? '#f1f5f9'
+            : undefined,
+          color: isSelected ? 'white' : '#1e293b',
+          '&:active': {
+            backgroundColor: '#3b82f6',
+            color: 'white'
+          }
+        }),
+       
+      }}
+    />
+    </div>
     </div>
   );
 };

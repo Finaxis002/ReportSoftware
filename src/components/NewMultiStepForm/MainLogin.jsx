@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 
+
+
+
 const MainLogin = ({ onLogin }) => {
   const [activeTab, setActiveTab] = useState("admin");
   const [inputUsername, setInputUsername] = useState("");
@@ -67,7 +70,7 @@ const MainLogin = ({ onLogin }) => {
   }, [navigate, onLogin]);
 
   const handleCaptchaChange = (value) => {
-    setCaptchaValue(value); 
+    setCaptchaValue(value);
     setCaptchaToken(value);
     setCaptchaTimestamp(Date.now());
   };
@@ -112,7 +115,6 @@ const MainLogin = ({ onLogin }) => {
       if (response.ok) {
         console.log("✅ Admin Login Successful (Admin collection):", data);
         localStorage.setItem("adminType", "manual");
-
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("token", data.token);
@@ -359,8 +361,65 @@ const MainLogin = ({ onLogin }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex flex-col items-center mt-10 mb-6 select-none animate-fade-in">
+        <div className="flex  items-center gap-2 group">
+          {/* Logo Container with subtle shine effect */}
+          <div className="relative p-1 rounded-full bg-gradient-to-br from-teal-100/30 to-white shadow-lg ring-1 ring-teal-100/50">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/80 to-transparent opacity-70"></div>
+            {/* <img
+              src="/SALOGO-teal.png" // or your ASA logo path
+              alt="ASA Logo"
+              className="h-16 w-16 object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div> */}
+
+          {/* Text Content */}
+
+          {/* teal  */}
+          {/* <div className="text-center space-y-1">
+            <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+              <span className="bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+                Anunay Sharda Associates
+              </span>
+            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-px w-8 bg-gradient-to-r from-teal-400/0 via-teal-400 to-teal-400/0"></div>
+              <p className="text-sm font-medium text-teal-500/90 tracking-wider">
+                Empowering Businesses with Trust &amp; Excellence
+              </p>
+              <div className="h-px w-8 bg-gradient-to-r from-teal-400/0 via-teal-400 to-teal-400/0"></div>
+            </div>
+          </div> */}
+
+           <img
+              src="/SALOGO-black.png" // or your ASA logo path
+              alt="ASA Logo"
+              className="h-16 w-16 object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+
+
+          <div className="text-center space-y-1">
+            <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+              <span className="bg-gradient-to-r from-gray-700 to-gray-500 bg-clip-text text-transparent">
+                Anunay Sharda Associates
+              </span>
+            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-px w-8 bg-gradient-to-r from-gray-400/0 via-gray-400 to-gray-400/0"></div>
+              <p className="text-sm font-medium text-gray-500/90 tracking-wider">
+                Empowering Businesses with Trust &amp; Excellence
+              </p>
+              <div className="h-px w-8 bg-gradient-to-r from-gray-400/0 via-gray-400 to-gray-400/0"></div>
+            </div>
+          </div> 
+
+          
+        </div>
+      </div>
+
       {/* ✅ Tabs */}
-      <ul className="w-1/2 max-w-lg mx-auto bg-white rounded-t-lg text-teal-600 flex justify-between shadow-lg mb-4">
+      <ul className="w-1/2 max-w-lg mx-auto bg-white rounded-t-lg text-teal-600 flex justify-between shadow-lg">
         <li className="nav-item flex-1">
           <a
             className={`nav-link py-3 px-1 text-sm text-center cursor-pointer text-lg font-medium ${
@@ -400,7 +459,7 @@ const MainLogin = ({ onLogin }) => {
       </ul>
 
       {/* ✅ Login Form */}
-      <div className="bg-white p-8 rounded-b-lg shadow-2xl w-full max-w-lg mx-auto">
+      <div className="bg-white p-4 rounded-b-lg shadow-2xl w-full max-w-lg mx-auto">
         <h4 className="text-center text-3xl font-semibold text-teal-700 mb-6">
           {activeTab === "employee"
             ? "User"
@@ -409,7 +468,7 @@ const MainLogin = ({ onLogin }) => {
         </h4>
         <form onSubmit={handleSubmit}>
           {/* Username */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               {activeTab === "employee" ? "User ID" : " Username"}
             </label>
@@ -423,7 +482,7 @@ const MainLogin = ({ onLogin }) => {
           </div>
 
           {/* Password */}
-          <div className="mb-6 relative">
+          <div className="mb-4 relative">
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>
