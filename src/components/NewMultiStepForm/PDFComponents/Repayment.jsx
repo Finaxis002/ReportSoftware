@@ -36,7 +36,7 @@ const Repayment = ({
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
   // ✅ Correct the total repayment months (including moratorium)
-  let totalMonths = repaymentMonths;
+
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
   let fixedPrincipalRepayment =
     effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
@@ -124,34 +124,7 @@ let monthsLeft = repaymentMonths;
     if (yearData.length > 0) {
       data.push(yearData);
 
-      const displayYear = financialYear + data.length - 1;
-      // console.log(
-      //   `📅 Financial Year: ${displayYear}-${(displayYear + 1)
-      //     .toString()
-      //     .slice(-2)}`
-      // );
-
-      // console.table(
-      //   yearData.map((entry, index) => ({
-      //     "Month No": elapsedMonths - yearData.length + index + 1,
-      //     Month: entry.month,
-      //     "Opening Balance": Number(entry.principalOpeningBalance || 0).toFixed(
-      //       2
-      //     ),
-      //     "Principal Repayment": Number(entry.principalRepayment || 0).toFixed(
-      //       2
-      //     ),
-      //     "Closing Balance": Number(entry.principalClosingBalance || 0).toFixed(
-      //       2
-      //     ),
-      //     Interest: Number(entry.interestLiability || 0).toFixed(2),
-      //     "Total Repayment": Number(entry.totalRepayment || 0).toFixed(2),
-      //     "Is Moratorium":
-      //       elapsedMonths - yearData.length + index < moratoriumPeriod
-      //         ? "✅ Yes"
-      //         : "❌ No",
-      //   }))
-      // );
+     
     }
 
     if (elapsedMonths >= repaymentMonths) break; // ✅ Also here
@@ -170,53 +143,7 @@ let monthsLeft = repaymentMonths;
     }
   }, []);
 
-  // ✅ Store Year-Wise Interest Liability
-  // data.forEach((yearData) => {
-  //   let totalInterestLiability = yearData.reduce(
-  //     (sum, entry) => sum + entry.interestLiability,
-  //     0
-  //   );
-  //   yearlyInterestLiabilities.push(totalInterestLiability);
-  // });
-
-  // useEffect(() => {
-  //   // ✅ Compute Yearly Interest Liabilities Same as Displayed
-  //   const correctYearlyInterestLiabilities = data.map((yearData) => {
-  //     let totalPrincipalRepayment = yearData.reduce(
-  //       (sum, entry) => sum + entry.principalRepayment,
-  //       0
-  //     );
-  //     let totalInterestLiability = yearData.reduce(
-  //       (sum, entry) => sum + entry.interestLiability,
-  //       0
-  //     );
-  //     let totalRepayment = yearData.reduce(
-  //       (sum, entry) => sum + entry.totalRepayment,
-  //       0
-  //     );
-
-  //     // ✅ Set other totals to 0 if principal repayment is 0
-  //     if (totalPrincipalRepayment === 0) {
-  //       totalInterestLiability = 0;
-  //       totalRepayment = 0;
-  //     }
-
-  //     return totalInterestLiability; // ✅ Only return interest liabilities
-  //   });
-
-  //   // ✅ Set state with the correct computed interest liabilities
-  //   setYearlyInterestLiabilities(correctYearlyInterestLiabilities);
-  //   console.log("correctYearlyInterestLiabilities",correctYearlyInterestLiabilities)
-
-  //   // ✅ Send the correct values to the parent component
-  //   if (onInterestCalculated) {
-  //     onInterestCalculated(correctYearlyInterestLiabilities);
-  //   }
-
-  //   // ✅ Console log to verify the correct values
-  //   //  console.log("Correct Yearly Interest Liabilities Sent to Parent:", correctYearlyInterestLiabilities);
-  // }, [JSON.stringify(data)]); // Trigger when data changes
-
+  
   // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
   useEffect(() => {
     if (!Array.isArray(data)) return;

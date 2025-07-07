@@ -378,15 +378,21 @@ const ProjectedDepreciation = ({
 
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* businees name and financial year  */}
-        <View>
-          <Text style={styles.businessName}>
-            {formData?.AccountInformation?.businessName || "Business Bame"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear || "financial year"}
-          </Text>
-        </View>
+         <View>
+               <Text style={styles.businessName}>
+                 {formData?.AccountInformation?.businessName || "Business Name"}
+               </Text>
+               <Text style={styles.FinancialYear}>
+                 Financial Year{" "}
+                 {formData?.ProjectReportSetting?.FinancialYear
+                   ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                       parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                     )
+                       .toString()
+                       .slice(-2)}`
+                   : "2025-26"}
+               </Text>
+             </View>
 
         <View
           style={{
