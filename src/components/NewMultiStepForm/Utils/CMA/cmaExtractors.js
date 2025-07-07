@@ -259,8 +259,8 @@ export const makeCMAExtractors = (formData) => {
   const incomeTaxCal = formData.computedData.incomeTaxCalculation.incomeTaxCalculation
   console.log("incomeTaxCalculation : ", incomeTaxCal)
 
- 
-
+ const netProfitAfterTax =  formData.computedData.computedData.netProfitAfterTax 
+console.log('net Profit After Tax', netProfitAfterTax)
   // Build the final extractors object
   return {
     year: () => Number(formData?.ProjectReportSetting?.ProjectionYears || 5),
@@ -311,6 +311,7 @@ export const makeCMAExtractors = (formData) => {
     ProfitbeforeTax: () => ProfitbeforeTax,
     ProvisionforInvestmentAllowance: () => ProvisionforInvestmentAllowance,
     incomeTaxCal: () => incomeTaxCal,
+    netProfitAfterTax : () => netProfitAfterTax ,
 
   };
 };
