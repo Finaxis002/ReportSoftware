@@ -468,3 +468,18 @@ export function calculateInterestOnWorkingCapital(
     return annualInterestAmount;
   };
 }
+
+// Returns the cumulative working capital loan array for each year
+export function calculateWorkingCapitalLoan(termLoanValues = []) {
+  const numericTermLoanValues = termLoanValues.map((val) => Number(val) || 0);
+  return numericTermLoanValues.reduce((acc, curr, idx) => {
+    if (idx === 0) {
+      acc.push(curr);
+    } else {
+      acc.push(acc[idx - 1] + curr);
+    }
+    return acc;
+  }, []);
+}
+
+ 

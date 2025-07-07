@@ -181,44 +181,7 @@ for (let i = 0; i < projectionYears; i++) {
 
  // Diagnostic: Show table of asset composition year-wise
 
-const assetDebugTable = [];
 
-for (let index = 0; index < projectionYears; index++) {
-  const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-  const cashEquivalent = closingCashBalanceArray[index] || 0;
-
-  const filteredAssets = formData?.MoreDetails?.currentAssets
-    ?.filter(
-      (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-    ) || [];
-
-  const currentYearAssets = filteredAssets
-    .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-  cumulativeCurrentAssets += currentYearAssets;
-
-  const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0;
-  const inventoryValue = Number(inventory[index]);
-
-  const totalAssets =
-    netFixedAssetValue +
-    cashEquivalent +
-    cumulativeCurrentAssets +
-    inventoryValue +
-    preliminaryAsset;
-
-  assetDebugTable.push({
-    Year: index + 1,
-    netFixedAssetValue,
-    cashEquivalent,
-    cumulativeCurrentAssets,
-    inventoryValue,
-    preliminaryAsset,
-    totalAssets,
-  });
-}
-
-console.table(assetDebugTable);
 const cumulativeCurrentAssetsArr = [];
 let cumulativeCurrentAssetsTemp = 0;
 
@@ -266,19 +229,8 @@ for (let index = 0; index < projectionYears; index++) {
     }
   );
 
-  console.log("totalAssetArray:", totalAssetArray);
-totalAssetArray.forEach((val, i) => {
-  console.log(
-    `Year ${i+1}: Total Assets = ${val}`,
-    {
-      netFixedAssetValue: computedNetFixedAssets[i] || 0,
-      cashEquivalent: closingCashBalanceArray[i] || 0,
-      cumulativeCurrentAssets: assetDebugTable[i]?.cumulativeCurrentAssets ?? 'n/a',
-      inventory: Number(inventory[i]),
-      preliminaryAsset: preliminaryExpenseBalanceSheet[i] || 0,
-    }
-  );
-});
+  
+
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 

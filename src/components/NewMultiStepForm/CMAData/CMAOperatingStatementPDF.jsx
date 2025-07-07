@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { getCMASchema } from "../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
+
 import {
   formatNumber,
   filterActiveDirectExpenses,
@@ -76,7 +77,7 @@ const CMAOperatingStatementPDF = ({ formData }) => {
   const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   return (
-    <Document>
+    
       <Page size="A4" style={styles.page}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
@@ -1178,7 +1179,7 @@ const CMAOperatingStatementPDF = ({ formData }) => {
           </View>
         </View>
       </Page>
-    </Document>
+   
   );
 };
 
