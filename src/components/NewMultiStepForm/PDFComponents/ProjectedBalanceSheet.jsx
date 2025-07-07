@@ -219,6 +219,19 @@ for (let index = 0; index < projectionYears; index++) {
 }
 
 console.table(assetDebugTable);
+const cumulativeCurrentAssetsArr = [];
+let cumulativeCurrentAssetsTemp = 0;
+
+for (let index = 0; index < projectionYears; index++) {
+  const filteredAssets = formData?.MoreDetails?.currentAssets
+    ?.filter(
+      (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+    ) || [];
+  const currentYearAssets = filteredAssets
+    .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+  cumulativeCurrentAssetsTemp += currentYearAssets;
+  cumulativeCurrentAssetsArr.push(cumulativeCurrentAssetsTemp);
+}
 
 
   const totalAssetArray = Array.from({ length: projectionYears }).map(
@@ -232,14 +245,20 @@ console.table(assetDebugTable);
         )
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
-      cumulativeCurrentAssets += currentYearAssets;
+      // cumulativeCurrentAssets += currentYearAssets;
+    //   const filteredAssets = formData?.MoreDetails?.currentAssets
+    //   ?.filter(
+    //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+    //   ) || [];
+    // const currentYearAssets = filteredAssets
+    //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
 
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
-        cumulativeCurrentAssets +
+         cumulativeCurrentAssetsArr[index] +
         Number(inventory[index]) +
         preliminaryAsset; // ✅ INCLUDED
 
@@ -247,7 +266,19 @@ console.table(assetDebugTable);
     }
   );
 
-  
+  console.log("totalAssetArray:", totalAssetArray);
+totalAssetArray.forEach((val, i) => {
+  console.log(
+    `Year ${i+1}: Total Assets = ${val}`,
+    {
+      netFixedAssetValue: computedNetFixedAssets[i] || 0,
+      cashEquivalent: closingCashBalanceArray[i] || 0,
+      cumulativeCurrentAssets: assetDebugTable[i]?.cumulativeCurrentAssets ?? 'n/a',
+      inventory: Number(inventory[i]),
+      preliminaryAsset: preliminaryExpenseBalanceSheet[i] || 0,
+    }
+  );
+});
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
