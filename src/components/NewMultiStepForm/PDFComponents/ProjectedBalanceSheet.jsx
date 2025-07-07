@@ -19,7 +19,8 @@ Font.register({
   ],
 });
 
-const safeNumber = (val) => (val === undefined || val === null || val === "" ? 0 : Number(val) || 0);
+const safeNumber = (val) =>
+  val === undefined || val === null || val === "" ? 0 : Number(val) || 0;
 
 const ProjectedBalanceSheet = ({
   formData = {},
@@ -164,13 +165,19 @@ const ProjectedBalanceSheet = ({
   });
 
   const preliminaryExpenseBalanceSheet = [];
-for (let i = 0; i < projectionYears; i++) {
-  if (i === 0) {
-    preliminaryExpenseBalanceSheet[i] = Math.max(preliminaryExpensesTotal - yearlyWriteOffAmount, 0);
-  } else {
-    preliminaryExpenseBalanceSheet[i] = Math.max(preliminaryExpenseBalanceSheet[i - 1] - yearlyWriteOffAmount, 0);
+  for (let i = 0; i < projectionYears; i++) {
+    if (i === 0) {
+      preliminaryExpenseBalanceSheet[i] = Math.max(
+        preliminaryExpensesTotal - yearlyWriteOffAmount,
+        0
+      );
+    } else {
+      preliminaryExpenseBalanceSheet[i] = Math.max(
+        preliminaryExpenseBalanceSheet[i - 1] - yearlyWriteOffAmount,
+        0
+      );
+    }
   }
-}
 
   const inventory = Array.from({
     length: formData.MoreDetails.OpeningStock.length,
@@ -179,47 +186,48 @@ for (let i = 0; i < projectionYears; i++) {
     return safeNumber(ClosingStock);
   });
 
- // Diagnostic: Show table of asset composition year-wise
+  // Diagnostic: Show table of asset composition year-wise
 
-const assetDebugTable = [];
+  const assetDebugTable = [];
 
-for (let index = 0; index < projectionYears; index++) {
-  const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-  const cashEquivalent = closingCashBalanceArray[index] || 0;
+  for (let index = 0; index < projectionYears; index++) {
+    const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+    const cashEquivalent = closingCashBalanceArray[index] || 0;
 
-  const filteredAssets = formData?.MoreDetails?.currentAssets
-    ?.filter(
-      (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-    ) || [];
+    const filteredAssets =
+      formData?.MoreDetails?.currentAssets?.filter(
+        (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+      ) || [];
 
-  const currentYearAssets = filteredAssets
-    .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+    const currentYearAssets = filteredAssets.reduce(
+      (total, assets) => total + Number(assets.years[index] || 0),
+      0
+    );
 
-  cumulativeCurrentAssets += currentYearAssets;
+    cumulativeCurrentAssets += currentYearAssets;
 
-  const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0;
-  const inventoryValue = Number(inventory[index]);
+    const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0;
+    const inventoryValue = Number(inventory[index]);
 
-  const totalAssets =
-    netFixedAssetValue +
-    cashEquivalent +
-    cumulativeCurrentAssets +
-    inventoryValue +
-    preliminaryAsset;
+    const totalAssets =
+      netFixedAssetValue +
+      cashEquivalent +
+      cumulativeCurrentAssets +
+      inventoryValue +
+      preliminaryAsset;
 
-  assetDebugTable.push({
-    Year: index + 1,
-    netFixedAssetValue,
-    cashEquivalent,
-    cumulativeCurrentAssets,
-    inventoryValue,
-    preliminaryAsset,
-    totalAssets,
-  });
-}
+    assetDebugTable.push({
+      Year: index + 1,
+      netFixedAssetValue,
+      cashEquivalent,
+      cumulativeCurrentAssets,
+      inventoryValue,
+      preliminaryAsset,
+      totalAssets,
+    });
+  }
 
-console.table(assetDebugTable);
-
+  console.table(assetDebugTable);
 
   const totalAssetArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -246,8 +254,6 @@ console.table(assetDebugTable);
       return totalAssets;
     }
   );
-
-  
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
@@ -320,10 +326,19 @@ console.table(assetDebugTable);
 
       const currentYearLiabilities = (
         formData?.MoreDetails?.currentLiabilities ?? []
-      ).reduce(
-        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
-        0
-      );
+      )
+        .filter(
+          (liabilities) =>
+            !(
+              liabilities.dontSendToBS === true ||
+              liabilities.dontSendToBS === "true"
+            )
+        )
+        .reduce(
+          (total, liabilities) =>
+            total + Number(liabilities.years?.[index] || 0),
+          0
+        );
 
       cumulativeAdditionalLiabilities += currentYearLiabilities;
 
@@ -369,9 +384,8 @@ console.table(assetDebugTable);
   //   return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   // });
   const isPreliminaryWriteOffAllZero = Array.from({
-  length: projectionYears,
-}).every((_, yearIndex) => preliminaryExpenseBalanceSheet[yearIndex] === 0);
-
+    length: projectionYears,
+  }).every((_, yearIndex) => preliminaryExpenseBalanceSheet[yearIndex] === 0);
 
   const visibleLiabilitiesCount =
     formData?.MoreDetails?.currentAssets?.filter(
@@ -538,7 +552,7 @@ console.table(assetDebugTable);
           <Text>Projected Balance Sheet </Text>
         </View>
 
-        <View style={[styles.table,{borderRightWidth:0}]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -795,8 +809,12 @@ console.table(assetDebugTable);
 
             {/* Liabilities from More Details dynamically aligned with projectionYears */}
             {formData?.MoreDetails?.currentLiabilities
-              ?.filter((liabilities) =>
-                liabilities.years.some((value) => Number(value) !== 0)
+              ?.filter(
+                (liabilities) =>
+                  !(
+                    liabilities.dontSendToBS === true ||
+                    liabilities.dontSendToBS === "true"
+                  ) && liabilities.years.some((value) => Number(value) !== 0)
               )
               .map((liabilities, idx) => {
                 let cumulative = 0; // ⬅️ initialize cumulative tracker
@@ -1197,7 +1215,12 @@ console.table(assetDebugTable);
 
             {/* Total assets Calculation */}
             <View
-              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow , {borderBottomWidth:0}]}
+              style={[
+                stylesMOF.row,
+                styles.tableRow,
+                styleExpenses.totalRow,
+                { borderBottomWidth: 0 },
+              ]}
             >
               <Text
                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
