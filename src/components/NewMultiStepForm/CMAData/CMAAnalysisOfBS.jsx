@@ -516,7 +516,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Other Statutory Liabilities  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>6</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -547,7 +547,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Instalments of Term Loans  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>7</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -578,7 +578,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Other Current Liabilties & Provisions  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>8</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
