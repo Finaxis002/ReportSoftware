@@ -226,20 +226,26 @@ console.table(assetDebugTable);
       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
       const cashEquivalent = closingCashBalanceArray[index] || 0;
 
-      const currentYearAssets = formData?.MoreDetails?.currentAssets
-        ?.filter(
-          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-        )
-        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+      // const currentYearAssets = formData?.MoreDetails?.currentAssets
+      //   ?.filter(
+      //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+      //   )
+      //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
-      cumulativeCurrentAssets += currentYearAssets;
+      // cumulativeCurrentAssets += currentYearAssets;
+      const filteredAssets = formData?.MoreDetails?.currentAssets
+      ?.filter(
+        (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+      ) || [];
+    const currentYearAssets = filteredAssets
+      .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
 
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
-        cumulativeCurrentAssets +
+        currentYearAssets +
         Number(inventory[index]) +
         preliminaryAsset; // ✅ INCLUDED
 
@@ -247,7 +253,19 @@ console.table(assetDebugTable);
     }
   );
 
-  
+  console.log("totalAssetArray:", totalAssetArray);
+totalAssetArray.forEach((val, i) => {
+  console.log(
+    `Year ${i+1}: Total Assets = ${val}`,
+    {
+      netFixedAssetValue: computedNetFixedAssets[i] || 0,
+      cashEquivalent: closingCashBalanceArray[i] || 0,
+      cumulativeCurrentAssets: assetDebugTable[i]?.cumulativeCurrentAssets ?? 'n/a',
+      inventory: Number(inventory[i]),
+      preliminaryAsset: preliminaryExpenseBalanceSheet[i] || 0,
+    }
+  );
+});
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
