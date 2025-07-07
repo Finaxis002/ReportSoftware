@@ -219,6 +219,19 @@ for (let index = 0; index < projectionYears; index++) {
 }
 
 console.table(assetDebugTable);
+const cumulativeCurrentAssetsArr = [];
+let cumulativeCurrentAssetsTemp = 0;
+
+for (let index = 0; index < projectionYears; index++) {
+  const filteredAssets = formData?.MoreDetails?.currentAssets
+    ?.filter(
+      (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+    ) || [];
+  const currentYearAssets = filteredAssets
+    .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+  cumulativeCurrentAssetsTemp += currentYearAssets;
+  cumulativeCurrentAssetsArr.push(cumulativeCurrentAssetsTemp);
+}
 
 
   const totalAssetArray = Array.from({ length: projectionYears }).map(
@@ -226,26 +239,26 @@ console.table(assetDebugTable);
       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
       const cashEquivalent = closingCashBalanceArray[index] || 0;
 
-      // const currentYearAssets = formData?.MoreDetails?.currentAssets
-      //   ?.filter(
-      //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-      //   )
-      //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+      const currentYearAssets = formData?.MoreDetails?.currentAssets
+        ?.filter(
+          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+        )
+        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       // cumulativeCurrentAssets += currentYearAssets;
-      const filteredAssets = formData?.MoreDetails?.currentAssets
-      ?.filter(
-        (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-      ) || [];
-    const currentYearAssets = filteredAssets
-      .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+    //   const filteredAssets = formData?.MoreDetails?.currentAssets
+    //   ?.filter(
+    //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+    //   ) || [];
+    // const currentYearAssets = filteredAssets
+    //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
 
       const totalAssets =
         netFixedAssetValue +
         cashEquivalent +
-        currentYearAssets +
+         cumulativeCurrentAssetsArr[index] +
         Number(inventory[index]) +
         preliminaryAsset; // ✅ INCLUDED
 
