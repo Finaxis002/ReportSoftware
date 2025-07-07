@@ -402,7 +402,7 @@ const MainLogin = ({ onLogin }) => {
           <div className="text-center space-y-1">
             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
               <span className="bg-gradient-to-r from-gray-700 to-gray-500 bg-clip-text text-transparent">
-                Anunay Sharda Associates
+                Anunay Sharda & Associates
               </span>
             </h1>
             <div className="flex items-center justify-center gap-2">
