@@ -39,7 +39,7 @@ const SeventhStepMD = ({
               isCustom: false,
             },
             {
-              particular: "Quasi Equity (Important to set Current Ratio)",
+              particular: "Quasi Equity",
               years: getEmptyArray(),
               isCustom: false,
             },
@@ -183,7 +183,7 @@ const SeventhStepMD = ({
 
   // Allow numbers, empty, or trailing dot/decimal
   // Accept "", ".", ".1", "123.", "123.13"
-  const validValue = value.match(/^\d*\.?\d{0,2}$/);
+  const validValue = value.match(/^[-]?\d*\.?\d{0,2}$/);
 
   if (name === "particular") {
     setLocalData((prevData) => {
@@ -203,7 +203,7 @@ const SeventhStepMD = ({
 
 //  const handleStockChanges = (name, index, value) => {
 //   // Accept numbers, empty, or trailing dot/decimal
-//   const validValue = value.match(/^\d*\.?\d{0,2}$/);
+//   const validValue = value.match(/^[-]?\d*\.?\d{0,2}$/);
 
 //   if (validValue || value === "") {
 //     setLocalData((prevData) => {
@@ -226,7 +226,7 @@ const SeventhStepMD = ({
   
   const handleStockChanges = (name, index, value) => {
   // Accept numbers, empty, or trailing dot/decimal
-  const validValue = value.match(/^\d*\.?\d{0,2}$/);
+  const validValue = value.match(/^[-]?\d*\.?\d{0,2}$/);
 
   if (!(validValue || value === "")) return; // Only allow valid numbers
 
