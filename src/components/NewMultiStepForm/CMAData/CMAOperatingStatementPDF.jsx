@@ -62,10 +62,11 @@ const CMAOperatingStatementPDF = ({ formData }) => {
   const ProfitbeforeTax = extractors.ProfitbeforeTax() || [];
   const ProvisionforInvestmentAllowance = extractors.ProvisionforInvestmentAllowance() || [];
   const incomeTaxCal = extractors.incomeTaxCal() || [];
+  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
   console.log("form Data : ", formData);
 
-  // console.log("OpeningStock :", OpeningStock);
+   console.log("net Profit After Tax :", netProfitAfterTax);
 
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
@@ -1166,7 +1167,7 @@ const CMAOperatingStatementPDF = ({ formData }) => {
                           },
                         ]}
                       >
-                        {formatNumber(formData, Number(ProfitbeforeTax[idx]) || 0)}
+                        {formatNumber(formData, Number(netProfitAfterTax[idx]) || 0)}
                       </Text>
                     );
                   })}
