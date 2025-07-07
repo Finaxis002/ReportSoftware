@@ -1,6 +1,8 @@
 import React from "react";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import CMAMultiPagePDF from './CMAData/CMAMultiPagePDF'
 import CMAOperatingStatementPDF from "./CMAData/CMAOperatingStatementPDF";
+import CMAAnalysisOfBS from './CMAData/CMAAnalysisOfBS';
 
 const CMADataPdfGeneration = () => {
   const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
@@ -59,7 +61,7 @@ const CMADataPdfGeneration = () => {
           }}
           showToolbar={false}
         >
-          <CMAOperatingStatementPDF formData={formData} />
+          <CMAMultiPagePDF formData={formData} />
         </PDFViewer>
       </div>
     </>
