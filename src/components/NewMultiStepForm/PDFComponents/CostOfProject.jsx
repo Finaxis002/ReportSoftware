@@ -232,7 +232,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
                     <Text
                       style={[
                         stylesCOP.detailsCellDetail,
-                        { textAlign: "right" },
+                        { textAlign: "right", borderRight: 0  },
                       ]}
                     ></Text>
                   </View>

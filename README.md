@@ -73,3 +73,9 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 # Raw material % calculation 
 total revenue * RM% + closing stock - opening stock 
+
+# DEBUGING
+const safeNumber = (val) => (val === undefined || val === null || val === "" ? 0 : Number(val) || 0);
+this safeNumber will help in NaN error 
+when user left any input field empty
+this gaurd is added in balance sheet for total assets problem 
