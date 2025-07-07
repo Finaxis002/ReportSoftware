@@ -1,5 +1,8 @@
 // financialCals.js
 
+const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
+const projectionYears = formData?.ProjectReportSetting?.projectionYears || 5;
+
 // Get dynamic expense rows (direct/indirect)
 export const getExpenseRows = (expenses = [], type = "direct") =>
   Array.isArray(expenses)

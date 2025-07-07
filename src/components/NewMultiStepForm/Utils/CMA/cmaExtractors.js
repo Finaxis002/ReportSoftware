@@ -76,6 +76,7 @@ export const makeCMAExtractors = (formData) => {
     );
   };
 
+
   const filteredDirectExpense = filterActiveDirectExpenses(
     directExpense.filter(
       (row) => row.name.trim() !== "Raw Material Expenses / Purchases"
@@ -112,6 +113,7 @@ export const makeCMAExtractors = (formData) => {
         type: row.type,
       };
     });
+
 
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
@@ -245,7 +247,19 @@ export const makeCMAExtractors = (formData) => {
     return operatingProfit;
   });
 
-  console.log("OperatingProfit (per year):", OperatingProfit);
+
+  const otherIncome = Array(years).fill(0);
+
+  // Now calculate Profit Before Tax (PBT)
+  const ProfitbeforeTax = OperatingProfit.map(
+    (op, i) => Number(op) + Number(otherIncome[i] || 0)
+  );
+  const ProvisionforInvestmentAllowance = Array(years).fill(0);
+
+  const incomeTaxCal = formData.computedData.incomeTaxCalculation.incomeTaxCalculation
+  console.log("incomeTaxCalculation : ", incomeTaxCal)
+
+ 
 
   // Build the final extractors object
   return {
@@ -292,5 +306,11 @@ export const makeCMAExtractors = (formData) => {
     administrativeExpenseRows: () => administrativeExpenseRows,
     preliminaryWriteOffPerYear: () => preliminaryWriteOffPerYear,
     OperatingProfit: () => OperatingProfit,
+
+    otherIncome: () => otherIncome,
+    ProfitbeforeTax: () => ProfitbeforeTax,
+    ProvisionforInvestmentAllowance: () => ProvisionforInvestmentAllowance,
+    incomeTaxCal: () => incomeTaxCal,
+
   };
 };
