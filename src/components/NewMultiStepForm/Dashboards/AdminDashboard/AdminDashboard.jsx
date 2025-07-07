@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
 
+  const [chartImage, setChartImage] = useState(null);
 
   // ✅ Redirect if not admin
   useEffect(() => {
@@ -129,7 +130,7 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        Total Users testing
+                        Total Users
                       </h3>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {employees.length}
