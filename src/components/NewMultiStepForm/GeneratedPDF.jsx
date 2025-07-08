@@ -957,6 +957,12 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     };
   }, []);
 
+
+  const selectedColor =  localStorage.getItem("selectedColor");
+
+
+  // console.log("selected color : " ,selectedColor)
+
   const aggregateComputedData = () => ({
     normalExpense,
     totalAnnualWages,

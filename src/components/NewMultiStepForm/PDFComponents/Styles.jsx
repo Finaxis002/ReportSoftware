@@ -308,7 +308,7 @@ const colorMap = {
 };
 
 const storedColor = localStorage.getItem("selectedColor");
-// console.log("stored color" , storedColor)
+//  console.log("stored color" , storedColor)
 
 // If it's a predefined color in colorMap, use its hex
 // Otherwise, assume it's a custom HEX and use it directly

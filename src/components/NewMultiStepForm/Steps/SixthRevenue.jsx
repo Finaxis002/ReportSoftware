@@ -961,6 +961,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         const formFields = [];
         let totalRevenueForOthers = Array(projectionYears).fill("");
         const ROW_TYPE_COL_INDEX = 330;
+        let formulaMap = {};
         worksheetJS.eachRow({ includeEmpty: false }, (row, rowNumber) => {
           if (rowNumber === 1) return; // Skip header
 
@@ -971,15 +972,42 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
             .replace(/\s+/g, " ")
             .trim()
             .toLowerCase();
+
           if (rowLabel === "total revenue from operations") {
             // Copy its values for "totals" row
             for (let col = 3; col < 3 + projectionYears; col++) {
               let cell = row.getCell(col);
               let val = cell.value;
+              // if (val && typeof val === "object" && val.result !== undefined) {
+              //   val = val.result;
+              // }
+              if (
+                typeof val === "number" &&
+                cell.numFmt &&
+                cell.numFmt.includes("%")
+              ) {
+                val = (val * 100).toFixed(2).replace(/\.00$/, "") + "%"; // e.g., 0.1 → "10%"
+              }
+              // Handle formula cells as before
               if (val && typeof val === "object" && val.result !== undefined) {
                 val = val.result;
+                // If result is number and format is %, convert as above
+                if (
+                  typeof val === "number" &&
+                  cell.numFmt &&
+                  cell.numFmt.includes("%")
+                ) {
+                  val = (val * 100).toFixed(2).replace(/\.00$/, "") + "%";
+                }
               }
               totalRevenueForOthers[col - 3] = val || "";
+              // ADD THIS BLOCK to store formulas!
+              const colLetter = colToLetter(col);
+              const cellAddress = `${colLetter}${rowNumber}`; // current row number!
+              let xlsxCell = sheetXLSX[cellAddress];
+              let formula = xlsxCell && xlsxCell.f ? xlsxCell.f : null;
+              if (!formulaMap) formulaMap = {};
+              if (formula) formulaMap[cellAddress] = formula;
             }
             return; // Don't add this row to formFields!
           }
@@ -990,7 +1018,16 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           for (let col = 3; col < 3 + projectionYears; col++) {
             const colLetter = colToLetter(col);
             const cellAddress = `${colLetter}${rowNumber}`;
-            let cellValue = row.getCell(col).value;
+            let cellObj = row.getCell(col);
+            let cellValue = cellObj.value;
+            if (
+              typeof cellValue === "number" &&
+              cellObj.numFmt &&
+              cellObj.numFmt.includes("%")
+            ) {
+              cellValue =
+                (cellValue * 100).toFixed(2).replace(/\.00$/, "") + "%";
+            }
             let xlsxCell = sheetXLSX[cellAddress];
             let formula = xlsxCell && xlsxCell.f ? xlsxCell.f : null;
             if (cellValue && typeof cellValue === "object") {
@@ -1053,7 +1090,7 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           formFields,
           totalRevenueForOthers,
           formulaMap: (() => {
-            const map = {};
+            const map = { ...formulaMap };
             formFields.forEach((row, rowIdx) => {
               row.formulas.forEach((f, yearIdx) => {
                 if (f) {

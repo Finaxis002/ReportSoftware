@@ -3,6 +3,7 @@ import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import shouldHideFirstYear from "./HideFirstYear";
 
 const ProjectSynopsis = React.memo(
   ({
@@ -18,7 +19,7 @@ const ProjectSynopsis = React.memo(
     receivedBreakEvenPointPercentage = [],
     receivedAssetsLiabilities = [],
     pdfType,
-    handleContextMenu
+    handleContextMenu,
   }) => {
     // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
     const getOrdinalYear = (n) => {
@@ -49,15 +50,16 @@ const ProjectSynopsis = React.memo(
     // Returns the first non-zero revenue value as a formatted string
     const getFirstNonZeroRevenue = (revenueArray) => {
       const firstValidValue = Array.isArray(revenueArray)
-        ? revenueArray.find((value) => value !== 0)
+        ? revenueArray.find((value) => !shouldHideFirstYear(value))
         : undefined;
       return firstValidValue !== undefined
         ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
         : " ";
     };
+
     const getFirstNonZeroRevenueYear = (revenueArray) => {
       const firstValidIndex = Array.isArray(revenueArray)
-        ? revenueArray.findIndex((value) => value !== 0)
+        ? revenueArray.findIndex((value) => !shouldHideFirstYear(value))
         : -1;
       return firstValidIndex !== -1 ? firstValidIndex + 1 : 1; // 1-based year
     };
@@ -220,7 +222,7 @@ const ProjectSynopsis = React.memo(
 
     return (
       <>
-        <Page size="A4" style={styles.page}  ref={handleContextMenu}>
+        <Page size="A4" style={styles.page} ref={handleContextMenu}>
           <View>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Bame"}
@@ -475,7 +477,7 @@ const ProjectSynopsis = React.memo(
                           padding: "8px",
                           width: "27.5%",
                           textAlign: "center",
-                          // borderLeftWidth: "1px",
+                          borderLeftWidth: "1px",
                         },
                       ]}
                     >
@@ -543,7 +545,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        // borderLeftWidth: "1px",
+                        borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -607,7 +609,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        // borderLeftWidth: "1px",
+                        borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -669,7 +671,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "27.5%",
                         textAlign: "center",
-                        // borderLeftWidth: "1px",
+                        borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -821,7 +823,7 @@ const ProjectSynopsis = React.memo(
                             padding: "8px",
                             width: "20%",
                             textAlign: "center",
-                            // borderLeftWidth: "1px",
+                            borderLeftWidth: "1px",
                           },
                         ]}
                       >
@@ -893,7 +895,7 @@ const ProjectSynopsis = React.memo(
                         padding: "8px",
                         width: "20%",
                         textAlign: "center",
-                        // borderLeftWidth: "1px",
+                        borderLeftWidth: "1px",
                       },
                     ]}
                   >
@@ -953,7 +955,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      // borderLeftWidth: "1px",
+                      borderLeftWidth: "1px",
                     },
                   ]}
                 >
@@ -1070,7 +1072,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      // borderLeftWidth: "1px",
+                      borderLeftWidth: "1px",
                       // borderBottomWidth: "0px",
                       // borderTopWidth: "0px",
                       paddingTop: "20px",
@@ -1138,7 +1140,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      // borderLeftWidth: "1px",
+                      borderLeftWidth: "1px",
                       // borderBottomWidth: "0px",
                       // borderTopWidth: "0px",
                     },
@@ -1200,7 +1202,7 @@ const ProjectSynopsis = React.memo(
                       padding: "8px",
                       width: "20%",
                       textAlign: "center",
-                      // borderLeftWidth: "1px",
+                      borderLeftWidth: "1px",
 
                       // borderTop: "1px",
                     },
@@ -1214,11 +1216,7 @@ const ProjectSynopsis = React.memo(
             {/* other  */}
             <View>
               {/* Debt Service Coverage Ratio */}
-              <View
-                style={[styles.tableRow, 
-                  { }]}
-                key={16}
-              >
+              <View style={[styles.tableRow, {}]} key={16}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,
@@ -1255,11 +1253,7 @@ const ProjectSynopsis = React.memo(
                 </Text>
               </View>
               {/* Current Ratio */}
-              <View
-                style={[styles.tableRow, 
-                  { }]}
-                key={16}
-              >
+              <View style={[styles.tableRow, {}]} key={16}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,
@@ -1298,11 +1292,7 @@ const ProjectSynopsis = React.memo(
                 </Text>
               </View>
               {/* Breakeven Point */}
-              <View
-                style={[styles.tableRow, 
-                  { }]}
-                key={16}
-              >
+              <View style={[styles.tableRow, {}]} key={16}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,
@@ -1498,7 +1488,7 @@ const ProjectSynopsis = React.memo(
                               padding: "8px",
                               width: "27.5%",
                               textAlign: "center",
-                              // borderLeftWidth: "1px",
+                               borderLeftWidth: "1px",
                             },
                           ]}
                         >

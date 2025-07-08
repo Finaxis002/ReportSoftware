@@ -3,6 +3,7 @@ import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import shouldHideFirstYear from "./HideFirstYear";
 
 const ProjectedRevenue = ({
   formData,
@@ -48,7 +49,7 @@ const ProjectedRevenue = ({
   {
     /* ✅ Determine if first year column should be hidden */
   }
-  const hideFirstYear = totalRevenueReceipts?.[0] === 0;
+  const hideFirstYear = shouldHideFirstYear(totalRevenueReceipts);
 
   // ✅ Remove first year from financialYearLabels if hiding is required
   const adjustedFinancialYearLabels = hideFirstYear
@@ -364,7 +365,12 @@ const ProjectedRevenue = ({
                       ]}
                     >
                       {/* If heading and empty row, blank text */}
-                      {isEmptyRow ? "" : formatNumber(yearValue)}
+                      {isEmptyRow
+                        ? ""
+                        : typeof yearValue === "string" &&
+                          yearValue.trim().endsWith("%")
+                        ? yearValue
+                        : formatNumber(yearValue)}
                     </Text>
                   ))}
                 </View>

@@ -3,6 +3,7 @@ import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import shouldHideFirstYear from "./HideFirstYear";
 
 const num = (v) => {
   // Handle percentages by dividing by 100
@@ -102,7 +103,14 @@ const ProjectedExpenses = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+
+  // console.log("receivedtotalRevenueReceipts", receivedtotalRevenueReceipts)
+
+  // console.log(
+  //   "should hide first year",
+  //   shouldHideFirstYear(receivedtotalRevenueReceipts)
+  // );
 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {

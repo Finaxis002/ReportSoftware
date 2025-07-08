@@ -2,14 +2,28 @@ import React, { useState } from "react";
 import { generateAllCharts } from "./charts/generateAllCharts";
 import { generateGraphsPdf } from "./Utils/generateGraphsPdf";
 
-const GraphGenerator = ({ formData, selectedColor, selectedFont }) => {
+const GraphGenerator = ({ formData, selectedFont }) => {
   const [loading, setLoading] = useState(false);
+
+  // console.log("selectedColor", selectedColor);
+
+  const selectedColor = localStorage.getItem("selectedColor")
 
   const handleClick = async () => {
     if (!formData) return;
     setLoading(true);
     try {
-      const charts = await generateAllCharts(formData, selectedColor, selectedFont);
+      // Get color from localStorage, fallback to prop, fallback to "select color"
+      let colorFromStorage = localStorage.getItem("selectedColor");
+      if (!colorFromStorage || colorFromStorage === "select color")
+        colorFromStorage = undefined;
+
+      const charts = await generateAllCharts(
+        formData,
+        colorFromStorage || selectedColor,
+        selectedFont
+      );
+
       await generateGraphsPdf(charts);
     } catch (e) {
       console.error(e);
