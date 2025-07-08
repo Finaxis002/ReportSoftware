@@ -39,7 +39,7 @@ const RatioAnalysis = ({
   receivedtotalRevenueReceipts,
   orientation,
 }) => {
-  //  console.log(receivedTotalLiabilities)
+  console.log(receivedTotalLiabilities)
 
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
@@ -85,24 +85,21 @@ const RatioAnalysis = ({
     return totalValue; // Return the calculated Net Worth for that year
   });
 
-
-
-
   const totalDebtArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const termLoan = Number(receivedMarchClosingBalances?.[index+1]) || 0;
-  
+      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
+
       // ✅ Don't shift repayment index — use current year index
-      const bankLoan = Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0;
-  
+      const bankLoan =
+        Number(
+          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
+        ) || 0;
+
       const workingCapitalLoan = workingCapitalArray[index] || 0;
-  
+
       return termLoan + bankLoan + workingCapitalLoan;
     }
   );
-  
-
-
 
   // ✅ Initialize cumulative sum for Current Liabilities
   let cumulativeCurrentLiabilities = 0;
@@ -111,7 +108,7 @@ const RatioAnalysis = ({
     length: projectionYears,
   }).map((_, index) => {
     // Use raw value for Term Loan
-    const termLoan = Number(receivedMarchClosingBalances?.[index+1]) || 0;
+    const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
 
     // Use raw value for Bank Loan Payable from the next year (index + 1)
     const bankLoan =
@@ -125,10 +122,12 @@ const RatioAnalysis = ({
     // ✅ Compute Total of Current Liabilities dynamically with cumulative rule
     const currentYearLiabilities = (
       formData?.MoreDetails?.currentLiabilities ?? []
-    ).reduce(
-      (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
-      0
-    );
+    )
+      .filter((liability) => liability.particular !== "Quasi Equity")
+      .reduce(
+        (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
+        0
+      );
 
     cumulativeCurrentLiabilities += currentYearLiabilities; // Apply cumulative sum
 
@@ -147,11 +146,11 @@ const RatioAnalysis = ({
     (_, index) => {
       const cashBalance =
         Number(receivedTotalLiabilities?.closingCashBalanceArray?.[index]) || 0;
-  
+
       const currentYearAssets = (formData?.MoreDetails?.currentAssets ?? [])
         .filter((asset) => asset.particular !== "Investments")
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-  
+
       const inventory = Array.from({
         length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
@@ -161,13 +160,13 @@ const RatioAnalysis = ({
           formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
         return ClosingStock - OpeningStock;
       });
-  
+
       const inventoryValue = inventory[index] || 0;
-  
+
       cumulativeCurrentAssets += currentYearAssets + inventoryValue;
-  
+
       const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
-  
+
       // ✅ Log everything year-wise
       // console.log(`\nYear ${index + 1}:`);
       // console.log("Cash Balance           :", cashBalance);
@@ -175,13 +174,12 @@ const RatioAnalysis = ({
       // console.log("Inventory Value        :", inventoryValue);
       // console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
       // console.log("Total Current Assets   :", totalCurrentAssets);
-  
+
       return totalCurrentAssets;
     }
   );
-  
 
-// ✅ Initialize an array to store total liabilities for each projection year
+  // ✅ Initialize an array to store total liabilities for each projection year
 
   // console.log("Final Current Liabilities Array:", currentLiabilities);
 
@@ -264,13 +262,13 @@ const RatioAnalysis = ({
   );
 
   // ✅ Total Outside Liabilities / Total Net Worth Ratio
-// Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
-const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((liability, index) => {
-  const worth = netWorth[index] || 1; // Prevent division by zero
-  return (liability / worth).toFixed(2); // Round to 2 decimal places
-});
-  
-
+  // Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
+  const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map(
+    (liability, index) => {
+      const worth = netWorth[index] || 1; // Prevent division by zero
+      return (liability / worth).toFixed(2); // Round to 2 decimal places
+    }
+  );
 
   // ✅ Net Worth / Total Liabilities Ratio
   const netWorthTotalLiabilitiesRatio = Array.from({
@@ -290,6 +288,28 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
       ? "-"
       : (netWorth / totalLiabilities).toFixed(2);
   });
+
+  // Exclude "Quasi Equity" from Current Liabilities when calculating Total Liabilities
+const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map((_, index) => {
+  // Get term loan, bank loan, etc., as per your structure:
+  const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
+  const bankLoan = Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0;
+  const workingCapitalLoan = workingCapitalArray[index] || 0;
+
+  // Exclude "Quasi Equity" from current liabilities sum:
+  const currentYearLiabilities = (
+    formData?.MoreDetails?.currentLiabilities ?? []
+  )
+    .filter((liability) => liability.particular !== "Quasi Equity")
+    .reduce(
+      (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
+      0
+    );
+
+  // Compose the total liabilities for the year:
+  return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
+});
+
 
   const yearlycurrentLiabilities =
     receivedTotalLiabilities?.yearlyTotalLiabilities;
@@ -375,42 +395,39 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
-  .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
-  .filter(({ value, index }) => {
-    // Skip the first year if hidden
-    if (hideFirstYear && index === 0) return false;
-    // Filter out invalid, non-numeric, or < 1 values
-    return !isNaN(value) && value >= 1;
-  })
-  .map(({ value }) => value); // Extract just the values
+    .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
+    .filter(({ value, index }) => {
+      // Skip the first year if hidden
+      if (hideFirstYear && index === 0) return false;
+      // Filter out invalid, non-numeric, or < 1 values
+      return !isNaN(value) && value >= 1;
+    })
+    .map(({ value }) => value); // Extract just the values
 
+  const averageCurrentRatio = (() => {
+    // Step 1: Filter out invalid values and convert valid ones to numbers
+    let validRatios = currentRatio
+      .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+      .map((r) => parseFloat(r));
 
-    const averageCurrentRatio = (() => {
-      // Step 1: Filter out invalid values and convert valid ones to numbers
-      let validRatios = currentRatio
-        .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
-        .map((r) => parseFloat(r));
-    
-      // Step 2: Remove first year's ratio if it's hidden
-      if (hideFirstYear) {
-        validRatios = validRatios.slice(1); // Remove first index
-      }
-    
-      // Step 3: If no valid ratios left, return "-"
-      if (validRatios.length === 0) {
-        return "-";
-      }
-    
-      // Step 4: Calculate the average
-      const total = validRatios.reduce((sum, value) => sum + value, 0);
-      const average = (total / validRatios.length).toFixed(2);
-    
-      return average;
-    })();
-    
+    // Step 2: Remove first year's ratio if it's hidden
+    if (hideFirstYear) {
+      validRatios = validRatios.slice(1); // Remove first index
+    }
+
+    // Step 3: If no valid ratios left, return "-"
+    if (validRatios.length === 0) {
+      return "-";
+    }
+
+    // Step 4: Calculate the average
+    const total = validRatios.reduce((sum, value) => sum + value, 0);
+    const average = (total / validRatios.length).toFixed(2);
+
+    return average;
+  })();
 
   const numOfYearsUsedForAvg = validRatios.length;
-
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -448,12 +465,10 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
     numOfYearsUsedForAvg,
   ]);
 
-
   // const orientation =
   // hideFirstYear
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
   //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
-
 
   return (
     <Page
@@ -541,7 +556,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
           <Text>Ratio Analysis </Text>
         </View>
 
-         <View style={[styles.table, { borderRightWidth: 0 }]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -549,7 +564,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 styles.serialNoCell,
                 styleExpenses.sno,
                 styleExpenses.fontBold,
-                { textAlign: "center" , borderLeftWidth:0},
+                { textAlign: "center", borderLeftWidth: 0 },
               ]}
             >
               S. No.
@@ -575,11 +590,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   {yearLabel}
                 </Text>
               ))}
-            <Text
-             style={[styles.particularsCell, stylesCOP.boldText]}
-            >
-             AR
-            </Text>
+            <Text style={[styles.particularsCell, stylesCOP.boldText]}>AR</Text>
           </View>
 
           {/* Liabilities Section */}
@@ -618,7 +629,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         styleExpenses.fontSmall,
                         {
                           paddingTop: "20px",
-                          
+
                           fontWeight: "light",
                         },
                       ]}
@@ -632,7 +643,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -643,7 +653,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 2
@@ -675,7 +685,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -687,7 +696,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 3
@@ -720,7 +729,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -732,7 +740,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 4
@@ -765,7 +773,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -777,7 +784,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 5
@@ -811,7 +818,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -823,7 +829,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 6
@@ -857,7 +863,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -869,7 +874,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 7
@@ -903,7 +908,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -915,7 +919,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 8
@@ -950,7 +954,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -962,7 +965,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 9
@@ -996,7 +999,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -1008,7 +1010,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 10
@@ -1042,7 +1044,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -1054,7 +1055,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.serialNoCellDetail,
                   styleExpenses.sno,
                   styleExpenses.bordernone,
-                  { },
+                  {},
                 ]}
               >
                 11
@@ -1089,7 +1090,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  
                 ]}
               ></Text>
             </View>
@@ -1099,18 +1099,14 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
               style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
             >
               <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  
-                ]}
+                style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
               ></Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  { fontWeight: "bold", },
+                  { fontWeight: "bold" },
                 ]}
               >
                 Total Cash Profit
@@ -1139,7 +1135,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         styleExpenses.fontSmall,
                         {
                           fontWeight: "bold",
-                          
+
                           textAlign: "center",
                           borderRightWidth: 0,
                           borderTopWidth: 1,
@@ -1158,8 +1154,6 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
                   { borderLeftWidth: 1 },
-
-                  
                 ]}
               ></Text>
             </View>
@@ -1189,7 +1183,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    { paddingTop: "20px", borderLeftWidth:0 },
+                    { paddingTop: "20px", borderLeftWidth: 0 },
                   ]}
                 >
                   1
@@ -1214,7 +1208,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          { paddingTop: "20px"  , paddingHorizontal:0},
+                          { paddingTop: "20px", paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}{" "}
@@ -1227,11 +1221,9 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
                     {
-                      
                       fontWeight: "extrabold",
                       paddingTop: "20px",
-                      
-                    }
+                    },
                   ]}
                 >
                   {averageGrossProfitSalesRatio !== "-"
@@ -1247,7 +1239,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   2
@@ -1271,7 +1263,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1282,8 +1274,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageOperatingProfitSalesRatio !== "-"
@@ -1299,7 +1290,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   3
@@ -1322,7 +1313,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1333,8 +1324,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageProfitBeforeTaxSalesRatio !== "-"
@@ -1350,7 +1340,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   4
@@ -1374,7 +1364,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1385,8 +1375,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageNetProfitSalesRatio !== "-"
@@ -1402,7 +1391,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   5
@@ -1425,7 +1414,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}%` : ratio}
@@ -1436,8 +1425,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageNetProfitNetWorthRatio !== "-"
@@ -1453,7 +1441,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   6
@@ -1476,7 +1464,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio !== "-" ? `${ratio}` : ratio}
@@ -1487,8 +1475,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageDebtEquityRatio !== "-"
@@ -1504,7 +1491,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   7
@@ -1527,7 +1514,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio}
@@ -1538,8 +1525,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageTotalOutsideLiabilitiesNetWorthRatio !== "-"
@@ -1555,7 +1541,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   8
@@ -1578,7 +1564,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio}
@@ -1589,8 +1575,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageNetWorthTotalLiabilitiesRatio !== "-"
@@ -1606,7 +1591,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   9
@@ -1644,8 +1629,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageDebtServiceCoverageRatio !== "-"
@@ -1661,7 +1645,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   10
@@ -1684,7 +1668,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {ratio}
@@ -1695,8 +1679,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "-"}
@@ -1710,7 +1693,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                     stylesCOP.serialNoCellDetail,
                     styleExpenses.sno,
                     styleExpenses.bordernone,
-                    {  },
+                    {},
                   ]}
                 >
                   11
@@ -1733,7 +1716,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
-                          {paddingHorizontal:0}
+                          { paddingHorizontal: 0 },
                         ]}
                       >
                         {roi === "-" ? roi : `${roi}%`}
@@ -1744,8 +1727,7 @@ const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map((l
                   style={[
                     stylesCOP.particularsCellsDetail,
                     styleExpenses.fontSmall,
-                    {  fontWeight: "extrabold" },
-                    
+                    { fontWeight: "extrabold" },
                   ]}
                 >
                   {averageReturnOnInvestment !== "-"
