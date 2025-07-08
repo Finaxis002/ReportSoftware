@@ -112,6 +112,9 @@ export const generatePieChart = (pieData, selectedColor, selectedFont) => {
     );
   }
 
+  // const storedColor = localStorage.getItem("selectedColor");
+ console.log("selectedColor" , selectedColor)
+
   const DEFAULT_PIE_COLORS = [
     "rgb(54, 116, 181)",
     "rgba(32, 164, 243, 1)",
@@ -131,69 +134,7 @@ export const generatePieChart = (pieData, selectedColor, selectedFont) => {
     mountPoint.style.left = "-9999px";
     document.body.appendChild(mountPoint);
 
-    //    function normalizePieData(pieData) {
-    //   let percentTotal = 0;
-    //   let rupeeTotal = 0;
-    //   let percentSlices = [];
-    //   let rupeeSlices = [];
-
-    //   pieData.forEach(item => {
-    //     let value = item.value;
-    //     if (item.isRawMaterial && item.isPercentage) {
-    //       value = parseFloat(item.value);
-    //     }
-    //     if (typeof value === "string" && value.trim().endsWith("%")) {
-    //       let percent = parseFloat(value);
-    //       if (percent > 0) {
-    //         percentTotal += percent;
-    //         percentSlices.push({ ...item, value: percent, type: "percent" });
-    //       }
-    //     } else {
-    //       value = parseFloat(value);
-    //       if (value > 0) {
-    //         rupeeTotal += value;
-    //         rupeeSlices.push({ ...item, value, type: "rupee" });
-    //       }
-    //     }
-    //   });
-
-    //   // Scale rupee slices to fit the remaining percentage space
-    //   const rupeeAvailable = 100 - percentTotal;
-    //   const result = [];
-    //   if (rupeeSlices.length && rupeeAvailable > 0) {
-    //     rupeeSlices.forEach(slice => {
-    //       result.push({
-    //         ...slice,
-    //         value: (slice.value / rupeeTotal) * rupeeAvailable
-    //       });
-    //     });
-    //   }
-    //   percentSlices.forEach(slice => result.push({ ...slice, value: slice.value }));
-
-    //   let filtered = result.filter(item => item.value > 0.01);
-
-    //   // Scale so sum is 100
-    //   const total = filtered.reduce((a, b) => a + b.value, 0);
-    //   if (Math.abs(total - 100) > 0.0001 && total > 0) {
-    //     filtered = filtered.map(item => ({
-    //       ...item,
-    //       value: (item.value / total) * 100
-    //     }));
-    //   }
-    // // --- NEW FIX: Adjust the last slice so sum is exactly 100 ---
-    // filtered = filtered.map(item => ({
-    //   ...item,
-    //   value: parseFloat(item.value.toFixed(2))
-    // }));
-
-    // let sum = filtered.reduce((a, b) => a + b.value, 0);
-    // const diff = parseFloat((100 - sum).toFixed(2));
-    // if (filtered.length > 0 && Math.abs(diff) > 0.001) {
-    //   filtered[filtered.length - 1].value = parseFloat((filtered[filtered.length - 1].value + diff).toFixed(2));
-    // }
-
-    //   return filtered;
-    // }
+   
     function normalizePieData(pieData) {
       // 1. Convert all values to numbers, separate percent and rupee slices
       let percentTotal = 0;
@@ -307,9 +248,11 @@ export const generatePieChart = (pieData, selectedColor, selectedFont) => {
     //  const backgroundColors = selectedColor
     //     ? makePieSliceColors(selectedColor, filteredPieData.length)
     //     : DEFAULT_PIE_COLORS.slice(0, filteredPieData.length);
-    const backgroundColors = selectedColor
+ const backgroundColors =
+  selectedColor && selectedColor !== "select color"
     ? generateColorVariations(toHex(selectedColor), filteredPieData.length)
     : DEFAULT_PIE_COLORS.slice(0, filteredPieData.length);
+
 
 
       const sum = filteredPieData.reduce((a, b) => a + b.value, 0);
