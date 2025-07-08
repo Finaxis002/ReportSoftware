@@ -4,6 +4,53 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import the loading spinner
 
+function AdminBadgeWithClock() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Update every second
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="hidden md:block relative z-10">
+      <div className="flex flex-col items-center gap-3">
+      
+        {/* Time & Date */}
+        <div className="flex items-center gap-2 mt-1 px-3 py-1 rounded-lg bg-gray-50/60 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 shadow-sm text-xs font-mono text-gray-700 dark:text-gray-300">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-teal-500 dark:text-teal-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+            <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
+          </svg>
+          <span className="text-[14px]">
+            {currentTime.toLocaleString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            })}
+            &nbsp;|&nbsp;
+            {currentTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            })}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
@@ -120,8 +167,8 @@ const AdminDashboard = () => {
 
             {/* Firm Name & Tagline with improved typography */}
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight flex items-center">
-                <span className="w-1 h-6 bg-blue-500 dark:bg-blue-400 mr-3 rounded-full"></span>
+              <span className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight dark:text-white leading-tight tracking-tight flex items-center">
+                <span className="w-1 h-6 bg-blue-500 dark:bg-blue-400 mr-3 rounded-full "></span>
                 Anunay Sharda & Associates
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center">
@@ -133,25 +180,8 @@ const AdminDashboard = () => {
           </div>
 
           {/* Enhanced Admin Badge with animation */}
-          <div className="hidden md:block relative z-10">
-            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-gray-700 dark:text-white/90 font-medium text-xs tracking-wide border border-gray-200 dark:border-slate-700 shadow-xs hover:shadow-sm transition-all duration-300 group">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-2 text-teal-500 dark:text-teal-400 "
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                Admin Dashboard
-              </span>
-            </span>
-          </div>
+
+          <AdminBadgeWithClock />
         </div>
 
         {/* ✅ Show loader while fetching data */}
