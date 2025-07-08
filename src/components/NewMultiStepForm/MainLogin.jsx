@@ -367,7 +367,7 @@ const MainLogin = ({ onLogin }) => {
           <div className="relative p-1 rounded-full bg-gradient-to-br from-teal-100/30 to-white shadow-lg ring-1 ring-teal-100/50">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/80 to-transparent opacity-70"></div>
             {/* <img
-              src="/SALOGO-teal.png" // or your ASA logo path
+              src="/SALOGO-teal.png" // or your ASA logo path`````
               alt="ASA Logo"
               className="h-16 w-16 object-contain transition-transform duration-300 group-hover:scale-105"
             />
