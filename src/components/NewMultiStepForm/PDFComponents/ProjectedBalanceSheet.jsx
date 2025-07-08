@@ -190,6 +190,8 @@ const ProjectedBalanceSheet = ({
 
   const assetDebugTable = [];
 
+  const totalAssetArray = [];
+
   for (let index = 0; index < projectionYears; index++) {
     const netFixedAssetValue = computedNetFixedAssets[index] || 0;
     const cashEquivalent = closingCashBalanceArray[index] || 0;
@@ -207,7 +209,7 @@ const ProjectedBalanceSheet = ({
     cumulativeCurrentAssets += currentYearAssets;
 
     const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0;
-    const inventoryValue = Number(inventory[index]);
+    const inventoryValue = Number(inventory[index]) || 0;
 
     const totalAssets =
       netFixedAssetValue +
@@ -225,35 +227,13 @@ const ProjectedBalanceSheet = ({
       preliminaryAsset,
       totalAssets,
     });
+
+    totalAssetArray.push(totalAssets); // Build the array for your later use
   }
 
-  console.table(assetDebugTable);
-
-  const totalAssetArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-      const cashEquivalent = closingCashBalanceArray[index] || 0;
-
-      const currentYearAssets = formData?.MoreDetails?.currentAssets
-        ?.filter(
-          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-        )
-        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-      cumulativeCurrentAssets += currentYearAssets;
-
-      const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
-
-      const totalAssets =
-        netFixedAssetValue +
-        cashEquivalent +
-        cumulativeCurrentAssets +
-        Number(inventory[index]) +
-        preliminaryAsset; // ✅ INCLUDED
-
-      return totalAssets;
-    }
-  );
+  // You can see the debug table:
+  // console.table(assetDebugTable);
+  // And use totalAssetArray for your further calculations
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
@@ -275,11 +255,13 @@ const ProjectedBalanceSheet = ({
       // ✅ Compute current year liabilities and accumulate
       const currentYearLiabilities = (
         formData?.MoreDetails?.currentLiabilities ?? []
-      ).reduce(
-        (total, liabilities) =>
-          total + Number(liabilities.years?.[yearIndex] || 0),
-        0
-      );
+      )
+        .filter((liability) => liability.particular !== "Quasi Equity")
+        .reduce(
+          (total, liabilities) =>
+            total + Number(liabilities.years?.[yearIndex] || 0),
+          0
+        );
 
       // ✅ Accumulate current liabilities over years
       cumulativeCurrentLiabilities += currentYearLiabilities;
@@ -291,6 +273,8 @@ const ProjectedBalanceSheet = ({
       return totalForYear;
     }
   );
+
+  console.log("yearlyTotalLiabilities : ", yearlyTotalLiabilities);
 
   const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
