@@ -79,3 +79,66 @@ const safeNumber = (val) => (val === undefined || val === null || val === "" ? 0
 this safeNumber will help in NaN error 
 when user left any input field empty
 this gaurd is added in balance sheet for total assets problem 
+
+
+
+# 08/07/2025 -> Priya
+(
+ # 1st change 
+
+Update: Quasi Equity is now excluded from the total liabilities.
+
+Implementation:
+
+const currentYearLiabilities = (
+  formData?.MoreDetails?.currentLiabilities ?? []
+)
+  .filter((liability) => liability.particular !== "Quasi Equity")
+  .reduce(
+    (total, liabilities) =>
+      total + Number(liabilities.years?.[yearIndex] || 0),
+    0
+  );
+
+Location: yearlyTotalLiabilities inside the ProjectedBalanceSheet component.
+
+
+# 2nd change 
+Update: Added styling for the projected synopsis section.
+
+Change Type: UI/UX – likely involving border lines or visual separators.
+
+Update: In Project Synopsis, the Receipts/Revenue row (6th row) now displays the first non-zero value instead of showing zero.
+
+
+
+# 3rd change (Refrence Report sree varaha bio coat)
+Update: If the first-year revenue is 0, related sections like Expenses, Profitability, etc., are now conditionally hidden.
+
+Implementation: A new helper function HideFirstYear was added to handle this logic.
+
+Purpose: To improve the accuracy and presentation of the financial report when revenue is zero in the first year.
+
+# 4th 
+
+Update: Improved the revenue Excel sheet import functionality.
+
+Fix Includes:
+
+Preserves formulas during import.
+
+Correctly handles percentage values (%) in the Excel file.
+
+# 5th 
+
+Update: To handle % values on the Projected Revenue page, the following code was added:
+
+ {isEmptyRow
+                        ? ""
+                        : typeof yearValue === "string" &&
+                          yearValue.trim().endsWith("%")
+                        ? yearValue
+                        : formatNumber(yearValue)}
+
+
+)

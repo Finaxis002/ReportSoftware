@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import shouldHideFirstYear from "./HideFirstYear";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -118,7 +119,7 @@ const ProjectedProfitability = ({
     return (workingCapitalLoan * interestRate) / 100;
   });
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] === 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];

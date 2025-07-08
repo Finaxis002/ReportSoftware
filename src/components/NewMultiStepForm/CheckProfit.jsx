@@ -3,6 +3,7 @@ import useStore from "./useStore";
 import { useNavigate } from "react-router-dom";
 // Add this import at the top of your file
 import { usePDF } from 'react-to-pdf';
+import shouldHideFirstYear from './PDFComponents/HideFirstYear'
 
 const CheckProfit = () => {
   const computedDataToProfit = useStore((state) => state.computedDataToProfit);
@@ -210,46 +211,47 @@ const CheckProfit = () => {
   const { Expenses = {} } = formData;
   const { normalExpense = [], directExpense = [] } = Expenses;
 
-  const totalDirectExpensesArray = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map((_, yearIndex) => {
-    const totalDirectExpenses = directExpense
-      .filter((expense) => expense.type === "direct")
-      .reduce((sum, expense) => {
-        const isRawMaterial =
-          expense.name.trim() === "Raw Material Expenses / Purchases";
-        const isPercentage = String(expense.value).trim().endsWith("%");
+ const safeNumber = (val) => (val === undefined || val === null || val === "" ? 0 : Number(val) || 0);
 
-        let expenseValue = 0;
+const totalDirectExpensesArray = Array.from({
+  length: safeNumber(formData?.ProjectReportSetting?.ProjectionYears),
+}).map((_, yearIndex) => {
+  const totalDirectExpenses = directExpense
+    .filter((expense) => expense.type === "direct")
+    .reduce((sum, expense) => {
+      const isRawMaterial =
+        expense?.name?.trim() === "Raw Material Expenses / Purchases";
+      const isPercentage = String(expense?.value).trim().endsWith("%");
 
-        const ClosingStock =
-          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-        const OpeningStock =
-          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+      let expenseValue = 0;
 
-        if (isRawMaterial && isPercentage) {
-          const baseValue =
-            (parseFloat(expense.value) / 100) *
-            (storedData?.totalRevenueReceipts?.[yearIndex] || 0);
-          expenseValue = baseValue + ClosingStock - OpeningStock;
-        } else {
-          // ✅ Use annual total directly
-          expenseValue = Number(expense.total) || 0;
-        }
+      const ClosingStock = safeNumber(formData?.MoreDetails?.ClosingStock?.[yearIndex]);
+      const OpeningStock = safeNumber(formData?.MoreDetails?.OpeningStock?.[yearIndex]);
 
-        return (
-          sum +
-          (isRawMaterial && isPercentage
-            ? expenseValue
-            : calculateExpense(expenseValue, yearIndex))
-        );
-      }, 0);
+      if (isRawMaterial && isPercentage) {
+        const baseValue =
+          (parseFloat(expense.value) / 100) *
+          safeNumber(storedData?.totalRevenueReceipts?.[yearIndex]);
+        expenseValue = baseValue + ClosingStock - OpeningStock;
+      } else {
+        // ✅ Use annual total directly, safely
+        expenseValue = safeNumber(expense.total);
+      }
 
-    const initialSalaryWages = Number(fringAndAnnualCalculation) || 0;
-    const totalSalaryWages = calculateExpense(initialSalaryWages, yearIndex);
+      return (
+        sum +
+        (isRawMaterial && isPercentage
+          ? safeNumber(expenseValue)
+          : safeNumber(calculateExpense(expenseValue, yearIndex)))
+      );
+    }, 0);
 
-    return totalDirectExpenses + totalSalaryWages;
-  });
+  const initialSalaryWages = safeNumber(fringAndAnnualCalculation);
+  const totalSalaryWages = safeNumber(calculateExpense(initialSalaryWages, yearIndex));
+
+  return safeNumber(totalDirectExpenses) + safeNumber(totalSalaryWages);
+});
+
 
   // ✅ Step 2: Compute Gross Profit Values for Each Year After `totalDirectExpenses` is Defined
   const grossProfitValues = adjustedRevenueValues.map(
@@ -825,7 +827,7 @@ const CheckProfit = () => {
     }
   );
 
-  const hideFirstYear = storedData?.totalRevenueReceipts?.[0] === 0;
+  const hideFirstYear = shouldHideFirstYear(storedData?.totalRevenueReceipts);
 
   const isPreliminaryWriteOffAllZero = Array.from({
     length: projectionYears,
