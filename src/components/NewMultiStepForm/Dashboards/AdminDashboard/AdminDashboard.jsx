@@ -95,6 +95,65 @@ const AdminDashboard = () => {
       <div className="app-content">
         <Header dashboardType="Admin Dashboard" />
 
+        {/* ===== Brand Bar - Beautiful Professional Branding ===== */}
+        <div
+          className="relative flex items-center justify-between
+  bg-white/80 dark:bg-slate-800/80
+  rounded-2xl border border-gray-100 dark:border-slate-700
+  px-6 py-5 mt-4 overflow-hidden
+  backdrop-blur-lg shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          {/* Floating orbs for depth and visual interest */}
+          <div className="absolute right-[-60px] top-[-36px] w-40 h-40 rounded-full bg-blue-200/40 dark:bg-blue-700/30 blur-2xl pointer-events-none" />
+          <div className="absolute left-[-30px] bottom-[-50px] w-32 h-32 rounded-full bg-blue-200/20 dark:bg-blue-700/20 blur-xl pointer-events-none" />
+
+          <div className="flex items-center gap-4 relative z-10">
+            {/* Logo with subtle glow and transition */}
+            <div className="flex items-center justify-center h-14 w-14 rounded-full bg-white/95 dark:bg-slate-900/95 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group">
+              <img
+                src="/SALOGO-black.png"
+                alt="Anunay Sharda & Associates Logo"
+                className="h-9 w-9 object-contain transition-transform duration-300 group-hover:scale-105"
+                draggable={false}
+              />
+            </div>
+
+            {/* Firm Name & Tagline with improved typography */}
+            <div className="flex flex-col">
+              <span className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight flex items-center">
+                <span className="w-1 h-6 bg-blue-500 dark:bg-blue-400 mr-3 rounded-full"></span>
+                Anunay Sharda & Associates
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center">
+                <div className="h-px w-8 bg-gradient-to-r from-gray-400/0 via-gray-400 to-gray-400/0"></div>
+                Project Report Creation
+                <div className="h-px w-8 bg-gradient-to-r from-gray-400/0 via-gray-400 to-gray-400/0"></div>
+              </span>
+            </div>
+          </div>
+
+          {/* Enhanced Admin Badge with animation */}
+          <div className="hidden md:block relative z-10">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-gray-700 dark:text-white/90 font-medium text-xs tracking-wide border border-gray-200 dark:border-slate-700 shadow-xs hover:shadow-sm transition-all duration-300 group">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-2 text-teal-500 dark:text-teal-400 "
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                Admin Dashboard
+              </span>
+            </span>
+          </div>
+        </div>
+
         {/* ✅ Show loader while fetching data */}
         {isLoading ? (
           <div className="loader-container">
@@ -113,12 +172,11 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        Total Reports 
+                        Total Reports
                       </h3>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white">
                         {reports.length}
                       </p>
-                      
                     </div>
                   </div>
 
@@ -126,7 +184,6 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 flex items-center justify-center rounded-lg">
                       👨‍💼
-                      
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
