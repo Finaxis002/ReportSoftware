@@ -78,6 +78,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
   const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   const BSextractors = CMAExtractorBS(formData);
+  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const workingCapitalLoanArr = BSextractors.workingCapitalLoanArr() || [];
   const fromOtherBanks = BSextractors.fromOtherBanks() || [];
   const SubTotal = yearLabels.map(
@@ -94,7 +95,53 @@ const CMAAnalysisOfBS = ({ formData }) => {
     BSextractors.repaymentValueswithin12months() || [];
   const otherCurrentLiabilitiesTotal =
     BSextractors.otherCurrentLiabilitiesTotal() || [];
+  const subTotalB = BSextractors.subTotalB() || [];
 
+  const totalAandB = Array.from({ length: years }).map(
+    (_, idx) => Number(SubTotal[idx] || 0) + Number(subTotalB[idx] || 0)
+  );
+
+  const debentures = BSextractors.debentures() || [];
+  const preferenceShares = BSextractors.preferenceShares() || [];
+  const bankTermLoanArr = BSextractors.bankTermLoanArr() || [];
+  const vehicleLoan = BSextractors.vehicleLoan() || [];
+  const deferredTaxLiability = BSextractors.deferredTaxLiability() || [];
+  const otherTermLiabilities = BSextractors.otherTermLiabilities() || [];
+  const totalTermLiabilities = BSextractors.totalTermLiabilities() || [];
+
+  const totalOutsidersLiabilities = Array.from({ length: years }).map(
+    (_, idx) =>
+      Number(totalAandB[idx] || 0) + Number(totalTermLiabilities[idx] || 0)
+  );
+
+  const shareCapital = BSextractors.shareCapital() || [];
+  const generalReserve = BSextractors.generalReserve() || [];
+  const subsidy = BSextractors.subsidy() || [];
+  const otherReserve = BSextractors.otherReserve() || [];
+  const reservesAndSurplusArr = BSextractors.reservesAndSurplusArr() || [];
+  const netWorth = BSextractors.netWorth() || [];
+
+  const totalLiabilities = Array.from({ length: years }).map(
+    (_, idx) =>
+      Number(totalOutsidersLiabilities[idx] || 0) + Number(netWorth[idx] || 0)
+  );
+
+  const closingCashBalanceArray = BSextractors.closingCashBalanceArray() || [];
+
+  const investments = BSextractors.investments() || [];
+  const fixedDeposits = BSextractors.fixedDeposits() || [];
+  const exportsIncludingBpBd = BSextractors.exportsIncludingBpBd() || [];
+  const exportReceivables = BSextractors.exportReceivables() || [];
+  const instalments = BSextractors.instalments() || [];
+  const rawMaterialInventory = BSextractors.rawMaterialInventory() || [];
+  const stockProcess = BSextractors.stockProcess() || [];
+  const inventoryArr = BSextractors.inventoryArr() || [];
+  const consumableSpares = BSextractors.consumableSpares() || [];
+  const advancesToSuppliers = BSextractors.advancesToSuppliers() || [];
+  const paymentOfTaxes = BSextractors.paymentOfTaxes() || [];
+  const otherCurrentAssetsTotal = BSextractors.otherCurrentAssetsTotal() || [];
+
+  console.log("share Capital", shareCapital);
   return (
     <Page size="A4" style={styles.page}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
@@ -488,7 +535,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Dividend Payable  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>6</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -516,7 +563,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Other Statutory Liabilities  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>6</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>7</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -547,7 +594,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Instalments of Term Loans  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>7</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>8</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -578,7 +625,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Other Current Liabilties & Provisions  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>8</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>9</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -597,7 +644,1013 @@ const CMAAnalysisOfBS = ({ formData }) => {
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(val)}
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* sub-total(B)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Sub - Total (B)
+                  </Text>
+
+                  {subTotalB.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Total Current Liabilities (A) + (B)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>10</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Current Liabilities (A) + (B)
+                  </Text>
+
+                  {totalAandB.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Term Liabilities  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Term Liabilities
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* Debentures (excluding not  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>11</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Debentures (excluding not maturing within one year)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(debentures[idx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Preference Shares ( excluding  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>12</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Preference Shares ( excluding Redeemable within one year)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(preferenceShares[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* term loans  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>13</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Term Loans (excluding Instalments payable within one year)
+                  </Text>
+
+                  {bankTermLoanArr.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Vehicle Loan (excluding Instalments  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>14</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Vehicle Loan (excluding Instalments payable within one year)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(vehicleLoan[idx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Deferred Tax Liability  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>15</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Deferred Tax Liability
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(deferredTaxLiability[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Other Term Liabilities (Q.E.)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>15</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Other Term Liabilities (Q.E.)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(otherTermLiabilities[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Total term Liabilities   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>10</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Term Liabilities (Total of 11 to 16)
+                  </Text>
+
+                  {totalTermLiabilities.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Total outsiders Liabilities   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>18</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Outsiders' Liabilities
+                  </Text>
+
+                  {totalOutsidersLiabilities.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Net Worth  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Net Worth
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* capital */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>19</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Share Capital
+                  </Text>
+
+                  {shareCapital.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* General Reserve  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>20</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    General Reserve
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(generalReserve[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Subsidy  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>21</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Subsidy
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(subsidy[idx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Other Reserve(excl. provisions)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>22</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Other Reserve(excl. provisions)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(otherReserve[idx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Surplus (+) or Deficit (-) in  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>23</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Surplus (+) or Deficit (-) in Profit and Loss account
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(reservesAndSurplusArr[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* net worth total 19 to 23   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>24</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Worth (Total of 19 to 23)
+                  </Text>
+
+                  {netWorth.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* total liabilities 18+24   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styles.Total]}>
+                    25
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                    ]}
+                  >
+                    Total Liabilities (18 + 24)
+                  </Text>
+
+                  {totalLiabilities.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*current assets  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Current Assets
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* Cash and Bank Balances  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>26</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Cash and Bank Balances
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(closingCashBalanceArray[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Investments (other than long term  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>27</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Investments (other than long term investments)
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* trustee securitees */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (I)Government and other Trustee Securities
+                  </Text>
+
+                  {investments.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* fixed deposits */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (II) Fixed Deposits with Banks
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(fixedDeposits[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* (I) Receivables other than deferred & */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>28</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (I)Receivables other than deferred & Exports including
+                    B.P./B.D. by Bank
+                  </Text>
+
+                  {yearLabels.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(
+                        formData,
+                        Number(exportsIncludingBpBd[idx]) || 0
+                      )}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* (II)Export Receivables */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (II)Export Receivables
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(exportReceivables[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Instalments of Deferred Receivables */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>29</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Instalments of Deferred Receivables due within one year
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(instalments[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* Inventory  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>30</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Inventory
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* (I) Raw Materials (incl.stores) */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (I) Raw Materials (incl.stores)
+                  </Text>
+
+                  {yearLabels.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, 
+                         Number(rawMaterialInventory[idx]) || 0
+                         )}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* (ii) Stocks in Process */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (II)Stocks in Process
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(stockProcess[idx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/*  (III)Finished Goods */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (III)Finished Goods
+                  </Text>
+
+                  {inventoryArr.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*  (IV) Other Consumable Spares */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (IV)Other Consumable Spares
+                  </Text>
+
+                  {consumableSpares.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Advances to suppliers of Raw materials & stores/spares */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>31</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Advances to suppliers of Raw materials & stores/spares
+                  </Text>
+
+                  {advancesToSuppliers.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                 {/* Advances Payment of Taxes */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>32</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Advances Payment of Taxes
+                  </Text>
+
+                  {paymentOfTaxes.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                 {/* Other Current Assets(Major Items to specify)   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styles.Total]}>
+                    33
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                   Other Current Assets(Major Items to specify)
+                  </Text>
+
+                  {otherCurrentAssetsTotal.map((val, idx) => (
+                    <Text
+                      key={idx}
+                       style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
                     </Text>
                   ))}
                 </View>
