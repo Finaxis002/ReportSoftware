@@ -35,47 +35,9 @@ const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 const CMAAnalysisOfBS = ({ formData }) => {
   // You can import these:
 
-  const schema = getCMASchema(formData);
+  
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
-  const grossSales = extractors.grossSales();
-  const dutiesTaxes = extractors.dutiesTaxes();
-  const netSales = extractors.netSales();
-  const depreciation = extractors.depreciation();
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
-  const directExpensesArray = extractors.directExpenses?.() || [];
-  const StockAdjustment = extractors.StockAdjustment();
-  const OpeningStockinProcess = extractors.OpeningStockinProcess();
-  const SubTotalCostofSales = extractors.SubTotalCostofSales();
-  const OpeningStock = extractors.openingStocks() || [];
-  const closingStocks = extractors.closingStocks() || [];
-  const TotalCostofSales = extractors.TotalCostofSales() || [];
-  const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
-  const interestOnWCArray = extractors.interestOnWCArray() || [];
-  const administrativeExpenseRows =
-    extractors.administrativeExpenseRows() || [];
-  const adminValues = administrativeExpenseRows[0]?.values || [];
-  const preliminaryWriteOffPerYear =
-    extractors.preliminaryWriteOffPerYear() || [];
-  const OperatingProfit = extractors.OperatingProfit() || [];
-  const ProfitbeforeTax = extractors.ProfitbeforeTax() || [];
-  const ProvisionforInvestmentAllowance =
-    extractors.ProvisionforInvestmentAllowance() || [];
-  const incomeTaxCal = extractors.incomeTaxCal() || [];
-  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
-
-  console.log("form Data : ", formData);
-
-  console.log("net Profit After Tax :", netProfitAfterTax);
-
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
-  );
-
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   const BSextractors = CMAExtractorBS(formData);
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
@@ -140,6 +102,27 @@ const CMAAnalysisOfBS = ({ formData }) => {
   const advancesToSuppliers = BSextractors.advancesToSuppliers() || [];
   const paymentOfTaxes = BSextractors.paymentOfTaxes() || [];
   const otherCurrentAssetsTotal = BSextractors.otherCurrentAssetsTotal() || [];
+  const totalCurrentAssets = BSextractors.totalCurrentAssets() || [];
+  const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
+  const isFixedAssetsZero = grossFixedAssetsPerYear.every(
+    (value) => value === 0
+  );
+  const totalDepreciation = BSextractors.totalDepreciation() || [];
+  const netBlock = BSextractors.netBlock() || [];
+  const invBookDebt = BSextractors.invBookDebt() || [];
+  const investmentsInGroup = BSextractors.investmentsInGroup() || [];
+  const deferredReceivables = BSextractors.deferredReceivables() || [];
+  const totalAssets = BSextractors.totalAssets() || [];
+  const netWorkingCapital = Array.from({ length: years }).map(
+    (_, i) => Number(totalCurrentAssets[i] || 0) - Number(totalAandB[i] || 0)
+  );
+  const currentRatio = Array.from({ length: years }).map(
+    (_, i) => Number(totalCurrentAssets[i] || 0) / Number(totalAandB[i] || 0)
+  );
+  const TOLDividedByTNW = Array.from({ length: years }).map(
+  (_, i) => (netWorth[i] === 0 ? 'NA' : Number(totalOutsidersLiabilities[i] || 0) / Number(netWorth[i]))
+);
+
 
   console.log("share Capital", shareCapital);
   return (
@@ -880,7 +863,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Other Term Liabilities (Q.E.)  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>15</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>16</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -911,7 +894,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Total term Liabilities   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>10</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>17</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1430,10 +1413,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(
-                          formData,
-                          Number(instalments[idx]) || 0
-                        )}
+                        {formatNumber(formData, Number(instalments[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1486,9 +1466,10 @@ const CMAAnalysisOfBS = ({ formData }) => {
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(formData, 
-                         Number(rawMaterialInventory[idx]) || 0
-                         )}
+                      {formatNumber(
+                        formData,
+                        Number(rawMaterialInventory[idx]) || 0
+                      )}
                     </Text>
                   ))}
                 </View>
@@ -1514,10 +1495,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(
-                          formData,
-                          Number(stockProcess[idx]) || 0
-                        )}
+                        {formatNumber(formData, Number(stockProcess[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1601,7 +1579,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                   ))}
                 </View>
 
-                 {/* Advances Payment of Taxes */}
+                {/* Advances Payment of Taxes */}
                 <View style={[styles.tableRow, styles.totalRow]}>
                   <Text style={stylesCOP.serialNoCellDetail}>32</Text>
                   <Text
@@ -1627,7 +1605,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                   ))}
                 </View>
 
-                 {/* Other Current Assets(Major Items to specify)   */}
+                {/* Other Current Assets(Major Items to specify)   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
                   <Text style={[stylesCOP.serialNoCellDetail, styles.Total]}>
                     33
@@ -1639,15 +1617,629 @@ const CMAAnalysisOfBS = ({ formData }) => {
                       styleExpenses.bordernone,
                     ]}
                   >
-                   Other Current Assets(Major Items to specify)
+                    Other Current Assets(Major Items to specify)
                   </Text>
 
                   {otherCurrentAssetsTotal.map((val, idx) => (
                     <Text
                       key={idx}
-                       style={[
+                      style={[
                         stylesCOP.particularsCellsDetail,
                         styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Total Current Assets   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styles.Total]}>
+                    34
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Current Assets
+                  </Text>
+
+                  {totalCurrentAssets.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Fixed Assets  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Fixed Assets
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/*  Gross Block */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>35</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Gross Block
+                  </Text>
+
+                  {grossFixedAssetsPerYear.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*  Depreciation to-date */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>36</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Depreciation to-date
+                  </Text>
+
+                  {totalDepreciation.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*  Net Block (35 - 36) Capital Work - in - Progress */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>37</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Block (35 - 36) Capital Work - in - Progress
+                  </Text>
+
+                  {netBlock.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Other Non-Current Assets  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Other Non-Current Assets
+                  </Text>
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      ></Text>
+                    );
+                  })}
+                </View>
+
+                {/* Inv./Book debt/Advances/Deposits which are non C.A.  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>38</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Inv./Book debt/Advances/Deposits which are non C.A.
+                  </Text>
+
+                  {invBookDebt.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*(a) Investment in group Cos.  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>(i)</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (a) Investment in group Cos.
+                  </Text>
+
+                  {investmentsInGroup.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*(b) Others  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (b) Others
+                  </Text>
+
+                  {investments.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Advances to supplier to Capital Goods & Contractors  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>(ii)</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Advances to supplier to Capital Goods & Contractors
+                  </Text>
+
+                  {capitalGoods.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Deferred Receivables (Maturing exceeding one year)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>(iii)</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Deferred Receivables (Maturing exceeding one year)
+                  </Text>
+
+                  {deferredReceivables.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Others  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>(iv)</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Others
+                  </Text>
+
+                  {deferredReceivables.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Non consumable stores/spares  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>39</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Non consumable stores/spares
+                  </Text>
+
+                  {deferredReceivables.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Other non current assets incl. Dues from Directors  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>40</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Other non current assets incl. Dues from Directors
+                  </Text>
+
+                  {deferredReceivables.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Total Other Non Current Assets (Total of 38 to 40)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>41</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Other Non Current Assets (Total of 38 to 40)
+                  </Text>
+
+                  {investments.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/*Intangible Assets (Patents, Goodwill,Preliminary Expenses not written off,etc.)  */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>42</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Intangible Assets (Patents, Goodwill,Preliminary Expenses
+                    not written off,etc.)
+                  </Text>
+
+                  {deferredReceivables.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Total Assets(Total of 34, 37, 41 & 42) */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Assets (Total of 34, 37, 41 & 42)
+                  </Text>
+
+                  {totalAssets.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Tangible Net Worth   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>43</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Tangible Net Worth
+                  </Text>
+
+                  {netWorth.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Net Working Capital (CA-CL)   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>44</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Working Capital (CA-CL)
+                  </Text>
+
+                  {netWorkingCapital.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* current ratio   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>45</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Current Ratio
+                  </Text>
+
+                  {currentRatio.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Total outside Liabilities/Tangible Net Worth (TOL/TNW)   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>46</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total outside Liabilities/Tangible Net Worth (TOL/TNW)
+                  </Text>
+
+                  {TOLDividedByTNW.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                 {/* Total Outside Liab./Net Worth   */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>47</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Outside Liab./Net Worth
+                  </Text>
+
+                  {TOLDividedByTNW.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        {
+                          borderLeftWidth: "0px",
+                          borderBottomWidth: 0,
+                        },
                       ]}
                     >
                       {formatNumber(formData, val)}
