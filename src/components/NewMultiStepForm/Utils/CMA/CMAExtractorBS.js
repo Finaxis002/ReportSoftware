@@ -122,8 +122,34 @@ const otherCurrentAssetsTotal = Array.from({ length: years }).map((_, yearIdx) =
   )
 );
 
-  console.log(" closing Cash Balance Array", closingCashBalanceArray);
-  console.log("share Capital", shareCapital);
+const totalCurrentAssets = Array.from({length: years}).map((_, i )=>
+  Number(closingCashBalanceArray[i] || 0)+
+  Number(investments[i] || 0)+
+  Number(inventoryArr(formData)[i] || 0)+
+  Number(otherCurrentAssetsTotal[i] || 0)
+)
+
+const grossFixedAssetsPerYear = formData?.computedData?.grossFixedAssetsPerYear || [];
+const totalDepreciation = formData?.computedData?.totalDepreciation || [];
+
+const netBlock = Array.from({length : years}).map((_ , i )=>
+  Number(grossFixedAssetsPerYear[i] || 0) -
+  Number(totalDepreciation[i] || 0) 
+)
+
+const totalAssets = Array.from({length: years}).map((_, i)=>
+Number(totalCurrentAssets[i] || 0)+
+Number(netBlock[i] || 0)+
+Number(investments[i] || 0)
+)
+
+
+
+console.log("investments", investments);
+console.log("inventoryArr", inventoryArr(formData));
+console.log("other Current Assets Total", otherCurrentAssetsTotal);
+console.log(" total Current Assets", totalCurrentAssets);
+  
 
   return {
     workingCapitalLoanArr: () => workingCapitalLoanArr,
@@ -163,5 +189,13 @@ const otherCurrentAssetsTotal = Array.from({ length: years }).map((_, yearIdx) =
     advancesToSuppliers: () =>  Array(years).fill(0),
     paymentOfTaxes: () =>  Array(years).fill(0),
     otherCurrentAssetsTotal: () => otherCurrentAssetsTotal,
+    totalCurrentAssets: () => totalCurrentAssets,
+    grossFixedAssetsPerYear: ()=>grossFixedAssetsPerYear,
+    totalDepreciation: ()=>totalDepreciation,
+    netBlock: ()=> netBlock,
+    invBookDebt: () => Array(years).fill(0),
+    investmentsInGroup: ()=> Array(years).fill(0),
+    deferredReceivables: ()=> Array(years).fill(0),
+    totalAssets: ()=> totalAssets,
   };
 };
