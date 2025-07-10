@@ -60,7 +60,7 @@ const IntroPage = ({ userRole }) => {
     for (const sec of SECTIONS) {
       try {
         const res = await axios.post(
-          "https://reportsbe.sharda.co.in/api/openai/generate-section",
+          "http://localhost:5000/api/openai/generate-section",
           {
             section: sec.key,
             businessName: businessData?.AccountInformation?.businessName || "",

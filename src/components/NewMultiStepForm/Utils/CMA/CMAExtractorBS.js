@@ -88,69 +88,67 @@ export const CMAExtractorBS = (formData) => {
       Number(shareCapital[idx] || 0) + Number(reservesAndSurplusArr[idx] || 0)
   );
 
-  const closingCashBalanceArray = Array.from({length: years}).map((_, i) =>
-  Number(formData?.computedData?.closingCashBalanceArray?.[i] || 0 )
-)
-
-const investments = Array.from({length: years}).map((_, i)=>
-  Number(formData?.MoreDetails?.currentAssets?.Investments?.[i] || 0)
-)
-
-// Utility to safely get inventory/closing stock array
- const inventoryArr = (formData) => {
-  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  return Array.from({ length: years }).map((_, idx) =>
-    Number(formData?.MoreDetails?.ClosingStock?.[idx]) || 0
+  const closingCashBalanceArray = Array.from({ length: years }).map((_, i) =>
+    Number(formData?.computedData?.closingCashBalanceArray?.[i] || 0)
   );
-};
-const currentAssetsArr = formData?.MoreDetails?.currentAssets || [];
-const excludedAssetNames = [
-  "Sources",
-  "Investments",
-  "Trade Receivables / Sundry Debtors",
-];
 
-// Filter out all excluded particulars
-const includedAssets = currentAssetsArr.filter(
-  (item) => !excludedAssetNames.includes(item.particular)
-);
-// Year-wise sum across all included assets
-const otherCurrentAssetsTotal = Array.from({ length: years }).map((_, yearIdx) =>
-  includedAssets.reduce(
-    (sum, asset) => sum + Number(asset.years?.[yearIdx] || 0),
-    0
-  )
-);
+  const investments = Array.from({ length: years }).map((_, i) =>
+    Number(formData?.MoreDetails?.currentAssets?.Investments?.[i] || 0)
+  );
 
-const totalCurrentAssets = Array.from({length: years}).map((_, i )=>
-  Number(closingCashBalanceArray[i] || 0)+
-  Number(investments[i] || 0)+
-  Number(inventoryArr(formData)[i] || 0)+
-  Number(otherCurrentAssetsTotal[i] || 0)
-)
+  // Utility to safely get inventory/closing stock array
+  const inventoryArr = (formData) => {
+    const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
+    return Array.from({ length: years }).map(
+      (_, idx) => Number(formData?.MoreDetails?.ClosingStock?.[idx]) || 0
+    );
+  };
+  const currentAssetsArr = formData?.MoreDetails?.currentAssets || [];
+  const excludedAssetNames = [
+    "Sources",
+    "Investments",
+    "Trade Receivables / Sundry Debtors",
+  ];
 
-const grossFixedAssetsPerYear = formData?.computedData?.grossFixedAssetsPerYear || [];
-const totalDepreciation = formData?.computedData?.totalDepreciation || [];
+  // Filter out all excluded particulars
+  const includedAssets = currentAssetsArr.filter(
+    (item) => !excludedAssetNames.includes(item.particular)
+  );
+  // Year-wise sum across all included assets
+  const otherCurrentAssetsTotal = Array.from({ length: years }).map(
+    (_, yearIdx) =>
+      includedAssets.reduce(
+        (sum, asset) => sum + Number(asset.years?.[yearIdx] || 0),
+        0
+      )
+  );
 
-const netBlock = Array.from({length : years}).map((_ , i )=>
-  Number(grossFixedAssetsPerYear[i] || 0) -
-  Number(totalDepreciation[i] || 0) 
-)
+  const totalCurrentAssets = Array.from({ length: years }).map(
+    (_, i) =>
+      Number(closingCashBalanceArray[i] || 0) +
+      Number(investments[i] || 0) +
+      Number(inventoryArr(formData)[i] || 0) +
+      Number(otherCurrentAssetsTotal[i] || 0)
+  );
 
-const totalAssets = Array.from({length: years}).map((_, i)=>
-Number(totalCurrentAssets[i] || 0)+
-Number(netBlock[i] || 0)+
-Number(investments[i] || 0)
-)
+  const grossFixedAssetsPerYear =
+    formData?.computedData?.grossFixedAssetsPerYear || [];
+  const totalDepreciation = formData?.computedData?.totalDepreciation || [];
 
+  const netBlock = Array.from({ length: years }).map(
+    (_, i) =>
+      Number(grossFixedAssetsPerYear[i] || 0) -
+      Number(totalDepreciation[i] || 0)
+  );
 
+  const totalAssets = Array.from({ length: years }).map(
+    (_, i) =>
+      Number(totalCurrentAssets[i] || 0) +
+      Number(netBlock[i] || 0) +
+      Number(investments[i] || 0)
+  );
 
-console.log("investments", investments);
-console.log("inventoryArr", inventoryArr(formData));
-console.log("other Current Assets Total", otherCurrentAssetsTotal);
-console.log(" total Current Assets", totalCurrentAssets);
   
-
   return {
     workingCapitalLoanArr: () => workingCapitalLoanArr,
     fromOtherBanks: () => Array(years).fill(0),
@@ -176,26 +174,26 @@ console.log(" total Current Assets", totalCurrentAssets);
     otherReserve: () => Array(years).fill(0),
     reservesAndSurplusArr: () => reservesAndSurplusArr,
     netWorth: () => netWorth,
-    closingCashBalanceArray: ()=>closingCashBalanceArray,
-    investments: ()=> investments,
-    fixedDeposits: () =>  Array(years).fill(0),
-    exportsIncludingBpBd: () =>  Array(years).fill(0),
-    exportReceivables: () =>  Array(years).fill(0),
-    instalments: () =>  Array(years).fill(0),
-    rawMaterialInventory: () =>  Array(years).fill(0),
-    stockProcess: () =>  Array(years).fill(0),
-    inventoryArr: ()=>inventoryArr(formData),
-    consumableSpares: () =>  Array(years).fill(0),
-    advancesToSuppliers: () =>  Array(years).fill(0),
-    paymentOfTaxes: () =>  Array(years).fill(0),
+    closingCashBalanceArray: () => closingCashBalanceArray,
+    investments: () => investments,
+    fixedDeposits: () => Array(years).fill(0),
+    exportsIncludingBpBd: () => Array(years).fill(0),
+    exportReceivables: () => Array(years).fill(0),
+    instalments: () => Array(years).fill(0),
+    rawMaterialInventory: () => Array(years).fill(0),
+    stockProcess: () => Array(years).fill(0),
+    inventoryArr: () => inventoryArr(formData),
+    consumableSpares: () => Array(years).fill(0),
+    advancesToSuppliers: () => Array(years).fill(0),
+    paymentOfTaxes: () => Array(years).fill(0),
     otherCurrentAssetsTotal: () => otherCurrentAssetsTotal,
     totalCurrentAssets: () => totalCurrentAssets,
-    grossFixedAssetsPerYear: ()=>grossFixedAssetsPerYear,
-    totalDepreciation: ()=>totalDepreciation,
-    netBlock: ()=> netBlock,
+    grossFixedAssetsPerYear: () => grossFixedAssetsPerYear,
+    totalDepreciation: () => totalDepreciation,
+    netBlock: () => netBlock,
     invBookDebt: () => Array(years).fill(0),
-    investmentsInGroup: ()=> Array(years).fill(0),
-    deferredReceivables: ()=> Array(years).fill(0),
-    totalAssets: ()=> totalAssets,
+    investmentsInGroup: () => Array(years).fill(0),
+    deferredReceivables: () => Array(years).fill(0),
+    totalAssets: () => totalAssets,
   };
 };
