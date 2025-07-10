@@ -256,7 +256,7 @@ export const makeCMAExtractors = (formData) => {
   );
   const ProvisionforInvestmentAllowance = Array(years).fill(0);
 
-  const incomeTaxCal = formData.computedData.incomeTaxCalculation.incomeTaxCalculation || [] ;
+  const incomeTaxCal = formData?.computedData?.incomeTaxCalculation?.incomeTaxCalculation || [] ;
   console.log("incomeTaxCalculation : ", incomeTaxCal)
 
  const netProfitAfterTax =  formData.computedData.computedData.netProfitAfterTax  || [] ;
