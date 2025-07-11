@@ -15,9 +15,9 @@ export const CMAExtractorFinPos = (formData) => {
   const currentAssets =
     formData?.computedData?.assetsliabilities?.CurrentAssetsArray || [];
 
-    const currentRatio = Array.from({length:years}).map((_,idx)=>(
-      Number(currentAssets(idx)) / Number(currentLiabilities(idx))
-    ))
+    // const currentRatio = Array.from({length:years}).map((_,idx)=>(
+    //   Number(currentAssets(idx)) / Number(currentLiabilities(idx))
+    // ))
 
   const middleData = Array.from({ length: years }).map(
     (_, idx) =>
@@ -35,6 +35,6 @@ export const CMAExtractorFinPos = (formData) => {
     netWorkingCapital: () => netWorkingCapital,
     grossProfit: ()=> grossProfit,
     fillZero:() => Array(years).fill(0),
-    currentRatio:()=>currentRatio,
+    // currentRatio:()=>currentRatio,
   };
 };
