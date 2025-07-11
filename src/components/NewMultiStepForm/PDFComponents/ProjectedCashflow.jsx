@@ -1504,6 +1504,7 @@ const ProjectedCashflow = ({
   pdfType,
   orientation,
   receivedtotalRevenueReceipts,
+  surplusDuringYear
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);

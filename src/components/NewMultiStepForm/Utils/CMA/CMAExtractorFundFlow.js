@@ -1,4 +1,12 @@
+import { calculateTotalSourcesAndUses } from './surplusDuringYear'; 
+
 export const CMAExtractorFundFlow = (formData) => {
+ 
+
+    const { totalSourcesArray, totalUsesArray, surplusDuringYear } =
+    calculateTotalSourcesAndUses(formData) || { totalSourcesArray: [], totalUsesArray: [], surplusDuringYear: [] };
+
+  console.log('surplusDuringYear:', surplusDuringYear); 
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const netProfitBeforeTax =
     formData?.computedData?.computedData?.netProfitBeforeTax || [];
@@ -91,7 +99,18 @@ const totalCurrentAssets = Array.from({ length: years }).map((_, yearIndex) =>
     0
   )
 );
+
+const SubTotalE = Array.from({length:years}).map((_, idx)=>(
+  Number(inventory[idx] || 0)+
+  Number(sundryDebitorsArr[idx] || 0)+
+  Number(totalCurrentAssets[idx] || 0)
+))
  
+const withdrawals = formData?.MoreDetails?.Withdrawals || 0 ;
+
+
+
+console.log('withdrawals', withdrawals)
 console.log('inventory', inventory)
 
   return {
@@ -109,5 +128,7 @@ console.log('inventory', inventory)
     inventory: ()=>inventory,
     sundryDebitorsArr: ()=> sundryDebitorsArr,
     totalCurrentAssets: ()=>totalCurrentAssets,
+    SubTotalE:()=>SubTotalE,
+    withdrawals: ()=>withdrawals,
   };
 };
