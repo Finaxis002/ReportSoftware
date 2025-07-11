@@ -118,13 +118,41 @@ const CMAFundFlow = ({ formData }) => {
       Number(subTotalC[idx] || 0)
   );
 
-  const firstYearGrossFixedAssets = FundFlowExtractor.firstYearGrossFixedAssets() || [];
+  const firstYearGrossFixedAssets =
+    FundFlowExtractor.firstYearGrossFixedAssets() || [];
   const repaymentOfTermLoan = FundFlowExtractor.repaymentOfTermLoan() || [];
   const subTotalD = FundFlowExtractor.subTotalD() || [];
   const inventory = FundFlowExtractor.inventory() || [];
   const sundryDebitorsArr = FundFlowExtractor.sundryDebitorsArr() || [];
   const totalCurrentAssets = FundFlowExtractor.totalCurrentAssets() || [];
+  const SubTotalE = FundFlowExtractor.SubTotalE() || [];
+  const withdrawals = FundFlowExtractor.withdrawals() || [];
+  const TOTALFUNDSUSED = Array.from({length:years}).map((_, idx)=>(
+   Number(subTotalD[idx] || 0 )+
+   Number(SubTotalE[idx] || 0 )+
+   Number(withdrawals[idx] || 0 )
+  ))
 
+  const longTermSources = Array.from({length:years}).map((_, idx)=>(
+  Number(netFundsGenerated[idx] || 0) +
+      Number(subtotalB[idx] || 0)
+  ))
+
+  const surplusShortfall = Array.from({length:years}).map((_, idx)=>(
+    Number(longTermSources[idx] || 0) -
+    Number(subTotalD[idx] || 0)
+  ))
+
+  const shortTermUses =  Array.from({length:years}).map((_, idx)=>(
+    Number(SubTotalE[idx] || 0) +
+    Number(withdrawals[idx] || 0)
+  ))
+
+  const surplusShortfall2 = Array.from({length:years}).map((_, idx)=>(
+    Number(subTotalC[idx] || 0) -
+    Number(shortTermUses[idx] || 0)
+  ))
+  
   return (
     <Page size="A4" style={styles.page}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
@@ -1012,7 +1040,7 @@ const CMAFundFlow = ({ formData }) => {
                 ))}
               </View>
 
-              {/* Cost of Sales header  */}
+              {/* Uses  */}
               <View style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[
@@ -1133,13 +1161,13 @@ const CMAFundFlow = ({ formData }) => {
                 })}
               </View>
 
-              {
-                ['Deferred payment liablities',
-                    'Decrease in unsecured loan',
-                    'Increase in inter-corp. invt. & advances',
-                    'Increase in other non-current assets'
-                ].map((label,idx)=>(
-                     <View
+              {[
+                "Deferred payment liablities",
+                "Decrease in unsecured loan",
+                "Increase in inter-corp. invt. & advances",
+                "Increase in other non-current assets",
+              ].map((label, idx) => (
+                <View
                   key={idx}
                   style={[
                     stylesMOF.row,
@@ -1179,10 +1207,9 @@ const CMAFundFlow = ({ formData }) => {
                     );
                   })}
                 </View>
-                ))
-              }
+              ))}
 
-               {/* Blank Row  */}
+              {/* Blank Row  */}
               <View
                 style={[
                   stylesMOF.row,
@@ -1223,7 +1250,7 @@ const CMAFundFlow = ({ formData }) => {
                 ))}
               </View>
 
-                {/* sub total D */}
+              {/* sub total D */}
               <View style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[stylesCOP.serialNoCellDetail, styles.Total]}
@@ -1257,7 +1284,7 @@ const CMAFundFlow = ({ formData }) => {
                 ))}
               </View>
 
-                {/* Blank Row  */}
+              {/* Blank Row  */}
               <View
                 style={[
                   stylesMOF.row,
@@ -1298,16 +1325,15 @@ const CMAFundFlow = ({ formData }) => {
                 ))}
               </View>
 
-
               {/* 'Decrease in short term borrowings',
                  'Decrease in bills purchased / discounted',
                  'Decrease in other current liabilities' */}
-            {
-                ['Decrease in short term borrowings',
-                 'Decrease in bills purchased / discounted',
-                 'Decrease in other current liabilities'
-                ].map((label, idx)=>(
-                    <View
+              {[
+                "Decrease in short term borrowings",
+                "Decrease in bills purchased / discounted",
+                "Decrease in other current liabilities",
+              ].map((label, idx) => (
+                <View
                   key={idx}
                   style={[
                     stylesMOF.row,
@@ -1347,10 +1373,9 @@ const CMAFundFlow = ({ formData }) => {
                     );
                   })}
                 </View>
-                ))
-            }
+              ))}
 
-            {/* Increase in inventory */}
+              {/* Increase in inventory */}
               <View
                 style={[
                   stylesMOF.row,
@@ -1373,7 +1398,7 @@ const CMAFundFlow = ({ formData }) => {
                     {},
                   ]}
                 >
-                 Increase in inventory
+                  Increase in inventory
                 </Text>
 
                 {yearLabels.map((label, idx) => {
@@ -1385,16 +1410,13 @@ const CMAFundFlow = ({ formData }) => {
                         styleExpenses.fontSmall,
                       ]}
                     >
-                      {formatNumber(
-                        formData,
-                        Number(inventory[idx]) || 0
-                      )}
+                      {formatNumber(formData, Number(inventory[idx]) || 0)}
                     </Text>
                   );
                 })}
               </View>
-            
-             {/* Increase in receivables */}
+
+              {/* Increase in receivables */}
               <View
                 style={[
                   stylesMOF.row,
@@ -1417,7 +1439,7 @@ const CMAFundFlow = ({ formData }) => {
                     {},
                   ]}
                 >
-                 Increase in receivables
+                  Increase in receivables
                 </Text>
 
                 {yearLabels.map((label, idx) => {
@@ -1461,7 +1483,7 @@ const CMAFundFlow = ({ formData }) => {
                     {},
                   ]}
                 >
-                 Increase in other current assets (Cash & CE)
+                  Increase in other current assets (Cash & CE)
                 </Text>
 
                 {yearLabels.map((label, idx) => {
@@ -1481,6 +1503,558 @@ const CMAFundFlow = ({ formData }) => {
                   );
                 })}
               </View>
+
+              {/* sub total E */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styles.Total]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                >
+                  Sub-total (E)
+                </Text>
+
+                {SubTotalE.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      {
+                        borderLeftWidth: "0px",
+                        borderBottomWidth: 0,
+                      },
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Blank Row  */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  {
+                    border: 0,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    {},
+                  ]}
+                ></Text>
+
+                {yearLabels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  ></Text>
+                ))}
+              </View>
+
+              {/*Withdrawals */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Withdrawals
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(withdrawals[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+               {[
+                "Less: Depreciation",
+                "Balance i.e. Gross funds lost (-)",
+                "or Gross funds generated (+)",
+              ].map((label, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    stylesMOF.row,
+                    styles.tableRow,
+                    { borderBottomWidth: "0px" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    {label}
+                  </Text>
+
+                  {yearLabels.map((label, idx) => {
+                    return (
+                      <Text
+                        key={idx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(fillZero[idx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              ))}
+
+                {/* Net funds lost - Sub-total (F) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styles.Total]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                >
+                 Net funds lost - Sub-total (F)
+                </Text>
+
+                {withdrawals.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      {
+                        borderLeftWidth: "0px",
+                        borderBottomWidth: 0,
+                      },
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+               {/* Blank Row  */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  {
+                    border: 0,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    {},
+                  ]}
+                ></Text>
+
+                {yearLabels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  ></Text>
+                ))}
+              </View>
+
+                {/*TOTAL FUNDS USED (D+E+F) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styles.Total]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                >
+                 TOTAL FUNDS USED (D+E+F)
+                </Text>
+
+                {TOTALFUNDSUSED.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      {
+                        borderLeftWidth: "0px",
+                        borderBottomWidth: 0,
+                      },
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Summary: */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Summary:
+                </Text>
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    ></Text>
+                  );
+                })}
+              </View>
+
+               {/*Long term sources */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Long term sources
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(longTermSources[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+               {/*Long term uses */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >Less:</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Long term uses
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(subTotalD[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+               {/* Surplus (+) / Shortfall (-) */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Surplus (+) / Shortfall (-)
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(surplusShortfall[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+                {/* Short term sources */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Short term sources
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(subTotalC[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+               {/* Short term uses */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >Less:</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Short term uses
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(shortTermUses[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+               {/* Surplus (+) / Shortfall (-) */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Surplus (+) / Shortfall (-)
+                </Text>
+
+                {yearLabels.map((label, idx) => {
+                  return (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, Number(surplusShortfall2[idx]) || 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
             </View>
           </View>
         </View>

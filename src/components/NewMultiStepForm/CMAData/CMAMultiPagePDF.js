@@ -3,6 +3,7 @@ import { Document, Page } from "@react-pdf/renderer";
 import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
 import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
 import CMAFundFlow from "./CMAFundFlow";
+import CMAFinancialPosition from './CMAFinancialPosition';
 
 const CMAMultiPagePDF = ({formData}) => {
 
@@ -47,7 +48,7 @@ return (
     <CMAOperatingStatementPDF formData={formData} />
     <CMAAnalysisOfBS formData={formData} />
     <CMAFundFlow formData={formData} />
-    
+    <CMAFinancialPosition formData={formData}/>
   </Document>
 )
 };
