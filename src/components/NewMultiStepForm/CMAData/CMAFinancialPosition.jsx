@@ -40,30 +40,20 @@ const CMAFinancialPosition = ({ formData }) => {
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
-  const grossSales = extractors.grossSales();
-  const dutiesTaxes = extractors.dutiesTaxes();
-  const netSales = extractors.netSales();
+  
   const depreciation = extractors.depreciation();
-  const salaryandwages = extractors.salary();
+  
   const rawmaterial = extractors.rawMaterial();
   const directExpensesArray = extractors.directExpenses?.() || [];
-  const StockAdjustment = extractors.StockAdjustment();
-  const OpeningStockinProcess = extractors.OpeningStockinProcess();
-  const SubTotalCostofSales = extractors.SubTotalCostofSales();
-  const OpeningStock = extractors.openingStocks() || [];
-  const closingStocks = extractors.closingStocks() || [];
-  const TotalCostofSales = extractors.TotalCostofSales() || [];
+ 
   const GrossProfit = extractors.GrossProfit() || [];
   const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
   const interestOnWCArray = extractors.interestOnWCArray() || [];
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
-  const adminValues = administrativeExpenseRows[0]?.values || [];
+ 
 
-  const OperatingProfit = extractors.OperatingProfit() || [];
-  const ProfitbeforeTax = extractors.ProfitbeforeTax() || [];
-  const ProvisionforInvestmentAllowance =
-    extractors.ProvisionforInvestmentAllowance() || [];
+ 
 
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
@@ -71,12 +61,10 @@ const CMAFinancialPosition = ({ formData }) => {
 
   console.log("net Profit After Tax :", netProfitAfterTax);
 
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
-  );
+ 
 
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
+  
 
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
@@ -164,7 +152,29 @@ const CMAFinancialPosition = ({ formData }) => {
   if (wdraw === 0 || npat === 0) return 0;
   return (wdraw / npat) * 100;
 });
-// const currentRatio = FinPosextractors.currentRatio() || [];
+const currentRatioArr = FinPosextractors.currentRatioArr() || [];
+const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
+const debtEquityArr = FinPosextractors.debtEquityArr() || [];
+const totalOutsideLiabilitiesNetWorthRatio = FinPosextractors.totalOutsideLiabilitiesNetWorthRatio() || [];
+const grossProfitDivNetWorthRatio= FinPosextractors.grossProfitDivNetWorthRatio() || [];
+const netProfitDivNetWorthRatioArr= FinPosextractors.netProfitDivNetWorthRatioArr() || [];
+
+const termLaonplusWorkingCap =  Array.from({ length: years }).map((_, idx) => 
+   Number(interestOnTermLoan[idx] || 0)+
+   Number(interestOnWCArray[idx] || 0)
+)
+const grossReceiptMinusProfit = Array.from({ length: years }).map((_, idx) => 
+   Number(totalRevenueReceipt[idx] || 0)-
+   Number(grossProfit[idx] || 0)
+)
+
+const interestDivCOP =  Array.from({ length: years }).map((_, idx) => 
+ (Number(termLaonplusWorkingCap[idx] || 0)/
+ Number(grossReceiptMinusProfit[idx] || 0))*100
+)
+
+const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
+
 
   return (
     <Page size="A4" style={styles.page}>
@@ -381,7 +391,7 @@ const CMAFinancialPosition = ({ formData }) => {
                   Gross Receipts
                 </Text>
 
-                {GrossProfit.map((val, idx) => (
+                {totalRevenueReceipt.map((val, idx) => (
                   <Text
                     key={idx}
                     style={[
@@ -951,6 +961,293 @@ const CMAFinancialPosition = ({ formData }) => {
                     ></Text>
                   );
                 })}
+              </View>
+
+               {/*Current Ratio*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  1
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Current Ratio
+                </Text>
+
+                {currentRatioArr.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+               {/*Debt-Equity Ratio*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  2
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Debt-Equity Ratio
+                </Text>
+
+                {debtEquityArr.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+               {/*TOL/TWN*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  3
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Funded Debt: Net worth (TOL/TNW)
+                </Text>
+
+                {totalOutsideLiabilitiesNetWorthRatio.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(formData, val)}
+                  </Text>
+                ))}
+              </View>
+
+               {/*Gross Profit / Net worth*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  4
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Gross Profit / Net worth
+                </Text>
+
+                {grossProfitDivNetWorthRatio.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                   { formatNumber(formData, val)}%
+                  </Text>
+                ))}
+              </View>
+
+               {/*Gross Profit / Net worth*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  5
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Net Profit / Net worth
+                </Text>
+
+                {netProfitDivNetWorthRatioArr.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                   { formatNumber(formData, val)}%
+                  </Text>
+                ))}
+              </View>
+
+                {/*intrest  / cop*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  6
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Interest / Cost of production
+                </Text>
+
+                {interestDivCOP.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                   { formatNumber(formData, val)}%
+                  </Text>
+                ))}
+              </View>
+
+                {/*dscr*/}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  7
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                 Debt Service Coverage Ratio
+                </Text>
+
+                {dscr.map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                   { formatNumber(formData, val)}%
+                  </Text>
+                ))}
               </View>
             </View>
           </View>

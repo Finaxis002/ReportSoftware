@@ -261,11 +261,16 @@ const RatioAnalysis = ({
     }
   );
 
+  console.log('net Worth', netWorth)
+  console.log('total DebtArray', totalDebtArray)
   // ✅ Total Outside Liabilities / Total Net Worth Ratio
   // Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
   const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map(
     (liability, index) => {
+      
       const worth = netWorth[index] || 1; // Prevent division by zero
+      console.log('liability', liability)
+      console.log('worth',worth)
       return (liability / worth).toFixed(2); // Round to 2 decimal places
     }
   );
