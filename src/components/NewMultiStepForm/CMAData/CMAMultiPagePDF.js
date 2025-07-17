@@ -7,6 +7,8 @@ import CMAFundFlow from "./CMAFundFlow";
 import CMAFinancialPosition from './CMAFinancialPosition';
 import ProjectedProfitability from '../PDFComponents/ProjectedProfitability'
 import CMAProfitability10perreduce from './CMAProfitability10perreduce'
+import CMAProfitabiltyExpenseInc from './CMAProfitabiltyExpenseInc'
+import CMASAExpense from './CMASAExpense'
 const CMAMultiPagePDF = ({formData}) => {
 
 //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
@@ -91,6 +93,8 @@ return (
     <CMAProfitability10perreduce 
     handleDataSend={handleDataSend}
     formData={formData} totalRevenueReceipts={reducedRevenueReceipts} formatNumber={formatNumber} />
+    <CMAProfitabiltyExpenseInc formData={formData} formatNumber={formatNumber}/>
+    <CMASAExpense formData={formData} formatNumber={formatNumber}/>
   </Document>
 )
 };

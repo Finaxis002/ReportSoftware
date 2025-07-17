@@ -50,6 +50,8 @@ const ProjectedProfitability = ({
   pdfType,
   orientation,
 }) => {
+
+  console.log(' receivedtotalRevenueReceipts',  receivedtotalRevenueReceipts)
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
       //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
