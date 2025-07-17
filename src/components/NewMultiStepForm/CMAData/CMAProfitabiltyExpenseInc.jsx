@@ -14,6 +14,7 @@ import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
+
 import { ppid } from "process";
 
 // ✅ Register a Font That Supports Bold
@@ -40,23 +41,11 @@ const num = (v) => {
   return Number(v) || 0;
 };
 
-const CMAProjectedProfitability = ({
+const CMAProfitabiltyExpenseInc = ({
   formData,
-  localData,
-  normalExpense,
   directExpense,
-  totalDepreciationPerYear,
-  onComputedData,
-  yearlyInterestLiabilities,
-  setInterestOnWorkingCapital, // ✅ Receiving Setter Function from Parent
-  totalRevenueReceipts,
-  fringAndAnnualCalculation,
-  financialYearLabels,
-  handleDataSend,
-  handleIncomeTaxDataSend,
   formatNumber,
   receivedtotalRevenueReceipts,
-  onComputedDataToProfit,
   pdfType,
   orientation,
 }) => {
@@ -120,8 +109,7 @@ const CMAProjectedProfitability = ({
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
-  const rateOfExpense =
-    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
+ 
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -144,13 +132,7 @@ const CMAProjectedProfitability = ({
     }
     return monthsArray;
   };
-  const monthsPerYear = calculateMonthsPerYear();
-
-  const isZeroValue = (val) => {
-    const num = Number(val);
-    return !num || num === 0; // covers 0, null, undefined, NaN, ""
-  };
-
+  
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
   );
@@ -188,11 +170,6 @@ const CMAProjectedProfitability = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  console.log("Preliminary Write-Off Per Year:", preliminaryWriteOffPerYear);
-  console.log(
-    "Is Preliminary Write-Off All Zero:",
-    isPreliminaryWriteOffAllZero
-  );
 
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
@@ -203,7 +180,7 @@ const CMAProjectedProfitability = ({
   const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
   const ClosingStock = PPExtractor.ClosingStock() || [];
   const OpeningStock = PPExtractor.OpeningStock() || [];
-  const adjustedRevenueValues = PPExtractor.adjustedRevenueValues() || [];
+  const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
   const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
@@ -226,6 +203,7 @@ const CMAProjectedProfitability = ({
   console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
+
 
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
@@ -275,8 +253,25 @@ const CMAProjectedProfitability = ({
   const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
   // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
   // const cashProfit = PPExtractor.cashProfit() || [];
-  const grossProfit = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(newRevenueReceipt[i]) - Number(totalDirectExpenses[i])
+  
+
+  
+//expense increased by 10 %- new data
+   const totalExpenseWithoutRM = Array.from({length:projectionYears}).map((_,i)=>
+           Number(totalDirectExpenses[i] || 0) - 
+           Number(rawmaterial[i] || 0)
+    )
+  //expense increase by 10%
+  const increaseValueExpense = Array.from({length:projectionYears}).map((_, i)=>
+   Number(totalExpenseWithoutRM[i] * 0.1)
+)
+
+const increasedExpenseTotal = Array.from({length:projectionYears}).map((_, i)=>
+ Number(totalDirectExpenses[i] || 0) +
+ Number(increaseValueExpense[i] || 0) 
+)
+const grossProfit = Array.from({ length: projectionYears }).map(
+    (_, i) => Number(OriginalRevenueValues[i]) - Number(increasedExpenseTotal[i])
   );
 
   const NPBT = Array.from({ length: projectionYears }).map(
@@ -538,125 +533,7 @@ const CMAProjectedProfitability = ({
               ))}
             </View>
 
-            {/* ✅ Display 10% of Total Revenue Receipt Row */}
-            <View
-              style={[
-                stylesMOF.row,
-                styles.tableRow,
-                {
-                  border: 0,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              ></Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >
-                Less: Revenue reduced by 10%
-              </Text>
-
-              {/* ✅ Display revenue values based on projectionYears */}
-              {/* {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                !hideFirstYear || yearIndex !== 0 ? (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      stylesCOP.boldText,
-                      styleExpenses.fontSmall,
-                      styles.Total,
-                      { borderLeftWidth: "0px" },
-                    ]}
-                  >
-                    {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
-                  </Text>
-                ) : null
-              )} */}
-              {value10reduceRevenueReceipt.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
-            </View>
-
-            {/* new revenue reduced by 10% */}
-            <View
-              style={[
-                stylesMOF.row,
-                styles.tableRow,
-                styles.Total,
-                {
-                  border: 0,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  styles.Total,
-                ]}
-              ></Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  styles.Total,
-                  {},
-                ]}
-              ></Text>
-
-              {/* ✅ Display revenue values based on projectionYears */}
-              {/* {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                !hideFirstYear || yearIndex !== 0 ? (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      stylesCOP.boldText,
-                      styleExpenses.fontSmall,
-                      styles.Total,
-                      { borderLeftWidth: "0px" },
-                    ]}
-                  >
-                    {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
-                  </Text>
-                ) : null
-              )} */}
-              {newRevenueReceipt.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    stylesCOP.boldText,
-                    styleExpenses.fontSmall,
-                    styles.Total,
-                    { borderLeftWidth: "0px" },
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
-            </View>
+           
 
             {/* Closing Stock / Inventory */}
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -791,25 +668,8 @@ const CMAProjectedProfitability = ({
               ></Text>
 
               {/* ✅ Display Computed Adjusted Revenue Values */}
-              {/* {adjustedRevenueValues.map(
-                (finalValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
-                    <Text
-                      key={`finalValue-${yearIndex}`}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        stylesCOP.boldText,
-                        styleExpenses.fontSmall,
-                        {
-                          borderLeftWidth: "0px",
-                        },
-                      ]}
-                    >
-                      {formatNumber(finalValue)}
-                    </Text>
-                  )
-              )} */}
-              {adjustedRevenueValues.map((val, idx) => (
+             
+              { OriginalRevenueValues.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -862,7 +722,7 @@ const CMAProjectedProfitability = ({
 
             {/* b Salaries & Wages  */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>b</Text>
+              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -887,10 +747,11 @@ const CMAProjectedProfitability = ({
                 );
               })}
             </View>
+
             {/* c raw material  */}
             {rawmaterial.some((val) => Number(val) !== 0) && (
               <View style={[styles.tableRow, styles.totalRow]}>
-                <Text style={stylesCOP.serialNoCellDetail}>c</Text>
+                <Text style={stylesCOP.serialNoCellDetail}>2</Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -925,9 +786,7 @@ const CMAProjectedProfitability = ({
                 style={[styles.tableRow, styles.totalRow]}
               >
                 <Text style={stylesCOP.serialNoCellDetail}>
-                  {
-                    directExpenseStartSerial + idx
-                  }
+                    {directExpenseStartSerial + idx}
                   {/* This gives 'd', 'e', 'f', ... OR 'c', 'd', ... */}
                 </Text>
                 <Text
@@ -1037,6 +896,105 @@ const CMAProjectedProfitability = ({
               ))}
             </View>
 
+            {/* Add: Expenses increased by 10%  */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Add: Expenses increased by 10%
+              </Text>
+
+              {yearLabels.map((label, idx) => {
+                return (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(increaseValueExpense[idx] || 0)}
+                  </Text>
+                );
+              })}
+            </View>
+
+             {/*  Expenses total increased by 10%  */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+               
+              </Text>
+
+              {yearLabels.map((label, idx) => {
+                return (
+                  <Text
+                    key={idx}
+                     style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(increasedExpenseTotal[idx] || 0)}
+                  </Text>
+                );
+              })}
+            </View>
+
+              {/* Blank Row  */}
+            <View
+              style={[
+                stylesMOF.row,
+                styles.tableRow,
+                styles.Total,
+                {
+                  border: 0,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                ]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                  {},
+                ]}
+              ></Text>
+
+              {yearLabels.map((label, idx) => (
+                <Text
+                  key={label || idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { paddingVertical: "5px" },
+                  ]}
+                ></Text>
+              ))}
+            </View>
             {/* Gross Profit Calculation */}
             <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
               <Text
@@ -1210,7 +1168,7 @@ const CMAProjectedProfitability = ({
                 style={[styles.tableRow, styles.totalRow]}
               >
                 <Text style={stylesCOP.serialNoCellDetail}>
-                  {/* This gives 'd', 'e', 'f', ... OR 'c', 'd', ... */}4
+                  {3 + idx + 1}
                 </Text>
                 <Text
                   style={[
@@ -1243,7 +1201,7 @@ const CMAProjectedProfitability = ({
             {/* preliminary expense */}
             {!isPreliminaryWriteOffAllZero && (
               <View style={[styles.tableRow, styles.totalRow]}>
-                <Text style={stylesCOP.serialNoCellDetail}>4</Text>
+                <Text style={stylesCOP.serialNoCellDetail}></Text>
 
                 <Text
                   style={[
@@ -1796,4 +1754,4 @@ const CMAProjectedProfitability = ({
   );
 };
 
-export default React.memo(CMAProjectedProfitability);
+export default React.memo(CMAProfitabiltyExpenseInc);

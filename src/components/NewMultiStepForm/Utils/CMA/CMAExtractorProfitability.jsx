@@ -66,6 +66,7 @@ export const CMAExtractorProfitability = (formData) => {
 
 
   const grossProfit = formData?.computedData?.computedData?.grossProfitValues || [];
+ 
   const interestOnTermLoan = formData?.computedData?.yearlyInterestLiabilities || [];
 
 const interestOnWC = calculateInterestOnWorkingCapital(
@@ -93,6 +94,14 @@ const cumulativeBalanceTransferred = formData?.computedData?.receivedData?.cumul
 
 const cashProfit = formData?.computedData?.computedData?.cashProfitArray || [];
 
+//expense increase by 10% 
+ const OriginalRevenueValues = Array.from({length: projectionYears}).map((_, i)=>
+    Number(totalRevenueReceipt[i] || 0 )+
+    Number(ClosingStock[i] || 0) -
+    Number(OpeningStock[i] || 0)
+)
+
+
 
 
     return{
@@ -112,6 +121,8 @@ const cashProfit = formData?.computedData?.computedData?.cashProfitArray || [];
         balanceTrfBalncSheet:()=>balanceTrfBalncSheet,
         cumulativeBalanceTransferred:()=>cumulativeBalanceTransferred,
         cashProfit:()=>cashProfit,
+        // expense reduced by 10%
+        OriginalRevenueValues:()=>OriginalRevenueValues
     }
 }
 
