@@ -1,24 +1,14 @@
-// import {configureStore} from '@reduxjs/toolkit';
-// import todoRducer from '../slice/todoSlice';
-// import filterReducer from '../slice/filterSlice';
+let count = 1 ;
 
-// const store = configureStore({
-//   reducer:{
-//     todos: todoRducer,
-//     filters: filterReducer
-//   },
-// })
+function displayCount(){
+
+  for( i = 0 ; i < count ; i++){                   
+        console.log(1 + i)
+        i++ ;
+  }
+ 
 
 
-// import { createSlice } from '@reduxjs/toolkit';
-// const todoSlice = {
-//   name: 'todos',
-//   initialState: [],
-//   reducer:{
-//     addTodo:{
-
-//     }
-//   }
-  
-
-// }
+}
+displayCount()
+displayCount()

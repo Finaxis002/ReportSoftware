@@ -1113,7 +1113,7 @@ const CMAProjectedProfitability = ({
             </View>
 
             {/* Interest on Term Loan */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[ styles.tableRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>1</Text>
               <Text
                 style={[
@@ -1140,7 +1140,7 @@ const CMAProjectedProfitability = ({
             </View>
 
             {/* Interest on working capital */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[ styles.tableRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>2</Text>
               <Text
                 style={[
@@ -1167,7 +1167,7 @@ const CMAProjectedProfitability = ({
             </View>
 
             {/* depreciation */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,

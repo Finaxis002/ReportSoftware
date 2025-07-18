@@ -533,8 +533,6 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               ))}
             </View>
 
-           
-
             {/* Closing Stock / Inventory */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
@@ -558,26 +556,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 Add: Closing Stock / Inventory
               </Text>
 
-              {/* {Array.from({
-                length:
-                  parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-              }).map(
-                (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
-                    <Text
-                      key={`ClosingStock-${index}`}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        { paddingVertical: "10px" },
-                      ]}
-                    >
-                      {formatNumber(
-                        formData.MoreDetails.ClosingStock?.[index] ?? 0
-                      )}
-                    </Text>
-                  )
-              )} */}
+            
               {ClosingStock.map((val, idx) => (
                 <Text
                   key={idx}
@@ -995,6 +974,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 ></Text>
               ))}
             </View>
+
             {/* Gross Profit Calculation */}
             <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
               <Text
@@ -1071,7 +1051,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
             </View>
 
             {/* Interest on Term Loan */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[styles.tableRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>1</Text>
               <Text
                 style={[
@@ -1098,7 +1078,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
             </View>
 
             {/* Interest on working capital */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[styles.tableRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>2</Text>
               <Text
                 style={[
@@ -1125,7 +1105,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
             </View>
 
             {/* depreciation */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+            <View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -1425,53 +1405,6 @@ const grossProfit = Array.from({ length: projectionYears }).map(
             </View>
 
             {/* Withdrawals during the year  */}
-
-            {/* {Array.from({
-              length: hideFirstYear ? projectionYears - 1 : projectionYears,
-            }).every((_, index) => {
-              const adjustedIndex = hideFirstYear ? index + 1 : index;
-              return !Number(
-                formData.MoreDetails?.Withdrawals?.[adjustedIndex]
-              );
-            }) ? null : (
-              <View style={styles.tableRow}>
-                <Text
-                  style={[
-                    stylesCOP.serialNoCellDetail,
-                    styleExpenses.sno,
-                    styleExpenses.bordernone,
-                  ]}
-                ></Text>
-                <Text
-                  style={[
-                    stylesCOP.detailsCellDetail,
-                    styleExpenses.particularWidth,
-                    styleExpenses.bordernone,
-                  ]}
-                >
-                  Withdrawals during the year
-                </Text>
-
-                {Array.from({
-                  length: hideFirstYear ? projectionYears - 1 : projectionYears,
-                }).map((_, index) => {
-                  const adjustedIndex = hideFirstYear ? index + 1 : index;
-                  const value =
-                    formData.MoreDetails?.Withdrawals?.[adjustedIndex];
-                  return (
-                    <Text
-                      key={index}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(value || "-")}
-                    </Text>
-                  );
-                })}
-              </View>
-            )} */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -1534,6 +1467,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 </Text>
               ))}
             </View>
+
             {/* Cumulative Balance Trf. To Balance Sheet */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
