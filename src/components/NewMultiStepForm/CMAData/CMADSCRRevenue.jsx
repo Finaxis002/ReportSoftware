@@ -40,14 +40,11 @@ const num = (v) => {
   return Number(v) || 0;
 };
 
-const CMASARevenue = ({
+const CMADSCRRevenue = ({
   formData,
-  localData,
-  normalExpense,
   directExpense,
   formatNumber,
   receivedtotalRevenueReceipts,
-  onComputedDataToProfit,
   pdfType,
   orientation,
 }) => {
@@ -57,6 +54,12 @@ const CMASARevenue = ({
 
   // Defensive defaults for props that may be undefined
   formData = formData || {};
+
+  // useEffect(() => {
+  //   if (yearlyInterestLiabilities.length > 0) {
+  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
+  //   }
+  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
@@ -154,7 +157,7 @@ const CMASARevenue = ({
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-    const startIndex = 0;
+    const startIndex =  0;
     const endIndex = startIndex + preliminaryWriteOffYears;
 
     // 👇 Only insert value if it's within the write-off window
@@ -293,9 +296,59 @@ const CMASARevenue = ({
     }
   });
 
+ const totalA = Array.from({length:projectionYears}).map((_, i)=>
+    Number(NPAT[i] || 0)+
+    Number(depreciation[i] || 0)+
+    Number(interestOnTermLoan[i] || 0)+
+    Number(interestOnWCArray[i] || 0)
+)
 
-  const total = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i] || 0) + Number(depreciation[i] || 0)
+const repaymentOfTL = formData?.computedData?.yearlyPrincipalRepayment || [] ;
+
+const totalB = Array.from({length:projectionYears}).map((_, i)=>
+    Number(interestOnTermLoan[i] || 0)+
+    Number(interestOnWCArray[i] || 0)+
+     Number(repaymentOfTL[i] || 0)
+)
+
+const dscr = Array.from({length:projectionYears}).map((_, i )=>{
+    if(totalB[i] === 0 )return "-" ;
+  return (Number(totalA[i] || 0)/
+   Number(totalB[i] || 0))
+}
+)
+
+// ✅ Filter out zero values from the beginning
+  const validDSCRValues = dscr.filter(
+    (value, index) => !(index === 0 && value === 0)
+  );
+
+  // ✅ Memoize averageDSCR calculation
+  const averageDSCR = useMemo(() => {
+    if (validDSCRValues.length === 0) return 0;
+    return (
+      validDSCRValues.reduce((sum, value) => sum + value, 0) /
+      validDSCRValues.length
+    );
+  }, [JSON.stringify(validDSCRValues)]); // Deep dependency check with stringify
+
+  const generateFinancialYearLabels = useMemo(
+      () => (startingFY, totalYears) => {
+        const yearLabels = [];
+        for (let i = 0; i < totalYears; i++) {
+          const fromYear = startingFY + i;
+          const toYear = (fromYear + 1) % 100; // Only last two digits for the second year
+          yearLabels.push(`${fromYear}-${toYear < 10 ? "0" + toYear : toYear}`);
+        }
+        return yearLabels;
+      },
+      []
+    );
+  const financialYear =
+    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
+  const financialYearLabels = generateFinancialYearLabels(
+    financialYear,
+    projectionYears
   );
 
   return (
@@ -381,7 +434,7 @@ const CMASARevenue = ({
         <View>
           <View style={stylesCOP.heading}>
             <Text>Sensitivity Analysis</Text>
-            <Text>Income Tax Calculation (Revenue reduced by 10%)</Text>
+            <Text>Debt-Service Coverage Ratio (Revenue Reduced by 10%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -457,35 +510,43 @@ const CMASARevenue = ({
                 ></Text>
               ))}
             </View>
-
-            {/* Net Profit Before Tax Calculation */}
+            
+             {/* Net Profit After Tax Calculation  */}
             <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
                   {
                     // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
+                    // ✅ Apply bold
                   },
                 ]}
-              ></Text>
+              >
+                1
+              </Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  // { },
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
                 ]}
               >
-                Net Profit Before Tax
+                Net Profit After Tax
               </Text>
-
-              {NPBT.map((val, idx) => (
+              {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
+              {NPAT.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
                     stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
                     styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
                   ]}
                 >
                   {formatNumber(val)}
@@ -493,8 +554,8 @@ const CMASARevenue = ({
               ))}
             </View>
 
-            {/* depreciation */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
+             {/* depreciation */}
+            <View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -502,7 +563,9 @@ const CMASARevenue = ({
                   styleExpenses.bordernone,
                   {},
                 ]}
-              ></Text>
+              >
+                2
+              </Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -528,64 +591,22 @@ const CMASARevenue = ({
               ))}
             </View>
 
-            {/* total */}
-            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
-                ]}
-              ></Text>
+
+            {/* Interest on Term Loan */}
+            <View style={[ styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  // { },
                 ]}
               >
-                Total
-              </Text>
-
-              {total.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
-            </View>
-
-             {/* depreciation */}
-            <View style={[stylesMOF.row, styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >Less:</Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >
-                Depreciation (As per ITA, 1961)
+                Interest on Term Loan
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {depreciation.map((val, idx) => (
+              {interestOnTermLoan.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -598,85 +619,41 @@ const CMASARevenue = ({
               ))}
             </View>
 
-             {/* Net Profit / (Loss) */}
+            {/* Interest on working capital */}
+            <View style={[ styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>4</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest on Working Capital
+              </Text>
+
+              {/* ✅ Display Precomputed Gross Profit Values */}
+              {interestOnWCArray.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+             {/* total  */}
             <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
                   {
                     // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
-                ]}
-              ></Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  // { },
-                ]}
-              >
-                Net Profit / (Loss)
-              </Text>
-
-              {NPBT.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
-            </View>
-
-
-             {/* Net Profit / (Loss) */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
-                ]}
-              ></Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                  // { },
-                ]}
-              >
-                Taxable Profit
-              </Text>
-
-              {NPBT.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
-            </View>
-
-            {/* Income Tax @  % */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
+                    // ✅ Apply bold
                   },
                 ]}
               >
@@ -687,14 +664,87 @@ const CMASARevenue = ({
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  // { },
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
                 ]}
               >
-                 Tax @ {formData.ProjectReportSetting.incomeTax} %
+                Total - A
+              </Text>
+              {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
+              {totalA.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+            {/* Blank Row  */}
+            <View
+              style={[
+                stylesMOF.row,
+                styles.tableRow,
+                styles.Total,
+                {
+                  border: 0,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                ]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                  {},
+                ]}
+              ></Text>
+
+              {yearLabels.map((label, idx) => (
+                <Text
+                  key={label || idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { paddingVertical: "5px" },
+                  ]}
+                ></Text>
+              ))}
+            </View>
+
+             {/* Interest on Term Loan */}
+            <View style={[ styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest on Term Loan
               </Text>
 
-              {/* ✅ Display Precomputed Income Tax Values */}
-              {incomeTaxCalculation.map((val, idx) => (
+              {/* ✅ Display Precomputed Gross Profit Values */}
+              {interestOnTermLoan.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -706,38 +756,301 @@ const CMASARevenue = ({
                 </Text>
               ))}
             </View>
-          </View>
-        </View>
 
-        <View>
-          {formData?.ProjectReportSetting?.CAName?.value ? (
-            <Text
+            {/* Interest on working capital */}
+            <View style={[ styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest on Working Capital
+              </Text>
+
+              {/* ✅ Display Precomputed Gross Profit Values */}
+              {interestOnWCArray.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+             {/* repayment of term loan */}
+            <View style={[ styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Repayment of Term Loan
+              </Text>
+
+              {/* ✅ Display Precomputed Gross Profit Values */}
+              {repaymentOfTL.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+              {/* total B  */}
+            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    // ✅ Ensure using the registered font
+                    // ✅ Apply bold
+                  },
+                ]}
+              >
+                
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
+                ]}
+              >
+                Total - B
+              </Text>
+              {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
+              {totalB.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+               {/* Blank Row  */}
+            <View
               style={[
+                stylesMOF.row,
+                styles.tableRow,
+                styles.Total,
                 {
-                  fontSize: "8px",
-                  paddingRight: "4px",
-                  paddingLeft: "4px",
-                  textAlign: "justify",
+                  border: 0,
                 },
               ]}
             >
-              Guidance and assistance have been provided for the preparation of
-              these financial statements on the specific request of the promoter
-              for the purpose of availing finance for the business. These
-              financial statements are based on realistic market assumptions,
-              proposed estimates issued by an approved valuer, details provided
-              by the promoter, and rates prevailing in the market. Based on the
-              examination of the evidence supporting the assumptions, nothing
-              has come to attention that causes any belief that the assumptions
-              do not provide a reasonable basis for the forecast. These
-              financials do not vouch for the accuracy of the same, as actual
-              results are likely to be different from the forecast since
-              anticipated events might not occur as expected, and the variation
-              might be material.
-            </Text>
-          ) : null}
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                ]}
+              ></Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  styles.Total,
+                  {},
+                ]}
+              ></Text>
+
+              {yearLabels.map((label, idx) => (
+                <Text
+                  key={label || idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { paddingVertical: "5px" },
+                  ]}
+                ></Text>
+              ))}
+            </View>
+
+
+            {/* DSCR (A/B) */}
+            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    // ✅ Ensure using the registered font
+                    // ✅ Apply bold
+                  },
+                ]}
+              >
+                
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
+                ]}
+              >
+                DSCR (A/B)
+              </Text>
+              {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
+              {dscr.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+           {/*avg dscr */}
+            {/* <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  {
+                    // ✅ Ensure using the registered font
+                    // ✅ Apply bold
+                  },
+                ]}
+              >
+                
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
+                ]}
+              >
+                Average DSCR
+              </Text>
+             
+              
+                <Text
+                  
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    stylesCOP.boldText,
+                    styleExpenses.fontSmall,
+                    styles.Total,
+                    { borderLeftWidth: "0px" },
+                  ]}
+                >
+                  {formatNumber(averageDSCR)}
+                </Text>
+              
+            </View> */}
+
+             {/* ✅ Display Average DSCR */}
+                    <View
+                      style={[
+                        stylesMOF.row,
+                        styles.tableRow,
+                        styleExpenses.totalRow,
+                        { borderWidth: 0 },
+                      ]}
+                    >
+                     
+                      <Text
+                        style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                      ></Text>
+            
+                      
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                  {
+                    // ✅ Ensure using the registered font
+                    fontWeight: "bold", // ✅ Apply bold
+                  },
+                        ]}
+                      >
+                        Average DSCR
+                      </Text>
+            
+                      
+            
+                      {financialYearLabels
+                        // .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+                        .map((yearLabel, yearIndex , arr) => {
+                          const visibleLabels = financialYearLabels.slice(
+                            hideFirstYear ? 1 : 0
+                          );
+                          const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
+                          const isLast = yearIndex === arr.length - 1;
+            
+                          return (
+                            <Text
+                              key={yearIndex}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                                styles.Total,
+                                {
+                                  fontWeight: "bold",
+                                  
+                                  textAlign: "center",
+                                  borderWidth: 0,
+                                  ...(isLast && { borderRightWidth:1 }),
+                                },
+                              ]}
+                              
+                            >
+                              {yearIndex === centerIndex
+                                ? (parseFloat(averageDSCR).toFixed(2)) // ✅ Display only in the center cell
+                                : ""}
+                            </Text>
+                          );
+                        })}
+                    </View>
+
+          </View>
         </View>
 
+       
         <View
           style={[
             {
@@ -818,4 +1131,4 @@ const CMASARevenue = ({
   );
 };
 
-export default React.memo(CMASARevenue);
+export default React.memo(CMADSCRRevenue);

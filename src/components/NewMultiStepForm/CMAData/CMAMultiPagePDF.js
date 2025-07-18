@@ -10,6 +10,8 @@ import CMAProfitability10perreduce from './CMAProfitability10perreduce'
 import CMAProfitabiltyExpenseInc from './CMAProfitabiltyExpenseInc'
 import CMASARevenue from './CMASARevenue'
 import CMASAExpense from './CMASAExpense'
+import CMADSCRRevenue from './CMADSCRRevenue'
+import CMADSCRExpense from './CMADSCRExpense'
 
 const CMAMultiPagePDF = ({formData}) => {
 
@@ -98,7 +100,8 @@ return (
     <CMAProfitabiltyExpenseInc formData={formData} formatNumber={formatNumber}/>
     <CMASARevenue formData={formData} formatNumber={formatNumber}/>
     <CMASAExpense formData={formData} formatNumber={formatNumber}/>
-     
+    <CMADSCRRevenue formData={formData} formatNumber={formatNumber} />
+     <CMADSCRExpense formData={formData} formatNumber={formatNumber} />
   </Document>
 )
 };
