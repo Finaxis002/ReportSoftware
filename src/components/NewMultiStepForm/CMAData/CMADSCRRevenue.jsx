@@ -312,7 +312,7 @@ const totalB = Array.from({length:projectionYears}).map((_, i)=>
 )
 
 const dscr = Array.from({length:projectionYears}).map((_, i )=>{
-    if(totalB[i] === 0 )return "-" ;
+    if(totalB[i] === 0 )return 0 ;
   return (Number(totalA[i] || 0)/
    Number(totalB[i] || 0))
 }

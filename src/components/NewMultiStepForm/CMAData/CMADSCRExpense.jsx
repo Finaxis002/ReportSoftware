@@ -319,7 +319,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
   )
   
   const dscr = Array.from({length:projectionYears}).map((_, i )=>{
-      if(totalB[i] === 0 )return "-" ;
+      if(totalB[i] === 0 )return 0 ;
     return (Number(totalA[i] || 0)/
      Number(totalB[i] || 0))
   }
@@ -329,15 +329,16 @@ const grossProfit = Array.from({ length: projectionYears }).map(
     const validDSCRValues = dscr.filter(
       (value, index) => !(index === 0 && value === 0)
     );
-  
+  console.log('validDSCRValues', validDSCRValues)
     // ✅ Memoize averageDSCR calculation
     const averageDSCR = useMemo(() => {
       if (validDSCRValues.length === 0) return 0;
       return (
-        validDSCRValues.reduce((sum, value) => sum + value, 0) /
-        validDSCRValues.length
+       Number( validDSCRValues.reduce((sum, value) => sum + value, 0) /
+        validDSCRValues.length)
       );
     }, [JSON.stringify(validDSCRValues)]); // Deep dependency check with stringify
+    console.log('averageDSCR',averageDSCR)
   
     const generateFinancialYearLabels = useMemo(
         () => (startingFY, totalYears) => {
