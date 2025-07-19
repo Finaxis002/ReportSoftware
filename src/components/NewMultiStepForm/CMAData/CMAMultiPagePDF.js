@@ -12,6 +12,7 @@ import CMASARevenue from './CMASARevenue'
 import CMASAExpense from './CMASAExpense'
 import CMADSCRRevenue from './CMADSCRRevenue'
 import CMADSCRExpense from './CMADSCRExpense'
+import CMAWorkingCapReq from './CMAWorkingCapReq'
 
 const CMAMultiPagePDF = ({formData}) => {
 
@@ -101,7 +102,8 @@ return (
     <CMASARevenue formData={formData} formatNumber={formatNumber}/>
     <CMASAExpense formData={formData} formatNumber={formatNumber}/>
     <CMADSCRRevenue formData={formData} formatNumber={formatNumber} />
-     <CMADSCRExpense formData={formData} formatNumber={formatNumber} />
+    <CMADSCRExpense formData={formData} formatNumber={formatNumber} />
+    <CMAWorkingCapReq formData={formData}/>
   </Document>
 )
 };
