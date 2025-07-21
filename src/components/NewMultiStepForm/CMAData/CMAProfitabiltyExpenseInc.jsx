@@ -399,7 +399,8 @@ const grossProfit = Array.from({ length: projectionYears }).map(
 
         <View>
           <View style={stylesCOP.heading}>
-            <Text>Projected Profitability Statement</Text>
+            <Text>Sensitivity Analysis</Text>
+            <Text>Projected Profitability (Expenses Increase by 10%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -1064,7 +1065,9 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {interestOnTermLoan.map((val, idx) => (
+              {interestOnTermLoan
+               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+              .map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

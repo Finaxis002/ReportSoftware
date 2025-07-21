@@ -14,7 +14,7 @@ import CMADSCRRevenue from './CMADSCRRevenue'
 import CMADSCRExpense from './CMADSCRExpense'
 import CMAWorkingCapReq from './CMAWorkingCapReq'
 
-const CMAMultiPagePDF = ({formData}) => {
+const CMAMultiPagePDF = ({formData, setIsPDFLoading}) => {
 
 //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
 //   const isEmpty =
@@ -88,22 +88,34 @@ const reducedRevenueReceipts = totalRevenueReceipts.map(val => val * 0.9);
       setReceivedData(data);
     });
   
+    const [orientation, setOrientation] = useState(() => {
+    const stored = JSON.parse(localStorage.getItem("formData"));
+    const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
+    return years > 6 ? "landscape" : "portrait";
+  });
 return (
-  <Document>
+  <Document 
+   onRender={() => {
+        if (setIsPDFLoading) setIsPDFLoading(false); // <-- Only call if provided!
+      }}
+      >
     {/* Each sub-component must return <Page> or an array of <Page> */}
-    <CMAOperatingStatementPDF formData={formData} />
-    <CMAAnalysisOfBS formData={formData} />
-    <CMAFundFlow formData={formData} />
-    <CMAFinancialPosition formData={formData}/>
+    <CMAOperatingStatementPDF formData={formData} orientation={orientation}/>
+    <CMAAnalysisOfBS formData={formData} orientation={orientation}/>
+    <CMAFundFlow formData={formData} orientation={orientation}/>
+    <CMAFinancialPosition formData={formData} orientation={orientation}/>
     <CMAProfitability10perreduce 
     handleDataSend={handleDataSend}
-    formData={formData} totalRevenueReceipts={reducedRevenueReceipts} formatNumber={formatNumber} />
-    <CMAProfitabiltyExpenseInc formData={formData} formatNumber={formatNumber}/>
-    <CMASARevenue formData={formData} formatNumber={formatNumber}/>
-    <CMASAExpense formData={formData} formatNumber={formatNumber}/>
-    <CMADSCRRevenue formData={formData} formatNumber={formatNumber} />
-    <CMADSCRExpense formData={formData} formatNumber={formatNumber} />
-    <CMAWorkingCapReq formData={formData}/>
+    formData={formData} 
+    totalRevenueReceipts={reducedRevenueReceipts} 
+    formatNumber={formatNumber} 
+    orientation={orientation}/>
+    <CMAProfitabiltyExpenseInc formData={formData} formatNumber={formatNumber} orientation={orientation}/>
+    <CMASARevenue formData={formData} formatNumber={formatNumber} orientation={orientation}/>
+    <CMASAExpense formData={formData} formatNumber={formatNumber} orientation={orientation}/>
+    <CMADSCRRevenue formData={formData} formatNumber={formatNumber} orientation={orientation}/>
+    <CMADSCRExpense formData={formData} formatNumber={formatNumber} orientation={orientation}/>
+    <CMAWorkingCapReq formData={formData} orientation={orientation}/>
   </Document>
 )
 };

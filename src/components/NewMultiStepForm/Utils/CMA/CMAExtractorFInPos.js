@@ -52,17 +52,7 @@ export const CMAExtractorFinPos = (formData) => {
     return paidUpCapital + Math.max(reserves, 0); // Net Worth = Capital + (Reserves, only if > 0)
   });
 
-  console.log('reserves Arr',reservesArr)
-  console.log('paidUp Capital',paidUpCapital)
-  // // Calculate Total Debt per year
-  // const totalDebtArr = Array.from({ length: years }).map((_, idx) => {
-  //   const termLoan = Number(formData?.computedData?.marchClosingBalances?.[idx + 1]) || 0;
-  //   const workingCapitalLoan = Number(workingCapitalLoanArr[idx] || 0);
-  //   const repaymentDue = Number(repaymentValueswithin12months[idx] || 0);
-  //   return termLoan + workingCapitalLoan + repaymentDue;
-  // });
-
- 
+  
 
 const bankTermLoanArr = BSextractors.bankTermLoanArr() || [];
 
@@ -82,12 +72,7 @@ const totalDebtArr = Array.from({ length: years }).map((_, idx) => {
     return (totalDebt / netWorth).toFixed(2);
   });
 
-  console.log('bank Term Loan Arr', bankTermLoanArr)
-  console.log('total Debt Arr',totalDebtArr)
-  console.log('debt Equity Arr',debtEquityArr)
-  console.log('net Worth', netWorthArr)
-  console.log('total Debt',totalDebtArr)
-
+ 
   const cumulativeCurrentLiabilitiesArr = [];
 let cumulativeCurrentLiabilities = 0;
 
@@ -131,7 +116,10 @@ const netProfitDivNetWorthRatioArr = Array.from({ length: years }).map((_, idx) 
 )
 );
 
-console.log('net Profit Div Net Worth Ratio', netProfitDivNetWorthRatio)
+const interestOnTermLoan = formData?.computedData?.yearlyInterestLiabilities ;
+console.log('interestOnTermLoan', interestOnTermLoan)
+
+
 
   return {
     netWorkingCapital: () => netWorkingCapital,
@@ -144,5 +132,6 @@ console.log('net Profit Div Net Worth Ratio', netProfitDivNetWorthRatio)
      grossProfitDivNetWorthRatio: ()=> grossProfitDivNetWorthRatio,
      netProfitDivNetWorthRatioArr:()=>netProfitDivNetWorthRatioArr,
      totalRevenueReceipt:()=>totalRevenueReceipt,
+     interestOnTermLoan:()=>interestOnTermLoan,
   };
 };

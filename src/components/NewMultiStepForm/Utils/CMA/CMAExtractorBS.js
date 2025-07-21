@@ -122,13 +122,51 @@ export const CMAExtractorBS = (formData) => {
         0
       )
   );
+// Now get the cumulative sum array:
+const cumulativeOtherCurrentAssetsTotal = otherCurrentAssetsTotal.reduce(
+  (acc, curr, idx) => {
+    // If first element, just push it
+    if (idx === 0) {
+      acc.push(curr);
+    } else {
+      // Add current value to previous cumulative sum
+      acc.push(acc[idx - 1] + curr);
+    }
+    return acc;
+  },
+  []
+);
+  
+console.log('current Assets Arr', currentAssetsArr)
+
+const sundryDebtorsObj = currentAssetsArr.find((asset)=>
+asset.particular === 'Trade Receivables / Sundry Debtors' )
+
+ const sundryDebtors = sundryDebtorsObj
+    ? sundryDebtorsObj.years.map(Number)
+    : [];
+
+const commulativeSundryDebtors = sundryDebtors.reduce(
+  (acc, curr, idx)=>{
+    if(idx ===  0 ){
+      acc.push(curr)
+    }else{
+      acc.push(acc[idx-1] + curr)
+    }
+    return acc
+    }
+    , []
+)
+console.log('commulative Sundry Debtors', commulativeSundryDebtors )
+
 
   const totalCurrentAssets = Array.from({ length: years }).map(
     (_, i) =>
       Number(closingCashBalanceArray[i] || 0) +
       Number(investments[i] || 0) +
       Number(inventoryArr(formData)[i] || 0) +
-      Number(otherCurrentAssetsTotal[i] || 0)
+      Number(cumulativeOtherCurrentAssetsTotal[i] || 0)+
+      Number(commulativeSundryDebtors[i] || 0)
   );
 
   const grossFixedAssetsPerYear =
@@ -187,6 +225,8 @@ export const CMAExtractorBS = (formData) => {
     advancesToSuppliers: () => Array(years).fill(0),
     paymentOfTaxes: () => Array(years).fill(0),
     otherCurrentAssetsTotal: () => otherCurrentAssetsTotal,
+    cumulativeOtherCurrentAssetsTotal: ()=>cumulativeOtherCurrentAssetsTotal,
+    commulativeSundryDebtors:()=>commulativeSundryDebtors,
     totalCurrentAssets: () => totalCurrentAssets,
     grossFixedAssetsPerYear: () => grossFixedAssetsPerYear,
     totalDepreciation: () => totalDepreciation,
@@ -195,5 +235,7 @@ export const CMAExtractorBS = (formData) => {
     investmentsInGroup: () => Array(years).fill(0),
     deferredReceivables: () => Array(years).fill(0),
     totalAssets: () => totalAssets,
+    
+     
   };
 };

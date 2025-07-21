@@ -606,7 +606,9 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {interestOnTermLoan.map((val, idx) => (
+              {interestOnTermLoan
+               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+              .map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -744,7 +746,9 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {interestOnTermLoan.map((val, idx) => (
+              {interestOnTermLoan
+               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+              .map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -798,7 +802,9 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {repaymentOfTL.map((val, idx) => (
+              {repaymentOfTL
+               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+              .map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

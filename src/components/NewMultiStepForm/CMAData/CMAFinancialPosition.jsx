@@ -34,9 +34,9 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAFinancialPosition = ({ formData }) => {
+const CMAFinancialPosition = ({ formData , orientation}) => {
   // You can import these:
-
+   const FinPosextractors = CMAExtractorFinPos(formData);
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
@@ -47,19 +47,19 @@ const CMAFinancialPosition = ({ formData }) => {
   const directExpensesArray = extractors.directExpenses?.() || [];
  
   const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
+  const interestOnTermLoan= FinPosextractors.interestOnTermLoan() || [];
   const interestOnWCArray = extractors.interestOnWCArray() || [];
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
  
-
+console.log('interestOnTermLoan',interestOnTermLoan)
  
 
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
   console.log("form Data : ", formData);
 
-  console.log("net Profit After Tax :", netProfitAfterTax);
+  console.log("interest On Term Loan :", interestOnTermLoan);
 
  
 
@@ -140,7 +140,7 @@ const CMAFinancialPosition = ({ formData }) => {
   );
 
   //new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
+ 
 
   const shareCapital = BSextractors.shareCapital() || [];
   const netWorth = BSextractors.netWorth() || [];
@@ -177,7 +177,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
 
 
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page} orientation={orientation}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
         <Header formData={formData} />
@@ -432,7 +432,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                   Net Sales
                 </Text>
 
-                {GrossProfit.map((val, idx) => (
+                {totalRevenueReceipt.map((val, idx) => (
                   <Text
                     key={idx}
                     style={[
@@ -473,7 +473,9 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                   Interest Term Loan
                 </Text>
 
-                {interestOnTermLoan.map((val, idx) => (
+                {interestOnTermLoan
+                 .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+                .map((val, idx) => (
                   <Text
                     key={idx}
                     style={[

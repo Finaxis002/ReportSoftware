@@ -32,7 +32,7 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAOperatingStatementPDF = ({ formData }) => {
+const CMAOperatingStatementPDF = ({ formData , orientation}) => {
   // You can import these:
 
   const schema = getCMASchema(formData);
@@ -78,7 +78,7 @@ const CMAOperatingStatementPDF = ({ formData }) => {
 
   return (
     
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} orientation={orientation}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
           <Header formData={formData} />
