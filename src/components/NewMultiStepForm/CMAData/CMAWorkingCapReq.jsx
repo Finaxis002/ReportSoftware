@@ -35,7 +35,7 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAWorkingCapReq = ({ formData }) => {
+const CMAWorkingCapReq = ({ formData, orientation }) => {
   // You can import these:
 
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
@@ -86,7 +86,7 @@ const turnOver20per = Array.from({length:years}).map((_, i)=>
 )
 
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page} orientation={orientation}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
         <Header formData={formData} />

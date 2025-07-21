@@ -404,7 +404,8 @@ const CMAProjectedProfitability = ({
 
         <View>
           <View style={stylesCOP.heading}>
-            <Text>Projected Profitability Statement</Text>
+            <Text>Sensitivity Analysis</Text>
+            <Text>Projected Profitability (Revenue Reduced by 10%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -1126,7 +1127,9 @@ const CMAProjectedProfitability = ({
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {interestOnTermLoan.map((val, idx) => (
+              {interestOnTermLoan
+               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+              .map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

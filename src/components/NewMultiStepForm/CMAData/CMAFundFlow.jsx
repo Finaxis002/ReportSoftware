@@ -34,7 +34,7 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAFundFlow = ({ formData }) => {
+const CMAFundFlow = ({ formData , orientation}) => {
   // You can import these:
 
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
@@ -154,7 +154,7 @@ const CMAFundFlow = ({ formData }) => {
   ))
   
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page} orientation={orientation}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
         <Header formData={formData} />

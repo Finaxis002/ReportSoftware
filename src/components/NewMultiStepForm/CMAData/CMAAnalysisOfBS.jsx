@@ -32,7 +32,7 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAAnalysisOfBS = ({ formData }) => {
+const CMAAnalysisOfBS = ({ formData , orientation}) => {
   // You can import these:
 
   
@@ -123,10 +123,11 @@ const CMAAnalysisOfBS = ({ formData }) => {
   (_, i) => (netWorth[i] === 0 ? 'NA' : Number(totalOutsidersLiabilities[i] || 0) / Number(netWorth[i]))
 );
 
-
-  console.log("share Capital", shareCapital);
+const cumulativeOtherCurrentAssetsTotal = BSextractors.cumulativeOtherCurrentAssetsTotal() || [];
+const commulativeSundryDebtors = BSextractors.commulativeSundryDebtors() || [];
+  
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page} orientation={orientation}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
         <Header formData={formData} />
@@ -1620,7 +1621,35 @@ const CMAAnalysisOfBS = ({ formData }) => {
                     Other Current Assets(Major Items to specify)
                   </Text>
 
-                  {otherCurrentAssetsTotal.map((val, idx) => (
+                  {cumulativeOtherCurrentAssetsTotal.map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
+                </View>
+
+                  {/* Sundry Debtors    */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={[stylesCOP.serialNoCellDetail]}>
+                    34
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Sundry Debtors 
+                  </Text>
+
+                  {commulativeSundryDebtors.map((val, idx) => (
                     <Text
                       key={idx}
                       style={[
@@ -1635,8 +1664,8 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Total Current Assets   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={[stylesCOP.serialNoCellDetail, styles.Total]}>
-                    34
+                  <Text style={[stylesCOP.serialNoCellDetail]}>
+                    35
                   </Text>
                   <Text
                     style={[
@@ -1696,7 +1725,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*  Gross Block */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>35</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>36</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1722,7 +1751,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*  Depreciation to-date */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>36</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>37</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1748,7 +1777,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*  Net Block (35 - 36) Capital Work - in - Progress */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>37</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>38</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1756,7 +1785,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Net Block (35 - 36) Capital Work - in - Progress
+                    Net Block (36 - 37) Capital Work - in - Progress
                   </Text>
 
                   {netBlock.map((val, idx) => (
@@ -1807,7 +1836,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Inv./Book debt/Advances/Deposits which are non C.A.  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>38</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>39</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1963,7 +1992,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*Non consumable stores/spares  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>39</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>40</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -1989,7 +2018,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*Other non current assets incl. Dues from Directors  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>40</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>41</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2015,7 +2044,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*Total Other Non Current Assets (Total of 38 to 40)  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>41</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>42</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2023,7 +2052,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Total Other Non Current Assets (Total of 38 to 40)
+                    Total Other Non Current Assets (Total of 39 to 41)
                   </Text>
 
                   {investments.map((val, idx) => (
@@ -2041,7 +2070,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/*Intangible Assets (Patents, Goodwill,Preliminary Expenses not written off,etc.)  */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>42</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>43</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2094,7 +2123,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Tangible Net Worth   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>43</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>44</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2125,7 +2154,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Net Working Capital (CA-CL)   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>44</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>45</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2156,7 +2185,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* current ratio   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>45</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>46</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2187,7 +2216,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                 {/* Total outside Liabilities/Tangible Net Worth (TOL/TNW)   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>46</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>47</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
@@ -2218,7 +2247,7 @@ const CMAAnalysisOfBS = ({ formData }) => {
 
                  {/* Total Outside Liab./Net Worth   */}
                 <View style={[styles.tableRow, styles.totalRow]}>
-                  <Text style={stylesCOP.serialNoCellDetail}>47</Text>
+                  <Text style={stylesCOP.serialNoCellDetail}>48</Text>
                   <Text
                     style={[
                       stylesCOP.detailsCellDetail,
