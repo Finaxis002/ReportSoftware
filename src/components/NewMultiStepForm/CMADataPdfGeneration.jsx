@@ -1,4 +1,6 @@
 import React from "react";
+import { saveAs } from "file-saver";
+
 import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { PDFDownloadLink, PDFViewer, BlobProvider } from "@react-pdf/renderer";
@@ -15,119 +17,119 @@ const CMADataPdfGeneration = () => {
     return years > 6 ? "landscape" : "portrait";
   });
 
-  // const pdfContainerRef = useRef(null);
-  // const containerRef = useRef(null);
+  const pdfContainerRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // // Hide any toolbar buttons (if toolbar is visible)
-  // useEffect(() => {
-  //   // This will still work if you ever turn the toolbar on
-  //   const style = document.createElement("style");
-  //   style.innerHTML = `
-  //     button[aria-label="Download"], 
-  //     button[aria-label="Print"] {
-  //       display: none !important;
-  //     }
-  //   `;
-  //   document.head.appendChild(style);
-  //   return () => document.head.removeChild(style);
-  // }, []);
+  // Hide any toolbar buttons (if toolbar is visible)
+  useEffect(() => {
+    // This will still work if you ever turn the toolbar on
+    const style = document.createElement("style");
+    style.innerHTML = `
+      button[aria-label="Download"], 
+      button[aria-label="Print"] {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
 
-  // // Disable right click and print
-  // useEffect(() => {
-  //   const handleContextMenu = (e) => {
-  //     if (containerRef.current && containerRef.current.contains(e.target)) {
-  //       e.preventDefault();
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Right-click Disabled",
-  //         text: "Right-click is disabled on this PDF for security reasons.",
-  //         confirmButtonColor: "#6366f1",
-  //         background: "#fff",
-  //         timer: 1600,
-  //         showConfirmButton: false,
-  //       });
-  //     }
-  //   };
+  // Disable right click and print
+  useEffect(() => {
+    const handleContextMenu = (e) => {
+      if (containerRef.current && containerRef.current.contains(e.target)) {
+        e.preventDefault();
+        Swal.fire({
+          icon: "error",
+          title: "Right-click Disabled",
+          text: "Right-click is disabled on this PDF for security reasons.",
+          confirmButtonColor: "#6366f1",
+          background: "#fff",
+          timer: 1600,
+          showConfirmButton: false,
+        });
+      }
+    };
 
-  //   const handleKeyDown = (e) => {
-  //     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
-  //       if (
-  //         containerRef.current &&
-  //         containerRef.current.contains(document.activeElement)
-  //       ) {
-  //         e.preventDefault();
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: "Printing Disabled",
-  //           text: "Printing is disabled for this document.",
-  //           confirmButtonColor: "#6366f1",
-  //           background: "#fff",
-  //           timer: 1600,
-  //           showConfirmButton: false,
-  //         });
-  //       }
-  //     }
-  //   };
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        if (
+          containerRef.current &&
+          containerRef.current.contains(document.activeElement)
+        ) {
+          e.preventDefault();
+          Swal.fire({
+            icon: "error",
+            title: "Printing Disabled",
+            text: "Printing is disabled for this document.",
+            confirmButtonColor: "#6366f1",
+            background: "#fff",
+            timer: 1600,
+            showConfirmButton: false,
+          });
+        }
+      }
+    };
 
-  //   document.addEventListener("contextmenu", handleContextMenu);
-  //   document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
 
-  //   return () => {
-  //     document.removeEventListener("contextmenu", handleContextMenu);
-  //     document.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
-  // useEffect(() => {
-  //   // Wait until the iframe loads, then attach contextmenu event
-  //   const pollIframe = setInterval(() => {
-  //     const container = containerRef.current;
-  //     if (!container) return;
-  //     const iframe = container.querySelector("iframe");
-  //     if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
-  //       iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
-  //         e.preventDefault();
-  //         // use window.parent to call Swal from parent scope
-  //         window.parent.Swal.fire({
-  //           icon: "error",
-  //           title: "Right-click Disabled",
-  //           text: "Right-click is disabled on this PDF for security reasons.",
-  //           confirmButtonColor: "#6366f1",
-  //           background: "#fff",
-  //           timer: 1600,
-  //           showConfirmButton: false,
-  //         });
-  //       });
-  //       clearInterval(pollIframe);
-  //     }
-  //   }, 300);
+  useEffect(() => {
+    // Wait until the iframe loads, then attach contextmenu event
+    const pollIframe = setInterval(() => {
+      const container = containerRef.current;
+      if (!container) return;
+      const iframe = container.querySelector("iframe");
+      if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+        iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          // use window.parent to call Swal from parent scope
+          window.parent.Swal.fire({
+            icon: "error",
+            title: "Right-click Disabled",
+            text: "Right-click is disabled on this PDF for security reasons.",
+            confirmButtonColor: "#6366f1",
+            background: "#fff",
+            timer: 1600,
+            showConfirmButton: false,
+          });
+        });
+        clearInterval(pollIframe);
+      }
+    }, 300);
 
-  //   return () => clearInterval(pollIframe);
-  // }, []);
+    return () => clearInterval(pollIframe);
+  }, []);
 
-  // useEffect(() => {
-  //   // Poll for the iframe created by @react-pdf/renderer
-  //   const pollIframe = setInterval(() => {
-  //     const iframe = pdfContainerRef.current?.querySelector("iframe");
-  //     if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
-  //       // Prevent right-click inside PDF
-  //       iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
-  //         e.preventDefault();
-  //         // Optional: show a message
-  //         // alert("Right-click is disabled on this PDF.");
-  //       });
-  //       clearInterval(pollIframe);
-  //     }
-  //   }, 300);
+  useEffect(() => {
+    // Poll for the iframe created by @react-pdf/renderer
+    const pollIframe = setInterval(() => {
+      const iframe = pdfContainerRef.current?.querySelector("iframe");
+      if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+        // Prevent right-click inside PDF
+        iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          // Optional: show a message
+          // alert("Right-click is disabled on this PDF.");
+        });
+        clearInterval(pollIframe);
+      }
+    }, 300);
 
-  //   return () => clearInterval(pollIframe);
-  // }, []);
+    return () => clearInterval(pollIframe);
+  }, []);
 
   
 
   return (
     <>
-      <div style={{ height: "100vh", width: "100%" }}>
+      {/* <div style={{ height: "100vh", width: "100%" }}>
         <PDFViewer
           width="100%"
           height="100%"
@@ -140,7 +142,7 @@ const CMADataPdfGeneration = () => {
         >
           <CMAMultiPagePDF formData={formData} />
         </PDFViewer>
-      </div>
+      </div> */}
       {/* 
       ///////////////////////////////////////////////// */}
 
@@ -230,7 +232,7 @@ const CMADataPdfGeneration = () => {
     </div> */}
 
       {/* //////////////////////////////////////////////////// */}
-      {/* <div
+      <div
         style={{ height: "100vh", width: "100%", background: "#F3F4F6" }}
         ref={containerRef}
       >
@@ -260,7 +262,33 @@ const CMADataPdfGeneration = () => {
               Landscape
             </button>
           </div>
-
+          <BlobProvider document={<CMAMultiPagePDF formData={formData} orientation={orientation} />}>
+      {({ blob, url, loading }) => (
+        <button
+          onClick={() => {
+            if (!blob) {
+              Swal.fire({
+                icon: "error",
+                title: "PDF is not ready yet!",
+                timer: 1300,
+                showConfirmButton: false,
+              });
+              return;
+            }
+            const businessName = formData?.AccountInformation?.businessName || "Report";
+            const businessOwner = formData?.AccountInformation?.businessOwner || "Owner";
+            const safeName = `${businessName} (${businessOwner})`
+              .replace(/[/\\?%*:|"<>]/g, "-")
+              .trim();
+            saveAs(blob, `${safeName}.pdf`);
+          }}
+          className="text-sm px-2 py-1 rounded bg-white text-indigo-600 ml-2 border border-indigo-600 hover:bg-indigo-100 transition"
+          disabled={loading}
+        >
+          {loading ? "Preparing..." : "Download PDF"}
+        </button>
+      )}
+    </BlobProvider>
           
         </div>
 
@@ -332,7 +360,7 @@ const CMADataPdfGeneration = () => {
             }}
           />
         </div>
-      </div> */}
+      </div>
     </>
   );
 };
