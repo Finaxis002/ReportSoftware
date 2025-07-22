@@ -925,6 +925,7 @@ const FinalStep = ({ formData, userRole }) => {
                 "cmaAdvanceFormData",
                 JSON.stringify(formData)
               );
+              localStorage.setItem("cmaSource", "final-step");
               window.open(
                 "/cma-advance-report",
                 "_blank",

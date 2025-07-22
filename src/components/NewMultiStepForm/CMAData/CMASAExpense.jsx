@@ -736,35 +736,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
           </View>
         </View>
 
-        <View>
-          {formData?.ProjectReportSetting?.CAName?.value ? (
-            <Text
-              style={[
-                {
-                  fontSize: "8px",
-                  paddingRight: "4px",
-                  paddingLeft: "4px",
-                  textAlign: "justify",
-                },
-              ]}
-            >
-              Guidance and assistance have been provided for the preparation of
-              these financial statements on the specific request of the promoter
-              for the purpose of availing finance for the business. These
-              financial statements are based on realistic market assumptions,
-              proposed estimates issued by an approved valuer, details provided
-              by the promoter, and rates prevailing in the market. Based on the
-              examination of the evidence supporting the assumptions, nothing
-              has come to attention that causes any belief that the assumptions
-              do not provide a reasonable basis for the forecast. These
-              financials do not vouch for the accuracy of the same, as actual
-              results are likely to be different from the forecast since
-              anticipated events might not occur as expected, and the variation
-              might be material.
-            </Text>
-          ) : null}
-        </View>
-
+        
         <View
           style={[
             {

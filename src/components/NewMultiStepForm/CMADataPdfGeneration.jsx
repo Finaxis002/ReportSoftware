@@ -1,15 +1,13 @@
-import React from "react";
-import { saveAs } from "file-saver";
 
+import { saveAs } from "file-saver";
 import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { PDFDownloadLink, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import CMAMultiPagePDF from "./CMAData/CMAMultiPagePDF";
-import CMAOperatingStatementPDF from "./CMAData/CMAOperatingStatementPDF";
-import CMAAnalysisOfBS from "./CMAData/CMAAnalysisOfBS";
 
 const CMADataPdfGeneration = () => {
   const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
+  const source = localStorage.getItem("cmaSource") || "final-step"; 
 
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
@@ -326,7 +324,7 @@ const CMADataPdfGeneration = () => {
               showToolbar={false}
               key={orientation}
             >
-              <CMAMultiPagePDF formData={formData} orientation={orientation} />
+              <CMAMultiPagePDF formData={formData} orientation={orientation} source={source}/>
             </PDFViewer>
           </div>
           <div

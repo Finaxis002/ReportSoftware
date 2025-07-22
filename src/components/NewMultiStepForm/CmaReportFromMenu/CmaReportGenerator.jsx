@@ -6,10 +6,12 @@ const CmaReportGenerator = ({ formData }) => {
 
   const navigate = useNavigate();
 
-  const handleGenerateReport = () => {
-    sessionStorage.setItem("cmaFormData", JSON.stringify(formData));
-    window.open("/cma-report/pdf", "_blank");
-  };
+  const handleMenuCmaGenerate = () => {
+  localStorage.setItem("cmaAdvanceFormData", JSON.stringify(formData));
+  localStorage.setItem("cmaSource", "menu-bar");
+  window.open("/cma-advance-report", "_blank", "noopener,noreferrer");
+};
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
@@ -25,8 +27,9 @@ const CmaReportGenerator = ({ formData }) => {
 
         <div className="w-full border-t border-gray-200 dark:border-gray-700 my-4"></div>
 
+       
         <button
-          onClick={handleGenerateReport}
+          onClick={handleMenuCmaGenerate}
           className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium rounded-lg shadow-lg "
         >
           <div className="flex items-center justify-center space-x-2">
@@ -45,7 +48,6 @@ const CmaReportGenerator = ({ formData }) => {
             <span>Generate CMA Data Report</span>
           </div>
         </button>
-        
 
         <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           {formData
