@@ -4,57 +4,65 @@ import { Document, Page } from "@react-pdf/renderer";
 import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
 import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
 import CMAFundFlow from "./CMAFundFlow";
-import CMAFinancialPosition from './CMAFinancialPosition';
-import ProjectedProfitability from '../PDFComponents/ProjectedProfitability'
-import CMAProfitability10perreduce from './CMAProfitability10perreduce'
-import CMAProfitabiltyExpenseInc from './CMAProfitabiltyExpenseInc'
-import CMASARevenue from './CMASARevenue'
-import CMASAExpense from './CMASAExpense'
-import CMADSCRRevenue from './CMADSCRRevenue'
-import CMADSCRExpense from './CMADSCRExpense'
-import CMAWorkingCapReq from './CMAWorkingCapReq'
+import CMAFinancialPosition from "./CMAFinancialPosition";
+import ProjectedProfitability from "../PDFComponents/ProjectedProfitability";
+import CMAProfitability10perreduce from "./CMAProfitability10perreduce";
+import CMAProfitabiltyExpenseInc from "./CMAProfitabiltyExpenseInc";
+import CMASARevenue from "./CMASARevenue";
+import CMASAExpense from "./CMASAExpense";
+import CMADSCRRevenue from "./CMADSCRRevenue";
+import CMADSCRExpense from "./CMADSCRExpense";
+import CMAWorkingCapReq from "./CMAWorkingCapReq";
+import CMAProfitabilityMenu from "./CMAProfitabilityMenu";
+import CMABalanceSheetMenu from './CMABalanceSheetMenu';
 
-const CMAMultiPagePDF = ({formData, setIsPDFLoading}) => {
+const CMAMultiPagePDF = ({
+  formData,
+  setIsPDFLoading,
+  orientation,
+  source,
+}) => {
+  //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
+  //   const isEmpty =
+  //     !formData ||
+  //     !formData.ProjectReportSetting ||
+  //     !formData.AccountInformation ||
+  //     !formData.ProjectReportSetting.ProjectionYears;
 
-//     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
-//   const isEmpty =
-//     !formData ||
-//     !formData.ProjectReportSetting ||
-//     !formData.AccountInformation ||
-//     !formData.ProjectReportSetting.ProjectionYears;
+  //   if (isEmpty) {
+  //     return (
+  //       <div
+  //         style={{
+  //           width: "100%",
+  //           maxWidth: 900,
+  //           margin: "40px auto",
+  //           padding: 40,
+  //           textAlign: "center",
+  //         }}
+  //       >
+  //         <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 24 }}>
+  //           CMA Advance Report Preview
+  //         </h2>
+  //         <div
+  //           style={{
+  //             color: "tomato",
+  //             fontWeight: 600,
+  //             fontSize: 20,
+  //             marginTop: 50,
+  //           }}
+  //         >
+  //           ⚠️ No CMA data found. <br />
+  //           Please complete the form and generate the report again.
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
-//   if (isEmpty) {
-//     return (
-//       <div
-//         style={{
-//           width: "100%",
-//           maxWidth: 900,
-//           margin: "40px auto",
-//           padding: 40,
-//           textAlign: "center",
-//         }}
-//       >
-//         <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 24 }}>
-//           CMA Advance Report Preview
-//         </h2>
-//         <div
-//           style={{
-//             color: "tomato",
-//             fontWeight: 600,
-//             fontSize: 20,
-//             marginTop: 50,
-//           }}
-//         >
-//           ⚠️ No CMA data found. <br />
-//           Please complete the form and generate the report again.
-//         </div>
-//       </div>
-//     );
-//   }
-const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
-const [receivedData, setReceivedData] = useState({});
-const reducedRevenueReceipts = totalRevenueReceipts.map(val => val * 0.9);
- const formatNumber = (value) => {
+  const isMenuBar = source === "menu-bar";
+  const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
+  const [receivedData, setReceivedData] = useState({});
+  const reducedRevenueReceipts = totalRevenueReceipts.map((val) => val * 0.9);
+  const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
     if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
 
@@ -85,39 +93,84 @@ const reducedRevenueReceipts = totalRevenueReceipts.map(val => val * 0.9);
     }
   };
   const handleDataSend = useCallback((data) => {
-      setReceivedData(data);
-    });
-  
-    const [orientation, setOrientation] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem("formData"));
-    const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
-    return years > 6 ? "landscape" : "portrait";
+    setReceivedData(data);
   });
-return (
-  <Document 
-   onRender={() => {
+
+  //   const [orientation, setOrientation] = useState(() => {
+  //   const stored = JSON.parse(localStorage.getItem("formData"));
+  //   const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
+  //   return years > 6 ? "landscape" : "portrait";
+  // });
+
+  return (
+    <Document
+      onRender={() => {
         if (setIsPDFLoading) setIsPDFLoading(false); // <-- Only call if provided!
       }}
-      >
-    {/* Each sub-component must return <Page> or an array of <Page> */}
-    <CMAOperatingStatementPDF formData={formData} orientation={orientation}/>
-    <CMAAnalysisOfBS formData={formData} orientation={orientation}/>
-    <CMAFundFlow formData={formData} orientation={orientation}/>
-    <CMAFinancialPosition formData={formData} orientation={orientation}/>
-    <CMAProfitability10perreduce 
-    handleDataSend={handleDataSend}
-    formData={formData} 
-    totalRevenueReceipts={reducedRevenueReceipts} 
-    formatNumber={formatNumber} 
-    orientation={orientation}/>
-    <CMAProfitabiltyExpenseInc formData={formData} formatNumber={formatNumber} orientation={orientation}/>
-    <CMASARevenue formData={formData} formatNumber={formatNumber} orientation={orientation}/>
-    <CMASAExpense formData={formData} formatNumber={formatNumber} orientation={orientation}/>
-    <CMADSCRRevenue formData={formData} formatNumber={formatNumber} orientation={orientation}/>
-    <CMADSCRExpense formData={formData} formatNumber={formatNumber} orientation={orientation}/>
-    <CMAWorkingCapReq formData={formData} orientation={orientation}/>
-  </Document>
-)
+    >
+      {/* Each sub-component must return <Page> or an array of <Page> */}
+       {isMenuBar && (
+        <>
+          <CMAProfitabilityMenu
+            handleDataSend={handleDataSend}
+            formData={formData}
+            totalRevenueReceipts={reducedRevenueReceipts}
+            formatNumber={formatNumber}
+            orientation={orientation}
+          />
+          <CMABalanceSheetMenu
+            handleDataSend={handleDataSend}
+            formData={formData}
+            totalRevenueReceipts={reducedRevenueReceipts}
+            formatNumber={formatNumber}
+            orientation={orientation}
+          />
+        </>
+      )}
+      <CMAAnalysisOfBS formData={formData} orientation={orientation} />
+      <CMAWorkingCapReq formData={formData} orientation={orientation} />
+      <CMAFundFlow formData={formData} orientation={orientation} />
+      <CMAFinancialPosition formData={formData} orientation={orientation} />
+      <CMAProfitability10perreduce
+        handleDataSend={handleDataSend}
+        formData={formData}
+        totalRevenueReceipts={reducedRevenueReceipts}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+      <CMASARevenue
+        formData={formData}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+      <CMADSCRRevenue
+        formData={formData}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+
+      <CMAProfitabiltyExpenseInc
+        formData={formData}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+
+      <CMASAExpense
+        formData={formData}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+
+      <CMADSCRExpense
+        formData={formData}
+        formatNumber={formatNumber}
+        orientation={orientation}
+      />
+      <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
+
+     
+    </Document>
+  );
 };
 
 export default CMAMultiPagePDF;

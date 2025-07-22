@@ -204,11 +204,15 @@ const CMAProfitabiltyExpenseInc = ({
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
+   const administrativeExpenseRows = extractors.administrativeExpenseRows() || [];
+
+  const adminValues = administrativeExpenseRows[0]?.values || [];
 
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
       let totalSalary = Number(salaryandwages[idx] || 0);
       let totalMaterial = Number(rawmaterial[idx] || 0);
+       let administrativeExpenses = Number(adminValues[idx] || 0);
 
       // Sum values from OnlyfilteredDirectExpenses
       let totalDirectExpense = OnlyfilteredDirectExpenses.reduce(
@@ -220,7 +224,7 @@ const CMAProfitabiltyExpenseInc = ({
       );
 
       // Return the total of salary, material, and direct expenses for the year
-      return totalSalary + totalMaterial + totalDirectExpense;
+      return totalSalary + totalMaterial + totalDirectExpense + administrativeExpenses;
     }
   );
 
@@ -797,6 +801,33 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               </View>
             ))}
 
+               {/* Administrative Expenses */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>9</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Administrative Expenses
+              </Text>
+
+              {yearLabels.map((label, idx) => {
+                return (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(adminValues[idx] || 0)}
+                  </Text>
+                );
+              })}
+            </View>
             {/* direct Expenses total  */}
             <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
               <Text
@@ -1611,6 +1642,35 @@ const grossProfit = Array.from({ length: projectionYears }).map(
           ) : null}
         </View>
 
+         <View>
+                  {formData?.ProjectReportSetting?.CAName?.value ? (
+                    <Text
+                      style={[
+                        {
+                          fontSize: "8px",
+                          paddingRight: "4px",
+                          paddingLeft: "4px",
+                          textAlign: "justify",
+                        },
+                      ]}
+                    >
+                      Guidance and assistance have been provided for the preparation of
+                      these financial statements on the specific request of the promoter
+                      for the purpose of availing finance for the business. These
+                      financial statements are based on realistic market assumptions,
+                      proposed estimates issued by an approved valuer, details provided
+                      by the promoter, and rates prevailing in the market. Based on the
+                      examination of the evidence supporting the assumptions, nothing
+                      has come to attention that causes any belief that the assumptions
+                      do not provide a reasonable basis for the forecast. These
+                      financials do not vouch for the accuracy of the same, as actual
+                      results are likely to be different from the forecast since
+                      anticipated events might not occur as expected, and the variation
+                      might be material.
+                    </Text>
+                  ) : null}
+                </View>
+                
         <View
           style={[
             {

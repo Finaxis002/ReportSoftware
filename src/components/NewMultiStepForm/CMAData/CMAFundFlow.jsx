@@ -2058,6 +2058,82 @@ const CMAFundFlow = ({ formData , orientation}) => {
             </View>
           </View>
         </View>
+
+        <View
+                  style={[
+                    {
+                      display: "flex",
+                      flexDirection: "row", // ✅ Change to row
+                      justifyContent: "space-between", // ✅ Align items left and right
+                      alignItems: "center",
+                      marginTop: 60,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      paddingTop: 100,
+                    }}
+                  >
+                    {/* ✅ CA Name (Conditional Display) */}
+                    {formData?.ProjectReportSetting?.CAName?.value ? (
+                      <Text
+                        style={[
+                          styles.caName,
+                          { fontSize: "10px", fontWeight: "bold" },
+                        ]}
+                      >
+                        CA {formData?.ProjectReportSetting?.CAName?.value}
+                      </Text>
+                    ) : null}
+        
+                    {/* ✅ Membership Number (Conditional Display) */}
+                    {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+                      <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                        M. No.:{" "}
+                        {formData?.ProjectReportSetting?.MembershipNumber?.value}
+                      </Text>
+                    ) : null}
+        
+                    {/* ✅ UDIN Number (Conditional Display) */}
+                    {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+                      <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                        UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+                      </Text>
+                    ) : null}
+        
+                    {/* ✅ Mobile Number (Conditional Display) */}
+                    {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+                      <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                        Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+                      </Text>
+                    ) : null}
+                  </View>
+        
+                  {/* businees name and Client Name  */}
+                  <View
+                    style={[
+                      {
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "80px",
+                        alignItems: "flex-end",
+                        justifyContent: "flex-end",
+                        marginTop: "30px",
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                      {formData?.AccountInformation?.businessName || "Business Name"}
+                    </Text>
+                    <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                      {formData?.AccountInformation?.businessOwner || "businessOwner"}
+                    </Text>
+                  </View>
+                </View>
       </View>
     </Page>
   );

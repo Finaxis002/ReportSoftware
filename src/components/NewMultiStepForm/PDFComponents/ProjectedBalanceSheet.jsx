@@ -854,12 +854,7 @@ const ProjectedBalanceSheet = ({
                   ) && liabilities.years.some((value) => Number(value) !== 0)
               )
               .map((liabilities, idx) => {
-                let cumulative = 0; // ⬅️ initialize cumulative tracker
-
-                // Calculate the correct serial number
-                // const serialNumber = isWorkingCapitalLoanZero
-                //   ? idx + 5
-                //   : idx + 6;
+                let cumulative = 0; 
 
                 return (
                   <View style={styles.tableRow} key={idx}>

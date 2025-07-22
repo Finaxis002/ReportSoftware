@@ -117,7 +117,7 @@ export const makeCMAExtractors = (formData) => {
 
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
-  
+  console.log('adminValues', adminValues)
 
   // 3. Raw Material row
   const rawMatRow = directExpense.find(
