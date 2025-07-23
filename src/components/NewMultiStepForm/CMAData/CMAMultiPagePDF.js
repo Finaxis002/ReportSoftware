@@ -15,6 +15,7 @@ import CMADSCRExpense from "./CMADSCRExpense";
 import CMAWorkingCapReq from "./CMAWorkingCapReq";
 import CMAProfitabilityMenu from "./CMAProfitabilityMenu";
 import CMABalanceSheetMenu from './CMABalanceSheetMenu';
+import CMACashflowMenu from './CMACashflowMenu';
 
 const CMAMultiPagePDF = ({
   formData,
@@ -125,6 +126,12 @@ const CMAMultiPagePDF = ({
             formatNumber={formatNumber}
             orientation={orientation}
           />
+           <CMACashflowMenu 
+            handleDataSend={handleDataSend}
+            totalRevenueReceipts={reducedRevenueReceipts}
+           formData={formData} 
+           orientation={orientation} 
+           formatNumber={formatNumber}/>
         </>
       )}
       <CMAAnalysisOfBS formData={formData} orientation={orientation} />
@@ -167,6 +174,7 @@ const CMAMultiPagePDF = ({
         orientation={orientation}
       />
       <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
+     
 
      
     </Document>

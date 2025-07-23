@@ -89,7 +89,7 @@ export const makeCMAExtractors = (formData) => {
     .filter((row) => row.name.trim() !== "Administrative Expenses") // Only direct type rows
     .map((row, idx) => {
       // Now, all rows here are type "direct"
-      console.log("row type", row.type);
+      
       return {
         key: `directExpense_${idx}`,
         values: Array.from({ length: years }).map((_, yearIndex) =>
@@ -117,7 +117,6 @@ export const makeCMAExtractors = (formData) => {
 
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
-  console.log('adminValues', adminValues)
 
   // 3. Raw Material row
   const rawMatRow = directExpense.find(
@@ -231,16 +230,7 @@ export const makeCMAExtractors = (formData) => {
     const operatingProfit =
       grossProfit - interestTL - interestWC - adminExp - prelim;
 
-    // Log breakdown for this year
-    // console.log(
-    //   `Year ${i + 1} Calculation:\n` +
-    //   `  Gross Profit: ${grossProfit}\n` +
-    //   `  - Interest on TL: ${interestTL}\n` +
-    //   `  - Interest on WC: ${interestWC}\n` +
-    //   `  - Administrative Expenses: ${adminExp}\n` +
-    //   `  - Preliminary Write Off: ${prelim}\n` +
-    //   `= Operating Profit: ${operatingProfit}\n`
-    // );
+    
 
     return operatingProfit;
   });
@@ -255,10 +245,10 @@ export const makeCMAExtractors = (formData) => {
   const ProvisionforInvestmentAllowance = Array(years).fill(0);
 
   const incomeTaxCal = formData?.computedData?.incomeTaxCalculation?.incomeTaxCalculation || [] ;
-  console.log("incomeTaxCalculation : ", incomeTaxCal)
+
 
  const netProfitAfterTax =  formData.computedData.computedData.netProfitAfterTax  || [] ;
-console.log('net Profit After Tax', netProfitAfterTax)
+
   // Build the final extractors object
   return {
     year: () => Number(formData?.ProjectReportSetting?.ProjectionYears || 5),
