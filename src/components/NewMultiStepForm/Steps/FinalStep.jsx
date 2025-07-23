@@ -5,6 +5,7 @@ import GraphGenerator from "../GraphGenerator";
 
 import IntroPage from "../IntroPage";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const FinalStep = ({ formData, userRole }) => {
   const navigate = useNavigate();
@@ -13,7 +14,11 @@ const FinalStep = ({ formData, userRole }) => {
     updateReport: false,
     createNewWithExisting: false,
     downloadPDF: false,
-    exportData: false, // ✅ Add this
+    exportData: false, 
+    generateGraph:false,
+    advanceReport:false,
+    generateWord:false
+
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const userName =
@@ -38,7 +43,7 @@ const FinalStep = ({ formData, userRole }) => {
       localStorage.setItem("pdfType", selectedOption);
     } else {
       localStorage.removeItem("pdfType");
-      localStorage.removeItem("selectedColor")
+      localStorage.removeItem("selectedColor");
     }
   }, [selectedOption]);
 
@@ -538,6 +543,10 @@ const FinalStep = ({ formData, userRole }) => {
               downloadPDF: true,
               exportData: true,
               createReport: true,
+              generateGraph:true,
+              advanceReport:true,
+              generateWord:true,
+
             });
             return;
           }
@@ -590,9 +599,9 @@ const FinalStep = ({ formData, userRole }) => {
 
   useEffect(() => {
     const handleUnload = () => {
-    localStorage.removeItem("selectedColor");
-    setSelectedColor("select color"); // <-- Reset state to default
-  };
+      localStorage.removeItem("selectedColor");
+      setSelectedColor("select color"); // <-- Reset state to default
+    };
 
     window.addEventListener("beforeunload", handleUnload);
 
@@ -655,11 +664,7 @@ const FinalStep = ({ formData, userRole }) => {
     }
   };
 
-
-
   return (
-
-
     <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-3xl font-semibold text-gray-700 mb-6">
         Final Step: Generate PDF
@@ -683,7 +688,7 @@ const FinalStep = ({ formData, userRole }) => {
         </select>
       </div>
 
-        {/* Color Picker and Font Dropdown */}
+      {/* Color Picker and Font Dropdown */}
       {selectedOption === "Other" && (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -875,8 +880,6 @@ const FinalStep = ({ formData, userRole }) => {
         </button>
       </div>
 
-    
-
       {/* Advanced Options */}
       <div className="flex justify-between items-center mt-6">
         <h6
@@ -921,6 +924,25 @@ const FinalStep = ({ formData, userRole }) => {
 
           <button
             onClick={() => {
+              const isComputedDataEmpty =
+                !formData.computedData ||
+                (typeof formData.computedData === "object" &&
+                  Object.keys(formData.computedData).length === 0);
+
+              if (isComputedDataEmpty) {
+                // You can use Swal or alert:
+                Swal.fire({
+                  icon: "error",
+                  title: "Missing Financial Data",
+                  text: "Please generate and download your financial data first.",
+                  confirmButtonColor: "#6366f1",
+                  background: "#fff",
+                  timer: 1600,
+                  showConfirmButton: false,
+                });
+                return;
+              }
+
               localStorage.setItem(
                 "cmaAdvanceFormData",
                 JSON.stringify(formData)
@@ -963,4 +985,3 @@ const FinalStep = ({ formData, userRole }) => {
 };
 
 export default FinalStep;
-

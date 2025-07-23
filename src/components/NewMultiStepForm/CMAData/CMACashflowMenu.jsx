@@ -42,7 +42,7 @@ const num = (v) => {
   return Number(v) || 0;
 };
 
-const CMABalanceSheetMenu = ({
+const CMACashflowMenu = ({
   formData,
   directExpense,
   formatNumber,
@@ -57,20 +57,10 @@ const CMABalanceSheetMenu = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
-
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-
-  
-
-  
 
   // Month Mapping
   const monthMap = {
@@ -92,11 +82,8 @@ const CMABalanceSheetMenu = ({
     formData?.ProjectReportSetting?.SelectStartingMonth || "April";
   const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
-  
-
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
-  
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -138,7 +125,7 @@ const CMABalanceSheetMenu = ({
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
- 
+
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
   const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
   // const grossProfit = PPExtractor.grossProfit() || [];
@@ -152,6 +139,8 @@ const CMABalanceSheetMenu = ({
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
 
+  console.log("interestOnTermLoan", interestOnTermLoan);
+  console.log("interestOnWCArray", interestOnWCArray);
   const OnlyfilteredDirectExpenses =
     filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
 
@@ -219,12 +208,7 @@ const CMABalanceSheetMenu = ({
   const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
   const Withdrawals = PPExtractor.Withdrawals() || [];
   const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
- 
 
-  
- 
-
- 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
   );
@@ -257,10 +241,6 @@ const CMABalanceSheetMenu = ({
       );
     }
   });
-
- 
-
- 
 
   //new data
   const BSextractors = CMAExtractorBS(formData);
@@ -324,26 +304,6 @@ const CMABalanceSheetMenu = ({
   });
   const isInventoryZero = inventory.every((value) => value === 0);
 
-  
-  const writeOffStartIndex = 0;
-  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
-
-  //   const preliminaryWriteOffPerYear = Array.from({
-  //     length: projectionYears,
-  //   }).map((_, index) => {
-  //     const relativeYear = index - writeOffStartIndex;
-
-  //     if (
-  //       index >= writeOffStartIndex &&
-  //       relativeYear < preliminaryWriteOffSteps
-  //     ) {
-  //       // Calculate decreasing value
-  //       return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
-  //     }
-
-  //     return 0;
-  //   });
-
   const preliminaryExpenseBalanceSheet = [];
   for (let i = 0; i < projectionYears; i++) {
     if (i === 0) {
@@ -364,7 +324,7 @@ const CMABalanceSheetMenu = ({
       const netFixed = Number(netBlock[index] || 0);
 
       const cashEquivalent = Number(closingCashBalanceArray[index] || 0);
-      
+
       const preliminaryExp = Number(preliminaryExpenseBalanceSheet[index] || 0);
 
       let cumulativeAdditionalAssets = 0;
@@ -378,12 +338,171 @@ const CMABalanceSheetMenu = ({
       cumulativeAdditionalAssets += currentYearAssets;
 
       const totalForYear =
-        netFixed +
-        cashEquivalent +
-        preliminaryExp +
-        cumulativeAdditionalAssets;
+        netFixed + cashEquivalent + preliminaryExp + cumulativeAdditionalAssets;
 
       return totalForYear;
+    }
+  );
+
+  //new data
+
+  const netProfitBeforeInterestAndTaxes = Array.from({
+    length: projectionYears,
+  }).map((_, yearIndex) => {
+    const profitBeforeTax = netProfitBeforeTax?.[yearIndex] || 0; // Profit Before Tax
+    const TermLoan = interestOnTermLoan?.[yearIndex] || 0; // Interest on Term Loan
+    const interestOnWorkingCapitalValue = Number(
+      interestOnWCArray[yearIndex] || 0
+    );
+
+    // Calculate NPBIT (Net Profit Before Interest & Taxes)
+    const calculatedValue =
+      profitBeforeTax + TermLoan + interestOnWorkingCapitalValue;
+
+    return calculatedValue;
+  });
+
+  const totalSourcesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const netProfitValue = netProfitBeforeInterestAndTaxes[index] || 0;
+
+      const promotersCapital =
+        index === 0 ? parseFloat(formData.MeansOfFinance.totalPC || 0) : 0;
+
+      const bankTermLoan =
+        index === 0
+          ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
+          : 0;
+
+      const workingCapitalLoan =
+        index === 0
+          ? parseFloat(formData.MeansOfFinance?.workingCapital?.termLoan || 0)
+          : 0;
+
+      const depreciation = totalDepreciation[index] || 0;
+
+      const currentLiabilitiesTotal =
+        formData?.MoreDetails?.currentLiabilities?.reduce((sum, liability) => {
+          const liabilityValue = parseFloat(liability.years?.[index]) || 0;
+
+          return sum + liabilityValue;
+        }, 0) || 0;
+
+      const preliminaryExpenseWriteOff = preliminaryWriteOffPerYear[index] || 0;
+
+      // ✅ Sum up all sources and log the result
+      const total =
+        netProfitValue +
+        promotersCapital +
+        bankTermLoan +
+        workingCapitalLoan +
+        depreciation +
+        currentLiabilitiesTotal +
+        preliminaryExpenseWriteOff;
+      // console.log(`Total Sources for Year ${index}:`, total);
+
+      return total;
+    }
+  );
+
+  const repaymentOfTL = formData?.computedData?.yearlyPrincipalRepayment || [];
+  const withdrawals = FundFlowExtractor.withdrawals() || [];
+  const incomeTaxCal = extractors.incomeTaxCal() || [];
+
+  const totalUsesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const fixedAssets =
+        index === 0 ? parseFloat(grossFixedAssetsPerYear || 0) : 0;
+      // console.log(`fixedAssets[${index}]:`, fixedAssets);
+
+      const repaymentOfTermLoan = parseFloat(repaymentOfTL[index] || 0);
+      // console.log(`repaymentOfTermLoan[${index}]:`, repaymentOfTermLoan);
+
+      const TermLoan = parseFloat(interestOnTermLoan[index] || 0);
+      // console.log(`interestOnTermLoan[${index}]:`, interestOnTermLoan);
+
+      const WorkingCapitalValue = parseFloat(interestOnWCArray[index] || 0);
+
+      const withdrawals = parseFloat(
+        formData?.MoreDetails?.Withdrawals?.[index] || 0
+      );
+      // console.log(`withdrawals[${index}]:`, withdrawals);
+
+      const incomeTaxValue = parseFloat(incomeTaxCal[index] || 0);
+
+      const currentAssetsTotal = (formData?.MoreDetails?.currentAssets || [])
+        .filter(
+          (assets) =>
+            assets.particular !== "Inventory" &&
+            !assets.dontSendToBS &&
+            Array.isArray(assets.years)
+        )
+        .reduce((sum, asset) => {
+          const value = parseFloat(asset.years?.[index]) || 0;
+          return sum + value;
+        }, 0);
+
+      // ✅ Ensuring Inventory Calculation - Closing Stock - Opening Stock
+      const inventory = Array.from({
+        length: formData.MoreDetails.OpeningStock.length,
+      }).map((_, yearIndex) => {
+        const ClosingStock =
+          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const OpeningStock =
+          formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+        const finalStock = ClosingStock - OpeningStock;
+        return finalStock;
+      });
+
+      // ✅ If Inventory is not available, set it to 0
+      const inventoryValue = inventory[index] || 0;
+
+      // ✅ Ensure negative values are treated as zero
+      const sanitize = (value) => (value < 0 ? 0 : value);
+
+      const preliminaryExpenseInUses =
+        index === 0
+          ? Number(formData?.CostOfProject?.preliminaryExpensesTotal || 0)
+          : 0;
+
+      // ✅ Final Total Uses Calculation (including Inventory)
+      const totalUses =
+        sanitize(fixedAssets) +
+        sanitize(repaymentOfTermLoan) +
+        sanitize(TermLoan) +
+        sanitize(WorkingCapitalValue) +
+        sanitize(withdrawals) +
+        sanitize(incomeTaxValue) +
+        sanitize(currentAssetsTotal) +
+        sanitize(inventoryValue) + // Add the Inventory for the current year (index)
+        sanitize(preliminaryExpenseInUses);
+      return totalUses;
+    }
+  );
+
+  // ✅ Initial Opening Cash Balance
+  let openingCashBalance = 0;
+
+  // ✅ Compute Cash Flow Balances
+  const cashBalances = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const totalSources = totalSourcesArray[index] || 0;
+      const totalUses = totalUsesArray[index] || 0;
+      const surplusDuringYear = totalSources - totalUses;
+
+      // ✅ Compute Closing Balance
+      const closingCashBalance = openingCashBalance + surplusDuringYear;
+
+      const result = {
+        opening: openingCashBalance, // ✅ Carry forward previous year's closing balance
+        surplus: surplusDuringYear,
+        closing: closingCashBalance,
+      };
+
+      // ✅ Set next year's opening balance
+      openingCashBalance = closingCashBalance;
+
+      return result;
     }
   );
 
@@ -469,7 +588,7 @@ const CMABalanceSheetMenu = ({
 
         <View>
           <View style={stylesCOP.heading}>
-            <Text>Projected Balance Sheet</Text>
+            <Text>Projected Cashflow</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -546,7 +665,7 @@ const CMABalanceSheetMenu = ({
               ))}
             </View>
 
-            {/* Liabilities */}
+            {/* Sources */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -566,7 +685,7 @@ const CMABalanceSheetMenu = ({
                   { paddingVertical: "10px" },
                 ]}
               >
-                Liabilities
+                Sources
               </Text>
               {yearLabels.map((label, idx) => {
                 return (
@@ -581,7 +700,7 @@ const CMABalanceSheetMenu = ({
               })}
             </View>
 
-            {/* 1 capital */}
+            {/* 1 Net Profit Before Interest And Taxes */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>1</Text>
               <Text
@@ -591,7 +710,35 @@ const CMABalanceSheetMenu = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Capital
+                Net Profit Before Interest And Taxes
+              </Text>
+
+              {yearLabels.map((label, idx) => {
+                return (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(netProfitBeforeInterestAndTaxes[idx] || 0)}
+                  </Text>
+                );
+              })}
+            </View>
+
+            {/* 2 Promoters' Capital  */}
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Promoters' Capital
               </Text>
 
               {Array.from({ length: projectionYears }).map((_, index) => (
@@ -602,40 +749,14 @@ const CMABalanceSheetMenu = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(formData?.MeansOfFinance?.totalPC || 0)}
+                  {formatNumber(
+                    index === 0 ? formData.MeansOfFinance.totalPC || "-" : "0"
+                  )}
                 </Text>
               ))}
             </View>
 
-            {/* 2 Reserves and Surplus  */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>2</Text>
-              <Text
-                style={[
-                  stylesCOP.detailsCellDetail,
-                  styleExpenses.particularWidth,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                Reserves and Surplus
-              </Text>
-
-              {yearLabels.map((label, idx) => {
-                return (
-                  <Text
-                    key={idx}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(reverseAndSurplus[idx] || 0)}
-                  </Text>
-                );
-              })}
-            </View>
-
-            {/* 3 Bank Loan - Term Loan */}
+            {/* 3 Bank Term Loan */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>3</Text>
               <Text
@@ -645,25 +766,27 @@ const CMABalanceSheetMenu = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Bank Loan - Term Loan
+                Bank Term Loan
               </Text>
 
-              {yearLabels.map((label, idx) => {
-                return (
-                  <Text
-                    key={idx}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(bankTermLoanArr[idx] || 0)}
-                  </Text>
-                );
-              })}
+              {Array.from({ length: projectionYears }).map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(
+                    index === 0
+                      ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
+                      : "0"
+                  )}
+                </Text>
+              ))}
             </View>
 
-            {/* Bank Loan Payable within next 12 months   */}
+            {/*4 Working Capital Loan   */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -682,62 +805,54 @@ const CMABalanceSheetMenu = ({
                   {},
                 ]}
               >
-                Bank Loan Payable within next 12 months
+                Working Capital Loan
               </Text>
               {/* ✅ Display Precomputed Total Direct Expenses */}
-              {yearLabels.map((label, idx) => {
-                return (
-                  <Text
-                    key={idx}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(bankLoanPayablewithin12months[idx] || 0)}
-                  </Text>
-                );
-              })}
+              {Array.from({ length: projectionYears }).map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(
+                    index === 0
+                      ? formData.MeansOfFinance?.workingCapital?.termLoan || "-"
+                      : "0"
+                  )}
+                </Text>
+              ))}
             </View>
 
-            {/* Bank Loan - Working Capital Loan   */}
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                ]}
-              >
-                5
-              </Text>
+            {/*5 Depreciation */}
+            <View style={[styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>5</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  {},
                 ]}
               >
-                Bank Loan - Working Capital Loan
+                Depreciation
               </Text>
-              {/* ✅ Display Precomputed Total Direct Expenses */}
-              {yearLabels.map((label, idx) => {
-                return (
-                  <Text
-                    key={idx}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(workingCapitalLoanArr[idx] || 0)}
-                  </Text>
-                );
-              })}
+
+              {/* ✅ Display Precomputed Gross Profit Values */}
+              {totalDepreciation.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
             </View>
 
-            {/* current liabilities array  */}
+            {/*6 current liabilities array  */}
             {currentLiabilities
               .filter((liabilities) =>
                 liabilities.years.some((value) => Number(value) !== 0)
@@ -765,9 +880,6 @@ const CMABalanceSheetMenu = ({
 
                     {Array.from({ length: projectionYears }).map(
                       (_, yearIndex) => {
-                        const value = Number(liabilities.years[yearIndex]) || 0;
-                        cumulative += value;
-
                         return (
                           <Text
                             key={yearIndex}
@@ -776,7 +888,7 @@ const CMABalanceSheetMenu = ({
                               styleExpenses.fontSmall,
                             ]}
                           >
-                            {formatNumber(cumulative)}
+                            {formatNumber(liabilities.years[yearIndex] || "0")}
                           </Text>
                         );
                       }
@@ -784,6 +896,34 @@ const CMABalanceSheetMenu = ({
                   </View>
                 );
               })}
+
+            {!isPreliminaryWriteOffAllZero && (
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}></Text>
+
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Preliminary Expenses <br /> written off
+                </Text>
+
+                {preliminaryWriteOffPerYear.map((value, yearIndex) => (
+                  <Text
+                    key={yearIndex}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(value)}
+                  </Text>
+                ))}
+              </View>
+            )}
 
             {/* total */}
             <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
@@ -807,7 +947,7 @@ const CMABalanceSheetMenu = ({
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {totalLiabilitiesArray.map((total, index) => (
+              {totalSourcesArray.map((total, index) => (
                 <Text
                   key={index}
                   style={[
@@ -815,13 +955,14 @@ const CMABalanceSheetMenu = ({
                     styles.boldText,
                     {
                       fontSize: "9px",
-                      borderTopWidth: "2px",
-                      borderBottomWidth: "2px",
+                      borderTopWidth: "1px",
+                      borderBottomWidth: "1px",
+
                       paddingVertical: "8px",
                     },
                   ]}
                 >
-                  {formatNumber(total)} {/* ✅ Display Correct Total */}
+                  {formatNumber(total)} {/* ✅ Ensure Proper Formatting */}
                 </Text>
               ))}
             </View>
@@ -884,13 +1025,18 @@ const CMABalanceSheetMenu = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(grossFixedAssetsPerYear[idx] || 0)}
+                    {/* {formatNumber(grossFixedAssetsPerYear[idx] || 0)} */}
+                    {idx === 0
+                      ? grossFixedAssetsPerYear[0]
+                        ? formatNumber(grossFixedAssetsPerYear[0]) // Use formatNumber instead of toLocaleString
+                        : "-"
+                      : "0"}
                   </Text>
                 );
               })}
             </View>
 
-            {/* Depreciation */}
+            {/* Repayment Of Term Loan */}
             <View style={[styles.tableRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>2</Text>
               <Text
@@ -900,11 +1046,39 @@ const CMABalanceSheetMenu = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Less: Depreciation
+                Repayment Of Term Loan
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {totalDepreciation.map((val, idx) => (
+              {repaymentOfTL
+                .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+                .map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(val)}
+                  </Text>
+                ))}
+            </View>
+
+            {/* Interest On Term Loan */}
+            <View style={[styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Interest On Term Loan
+              </Text>
+
+              {interestOnTermLoan.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -917,31 +1091,20 @@ const CMABalanceSheetMenu = ({
               ))}
             </View>
 
-            {/* Net Fixed Assets */}
+            {/* Interest On Working Capital */}
             <View style={[styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >
-                3
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>4</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  {},
                 ]}
               >
-                Net Fixed Assets
+                Interest On Working Capital
               </Text>
 
-              {/* ✅ Display Precomputed Gross Profit Values */}
-              {netBlock.map((val, idx) => (
+              {interestOnWCArray.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -954,31 +1117,46 @@ const CMABalanceSheetMenu = ({
               ))}
             </View>
 
-            {/* Cash & Cash Equivalents */}
+            {/* withdrawals */}
             <View style={[styles.tableRow]}>
-              <Text
-                style={[
-                  stylesCOP.serialNoCellDetail,
-                  styleExpenses.sno,
-                  styleExpenses.bordernone,
-                  {},
-                ]}
-              >
-                4
-              </Text>
+              <Text style={stylesCOP.serialNoCellDetail}>5</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  {},
                 ]}
               >
-                Cash & Cash Equivalents
+                Withdrawals
               </Text>
 
-              {/* ✅ Display Precomputed Gross Profit Values */}
-              {closingCashBalanceArray.map((val, idx) => (
+              {withdrawals.map((val, idx) => (
+                <Text
+                  key={idx}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                  ]}
+                >
+                  {formatNumber(val)}
+                </Text>
+              ))}
+            </View>
+
+            {/* Income Tax */}
+            <View style={[styles.tableRow]}>
+              <Text style={stylesCOP.serialNoCellDetail}>6</Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Income Tax
+              </Text>
+
+              {incomeTaxCal.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -1001,7 +1179,9 @@ const CMABalanceSheetMenu = ({
                     styleExpenses.bordernone,
                     {},
                   ]}
-                >5</Text>
+                >
+                  5
+                </Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1042,8 +1222,7 @@ const CMABalanceSheetMenu = ({
                   assets.years.some((value) => Number(value) !== 0)
               )
               .map((assets, index) => {
-                const serialNumber = isInventoryZero ? index + 5 : index + 6;
-                let cumulative = 0;
+                const serialNumber = isInventoryZero ? index + 8 : index + 7;
 
                 return (
                   <View style={styles.tableRow} key={index}>
@@ -1051,7 +1230,7 @@ const CMABalanceSheetMenu = ({
                     <Text
                       style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
                     >
-                      {isInventoryZero ? (index += 5) : (index += 6)}
+                      {isInventoryZero ? (index += 8) : (index += 7)}
                     </Text>
 
                     {/* Particular */}
@@ -1065,11 +1244,10 @@ const CMABalanceSheetMenu = ({
                       {assets.particular}
                     </Text>
 
-                    {/* Cumulative Year-wise Values */}
                     {Array.from({ length: projectionYears }).map(
                       (_, yearIndex) => {
                         const value = Number(assets.years[yearIndex] || 0);
-                        cumulative += value; // 🧮 accumulate value
+
                         return (
                           <Text
                             key={yearIndex}
@@ -1078,7 +1256,7 @@ const CMABalanceSheetMenu = ({
                               styleExpenses.fontSmall,
                             ]}
                           >
-                            {formatNumber(cumulative)}
+                            {formatNumber(value)}
                           </Text>
                         );
                       }
@@ -1087,13 +1265,13 @@ const CMABalanceSheetMenu = ({
                 );
               })}
 
-             {/* preliminary expense */}
-            {!isPreliminaryWriteOffAllZero && (
-              <View style={[styles.tableRow, styles.totalRow]}>
-                <Text style={stylesCOP.serialNoCellDetail}>
-                  {/* {preliminarySerialNo} */}
-                </Text>
-
+            {/* preliminary expense */}
+            {/* Preliminary Expenses in Uses (year 1 only) */}
+            {Number(formData?.CostOfProject?.preliminaryExpensesTotal) > 0 && (
+              <View style={styles.tableRow}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                ></Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1101,26 +1279,29 @@ const CMABalanceSheetMenu = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  <Text>
-                    Preliminary Expenses <br /> Yet to Be Written Off
-                  </Text>
+                  Preliminary Expenses
                 </Text>
-
-                {preliminaryExpenseBalanceSheet.map((value, yearIndex) => (
+                {Array.from({ length: projectionYears }).map((_, index) => (
                   <Text
-                    key={yearIndex}
+                    key={index}
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(value)}
+                    {formatNumber(
+                      index === 0
+                        ? Number(
+                            formData?.CostOfProject?.preliminaryExpensesTotal
+                          ) || 0
+                        : 0
+                    )}
                   </Text>
                 ))}
               </View>
             )}
 
-           {/* total assets*/}
+            {/* total uses*/}
             <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
               <Text
                 style={[
@@ -1142,7 +1323,7 @@ const CMABalanceSheetMenu = ({
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {totalAssetsArray.map((total, index) => (
+              {totalUsesArray.map((total, index) => (
                 <Text
                   key={index}
                   style={[
@@ -1159,6 +1340,113 @@ const CMABalanceSheetMenu = ({
                   {formatNumber(total)} {/* ✅ Display Correct Total */}
                 </Text>
               ))}
+            </View>
+
+            {/* Opening Cash Balance */}
+            <View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  1
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Opening Cash Balance
+                </Text>
+
+                {/* ✅ Display Updated Opening Cash Balance for Each Year */}
+                {cashBalances.map((cb, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(cb.opening)}{" "}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Surplus During the Year */}
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  2
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Surplus During the Year
+                </Text>
+
+                {/* ✅ Display Surplus for Each Year */}
+                {cashBalances.map((cb, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(cb.surplus)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Closing Cash Balance */}
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  3
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Closing Cash Balance
+                </Text>
+
+                {/* ✅ Display Closing Cash Balance for Each Year */}
+                {cashBalances.map((cb, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(cb.closing)}
+                  </Text>
+                ))}
+              </View>
             </View>
           </View>
         </View>
@@ -1272,4 +1560,4 @@ const CMABalanceSheetMenu = ({
   );
 };
 
-export default React.memo(CMABalanceSheetMenu);
+export default React.memo(CMACashflowMenu);

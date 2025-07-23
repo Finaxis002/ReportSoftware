@@ -137,7 +137,7 @@ const cumulativeOtherCurrentAssetsTotal = otherCurrentAssetsTotal.reduce(
   []
 );
   
-console.log('current Assets Arr', currentAssetsArr)
+
 
 const sundryDebtorsObj = currentAssetsArr.find((asset)=>
 asset.particular === 'Trade Receivables / Sundry Debtors' )
@@ -157,7 +157,7 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
     }
     , []
 )
-console.log('commulative Sundry Debtors', commulativeSundryDebtors )
+
 
 
   const totalCurrentAssets = Array.from({ length: years }).map(

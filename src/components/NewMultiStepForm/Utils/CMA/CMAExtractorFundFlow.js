@@ -6,7 +6,7 @@ export const CMAExtractorFundFlow = (formData) => {
     const { totalSourcesArray, totalUsesArray, surplusDuringYear } =
     calculateTotalSourcesAndUses(formData) || { totalSourcesArray: [], totalUsesArray: [], surplusDuringYear: [] };
 
-  console.log('surplusDuringYear:', surplusDuringYear); 
+  
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const netProfitBeforeTax =
     formData?.computedData?.computedData?.netProfitBeforeTax || [];
@@ -107,11 +107,6 @@ const SubTotalE = Array.from({length:years}).map((_, idx)=>(
 ))
  
 const withdrawals = formData?.MoreDetails?.Withdrawals || 0 ;
-
-
-
-console.log('withdrawals', withdrawals)
-console.log('inventory', inventory)
 
   return {
     netProfitBeforeTax: () => netProfitBeforeTax,

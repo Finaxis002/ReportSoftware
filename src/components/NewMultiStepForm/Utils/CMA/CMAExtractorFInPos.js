@@ -13,7 +13,7 @@ export const CMAExtractorFinPos = (formData) => {
   const termLoanValues =
     formData?.computedData?.workingCapitalvalues?.termLoanValues || [];
   const workingCapitalLoanArr = calculateWorkingCapitalLoan(termLoanValues);
-  console.log('workingCapitalLoanArr', workingCapitalLoanArr)
+
 
   const currentLiabilities =
     formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities || [];
@@ -103,7 +103,7 @@ const grossProfitDivNetWorthRatio = Array.from({ length: years }).map((_, idx) =
 );
 
  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
- console.log('netProfitAfterTax', netProfitAfterTax)
+
 const netProfitDivNetWorthRatio = Array.from({ length: years }).map((_, idx) => {
   const netProfitAfterTax1 = netProfitAfterTax[idx] || 1;
   const netWorth = netWorthArr[idx] || 1;
@@ -117,7 +117,7 @@ const netProfitDivNetWorthRatioArr = Array.from({ length: years }).map((_, idx) 
 );
 
 const interestOnTermLoan = formData?.computedData?.yearlyInterestLiabilities ;
-console.log('interestOnTermLoan', interestOnTermLoan)
+
 
 
 

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const CmaReportGenerator = ({ formData }) => {
   const localData = formData;
@@ -7,6 +8,26 @@ const CmaReportGenerator = ({ formData }) => {
   const navigate = useNavigate();
 
   const handleMenuCmaGenerate = () => {
+
+    const isComputedDataEmpty =
+      !formData.computedData ||
+      (typeof formData.computedData === "object" &&
+        Object.keys(formData.computedData).length === 0);
+
+    if (isComputedDataEmpty) {
+      // You can use Swal or alert:
+      Swal.fire({
+        icon: "error",
+        title: "Missing Financial Data",
+        text: "Please generate and download your financial data first.",
+        confirmButtonColor: "#6366f1",
+        background: "#fff",
+        timer: 1600,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
   localStorage.setItem("cmaAdvanceFormData", JSON.stringify(formData));
   localStorage.setItem("cmaSource", "menu-bar");
   window.open("/cma-advance-report", "_blank", "noopener,noreferrer");
