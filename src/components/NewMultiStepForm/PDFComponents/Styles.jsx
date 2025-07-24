@@ -906,6 +906,14 @@ const stylesRepayment = {
   },
 };
 
+const stylesContents = {
+  content:{
+    padding: '2px',
+    paddingLeft: '0',
+    paddingRight : '0'
+  }
+};
+
 export {
   styles,
   stylesMOF,
@@ -913,4 +921,5 @@ export {
   styleExpenses,
   columnWidths,
   stylesRepayment,
+  stylesContents
 };

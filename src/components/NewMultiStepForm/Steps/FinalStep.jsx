@@ -14,11 +14,10 @@ const FinalStep = ({ formData, userRole }) => {
     updateReport: false,
     createNewWithExisting: false,
     downloadPDF: false,
-    exportData: false, 
-    generateGraph:false,
-    advanceReport:false,
-    generateWord:false
-
+    exportData: false,
+    generateGraph: false,
+    advanceReport: false,
+    generateWord: false,
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const userName =
@@ -515,72 +514,135 @@ const FinalStep = ({ formData, userRole }) => {
     localStorage.setItem("lastStep", 8);
   };
 
+  // useEffect(() => {
+  //   const fetchPermissions = async () => {
+  //     try {
+  //       const [empRes, adminRes] = await Promise.all([
+  //         fetch("https://reportsbe.sharda.co.in/api/employees"),
+  //         fetch("https://reportsbe.sharda.co.in/api/admins"),
+  //       ]);
+
+  //       if (!empRes.ok || !adminRes.ok) {
+  //         throw new Error("Failed to fetch data");
+  //       }
+
+  //       const employeeList = await empRes.json();
+  //       const adminList = await adminRes.json();
+
+  //       const normalizedUserName = userName?.trim().toLowerCase();
+
+  //       if (userRole === "admin") {
+  //         const storedAdminName = localStorage.getItem("adminName");
+
+  //         if (!storedAdminName) {
+  //           setPermissions({
+  //             generateReport: true,
+  //             updateReport: true,
+  //             createNewWithExisting: true,
+  //             downloadPDF: true,
+  //             exportData: true,
+  //             createReport: true,
+  //             generateGraph: true,
+  //             advanceReport: true,
+  //             generateWord: true,
+              
+  //           });
+  //           return;
+  //         }
+
+  //         const admin = adminList.find(
+  //           (a) =>
+  //             a.username?.trim().toLowerCase() === normalizedUserName ||
+  //             a.adminId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (admin?.permissions) {
+  //           setPermissions(admin.permissions);
+  //         }
+  //       }
+
+  //       if (userRole === "employee") {
+  //         const employee = employeeList.find(
+  //           (emp) =>
+  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (employee?.permissions) {
+  //           setPermissions(employee.permissions);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching permissions:", err.message);
+  //     }
+  //   };
+
+  //   fetchPermissions(); // 🔁 Only fetch once when dependencies change
+  // }, [userRole, userName]);
+
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
-        ]);
+  const fetchPermissions = async () => {
+    try {
+      const [empRes, adminRes] = await Promise.all([
+        fetch("https://reportsbe.sharda.co.in/api/employees"),
+        fetch("https://reportsbe.sharda.co.in/api/admins"),
+      ]);
 
-        if (!empRes.ok || !adminRes.ok) {
-          throw new Error("Failed to fetch data");
-        }
-
-        const employeeList = await empRes.json();
-        const adminList = await adminRes.json();
-
-        const normalizedUserName = userName?.trim().toLowerCase();
-
-        if (userRole === "admin") {
-          const storedAdminName = localStorage.getItem("adminName");
-
-          if (!storedAdminName) {
-            setPermissions({
-              generateReport: true,
-              updateReport: true,
-              createNewWithExisting: true,
-              downloadPDF: true,
-              exportData: true,
-              createReport: true,
-              generateGraph:true,
-              advanceReport:true,
-              generateWord:true,
-
-            });
-            return;
-          }
-
-          const admin = adminList.find(
-            (a) =>
-              a.username?.trim().toLowerCase() === normalizedUserName ||
-              a.adminId?.trim().toLowerCase() === normalizedUserName
-          );
-
-          if (admin?.permissions) {
-            setPermissions(admin.permissions);
-          }
-        }
-
-        if (userRole === "employee") {
-          const employee = employeeList.find(
-            (emp) =>
-              emp.name?.trim().toLowerCase() === normalizedUserName ||
-              emp.email?.trim().toLowerCase() === normalizedUserName ||
-              emp.employeeId?.trim().toLowerCase() === normalizedUserName
-          );
-
-          if (employee?.permissions) {
-            setPermissions(employee.permissions);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching permissions:", err.message);
+      if (!empRes.ok || !adminRes.ok) {
+        throw new Error("Failed to fetch data");
       }
-    };
 
-    fetchPermissions(); // 🔁 Only fetch once when dependencies change
-  }, [userRole, userName]);
+      const employeeList = await empRes.json();
+      const adminList = await adminRes.json();
+
+      const normalizedUserName = userName?.trim().toLowerCase();
+
+      if (userRole === "admin") {
+        // Set all permissions to true for admin role
+        console.log("Setting all permissions to true for admin!");
+        setPermissions({
+          generateReport: true,
+          updateReport: true,
+          createNewWithExisting: true,
+          downloadPDF: true,
+          exportData: true,
+          createReport: true,
+          generateGraph: true,
+          advanceReport: true,
+          generateWord: true,
+          cmaData: true,
+        });
+        return;
+      }
+
+      if (userRole === "employee") {
+        const employee = employeeList.find(
+          (emp) =>
+            emp.name?.trim().toLowerCase() === normalizedUserName ||
+            emp.email?.trim().toLowerCase() === normalizedUserName ||
+            emp.employeeId?.trim().toLowerCase() === normalizedUserName
+        );
+
+        if (employee?.permissions) {
+          setPermissions(employee.permissions);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching permissions:", err.message);
+    }
+  };
+
+  if (userRole && userName) {
+    fetchPermissions();
+  }
+}, [userRole, userName]);
+
+  const buttonClass = (permission) => {
+    return permissions[permission]
+      ? "flex items-center bg-gradient-to-br from-green-500 to-green-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+      : "flex items-center bg-gray-300 text-gray-500 rounded-lg px-6 py-2 shadow-md cursor-not-allowed opacity-50";
+  };
 
   const getColorHex = (color) => {
     const colorMap = {
@@ -860,7 +922,16 @@ const FinalStep = ({ formData, userRole }) => {
 
         <button
           onClick={() => navigate("/intro", { state: { formData } })}
-          className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+         className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
+        !permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
+      }`}
+          disabled={!permissions.generateWord}
+          title={
+            !permissions.generateWord
+              ? "You do not have permission to generate word."
+              : ""
+          }
+          // className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -895,7 +966,17 @@ const FinalStep = ({ formData, userRole }) => {
           {/* Export Data Button */}
           <button
             onClick={handleExportData}
-            className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            // className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            className={`flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
+        !permissions.exportData ? "cursor-not-allowed opacity-50" : ""
+      }`}
+            // className={buttonClass("exportData")}
+            disabled={!permissions.exportData}
+            title={
+              !permissions.exportData
+                ? "You do not have permission to export Data."
+                : ""
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -919,6 +1000,7 @@ const FinalStep = ({ formData, userRole }) => {
             formData={formData}
             // selectedColor={selectedColor}
             selectedFont={selectedFont}
+            permissions={permissions}
             className="flex items-center justify-center w-5 bg-gradient-to-br from-purple-500 to-purple-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
           />
 
@@ -954,7 +1036,14 @@ const FinalStep = ({ formData, userRole }) => {
                 "noopener,noreferrer"
               );
             }}
-            className="flex items-center bg-gradient-to-br from-orange-500 to-orange-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            
+             className={buttonClass("advanceReport")}
+              disabled={!permissions.advanceReport}
+              title={
+              !permissions.advanceReport
+                ? "You do not have permission to generate advance report."
+                : ""
+               }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

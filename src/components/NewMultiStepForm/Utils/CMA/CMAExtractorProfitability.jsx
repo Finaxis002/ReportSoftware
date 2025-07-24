@@ -1,8 +1,5 @@
 
-import { useMemo } from "react";
-import { calculateWorkingCapitalLoan } from "./financialCalcs";
-import { CMAExtractorBS } from "./CMAExtractorBS";
-import {  makeCMAExtractors } from "./cmaExtractors";
+
 import { CMAExtractorFinPos } from "./CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "./CMAExtractorFundFlow";import {
   getMonthsPerYear,
@@ -34,11 +31,14 @@ export const CMAExtractorProfitability = (formData) => {
      const FinPosextractors = CMAExtractorFinPos(formData);
     const FundFlowExtractor = CMAExtractorFundFlow(formData);
     const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-    console.log("totalRevenueReceipt", totalRevenueReceipt);
+     const revenueReducePercentage = localStorage.getItem('revenueReducePercentage') 
+    ? parseFloat(localStorage.getItem('revenueReducePercentage')) 
+    : 10;
+    console.log("revenueReducePercentage", revenueReducePercentage);
   
     const value10reduceRevenueReceipt = Array.from({
       length: projectionYears,
-    }).map((_, idx) => Number(totalRevenueReceipt[idx] * 0.1));
+    }).map((_, idx) => Number(totalRevenueReceipt[idx] * (revenueReducePercentage / 100)));
   
     const newRevenueReceipt = Array.from({ length: projectionYears }).map(
       (_, idx) =>

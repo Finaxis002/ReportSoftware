@@ -19,6 +19,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
       generateWord: false,
       advanceReport: false,
       generateGraph: false,
+      cmaData: false,
     },
   });
 
@@ -54,7 +55,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
 
       console.log(response.data);
       setMessage("Employee added successfully");
-       setShowForm(false);
+      setShowForm(false);
       setFormData({
         employeeId: "",
         name: "",
@@ -70,6 +71,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
           generateWord: false,
           advanceReport: false,
           generateGraph: false,
+          cmaData: false,
         },
       });
     } catch (error) {
@@ -272,7 +274,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
     //   </div>
     // </div>
 
-      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm">
       <div className="relative bg-white rounded-xl shadow-2xl p-8 w-full max-w-3xl animate-fadeIn">
         {/* Close Button */}
         <button
@@ -391,13 +393,34 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
                   onClick={() => setShowPassword((s) => !s)}
                 >
                   {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10a9.961 9.961 0 013.042-7.078m2.285 2.336A5.985 5.985 0 006 12c0 3.314 2.686 6 6 6 1.32 0 2.55-.427 3.547-1.151m2.147-2.147A5.985 5.985 0 0018 12c0-3.314-2.686-6-6-6-1.067 0-2.074.28-2.925.77" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-6 h-6"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 3C6.48 3 2 7.02 2 12s4.48 9 10 9 10-4.02 10-9-4.48-9-10-9zM12 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
+                      />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 01-6 0m6 0a6 6 0 11-12 0 6 6 0 0112 0zm0 0c0 1.657-1.343 3-3 3s-3-1.343-3-3" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-6 h-6"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 3C6.48 3 2 7.02 2 12s4.48 9 10 9 10-4.02 10-9-4.48-9-10-9zm1 12a3 3 0 11-2-5.24"
+                      />
                     </svg>
                   )}
                 </button>
@@ -411,15 +434,24 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
               Access Controls
             </h3>
             <div className="grid grid-cols-2 gap-3 bg-indigo-50 rounded-xl p-4 mb-2">
-              {[{ name: "generateReport", label: "Generate Report" },
-              { name: "updateReport", label: "Update Report" },
-              { name: "createNewWithExisting", label: "Create New with Existing" },
-              { name: "downloadPDF", label: "Download PDF" },
-              { name: "exportData", label: "Export Data" },
-              { name: "generateWord", label: "Generate Word" },
-              { name: "advanceReport", label: "Advance Report" },
-              { name: "generateGraph", label: "Generate Graph" }].map((perm) => (
-                <label key={perm.name} className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-indigo-700 transition">
+              {[
+                { name: "generateReport", label: "Generate Report" },
+                { name: "updateReport", label: "Update Report" },
+                {
+                  name: "createNewWithExisting",
+                  label: "Create New with Existing",
+                },
+                { name: "downloadPDF", label: "Download PDF" },
+                { name: "exportData", label: "Export Data" },
+                { name: "generateWord", label: "Generate Word" },
+                { name: "advanceReport", label: "Advance Report" },
+                { name: "generateGraph", label: "Generate Graph" },
+                { name: "cmaData", label: "CMA Data" },
+              ].map((perm) => (
+                <label
+                  key={perm.name}
+                  className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-indigo-700 transition"
+                >
                   <input
                     type="checkbox"
                     name={perm.name}

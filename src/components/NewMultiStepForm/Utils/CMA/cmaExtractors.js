@@ -253,11 +253,13 @@ export const makeCMAExtractors = (formData) => {
   return {
     year: () => Number(formData?.ProjectReportSetting?.ProjectionYears || 5),
     yearLabels: () =>
-      Array.from(
-        { length: years },
-        (_, i) =>
-          (Number(formData?.ProjectReportSetting?.StartYear) || 2024) + i
-      ),
+  Array.from({ length: years }, (_, i) => {
+    const startYear = Number(formData?.ProjectReportSetting?.StartYear) || 2024;
+    const yearStart = startYear + i;
+    const yearEnd = yearStart + 1;
+    return `${yearStart}-${yearEnd.toString().slice(-2)}`; // Returns year in format 2024-25
+  }),
+
     grossSales: () =>
       formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
     dutiesTaxes: () => Array(years).fill(0),
