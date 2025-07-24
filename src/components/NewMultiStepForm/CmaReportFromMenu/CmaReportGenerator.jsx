@@ -125,8 +125,8 @@ const CmaReportGenerator = ({ formData }) => {
     localStorage.setItem("cmaAdvanceFormData", JSON.stringify(formData));
     localStorage.setItem("cmaSource", "menu-bar");
     window.open("/cma-advance-report", "_blank", "noopener,noreferrer");
+    localStorage.setItem("revenueReducePercentage", revenueReducePercentage);
     localStorage.setItem("expenseIncreasePercentage", expenseIncreasePercentage);
-    localStorage.setItem("")
   };
 
   return (
