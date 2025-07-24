@@ -16,6 +16,7 @@ import CMAWorkingCapReq from "./CMAWorkingCapReq";
 import CMAProfitabilityMenu from "./CMAProfitabilityMenu";
 import CMABalanceSheetMenu from './CMABalanceSheetMenu';
 import CMACashflowMenu from './CMACashflowMenu';
+import CMAContents from './CMAContents';
 
 const CMAMultiPagePDF = ({
   formData,
@@ -112,6 +113,8 @@ const CMAMultiPagePDF = ({
       {/* Each sub-component must return <Page> or an array of <Page> */}
        {isMenuBar && (
         <>
+
+           <CMAContents formData={formData} orientation={orientation}  formatNumber={formatNumber}/>
           <CMAProfitabilityMenu
             handleDataSend={handleDataSend}
             formData={formData}
@@ -174,6 +177,7 @@ const CMAMultiPagePDF = ({
         orientation={orientation}
       />
       <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
+      
      
 
      

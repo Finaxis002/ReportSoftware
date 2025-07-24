@@ -140,6 +140,8 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
               { key: "generateGraph", label: "Generate Graph" },
               { key: "advanceReport", label: "Advance Report" },
               { key: "generateWord", label: "Generate Word" },
+              { key: "exportData", label: "Export Data" },
+              { key: "cmaData", label: "CMA Data" }
             ].map((perm) => (
               <div key={perm.key} className="flex items-center gap-3">
                 <label className="flex items-center gap-3 cursor-pointer">

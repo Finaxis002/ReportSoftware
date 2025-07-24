@@ -17,6 +17,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
       generateGraph: employee?.permissions?.generateGraph || false,
       advanceReport: employee?.permissions?.advanceReport || false,
       generateWord: employee?.permissions?.generateWord || false,
+      cmaData: employee?.permissions?.cmaData || false,
     },
   });
 
@@ -41,6 +42,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
         generateGraph: employee?.permissions?.generateGraph || false,
       advanceReport: employee?.permissions?.advanceReport || false,
       generateWord: employee?.permissions?.generateWord || false,
+      cmaData: employee?.permissions?.cmaData || false,
       },
     });
   }, [employee]);
@@ -411,7 +413,9 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
                 { name: "exportData", label: "Export Data" },
                 { name: "generateWord", label: "Generate Word" },
                 { name: "advanceReport", label: "Advance Report" },
-                { name: "generateGraph", label: "Generate Graph" }].map((perm) => (
+                { name: "generateGraph", label: "Generate Graph" },
+                { name: "cmaData", label: "CMA Data" }
+              ].map((perm) => (
                   <label key={perm.name} className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-indigo-700 transition">
                     <input
                       type="checkbox"

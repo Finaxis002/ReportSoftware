@@ -549,13 +549,15 @@ const CMACashflowMenu = ({
           </Text>
           <Text style={styles.FinancialYear}>
             Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear
+            {formData?.ProjectReportSetting?.FinancialYear &&
+            !isNaN(formData.ProjectReportSetting.FinancialYear) &&
+            formData.ProjectReportSetting.FinancialYear.length === 4
               ? `${formData.ProjectReportSetting.FinancialYear}-${(
                   parseInt(formData.ProjectReportSetting.FinancialYear) + 1
                 )
                   .toString()
                   .slice(-2)}`
-              : "2025-26"}
+              : "2024-25"}
           </Text>
         </View>
 
@@ -614,14 +616,14 @@ const CMACashflowMenu = ({
               </Text>
 
               {/* Generate Dynamic Year Headers using financialYearLabels */}
-              {yearLabels.map((label, idx) => (
-                <Text
-                  key={label || idx} // <-- Add key here
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {label}
-                </Text>
-              ))}
+              {yearLabels.map((yearLabel, yearIndex) => (
+                             <Text
+                               key={yearIndex}
+                               style={[styles.particularsCell, stylesCOP.boldText]}
+                             >
+                               {yearLabel}
+                             </Text>
+                           ))}
             </View>
 
             {/* Blank Row  */}
@@ -1078,17 +1080,19 @@ const CMACashflowMenu = ({
                 Interest On Term Loan
               </Text>
 
-              {interestOnTermLoan.map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
+              {interestOnTermLoan
+                .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+                .map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(val)}
+                  </Text>
+                ))}
             </View>
 
             {/* Interest On Working Capital */}
