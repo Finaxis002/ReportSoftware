@@ -261,9 +261,14 @@ const CMADSCRExpense = ({
            Number(totalDirectExpenses[i] || 0) - 
            Number(rawmaterial[i] || 0)
     )
+
+    const expenseIncreasePercentage = localStorage.getItem('expenseIncreasePercentage') 
+    ? parseFloat(localStorage.getItem('expenseIncreasePercentage')) 
+    : 10;
+    console.log("expenseIncreasePercentage", expenseIncreasePercentage);
   //expense increase by 10%
   const increaseValueExpense = Array.from({length:projectionYears}).map((_, i)=>
-   Number(totalExpenseWithoutRM[i] * 0.1)
+   Number(totalExpenseWithoutRM[i] *(expenseIncreasePercentage/100))
 )
 
 const increasedExpenseTotal = Array.from({length:projectionYears}).map((_, i)=>
