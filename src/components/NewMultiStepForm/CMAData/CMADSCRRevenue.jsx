@@ -28,17 +28,7 @@ Font.register({
   ],
 });
 
-const num = (v) => {
-  // Handle percentages by dividing by 100
-  if (typeof v === "string") {
-    if (v.trim().endsWith("%")) {
-      return parseFloat(v.replace("%", "").replace(/,/g, "").trim()) / 100 || 0;
-    }
-    // Handle commas (thousands) and convert to number
-    return parseFloat(v.replace(/,/g, "").trim()) || 0;
-  }
-  return Number(v) || 0;
-};
+
 
 const CMADSCRRevenue = ({
   formData,
@@ -55,11 +45,7 @@ const CMADSCRRevenue = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
+ 
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
@@ -257,12 +243,11 @@ const CMADSCRRevenue = ({
   );
 
   const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
+
   const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
   const Withdrawals = PPExtractor.Withdrawals() || [];
   const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
+  
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(newRevenueReceipt[i]) - Number(totalDirectExpenses[i])
   );
@@ -270,6 +255,9 @@ const CMADSCRRevenue = ({
   const NPBT = Array.from({ length: projectionYears }).map(
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
+ console.log('NPBT', NPBT)
+  console.log('grossProfit', grossProfit)
+   console.log('newRevenueReceipt', newRevenueReceipt)
 
   const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
   const incomeTaxCalculation = Array.from({ length: projectionYears }).map(

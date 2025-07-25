@@ -46,6 +46,8 @@ export const CMAExtractorProfitability = (formData) => {
         Number(value10reduceRevenueReceipt[idx] || 0)
     );
   
+    console.log('newRevenueReceipt',newRevenueReceipt)
+      console.log('value10reduceRevenueReceipt',value10reduceRevenueReceipt)
 
     const ClosingStock = formData?.MoreDetails?.ClosingStock || 0;
   const OpeningStock = formData?.MoreDetails?.OpeningStock || 0;
