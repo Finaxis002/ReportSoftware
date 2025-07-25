@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
 
   businessName: {
     fontSize: "16px",
-    paddingTop: 20,
+    paddingTop: 15,
     textTransform: "capitalize",
     fontFamily: selectedFont,
     fontWeight: "bold",

@@ -173,12 +173,7 @@ const CMASARevenue = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  console.log("Preliminary Write-Off Per Year:", preliminaryWriteOffPerYear);
-  console.log(
-    "Is Preliminary Write-Off All Zero:",
-    isPreliminaryWriteOffAllZero
-  );
-
+  
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
@@ -298,6 +293,7 @@ const CMASARevenue = ({
     (_, i) => Number(NPBT[i] || 0) + Number(depreciation[i] || 0)
   );
 
+   const revenueReducePercentage = PPExtractor.revenueReducePercentage() || 10 ;
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -381,7 +377,7 @@ const CMASARevenue = ({
         <View>
           <View style={stylesCOP.heading}>
             <Text>Sensitivity Analysis</Text>
-            <Text>Income Tax Calculation (Revenue reduced by 10%)</Text>
+            <Text>Income Tax Calculation (Revenue reduced by {revenueReducePercentage}%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -459,14 +455,11 @@ const CMASARevenue = ({
             </View>
 
             {/* Net Profit Before Tax Calculation */}
-            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+            <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
+                  
                 ]}
               ></Text>
               <Text
@@ -599,14 +592,11 @@ const CMASARevenue = ({
             </View>
 
              {/* Net Profit / (Loss) */}
-            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+            <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
+                  
                 ]}
               ></Text>
               <Text
@@ -634,7 +624,7 @@ const CMASARevenue = ({
             </View>
 
 
-             {/* Net Profit / (Loss) */}
+             {/* Taxable Profit */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text
                 style={[
@@ -717,7 +707,7 @@ const CMASARevenue = ({
               flexDirection: "row", // ✅ Change to row
               justifyContent: "space-between", // ✅ Align items left and right
               alignItems: "center",
-              marginTop: 60,
+              marginTop: 30,
             },
           ]}
         >
@@ -770,7 +760,7 @@ const CMASARevenue = ({
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "80px",
+                gap: "30px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "30px",

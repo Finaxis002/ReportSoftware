@@ -339,6 +339,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
     projectionYears
   );
 
+   const revenueReducePercentage = PPExtractor.revenueReducePercentage() || 10 ;
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -422,7 +423,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
         <View>
           <View style={stylesCOP.heading}>
             <Text>Sensitivity Analysis</Text>
-            <Text>Debt-Service Coverage Ratio (Revenue Reduced by 10%)</Text>
+            <Text>Debt-Service Coverage Ratio (Revenue Reduced by {revenueReducePercentage}%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -500,7 +501,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
             </View>
             
              {/* Net Profit After Tax Calculation  */}
-            <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+            <View style={[styles.tableRow]}>
               <Text
                 style={[
                   stylesCOP.serialNoCellDetail,
@@ -517,10 +518,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  {
-                    // ✅ Ensure using the registered font
-                    fontWeight: "bold", // ✅ Apply bold
-                  },
+                  
                 ]}
               >
                 Net Profit After Tax
@@ -533,7 +531,6 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
                     stylesCOP.particularsCellsDetail,
                     stylesCOP.boldText,
                     styleExpenses.fontSmall,
-                    styles.Total,
                     { borderLeftWidth: "0px" },
                   ]}
                 >
@@ -1052,7 +1049,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
               flexDirection: "row", // ✅ Change to row
               justifyContent: "space-between", // ✅ Align items left and right
               alignItems: "center",
-              marginTop: 60,
+              marginTop: 30,
             },
           ]}
         >
@@ -1105,7 +1102,7 @@ const dscr = Array.from({length:projectionYears}).map((_, i )=>{
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "80px",
+                gap: "30px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "30px",

@@ -34,26 +34,25 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAFinancialPosition = ({ formData , orientation}) => {
+const CMAFinancialPosition = ({ formData, orientation }) => {
   // You can import these:
-   const FinPosextractors = CMAExtractorFinPos(formData);
+  const FinPosextractors = CMAExtractorFinPos(formData);
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
-  
+
   const depreciation = extractors.depreciation();
-  
+
   const rawmaterial = extractors.rawMaterial();
   const directExpensesArray = extractors.directExpenses?.() || [];
- 
+
   const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan= FinPosextractors.interestOnTermLoan() || [];
+  const interestOnTermLoan = FinPosextractors.interestOnTermLoan() || [];
   const interestOnWCArray = extractors.interestOnWCArray() || [];
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
- 
-console.log('interestOnTermLoan',interestOnTermLoan)
- 
+
+  console.log("interestOnTermLoan", interestOnTermLoan);
 
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
@@ -61,10 +60,7 @@ console.log('interestOnTermLoan',interestOnTermLoan)
 
   console.log("interest On Term Loan :", interestOnTermLoan);
 
- 
-
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  
 
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
@@ -140,41 +136,46 @@ console.log('interestOnTermLoan',interestOnTermLoan)
   );
 
   //new data
- 
 
   const shareCapital = BSextractors.shareCapital() || [];
   const netWorth = BSextractors.netWorth() || [];
   const netWorkingCapital = FinPosextractors.netWorkingCapital() || [];
   const grossProfit = FinPosextractors.grossProfit() || [];
-  const withdrawalsToNPATPercentage = Array.from({ length: years }).map((_, idx) => {
-  const wdraw = Number(withdrawals[idx] || 0);
-  const npat = Number(netProfitAfterTax[idx] || 0);
-  if (wdraw === 0 || npat === 0) return 0;
-  return (wdraw / npat) * 100;
-});
-const currentRatioArr = FinPosextractors.currentRatioArr() || [];
-const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-const debtEquityArr = FinPosextractors.debtEquityArr() || [];
-const totalOutsideLiabilitiesNetWorthRatio = FinPosextractors.totalOutsideLiabilitiesNetWorthRatio() || [];
-const grossProfitDivNetWorthRatio= FinPosextractors.grossProfitDivNetWorthRatio() || [];
-const netProfitDivNetWorthRatioArr= FinPosextractors.netProfitDivNetWorthRatioArr() || [];
+  const withdrawalsToNPATPercentage = Array.from({ length: years }).map(
+    (_, idx) => {
+      const wdraw = Number(withdrawals[idx] || 0);
+      const npat = Number(netProfitAfterTax[idx] || 0);
+      if (wdraw === 0 || npat === 0) return 0;
+      return (wdraw / npat) * 100;
+    }
+  );
+  const currentRatioArr = FinPosextractors.currentRatioArr() || [];
+  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
+  const debtEquityArr = FinPosextractors.debtEquityArr() || [];
+  const totalOutsideLiabilitiesNetWorthRatio =
+    FinPosextractors.totalOutsideLiabilitiesNetWorthRatio() || [];
+  const grossProfitDivNetWorthRatio =
+    FinPosextractors.grossProfitDivNetWorthRatio() || [];
+  const netProfitDivNetWorthRatioArr =
+    FinPosextractors.netProfitDivNetWorthRatioArr() || [];
 
-const termLaonplusWorkingCap =  Array.from({ length: years }).map((_, idx) => 
-   Number(interestOnTermLoan[idx] || 0)+
-   Number(interestOnWCArray[idx] || 0)
-)
-const grossReceiptMinusProfit = Array.from({ length: years }).map((_, idx) => 
-   Number(totalRevenueReceipt[idx] || 0)-
-   Number(grossProfit[idx] || 0)
-)
+  const termLaonplusWorkingCap = Array.from({ length: years }).map(
+    (_, idx) =>
+      Number(interestOnTermLoan[idx] || 0) + Number(interestOnWCArray[idx] || 0)
+  );
+  const grossReceiptMinusProfit = Array.from({ length: years }).map(
+    (_, idx) =>
+      Number(totalRevenueReceipt[idx] || 0) - Number(grossProfit[idx] || 0)
+  );
 
-const interestDivCOP =  Array.from({ length: years }).map((_, idx) => 
- (Number(termLaonplusWorkingCap[idx] || 0)/
- Number(grossReceiptMinusProfit[idx] || 0))*100
-)
+  const interestDivCOP = Array.from({ length: years }).map(
+    (_, idx) =>
+      (Number(termLaonplusWorkingCap[idx] || 0) /
+        Number(grossReceiptMinusProfit[idx] || 0)) *
+      100
+  );
 
-const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
-
+  const dscr = formData?.computedData?.dscr?.DSCR || 0;
 
   return (
     <Page size="A4" style={styles.page} orientation={orientation}>
@@ -474,18 +475,21 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 </Text>
 
                 {interestOnTermLoan
-                 .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
-                .map((val, idx) => (
-                  <Text
-                    key={idx}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                    ]}
-                  >
-                    {formatNumber(formData, val)}
-                  </Text>
-                ))}
+                  .slice(
+                    0,
+                    formData?.ProjectReportSetting?.ProjectionYears || 0
+                  )
+                  .map((val, idx) => (
+                    <Text
+                      key={idx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(formData, val)}
+                    </Text>
+                  ))}
               </View>
 
               {/* Interest working capital */}
@@ -701,7 +705,9 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     styles.Total,
                     { paddingVertical: "10px" },
                   ]}
-                >l</Text>
+                >
+                  l
+                </Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -726,7 +732,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 })}
               </View>
 
-               {/* amount */}
+              {/* amount */}
               <View
                 style={[
                   stylesMOF.row,
@@ -740,9 +746,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     styleExpenses.sno,
                     styleExpenses.bordernone,
                   ]}
-                >
-                  
-                </Text>
+                ></Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -767,7 +771,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*percentage */}
+              {/*percentage */}
               <View
                 style={[
                   stylesMOF.row,
@@ -781,9 +785,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     styleExpenses.sno,
                     styleExpenses.bordernone,
                   ]}
-                >
-                  
-                </Text>
+                ></Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -808,7 +810,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*Advance / investments in subsidiary / allied concerns */}
+              {/*Advance / investments in subsidiary / allied concerns */}
               <View
                 style={[
                   stylesMOF.row,
@@ -849,7 +851,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*Bad-debts, if any */}
+              {/*Bad-debts, if any */}
               <View
                 style={[
                   stylesMOF.row,
@@ -890,8 +892,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-
-               {/*Arrears of depreciation, if any */}
+              {/*Arrears of depreciation, if any */}
               <View
                 style={[
                   stylesMOF.row,
@@ -932,7 +933,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/* ratio */}
+              {/* ratio */}
               <View style={[styles.tableRow, styles.totalRow]}>
                 <Text
                   style={[
@@ -940,7 +941,9 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     styles.Total,
                     { paddingVertical: "10px" },
                   ]}
-                >l</Text>
+                >
+                  l
+                </Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -965,7 +968,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 })}
               </View>
 
-               {/*Current Ratio*/}
+              {/*Current Ratio*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1006,7 +1009,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*Debt-Equity Ratio*/}
+              {/*Debt-Equity Ratio*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1031,7 +1034,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Debt-Equity Ratio
+                  Debt-Equity Ratio
                 </Text>
 
                 {debtEquityArr.map((val, idx) => (
@@ -1047,7 +1050,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*TOL/TWN*/}
+              {/*TOL/TWN*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1072,7 +1075,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Funded Debt: Net worth (TOL/TNW)
+                  Funded Debt: Net worth (TOL/TNW)
                 </Text>
 
                 {totalOutsideLiabilitiesNetWorthRatio.map((val, idx) => (
@@ -1088,7 +1091,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                 ))}
               </View>
 
-               {/*Gross Profit / Net worth*/}
+              {/*Gross Profit / Net worth*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1113,7 +1116,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Gross Profit / Net worth
+                  Gross Profit / Net worth
                 </Text>
 
                 {grossProfitDivNetWorthRatio.map((val, idx) => (
@@ -1124,12 +1127,12 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                       styleExpenses.fontSmall,
                     ]}
                   >
-                   { formatNumber(formData, val)}%
+                    {formatNumber(formData, val)}%
                   </Text>
                 ))}
               </View>
 
-               {/*Gross Profit / Net worth*/}
+              {/*Gross Profit / Net worth*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1154,7 +1157,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Net Profit / Net worth
+                  Net Profit / Net worth
                 </Text>
 
                 {netProfitDivNetWorthRatioArr.map((val, idx) => (
@@ -1165,12 +1168,12 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                       styleExpenses.fontSmall,
                     ]}
                   >
-                   { formatNumber(formData, val)}%
+                    {formatNumber(formData, val)}%
                   </Text>
                 ))}
               </View>
 
-                {/*intrest  / cop*/}
+              {/*intrest  / cop*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1195,7 +1198,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Interest / Cost of production
+                  Interest / Cost of production
                 </Text>
 
                 {interestDivCOP.map((val, idx) => (
@@ -1206,12 +1209,12 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                       styleExpenses.fontSmall,
                     ]}
                   >
-                   { formatNumber(formData, val)}%
+                    {formatNumber(formData, val)}%
                   </Text>
                 ))}
               </View>
 
-                {/*dscr*/}
+              {/*dscr*/}
               <View
                 style={[
                   stylesMOF.row,
@@ -1236,7 +1239,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                     {},
                   ]}
                 >
-                 Debt Service Coverage Ratio
+                  Debt Service Coverage Ratio
                 </Text>
 
                 {dscr.map((val, idx) => (
@@ -1247,7 +1250,7 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
                       styleExpenses.fontSmall,
                     ]}
                   >
-                   { formatNumber(formData, val)}%
+                    {formatNumber(formData, val)}%
                   </Text>
                 ))}
               </View>
@@ -1256,80 +1259,80 @@ const dscr = formData?.computedData?.dscr?.DSCR || 0 ;
         </View>
 
         <View
-                  style={[
-                    {
-                      display: "flex",
-                      flexDirection: "row", // ✅ Change to row
-                      justifyContent: "space-between", // ✅ Align items left and right
-                      alignItems: "center",
-                      marginTop: 60,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      paddingTop: 100,
-                    }}
-                  >
-                    {/* ✅ CA Name (Conditional Display) */}
-                    {formData?.ProjectReportSetting?.CAName?.value ? (
-                      <Text
-                        style={[
-                          styles.caName,
-                          { fontSize: "10px", fontWeight: "bold" },
-                        ]}
-                      >
-                        CA {formData?.ProjectReportSetting?.CAName?.value}
-                      </Text>
-                    ) : null}
-        
-                    {/* ✅ Membership Number (Conditional Display) */}
-                    {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
-                      <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
-                        M. No.:{" "}
-                        {formData?.ProjectReportSetting?.MembershipNumber?.value}
-                      </Text>
-                    ) : null}
-        
-                    {/* ✅ UDIN Number (Conditional Display) */}
-                    {formData?.ProjectReportSetting?.UDINNumber?.value ? (
-                      <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
-                        UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
-                      </Text>
-                    ) : null}
-        
-                    {/* ✅ Mobile Number (Conditional Display) */}
-                    {formData?.ProjectReportSetting?.MobileNumber?.value ? (
-                      <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
-                        Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
-                      </Text>
-                    ) : null}
-                  </View>
-        
-                  {/* businees name and Client Name  */}
-                  <View
-                    style={[
-                      {
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "80px",
-                        alignItems: "flex-end",
-                        justifyContent: "flex-end",
-                        marginTop: "30px",
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.businessName, { fontSize: "10px" }]}>
-                      {formData?.AccountInformation?.businessName || "Business Name"}
-                    </Text>
-                    <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-                      {formData?.AccountInformation?.businessOwner || "businessOwner"}
-                    </Text>
-                  </View>
-                </View>
+          style={[
+            {
+              display: "flex",
+              flexDirection: "row", // ✅ Change to row
+              justifyContent: "space-between", // ✅ Align items left and right
+              alignItems: "center",
+              marginTop: 30,
+            },
+          ]}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              paddingTop: 100,
+            }}
+          >
+            {/* ✅ CA Name (Conditional Display) */}
+            {formData?.ProjectReportSetting?.CAName?.value ? (
+              <Text
+                style={[
+                  styles.caName,
+                  { fontSize: "10px", fontWeight: "bold" },
+                ]}
+              >
+                CA {formData?.ProjectReportSetting?.CAName?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ Membership Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+              <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                M. No.:{" "}
+                {formData?.ProjectReportSetting?.MembershipNumber?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ UDIN Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+              <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+              </Text>
+            ) : null}
+
+            {/* ✅ Mobile Number (Conditional Display) */}
+            {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+              <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* businees name and Client Name  */}
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "30px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "30px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
+          </View>
+        </View>
       </View>
     </Page>
   );
