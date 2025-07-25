@@ -61,7 +61,7 @@ const Reports = ({ sendPdfData }) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
       try {
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/delete-report/${reportId}`,
+          `https://reportsbe.sharda.co.in/get-report/delete-report/${reportId}`,
           {
             method: "DELETE",
           }
@@ -84,7 +84,7 @@ const Reports = ({ sendPdfData }) => {
   const handleDownload = async (sessionId) => {
     try {
       const response = await fetch(
-        `https://reportsbe.sharda.co.in/get-report-data/${sessionId}`
+        `https://reportsbe.sharda.co.in/get-report/get-report-data/${sessionId}`
       );
       if (!response.ok) throw new Error("Failed to fetch report data");
 
