@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Document, Page } from "@react-pdf/renderer";
 import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
 import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
@@ -23,6 +23,7 @@ const CMAMultiPagePDF = ({
   setIsPDFLoading,
   orientation,
   source,
+  onLoadingComplete
 }) => {
   //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
   //   const isEmpty =
@@ -98,11 +99,14 @@ const CMAMultiPagePDF = ({
     setReceivedData(data);
   });
 
-  //   const [orientation, setOrientation] = useState(() => {
-  //   const stored = JSON.parse(localStorage.getItem("formData"));
-  //   const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
-  //   return years > 6 ? "landscape" : "portrait";
-  // });
+   useEffect(() => {
+    // This timeout is a fallback in case the PDF rendering doesn't trigger an event
+    const fallbackTimeout = setTimeout(() => {
+      onLoadingComplete && onLoadingComplete();
+    }, 3000); // 3 seconds fallback
+
+    return () => clearTimeout(fallbackTimeout);
+  }, [onLoadingComplete]);
 
   return (
     <Document

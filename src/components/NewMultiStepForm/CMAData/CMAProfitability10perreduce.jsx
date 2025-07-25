@@ -328,6 +328,7 @@ const CMAProjectedProfitability = ({
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])
   );
 
+  const revenueReducePercentage = PPExtractor.revenueReducePercentage() || 10 ;
   return (
     <Page
       size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
@@ -411,7 +412,7 @@ const CMAProjectedProfitability = ({
         <View>
           <View style={stylesCOP.heading}>
             <Text>Sensitivity Analysis</Text>
-            <Text>Projected Profitability (Revenue Reduced by 10%)</Text>
+            <Text>Projected Profitability (Revenue Reduced by {revenueReducePercentage}%)</Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -570,7 +571,7 @@ const CMAProjectedProfitability = ({
                   {},
                 ]}
               >
-                Less: Revenue reduced by 10%
+                Less: Revenue reduced by {revenueReducePercentage}%
               </Text>
 
               {/* ✅ Display revenue values based on projectionYears */}
@@ -869,7 +870,7 @@ const CMAProjectedProfitability = ({
 
             {/* b Salaries & Wages  */}
             <View style={[styles.tableRow, styles.totalRow]}>
-              <Text style={stylesCOP.serialNoCellDetail}>b</Text>
+              <Text style={stylesCOP.serialNoCellDetail}>1</Text>
               <Text
                 style={[
                   stylesCOP.detailsCellDetail,
@@ -897,7 +898,7 @@ const CMAProjectedProfitability = ({
             {/* c raw material  */}
             {rawmaterial.some((val) => Number(val) !== 0) && (
               <View style={[styles.tableRow, styles.totalRow]}>
-                <Text style={stylesCOP.serialNoCellDetail}>c</Text>
+                <Text style={stylesCOP.serialNoCellDetail}>2</Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1760,7 +1761,7 @@ const CMAProjectedProfitability = ({
               flexDirection: "row", // ✅ Change to row
               justifyContent: "space-between", // ✅ Align items left and right
               alignItems: "center",
-              marginTop: 60,
+              marginTop: 30,
             },
           ]}
         >
@@ -1813,7 +1814,7 @@ const CMAProjectedProfitability = ({
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "80px",
+                gap: "30px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "30px",

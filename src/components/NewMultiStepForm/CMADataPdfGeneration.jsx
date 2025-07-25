@@ -1,4 +1,3 @@
-
 import { saveAs } from "file-saver";
 import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -7,7 +6,7 @@ import CMAMultiPagePDF from "./CMAData/CMAMultiPagePDF";
 
 const CMADataPdfGeneration = () => {
   const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
-  const source = localStorage.getItem("cmaSource") || "final-step"; 
+  const source = localStorage.getItem("cmaSource") || "final-step";
 
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
@@ -123,7 +122,12 @@ const CMADataPdfGeneration = () => {
     return () => clearInterval(pollIframe);
   }, []);
 
-  
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Handle the state of the PDF generation
+  const handleBlobLoading = (loading) => {
+    setIsLoading(loading);
+  };
 
   return (
     <>
@@ -240,7 +244,10 @@ const CMADataPdfGeneration = () => {
           </div>
           <div className="flex gap-1">
             <button
-              onClick={() => setOrientation("portrait")}
+            
+              onClick={() => {
+                setIsLoading(true);
+                setOrientation("portrait")}}
               className={`text-sm px-2 py-1 rounded ${
                 orientation === "portrait"
                   ? "bg-white text-indigo-600"
@@ -250,7 +257,10 @@ const CMADataPdfGeneration = () => {
               Portrait
             </button>
             <button
-              onClick={() => setOrientation("landscape")}
+              onClick={() => {
+                setIsLoading(true);
+                setOrientation("landscape")
+              }}
               className={`text-sm px-2 py-1 rounded ${
                 orientation === "landscape"
                   ? "bg-white text-indigo-600"
@@ -260,57 +270,83 @@ const CMADataPdfGeneration = () => {
               Landscape
             </button>
           </div>
-          <BlobProvider document={<CMAMultiPagePDF formData={formData} orientation={orientation} />}>
-      {({ blob, url, loading }) => (
-        <button
-          onClick={() => {
-            if (!blob) {
-              Swal.fire({
-                icon: "error",
-                title: "PDF is not ready yet!",
-                timer: 1300,
-                showConfirmButton: false,
-              });
-              return;
+          <BlobProvider
+            document={
+              <CMAMultiPagePDF formData={formData} orientation={orientation} />
             }
-            const businessName = formData?.AccountInformation?.businessName || "Report";
-            const businessOwner = formData?.AccountInformation?.businessOwner || "Owner";
-            const safeName = `${businessName} (${businessOwner})`
-              .replace(/[/\\?%*:|"<>]/g, "-")
-              .trim();
-            saveAs(blob, `${safeName}.pdf`);
-          }}
-          className="text-sm px-2 py-1 rounded bg-white text-indigo-600 ml-2 border border-indigo-600 hover:bg-indigo-100 transition"
-          disabled={loading}
-        >
-          {loading ? "Preparing..." : "Download PDF"}
-        </button>
-      )}
-    </BlobProvider>
-          
+          >
+            {({ blob, url, loading }) => (
+              <button
+                onClick={() => {
+                  if (!blob) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "PDF is not ready yet!",
+                      timer: 1300,
+                      showConfirmButton: false,
+                    });
+                    return;
+                  }
+                  const businessName =
+                    formData?.AccountInformation?.businessName || "Report";
+                  const businessOwner =
+                    formData?.AccountInformation?.businessOwner || "Owner";
+                  const safeName = `${businessName} (${businessOwner})`
+                    .replace(/[/\\?%*:|"<>]/g, "-")
+                    .trim();
+                  saveAs(blob, `${safeName}.pdf`);
+                }}
+                className="text-sm px-2 py-1 rounded bg-white text-indigo-600 ml-2 border border-indigo-600 hover:bg-indigo-100 transition"
+                disabled={loading}
+              >
+                {loading ? "Preparing..." : "Download PDF"}
+              </button>
+            )}
+          </BlobProvider>
         </div>
-
+        {/* Show loading spinner when the PDF is being generated */}
+        {isLoading && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 10,
+            }}
+          >
+            <svg
+              className="animate-spin h-12 w-12 text-indigo-600"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
+              />
+            </svg>
+            <span className="ml-2 text-gray-500 font-medium">
+              Preparing PDF...
+            </span>
+          </div>
+        )}
         <div
           style={{
             position: "relative",
             width: "100%",
           }}
         >
-          <div
-            style={{ height: "calc(100vh - 44px)", width: "100%" }}
-            // onContextMenu={(e) => {
-            //   e.preventDefault();
-            //   Swal.fire({
-            //     icon: "error",
-            //     title: "Right-click Disabled",
-            //     text: "Right-click is disabled on this PDF for security reasons.",
-            //     confirmButtonColor: "#6366f1",
-            //     background: "#fff",
-            //     timer: 1600,
-            //     showConfirmButton: false,
-            //   });
-            // }}
-          >
+          <div style={{ height: "calc(100vh - 44px)", width: "100%" }}>
             <PDFViewer
               width="100%"
               height="100%"
@@ -324,7 +360,12 @@ const CMADataPdfGeneration = () => {
               showToolbar={false}
               key={orientation}
             >
-              <CMAMultiPagePDF formData={formData} orientation={orientation} source={source}/>
+              <CMAMultiPagePDF
+                formData={formData}
+                orientation={orientation}
+                source={source}
+                onLoadingComplete={() => handleBlobLoading(false)}
+              />
             </PDFViewer>
           </div>
           <div

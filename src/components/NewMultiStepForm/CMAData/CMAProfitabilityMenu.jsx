@@ -1641,7 +1641,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               flexDirection: "row", // ✅ Change to row
               justifyContent: "space-between", // ✅ Align items left and right
               alignItems: "center",
-              marginTop: 60,
+              marginTop: 30,
             },
           ]}
         >
@@ -1694,7 +1694,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "80px",
+                gap: "30px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "30px",

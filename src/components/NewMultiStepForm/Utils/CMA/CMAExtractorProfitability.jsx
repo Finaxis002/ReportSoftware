@@ -123,7 +123,7 @@ const cashProfit = formData?.computedData?.computedData?.cashProfitArray || [];
         balanceTrfBalncSheet:()=>balanceTrfBalncSheet,
         cumulativeBalanceTransferred:()=>cumulativeBalanceTransferred,
         cashProfit:()=>cashProfit,
-        // expense reduced by 10%
+        revenueReducePercentage:()=>revenueReducePercentage,
         OriginalRevenueValues:()=>OriginalRevenueValues
     }
 }

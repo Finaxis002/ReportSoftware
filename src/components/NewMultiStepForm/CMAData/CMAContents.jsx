@@ -45,35 +45,15 @@ const CMAContents = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
+  
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
+ 
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  const indirectExpense = (directExpense || []).filter(
-    (expense) => expense.type === "indirect"
-  );
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
+ 
+  
 
   // Month Mapping
   const monthMap = {
@@ -99,229 +79,22 @@ const CMAContents = ({
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
-  // Function to handle moratorium period spillover across financial years
-  const calculateMonthsPerYear = () => {
-    let monthsArray = [];
-    let remainingMoratorium = moratoriumPeriodMonths;
-    for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
-      }
+  
+  
 
-      if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
-        remainingMoratorium -= monthsInYear;
-      } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
-        remainingMoratorium = 0;
-      }
-    }
-    return monthsArray;
-  };
 
-  const preliminaryExpensesTotal = Number(
-    formData?.CostOfProject?.preliminaryExpensesTotal || 0
-  );
+ 
 
-  const preliminaryWriteOffYears = Number(
-    formData?.CostOfProject?.preliminaryWriteOffYears || 0
-  );
+ 
 
-  // Calculate yearly write-off value
-  const yearlyWriteOffAmount =
-    preliminaryWriteOffYears > 0
-      ? preliminaryExpensesTotal / preliminaryWriteOffYears
-      : 0;
-
-  // Generate the array for yearly values
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
-  }).map((_, index) => {
-    const startIndex = 0;
-    const endIndex = startIndex + preliminaryWriteOffYears;
-
-    // 👇 Only insert value if it's within the write-off window
-    if (index >= startIndex && index < endIndex) {
-      return yearlyWriteOffAmount;
-    }
-
-    // 👇 Insert 0 for all other years (including hidden first year)
-    return 0;
-  });
-
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
-
+ 
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
-  const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
-  // const grossProfit = PPExtractor.grossProfit() || [];
-  const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
-  const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
-  const depreciation = PPExtractor.depreciation() || [];
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
-  const directExpensesArray = extractors.directExpenses?.() || [];
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
-  );
-
-  const OnlyfilteredDirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
-
-  const OnlyIndirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
-    [];
-
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
-
-  const totalDirectExpenses = Array.from({ length: projectionYears }).map(
-    (_, idx) => {
-      let totalSalary = Number(salaryandwages[idx] || 0);
-      let totalMaterial = Number(rawmaterial[idx] || 0);
-
-      // Sum values from OnlyfilteredDirectExpenses
-      let totalDirectExpense = OnlyfilteredDirectExpenses.reduce(
-        (sum, expense) => {
-          const expenseValue = expense.values[idx] || 0; // Access the value for the specific year
-          return sum + Number(expenseValue); // Add to the running total
-        },
-        0
-      );
-
-      // Return the total of salary, material, and direct expenses for the year
-      return totalSalary + totalMaterial + totalDirectExpense;
-    }
-  );
-
-  const totalIndirectExpenses = Array.from({ length: projectionYears }).map(
-    (_, idx) => {
-      let TermLoan = Number(interestOnTermLoan[idx] || 0);
-      let WCArray = Number(interestOnWCArray[idx] || 0);
-      let depreciationadd = Number(depreciation[idx] || 0);
-      // Sum values from OnlyfilteredDirectExpenses
-      let totalIndirectExpense = OnlyIndirectExpenses.reduce((sum, expense) => {
-        const expenseValue = expense.values[idx] || 0; // Access the value for the specific year
-        return sum + Number(expenseValue); // Add to the running total
-      }, 0);
-      const preliminaryExpense = preliminaryWriteOffPerYear[idx] || 0;
-      // Return the total of salary, material, and direct expenses for the year
-      return (
-        TermLoan +
-        WCArray +
-        depreciationadd +
-        totalIndirectExpense +
-        preliminaryExpense
-      );
-    }
-  );
-
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
-  const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
-
-  //expense increased by 10 %- new data
-  const totalExpenseWithoutRM = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(totalDirectExpenses[i] || 0) - Number(rawmaterial[i] || 0)
-  );
-  //expense increase by 10%
-  const increaseValueExpense = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(totalExpenseWithoutRM[i] * 0.1)
-  );
-
-  const increasedExpenseTotal = Array.from({ length: projectionYears }).map(
-    (_, i) =>
-      Number(totalDirectExpenses[i] || 0) + Number(increaseValueExpense[i] || 0)
-  );
-  const grossProfit = Array.from({ length: projectionYears }).map(
-    (_, i) =>
-      Number(OriginalRevenueValues[i]) - Number(increasedExpenseTotal[i])
-  );
-
-  const NPBT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
-  );
-
-  const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
-  const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
-    (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
-  );
-
-  const balanceTransferred = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(Withdrawals[i])
-  );
-
-  const cumulativeBalanceTransferred = [];
-  balanceTransferred.forEach((amount, index) => {
-    if (index === 0) {
-      cumulativeBalanceTransferred.push(Math.max(amount, 0)); // First year, just the amount itself
-    } else {
-      // For subsequent years, sum of Balance Trf. and previous year's Cumulative Balance
-      cumulativeBalanceTransferred.push(
-        Math.max(amount + cumulativeBalanceTransferred[index - 1], 0)
-      );
-    }
-  });
-
-  const totalA = Array.from({ length: projectionYears }).map(
-    (_, i) =>
-      Number(NPAT[i] || 0) +
-      Number(depreciation[i] || 0) +
-      Number(interestOnTermLoan[i] || 0) +
-      Number(interestOnWCArray[i] || 0)
-  );
-
-  const repaymentOfTL = formData?.computedData?.yearlyPrincipalRepayment || [];
-
-  const totalB = Array.from({ length: projectionYears }).map(
-    (_, i) =>
-      Number(interestOnTermLoan[i] || 0) +
-      Number(interestOnWCArray[i] || 0) +
-      Number(repaymentOfTL[i] || 0)
-  );
-
-  const dscr = Array.from({ length: projectionYears }).map((_, i) => {
-    if (totalB[i] === 0) return 0;
-    return Number(totalA[i] || 0) / Number(totalB[i] || 0);
-  });
-
-  // ✅ Filter out zero values from the beginning
-  const validDSCRValues = dscr.filter(
-    (value, index) => !(index === 0 && value === 0)
-  );
-  console.log("validDSCRValues", validDSCRValues);
-  // ✅ Memoize averageDSCR calculation
-  const averageDSCR = useMemo(() => {
-    if (validDSCRValues.length === 0) return 0;
-    return Number(
-      validDSCRValues.reduce((sum, value) => sum + value, 0) /
-        validDSCRValues.length
-    );
-  }, [JSON.stringify(validDSCRValues)]); // Deep dependency check with stringify
-  console.log("averageDSCR", averageDSCR);
+   const revenueReducePercentage = PPExtractor.revenueReducePercentage() || 10 ;
+    const expenseIncreasePercentage = localStorage.getItem('expenseIncreasePercentage') 
+    ? parseFloat(localStorage.getItem('expenseIncreasePercentage')) 
+    : 10;
 
   const generateFinancialYearLabels = useMemo(
     () => (startingFY, totalYears) => {
@@ -770,7 +543,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Projected Profitability (Revenue Reduced
-                by 10%)
+                by{revenueReducePercentage}%)
               </Text>
             </View>
 
@@ -834,7 +607,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Income Tax Calculation (Revenue reduced
-                by 10%)
+                by {revenueReducePercentage}%)
               </Text>
             </View>
 
@@ -899,7 +672,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Debt-Service Coverage Ratio (Revenue
-                Reduced by 10%)
+                Reduced by {revenueReducePercentage}%)
               </Text>
             </View>
 
@@ -965,7 +738,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Projected Profitability (Expenses
-                Increase by 10%)
+                Increase by {expenseIncreasePercentage}%)
               </Text>
             </View>
 
@@ -1030,7 +803,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Income Tax Calculation (Expenses Increase
-                by 10%)
+                by {expenseIncreasePercentage}%)
               </Text>
             </View>
 
@@ -1095,7 +868,7 @@ const CMAContents = ({
                 ]}
               >
                 Sensitivity Analysis - Debt-Service Coverage Ratio (Expenses
-                Increase by 10%)
+                Increase by {expenseIncreasePercentage}%)
               </Text>
             </View>
 
@@ -1174,7 +947,7 @@ const CMAContents = ({
               flexDirection: "row", // ✅ Change to row
               justifyContent: "space-between", // ✅ Align items left and right
               alignItems: "center",
-              marginTop: 60,
+              marginTop: 30,
             },
           ]}
         >
@@ -1227,7 +1000,7 @@ const CMAContents = ({
               {
                 display: "flex",
                 flexDirection: "column",
-                gap: "80px",
+                gap: "30px",
                 alignItems: "flex-end",
                 justifyContent: "flex-end",
                 marginTop: "30px",
