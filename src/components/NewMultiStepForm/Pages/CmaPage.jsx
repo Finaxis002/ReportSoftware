@@ -14,7 +14,6 @@ const CmaPage = ({ userRole }) => {
     if (!userRole) navigate("/login");
   }, [userRole, navigate]);
 
-
   // Get initial form data
   const initialFormData = location.state?.formData || null;
   const initialBusinessDescription =
@@ -56,11 +55,13 @@ const CmaPage = ({ userRole }) => {
     setSections({});
     setShowProjectReport(false);
     setError("");
+    // Save the data to localStorage as 'cmareportdata'
+    localStorage.setItem("cmareportdata", JSON.stringify(data));
   }
 
   const formData = businessData;
 
-  console.log("formData :" , formData?.AccountInformation)
+  console.log("formData :", formData);
 
   return (
     <div className="flex h-[100vh]">
@@ -97,10 +98,10 @@ const CmaPage = ({ userRole }) => {
                 className="w-full"
               />
             </div>
-          </div>      
+          </div>
         </div>
 
-         <CmaReportGenerator formData={formData}/>
+        <CmaReportGenerator formData={formData} />
       </div>
     </div>
   );

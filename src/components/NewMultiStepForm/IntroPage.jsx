@@ -75,8 +75,11 @@ const IntroPage = ({ userRole }) => {
             wordLimit: 1000,
           }
         );
-        generatedSections[sec.key] =
-          res.data.sectionText || "No text generated.";
+        generatedSections[sec.key] = {
+          text: res.data.sectionText || "No text generated.",
+          images: res.data.images || [], // handle images
+        };
+
         // Optionally, update state after each section for progressive display:
         setSections({ ...generatedSections });
       } catch (err) {
