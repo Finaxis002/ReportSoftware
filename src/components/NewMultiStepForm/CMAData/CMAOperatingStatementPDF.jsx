@@ -32,7 +32,7 @@ Font.register({
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
-const CMAOperatingStatementPDF = ({ formData }) => {
+const CMAOperatingStatementPDF = ({ formData , orientation}) => {
   // You can import these:
 
   const schema = getCMASchema(formData);
@@ -78,7 +78,7 @@ const CMAOperatingStatementPDF = ({ formData }) => {
 
   return (
     
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} orientation={orientation}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
           <Header formData={formData} />
@@ -1174,9 +1174,85 @@ const CMAOperatingStatementPDF = ({ formData }) => {
                   })}
                 </View>
 
+                
               </View>
             </View>
           </View>
+          <View
+                    style={[
+                      {
+                        display: "flex",
+                        flexDirection: "row", // ✅ Change to row
+                        justifyContent: "space-between", // ✅ Align items left and right
+                        alignItems: "center",
+                        marginTop: 30,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        paddingTop: 100,
+                      }}
+                    >
+                      {/* ✅ CA Name (Conditional Display) */}
+                      {formData?.ProjectReportSetting?.CAName?.value ? (
+                        <Text
+                          style={[
+                            styles.caName,
+                            { fontSize: "10px", fontWeight: "bold" },
+                          ]}
+                        >
+                          CA {formData?.ProjectReportSetting?.CAName?.value}
+                        </Text>
+                      ) : null}
+          
+                      {/* ✅ Membership Number (Conditional Display) */}
+                      {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+                        <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                          M. No.:{" "}
+                          {formData?.ProjectReportSetting?.MembershipNumber?.value}
+                        </Text>
+                      ) : null}
+          
+                      {/* ✅ UDIN Number (Conditional Display) */}
+                      {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+                        <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                          UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+                        </Text>
+                      ) : null}
+          
+                      {/* ✅ Mobile Number (Conditional Display) */}
+                      {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+                        <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                          Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+                        </Text>
+                      ) : null}
+                    </View>
+          
+                    {/* businees name and Client Name  */}
+                    <View
+                      style={[
+                        {
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "30px",
+                          alignItems: "flex-end",
+                          justifyContent: "flex-end",
+                          marginTop: "30px",
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                        {formData?.AccountInformation?.businessName || "Business Name"}
+                      </Text>
+                      <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                        {formData?.AccountInformation?.businessOwner || "businessOwner"}
+                      </Text>
+                    </View>
+                  </View>
         </View>
       </Page>
    

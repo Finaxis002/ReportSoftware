@@ -5,6 +5,7 @@ import GraphGenerator from "../GraphGenerator";
 
 import IntroPage from "../IntroPage";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const FinalStep = ({ formData, userRole }) => {
   const navigate = useNavigate();
@@ -13,7 +14,10 @@ const FinalStep = ({ formData, userRole }) => {
     updateReport: false,
     createNewWithExisting: false,
     downloadPDF: false,
-    exportData: false, // ✅ Add this
+    exportData: false,
+    generateGraph: false,
+    advanceReport: false,
+    generateWord: false,
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const userName =
@@ -38,7 +42,7 @@ const FinalStep = ({ formData, userRole }) => {
       localStorage.setItem("pdfType", selectedOption);
     } else {
       localStorage.removeItem("pdfType");
-      localStorage.removeItem("selectedColor")
+      localStorage.removeItem("selectedColor");
     }
   }, [selectedOption]);
 
@@ -510,68 +514,135 @@ const FinalStep = ({ formData, userRole }) => {
     localStorage.setItem("lastStep", 8);
   };
 
+  // useEffect(() => {
+  //   const fetchPermissions = async () => {
+  //     try {
+  //       const [empRes, adminRes] = await Promise.all([
+  //         fetch("https://reportsbe.sharda.co.in/api/employees"),
+  //         fetch("https://reportsbe.sharda.co.in/api/admins"),
+  //       ]);
+
+  //       if (!empRes.ok || !adminRes.ok) {
+  //         throw new Error("Failed to fetch data");
+  //       }
+
+  //       const employeeList = await empRes.json();
+  //       const adminList = await adminRes.json();
+
+  //       const normalizedUserName = userName?.trim().toLowerCase();
+
+  //       if (userRole === "admin") {
+  //         const storedAdminName = localStorage.getItem("adminName");
+
+  //         if (!storedAdminName) {
+  //           setPermissions({
+  //             generateReport: true,
+  //             updateReport: true,
+  //             createNewWithExisting: true,
+  //             downloadPDF: true,
+  //             exportData: true,
+  //             createReport: true,
+  //             generateGraph: true,
+  //             advanceReport: true,
+  //             generateWord: true,
+              
+  //           });
+  //           return;
+  //         }
+
+  //         const admin = adminList.find(
+  //           (a) =>
+  //             a.username?.trim().toLowerCase() === normalizedUserName ||
+  //             a.adminId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (admin?.permissions) {
+  //           setPermissions(admin.permissions);
+  //         }
+  //       }
+
+  //       if (userRole === "employee") {
+  //         const employee = employeeList.find(
+  //           (emp) =>
+  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
+  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
+  //         );
+
+  //         if (employee?.permissions) {
+  //           setPermissions(employee.permissions);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching permissions:", err.message);
+  //     }
+  //   };
+
+  //   fetchPermissions(); // 🔁 Only fetch once when dependencies change
+  // }, [userRole, userName]);
+
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
-        ]);
+  const fetchPermissions = async () => {
+    try {
+      const [empRes, adminRes] = await Promise.all([
+        fetch("https://reportsbe.sharda.co.in/api/employees"),
+        fetch("https://reportsbe.sharda.co.in/api/admins"),
+      ]);
 
-        if (!empRes.ok || !adminRes.ok) {
-          throw new Error("Failed to fetch data");
-        }
-
-        const employeeList = await empRes.json();
-        const adminList = await adminRes.json();
-
-        const normalizedUserName = userName?.trim().toLowerCase();
-
-        if (userRole === "admin") {
-          const storedAdminName = localStorage.getItem("adminName");
-
-          if (!storedAdminName) {
-            setPermissions({
-              generateReport: true,
-              updateReport: true,
-              createNewWithExisting: true,
-              downloadPDF: true,
-              exportData: true,
-              createReport: true,
-            });
-            return;
-          }
-
-          const admin = adminList.find(
-            (a) =>
-              a.username?.trim().toLowerCase() === normalizedUserName ||
-              a.adminId?.trim().toLowerCase() === normalizedUserName
-          );
-
-          if (admin?.permissions) {
-            setPermissions(admin.permissions);
-          }
-        }
-
-        if (userRole === "employee") {
-          const employee = employeeList.find(
-            (emp) =>
-              emp.name?.trim().toLowerCase() === normalizedUserName ||
-              emp.email?.trim().toLowerCase() === normalizedUserName ||
-              emp.employeeId?.trim().toLowerCase() === normalizedUserName
-          );
-
-          if (employee?.permissions) {
-            setPermissions(employee.permissions);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching permissions:", err.message);
+      if (!empRes.ok || !adminRes.ok) {
+        throw new Error("Failed to fetch data");
       }
-    };
 
-    fetchPermissions(); // 🔁 Only fetch once when dependencies change
-  }, [userRole, userName]);
+      const employeeList = await empRes.json();
+      const adminList = await adminRes.json();
+
+      const normalizedUserName = userName?.trim().toLowerCase();
+
+      if (userRole === "admin") {
+        // Set all permissions to true for admin role
+        console.log("Setting all permissions to true for admin!");
+        setPermissions({
+          generateReport: true,
+          updateReport: true,
+          createNewWithExisting: true,
+          downloadPDF: true,
+          exportData: true,
+          createReport: true,
+          generateGraph: true,
+          advanceReport: true,
+          generateWord: true,
+          cmaData: true,
+        });
+        return;
+      }
+
+      if (userRole === "employee") {
+        const employee = employeeList.find(
+          (emp) =>
+            emp.name?.trim().toLowerCase() === normalizedUserName ||
+            emp.email?.trim().toLowerCase() === normalizedUserName ||
+            emp.employeeId?.trim().toLowerCase() === normalizedUserName
+        );
+
+        if (employee?.permissions) {
+          setPermissions(employee.permissions);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching permissions:", err.message);
+    }
+  };
+
+  if (userRole && userName) {
+    fetchPermissions();
+  }
+}, [userRole, userName]);
+
+  const buttonClass = (permission) => {
+    return permissions[permission]
+      ? "flex items-center bg-gradient-to-br from-green-500 to-green-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+      : "flex items-center bg-gray-300 text-gray-500 rounded-lg px-6 py-2 shadow-md cursor-not-allowed opacity-50";
+  };
 
   const getColorHex = (color) => {
     const colorMap = {
@@ -590,9 +661,9 @@ const FinalStep = ({ formData, userRole }) => {
 
   useEffect(() => {
     const handleUnload = () => {
-    localStorage.removeItem("selectedColor");
-    setSelectedColor("select color"); // <-- Reset state to default
-  };
+      localStorage.removeItem("selectedColor");
+      setSelectedColor("select color"); // <-- Reset state to default
+    };
 
     window.addEventListener("beforeunload", handleUnload);
 
@@ -655,11 +726,7 @@ const FinalStep = ({ formData, userRole }) => {
     }
   };
 
-
-
   return (
-
-
     <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
       <h2 className="text-3xl font-semibold text-gray-700 mb-6">
         Final Step: Generate PDF
@@ -683,7 +750,7 @@ const FinalStep = ({ formData, userRole }) => {
         </select>
       </div>
 
-        {/* Color Picker and Font Dropdown */}
+      {/* Color Picker and Font Dropdown */}
       {selectedOption === "Other" && (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -855,7 +922,16 @@ const FinalStep = ({ formData, userRole }) => {
 
         <button
           onClick={() => navigate("/intro", { state: { formData } })}
-          className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+         className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
+        !permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
+      }`}
+          disabled={!permissions.generateWord}
+          title={
+            !permissions.generateWord
+              ? "You do not have permission to generate word."
+              : ""
+          }
+          // className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -875,8 +951,6 @@ const FinalStep = ({ formData, userRole }) => {
         </button>
       </div>
 
-    
-
       {/* Advanced Options */}
       <div className="flex justify-between items-center mt-6">
         <h6
@@ -892,7 +966,17 @@ const FinalStep = ({ formData, userRole }) => {
           {/* Export Data Button */}
           <button
             onClick={handleExportData}
-            className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            // className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            className={`flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
+        !permissions.exportData ? "cursor-not-allowed opacity-50" : ""
+      }`}
+            // className={buttonClass("exportData")}
+            disabled={!permissions.exportData}
+            title={
+              !permissions.exportData
+                ? "You do not have permission to export Data."
+                : ""
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -916,22 +1000,50 @@ const FinalStep = ({ formData, userRole }) => {
             formData={formData}
             // selectedColor={selectedColor}
             selectedFont={selectedFont}
+            permissions={permissions}
             className="flex items-center justify-center w-5 bg-gradient-to-br from-purple-500 to-purple-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
           />
 
           <button
             onClick={() => {
+              const isComputedDataEmpty =
+                !formData.computedData ||
+                (typeof formData.computedData === "object" &&
+                  Object.keys(formData.computedData).length === 0);
+
+              if (isComputedDataEmpty) {
+                // You can use Swal or alert:
+                Swal.fire({
+                  icon: "error",
+                  title: "Missing Financial Data",
+                  text: "Please generate and download your financial data first.",
+                  confirmButtonColor: "#6366f1",
+                  background: "#fff",
+                  timer: 1600,
+                  showConfirmButton: false,
+                });
+                return;
+              }
+
               localStorage.setItem(
                 "cmaAdvanceFormData",
                 JSON.stringify(formData)
               );
+              localStorage.setItem("cmaSource", "final-step");
               window.open(
                 "/cma-advance-report",
                 "_blank",
                 "noopener,noreferrer"
               );
             }}
-            className="flex items-center bg-gradient-to-br from-orange-500 to-orange-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+            
+             className={buttonClass("advanceReport")}
+              disabled={!permissions.advanceReport}
+              title={
+              !permissions.advanceReport
+                ? "You do not have permission to generate advance report."
+                : ""
+               }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -962,4 +1074,3 @@ const FinalStep = ({ formData, userRole }) => {
 };
 
 export default FinalStep;
-

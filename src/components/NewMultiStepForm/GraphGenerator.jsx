@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { generateAllCharts } from "./charts/generateAllCharts";
 import { generateGraphsPdf } from "./Utils/generateGraphsPdf";
 
-const GraphGenerator = ({ formData, selectedFont }) => {
+const GraphGenerator = ({ formData, selectedFont , permissions}) => {
   const [loading, setLoading] = useState(false);
+   // Logging to verify if permissions are passed correctly
+ 
 
-  // console.log("selectedColor", selectedColor);
-
+  
   const selectedColor = localStorage.getItem("selectedColor")
 
   const handleClick = async () => {
@@ -40,11 +41,17 @@ const GraphGenerator = ({ formData, selectedFont }) => {
     // >
     //   {loading ? "Generating Graph PDF..." : "Generate Graph PDF"}
     // </button>
-
-    <button
+ 
+ <button
       onClick={handleClick}
-      disabled={loading}
-      className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group px-2"
+       disabled={loading || !permissions.generateGraph}  // Disable based on permission
+      className={`h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group px-2 ${
+        !permissions.generateGraph ? "cursor-not-allowed opacity-50" : ""
+      }`}  // Style the button when disabled
+      title={!permissions.generateGraph ? "You do not have permission to generate graph." : ""}
+    
+      // disabled={loading}
+      // className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md group px-2"
     >
       <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-purple-200 transition-colors">
         {loading ? (
@@ -89,6 +96,8 @@ const GraphGenerator = ({ formData, selectedFont }) => {
         {loading ? "Generating..." : "Generate Graph PDF"}
       </span>
     </button>
+ 
+   
   );
 };
 

@@ -131,7 +131,7 @@ const GeneratedPDF = () => {
   //share demo pdf
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLink, setShareLink] = useState("");
-
+ const [surplusDuringYear, setSurplusDuringYear] = useState('')
   //for otp
 
   const location = useLocation();
@@ -431,6 +431,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
       userRole,
       years,
       totalRevenueReceipts,
+      surplusDuringYear
     };
 
     // console.log("Saving to localStorage:", saveData);
@@ -461,6 +462,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     userRole,
     years,
     totalRevenueReceipts,
+    surplusDuringYear
   ]);
 
   const setComputedDataToProfit = useStore(
@@ -788,6 +790,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
           pageNumber={pageNumber}
           orientation={orientation}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          surplusDuringYear={surplusDuringYear}
         />
         <ProjectedBalanceSheet
           formData={formData}

@@ -89,7 +89,7 @@ export const makeCMAExtractors = (formData) => {
     .filter((row) => row.name.trim() !== "Administrative Expenses") // Only direct type rows
     .map((row, idx) => {
       // Now, all rows here are type "direct"
-      console.log("row type", row.type);
+      
       return {
         key: `directExpense_${idx}`,
         values: Array.from({ length: years }).map((_, yearIndex) =>
@@ -117,9 +117,6 @@ export const makeCMAExtractors = (formData) => {
 
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
-  console.log("Admin Expense Rows", administrativeExpenseRows);
-
-  console.log("direct Expense Rows", directExpenseRows);
 
   // 3. Raw Material row
   const rawMatRow = directExpense.find(
@@ -233,16 +230,7 @@ export const makeCMAExtractors = (formData) => {
     const operatingProfit =
       grossProfit - interestTL - interestWC - adminExp - prelim;
 
-    // Log breakdown for this year
-    // console.log(
-    //   `Year ${i + 1} Calculation:\n` +
-    //   `  Gross Profit: ${grossProfit}\n` +
-    //   `  - Interest on TL: ${interestTL}\n` +
-    //   `  - Interest on WC: ${interestWC}\n` +
-    //   `  - Administrative Expenses: ${adminExp}\n` +
-    //   `  - Preliminary Write Off: ${prelim}\n` +
-    //   `= Operating Profit: ${operatingProfit}\n`
-    // );
+    
 
     return operatingProfit;
   });
@@ -256,20 +244,22 @@ export const makeCMAExtractors = (formData) => {
   );
   const ProvisionforInvestmentAllowance = Array(years).fill(0);
 
-  const incomeTaxCal = formData.computedData.incomeTaxCalculation.incomeTaxCalculation || [] ;
-  console.log("incomeTaxCalculation : ", incomeTaxCal)
+  const incomeTaxCal = formData?.computedData?.incomeTaxCalculation?.incomeTaxCalculation || [] ;
+
 
  const netProfitAfterTax =  formData.computedData.computedData.netProfitAfterTax  || [] ;
-console.log('net Profit After Tax', netProfitAfterTax)
+
   // Build the final extractors object
   return {
     year: () => Number(formData?.ProjectReportSetting?.ProjectionYears || 5),
     yearLabels: () =>
-      Array.from(
-        { length: years },
-        (_, i) =>
-          (Number(formData?.ProjectReportSetting?.StartYear) || 2024) + i
-      ),
+  Array.from({ length: years }, (_, i) => {
+    const startYear = Number(formData?.ProjectReportSetting?.StartYear) || 2024;
+    const yearStart = startYear + i;
+    const yearEnd = yearStart + 1;
+    return `${yearStart}-${yearEnd.toString().slice(-2)}`; // Returns year in format 2024-25
+  }),
+
     grossSales: () =>
       formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
     dutiesTaxes: () => Array(years).fill(0),

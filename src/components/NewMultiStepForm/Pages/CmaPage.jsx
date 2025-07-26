@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import MenuBar from "../MenuBar";
 import Header from "../Header";
 import ReportDropdown from "../Dropdown/ReportDropdown";
-import CmaReportGenerator from "../CmaReport/CmaReportGenerator";
+import CmaReportGenerator from "../CmaReportFromMenu/CmaReportGenerator";
 
 const CmaPage = ({ userRole }) => {
   const navigate = useNavigate();
