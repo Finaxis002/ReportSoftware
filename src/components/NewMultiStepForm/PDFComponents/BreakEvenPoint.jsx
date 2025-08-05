@@ -1877,71 +1877,48 @@ const BreakEvenPoint = ({
     return totalFromExpenses + totalAdvanceForYear + preliminaryExpense;
   });
 
-  //   console.log("---------- Debugging Total Variable Expenses ----------");
+  
+  
 
-  // totalVariableExpenses.forEach((total, yearIndex) => {
-  //   const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-  //   const yearLabel = financialYearLabels[adjustedYearIndex];
+  // const contribution = adjustedRevenueValues.map((value, index) => {
+  //   // Ensure both adjusted revenue and variable expenses are numbers
+  //   const revenueValue = toNumber(value);
+  //   const expenseValue = toNumber(totalVariableExpenses[index]);
 
-  //   console.log(`Year ${yearLabel || adjustedYearIndex + 1}`);
-
-  //   const expenseBreakdown = allExpenses.map((expense) => {
-  //     const isRawMaterial =
-  //       expense.name.trim() === "Raw Material Expenses / Purchases";
-  //     const isPercentage = String(expense.value).trim().endsWith("%");
-
-  //     let expenseValue = 0;
-  //     if (isRawMaterial && isPercentage) {
-  //       expenseValue = calculateRawMaterialExpense(
-  //         expense,
-  //         receivedtotalRevenueReceipts,
-  //         adjustedYearIndex
-  //       );
-  //     } else {
-  //       expenseValue = calculateExpense(
-  //         Number(expense.total) || 0,
-  //         adjustedYearIndex
-  //       );
-  //     }
-
-  //     return {
-  //       name: expense.name,
-  //       value: expenseValue,
-  //     };
-  //   });
-
-  //   const advanceBreakdown = advanceExpenses.map((row) => {
-  //     const advValue =
-  //       getAdvanceExpenseValueForYear(row, yearLabel) ||
-  //       getAdvanceExpenseValueForYear(row, adjustedYearIndex);
-  //     return {
-  //       name: `${row.name} (Advance)`,
-  //       value: advValue || 0,
-  //     };
-  //   });
-
-  //   const prelimValue = preliminaryWriteOffPerYear[adjustedYearIndex] || 0;
-
-  //   // Log breakdown
-  //   [...expenseBreakdown, ...advanceBreakdown, { name: "Preliminary", value: prelimValue }].forEach(
-  //     (row) => {
-  //       console.log(`   ${row.name}: ₹${row.value.toLocaleString("en-IN")}`);
-  //     }
-  //   );
-
-  //   console.log(`👉 Total Variable Expense: ₹${total.toLocaleString("en-IN")}`);
-  //   console.log("------------------------------------------------------");
+  //   return revenueValue - expenseValue;
   // });
 
-  const contribution = adjustedRevenueValues.map((value, index) => {
-    // Ensure both adjusted revenue and variable expenses are numbers
-    const revenueValue = toNumber(value);
-    const expenseValue = toNumber(totalVariableExpenses[index]);
-
-    return revenueValue - expenseValue;
-  });
-
   // ✅ Compute Total Fixed Expenses for Each Year with Correct Handling
+  
+//  const contribution = adjustedRevenueValues.map((value, index) => {
+//   // Adjust index to ensure proper mapping when hideFirstYear is enabled
+//   const adjustedIndex = hideFirstYear ? index + 1 : index;
+
+//   const revenueValue = toNumber(adjustedRevenueValues[adjustedIndex]);  // Adjust revenue index
+//   const expenseValue = toNumber(totalVariableExpenses[index]);  // Adjust expense index
+
+//   // Log for debugging
+//   console.log(`Year ${index + 1} | Adjusted Revenue: ${revenueValue} | Expense: ${expenseValue} | Contribution: ${revenueValue - expenseValue}`);
+
+//   return revenueValue - expenseValue;
+// });
+const contribution = Array.from({
+  length: hideFirstYear ? projectionYears - 1 : projectionYears
+}).map((_, index) => {
+  const adjustedIndex = hideFirstYear ? index + 1 : index;
+  
+  const revenueValue = toNumber(adjustedRevenueValues[adjustedIndex]);
+  const expenseValue = toNumber(totalVariableExpenses[index]);
+
+  console.log(`Year ${index + 1} | Adjusted Revenue: ${revenueValue} | Expense: ${expenseValue} | Contribution: ${revenueValue - expenseValue}`);
+
+  return revenueValue - expenseValue;
+});
+
+
+// Output the results for debugging
+console.log("Contribution Calculation:", contribution);
+
   const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     (_, yearIndex) => {
       // ✅ Calculate Salary & Wages using `calculateExpense`
@@ -1990,11 +1967,12 @@ const BreakEvenPoint = ({
   // console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
 
   // ✅ Compute Break Even Point (in %) for Each Year
-  const breakEvenPointPercentage = Array.from({ length: projectionYears }).map(
+  const breakEvenPointPercentage = Array.from({   length: hideFirstYear ? projectionYears - 1 : projectionYears  }).map(
     (_, yearIndex) => {
-      const totalFixed = totalFixedExpenses[yearIndex] || 0; // Get total fixed expenses for the year
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const totalFixed = totalFixedExpenses[adjustedYearIndex] || 0; // Get total fixed expenses for the year
       const contributionValue = contribution[yearIndex] || 1; // Avoid division by zero by using fallback 1
-
+       console.log(`Year ${yearIndex + 1} | totalFixed: ${totalFixed} | contributionValue: ${contributionValue} | Contribution: ${totalFixed / contributionValue}`);
       return (totalFixed / contributionValue) * 100; // Compute Break Even Point in %
     }
   );
@@ -2686,7 +2664,7 @@ const BreakEvenPoint = ({
             {/* ✅ Display Contribution for Each Year */}
             {contribution.map(
               (total, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                
                   <Text
                     key={yearIndex}
                     style={[
@@ -2700,7 +2678,7 @@ const BreakEvenPoint = ({
                   >
                     {formatNumber(total)} {/* ✅ Round off Value */}
                   </Text>
-                )
+                
             )}
           </View>
 
@@ -3020,7 +2998,7 @@ const BreakEvenPoint = ({
             {/* ✅ Display Break Even Point for Each Year with Two Decimal Places */}
             {breakEvenPointPercentage.map(
               (value, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+              
                   <Text
                     key={yearIndex}
                     style={[
@@ -3036,7 +3014,7 @@ const BreakEvenPoint = ({
                     {formatNumber(parseFloat(value.toFixed(2)))}%{" "}
                     {/* ✅ Display with 2 Decimal Places */}
                   </Text>
-                )
+                
             )}
           </View>
         </View>

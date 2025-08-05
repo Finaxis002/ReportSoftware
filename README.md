@@ -142,3 +142,12 @@ yearValue.trim().endsWith("%")
 : formatNumber(yearValue)}
 
 )
+
+
+
+
+#-------break even point -------#
+total variable expense is fixed , issue with projection year mapping 
+same probloem with salary and wadges , projection year mapping issue 
+same probloem with contribution , projection year mapping issue 
+same probloem with break even point % , projection year mapping issue 
