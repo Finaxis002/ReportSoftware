@@ -93,9 +93,7 @@ const CurrentRatioChart = ({
 
         const lastYearValue = values[values.length - 1] || 0;
         let maxYValue = lastYearValue + lastYearValue * 0.5 + 1;
-        // let maxYValue = lastYearValue + lastYearValue * 0.2;
-
-        // maxYValue = Math.ceil(maxYValue / 0.1) * 0.1;
+        
         // Calculate the yInterval and ensure it's a number
         let yInterval = maxYValue / 4;
         yInterval = parseFloat(yInterval.toFixed(2)); // Fix the interval calculation to have decimal points.
@@ -103,7 +101,7 @@ const CurrentRatioChart = ({
         maxYValue = Math.ceil(maxYValue / yInterval) * yInterval;
 
         Chart.defaults.font.family = "Times New Roman";
-  const chartFont = selectedFont || "Arial";
+        const chartFont = selectedFont || "Arial";
         // 👇 Add after context creation
         const hexColor = toHex(selectedColor);
         const lineColor = hexToRgba(hexColor, 1); // Solid line
