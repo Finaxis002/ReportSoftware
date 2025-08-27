@@ -17,6 +17,9 @@ const num = (v) => {
   return Number(v) || 0;
 };
 
+// put near your `num()` helper:
+const n2 = (v) => Number(num(v).toFixed(2));
+
 const ProjectedExpenses = ({
   formData,
   yearlyInterestLiabilities,
@@ -175,34 +178,66 @@ const ProjectedExpenses = ({
     return incrementedExpense;
   };
 
+  // const calculateRawMaterialExpense = (
+  //   expense,
+  //   receivedtotalRevenueReceipts,
+  //   yearIndex
+  // ) => {
+  //   const isRawMaterial =
+  //     expense.name.trim() === "Raw Material Expenses / Purchases";
+  //   const isPercentage = String(expense.value).trim().endsWith("%");
+
+  //   const ClosingStock =  num(
+  //     formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
+  //   );
+  //   const OpeningStock =  num(
+  //     formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
+  //   );
+
+  //   let expenseValue = 0;
+
+  //   if (isRawMaterial && isPercentage) {
+  //     const baseValue =
+  //       (parseFloat(expense.value) / 100) *
+  //       (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+  //     expenseValue = baseValue + ClosingStock - OpeningStock; // Ensure it's a sum of numbers
+  //   } else {
+  //     expenseValue = num(expense.total); // Ensure we use num() to prevent string concatenation
+  //   }
+
+  //   return expenseValue;
+  // };
+
   const calculateRawMaterialExpense = (
     expense,
     receivedtotalRevenueReceipts,
     yearIndex
   ) => {
     const isRawMaterial =
-      expense.name.trim() === "Raw Material Expenses / Purchases";
-    const isPercentage = String(expense.value).trim().endsWith("%");
+      expense.name?.trim() === "Raw Material Expenses / Purchases";
+    const isPercentage =
+      typeof expense.value === "string" && expense.value.trim().endsWith("%");
 
-    const ClosingStock = Number(
-      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
+    const closingStock = num(
+      formData?.MoreDetails?.ClosingStock?.[yearIndex] ?? 0
     );
-    const OpeningStock = Number(
-      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
+    const openingStock = num(
+      formData?.MoreDetails?.OpeningStock?.[yearIndex] ?? 0
     );
-
-    let expenseValue = 0;
 
     if (isRawMaterial && isPercentage) {
-      const baseValue =
-        (parseFloat(expense.value) / 100) *
-        (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-      expenseValue = baseValue + ClosingStock - OpeningStock; // Ensure it's a sum of numbers
-    } else {
-      expenseValue = num(expense.total); // Ensure we use num() to prevent string concatenation
+      // percentage value like "60%" or "60 %"
+      const perc = num(expense.value.replace("%", "")) / 100;
+      // receipts might be "10,00,000" → use num() so it becomes a number
+      const receipts = num(receivedtotalRevenueReceipts?.[yearIndex] ?? 0);
+
+      const baseValue = receipts * perc; // number
+      const expenseValue = baseValue + closingStock - openingStock; // number
+      return expenseValue || 0;
     }
 
-    return expenseValue;
+    // non-% case: total might be a string with commas → use num()
+    return num(expense.total);
   };
 
   // ✅ Calculate Interest on Working Capital for each projection year
@@ -833,14 +868,22 @@ const ProjectedExpenses = ({
                     } else {
                       expenseValue = Number(expense.total) || 0;
                     }
+                    // const formattedExpense =
+                    //   isRawMaterial && isPercentage
+                    //     ? formatNumber(expenseValue.toFixed(2))
+                    //     : formatNumber(
+                    //         calculateExpense(
+                    //           expenseValue,
+                    //           adjustedYearIndex
+                    //         ).toFixed(2)
+                    //       );
                     const formattedExpense =
                       isRawMaterial && isPercentage
-                        ? formatNumber(expenseValue.toFixed(2))
+                        ? formatNumber(n2(expenseValue))
                         : formatNumber(
-                            calculateExpense(
-                              expenseValue,
-                              adjustedYearIndex
-                            ).toFixed(2)
+                            n2(
+                              calculateExpense(expenseValue, adjustedYearIndex)
+                            )
                           );
 
                     return (
@@ -1212,14 +1255,22 @@ const ProjectedExpenses = ({
                       expenseValue = Number(expense.total) || 0;
                     }
 
+                    // const formattedExpense =
+                    //   isRawMaterial && isPercentage
+                    //     ? formatNumber(expenseValue.toFixed(2))
+                    //     : formatNumber(
+                    //         calculateExpense(
+                    //           expenseValue,
+                    //           adjustedYearIndex
+                    //         ).toFixed(2)
+                    //       );
                     const formattedExpense =
                       isRawMaterial && isPercentage
-                        ? formatNumber(expenseValue.toFixed(2))
+                        ? formatNumber(n2(expenseValue))
                         : formatNumber(
-                            calculateExpense(
-                              expenseValue,
-                              adjustedYearIndex
-                            ).toFixed(2)
+                            n2(
+                              calculateExpense(expenseValue, adjustedYearIndex)
+                            )
                           );
 
                     return (
@@ -1418,7 +1469,8 @@ const ProjectedExpenses = ({
                     styleExpenses.fontSmall,
                   ]}
                 >
-                  {formatNumber(totalValue.toFixed(2))}
+                  {/* {formatNumber(totalValue.toFixed(2))} */}
+                  {formatNumber(n2(totalValue))}
                 </Text>
               ))}
           </View>
