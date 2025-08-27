@@ -1910,14 +1910,12 @@ const contribution = Array.from({
   const revenueValue = toNumber(adjustedRevenueValues[adjustedIndex]);
   const expenseValue = toNumber(totalVariableExpenses[index]);
 
-  console.log(`Year ${index + 1} | Adjusted Revenue: ${revenueValue} | Expense: ${expenseValue} | Contribution: ${revenueValue - expenseValue}`);
 
   return revenueValue - expenseValue;
 });
 
 
-// Output the results for debugging
-console.log("Contribution Calculation:", contribution);
+
 
   const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     (_, yearIndex) => {
@@ -1972,7 +1970,7 @@ console.log("Contribution Calculation:", contribution);
       const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
       const totalFixed = totalFixedExpenses[adjustedYearIndex] || 0; // Get total fixed expenses for the year
       const contributionValue = contribution[yearIndex] || 1; // Avoid division by zero by using fallback 1
-       console.log(`Year ${yearIndex + 1} | totalFixed: ${totalFixed} | contributionValue: ${contributionValue} | Contribution: ${totalFixed / contributionValue}`);
+      //  console.log(`Year ${yearIndex + 1} | totalFixed: ${totalFixed} | contributionValue: ${contributionValue} | Contribution: ${totalFixed / contributionValue}`);
       return (totalFixed / contributionValue) * 100; // Compute Break Even Point in %
     }
   );

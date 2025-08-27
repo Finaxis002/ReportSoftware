@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
+// Helper function to ensure numerical values
+const ensureNumber = (value) => {
+  if (value === null || value === undefined || value === "") return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    // Remove commas and other non-numeric characters
+    const cleaned = value.replace(/[^\d.-]/g, '');
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
 
 const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
   const [excelFile, setExcelFile] = useState(null);
@@ -314,7 +326,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
       updatedFormFields[index][field] = value;
     } else if (field !== null && name === "value") {
       // Year cell update
-      updatedFormFields[index].years[field] = value;
+      // updatedFormFields[index].years[field] = value;
+      const numericValue = typeof value === 'string' ? 
+    parseFloat(value.replace(/[^\d.-]/g, '')) || 0 : 
+    Number(value) || 0;
+  updatedFormFields[index].years[field] = numericValue;
 
       // ✅ If this is the first year, and increaseBy exists → recalculate onward years
       if (field === 0) {
@@ -328,9 +344,10 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
           updatedFormFields[index].years = [baseValue];
           for (let y = 1; y < projectionYears; y++) {
             const prev = parseFloat(updatedFormFields[index].years[y - 1]);
-            const next = parseFloat(
-              (prev * (1 + increasePercent / 100)).toFixed(2)
-            );
+            // const next = parseFloat(
+            //   (prev * (1 + increasePercent / 100)).toFixed(2)
+            // );
+            const next = Number((prev * (1 + increasePercent / 100)).toFixed(2));
             updatedFormFields[index].years[y] = next;
           }
         }
@@ -410,7 +427,11 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
         }
       }
     } else if (name === "value") {
-      data[childIndex]["years"][yearIndex] = value; // ✅ Keep raw input string
+      // data[childIndex]["years"][yearIndex] = value; 
+      const numericValue = typeof value === 'string' ? 
+    parseFloat(value.replace(/[^\d.-]/g, '')) || 0 : 
+    Number(value) || 0;
+  data[childIndex]["years"][yearIndex] = numericValue;
 
       // ✅ Trigger auto-calc if it's the first year and increaseBy is already filled
       if (yearIndex === 0) {
@@ -433,18 +454,41 @@ const SixthRevenue = ({ onFormDataChange, years, revenueData, formData }) => {
     setLocalData({ ...localData, formFields2: data });
   };
 
+  // const handleTotalRevenueForOthersChange = (value, index) => {
+  //   setLocalData((prevData) => {
+  //     const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
+  //     updatedRevenue[index] = value === "" ? "" : Number(value); // Prevent `NaN`
+
+  //     return {
+  //       ...prevData,
+  //       totalRevenueForOthers: updatedRevenue, // ✅ Properly update state
+  //     };
+  //   });
+  // };
+
   const handleTotalRevenueForOthersChange = (value, index) => {
-    setLocalData((prevData) => {
-      const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
-      updatedRevenue[index] = value === "" ? "" : Number(value); // Prevent `NaN`
+  setLocalData((prevData) => {
+    const updatedRevenue = [...prevData.totalRevenueForOthers]; // Clone array
+    
+    // Ensure proper numerical conversion
+    let numericValue = 0;
+    if (value !== "" && value !== null && value !== undefined) {
+      numericValue = typeof value === 'string' ? 
+        parseFloat(value.replace(/[^\d.-]/g, '')) || 0 : 
+        Number(value) || 0;
+    }
+    
+    updatedRevenue[index] = numericValue;
 
-      return {
-        ...prevData,
-        totalRevenueForOthers: updatedRevenue, // ✅ Properly update state
-      };
-    });
-  };
-
+    return {
+      ...prevData,
+      totalRevenueForOthers: updatedRevenue,
+    };
+  });
+};
+  
+  
+  
   // Function to calculate total monthly revenue (sum of all year inputs)
   const calculateTotalMonthlyRevenue = () => {
     const total = Array.from(
