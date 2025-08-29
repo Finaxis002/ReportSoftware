@@ -244,10 +244,10 @@ const CMADataPdfGeneration = () => {
           </div>
           <div className="flex gap-1">
             <button
-            
               onClick={() => {
                 setIsLoading(true);
-                setOrientation("portrait")}}
+                setOrientation("portrait");
+              }}
               className={`text-sm px-2 py-1 rounded ${
                 orientation === "portrait"
                   ? "bg-white text-indigo-600"
@@ -259,7 +259,7 @@ const CMADataPdfGeneration = () => {
             <button
               onClick={() => {
                 setIsLoading(true);
-                setOrientation("landscape")
+                setOrientation("landscape");
               }}
               className={`text-sm px-2 py-1 rounded ${
                 orientation === "landscape"
@@ -268,6 +268,16 @@ const CMADataPdfGeneration = () => {
               }`}
             >
               Landscape
+            </button>
+            <button
+              onClick={() => setOrientation("advanced-landscape")}
+              className={`text-sm px-2 py-1 rounded ${
+                orientation === "advanced-landscape"
+                  ? "bg-white text-indigo-600"
+                  : "bg-indigo-600 text-white"
+              }`}
+            >
+              Advanced Landscape
             </button>
           </div>
           <BlobProvider

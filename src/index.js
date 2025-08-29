@@ -13,13 +13,10 @@ import {
 } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Provider } from "react-redux";
-import Authentication from "./components/Authentication.jsx";
 import store from "./redux/store";
 import MultiStepForm from "./components/NewMultiStepForm/MultiStepForm.jsx";
 import GeneratedPDF from "./components/NewMultiStepForm/GeneratedPDF.jsx";
 import ClientData from "./components/NewMultiStepForm/ClientData.jsx";
-import MongoDB from "./components/NewMultiStepForm/MongoDB.jsx";
-import DatabaseLogin from "./components/NewMultiStepForm/DatabaseLogin.jsx";
 import MainLogin from "./components/NewMultiStepForm/MainLogin.jsx";
 import CreateReport from "./components/NewMultiStepForm/CreateReport.jsx";
 import Dashboard from "./components/Dashboard";
@@ -39,12 +36,11 @@ import History from "./components/NewMultiStepForm/History.jsx";
 import Profile from "./components/NewMultiStepForm/Profile.jsx";
 import DemoPDFView from "./components/NewMultiStepForm/DemoPDFView.jsx";
 import IntroPage from "./components/NewMultiStepForm/IntroPage.jsx";
-import Database from './components/NewMultiStepForm/Database.jsx'
+import Database from "./components/NewMultiStepForm/Database.jsx";
 import SettingsPage from "./components/NewMultiStepForm/SettingsPage.jsx";
 import CMADataPdfGeneration from "./components/NewMultiStepForm/CMADataPdfGeneration.jsx";
 import CmaPage from "./components/NewMultiStepForm/Pages/CmaPage.jsx";
 import CmaPdfPage from "./components/NewMultiStepForm/Pages/CmaPdfPage.jsx";
-
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -128,91 +124,89 @@ const App = () => {
 
   return (
     <>
-   
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <Routes>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <Routes>
+            <Route path="/pdf-demo/:reportId" element={<DemoPDFView />} />
 
-          <Route path="/pdf-demo/:reportId" element={<DemoPDFView />} />
-
-          <Route
-            path="/"
-            element={
-              isAuthenticated ? (
-                userRole === "admin" ? (
-                  <AdminDashboard />
-                ) : userRole === "employee" ? (
-                  <EmployeeDashboard />
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? (
+                  userRole === "admin" ? (
+                    <AdminDashboard />
+                  ) : userRole === "employee" ? (
+                    <EmployeeDashboard />
+                  ) : (
+                    <Dashboard />
+                  )
                 ) : (
-                  <Dashboard />
+                  <MainLogin onLogin={handleLogin} />
                 )
-              ) : (
-                <MainLogin onLogin={handleLogin} />
-              )
-            }
-          />
+              }
+            />
 
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/" replace />
-              ) : (
-                <MainLogin onLogin={handleLogin} />
-              )
-            }
-          />
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
+              }
+            />
 
-          <Route
-            path="/employees"
-            element={
-              <ProtectedRoute>
-                <Employees />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <Notification />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/clientData"
-            element={
-              <ProtectedRoute>
-                <ClientData />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tasks/:taskId"
-            element={
-              <ProtectedRoute>
-                <Tasks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bank-details"
-            element={
-              <ProtectedRoute>
-                <BankDetails />
-              </ProtectedRoute>
-            }
-          />
-          {/* Protect MongoDB route */}
-          {/* <Route
+            <Route
+              path="/employees"
+              element={
+                <ProtectedRoute>
+                  <Employees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientData"
+              element={
+                <ProtectedRoute>
+                  <ClientData />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tasks/:taskId"
+              element={
+                <ProtectedRoute>
+                  <Tasks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bank-details"
+              element={
+                <ProtectedRoute>
+                  <BankDetails />
+                </ProtectedRoute>
+              }
+            />
+            {/* Protect MongoDB route */}
+            {/* <Route
             path="/database"
             element={
               isAuthenticated ? (
@@ -222,70 +216,70 @@ const App = () => {
               )
             }
           /> */}
-          <Route
-            path="/createreport"
-            element={
-              <ProtectedRoute>
-                <CreateReport
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/createreport"
+              element={
+                <ProtectedRoute>
+                  <CreateReport
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                  />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/login" replace />
-              ) : (
-                <MainLogin onLogin={handleLogin} />
-              )
-            }
-          />
-          <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
-          <Route
-            path="/MultestepForm"
-            element={
-              <ProtectedRoute>
-                <MultiStepForm
-                  receivedGeneratedPDFData={generatePDfData}
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/employees" element={<Employees />} />
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <MainLogin onLogin={handleLogin} />
+                )
+              }
+            />
+            <Route path="/fourthstepPRS" element={<FourthStepPRS />} />
+            <Route
+              path="/MultestepForm"
+              element={
+                <ProtectedRoute>
+                  <MultiStepForm
+                    receivedGeneratedPDFData={generatePDfData}
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/employees" element={<Employees />} />
 
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <Notification />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/clientData"
-            element={
-              <ProtectedRoute>
-                <ClientData />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tasks/:taskId"
-            element={
-              <ProtectedRoute>
-                <Tasks />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientData"
+              element={
+                <ProtectedRoute>
+                  <ClientData />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tasks/:taskId"
+              element={
+                <ProtectedRoute>
+                  <Tasks />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Protect MongoDB route */}
-          {/* <Route
+            {/* Protect MongoDB route */}
+            {/* <Route
             path="/database"
             element={
               isAuthenticated ? (
@@ -295,138 +289,134 @@ const App = () => {
               )
             }
           /> */}
-          <Route
-            path="/createreport"
-            element={
-              <ProtectedRoute>
-                <CreateReport
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/createreport"
+              element={
+                <ProtectedRoute>
+                  <CreateReport
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                  />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ✅ Correctly Placed Routes */}
+            {/* ✅ Correctly Placed Routes */}
 
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <Reports sendPdfData={setPdfData} />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <Reports sendPdfData={setPdfData} />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="/clients" element={<Clients />} />
+            <Route path="/clients" element={<Clients />} />
 
-          <Route
-            path="/generated-pdf"
-            element={
-              <ProtectedRoute>
-                <GeneratedPDF
-                  userRole={userRole}
-                  userName={userRole === "employee" ? userName : null}
-                  pdfData={pdfData}
-                />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/checkprofit"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <CheckProfit />{" "}
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <History userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/generated-pdf"
+              element={
+                <ProtectedRoute>
+                  <GeneratedPDF
+                    userRole={userRole}
+                    userName={userRole === "employee" ? userName : null}
+                    pdfData={pdfData}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkprofit"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CheckProfit />{" "}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <History userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <Profile userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <Profile userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/intro"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <IntroPage userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/intro"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <IntroPage userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/database"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <Database userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/database"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <Database userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-           <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <SettingsPage userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <SettingsPage userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/cma-advance-report"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <CMADataPdfGeneration />{" "}
-              </ProtectedRoute>
-            }
-          />
-           <Route
-            path="/cma-report"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <CmaPage userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/cma-advance-report"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CMADataPdfGeneration />{" "}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cma-report"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CmaPage userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/cma-report/pdf"
-            element={
-              <ProtectedRoute>
-                {" "}
-                <CmaPdfPage userRole={userRole} />{" "}
-              </ProtectedRoute>
-            }
-          />
-         
-        </Routes>
-
-       
-      </QueryClientProvider>
-    </Provider>
-
+            <Route
+              path="/cma-report/pdf"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CmaPdfPage userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </QueryClientProvider>
+      </Provider>
     </>
   );
 };
@@ -438,4 +428,3 @@ root.render(
     <App />
   </BrowserRouter>
 );
-

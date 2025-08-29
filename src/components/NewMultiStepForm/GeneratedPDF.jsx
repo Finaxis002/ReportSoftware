@@ -131,7 +131,7 @@ const GeneratedPDF = () => {
   //share demo pdf
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLink, setShareLink] = useState("");
- const [surplusDuringYear, setSurplusDuringYear] = useState('')
+  const [surplusDuringYear, setSurplusDuringYear] = useState("");
   //for otp
 
   const location = useLocation();
@@ -148,10 +148,7 @@ const GeneratedPDF = () => {
   };
 
   // window.addEventListener('keydown', e => console.log(e.key));
-  window.addEventListener("keydown", (e) => {
-    console.log("Key:", e.key);
-  });
-
+ 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
     const storedPdfType = localStorage.getItem("pdfType");
@@ -210,7 +207,7 @@ const GeneratedPDF = () => {
       setYearlyPrincipalRepayment(calculatedRepayment);
     }
   );
-console.log('interest On Working Capital',interestOnWorkingCapital)
+  console.log("interest On Working Capital", interestOnWorkingCapital);
   const getStoredData = () => {
     try {
       const savedData = localStorage.getItem("FourthStepPRS");
@@ -268,6 +265,8 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
     return years > 6 ? "landscape" : "portrait";
   });
+
+
 
   const yearsRef = useRef(5);
 
@@ -334,13 +333,12 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
   //   }, 0);
   // }, [formData?.CostOfProject]);
   const firstYearGrossFixedAssets = useMemo(() => {
-  return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
-    if (asset?.isSelected || asset?.isPreliminary) return sum;
-    const netAsset = parseAmount(asset.amount);
-    return sum + netAsset;
-  }, 0);
-}, [formData?.CostOfProject]);
-
+    return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
+      if (asset?.isSelected || asset?.isPreliminary) return sum;
+      const netAsset = parseAmount(asset.amount);
+      return sum + netAsset;
+    }, 0);
+  }, [formData?.CostOfProject]);
 
   // Function to generate correct financial year labels
   const generateFinancialYearLabels = useMemo(
@@ -366,6 +364,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     financialYear,
     projectionYears
   );
+  
 
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -431,7 +430,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
       userRole,
       years,
       totalRevenueReceipts,
-      surplusDuringYear
+      surplusDuringYear,
     };
 
     // console.log("Saving to localStorage:", saveData);
@@ -462,7 +461,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     userRole,
     years,
     totalRevenueReceipts,
-    surplusDuringYear
+    surplusDuringYear,
   ]);
 
   const setComputedDataToProfit = useStore(
@@ -960,9 +959,7 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
     };
   }, []);
 
-
-  const selectedColor =  localStorage.getItem("selectedColor");
-
+  const selectedColor = localStorage.getItem("selectedColor");
 
   // console.log("selected color : " ,selectedColor)
 
@@ -1131,6 +1128,16 @@ console.log('interest On Working Capital',interestOnWorkingCapital)
                       }`}
                     >
                       Landscape
+                    </button>
+                    <button
+                      onClick={() => setOrientation("advanced-landscape")}
+                      className={`text-sm px-2 py-1 rounded ${
+                        orientation === "advanced-landscape"
+                          ? "bg-white text-indigo-600"
+                          : "bg-indigo-600 text-white"
+                      }`}
+                    >
+                      Advanced Landscape
                     </button>
                   </div>
 

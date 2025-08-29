@@ -39,8 +39,6 @@ const RatioAnalysis = ({
   receivedtotalRevenueReceipts,
   orientation,
 }) => {
-  
-
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
@@ -261,14 +259,12 @@ const RatioAnalysis = ({
     }
   );
 
-  
   // ✅ Total Outside Liabilities / Total Net Worth Ratio
   // Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
   const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map(
     (liability, index) => {
-      
       const worth = netWorth[index] || 1; // Prevent division by zero
-      
+
       return (liability / worth).toFixed(2); // Round to 2 decimal places
     }
   );
@@ -293,26 +289,30 @@ const RatioAnalysis = ({
   });
 
   // Exclude "Quasi Equity" from Current Liabilities when calculating Total Liabilities
-const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map((_, index) => {
-  // Get term loan, bank loan, etc., as per your structure:
-  const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
-  const bankLoan = Number(receivedTotalLiabilities?.repaymentValueswithin12months?.[index]) || 0;
-  const workingCapitalLoan = workingCapitalArray[index] || 0;
+  const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      // Get term loan, bank loan, etc., as per your structure:
+      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
+      const bankLoan =
+        Number(
+          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
+        ) || 0;
+      const workingCapitalLoan = workingCapitalArray[index] || 0;
 
-  // Exclude "Quasi Equity" from current liabilities sum:
-  const currentYearLiabilities = (
-    formData?.MoreDetails?.currentLiabilities ?? []
-  )
-    .filter((liability) => liability.particular !== "Quasi Equity")
-    .reduce(
-      (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
-      0
-    );
+      // Exclude "Quasi Equity" from current liabilities sum:
+      const currentYearLiabilities = (
+        formData?.MoreDetails?.currentLiabilities ?? []
+      )
+        .filter((liability) => liability.particular !== "Quasi Equity")
+        .reduce(
+          (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
+          0
+        );
 
-  // Compose the total liabilities for the year:
-  return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
-});
-
+      // Compose the total liabilities for the year:
+      return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
+    }
+  );
 
   const yearlycurrentLiabilities =
     receivedTotalLiabilities?.yearlyTotalLiabilities;
@@ -468,14 +468,1400 @@ const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map((_,
     numOfYearsUsedForAvg,
   ]);
 
-  // const orientation =
-  // hideFirstYear
-  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitFinancialYearLabels = [financialYearLabels];
+  if (isAdvancedLandscape) {
+    // Remove first year if hidden
+    const visibleLabels = hideFirstYear
+      ? financialYearLabels.slice(1)
+      : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
+  const toRoman = (n) =>
+    ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+  if (isAdvancedLandscape) {
+    return splitFinancialYearLabels.map((labels, pageIdx) => {
+      // labels is the page's array of financial year labels (subset of financialYearLabels)
+      const pageStart =
+        Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
+
+      const globalIndex = (localIdx) => pageStart + localIdx;
+      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+
+      // For centering the "Average Current Ratio" on the visible columns of this page
+      const visibleLocalCols = labels
+        .map((_, i) => i)
+        .filter((i) => !shouldSkipCol(globalIndex(i)));
+      const centerLocalIdx =
+        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
+
+      return (
+        <Page
+          // size={projectionYears > 12 ? "A3" : "A4"}
+          size="A4"
+          orientation="landscape"
+          wrap={false}
+          break
+          style={styles.page}
+        >
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+                fixed
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
+          {/* businees name and financial year  */}
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Bame"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2025-26"}
+            </Text>
+          </View>
+
+          {/* Amount format */}
+
+          <View
+            style={{
+              display: "flex",
+              alignContent: "flex-end",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+            }}
+          >
+            <Text style={[styles.AmountIn, styles.italicText]}>
+              (Amount In{" "}
+              {
+                formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs." // Show "Rupees" if "rupees" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores" // Show "Crores" if "crores" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions" // Show "Millions" if "millions" is selected
+                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+              }
+              )
+            </Text>
+          </View>
+          <View>
+            <View
+              style={[
+                stylesCOP.heading,
+                { fontWeight: "bold", paddingLeft: 10 },
+              ]}
+            >
+              <Text>
+                Ratio Analysis
+                {splitFinancialYearLabels.length > 1
+                  ? ` (${toRoman(pageIdx)})`
+                  : ""}
+              </Text>
+            </View>
+
+            <View style={[styles.table, { borderRightWidth: 0 }]}>
+              {/* Header  */}
+              <View style={styles.tableHeader}>
+                <Text
+                  style={[
+                    styles.serialNoCell,
+                    styleExpenses.sno,
+                    styleExpenses.fontBold,
+                    { textAlign: "center", borderLeftWidth: 0 },
+                  ]}
+                >
+                  S. No.
+                </Text>
+                <Text
+                  style={[
+                    styles.detailsCell,
+                    styleExpenses.particularWidth,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  Particulars
+                </Text>
+                {/* Generate Dynamic Year Headers for THIS PAGE using `labels` */}
+                {labels.map((yearLabel, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[styles.particularsCell, stylesCOP.boldText]}
+                    >
+                      {yearLabel}
+                    </Text>
+                  );
+                })}
+                <Text style={[styles.particularsCell, stylesCOP.boldText]}>
+                  AR
+                </Text>
+              </View>
+
+              {/* Liabilities Section */}
+
+              <View>
+                {/* ✅ 1 sales */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      { paddingTop: "20px" },
+                    ]}
+                  >
+                    1
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      { paddingTop: "20px" },
+                    ]}
+                  >
+                    Sales
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    return (
+                      <Text
+                        key={`sales-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            paddingTop: "20px",
+
+                            fontWeight: "light",
+                          },
+                        ]}
+                      >
+                        {formatNumber(totalRevenueReceipts[gIdx] || 0)}
+                      </Text>
+                    );
+                  })}
+
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+                {/* 2 Gross Profit */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    2
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Gross Profit
+                  </Text>
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const profit = grossProfitValues?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`grossProfit-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(profit)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* 3 Operating Profit / Profit Before Tax */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    3
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Operating Profit / Profit Before Tax
+                  </Text>
+                  {/* ✅ per visible years */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const npbt = netProfitBeforeTax?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`npbt-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(npbt)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* 4  Net Profit After Tax */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    4
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Profit After Tax
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const npat = netProfitAfterTax?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`npat-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(npat)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* 5 Net Worth */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    5
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Worth
+                  </Text>
+
+                  {/* ✅ Display Net Worth per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const totalValue = netWorth?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`net-worth-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(totalValue)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/*6 Total Deb */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    6
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Deb
+                  </Text>
+
+                  {/* ✅ Display Total Debt per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const totalDebt = totalDebtArray?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`total-debt-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(totalDebt)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/*7 Total Outside Liabilities */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    7
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Outside Liabilities
+                  </Text>
+
+                  {/* ✅ Display per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const totalDebt = totalOutsideLiabilitiesArray?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`tol-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(totalDebt)}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/*8 Total Liabilities */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    8
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Total Liabilities
+                  </Text>
+
+                  {/* ✅ Access the nested array correctly per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const total =
+                      (receivedTotalLiabilities?.totalLiabilitiesArray || [])[
+                        gIdx
+                      ] ?? 0;
+                    return (
+                      <Text
+                        key={`totalliab-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(total)} {/* ✅ Display Correct Total */}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/*9 Current Assets */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    9
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Current Assets
+                  </Text>
+
+                  {/* ✅ Display total Current Assets per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const total = CurrentAssetsArray?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`currassets-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(total)} {/* ✅ Display Correct Total */}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* 10 Current Liabilities */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    10
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Current Liabilities
+                  </Text>
+
+                  {/* ✅ Display Updated Current Liabilities per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const total =
+                      (receivedTotalLiabilities?.yearlyTotalLiabilities || [])[
+                        gIdx
+                      ] ?? 0;
+                    return (
+                      <Text
+                        key={`currliab-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(total)} {/* ✅ Display Correct Total */}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* 11 Cash Profit */}
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      {},
+                    ]}
+                  >
+                    11
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Cash Profit
+                  </Text>
+
+                  {/* ✅ Per visible year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const total = cashProfitArray?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`cashprofit-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(total)} {/* ✅ Display Correct Total */}
+                      </Text>
+                    );
+                  })}
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  ></Text>
+                </View>
+
+                {/* ✅ Total Cash Profit Calculation */}
+                <View
+                  style={[
+                    stylesMOF.row,
+                    styles.tableRow,
+                    styleExpenses.totalRow,
+                  ]}
+                >
+                  <Text
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  ></Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      { fontWeight: "bold" },
+                    ]}
+                  >
+                    Total Cash Profit
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+
+                    const totalCashProfit = Array.isArray(cashProfitArray)
+                      ? cashProfitArray.reduce(
+                          (acc, value) => acc + Number(value || 0),
+                          0
+                        )
+                      : 0;
+
+                    return (
+                      <Text
+                        key={`tcp-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                          {
+                            fontWeight: "bold",
+
+                            textAlign: "center",
+                            borderRightWidth: 0,
+                            borderTopWidth: 1,
+                          },
+                        ]}
+                      >
+                        {localIdx === centerLocalIdx
+                          ? formatNumber(totalCashProfit)
+                          : ""}
+                      </Text>
+                    );
+                  })}
+
+                  <Text
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { borderLeftWidth: 1 },
+                    ]}
+                  ></Text>
+                </View>
+              </View>
+
+              {/* Calculation of Ratios */}
+
+              <View>
+                <View style={[stylesMOF.row]}>
+                  <Text style={[styleExpenses.sno]}></Text>
+                  <Text
+                    style={[
+                      stylesMOF.cell,
+                      styleExpenses.fontBold,
+                      { textAlign: "center" },
+                    ]}
+                  >
+                    Calculation of Ratios
+                  </Text>
+                </View>
+
+                <View>
+                  {/* ✅1 Gross Profit / Sales  */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        { paddingTop: "20px", borderLeftWidth: 0 },
+                      ]}
+                    >
+                      1
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                        { paddingTop: "20px" },
+                      ]}
+                    >
+                      Gross Profit / Sales
+                    </Text>
+
+                    {/* ✅ Display Ratio per visible year */}
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = grossProfitSalesRatios?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`gp-sales-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingTop: "20px", paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}%` : ratio}{" "}
+                          {/* Showing ratio as a percentage only if valid */}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "extrabold",
+                          paddingTop: "20px",
+                        },
+                      ]}
+                    >
+                      {averageGrossProfitSalesRatio !== "-"
+                        ? `${averageGrossProfitSalesRatio}%`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 2 Operating Profit / Sales Ratio  */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      2
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Operating Profit / Sales Ratio
+                    </Text>
+
+                    {/* ✅ Display Ratio per visible year */}
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = operatingProfitSalesRatios?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`op-sales-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}%` : ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageOperatingProfitSalesRatio !== "-"
+                        ? `${averageOperatingProfitSalesRatio}%`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 3 Profit Before Tax / Sales Ratio */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      3
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Profit Before Tax / Sales Ratio
+                    </Text>
+                    {/* ✅ Display Ratio per visible year */}
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = ProfitBeforeTaxRatios?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`op-pbt-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}%` : ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageProfitBeforeTaxSalesRatio !== "-"
+                        ? `${averageProfitBeforeTaxSalesRatio}%`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/*4 Net Profit / Sales Ratio  */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      4
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Net Profit / Sales Ratio
+                    </Text>
+
+                    {/* ✅ Display Ratio per visible year */}
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = netProfitSalesRatio?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`np-pbt-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}%` : ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageNetProfitSalesRatio !== "-"
+                        ? `${averageNetProfitSalesRatio}%`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 5 Net Profit / Net Worth Ratio */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      5
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Net Profit / Net Worth Ratio
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = netProfitNetWorthRatio?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`np-nw-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}%` : ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageNetProfitNetWorthRatio !== "-"
+                        ? `${averageNetProfitNetWorthRatio}%`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 6 Debt-Equity Ratio */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      6
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Debt-Equity Ratio
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = deptEqualityRatio?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`dept-equality-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio !== "-" ? `${ratio}` : ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageDebtEquityRatio !== "-"
+                        ? `${averageDebtEquityRatio}`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 7 Total Outside Liabilities / Total Net Worth  */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      7
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Total Outside Liabilities / Total Net Worth
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio =
+                        totalOutsideLiabilitiesNetWorthRatio?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`tol-nw-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageTotalOutsideLiabilitiesNetWorthRatio !== "-"
+                        ? `${averageTotalOutsideLiabilitiesNetWorthRatio}`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/*8  Net Worth / Total Liabilities */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      8
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Net Worth / Total Liabilities
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio =
+                        netWorthTotalLiabilitiesRatio?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`nw-tl-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageNetWorthTotalLiabilitiesRatio !== "-"
+                        ? `${averageNetWorthTotalLiabilitiesRatio}`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 9 Debt-service Coverage Ratio */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      9
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Debt Service Coverage Ratio
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = receivedDscr?.DSCR?.[gIdx] ?? 0;
+                      return (
+                        <Text
+                          key={`dscr-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {ratio !== 0 ? ratio.toFixed(2) : "0"}
+                        </Text>
+                      );
+                    })}
+
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageDebtServiceCoverageRatio !== "-"
+                        ? `${averageDebtServiceCoverageRatio}`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 10 Current Ratio */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      10
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Current Ratio
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const ratio = currentRatio?.[gIdx];
+                      return (
+                        <Text
+                          key={`curr-ratio-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {ratio}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageCurrentRatio !== "-"
+                        ? `${averageCurrentRatio}`
+                        : "-"}
+                    </Text>
+                  </View>
+
+                  {/* 11 Return on Investment */}
+                  <View style={styles.tableRow}>
+                    <Text
+                      style={[
+                        stylesCOP.serialNoCellDetail,
+                        styleExpenses.sno,
+                        styleExpenses.bordernone,
+                        {},
+                      ]}
+                    >
+                      11
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Return on Investment
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      const roi = returnOnInvestment?.[gIdx] ?? "-";
+                      return (
+                        <Text
+                          key={`roi-${gIdx}`}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                            { paddingHorizontal: 0 },
+                          ]}
+                        >
+                          {roi === "-" ? roi : `${roi}%`}
+                        </Text>
+                      );
+                    })}
+                    <Text
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { fontWeight: "extrabold" },
+                      ]}
+                    >
+                      {averageReturnOnInvestment !== "-"
+                        ? `${averageReturnOnInvestment}%`
+                        : "-"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          {/* businees name and Client Name  */}
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "60px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
+          </View>
+        </Page>
+      );
+    });
+  }
 
   return (
     <Page
-      size={projectionYears > 12 ? "A3" : "A4"}
+      // size={projectionYears > 12 ? "A3" : "A4"}
+      size="A4"
       orientation={orientation}
       wrap={false}
       break

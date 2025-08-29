@@ -57,10 +57,12 @@ const IntroPage = ({ userRole }) => {
     setShowProjectReport(true);
 
     let generatedSections = {};
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     for (const sec of SECTIONS) {
       try {
         const res = await axios.post(
-          "https://reportsbe.sharda.co.in/api/openai/generate-section",
+          "http://localhost:5000/api/openai/generate-section",
           {
             section: sec.key,
             businessName: businessData?.AccountInformation?.businessName || "",
@@ -75,18 +77,21 @@ const IntroPage = ({ userRole }) => {
             wordLimit: 1000,
           }
         );
+
         generatedSections[sec.key] = {
           text: res.data.sectionText || "No text generated.",
-          images: res.data.images || [], // handle images
+          images: res.data.images || [],
         };
 
-        // Optionally, update state after each section for progressive display:
         setSections({ ...generatedSections });
       } catch (err) {
         generatedSections[sec.key] = "Error generating section.";
         setSections({ ...generatedSections });
       }
+
+      await sleep(1100); // ✅ wait 1.1 seconds before next request
     }
+
     setLoading(false);
   };
 

@@ -5,7 +5,7 @@ import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
 const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
-  console.log("form data", formData);
+  // console.log("form data", formData);
   return (
     <Page style={[styles.page]}>
       {/* watermark  */}
