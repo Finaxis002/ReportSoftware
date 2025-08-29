@@ -340,14 +340,768 @@ const ProjectedDepreciation = ({
   // hideFirstYear
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
   //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || (n+1);
+
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitFinancialYearLabels = [financialYearLabels];
+if (isAdvancedLandscape) {
+  // Remove first year if hidden
+  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const totalCols = visibleLabels.length;
+  const firstPageCols = Math.ceil(totalCols / 2);
+  const secondPageCols = totalCols - firstPageCols;
+  splitFinancialYearLabels = [
+    visibleLabels.slice(0, firstPageCols),
+    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+  ];
+}
+
+  if (isAdvancedLandscape) {
+    return splitFinancialYearLabels.map((labels, pageIdx) => {
+      // labels is the page's array of financial year labels (subset of financialYearLabels)
+      const pageStart =
+        Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
+
+      const globalIndex = (localIdx) => pageStart + localIdx;
+      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+
+      return (
+        <Page
+          // size={
+          //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
+          // }
+          size="A4"
+          orientation="landscape" // ✅ Now using prop
+          wrap={false}
+          break
+          style={styles.page}
+        >
+          {/* watermark  */}
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
+
+          <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                }
+                )
+              </Text>
+            </View>
+
+            {/* Heading */}
+            <View style={stylesCOP.heading}>
+              <Text>Projected Depreciation
+              {splitFinancialYearLabels.length > 1 ? ` (${toRoman(pageIdx)})` : ""}
+            </Text>
+            </View>
+
+            {/* Table Container */}
+            <View style={[styles.table, { borderRightWidth: 0 }]}>
+              {/* Table Header */}
+              <View style={styles.tableHeader}>
+                <Text
+                  style={[
+                    styles.serialNoCell,
+                    styleExpenses.sno,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  S. No.
+                </Text>
+                <Text
+                  style={[
+                    styles.detailsCell,
+                    styleExpenses.particularWidth,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  Particulars
+                </Text>
+
+                <Text
+                  style={[
+                    styles.serialNoCell,
+                    styleExpenses.sno,
+                    styleExpenses.fontBold,
+                    { textAlign: "center", borderRightWidth: 1 },
+                  ]}
+                >
+                  Rate
+                </Text>
+
+                {/* Generate Dynamic Year Headers using current page labels */}
+                {labels.map((yearLabel, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[styles.particularsCell, stylesCOP.boldText]}
+                    >
+                      {yearLabel}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              <View
+                style={[
+                  styles.tableHeader,
+                  { marginTop: "20px", borderRightWidth: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  A
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  Gross Fixed Assets
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+
+                {/* ✅ Render values from grossFixedAssetsPerYear for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const value = grossFixedAssetsPerYear?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "bold",
+                        },
+                      ]}
+                    >
+                      {formatNumber(value)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {(() => {
+                let visibleIndex = 0;
+
+                return Object.entries(formData.CostOfProject).map(
+                  ([key, asset], index) => {
+                    if (!asset || !asset.amount || !asset.rate) {
+                      // console.log(`Skipping invalid asset: ${key}, missing amount or rate.`);
+                      return null;
+                    }
+
+                    const assetAmount = asset.amount || 0;
+                    const depreciationPerYear =
+                      depreciationValues[index]?.yearlyDepreciation || [];
+
+                    if (
+                      !depreciationPerYear ||
+                      depreciationPerYear.length === 0
+                    ) {
+                      // console.log(`Skipping asset: ${asset.name} due to missing depreciation values.`);
+                      return null;
+                    }
+
+                    // Ensure depreciation values are numbers (not strings)
+                    const numericDepreciation = depreciationPerYear.map((val) =>
+                      Number(val)
+                    );
+
+                    // Calculate asset values after depreciation (full horizon)
+                    const assetValues = [];
+                    let currentValue = assetAmount;
+                    for (let yearIndex = 0; yearIndex < years; yearIndex++) {
+                      if (yearIndex === 0) {
+                        assetValues.push(currentValue);
+                      } else {
+                        const depreciation =
+                          numericDepreciation[yearIndex - 1] || 0;
+                        currentValue -= depreciation;
+                        assetValues.push(currentValue);
+                      }
+                    }
+
+                    // Check only the current page's visible columns (respect hideFirstYear)
+                    const pageVals = labels
+                      .map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+                        return assetValues[gIdx] ?? 0;
+                      })
+                      .filter((v) => v !== null);
+
+                    if (
+                      pageVals.length === 0 ||
+                      pageVals.every((v) => v === 0)
+                    ) {
+                      // console.log(`Skipping Asset: ${asset.name} as page values are zero`);
+                      return null;
+                    }
+
+                    visibleIndex++; // Increment for visible rows
+
+                    return (
+                      <View
+                        key={key}
+                        style={[styles.tableRow, { borderRightWidth: 0 }]}
+                      >
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {visibleIndex}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {asset.name}
+                        </Text>
+                        <Text style={stylesCOP.serialNoCellDetail}></Text>
+
+                        {labels.map((_, localIdx) => {
+                          const gIdx = globalIndex(localIdx);
+                          if (shouldSkipCol(gIdx)) return null;
+                          const value = assetValues[gIdx] ?? 0;
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(value)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  }
+                );
+              })()}
+
+              {/* Depreciation Header */}
+              <View style={[styles.tableHeader]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  B
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  Depreciation
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+
+                {/* ✅ Render values from totalDepreciationPerYear for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const total = totalDepreciationPerYear?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "bold",
+                        },
+                      ]}
+                    >
+                      {formatNumber(total)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* Display Depreciation Rates for Each Asset */}
+              {(() => {
+                let visibleIndex = 0; // To track only visible (non-zero) rows
+
+                return Object.entries(formData.CostOfProject).map(
+                  ([key, asset], index) => {
+                    const yearlyDep =
+                      depreciationValues[index]?.yearlyDepreciation || [];
+
+                    // Page-scope values respecting hideFirstYear
+                    const pageVals = labels
+                      .map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+                        return Number(yearlyDep[gIdx] ?? 0);
+                      })
+                      .filter((v) => v !== null);
+
+                    if (pageVals.length === 0 || pageVals.every((v) => v === 0))
+                      return null;
+
+                    visibleIndex++; // Increment for visible rows only
+
+                    return (
+                      <View
+                        key={key}
+                        style={[styles.tableRow, { borderRightWidth: 0 }]}
+                      >
+                        {/* ✅ Corrected Serial Number */}
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {visibleIndex}
+                        </Text>
+
+                        {/* Asset Name */}
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {asset.name}
+                        </Text>
+
+                        {/* Depreciation Rate */}
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {asset.rate ? `${asset.rate}%` : " "}
+                        </Text>
+
+                        {/* Yearly Depreciation Values for current page */}
+                        {labels.map((_, localIdx) => {
+                          const gIdx = globalIndex(localIdx);
+                          if (shouldSkipCol(gIdx)) return null;
+                          const value = yearlyDep[gIdx] ?? 0;
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(value)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  }
+                );
+              })()}
+
+              {/* Cumulative Depreciation */}
+              <View style={[styles.tableHeader]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  C
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  Cumulative Depreciation
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+
+                {/* ✅ Render values from cumulativeDepreciationTotals for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const total = cumulativeDepreciationTotals?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "bold",
+                        },
+                      ]}
+                    >
+                      {formatNumber(total)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* ✅ Display Correct Cumulative Depreciation for Each Asset */}
+              {(() => {
+                let visibleIndex = 0; // To track visible rows only
+
+                return Object.entries(formData.CostOfProject).map(
+                  ([key, asset], index) => {
+                    const cumDep =
+                      depreciationValues[index]?.cumulativeDepreciation || [];
+
+                    // Page visible values
+                    const pageVals = labels
+                      .map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+                        return Number(cumDep[gIdx] ?? 0);
+                      })
+                      .filter((v) => v !== null);
+
+                    if (pageVals.length === 0 || pageVals.every((v) => v === 0))
+                      return null;
+
+                    visibleIndex++; // Increment only for rows that are displayed
+
+                    return (
+                      <View
+                        key={key}
+                        style={[styles.tableRow, { borderRightWidth: 0 }]}
+                      >
+                        {/* ✅ Correct Serial Number */}
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {visibleIndex}
+                        </Text>
+
+                        {/* Asset Name */}
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {asset.name}
+                        </Text>
+
+                        {/* Empty Column for Depreciation Rate */}
+                        <Text style={stylesCOP.serialNoCellDetail}></Text>
+
+                        {/* Display Cumulative Depreciation per year for current page */}
+                        {labels.map((_, localIdx) => {
+                          const gIdx = globalIndex(localIdx);
+                          if (shouldSkipCol(gIdx)) return null;
+                          const value = cumDep[gIdx] ?? 0;
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(value)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  }
+                );
+              })()}
+
+              {/* Net Asset */}
+              <View style={[styles.tableHeader]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  D
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  Net Asset
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      fontWeight: "bold",
+                    },
+                  ]}
+                ></Text>
+
+                {/* ✅ Render values from net assets per year for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const total = totalNetAssetValuesPerYear?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          fontWeight: "bold",
+                        },
+                      ]}
+                    >
+                      {formatNumber(total)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {(() => {
+                let visibleIndex = 0;
+
+                return Object.entries(formData.CostOfProject).map(
+                  ([assetKey, asset], index) => {
+                    const assetData = netAssetValues.find(
+                      (_, i) =>
+                        Object.keys(formData.CostOfProject)[i] === assetKey
+                    );
+                    if (!assetData) return null;
+
+                    const netPerYear = assetData.assetValues;
+
+                    // ❌ Skip selected or preliminary assets
+                    const totalValue = netPerYear.reduce(
+                      (acc, val) => acc + val,
+                      0
+                    );
+                    const allSameValue = netPerYear.every(
+                      (val) => val === netPerYear[0]
+                    );
+
+                    if (
+                      asset.isSelected ||
+                      asset.isPreliminary ||
+                      totalValue < 10000 ||
+                      allSameValue
+                    )
+                      return null;
+
+                    // Page-scope values (respect hideFirstYear)
+                    const pageVals = labels
+                      .map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+                        return netPerYear[gIdx] ?? 0;
+                      })
+                      .filter((v) => v !== null);
+
+                    if (pageVals.length === 0 || pageVals.every((v) => v === 0))
+                      return null;
+
+                    visibleIndex++;
+
+                    return (
+                      <View
+                        key={assetKey}
+                        style={[styles.tableRow, { borderRightWidth: 0 }]}
+                      >
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {visibleIndex}
+                        </Text>
+
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {asset.name}
+                        </Text>
+
+                        <Text
+                          style={[
+                            stylesCOP.serialNoCellDetail,
+                            { fontWeight: "bold" },
+                          ]}
+                        ></Text>
+
+                        {labels.map((_, localIdx) => {
+                          const gIdx = globalIndex(localIdx);
+                          if (shouldSkipCol(gIdx)) return null;
+                          const netAsset = netPerYear[gIdx] ?? 0;
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(netAsset)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  }
+                );
+              })()}
+            </View>
+
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "80px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "50px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
+          </View>
+        </Page>
+      );
+    });
+  }
 
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      size="A4"
       orientation={orientation} // ✅ Now using prop
       wrap={false}
       break
-       style={styles.page}
+      style={styles.page}
     >
       {/* watermark  */}
       {pdfType &&
@@ -378,21 +1132,21 @@ const ProjectedDepreciation = ({
 
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* businees name and financial year  */}
-         <View>
-               <Text style={styles.businessName}>
-                 {formData?.AccountInformation?.businessName || "Business Name"}
-               </Text>
-               <Text style={styles.FinancialYear}>
-                 Financial Year{" "}
-                 {formData?.ProjectReportSetting?.FinancialYear
-                   ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                       parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                     )
-                       .toString()
-                       .slice(-2)}`
-                   : "2025-26"}
-               </Text>
-             </View>
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
 
         <View
           style={{
@@ -428,7 +1182,7 @@ const ProjectedDepreciation = ({
 
         {/* Table Container */}
 
-        <View style={[styles.table, {borderRightWidth:0}]}>
+        <View style={[styles.table, { borderRightWidth: 0 }]}>
           {/* Table Header */}
           <View style={styles.tableHeader}>
             <Text
@@ -476,7 +1230,12 @@ const ProjectedDepreciation = ({
               ))}
           </View>
 
-          <View style={[styles.tableHeader, { marginTop: "20px", borderRightWidth:0 }]}>
+          <View
+            style={[
+              styles.tableHeader,
+              { marginTop: "20px", borderRightWidth: 0 },
+            ]}
+          >
             <Text
               style={[
                 stylesCOP.serialNoCellDetail,
@@ -528,7 +1287,6 @@ const ProjectedDepreciation = ({
               )}
           </View>
 
-        
           {(() => {
             let visibleIndex = 0;
 
@@ -595,7 +1353,10 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment for visible rows
 
                 return (
-                  <View key={key} style={[styles.tableRow, {borderRightWidth:0}]}>
+                  <View
+                    key={key}
+                    style={[styles.tableRow, { borderRightWidth: 0 }]}
+                  >
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
                     </Text>
@@ -701,7 +1462,10 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment for visible rows only
 
                 return (
-                  <View key={key} style={[styles.tableRow , {borderRightWidth:0}]}>
+                  <View
+                    key={key}
+                    style={[styles.tableRow, { borderRightWidth: 0 }]}
+                  >
                     {/* ✅ Corrected Serial Number */}
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
@@ -814,7 +1578,10 @@ const ProjectedDepreciation = ({
                 visibleIndex++; // Increment only for rows that are displayed
 
                 return (
-                  <View key={key} style={[styles.tableRow, {borderRightWidth:0}]}>
+                  <View
+                    key={key}
+                    style={[styles.tableRow, { borderRightWidth: 0 }]}
+                  >
                     {/* ✅ Correct Serial Number */}
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
@@ -945,7 +1712,10 @@ const ProjectedDepreciation = ({
                 visibleIndex++;
 
                 return (
-                  <View key={assetKey} style={[styles.tableRow, {borderRightWidth:0}]}>
+                  <View
+                    key={assetKey}
+                    style={[styles.tableRow, { borderRightWidth: 0 }]}
+                  >
                     <Text style={stylesCOP.serialNoCellDetail}>
                       {visibleIndex}
                     </Text>

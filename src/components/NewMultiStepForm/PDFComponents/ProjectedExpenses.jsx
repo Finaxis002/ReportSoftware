@@ -32,21 +32,6 @@ const ProjectedExpenses = ({
   pdfType,
   orientation,
 }) => {
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
-
   const activeRowIndex = 0;
   // console.log("formdata in projected expense", formData);
   const { Expenses = {} } = formData;
@@ -565,9 +550,920 @@ const ProjectedExpenses = ({
 
   const preliminarySerialNo = 3 + renderedIndirectExpenses + 1; // 3 static rows + count + 1
 
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitFinancialYearLabels = [financialYearLabels];
+  if (isAdvancedLandscape) {
+  // Remove first year if hidden
+  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const totalCols = visibleLabels.length;
+  const firstPageCols = Math.ceil(totalCols / 2);
+  const secondPageCols = totalCols - firstPageCols;
+  splitFinancialYearLabels = [
+    visibleLabels.slice(0, firstPageCols),
+    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+  ];
+}
+  const toRoman = (n) =>
+    ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+  if (isAdvancedLandscape) {
+    return splitFinancialYearLabels.map((labels, pageIdx) => {
+      // labels is the page's array of financial year labels (subset of financialYearLabels)
+      const pageStart =
+        Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
+
+      const globalIndex = (localIdx) => pageStart + localIdx;
+      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+
+      return (
+        <Page
+          key={pageIdx}
+          // size={
+          //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
+          // }
+          size="A4"
+          orientation="landscape"
+          wrap={false}
+          break
+          style={styles.page}
+        >
+          <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs."
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands"
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs"
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores"
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions"
+                  : ""}
+                )
+              </Text>
+            </View>
+
+            <View>
+              <View style={stylesCOP.heading}>
+                <Text>
+                  Projected Expenses
+                  {splitFinancialYearLabels.length > 1
+                    ? ` (${toRoman(pageIdx)})`
+                    : ""}
+                </Text>
+              </View>
+
+              <View style={[styles.table, { borderRightWidth: 0 }]}>
+                <View style={styles.tableHeader}>
+                  <Text
+                    style={[
+                      styles.serialNoCell,
+                      styleExpenses.sno,
+                      styleExpenses.fontBold,
+                      { textAlign: "center" },
+                    ]}
+                  >
+                    S. No.
+                  </Text>
+                  <Text
+                    style={[
+                      styles.detailsCell,
+                      styleExpenses.particularWidth,
+                      styleExpenses.fontBold,
+                      { textAlign: "center" },
+                    ]}
+                  >
+                    Particulars
+                  </Text>
+
+                  {/* Generate Dynamic Year Headers using *page* labels */}
+                  {labels.map((yearLabel, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    return (
+                      <Text
+                        key={gIdx}
+                        style={[styles.particularsCell, stylesCOP.boldText]}
+                      >
+                        {yearLabel}
+                      </Text>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+
+            {/* Direct Expenses */}
+            <View style={[{ borderLeftWidth: 1 }]}>
+              {/* direct expenses */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  C
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Direct Expenses
+                </Text>
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {/* You can add content here if needed */}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* Salary and wages  */}
+              {normalExpense.map((expense, index) => {
+                if (index !== activeRowIndex) return null; // Only render the active row
+
+                return (
+                  <View key={index} style={[styles.tableRow, styles.totalRow]}>
+                    <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      Salary and Wages
+                    </Text>
+
+                    {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+                      if (shouldSkipCol(gIdx)) return null;
+                      return (
+                        <Text
+                          key={gIdx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(
+                            calculateExpense(
+                              Number(fringAndAnnualCalculation) || 0,
+                              gIdx
+                            )
+                          )}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+
+              {/* Direct Expenses */}
+              {directExpense
+                .filter((expense) => {
+                  const isAllYearsZero = Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).every((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                    if (isRawMaterial && isPercentage) {
+                      expenseValue = calculateRawMaterialExpense(
+                        expense,
+                        receivedtotalRevenueReceipts,
+                        adjustedYearIndex
+                      );
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+
+                    return expenseValue === 0;
+                  });
+
+                  return expense.type === "direct" && !isAllYearsZero;
+                })
+
+                .map((expense, index) => {
+                  const isRawMaterial =
+                    expense.name.trim() === "Raw Material Expenses / Purchases";
+                  const isPercentage = String(expense.value)
+                    .trim()
+                    .endsWith("%");
+                  const displayName = isRawMaterial
+                    ? "Purchases / RM Expenses"
+                    : expense.name;
+
+                  return (
+                    <View
+                      key={index}
+                      style={[styles.tableRow, styles.totalRow]}
+                    >
+                      <Text style={stylesCOP.serialNoCellDetail}>
+                        {index + 2}
+                      </Text>
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.particularWidth,
+                          styleExpenses.bordernone,
+                        ]}
+                      >
+                        {displayName}
+                      </Text>
+
+                      {labels.map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+
+                        let expenseValue = 0;
+                        if (isRawMaterial && isPercentage) {
+                          expenseValue = calculateRawMaterialExpense(
+                            expense,
+                            receivedtotalRevenueReceipts,
+                            gIdx
+                          );
+                        } else {
+                          expenseValue = Number(expense.total) || 0;
+                        }
+
+                        const formattedExpense =
+                          isRawMaterial && isPercentage
+                            ? formatNumber(n2(expenseValue))
+                            : formatNumber(
+                                n2(calculateExpense(expenseValue, gIdx))
+                              );
+
+                        return (
+                          <Text
+                            key={gIdx}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formattedExpense}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+
+              {/* Advance Expenses of type "direct" */}
+              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+                formData.Expenses.advanceExpenses
+                  .filter(
+                    (row) =>
+                      row.type === "direct" &&
+                      row.name &&
+                      row.name.trim() !== ""
+                  )
+                  .map((row, advIdx) => (
+                    <View
+                      key={"adv-direct-" + advIdx}
+                      style={[styles.tableRow, styles.totalRow]}
+                    >
+                      <Text style={stylesCOP.serialNoCellDetail}>
+                        {"A" + (advIdx + 1)}
+                      </Text>
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.particularWidth,
+                          styleExpenses.bordernone,
+                        ]}
+                      >
+                        {row.name}
+                      </Text>
+
+                      {labels.map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+
+                        const value =
+                          (row.values &&
+                            (row.values[financialYearLabels[gIdx]] ??
+                              row.values[labels[localIdx]] ??
+                              row.values[gIdx])) ||
+                          0;
+
+                        return (
+                          <Text
+                            key={gIdx}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(Number(value) || 0)}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  ))}
+
+              {/* direct Expenses total  */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {},
+                  ]}
+                >
+                  Total
+                </Text>
+                {/* ✅ Display Precomputed Total Direct Expenses for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const grandTotal = totalDirectExpensesArray?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(grandTotal)}
+                    </Text>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Indirect Expenses  */}
+            <View style={[{ borderLeftWidth: 1, borderBottom: 1 }]}>
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    {
+                      paddingVertical: "10px",
+
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  B
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    {
+                      paddingVertical: "10px",
+
+                      fontWeight: "bold",
+                    },
+                  ]}
+                >
+                  Indirect Expenses
+                </Text>
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        {
+                          paddingVertical: "10px",
+
+                          fontWeight: "bold",
+                        },
+                      ]}
+                    >
+                      {/* You can add content here if needed */}
+                    </Text>
+                  );
+                })}
+              </View>
+              {/* Interest On Term Loan */}
+              {!isInterestOnTermLoanZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  {/* Serial Number */}
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    1
+                  </Text>
+
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Interest On Term Loan
+                  </Text>
+
+                  {/* Get totals for the current page */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    return (
+                      <Text
+                        key={gIdx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(yearlyInterestLiabilities?.[gIdx] ?? 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
+              {/* Interest on Working Capital */}
+              {!isWorkingCapitalInterestZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {isInterestOnTermLoanZero ? 1 : 2}
+                  </Text>
+
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Interest On Working Capital
+                  </Text>
+
+                  {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+
+                    const calculatedInterest =
+                      calculateInterestOnWorkingCapital(gIdx);
+
+                    return (
+                      <Text
+                        key={gIdx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(calculatedInterest)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
+              {/* ✅ Render Depreciation Row */}
+              {!isDepreciationZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {isWorkingCapitalInterestZero ? 2 : 3}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Depreciation
+                  </Text>
+
+                  {/* ✅ Display Depreciation Values for Each Year on current page */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const depreciationValue =
+                      totalDepreciationPerYear?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={gIdx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(depreciationValue)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
+              {directExpense
+                .filter((expense) => {
+                  const isAllYearsZero = Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).every((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+                    const ClosingStock =
+                      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+                    const OpeningStock =
+                      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+
+                    if (isRawMaterial && isPercentage) {
+                      const baseValue =
+                        (parseFloat(expense.value) / 100) *
+                        (receivedtotalRevenueReceipts?.[adjustedYearIndex] ||
+                          0);
+                      expenseValue = baseValue + ClosingStock - OpeningStock;
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+
+                    return expenseValue === 0;
+                  });
+
+                  return expense.type === "indirect" && !isAllYearsZero;
+                })
+
+                .map((expense, index) => {
+                  const annualExpense = Number(expense.total) || 0; // ✅ Use annual total directly
+                  const isRawMaterial =
+                    expense.name.trim() === "Raw Material Expenses / Purchases";
+                  const displayName = isRawMaterial
+                    ? "Purchases / RM Expenses"
+                    : expense.name;
+                  const serialNumber =
+                    isInterestOnTermLoanZero && isDepreciationZero
+                      ? index + 2
+                      : isWorkingCapitalInterestZero
+                      ? index + 3
+                      : index + 4;
+                  return (
+                    <View
+                      key={index}
+                      style={[styles.tableRow, styles.totalRow]}
+                    >
+                      <Text style={stylesCOP.serialNoCellDetail}>
+                        {serialNumber}
+                      </Text>
+
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.particularWidth,
+                          styleExpenses.bordernone,
+                        ]}
+                      >
+                        {displayName}
+                      </Text>
+
+                      {labels.map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+
+                        let expenseValue = 0;
+                        const isRawMaterialInner =
+                          expense.name.trim() ===
+                          "Raw Material Expenses / Purchases";
+                        const isPercentage = String(expense.value)
+                          .trim()
+                          .endsWith("%");
+                        const ClosingStock =
+                          formData?.MoreDetails?.ClosingStock?.[gIdx] || 0;
+                        const OpeningStock =
+                          formData?.MoreDetails?.OpeningStock?.[gIdx] || 0;
+
+                        if (isRawMaterialInner && isPercentage) {
+                          const baseValue =
+                            (parseFloat(expense.value) / 100) *
+                            (receivedtotalRevenueReceipts?.[gIdx] || 0);
+                          expenseValue =
+                            baseValue + ClosingStock - OpeningStock;
+                        } else {
+                          expenseValue = Number(expense.total) || 0;
+                        }
+
+                        const formattedExpense =
+                          isRawMaterialInner && isPercentage
+                            ? formatNumber(n2(expenseValue))
+                            : formatNumber(
+                                n2(calculateExpense(expenseValue, gIdx))
+                              );
+
+                        return (
+                          <Text
+                            key={gIdx}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formattedExpense}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              ;{/* Advance Expenses of type "indirect" */}
+              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+                formData.Expenses.advanceExpenses
+                  .filter(
+                    (row) =>
+                      row.type === "indirect" &&
+                      row.name &&
+                      row.name.trim() !== ""
+                  )
+                  .map((row, advIdx) => (
+                    <View
+                      key={"adv-indirect-" + advIdx}
+                      style={[styles.tableRow, styles.totalRow]}
+                    >
+                      <Text style={stylesCOP.serialNoCellDetail}>
+                        {"I" + (advIdx + 1)}
+                      </Text>
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.particularWidth,
+                          styleExpenses.bordernone,
+                        ]}
+                      >
+                        {row.name}
+                      </Text>
+
+                      {labels.map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                        if (shouldSkipCol(gIdx)) return null;
+                        const value =
+                          (row.values &&
+                            (row.values[financialYearLabels[gIdx]] ??
+                              row.values[labels[localIdx]] ??
+                              row.values[gIdx])) ||
+                          0;
+                        return (
+                          <Text
+                            key={gIdx}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(Number(value) || 0)}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  ))}
+              {/* ✅ Render Preliminary Row */}
+              {!isPreliminaryWriteOffAllZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {preliminarySerialNo}
+                  </Text>
+
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Preliminary Expenses
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+                    const value = preliminaryWriteOffPerYear?.[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={gIdx}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(value)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
+              {/* ✅ Total Indirect Expenses Row */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Total
+                </Text>
+
+                {/* ✅ Display the calculated `totalIndirectExpensesArray` for current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const totalValue = totalIndirectExpensesArray?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                        styles.Total,
+                        { paddingVertical: "10px" },
+                      ]}
+                    >
+                      {formatNumber(totalValue)}
+                    </Text>
+                  );
+                })}
+              </View>
+              {/* blank row */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                {/* Serial Number */}
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                ></Text>
+
+                {/* Keep column count aligned with current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    ></Text>
+                  );
+                })}
+              </View>
+              {/* ✅ Total (A + B) - Combined Direct and Indirect Expenses */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}></Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Total Expenses(A + B)
+                </Text>
+
+                {/* ✅ Display the combined total for each year on current page */}
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  if (shouldSkipCol(gIdx)) return null;
+                  const totalValue = totalExpensesArray?.[gIdx] ?? 0;
+                  return (
+                    <Text
+                      key={gIdx}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        stylesCOP.boldText,
+                        styleExpenses.fontSmall,
+                      ]}
+                    >
+                      {formatNumber(n2(totalValue))}
+                    </Text>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "80px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "60px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
+          </View>
+        </Page>
+      );
+    });
+  }
+
   return (
     <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+      size="A4"
       orientation={orientation} // ✅ Now using prop
       wrap={false}
       break
