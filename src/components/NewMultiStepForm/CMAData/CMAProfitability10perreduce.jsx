@@ -1649,7 +1649,6 @@ if (isAdvancedLandscape) {
             <Text>
               Projected Profitability (Revenue Reduced by{" "}
               {revenueReducePercentage}%)
-              {splitYearLabels.length > 1 ? ` (${toRoman(pageIdx)})` : ""}
             </Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
