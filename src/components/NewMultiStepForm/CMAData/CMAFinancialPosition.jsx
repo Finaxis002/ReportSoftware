@@ -177,6 +177,1160 @@ const CMAFinancialPosition = ({ formData, orientation }) => {
 
   const dscr = formData?.computedData?.dscr?.DSCR || 0;
 
+
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitYearLabels = [yearLabels];
+  let splitFinancialYearLabels = [yearLabels];
+  if (isAdvancedLandscape) {
+    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
+  const toRoman = (n) =>
+    ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+
+if (isAdvancedLandscape) {
+  return splitYearLabels.map((labels, pageIdx) => {
+    const pageStart = yearLabels.indexOf(labels[0]);
+    const globalIndex = (localIdx) => pageStart + localIdx;
+
+    return (
+      <Page size="A4" style={styles.page} orientation="landscape">
+        <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+          {/* name and financial year  */}
+          <Header formData={formData} />
+          {/* header  */}
+          <View>
+            <View>
+              <View style={stylesCOP.heading}>
+                <Text>
+                  Financial Position of the Borrower
+                  {splitYearLabels.length > 1 ? ` (${toRoman(pageIdx)})` : ""}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* table  */}
+          <View style={[styles.table, { borderRightWidth: 0 }]}>
+            {/* table header  */}
+            <View style={styles.tableHeader}>
+              <Text
+                style={[
+                  styles.serialNoCell,
+                  styleExpenses.sno,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
+                S. No.
+              </Text>
+              <Text
+                style={[
+                  styles.detailsCell,
+                  styleExpenses.particularWidth,
+                  styleExpenses.fontBold,
+                  { textAlign: "center" },
+                ]}
+              >
+                Particulars
+              </Text>
+
+              {/* headers for just this page */}
+              {labels.map((label, idx) => (
+                <Text
+                  key={`${pageIdx}-hdr-${idx}`}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {label}
+                </Text>
+              ))}
+            </View>
+
+            {/* table content  */}
+            <View>
+              {/* first part  */}
+              <View>
+                {/* Blank Row  */}
+                <View
+                  style={[
+                    stylesMOF.row,
+                    styles.tableRow,
+                    styles.Total,
+                    { border: 0 },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                    ]}
+                  />
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`${pageIdx}-blank-0-${localIdx}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { paddingVertical: "5px" },
+                      ]}
+                    />
+                  ))}
+                </View>
+
+                {/* a Paid-up Capital */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>a</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Paid-up Capital
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-paidup-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(shareCapital?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* b Net Worth */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>b</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Worth
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-nw-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(netWorth?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* c Net Working Capital */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    c
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Working Capital
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-nwc-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(netWorkingCapital?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* d Gross Receipts */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    d
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Gross Receipts
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-grossrec-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(totalRevenueReceipt?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* e Net Sales */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    e
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Sales
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-netsales-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(totalRevenueReceipt?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* f Interest Term Loan */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    f
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Interest Term Loan
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-itl-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(interestOnTermLoan?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* g Interest CC */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    g
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Interest CC
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-iwc-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(interestOnWCArray?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* h Gross Profit */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    h
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Gross Profit
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-gp-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(grossProfit?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* i Depreciation */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    i
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Depreciation
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-dep-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(depreciation?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* j Taxation */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    j
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Taxation
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-tax-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(incomeTaxCal?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* k Net Profit */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    k
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Profit
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-np-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(netProfitAfterTax?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* l Dividend (header with blanks) */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    l
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    Dividend
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`${pageIdx}-div-hdr-${localIdx}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    />
+                  ))}
+                </View>
+
+                {/* (i) Amount */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (i)Amount
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-div-amt-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(withdrawals?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* (ii) Percentage */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    (ii)Percentage
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-div-pct-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(withdrawalsToNPATPercentage?.[gIdx]) || 0
+                        )}
+                        %
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* m Advance / investments in subsidiary / allied concerns */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    m
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Advance / investments in subsidiary / allied concerns
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-adv-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(fillZero?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* n Bad-debts, if any */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    n
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Bad-debts, if any
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-bd-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(fillZero?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* o Arrears of depreciation, if any */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    o
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Arrears of depreciation, if any
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-arrears-dep-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(fillZero?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* RATIOS header */}
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    l
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                      styles.Total,
+                      { paddingVertical: "10px" },
+                    ]}
+                  >
+                    RATIOS:
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`${pageIdx}-ratios-hdr-${localIdx}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                      ]}
+                    />
+                  ))}
+                </View>
+
+                {/* 1 Current Ratio */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    1
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Current Ratio
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-cr-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(currentRatioArr?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 2 Debt-Equity Ratio */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    2
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Debt-Equity Ratio
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-de-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(debtEquityArr?.[gIdx]) || 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 3 Funded Debt: Net worth (TOL/TNW) */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    3
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Funded Debt: Net worth (TOL/TNW)
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-toltnw-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(totalOutsideLiabilitiesNetWorthRatio?.[gIdx]) || 0
+                        )}
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 4 Gross Profit / Net worth */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    4
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Gross Profit / Net worth
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-gp-nw-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(grossProfitDivNetWorthRatio?.[gIdx]) || 0
+                        )}
+                        %
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 5 Net Profit / Net worth */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    5
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Net Profit / Net worth
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-np-nw-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(
+                          formData,
+                          Number(netProfitDivNetWorthRatioArr?.[gIdx]) || 0
+                        )}
+                        %
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 6 Interest / Cost of production */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    6
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Interest / Cost of production
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-int-cop-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(interestDivCOP?.[gIdx]) || 0)}%
+                      </Text>
+                    );
+                  })}
+                </View>
+
+                {/* 7 Debt Service Coverage Ratio */}
+                <View
+                  style={[stylesMOF.row, styles.tableRow, { borderBottomWidth: "0px" }]}
+                >
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    7
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Debt Service Coverage Ratio
+                  </Text>
+
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text
+                        key={`${pageIdx}-dscr-${localIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(formData, Number(dscr?.[gIdx]) || 0)}%
+                      </Text>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 30,
+              },
+            ]}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                paddingTop: 100,
+              }}
+            >
+              {/* ✅ CA Name (Conditional Display) */}
+              {formData?.ProjectReportSetting?.CAName?.value ? (
+                <Text
+                  style={[
+                    styles.caName,
+                    { fontSize: "10px", fontWeight: "bold" },
+                  ]}
+                >
+                  CA {formData?.ProjectReportSetting?.CAName?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ Membership Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+                <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                  M. No.:{" "}
+                  {formData?.ProjectReportSetting?.MembershipNumber?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ UDIN Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+                <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                  UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ Mobile Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+                <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                  Mob. No.:{" "}
+                  {formData?.ProjectReportSetting?.MobileNumber?.value}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* business name and Client Name  */}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "30px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "30px",
+              }}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    );
+  });
+}
+
   return (
     <Page size="A4" style={styles.page} orientation={orientation}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>

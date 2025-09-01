@@ -109,8 +109,6 @@ const CMAProfitabiltyExpenseInc = ({
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
- 
-
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
@@ -132,7 +130,7 @@ const CMAProfitabiltyExpenseInc = ({
     }
     return monthsArray;
   };
-  
+
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
   );
@@ -151,7 +149,7 @@ const CMAProfitabiltyExpenseInc = ({
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-    const startIndex =  0;
+    const startIndex = 0;
     const endIndex = startIndex + preliminaryWriteOffYears;
 
     // 👇 Only insert value if it's within the write-off window
@@ -169,7 +167,6 @@ const CMAProfitabiltyExpenseInc = ({
     const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
-
 
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
@@ -204,7 +201,8 @@ const CMAProfitabiltyExpenseInc = ({
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
-   const administrativeExpenseRows = extractors.administrativeExpenseRows() || [];
+  const administrativeExpenseRows =
+    extractors.administrativeExpenseRows() || [];
 
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
@@ -212,7 +210,7 @@ const CMAProfitabiltyExpenseInc = ({
     (_, idx) => {
       let totalSalary = Number(salaryandwages[idx] || 0);
       let totalMaterial = Number(rawmaterial[idx] || 0);
-       let administrativeExpenses = Number(adminValues[idx] || 0);
+      let administrativeExpenses = Number(adminValues[idx] || 0);
 
       // Sum values from OnlyfilteredDirectExpenses
       let totalDirectExpense = OnlyfilteredDirectExpenses.reduce(
@@ -224,7 +222,12 @@ const CMAProfitabiltyExpenseInc = ({
       );
 
       // Return the total of salary, material, and direct expenses for the year
-      return totalSalary + totalMaterial + totalDirectExpense + administrativeExpenses;
+      return (
+        totalSalary +
+        totalMaterial +
+        totalDirectExpense +
+        administrativeExpenses
+      );
     }
   );
 
@@ -257,31 +260,32 @@ const CMAProfitabiltyExpenseInc = ({
   const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
   // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
   // const cashProfit = PPExtractor.cashProfit() || [];
-  
 
-  
-//expense increased by 10 %- new data
-   const totalExpenseWithoutRM = Array.from({length:projectionYears}).map((_,i)=>
-           Number(totalDirectExpenses[i] || 0) - 
-           Number(rawmaterial[i] || 0)
-    )
+  //expense increased by 10 %- new data
+  const totalExpenseWithoutRM = Array.from({ length: projectionYears }).map(
+    (_, i) => Number(totalDirectExpenses[i] || 0) - Number(rawmaterial[i] || 0)
+  );
 
-    const expenseIncreasePercentage = localStorage.getItem('expenseIncreasePercentage') 
-    ? parseFloat(localStorage.getItem('expenseIncreasePercentage')) 
+  const expenseIncreasePercentage = localStorage.getItem(
+    "expenseIncreasePercentage"
+  )
+    ? parseFloat(localStorage.getItem("expenseIncreasePercentage"))
     : 10;
-    console.log("expenseIncreasePercentage", expenseIncreasePercentage);
-  
-  //expense increase by 10%
-  const increaseValueExpense = Array.from({length:projectionYears}).map((_, i)=>
-   Number(totalExpenseWithoutRM[i] * (expenseIncreasePercentage/100))
-)
+  console.log("expenseIncreasePercentage", expenseIncreasePercentage);
 
-const increasedExpenseTotal = Array.from({length:projectionYears}).map((_, i)=>
- Number(totalDirectExpenses[i] || 0) +
- Number(increaseValueExpense[i] || 0) 
-)
-const grossProfit = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(OriginalRevenueValues[i]) - Number(increasedExpenseTotal[i])
+  //expense increase by 10%
+  const increaseValueExpense = Array.from({ length: projectionYears }).map(
+    (_, i) =>
+      Number(totalExpenseWithoutRM[i] * (expenseIncreasePercentage / 100))
+  );
+
+  const increasedExpenseTotal = Array.from({ length: projectionYears }).map(
+    (_, i) =>
+      Number(totalDirectExpenses[i] || 0) + Number(increaseValueExpense[i] || 0)
+  );
+  const grossProfit = Array.from({ length: projectionYears }).map(
+    (_, i) =>
+      Number(OriginalRevenueValues[i]) - Number(increasedExpenseTotal[i])
   );
 
   const NPBT = Array.from({ length: projectionYears }).map(
@@ -327,14 +331,1241 @@ const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])
   );
 
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitYearLabels = [yearLabels];
+  let splitFinancialYearLabels = [yearLabels];
+  if (isAdvancedLandscape) {
+    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
+  const toRoman = (n) =>
+    ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+if (isAdvancedLandscape) {
+  return splitYearLabels.map((labels, pageIdx) => {
+    const pageStart = yearLabels.indexOf(labels[0]);
+    const globalIndex = (localIdx) => pageStart + localIdx;
+
+    return (
+      <Page key={`adv-expinc-${pageIdx}`} size="A4" orientation="landscape" style={styles.page}>
+        {/* watermark  */}
+        {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <View
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: 500,
+                height: 700,
+                marginLeft: -200,
+                marginTop: -350,
+                opacity: 0.4,
+                zIndex: -1,
+              }}
+            >
+              <Image
+                src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </View>
+          )}
+
+        <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+          {/* businees name and financial year  */}
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2025-26"}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              display: "flex",
+              alignContent: "flex-end",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+            }}
+          >
+            <Text style={[styles.AmountIn, styles.italicText]}>
+              (Amount In{" "}
+              {
+                formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs." // Show "Rupees" if "rupees" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores" // Show "Crores" if "crores" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions" // Show "Millions" if "millions" is selected
+                  : "" // Default case
+              }
+              )
+            </Text>
+          </View>
+
+          <View>
+            <View style={stylesCOP.heading}>
+              <Text>Sensitivity Analysis</Text>
+              <Text>
+                Projected Profitability (Expenses Increase by {expenseIncreasePercentage}
+                %)
+                {splitYearLabels.length > 1 ? ` (${toRoman(pageIdx)})` : ""}
+              </Text>
+            </View>
+
+            <View style={[styles.table, { borderRightWidth: 0 }]}>
+              <View style={styles.tableHeader}>
+                <Text
+                  style={[
+                    styles.serialNoCell,
+                    styleExpenses.sno,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  S. No.
+                </Text>
+                <Text
+                  style={[
+                    styles.detailsCell,
+                    styleExpenses.particularWidth,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  Particulars
+                </Text>
+
+                {/* Generate Dynamic Year Headers using paged labels */}
+                {labels.map((label, idx) => (
+                  <Text key={label || idx} style={[styles.particularsCell, stylesCOP.boldText]}>
+                    {label}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Blank Row  */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { border: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* ✅ Total Revenue Receipt */}
+              <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                >
+                  A
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                >
+                  Total Revenue Receipt
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`totrev-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(totalRevenueReceipt?.[globalIndex(localIdx)] ?? 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Closing Stock / Inventory */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  B
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Add: Closing Stock / Inventory
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`close-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(ClosingStock?.[globalIndex(localIdx)] ?? 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Opening Stock / Inventory */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Less: Opening Stock / Inventory
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`open-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(OpeningStock?.[globalIndex(localIdx)] ?? 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Computation of Adjusted Revenue */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { borderBottomWidth: "0px" },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`orig-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(OriginalRevenueValues?.[globalIndex(localIdx)] ?? 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Direct expenses */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styles.Total, { paddingVertical: "10px" }]}
+                >
+                  C
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Direct Expenses
+                </Text>
+                {labels.map((_, idx) => (
+                  <Text
+                    key={`dir-head-${idx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  />
+                ))}
+              </View>
+
+              {/* 1 Salaries & Wages */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Salaries & Wages
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`sal-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(salaryandwages?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 2 Raw Material Expenses */}
+              {rawmaterial.some((val) => Number(val) !== 0) && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Raw Material Expenses
+                  </Text>
+
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`raw-${localIdx}`}
+                      style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                    >
+                      {formatNumber(rawmaterial?.[globalIndex(localIdx)] || 0)}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              {/* Map Direct expenses (type = "direct") */}
+              {OnlyfilteredDirectExpenses.map((expense, idx) => (
+                <View
+                  key={expense.key || expense.name || idx}
+                  style={[styles.tableRow, styles.totalRow]}
+                >
+                  <Text style={stylesCOP.serialNoCellDetail}>
+                    {directExpenseStartSerial + idx}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {expense.name}
+                  </Text>
+
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`dir-${idx}-${localIdx}`}
+                      style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                    >
+                      {formatNumber(
+                        Array.isArray(expense.values)
+                          ? Number(expense.values[globalIndex(localIdx)]) || 0
+                          : Number(expense.value) || 0
+                      )}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+
+              {/* Administrative Expenses */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>9</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Administrative Expenses
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`admin-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(adminValues?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Direct Expenses total */}
+              <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Total
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`tdir-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(totalDirectExpenses?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Blank Row  */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { border: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* Add: Expenses increased by % */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail} />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Add: Expenses increased by {expenseIncreasePercentage}%
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`inc-exp-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(increaseValueExpense?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Expenses total increased by % */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail} />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`inc-tot-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(increasedExpenseTotal?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Blank Row  */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { border: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* Gross Profit */}
+              <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  D
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Gross Profit
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`gp-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(grossProfit?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* indirect expense */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[stylesCOP.serialNoCellDetail, styles.Total, { paddingVertical: "10px" }]}
+                >
+                  E
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Less: Indirect Expenses
+                </Text>
+                {labels.map((_, idx) => (
+                  <Text
+                    key={`ind-head-${idx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  />
+                ))}
+              </View>
+
+              {/* Interest on Term Loan */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Interest on Term Loan
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`itl-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(interestOnTermLoan?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Interest on working capital */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Interest on Working Capital
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`iwc-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(interestOnWCArray?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* depreciation */}
+              <View style={[styles.tableRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  3
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Depreciation
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`dep-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(depreciation?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Render Indirect Expenses (type = "indirect") */}
+              {OnlyIndirectExpenses.map((expense, idx) => (
+                <View
+                  key={expense.key || expense.name || idx}
+                  style={[styles.tableRow, styles.totalRow]}
+                >
+                  <Text style={stylesCOP.serialNoCellDetail}>{3 + idx + 1}</Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    {expense.name}
+                  </Text>
+
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`indir-${idx}-${localIdx}`}
+                      style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                    >
+                      {formatNumber(
+                        Array.isArray(expense.values)
+                          ? Number(expense.values[globalIndex(localIdx)]) || 0
+                          : Number(expense.value) || 0
+                      )}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+
+              {/* preliminary expense */}
+              {!isPreliminaryWriteOffAllZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail} />
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Preliminary Expenses
+                  </Text>
+
+                  {labels.map((_, localIdx) => (
+                    <Text
+                      key={`prel-${localIdx}`}
+                      style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                    >
+                      {formatNumber(preliminaryWriteOffPerYear?.[globalIndex(localIdx)] || 0)}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              {/* indirect Expenses total */}
+              <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Total
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`tind-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(totalIndirectExpenses?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* blank row */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { border: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* Net Profit Before Tax */}
+              <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+                <Text style={[stylesCOP.serialNoCellDetail, { fontWeight: "bold" }]}>F</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Net Profit Before Tax
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`npbt-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(NPBT?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Income Tax @ % */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={[stylesCOP.serialNoCellDetail, { fontWeight: "bold" }]}>
+                  Less
+                </Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Income Tax @ {formData.ProjectReportSetting.incomeTax} %
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`tax-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(incomeTaxCalculation?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Net Profit After Tax */}
+              <View style={[styles.tableRow, styles.totalRow, styles.Total]}>
+                <Text style={[stylesCOP.serialNoCellDetail]}>G</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    { fontWeight: "bold" },
+                  ]}
+                >
+                  Net Profit After Tax
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`npat-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      stylesCOP.boldText,
+                      styleExpenses.fontSmall,
+                      styles.Total,
+                      { borderLeftWidth: "0px" },
+                    ]}
+                  >
+                    {formatNumber(NPAT?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Withdrawals during the year */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Withdrawals during the year
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`with-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(Withdrawals?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Balance Trf. To Balance Sheet */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Balance Trf. To Balance Sheet
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`baltrf-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(balanceTransferred?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Cumulative Balance Trf. To Balance Sheet */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Cumulative Balance Trf. To Balance Sheet
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`cumbal-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(cumulativeBalanceTransferred?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* blank row */}
+              <View
+                style={[
+                  stylesMOF.row,
+                  styles.tableRow,
+                  styles.Total,
+                  { border: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                  ]}
+                />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { paddingVertical: "5px" },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* ✅ Cash Profit (NPAT + Dep.) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text
+                  style={[
+                    stylesCOP.serialNoCellDetail,
+                    styleExpenses.sno,
+                    styleExpenses.bordernone,
+                    { paddingVertical: "10px" },
+                  ]}
+                />
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                  ]}
+                >
+                  Cash Profit (NPAT + Dep.)
+                </Text>
+
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`cash-${localIdx}`}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}
+                  >
+                    {formatNumber(cashProfit?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          <View>
+            {formData?.ProjectReportSetting?.CAName?.value ? (
+              <Text
+                style={[
+                  {
+                    fontSize: "8px",
+                    paddingRight: "4px",
+                    paddingLeft: "4px",
+                    textAlign: "justify",
+                  },
+                ]}
+              >
+                Guidance and assistance have been provided for the preparation of these
+                financial statements on the specific request of the promoter for the
+                purpose of availing finance for the business. These financial statements
+                are based on realistic market assumptions, proposed estimates issued by
+                an approved valuer, details provided by the promoter, and rates
+                prevailing in the market. Based on the examination of the evidence
+                supporting the assumptions, nothing has come to attention that causes
+                any belief that the assumptions do not provide a reasonable basis for
+                the forecast. These financials do not vouch for the accuracy of the
+                same, as actual results are likely to be different from the forecast
+                since anticipated events might not occur as expected, and the variation
+                might be material.
+              </Text>
+            ) : null}
+          </View>
+
+          <View>
+            {formData?.ProjectReportSetting?.CAName?.value ? (
+              <Text
+                style={[
+                  {
+                    fontSize: "8px",
+                    paddingRight: "4px",
+                    paddingLeft: "4px",
+                    textAlign: "justify",
+                  },
+                ]}
+              >
+                Guidance and assistance have been provided for the preparation of these
+                financial statements on the specific request of the promoter for the
+                purpose of availing finance for the business. These financial statements
+                are based on realistic market assumptions, proposed estimates issued by
+                an approved valuer, details provided by the promoter, and rates
+                prevailing in the market. Based on the examination of the evidence
+                supporting the assumptions, nothing has come to attention that causes
+                any belief that the assumptions do not provide a reasonable basis for
+                the forecast. These financials do not vouch for the accuracy of the
+                same, as actual results are likely to be different from the forecast
+                since anticipated events might not occur as expected, and the variation
+                might be material.
+              </Text>
+            ) : null}
+          </View>
+
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 30,
+              },
+            ]}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                paddingTop: 100,
+              }}
+            >
+              {/* ✅ CA Name (Conditional Display) */}
+              {formData?.ProjectReportSetting?.CAName?.value ? (
+                <Text style={[styles.caName, { fontSize: "10px", fontWeight: "bold" }]}>
+                  CA {formData?.ProjectReportSetting?.CAName?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ Membership Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+                <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                  M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ UDIN Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+                <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                  UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+                </Text>
+              ) : null}
+
+              {/* ✅ Mobile Number (Conditional Display) */}
+              {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+                <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                  Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "30px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "30px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    );
+  });
+}
+
+
   return (
-    <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-      orientation={orientation}
-      style={styles.page}
-      wrap={false}
-      break
-    >
+    <Page size="A4" orientation={orientation} style={styles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -410,7 +1641,10 @@ const grossProfit = Array.from({ length: projectionYears }).map(
         <View>
           <View style={stylesCOP.heading}>
             <Text>Sensitivity Analysis</Text>
-            <Text>Projected Profitability (Expenses Increase by {expenseIncreasePercentage}%)</Text>
+            <Text>
+              Projected Profitability (Expenses Increase by{" "}
+              {expenseIncreasePercentage}%)
+            </Text>
           </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View style={styles.tableHeader}>
@@ -567,7 +1801,6 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 Add: Closing Stock / Inventory
               </Text>
 
-            
               {ClosingStock.map((val, idx) => (
                 <Text
                   key={idx}
@@ -658,8 +1891,8 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               ></Text>
 
               {/* ✅ Display Computed Adjusted Revenue Values */}
-             
-              { OriginalRevenueValues.map((val, idx) => (
+
+              {OriginalRevenueValues.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -776,7 +2009,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 style={[styles.tableRow, styles.totalRow]}
               >
                 <Text style={stylesCOP.serialNoCellDetail}>
-                    {directExpenseStartSerial + idx}
+                  {directExpenseStartSerial + idx}
                   {/* This gives 'd', 'e', 'f', ... OR 'c', 'd', ... */}
                 </Text>
                 <Text
@@ -807,7 +2040,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               </View>
             ))}
 
-               {/* Administrative Expenses */}
+            {/* Administrative Expenses */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}>9</Text>
               <Text
@@ -941,7 +2174,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               })}
             </View>
 
-             {/*  Expenses total increased by 10%  */}
+            {/*  Expenses total increased by 10%  */}
             <View style={[styles.tableRow, styles.totalRow]}>
               <Text style={stylesCOP.serialNoCellDetail}></Text>
               <Text
@@ -950,15 +2183,13 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
                 ]}
-              >
-               
-              </Text>
+              ></Text>
 
               {yearLabels.map((label, idx) => {
                 return (
                   <Text
                     key={idx}
-                     style={[
+                    style={[
                       stylesCOP.particularsCellsDetail,
                       stylesCOP.boldText,
                       styleExpenses.fontSmall,
@@ -972,7 +2203,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
               })}
             </View>
 
-              {/* Blank Row  */}
+            {/* Blank Row  */}
             <View
               style={[
                 stylesMOF.row,
@@ -1103,18 +2334,18 @@ const grossProfit = Array.from({ length: projectionYears }).map(
 
               {/* ✅ Display Precomputed Gross Profit Values */}
               {interestOnTermLoan
-               .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
-              .map((val, idx) => (
-                <Text
-                  key={idx}
-                  style={[
-                    stylesCOP.particularsCellsDetail,
-                    styleExpenses.fontSmall,
-                  ]}
-                >
-                  {formatNumber(val)}
-                </Text>
-              ))}
+                .slice(0, formData?.ProjectReportSetting?.ProjectionYears || 0)
+                .map((val, idx) => (
+                  <Text
+                    key={idx}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                    ]}
+                  >
+                    {formatNumber(val)}
+                  </Text>
+                ))}
             </View>
 
             {/* Interest on working capital */}
@@ -1187,9 +2418,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
                 key={expense.key || expense.name || idx}
                 style={[styles.tableRow, styles.totalRow]}
               >
-                <Text style={stylesCOP.serialNoCellDetail}>
-                  {3 + idx + 1}
-                </Text>
+                <Text style={stylesCOP.serialNoCellDetail}>{3 + idx + 1}</Text>
                 <Text
                   style={[
                     stylesCOP.detailsCellDetail,
@@ -1648,35 +2877,35 @@ const grossProfit = Array.from({ length: projectionYears }).map(
           ) : null}
         </View>
 
-         <View>
-                  {formData?.ProjectReportSetting?.CAName?.value ? (
-                    <Text
-                      style={[
-                        {
-                          fontSize: "8px",
-                          paddingRight: "4px",
-                          paddingLeft: "4px",
-                          textAlign: "justify",
-                        },
-                      ]}
-                    >
-                      Guidance and assistance have been provided for the preparation of
-                      these financial statements on the specific request of the promoter
-                      for the purpose of availing finance for the business. These
-                      financial statements are based on realistic market assumptions,
-                      proposed estimates issued by an approved valuer, details provided
-                      by the promoter, and rates prevailing in the market. Based on the
-                      examination of the evidence supporting the assumptions, nothing
-                      has come to attention that causes any belief that the assumptions
-                      do not provide a reasonable basis for the forecast. These
-                      financials do not vouch for the accuracy of the same, as actual
-                      results are likely to be different from the forecast since
-                      anticipated events might not occur as expected, and the variation
-                      might be material.
-                    </Text>
-                  ) : null}
-                </View>
-                
+        <View>
+          {formData?.ProjectReportSetting?.CAName?.value ? (
+            <Text
+              style={[
+                {
+                  fontSize: "8px",
+                  paddingRight: "4px",
+                  paddingLeft: "4px",
+                  textAlign: "justify",
+                },
+              ]}
+            >
+              Guidance and assistance have been provided for the preparation of
+              these financial statements on the specific request of the promoter
+              for the purpose of availing finance for the business. These
+              financial statements are based on realistic market assumptions,
+              proposed estimates issued by an approved valuer, details provided
+              by the promoter, and rates prevailing in the market. Based on the
+              examination of the evidence supporting the assumptions, nothing
+              has come to attention that causes any belief that the assumptions
+              do not provide a reasonable basis for the forecast. These
+              financials do not vouch for the accuracy of the same, as actual
+              results are likely to be different from the forecast since
+              anticipated events might not occur as expected, and the variation
+              might be material.
+            </Text>
+          ) : null}
+        </View>
+
         <View
           style={[
             {
