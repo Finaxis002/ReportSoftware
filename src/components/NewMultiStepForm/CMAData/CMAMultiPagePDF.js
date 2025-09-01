@@ -99,7 +99,7 @@ const CMAMultiPagePDF = ({
     setReceivedData(data);
   });
 
-   useEffect(() => {
+  useEffect(() => {
     // This timeout is a fallback in case the PDF rendering doesn't trigger an event
     const fallbackTimeout = setTimeout(() => {
       onLoadingComplete && onLoadingComplete();
@@ -115,10 +115,10 @@ const CMAMultiPagePDF = ({
       }}
     >
       {/* Each sub-component must return <Page> or an array of <Page> */}
-       {isMenuBar && (
+      {isMenuBar && (
         <>
 
-           <CMAContents formData={formData} orientation={orientation}  formatNumber={formatNumber}/>
+          <CMAContents formData={formData} orientation={orientation} formatNumber={formatNumber} />
           <CMAProfitabilityMenu
             handleDataSend={handleDataSend}
             formData={formData}
@@ -133,12 +133,12 @@ const CMAMultiPagePDF = ({
             formatNumber={formatNumber}
             orientation={orientation}
           />
-           <CMACashflowMenu 
+          <CMACashflowMenu
             handleDataSend={handleDataSend}
             totalRevenueReceipts={reducedRevenueReceipts}
-           formData={formData} 
-           orientation={orientation} 
-           formatNumber={formatNumber}/>
+            formData={formData}
+            orientation={orientation}
+            formatNumber={formatNumber} />
         </>
       )}
       <CMAAnalysisOfBS formData={formData} orientation={orientation} />
@@ -181,10 +181,6 @@ const CMAMultiPagePDF = ({
         orientation={orientation}
       />
       <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
-      
-     
-
-     
     </Document>
   );
 };

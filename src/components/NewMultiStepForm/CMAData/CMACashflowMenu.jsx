@@ -506,14 +506,583 @@ const CMACashflowMenu = ({
     }
   );
 
+  const isAdvancedLandscape = orientation === "advanced-landscape";
+  let splitYearLabels = [yearLabels];
+  if (isAdvancedLandscape) {
+    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
+  const toRoman = (n) =>
+    ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+if (isAdvancedLandscape) {
+  return splitYearLabels.map((labels, pageIdx) => {
+    const pageStart = yearLabels.indexOf(labels[0]);
+    const globalIndex = (localIdx) => pageStart + localIdx;
+
+    return (
+      <Page key={`pcf-${pageIdx}`} size="A4" orientation="landscape" style={styles.page}>
+        {/* watermark */}
+        {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <View
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: 500,
+                height: 700,
+                marginLeft: -200,
+                marginTop: -350,
+                opacity: 0.4,
+                zIndex: -1,
+              }}
+            >
+              <Image
+                src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </View>
+          )}
+
+        <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+          {/* business name and financial year */}
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear &&
+              !isNaN(formData.ProjectReportSetting.FinancialYear) &&
+              formData.ProjectReportSetting.FinancialYear.length === 4
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2024-25"}
+            </Text>
+          </View>
+
+          <View style={{ display: "flex", alignContent: "flex-end", justifyContent: "flex-end", alignItems: "flex-end" }}>
+            <Text style={[styles.AmountIn, styles.italicText]}>
+              (Amount In{" "}
+              {
+                formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs."
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands"
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs"
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores"
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions"
+                  : ""
+              }
+              )
+            </Text>
+          </View>
+
+          <View>
+            <View style={stylesCOP.heading}>
+              <Text>Projected Cashflow
+              {splitYearLabels.length > 1 ? ` (${toRoman(pageIdx)})` : ""}
+              </Text>
+            </View>
+
+            <View style={[styles.table, { borderRightWidth: 0 }]}>
+              {/* table header */}
+              <View style={styles.tableHeader}>
+                <Text
+                  style={[
+                    styles.serialNoCell,
+                    styleExpenses.sno,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  S. No.
+                </Text>
+                <Text
+                  style={[
+                    styles.detailsCell,
+                    styleExpenses.particularWidth,
+                    styleExpenses.fontBold,
+                    { textAlign: "center" },
+                  ]}
+                >
+                  Particulars
+                </Text>
+
+                {/* paged year headers */}
+                {labels.map((yearLabel, idx) => (
+                  <Text key={yearLabel || idx} style={[styles.particularsCell, stylesCOP.boldText]}>
+                    {yearLabel}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Blank Row */}
+              <View style={[stylesMOF.row, styles.tableRow, styles.Total, { border: 0 }]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone, styles.Total]} />
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone, styles.Total]} />
+                {labels.map((label, idx) => (
+                  <Text
+                    key={label || idx}
+                    style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall, { paddingVertical: "5px" }]}
+                  />
+                ))}
+              </View>
+
+              {/* Sources */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styles.Total, { paddingVertical: "10px" }]}>A</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Sources
+                </Text>
+                {labels.map((_, idx) => (
+                  <Text key={`src-h-${idx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]} />
+                ))}
+              </View>
+
+              {/* 1 Net Profit Before Interest And Taxes */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Net Profit Before Interest And Taxes
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`npbit-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(netProfitBeforeInterestAndTaxes?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 2 Promoters' Capital (only year 1) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Promoters' Capital
+                </Text>
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  return (
+                    <Text key={`pc-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(gIdx === 0 ? formData?.MeansOfFinance?.totalPC || 0 : 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* 3 Bank Term Loan (only year 1) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Bank Term Loan
+                </Text>
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  return (
+                    <Text key={`btl-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(gIdx === 0 ? formData?.MeansOfFinance?.termLoan?.termLoan || 0 : 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* 4 Working Capital Loan (only year 1) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]}>4</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Working Capital Loan
+                </Text>
+                {labels.map((_, localIdx) => {
+                  const gIdx = globalIndex(localIdx);
+                  return (
+                    <Text key={`wcl-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(gIdx === 0 ? formData?.MeansOfFinance?.workingCapital?.termLoan || 0 : 0)}
+                    </Text>
+                  );
+                })}
+              </View>
+
+              {/* 5 Depreciation */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Depreciation
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`dep-src-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(totalDepreciation?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 6+ Current Liabilities (per-year values) */}
+              {currentLiabilities
+                .filter((liabilities) => liabilities.years?.some((v) => Number(v) !== 0))
+                .map((liabilities, idx) => (
+                  <View style={styles.tableRow} key={`src-cliab-${idx}`}>
+                    <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>{idx + 6}</Text>
+                    <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                      {liabilities.particular}
+                    </Text>
+                    {labels.map((_, localIdx) => (
+                      <Text key={`src-cliab-val-${idx}-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                        {formatNumber(liabilities.years?.[globalIndex(localIdx)] || 0)}
+                      </Text>
+                    ))}
+                  </View>
+                ))}
+
+              {/* Preliminary Expenses written off (per-year) */}
+              {!isPreliminaryWriteOffAllZero && (
+                <View style={[styles.tableRow, styles.totalRow]}>
+                  <Text style={stylesCOP.serialNoCellDetail}></Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Preliminary Expenses{"\n"}written off
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text key={`prewo-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(preliminaryWriteOffPerYear?.[globalIndex(localIdx)] || 0)}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              {/* Total Sources */}
+              <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]} />
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Total
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`tsrc-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styles.boldText,
+                      { fontSize: "9px", borderTopWidth: "1px", borderBottomWidth: "1px", paddingVertical: "8px" },
+                    ]}
+                  >
+                    {formatNumber(totalSourcesArray?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Uses (Assets) */}
+              <View style={[styles.tableRow, styles.totalRow]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styles.Total, { paddingVertical: "10px" }]}>B</Text>
+                <Text
+                  style={[
+                    stylesCOP.detailsCellDetail,
+                    styleExpenses.particularWidth,
+                    styleExpenses.bordernone,
+                    styles.Total,
+                    { paddingVertical: "10px" },
+                  ]}
+                >
+                  Assets
+                </Text>
+                {labels.map((_, idx) => (
+                  <Text key={`uses-h-${idx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]} />
+                ))}
+              </View>
+
+              {/* 1 Fixed Assets (show per year if provided) */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>1</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Fixed Assets
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`fa-use-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(grossFixedAssetsPerYear?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 2 Repayment Of Term Loan */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>2</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Repayment Of Term Loan
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`rotl-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(repaymentOfTL?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 3 Interest On Term Loan */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>3</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Interest On Term Loan
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`iotl-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(interestOnTermLoan?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 4 Interest On Working Capital */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>4</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Interest On Working Capital
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`iowc-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(interestOnWCArray?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 5 Withdrawals */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>5</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Withdrawals
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`wd-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(withdrawals?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* 6 Income Tax */}
+              <View style={[styles.tableRow]}>
+                <Text style={stylesCOP.serialNoCellDetail}>6</Text>
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Income Tax
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text key={`tax-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                    {formatNumber(incomeTaxCal?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Inventory (if any) */}
+              {!isInventoryZero && (
+                <View style={[styles.tableRow]}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]}>7</Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Inventory
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text key={`inv-use-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(inventory?.[globalIndex(localIdx)] || 0)}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              {/* Current Assets (ex-Inventory) */}
+              {formData?.MoreDetails?.currentAssets
+                ?.filter(
+                  (assets) =>
+                    assets.particular !== "Inventory" &&
+                    !assets.dontSendToBS &&
+                    assets.years?.some((v) => Number(v) !== 0)
+                )
+                .map((assets, index) => {
+                  const serialNumber = (isInventoryZero ? 8 : 7) + index;
+                  return (
+                    <View style={styles.tableRow} key={`ca-use-${index}`}>
+                      <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>{serialNumber}</Text>
+                      <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                        {assets.particular}
+                      </Text>
+                      {labels.map((_, localIdx) => (
+                        <Text key={`ca-use-val-${index}-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                          {formatNumber(assets.years?.[globalIndex(localIdx)] || 0)}
+                        </Text>
+                      ))}
+                    </View>
+                  );
+                })}
+
+              {/* Preliminary Expenses (uses, year 1 only) */}
+              {Number(formData?.CostOfProject?.preliminaryExpensesTotal) > 0 && (
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}></Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Preliminary Expenses
+                  </Text>
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    return (
+                      <Text key={`prelim-use-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                        {formatNumber(gIdx === 0 ? Number(formData?.CostOfProject?.preliminaryExpensesTotal) || 0 : 0)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
+
+              {/* Total Uses */}
+              <View style={[stylesMOF.row, styles.tableRow, styles.Total]}>
+                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]} />
+                <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                  Total
+                </Text>
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`tuses-${localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styles.boldText,
+                      { fontSize: "9px", borderTopWidth: "2px", borderBottomWidth: "2px", paddingVertical: "8px" },
+                    ]}
+                  >
+                    {formatNumber(totalUsesArray?.[globalIndex(localIdx)] || 0)}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Opening / Surplus / Closing Cash */}
+              <View>
+                {/* Opening Cash Balance */}
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]}>1</Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Opening Cash Balance
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text key={`ocb-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(cashBalances?.[globalIndex(localIdx)]?.opening ?? 0)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Surplus During the Year */}
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]}>2</Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Surplus During the Year
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text key={`sdy-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(cashBalances?.[globalIndex(localIdx)]?.surplus ?? 0)}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Closing Cash Balance */}
+                <View style={styles.tableRow}>
+                  <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno, styleExpenses.bordernone]}>3</Text>
+                  <Text style={[stylesCOP.detailsCellDetail, styleExpenses.particularWidth, styleExpenses.bordernone]}>
+                    Closing Cash Balance
+                  </Text>
+                  {labels.map((_, localIdx) => (
+                    <Text key={`ccb-${localIdx}`} style={[stylesCOP.particularsCellsDetail, styleExpenses.fontSmall]}>
+                      {formatNumber(cashBalances?.[globalIndex(localIdx)]?.closing ?? 0)}
+                    </Text>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* disclaimer */}
+          <View>
+            {formData?.ProjectReportSetting?.CAName?.value ? (
+              <Text
+                style={[
+                  { fontSize: "8px", paddingRight: "4px", paddingLeft: "4px", textAlign: "justify" },
+                ]}
+              >
+                Guidance and assistance have been provided for the preparation of these financial
+                statements on the specific request of the promoter for the purpose of availing
+                finance for the business. These financial statements are based on realistic market
+                assumptions, proposed estimates issued by an approved valuer, details provided by
+                the promoter, and rates prevailing in the market. Based on the examination of the
+                evidence supporting the assumptions, nothing has come to attention that causes any
+                belief that the assumptions do not provide a reasonable basis for the forecast.
+                These financials do not vouch for the accuracy of the same, as actual results are
+                likely to be different from the forecast since anticipated events might not occur
+                as expected, and the variation might be material.
+              </Text>
+            ) : null}
+          </View>
+
+          {/* footer */}
+          <View
+            style={[
+              { display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 30 },
+            ]}
+          >
+            <View style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 100 }}>
+              {formData?.ProjectReportSetting?.CAName?.value ? (
+                <Text style={[styles.caName, { fontSize: "10px", fontWeight: "bold" }]}>
+                  CA {formData?.ProjectReportSetting?.CAName?.value}
+                </Text>
+              ) : null}
+
+              {formData?.ProjectReportSetting?.MembershipNumber?.value ? (
+                <Text style={[styles.membershipNumber, { fontSize: "10px" }]}>
+                  M. No.: {formData?.ProjectReportSetting?.MembershipNumber?.value}
+                </Text>
+              ) : null}
+
+              {formData?.ProjectReportSetting?.UDINNumber?.value ? (
+                <Text style={[styles.udinNumber, { fontSize: "10px" }]}>
+                  UDIN: {formData?.ProjectReportSetting?.UDINNumber?.value}
+                </Text>
+              ) : null}
+
+              {formData?.ProjectReportSetting?.MobileNumber?.value ? (
+                <Text style={[styles.mobileNumber, { fontSize: "10px" }]}>
+                  Mob. No.: {formData?.ProjectReportSetting?.MobileNumber?.value}
+                </Text>
+              ) : null}
+            </View>
+
+            <View
+              style={[
+                { display: "flex", flexDirection: "column", gap: "30px", alignItems: "flex-end", justifyContent: "flex-end", marginTop: "30px" },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    );
+  });
+}
+
+
   return (
-    <Page
-      size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-      orientation={orientation}
-      style={styles.page}
-      wrap={false}
-      break
-    >
+    <Page size="A4" orientation={orientation} style={styles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -617,13 +1186,13 @@ const CMACashflowMenu = ({
 
               {/* Generate Dynamic Year Headers using financialYearLabels */}
               {yearLabels.map((yearLabel, yearIndex) => (
-                             <Text
-                               key={yearIndex}
-                               style={[styles.particularsCell, stylesCOP.boldText]}
-                             >
-                               {yearLabel}
-                             </Text>
-                           ))}
+                <Text
+                  key={yearIndex}
+                  style={[styles.particularsCell, stylesCOP.boldText]}
+                >
+                  {yearLabel}
+                </Text>
+              ))}
             </View>
 
             {/* Blank Row  */}
