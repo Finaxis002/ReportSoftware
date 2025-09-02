@@ -50,6 +50,7 @@ const ProjectedProfitability = ({
   pdfType,
   orientation,
 }) => {
+  console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -704,6 +705,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
 
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+
+      console.log(formData, "formdata in pp");
 
       return (
         <Page
