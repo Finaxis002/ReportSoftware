@@ -261,7 +261,8 @@ export const makeCMAExtractors = (formData) => {
   }),
 
     grossSales: () =>
-      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+      formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || [],
+
     dutiesTaxes: () => Array(years).fill(0),
     netSales: () =>
       formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],

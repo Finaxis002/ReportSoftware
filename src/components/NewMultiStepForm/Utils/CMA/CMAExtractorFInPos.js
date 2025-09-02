@@ -7,7 +7,8 @@ export const CMAExtractorFinPos = (formData) => {
     const extractors = makeCMAExtractors(formData);
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const totalRevenueReceipt = formData?.computedData?.totalRevenueReceipts || [] ;
-
+  const totalRevenueForOthers = formData?.Revenue?.totalRevenueForOthers || [] ;
+// total revenue for others totalRevenueForOthers
   const repaymentValueswithin12months =
     formData?.computedData?.totalLiabilities?.repaymentValueswithin12months || [];
   const termLoanValues =
@@ -132,6 +133,7 @@ const interestOnTermLoan = formData?.computedData?.yearlyInterestLiabilities ;
      grossProfitDivNetWorthRatio: ()=> grossProfitDivNetWorthRatio,
      netProfitDivNetWorthRatioArr:()=>netProfitDivNetWorthRatioArr,
      totalRevenueReceipt:()=>totalRevenueReceipt,
+     totalRevenueForOthers:()=>totalRevenueForOthers,
      interestOnTermLoan:()=>interestOnTermLoan,
   };
 };
