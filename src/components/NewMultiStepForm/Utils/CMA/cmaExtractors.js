@@ -265,7 +265,7 @@ export const makeCMAExtractors = (formData) => {
 
     dutiesTaxes: () => Array(years).fill(0),
     netSales: () =>
-      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+      formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || [],
     salary: () => salaryAndWages,
     ...Object.fromEntries(
       directExpenseRows.map((row) => [row.key, () => row.values])
@@ -286,7 +286,7 @@ export const makeCMAExtractors = (formData) => {
     closingStocks: () => closingStocks,
     TotalCostofSales: () => TotalCostofSales,
     GrossProfit: () =>
-      (formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []).map(
+      (formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || []).map(
         (n, i) => (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0)
       ),
 
