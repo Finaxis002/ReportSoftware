@@ -17,7 +17,7 @@ import { calculateTermLoanRepayment } from "./TermloanCalculations";
 export const makeCMAExtractors = (formData) => {
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const receivedtotalRevenueReceipts =
-    formData?.computedData?.totalRevenueReceipts || [];
+    formData?.Revenue?.totalRevenueForOthers || [];
 
   // Set up expense lists
   const directExpense = formData?.Expenses?.directExpense || [];

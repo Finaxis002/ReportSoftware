@@ -151,3 +151,11 @@ total variable expense is fixed , issue with projection year mapping
 same probloem with salary and wadges , projection year mapping issue 
 same probloem with contribution , projection year mapping issue 
 same probloem with break even point % , projection year mapping issue 
+
+#-----------------CMA DAta CHANGE-------------#
+mapping of totalRevenueReceipt from cma data , changed to totalRevenueForOthers from formdata -> revenue in 
+fund flow state sales 
+profitability revenue decreased by 10 % - total revenue receipt and new receipt 
+profitability revenue increased by 10 % - total revenue receipt 
+operating statement - gross sales , net sales and gross profit 
+changes in finposExtrator , ppextractor 
