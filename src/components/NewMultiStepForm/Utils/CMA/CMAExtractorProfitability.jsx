@@ -16,6 +16,7 @@ import { CMAExtractorFundFlow } from "./CMAExtractorFundFlow";import {
 export const CMAExtractorProfitability = (formData) => {
      const projectionYears =
      parseInt(formData.ProjectReportSetting.ProjectionYears) || 5;
+      const totalRevenueForOthers = formData?.Revenue?.totalRevenueForOthers || [] ;
      const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
   const moratoriumPeriodMonths =
@@ -40,14 +41,18 @@ export const CMAExtractorProfitability = (formData) => {
       length: projectionYears,
     }).map((_, idx) => Number(totalRevenueReceipt[idx] * (revenueReducePercentage / 100)));
   
-    const newRevenueReceipt = Array.from({ length: projectionYears }).map(
+    // const newRevenueReceipt = Array.from({ length: projectionYears }).map(
+    //   (_, idx) =>
+    //     Number(totalRevenueReceipt[idx] || 0) -
+    //     Number(value10reduceRevenueReceipt[idx] || 0)
+    // );
+     const newRevenueReceipt = Array.from({ length: projectionYears }).map(
       (_, idx) =>
-        Number(totalRevenueReceipt[idx] || 0) -
+        Number(totalRevenueForOthers[idx] || 0) -
         Number(value10reduceRevenueReceipt[idx] || 0)
     );
   
-    console.log('newRevenueReceipt',newRevenueReceipt)
-      console.log('value10reduceRevenueReceipt',value10reduceRevenueReceipt)
+    
 
     const ClosingStock = formData?.MoreDetails?.ClosingStock || 0;
   const OpeningStock = formData?.MoreDetails?.OpeningStock || 0;
@@ -97,12 +102,17 @@ const cumulativeBalanceTransferred = formData?.computedData?.receivedData?.cumul
 const cashProfit = formData?.computedData?.computedData?.cashProfitArray || [];
 
 //expense increase by 10% 
+//  const OriginalRevenueValues = Array.from({length: projectionYears}).map((_, i)=>
+//     Number(totalRevenueReceipt[i] || 0 )+
+//     Number(ClosingStock[i] || 0) -
+//     Number(OpeningStock[i] || 0)
+// )
+
  const OriginalRevenueValues = Array.from({length: projectionYears}).map((_, i)=>
-    Number(totalRevenueReceipt[i] || 0 )+
+    Number(totalRevenueForOthers[i] || 0 )+
     Number(ClosingStock[i] || 0) -
     Number(OpeningStock[i] || 0)
 )
-
 
 
 

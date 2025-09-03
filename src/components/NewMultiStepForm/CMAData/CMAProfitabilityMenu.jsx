@@ -172,6 +172,7 @@ const CMAProfitabilityMenu = ({
   const FinPosextractors = CMAExtractorFinPos(formData);
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
+  const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
   const value10reduceRevenueReceipt =
     PPExtractor.value10reduceRevenueReceipt() || [];
   const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
@@ -522,7 +523,7 @@ const CMAProfitabilityMenu = ({
                       {},
                     ]}
                   >
-                    Total Revenue Receipt
+                    Total Revenue Receipt.....................
                   </Text>
 
                   {labels.map((_, localIdx) => (
@@ -537,7 +538,7 @@ const CMAProfitabilityMenu = ({
                       ]}
                     >
                       {formatNumber(
-                        totalRevenueReceipt?.[globalIndex(localIdx)] ?? 0
+                        totalRevenueForOthers?.[globalIndex(localIdx)] ?? 0
                       )}
                     </Text>
                   ))}
@@ -1801,24 +1802,8 @@ const CMAProfitabilityMenu = ({
                 Total Revenue Receipt
               </Text>
 
-              {/* ✅ Display revenue values based on projectionYears */}
-              {/* {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                !hideFirstYear || yearIndex !== 0 ? (
-                  <Text
-                    key={yearIndex}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      stylesCOP.boldText,
-                      styleExpenses.fontSmall,
-                      styles.Total,
-                      { borderLeftWidth: "0px" },
-                    ]}
-                  >
-                    {formatNumber(totalRevenueReceipts?.[yearIndex] || 0)}
-                  </Text>
-                ) : null
-              )} */}
-              {totalRevenueReceipt.map((val, idx) => (
+              
+              {totalRevenueForOthers.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

@@ -320,15 +320,7 @@ const CMAProjectedProfitability = ({
     }
   });
 
-  // const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
-  //   const depreciation = totalDepreciationPerYear[yearIndex] || 0;
-
-  //   // ✅ Correctly Compute Cash Profit
-  //   const cashProfit = npat + depreciation;
-
-  //   // ✅ Round values correctly
-  //   return cashProfit;
-  // });
+  
 
   const cashProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])
@@ -1768,7 +1760,7 @@ if (isAdvancedLandscape) {
                   </Text>
                 ) : null
               )} */}
-              {totalRevenueReceipt.map((val, idx) => (
+              {totalRevenueForOthers.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

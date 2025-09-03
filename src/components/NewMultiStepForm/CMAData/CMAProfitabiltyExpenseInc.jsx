@@ -173,7 +173,7 @@ const CMAProfitabiltyExpenseInc = ({
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
   const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
-  console.log("totalRevenueReceipt", totalRevenueReceipt);
+  console.log("totalRevenueForOthers", totalRevenueForOthers);
   const value10reduceRevenueReceipt =
     PPExtractor.value10reduceRevenueReceipt() || [];
   const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
@@ -1764,7 +1764,7 @@ if (isAdvancedLandscape) {
                   </Text>
                 ) : null
               )} */}
-              {totalRevenueReceipt.map((val, idx) => (
+              {totalRevenueForOthers.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
