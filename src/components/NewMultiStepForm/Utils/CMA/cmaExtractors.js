@@ -219,7 +219,7 @@ export const makeCMAExtractors = (formData) => {
   });
 
   const OperatingProfit = (
-    formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []
+    formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || []
   ).map((n, i) => {
     const grossProfit = (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0);
     const interestTL =
