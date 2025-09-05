@@ -26,7 +26,10 @@ const Repayment = ({
   onMarchClosingBalanceCalculated, // New callback prop for March balances
   onInterestLiabilityUpdate,
 }) => {
+
+  console.log("formData :", formData)
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
+
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
   const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
@@ -35,11 +38,78 @@ const Repayment = ({
   );
   const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
+  const repaymentMethod = formData.ProjectReportSetting.SelectRepaymentMethod; // Get selected repayment method
+
+
+  // ---- NORMALIZE INPUTS (force numbers; handle empty strings) ----
+const TL = Number(formData?.MeansOfFinance?.termLoan?.termLoan ?? 0);
+const annualRate = Number(formData?.ProjectReportSetting?.interestOnTL ?? 0) / 100;
+const MOR = Number(formData?.ProjectReportSetting?.MoratoriumPeriod ?? 0);      // months
+const TOTAL_MONTHS = Number(formData?.ProjectReportSetting?.RepaymentMonths ?? 0);
+
+// ---- REPAYMENT METHOD -> cadence in months (case/typo tolerant) ----
+const rmRaw = String(formData?.ProjectReportSetting?.SelectRepaymentMethod || "Monthly")
+  .toLowerCase()
+  .replace(/\s|-/g, "");
+
+const cadence =
+  rmRaw.includes("quarter") || rmRaw.includes("quater") || rmRaw === "qtr" ? 3 :
+  rmRaw.includes("semiannual") || rmRaw.includes("semianual") || rmRaw.includes("semiannually") ? 6 :
+  rmRaw.includes("annual") || rmRaw.includes("year") ? 12 :
+  1; // monthly default
+
+// We repay on the *last* month of each cadence window relative to the start month.
+// Example: start=April (offset 0), Quarterly=3 => offsets 2,5,8,11 => Jun, Sep, Dec, Mar
+const phase = cadence - 1;
+
+const alignFirst = (start, step, phase) => {
+  const s = Number(start) || 0;
+  const stp = Number(step) || 1;
+  const ph = Number(phase) || 0;
+  const delta = (ph - (s % stp) + stp) % stp;
+  return s + delta;
+};
+
+// first eligible repayment month offset counting from the selected *start month*
+const firstRepayOffset = alignFirst(MOR, cadence, phase);
+
+// number of repayment *events* (not months)
+const eventsCount =
+  firstRepayOffset >= TOTAL_MONTHS
+    ? 0
+    : Math.floor((TOTAL_MONTHS - 1 - firstRepayOffset) / cadence) + 1;
+
+// principal per repayment event (last one clears rounding)
+const principalPerEvent = eventsCount > 0 ? TL / eventsCount : 0;
+
+
+
+// We repay on the *last* month of each cadence window relative to the starting month.
+// Example: start=April, Quarterly (3) -> months with offsets 2,5,8,11 => Jun, Sep, Dec, Mar
+
+let repaymentPeriod = 1;  // Default to monthly
+let periodsInYear = 12; // Default to monthly (12 months in a year)
+
+if (repaymentMethod === "Quarterly") {
+  repaymentPeriod = 3;  // Every 3 months
+  periodsInYear = 4;    // 4 periods in a year (quarterly)
+} else if (repaymentMethod === "Semi-annually") {
+  repaymentPeriod = 6;  // Every 6 months
+  periodsInYear = 2;    // 2 periods in a year (semi-annually)
+} else if (repaymentMethod === "Annually") {
+  repaymentPeriod = 12; // Every 12 months
+  periodsInYear = 1;    // 1 period in a year (annually)
+}
+
+let totalRepaymentPeriods = (repaymentMonths - moratoriumPeriod) / repaymentPeriod; // Total repayment periods
+let fixedPrincipalRepayment = termLoan / totalRepaymentPeriods; // Calculate fixed repayment per period
+
+
   // ✅ Correct the total repayment months (including moratorium)
 
   let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
-  let fixedPrincipalRepayment =
-    effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
+  // let fixedPrincipalRepayment =
+  //   effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
 
   // ✅ Month Mapping (April - March)
   const months = [
@@ -66,7 +136,7 @@ const Repayment = ({
     startMonthIndex = 0; // Default to April if input is incorrect
   }
 
-  let remainingBalance = termLoan; // Remaining loan balance
+  // let remainingBalance = termLoan; // Remaining loan balance
 
   let repaymentStartIndex = startMonthIndex; // Start from selected month
 
@@ -74,61 +144,85 @@ const Repayment = ({
     formData.ProjectReportSetting.FinancialYear || 2025
   );
 
-  let data = [];
+  // let data = [];
 
   // ✅ Track the Total Elapsed Months Since Repayment Start
   let elapsedRepaymentMonths = 0;
   let elapsedMonths = 0; // total from start including moratorium
-let monthsLeft = repaymentMonths;
+// let monthsLeft = repaymentMonths;
 
-  // for (let year = 0; year < 10; year++)
-    while (monthsLeft > 0) {
-    let yearData = [];
-    // let firstMonth = year === 0 ? repaymentStartIndex : 0;
-    let firstMonth = data.length === 0 ? repaymentStartIndex : 0;
+// Update the months array to accommodate quarterly, semi-annual, or annual repayment
+let monthsForRepayment = [];
+if (repaymentMethod === "Monthly") {
+  monthsForRepayment = months; // Monthly
+} else if (repaymentMethod === "Quarterly") {
+  monthsForRepayment = months.filter((month, index) => index % 3 === 0); // Every 3 months (quarterly)
+} else if (repaymentMethod === "Semi-annually") {
+  monthsForRepayment = months.filter((month, index) => index % 6 === 0); // Every 6 months (semi-annually)
+} else if (repaymentMethod === "Annually") {
+  monthsForRepayment = months.filter((month, index) => index % 12 === 0); // Every 12 months (annually)
+}
 
-    for (let i = firstMonth; i < 12; i++) {
-      if (elapsedMonths >= repaymentMonths) break; // ✅ Fixed here
 
-      let principalOpeningBalance = remainingBalance;
-      let isMoratorium = elapsedMonths < moratoriumPeriod;
+let data = [];
 
-      let principalRepayment = isMoratorium ? 0 : fixedPrincipalRepayment;
-      let principalClosingBalance = Math.max(
-        0,
-        principalOpeningBalance - principalRepayment
-      );
+let monthsLeft = TOTAL_MONTHS;           // includes moratorium
+let remainingBalance = TL;
+let globalOffset = 0;                    // 0..TOTAL_MONTHS-1 since start month
+let repayEventNo = 0;
 
-      // let interestLiability = isMoratorium
-      //   ? principalOpeningBalance * (interestRate / 12)
-      //   : principalClosingBalance * (interestRate / 12);
-      let interestLiability = principalOpeningBalance * (interestRate / 12);
-     
+while (monthsLeft > 0) {
+  const yearData = [];
+  const firstMonth = data.length === 0 ? startMonthIndex : 0;
 
-      let totalRepayment = principalRepayment + interestLiability;
+  for (let i = firstMonth; i < 12 && monthsLeft > 0; i++) {
+    const principalOpeningBalance = remainingBalance;
 
-      yearData.push({
-        month: months[i],
-        principalOpeningBalance,
-        principalRepayment,
-        principalClosingBalance,
-        interestLiability,
-        totalRepayment,
-      });
+    // A month is a repayment month if we are past MOR and aligned to cadence/phase
+    const isRepaymentMonth =
+      Number.isFinite(firstRepayOffset) &&
+      globalOffset >= firstRepayOffset &&
+      ((globalOffset - firstRepayOffset) % cadence === 0);
 
-      remainingBalance = principalClosingBalance;
-      elapsedMonths++;
-      if (!isMoratorium) elapsedRepaymentMonths++;
+    // principal only on repayment months
+    let principalRepayment = 0;
+    if (isRepaymentMonth && remainingBalance > 0) {
+      principalRepayment =
+        (repayEventNo === eventsCount - 1) ? remainingBalance : principalPerEvent;
+      repayEventNo += 1;
     }
 
-    if (yearData.length > 0) {
-      data.push(yearData);
+    const principalClosingBalance = Math.max(
+      0,
+      principalOpeningBalance - principalRepayment
+    );
 
-     
-    }
+    // monthly interest (we show it only on repayment rows in the table)
+    const interestLiability = principalOpeningBalance * (annualRate / 12);
+    const totalRepayment =
+      principalRepayment + (principalRepayment > 0 ? interestLiability : 0);
 
-    if (elapsedMonths >= repaymentMonths) break; // ✅ Also here
+    yearData.push({
+      month: months[i],
+      principalOpeningBalance,
+      principalRepayment,
+      principalClosingBalance,
+      interestLiability,
+      totalRepayment,
+      isRepaymentMonth,
+      absOffset: globalOffset, // helpful for FY logic below
+    });
+
+    remainingBalance = principalClosingBalance;
+    monthsLeft -= 1;
+    globalOffset += 1;
   }
+
+  data.push(yearData);
+}
+
+
+
 
   // ✅ Compute Yearly Total Principal Repayment
   const computedYearlyPrincipalRepayment = data.map((yearData) =>
@@ -231,6 +325,11 @@ let monthsLeft = repaymentMonths;
   let finalRepaymentReached = false;
   let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
   let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
+
+  console.log({
+  TL, annualRate, MOR, TOTAL_MONTHS, cadence, phase, firstRepayOffset, eventsCount, principalPerEvent
+});
+
 
   return (
     <>
@@ -477,48 +576,25 @@ let monthsLeft = repaymentMonths;
 
               // Check if every month in this year is within the moratorium
               let futureCounter = globalMonthCounter;
-              const isFullYearInMoratorium = filteredYearData.every(
-                () => futureCounter++ < moratoriumPeriod
-              );
+              const isFullYearInMoratorium = filteredYearData.every(e => e.absOffset < MOR);
+
 
               globalMonthCounter += filteredYearData.length;
 
               // Initialize total repayment for only visible months
-              let totalPrincipalRepayment = 0;
-              let totalInterestLiability = 0;
-              let totalRepayment = 0;
+             // Render Only Valid Months
+const visibleMonths = filteredYearData.filter(e => e.isRepaymentMonth);
 
-              // console.log(
-              //   `Year ${
-              //     financialYear + yearIndex
-              //   }: Total Repayment (Visible Months Only):`
-              // );
+let totalPrincipalRepayment = 0;
+let totalInterestLiability = 0;
+let totalRepayment = 0;
 
-              // Render Only Valid Months
-              const visibleMonths = filteredYearData.filter(
-                (entry, monthIndex) => {
-                  if (globalMonthIndex < moratoriumPeriod) {
-                    globalMonthIndex++;
-                    return false; // Skip the months within the moratorium period
-                  }
+visibleMonths.forEach((e) => {
+  totalPrincipalRepayment += e.principalRepayment;
+  totalInterestLiability += e.principalRepayment > 0 ? e.interestLiability : 0;
+  totalRepayment += e.principalRepayment + (e.principalRepayment > 0 ? e.interestLiability : 0);
+});
 
-                  // Add the month to the total repayment if it is visible
-                  totalPrincipalRepayment += entry.principalRepayment;
-                  totalInterestLiability +=
-                    entry.principalRepayment === 0
-                      ? 0
-                      : entry.interestLiability;
-                  totalRepayment += entry.totalRepayment;
-
-                  // Log visible months and their total repayment
-                  // console.log(`Month: ${entry.month}`);
-                  // console.log(
-                  //   `Total Repayment for ${entry.month}: ${entry.totalRepayment}`
-                  // );
-
-                  return true; // Keep the visible months
-                }
-              );
 
               // console.log(
               //   `Year ${
