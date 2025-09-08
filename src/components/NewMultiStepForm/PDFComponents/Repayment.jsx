@@ -176,14 +176,23 @@ const periodLabelAt = (endAbsOff, cadence, startMonthIndex) => {
 const eventEndOffsets = Array.from({ length: eventsCount }, (_, i) => firstRepayOffset + i * cadence);
 const periodLabels = eventEndOffsets.map(off => periodLabelAt(off, cadence, startMonthIndex));
 
-// Given an absolute offset (entry.absOffset), return the label (only for event months)
+const capitalizeFirstLetter = (str) => {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+};
+
 const labelForEntry = (absOff) => {
-  if (cadence === 1) return MONTHS[imod(startMonthIndex + absOff)]; // monthly -> just month name
+  if (cadence === 1) {
+    // Capitalize the month abbreviation and return it
+    return capitalizeFirstLetter(MONTHS[imod(startMonthIndex + absOff)]);
+  }
   if (absOff < firstRepayOffset) return "";                        // moratorium
   if ((absOff - firstRepayOffset) % cadence !== 0) return "";      // not an event month
+  
   // Map offset → index
   const idx = Math.floor((absOff - firstRepayOffset) / cadence);
-  return periodLabels[idx] || "";
+  
+  // Capitalize the period label if it exists
+  return periodLabels[idx] ? capitalizeFirstLetter(periodLabels[idx]) : "";
 };
 
 
@@ -388,25 +397,6 @@ if (cadence === 1) {
   let finalRepaymentReached = false;
   let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
   let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
-
-  const getMonthRange = (monthIndex, repaymentMethod) => {
-    if (repaymentMethod === "Monthly") {
-      return months[monthIndex];
-    } else if (repaymentMethod === "Quarterly") {
-      const startMonth = months[monthIndex];
-      const endMonth = months[(monthIndex + 2) % 12];
-      return `${startMonth}-${endMonth}`;
-    } else if (repaymentMethod === "Semi-annually") {
-      const startMonth = months[monthIndex];
-      const endMonth = months[(monthIndex + 5) % 12];
-      return `${startMonth}-${endMonth}`;
-    } else if (repaymentMethod === "Annually") {
-      const startMonth = months[monthIndex];
-      const endMonth = months[(monthIndex + 11) % 12];
-      return `${startMonth}-${endMonth}`;
-    }
-    return months[monthIndex];
-  };
 
 
   
