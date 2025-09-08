@@ -1,101 +1,42 @@
-# name: Deploy React App to VPS
-
-# on:
-#   push:
-#     branches:
-#       - main  # Replace with your branch if necessary
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       # Step 1: Checkout code from GitHub
-#       - uses: actions/checkout@v2
-
-#       # Step 2: Set up Node.js environment
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: '18'
-
-#       # Step 3: Install dependencies
-#       - name: Install dependencies
-#         run: npm install
-
-#       # Step 4: Build the React app
-#       - name: Build project
-#         run: npm run build
-
-#       # Step 5: Deploy via SSH using ssh-deploy action
-#       - name: Deploy via SSH
-#         uses: easingthemes/ssh-deploy@main
-#         env:
-#           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-#           REMOTE_HOST: ${{ secrets.SERVER_IP }}
-#           REMOTE_USER: root
-#           TARGET: /var/www/reports.sharda.co.in  # Ensure this is correct for your React app path
-#           SOURCE: build/
-#           SCRIPT_AFTER: |
-#             chown -R www-data:www-data /var/www/reports.sharda.co.in
-#             chmod -R 755 /var/www/reports.sharda.co.in
-#             sudo systemctl restart nginx  # Restart nginx to reflect changes
-
-
-
-
-
-
-
-
-
-
 name: Deploy React App to VPS
 
 on:
   push:
     branches:
-      - main
+      - main  # Replace with your branch if necessary
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # Step 1: Checkout code from GitHub
+      - uses: actions/checkout@v2
 
+      # Step 2: Set up Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run:  npm install
+        run: npm install
 
+      # Step 4: Build the React app
       - name: Build project
         run: npm run build
 
-      # Add server host key for the correct SSH port
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p 2222 -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-
-      - name: Deploy via SSH (rsync)
+      # Step 5: Deploy via SSH using ssh-deploy action
+      - name: Deploy via SSH
         uses: easingthemes/ssh-deploy@main
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}   # private key (no passphrase)
-          REMOTE_HOST: ${{ secrets.SERVER_IP }}             # use PUBLIC IP, not a proxied domain
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: root
-          SSH_PORT: 2222                                    # <-- IMPORTANT
+          TARGET: /var/www/reports.sharda.co.in  # Ensure this is correct for your React app path
           SOURCE: build/
-          TARGET: /var/www/reports.sharda.co.in
-          ARGS: "-rlgoDzvc -i"                              # rsync options
-          EXCLUDE: ""                                       # optional
           SCRIPT_AFTER: |
-            mkdir -p /var/www/reports.sharda.co.in
             chown -R www-data:www-data /var/www/reports.sharda.co.in
             chmod -R 755 /var/www/reports.sharda.co.in
-            systemctl restart nginx
+            sudo systemctl restart nginx  # Restart nginx to reflect changes
