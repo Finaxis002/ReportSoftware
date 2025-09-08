@@ -612,11 +612,14 @@ const GeneratedPDF = () => {
 
   const memoizedPDF = useMemo(() => {
     return (
+      <div className="pdf-container" onContextMenu={(e) => e.preventDefault()}>
       <Document
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
         }}
+        onContextMenu={(e)=> e.preventDefault()}
+        className="pdf-container"
       >
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
@@ -895,6 +898,7 @@ const GeneratedPDF = () => {
           orientation={orientation}
         />
       </Document>
+      </div>
     );
   }, [
     formData,
@@ -1187,7 +1191,11 @@ const GeneratedPDF = () => {
                     </PDFViewer>
                   </div>
 
-                  <div
+                  <div className="h-[40vh] text-red-600" onContextMenu={(e) => e.preventDefault()}>
+                    <h1>Hello THis is testing text</h1>
+                  </div>
+
+                   <div
                     style={{
                       position: "absolute",
                       top: "50%",
@@ -1216,7 +1224,7 @@ const GeneratedPDF = () => {
                         pdfIframe.contentWindow.scrollBy(0, e.deltaY);
                       }
                     }}
-                  />
+                  /> 
                 </div>
               </div>
             </>
