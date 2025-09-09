@@ -77,20 +77,6 @@ const FourthStepPRS = ({
     ...(formData?.ProjectReportSetting || {}),
   }));
 
-  const [debtEquityOption, setDebtEquityOption] = useState(
-    localData.DebtEquityOption || ""
-  );
-  const [debtPercentage, setDebtPercentage] = useState(
-    localData.DebtPercentage || ""
-  );
-
-  useEffect(() => {
-    // Update state when DebtEquityOption changes
-    if (debtEquityOption === "Debt + Equity") {
-      setDebtPercentage(localData.DebtPercentage || ""); // Reset Debt % if required
-    }
-  }, [debtEquityOption]);
-
   const CA_DETAILS = {
     "Anunay Sharda": {
       membershipNumber: "441497",
@@ -203,14 +189,25 @@ const FourthStepPRS = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Handle the new Debt/Equity Dropdown
-    if (name === "DebtEquityOption") {
-      setDebtEquityOption(value); // Update state
-      // Optionally, reset Debt % when Debt + Equity is selected
-      if (value !== "Debt + Equity") {
-        setDebtPercentage(""); // Clear Debt % if Debt or Equity is selected
-      }
-    }
+     // Handle DebtEquityOption change
+  if (name === "DebtEquityOption") {
+    setLocalData(prevData => ({
+      ...prevData,
+      DebtEquityOption: value,
+      // Reset DebtPercentage when not using Debt + Equity
+      ...(value !== "Debt + Equity" && { DebtPercentage: "" })
+    }));
+    return;
+  }
+
+  // Handle DebtPercentage change
+  if (name === "DebtPercentage") {
+    setLocalData(prevData => ({
+      ...prevData,
+      DebtPercentage: value
+    }));
+    return;
+  }
 
     // ✅ Auto-fill CA details when CA is selected
     if (name === "CAName") {
@@ -233,6 +230,7 @@ const FourthStepPRS = ({
             CAName: value,
             MembershipNumber: selectedCA.membershipNumber,
             MobileNumber: selectedCA.mobileNumber,
+            DebtPercentage: debtPercentage,
             [name]: name === "AmountIn" ? String(value) : value,
           },
         }));
@@ -570,7 +568,7 @@ const FourthStepPRS = ({
               </div>
 
               {/* Conditional rendering for Debt % field */}
-              {debtEquityOption === "Debt + Equity" && (
+              {localData.DebtEquityOption === "Debt + Equity" && (
                 <div className="col-4">
                   <div className="input">
                     <input
@@ -579,14 +577,8 @@ const FourthStepPRS = ({
                       type="number"
                       placeholder="Debt %"
                       required
-                      value={debtPercentage}
-                      onChange={(e) => {
-                        setDebtPercentage(e.target.value); // Update Debt % value
-                        setLocalData((prevData) => ({
-                          ...prevData,
-                          DebtPercentage: e.target.value, // Update localData
-                        }));
-                      }}
+                      value={localData.DebtPercentage || ""}
+                      onChange={handleChange} // Use the main handleChange
                     />
                     <label htmlFor="DebtPercentage">Debt %</label>
                   </div>
