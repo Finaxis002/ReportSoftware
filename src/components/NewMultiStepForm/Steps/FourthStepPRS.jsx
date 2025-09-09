@@ -186,108 +186,224 @@ const FourthStepPRS = ({
     fetchAdmins(); // ✅ Fetch data on component mount
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
 
-     // Handle DebtEquityOption change
+//  // Handle DebtEquityOption change
+//   if (name === "DebtEquityOption") {
+//     // Update DebtEquityOption and automatically set debtPercentage to 0 if Debt or Equity is selected
+//     setLocalData(prevData => ({
+//       ...prevData,
+//       DebtEquityOption: value,
+//       // Automatically set debtPercentage to 0 if Debt or Equity is selected
+//       ...(value === "Debt" || value === "Equity" ? { debtPercentage: 0 } : {}),
+//       ...(value !== "Debt + Equity" && { debtPercentage: "" }) // Clear debtPercentage when not "Debt + Equity"
+//     }));
+//     return;
+//   }
+//   // Handle debtPercentage change
+//   if (name === "debtPercentage") {
+//     setLocalData(prevData => ({
+//       ...prevData,
+//       debtPercentage: value
+//     }));
+//     return;
+//   }
+
+
+//     // ✅ Auto-fill CA details when CA is selected
+//     if (name === "CAName") {
+//       const selectedCA = CA_DETAILS[value];
+
+//       if (selectedCA) {
+//         setLocalData((prevData) => ({
+//           ...prevData,
+//           CAName: value,
+//           MembershipNumber: selectedCA.membershipNumber,
+//           MobileNumber: selectedCA.mobileNumber,
+//           [name]: name === "AmountIn" ? String(value) : value,
+//         }));
+
+//         // Update parent form too
+//         onFormDataChange((prev) => ({
+//           ...prev,
+//           ProjectReportSetting: {
+//             ...(prev.ProjectReportSetting || {}),
+//             CAName: value,
+//             MembershipNumber: selectedCA.membershipNumber,
+//             MobileNumber: selectedCA.mobileNumber,
+//             [name]: name === "AmountIn" ? String(value) : value,
+//           },
+//         }));
+
+//         return; // ✅ Prevent further execution
+//       }
+//     }
+
+//     // ✅ For nested fields like BankDetails.X
+//     if (name.includes(".")) {
+//       const [parentKey, childKey] = name.split(".");
+//       setLocalData((prevData) => ({
+//         ...prevData,
+//         [parentKey]: {
+//           ...prevData[parentKey],
+//           [childKey]: value,
+//         },
+//       }));
+
+//       // Push to parent
+//       onFormDataChange((prev) => ({
+//         ...prev,
+//         ProjectReportSetting: {
+//           ...(prev.ProjectReportSetting || {}),
+//           [parentKey]: {
+//             ...prev.ProjectReportSetting?.[parentKey],
+//             [childKey]: value,
+//           },
+//         },
+//       }));
+//     } else {
+//       // ✅ For normal fields
+//       setLocalData((prevData) => ({
+//         ...prevData,
+//         [name]: value,
+//       }));
+
+//       setLocalData((prevData) => ({
+//         ...prevData,
+//         DebtEquityOption: value,
+//         ...(value === "Debt + Equity" && { debtPercentage: "" }), // Clear Debt % if not selected
+//       }));
+
+//       onFormDataChange((prev) => ({
+//         ...prev,
+//         ProjectReportSetting: {
+//           ...(prev.ProjectReportSetting || {}),
+//           [name]: value,
+//         },
+//       }));
+//     }
+
+//     // ✅ Special case for ProjectionYears
+//     if (name === "ProjectionYears") {
+//       setProjectionYears(value);
+//       onProjectionYearChange(value);
+//     }
+//   };
+
+
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  // Handle DebtEquityOption change
   if (name === "DebtEquityOption") {
-    setLocalData(prevData => ({
-      ...prevData,
+    const updatedData = {
       DebtEquityOption: value,
-      // Reset DebtPercentage when not using Debt + Equity
-      ...(value !== "Debt + Equity" && { DebtPercentage: "" })
-    }));
-    return;
-  }
-
-  // Handle DebtPercentage change
-  if (name === "DebtPercentage") {
+      // Automatically set debtPercentage to 0 if Debt or Equity is selected
+      ...(value === "Debt" || value === "Equity" ? { debtPercentage: 0 } : {}),
+      // Clear debtPercentage when not using Debt + Equity
+      ...(value !== "Debt + Equity" && { debtPercentage: "" })
+    };
+    
     setLocalData(prevData => ({
       ...prevData,
-      DebtPercentage: value
+      ...updatedData
+    }));
+    
+    // Update parent form too
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
+        ...updatedData
+      },
     }));
     return;
   }
 
-    // ✅ Auto-fill CA details when CA is selected
-    if (name === "CAName") {
-      const selectedCA = CA_DETAILS[value];
+  // Handle debtPercentage change
+  if (name === "debtPercentage") {
+    setLocalData(prevData => ({
+      ...prevData,
+      debtPercentage: value
+    }));
+    return;
+  }
 
-      if (selectedCA) {
-        setLocalData((prevData) => ({
-          ...prevData,
+  // ✅ Auto-fill CA details when CA is selected
+  if (name === "CAName") {
+    const selectedCA = CA_DETAILS[value];
+
+    if (selectedCA) {
+      setLocalData((prevData) => ({
+        ...prevData,
+        CAName: value,
+        MembershipNumber: selectedCA.membershipNumber,
+        MobileNumber: selectedCA.mobileNumber,
+        [name]: name === "AmountIn" ? String(value) : value,
+      }));
+
+      // Update parent form too
+      onFormDataChange((prev) => ({
+        ...prev,
+        ProjectReportSetting: {
+          ...(prev.ProjectReportSetting || {}),
           CAName: value,
           MembershipNumber: selectedCA.membershipNumber,
           MobileNumber: selectedCA.mobileNumber,
           [name]: name === "AmountIn" ? String(value) : value,
-        }));
+        },
+      }));
 
-        // Update parent form too
-        onFormDataChange((prev) => ({
-          ...prev,
-          ProjectReportSetting: {
-            ...(prev.ProjectReportSetting || {}),
-            CAName: value,
-            MembershipNumber: selectedCA.membershipNumber,
-            MobileNumber: selectedCA.mobileNumber,
-            [name]: name === "AmountIn" ? String(value) : value,
-          },
-        }));
-
-        return; // ✅ Prevent further execution
-      }
+      return; // ✅ Prevent further execution
     }
+  }
 
-    // ✅ For nested fields like BankDetails.X
-    if (name.includes(".")) {
-      const [parentKey, childKey] = name.split(".");
-      setLocalData((prevData) => ({
-        ...prevData,
+  // ✅ For nested fields like BankDetails.X
+  if (name.includes(".")) {
+    const [parentKey, childKey] = name.split(".");
+    setLocalData((prevData) => ({
+      ...prevData,
+      [parentKey]: {
+        ...prevData[parentKey],
+        [childKey]: value,
+      },
+    }));
+
+    // Push to parent
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
         [parentKey]: {
-          ...prevData[parentKey],
+          ...prev.ProjectReportSetting?.[parentKey],
           [childKey]: value,
         },
-      }));
+      },
+    }));
+  } else {
+    // ✅ For normal fields (REMOVED the problematic DebtEquityOption assignment)
+    setLocalData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
 
-      // Push to parent
-      onFormDataChange((prev) => ({
-        ...prev,
-        ProjectReportSetting: {
-          ...(prev.ProjectReportSetting || {}),
-          [parentKey]: {
-            ...prev.ProjectReportSetting?.[parentKey],
-            [childKey]: value,
-          },
-        },
-      }));
-    } else {
-      // ✅ For normal fields
-      setLocalData((prevData) => ({
-        ...prevData,
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
         [name]: value,
-      }));
+      },
+    }));
+  }
 
-      setLocalData((prevData) => ({
-        ...prevData,
-        DebtEquityOption: value,
-        ...(value === "Debt + Equity" && { DebtPercentage: "" }), // Clear Debt % if not selected
-      }));
-
-      onFormDataChange((prev) => ({
-        ...prev,
-        ProjectReportSetting: {
-          ...(prev.ProjectReportSetting || {}),
-          [name]: value,
-        },
-      }));
-    }
-
-    // ✅ Special case for ProjectionYears
-    if (name === "ProjectionYears") {
-      setProjectionYears(value);
-      onProjectionYearChange(value);
-    }
-  };
+  // ✅ Special case for ProjectionYears
+  if (name === "ProjectionYears") {
+    setProjectionYears(value);
+    onProjectionYearChange(value);
+  }
+};
 
   useEffect(() => {
     onFormDataChange((prev) => ({
@@ -568,21 +684,21 @@ const FourthStepPRS = ({
 
               {/* Conditional rendering for Debt % field */}
               {localData.DebtEquityOption === "Debt + Equity" && (
-                <div className="col-4">
-                  <div className="input">
-                    <input
-                      id="debtPercentage"
-                      name="debtPercentage"
-                      type="number"
-                      placeholder="Debt %"
-                      required
-                      value="debtPercentage"
-                      onChange={handleChange} // Use the main handleChange
-                    />
-                    <label htmlFor="debtPercentage">Debt %</label>
-                  </div>
-                </div>
-              )}
+  <div className="col-4">
+    <div className="input">
+      <input
+        id="debtPercentage"
+        name="debtPercentage"
+        type="number"
+        placeholder="Debt %"
+        required
+        value={localData.debtPercentage || ""}
+        onChange={handleChange}
+      />
+      <label htmlFor="debtPercentage">Debt %</label>
+    </div>
+  </div>
+)}
             </div>
           </div>
 
