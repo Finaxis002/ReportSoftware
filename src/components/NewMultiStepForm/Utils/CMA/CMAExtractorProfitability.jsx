@@ -34,7 +34,7 @@ export const CMAExtractorProfitability = (formData) => {
      const revenueReducePercentage = localStorage.getItem('revenueReducePercentage') 
     ? parseFloat(localStorage.getItem('revenueReducePercentage')) 
     : 10;
-    console.log("revenueReducePercentage", revenueReducePercentage);
+    // console.log("revenueReducePercentage", revenueReducePercentage);
   
     const value10reduceRevenueReceipt = Array.from({
       length: projectionYears,
@@ -46,8 +46,8 @@ export const CMAExtractorProfitability = (formData) => {
         Number(value10reduceRevenueReceipt[idx] || 0)
     );
   
-    console.log('newRevenueReceipt',newRevenueReceipt)
-      console.log('value10reduceRevenueReceipt',value10reduceRevenueReceipt)
+    // console.log('newRevenueReceipt',newRevenueReceipt)
+    //   console.log('value10reduceRevenueReceipt',value10reduceRevenueReceipt)
 
     const ClosingStock = formData?.MoreDetails?.ClosingStock || 0;
   const OpeningStock = formData?.MoreDetails?.OpeningStock || 0;

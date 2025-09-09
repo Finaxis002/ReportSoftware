@@ -155,9 +155,13 @@ export const makeCMAExtractors = (formData) => {
   });
 
   const openingStocks =
-    formData?.MoreDetails?.OpeningStock?.slice(0, years) || [];
+    Array.isArray(formData?.MoreDetails?.OpeningStock)
+    ? formData?.MoreDetails?.OpeningStock.slice(0, years)
+    : new Array(years).fill(0);  // Default to an array of 0s if not vali
   const closingStocks =
-    formData?.MoreDetails?.ClosingStock?.slice(0, years) || [];
+    Array.isArray(formData?.MoreDetails?.ClosingStock)
+    ? formData?.MoreDetails?.ClosingStock.slice(0, years)
+    : new Array(years).fill(0);  // Default to an array of 0s if not valid
 
   const TotalCostofSales = Array.from({ length: years }).map(
     (_, i) =>

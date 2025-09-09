@@ -148,7 +148,7 @@ const GeneratedPDF = () => {
   };
 
   // window.addEventListener('keydown', e => console.log(e.key));
- 
+
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
     const storedPdfType = localStorage.getItem("pdfType");
@@ -266,8 +266,6 @@ const GeneratedPDF = () => {
     return years > 6 ? "landscape" : "portrait";
   });
 
-
-
   const yearsRef = useRef(5);
 
   useEffect(() => {
@@ -364,7 +362,6 @@ const GeneratedPDF = () => {
     financialYear,
     projectionYears
   );
-  
 
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -610,14 +607,53 @@ const GeneratedPDF = () => {
     };
   }, []);
 
+  const handlePDFRender = async () => {
+    // ✅ Aggregated computed data
+    const aggregatedComputedData = aggregateComputedData();
+
+    // ✅ API call to save computed data
+    try {
+      await axios.put(
+        `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
+        { computedData: aggregatedComputedData }
+      );
+      console.log("✅ Computed data saved successfully.");
+    } catch (error) {
+      console.error("❌ Failed to save computed data:", error);
+    }
+
+    // ✅ Send activity log
+    try {
+      const sessionId =
+        localStorage.getItem("activeSessionId") || formData?.sessionId || "";
+
+      let reportId = null;
+
+      if (sessionId) {
+        const res = await fetch(
+          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+        );
+        const data = await res.json();
+        if (data?.reportId) {
+          reportId = data.reportId;
+        }
+      }
+
+      console.log("✅ Logged PDF render activity");
+    } catch (error) {
+      console.warn("❌ Failed to log render activity:", error);
+    }
+  };
+
   const memoizedPDF = useMemo(() => {
-    return (     
+    return (
       <Document
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
+          handlePDFRender(); // Save data after the PDF has been rendered
         }}
-        onContextMenu={(e)=> e.preventDefault()}
+        onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
       >
         {/* basic details table */}
@@ -637,6 +673,10 @@ const GeneratedPDF = () => {
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          onRender={() => {
+            console.log("✅ProjectSynopsis rendered");
+            setIsPDFLoading(false);
+          }}
         />
 
         <PdfAllChartsWrapper
@@ -994,30 +1034,6 @@ const GeneratedPDF = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
       {/* ✅ Loader Section */}
-      {isPDFLoading && (
-        <div className="flex items-center justify-center">
-          <svg
-            className="animate-spin h-12 w-12 text-indigo-600"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
-            />
-          </svg>
-          <span className="ml-2 text-gray-500 font-medium">Loading PDF...</span>
-        </div>
-      )}
 
       <BlobProvider document={memoizedPDF}>
         {({ blob, url, loading }) => {
@@ -1101,71 +1117,109 @@ const GeneratedPDF = () => {
 
           return (
             <>
-              {/* Toolbar */}
               <div ref={pdfContainerRef} className="w-full">
-                <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
-                  {/* Title */}
-                  <div className="text-white font-normal text-sm px-4 tracking-wide">
-                    📄 PDF Report Viewer
+                {/* Toolbar */}
+                <div className="w-full bg-[#161616] p-3 py-1 shadow-lg flex flex-wrap justify-between items-center gap-3">
+                  <div className="text-white font-medium text-sm px-3 py-2 tracking-wide flex items-center bg-white/10 backdrop-blur-sm rounded-lg shadow-md">
+                    <i className="fas fa-file-pdf mr-2 text-red-400"></i>
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-blue-300">
+                      PDF Report Viewer
+                    </span>
                   </div>
 
-                  {/* Orientation Toggle Buttons */}
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 bg-white/10 backdrop-blur-sm rounded-lg p-1 shadow-md">
                     <button
-                      onClick={() => setOrientation("portrait")}
-                      className={`text-sm px-2 py-1 rounded ${
+                      onClick={() => {
+                        setIsLoading(true);
+                        setOrientation("portrait");
+                      }}
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${
                         orientation === "portrait"
-                          ? "bg-white text-indigo-600"
-                          : "bg-indigo-600 text-white"
+                          ? "bg-indigo-600 text-white"
+                          : "bg-white text-indigo-600"
                       }`}
                     >
-                      Portrait
+                      <i className="fas fa-portrait text-sm"></i>
+                      <span>Portrait</span>
                     </button>
                     <button
-                      onClick={() => setOrientation("landscape")}
-                      className={`text-sm px-2 py-1 rounded ${
+                      onClick={() => {
+                        setIsLoading(true);
+                        setOrientation("landscape");
+                      }}
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${
                         orientation === "landscape"
-                          ? "bg-white text-indigo-600"
-                          : "bg-indigo-600 text-white"
+                          ? "bg-indigo-600 text-white"
+                          : "bg-white text-indigo-600"
                       }`}
                     >
-                      Landscape
+                      <i className="fas fa-landscape text-sm"></i>
+                      <span>Landscape</span>
                     </button>
                     <button
                       onClick={() => setOrientation("advanced-landscape")}
-                      className={`text-sm px-2 py-1 rounded ${
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button advanced-landscape-btn ${
                         orientation === "advanced-landscape"
-                          ? "bg-white text-indigo-600"
-                          : "bg-indigo-600 text-white"
+                          ? "bg-indigo-600 text-white"
+                          : "bg-white text-indigo-600"
                       }`}
                     >
-                      Advanced Landscape
+                      <i className="fas fa-expand-alt text-sm"></i>
+                      <span>Advanced-Landscape</span>
                     </button>
                   </div>
 
-                  {/* Download Button */}
-
-                  {
-                    // Always show for admin (from localStorage), otherwise use permissions
-                    (localStorage.getItem("userRole") === "admin" ||
-                      (userRole === "employee" && permissions.downloadPDF)) && (
-                      <div className="flex gap-2 px-4">
-                        <button
-                          onClick={handleDownloadPDF}
-                          className={`flex items-center gap-2 ${
-                            loading
-                              ? "bg-gray-300 cursor-not-allowed"
-                              : "bg-white hover:bg-indigo-100"
-                          } text-indigo-600 font-medium py-1 px-3 rounded-md text-sm transition-all duration-300`}
-                          disabled={loading}
-                        >
-                          <FiDownload size={16} />
-                          Download PDF
-                        </button>
-                      </div>
-                    )
-                  }
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
+                    >
+                      <i className="fas fa-download"></i>
+                      <span>Download PDF</span>
+                    </button>
+                  </div>
                 </div>
+
+                {isPDFLoading && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      zIndex: 10,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <div>
+                      <svg
+                        className="animate-spin h-12 w-12 text-indigo-600"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ml-2 text-gray-500 font-medium">
+                      Loading PDF...
+                    </span>
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -1189,9 +1243,7 @@ const GeneratedPDF = () => {
                     </PDFViewer>
                   </div>
 
-                 
-
-                 <div
+                  <div
                     style={{
                       position: "absolute",
                       top: "50%",
@@ -1220,7 +1272,7 @@ const GeneratedPDF = () => {
                         pdfIframe.contentWindow.scrollBy(0, e.deltaY);
                       }
                     }}
-                  /> 
+                  />
                 </div>
               </div>
             </>

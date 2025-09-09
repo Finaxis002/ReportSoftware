@@ -52,7 +52,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
   const closingStocks = extractors.closingStocks() || [];
   const TotalCostofSales = extractors.TotalCostofSales() || [];
   const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
+  const interestOnTermLoan =  formData?.computedData?.yearlyInterestLiabilities;
   const interestOnWCArray = extractors.interestOnWCArray() || [];
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -66,9 +66,11 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
   const incomeTaxCal = extractors.incomeTaxCal() || [];
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
-  console.log("form Data : ", formData);
+  
 
-  console.log("net Profit After Tax :", netProfitAfterTax);
+//   console.log("form Data : ", formData);
+
+// console.log("yearlyInterestLiabilities :" , interestOnTermLoan )
 
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"

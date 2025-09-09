@@ -391,8 +391,9 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           </View>
         </View>
       </View>
-      {formData?.ProjectReportSetting?.subsidyName && (
+     
         <View style={[styles.text, { marginTop: 5, marginLeft: 2 }]}>
+           {formData?.ProjectReportSetting?.subsidyName && (
           <Text style={{ fontSize: 9 }}>
             *Inclusive of Subsidy {formData.ProjectReportSetting.subsidyName}
             {formData.ProjectReportSetting.subsidyAmount &&
@@ -411,6 +412,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               )}`}
             .
           </Text>
+                )}
 
           {/* 👉 Display additional subsidy text on the next line */}
           {formData?.ProjectReportSetting?.subsidyText && (
@@ -419,7 +421,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             </Text>
           )}
         </View>
-      )}
+
 
       {/* businees name and Client Name  */}
       <View

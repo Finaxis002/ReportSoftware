@@ -1912,7 +1912,7 @@ if (isAdvancedLandscape) {
                   (i)Amount
                 </Text>
 
-                {withdrawals.map((val, idx) => (
+                {yearLabels.map((val, idx) => (
                   <Text
                     key={idx}
                     style={[
@@ -1920,7 +1920,7 @@ if (isAdvancedLandscape) {
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(formData, val)}
+                    {formatNumber(withdrawals[idx])}
                   </Text>
                 ))}
               </View>
