@@ -411,17 +411,20 @@ export function calculateCostOfSalesData({
     depreciationArray,
   });
 
-  // Get Opening and Closing Stocks (arrays of numbers)
-  const OpeningStocks =
-    formData?.MoreDetails?.OpeningStock?.slice(0, years) || [];
-  const ClosingStocks =
-    formData?.MoreDetails?.ClosingStock?.slice(0, years) || [];
+// Ensure OpeningStock and ClosingStock are arrays before calling .slice()
+  const OpeningStocks = Array.isArray(formData?.MoreDetails?.OpeningStock)
+    ? formData?.MoreDetails?.OpeningStock.slice(0, years)
+    : new Array(years).fill(0);  // Default to an array of 0s if not valid
+
+  const ClosingStocks = Array.isArray(formData?.MoreDetails?.ClosingStock)
+    ? formData?.MoreDetails?.ClosingStock.slice(0, years)
+    : new Array(years).fill(0);  // Default to an array of 0s if not valid
 
   // Calculate Cost of Production year-wise
   const costOfProduction = Array.from({ length: years }).map(
     (_, idx) =>
       (Number(TotalCostofSales[idx]) || 0) +
-      (Number(OpeningStocks[idx]) || 0) -
+      (Number(OpeningStocks[idx]) || 0) - 
       (Number(ClosingStocks[idx]) || 0)
   );
 

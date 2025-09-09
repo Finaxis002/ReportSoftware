@@ -48,7 +48,8 @@ const FourthStepPRS = ({
     rateOfWorkingCapital: "",
     incomeTax: 30,
     rateOfExpense: 5,
-
+    DebtEquityOption: "Debt",
+    debtPercentage: "",
     // Subsidy
     SubsidyName: "",
     SubsidyPercentage: "",
@@ -75,6 +76,20 @@ const FourthStepPRS = ({
     // ✅ Override with pre-filled data if available
     ...(formData?.ProjectReportSetting || {}),
   }));
+
+  const [debtEquityOption, setDebtEquityOption] = useState(
+    localData.DebtEquityOption || ""
+  );
+  const [debtPercentage, setDebtPercentage] = useState(
+    localData.DebtPercentage || ""
+  );
+
+  useEffect(() => {
+    // Update state when DebtEquityOption changes
+    if (debtEquityOption === "Debt + Equity") {
+      setDebtPercentage(localData.DebtPercentage || ""); // Reset Debt % if required
+    }
+  }, [debtEquityOption]);
 
   const CA_DETAILS = {
     "Anunay Sharda": {
@@ -107,39 +122,35 @@ const FourthStepPRS = ({
   useEffect(() => {
     if (formData?.ProjectReportSetting) {
       const raw = formData.ProjectReportSetting;
-  
+
       // 🔁 Normalize all values: if it's an object with { value }, extract value
       const normalizeValue = (val) =>
         typeof val === "object" && val !== null && "value" in val
           ? val.value || "rupees" // 👈 Use "rupees" if value is empty string
           : val;
-      
-  
+
       const normalizedBankDetails = Object.fromEntries(
         Object.entries(raw.BankDetails || {}).map(([key, val]) => [
           key,
           normalizeValue(val),
         ])
       );
-  
+
       const newData = {
         ...localData,
         ...Object.entries(raw).map(([key, val]) => {
           if (key === "BankDetails") return [key, normalizedBankDetails];
-          
+
           if (key === "AmountIn") {
             const finalValue =
-              typeof val === "object" && val?.value
-                ? val.value
-                : "rupees";
+              typeof val === "object" && val?.value ? val.value : "rupees";
             return [key, finalValue];
           }
-      
+
           return [key, normalizeValue(val)];
-        })
+        }),
       };
-      
-  
+
       // Prevent unnecessary updates
       // if (
       //   !prevDataRef.current ||
@@ -148,14 +159,13 @@ const FourthStepPRS = ({
       //   console.log("✅ Normalized and set ProjectReportSetting:", newData);
       //   setLocalData(newData);
       //   prevDataRef.current = newData;
-  
+
       //   if (newData.ProjectionYears) {
       //     console.log("🚀 Projection Year after normalization:", newData.ProjectionYears);
       //   }
       // }
     }
   }, [formData?.ProjectReportSetting]);
-  
 
   // ✅ Save `localData` back to `onFormDataChange` (Avoiding infinite loop)
   useEffect(() => {
@@ -192,11 +202,20 @@ const FourthStepPRS = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
+    // Handle the new Debt/Equity Dropdown
+    if (name === "DebtEquityOption") {
+      setDebtEquityOption(value); // Update state
+      // Optionally, reset Debt % when Debt + Equity is selected
+      if (value !== "Debt + Equity") {
+        setDebtPercentage(""); // Clear Debt % if Debt or Equity is selected
+      }
+    }
+
     // ✅ Auto-fill CA details when CA is selected
     if (name === "CAName") {
       const selectedCA = CA_DETAILS[value];
-  
+
       if (selectedCA) {
         setLocalData((prevData) => ({
           ...prevData,
@@ -205,7 +224,7 @@ const FourthStepPRS = ({
           MobileNumber: selectedCA.mobileNumber,
           [name]: name === "AmountIn" ? String(value) : value,
         }));
-  
+
         // Update parent form too
         onFormDataChange((prev) => ({
           ...prev,
@@ -217,11 +236,11 @@ const FourthStepPRS = ({
             [name]: name === "AmountIn" ? String(value) : value,
           },
         }));
-  
+
         return; // ✅ Prevent further execution
       }
     }
-  
+
     // ✅ For nested fields like BankDetails.X
     if (name.includes(".")) {
       const [parentKey, childKey] = name.split(".");
@@ -232,7 +251,7 @@ const FourthStepPRS = ({
           [childKey]: value,
         },
       }));
-  
+
       // Push to parent
       onFormDataChange((prev) => ({
         ...prev,
@@ -250,7 +269,13 @@ const FourthStepPRS = ({
         ...prevData,
         [name]: value,
       }));
-  
+
+      setLocalData((prevData) => ({
+        ...prevData,
+        DebtEquityOption: value,
+        ...(value === "Debt + Equity" && { DebtPercentage: "" }), // Clear Debt % if not selected
+      }));
+
       onFormDataChange((prev) => ({
         ...prev,
         ProjectReportSetting: {
@@ -259,14 +284,14 @@ const FourthStepPRS = ({
         },
       }));
     }
-  
+
     // ✅ Special case for ProjectionYears
     if (name === "ProjectionYears") {
       setProjectionYears(value);
       onProjectionYearChange(value);
     }
   };
-  
+
   useEffect(() => {
     onFormDataChange((prev) => ({
       ...prev,
@@ -279,12 +304,15 @@ const FourthStepPRS = ({
 
   const getValue = (obj) => {
     if (typeof obj === "string") return obj;
-    if (typeof obj === "object" && obj !== null && "value" in obj) return obj.value;
+    if (typeof obj === "object" && obj !== null && "value" in obj)
+      return obj.value;
     return "";
   };
-  
-  console.log("Incoming formData.AmountIn:", formData?.ProjectReportSetting?.AmountIn);
 
+  console.log(
+    "Incoming formData.AmountIn:",
+    formData?.ProjectReportSetting?.AmountIn
+  );
 
   return (
     <div>
@@ -413,7 +441,7 @@ const FourthStepPRS = ({
                   value={localData.AmountIn || "rupees"}
                   onChange={handleChange}
                 >
-                   <option value="select">Select Amount In</option>
+                  <option value="select">Select Amount In</option>
                   <option value="rupees">Rupees</option>
                   <option value="thousand">Thousands</option>
                   <option value="lakhs">Lakhs</option>
@@ -501,9 +529,7 @@ const FourthStepPRS = ({
                     type="text"
                     placeholder="Income Tax (%)"
                     required
-                    value={
-                      localData.incomeTax || 30
-                    }
+                    value={localData.incomeTax || 30}
                     onChange={handleChange}
                   />
                   <label htmlFor="incomeTax">Income Tax (%)</label>
@@ -526,6 +552,46 @@ const FourthStepPRS = ({
                   </label>
                 </div>
               </div>
+
+              <div className="col-4">
+                <div className="input">
+                  <select
+                    id="DebtEquityOption"
+                    name="DebtEquityOption"
+                    value={localData.DebtEquityOption || ""}
+                    onChange={handleChange}
+                    className="form-control selectInput"
+                  >
+                    <option value="Debt">Debt</option>
+                    <option value="Equity">Equity</option>
+                    <option value="Debt + Equity">Debt + Equity</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Conditional rendering for Debt % field */}
+              {debtEquityOption === "Debt + Equity" && (
+                <div className="col-4">
+                  <div className="input">
+                    <input
+                      id="DebtPercentage"
+                      name="DebtPercentage"
+                      type="number"
+                      placeholder="Debt %"
+                      required
+                      value={debtPercentage}
+                      onChange={(e) => {
+                        setDebtPercentage(e.target.value); // Update Debt % value
+                        setLocalData((prevData) => ({
+                          ...prevData,
+                          DebtPercentage: e.target.value, // Update localData
+                        }));
+                      }}
+                    />
+                    <label htmlFor="DebtPercentage">Debt %</label>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -683,7 +749,6 @@ const FourthStepPRS = ({
                     placeholder="Enter Bank Name"
                     // value={localData?.BankDetails?.Bank?.name || ""}
                     value={getValue(localData?.BankDetails?.Bank)}
-
                     onChange={handleChange}
                   />
                   <label htmlFor="Bank">Bank Name</label>

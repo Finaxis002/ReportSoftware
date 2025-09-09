@@ -25,7 +25,7 @@ const Repayment = ({
   onMarchClosingBalanceCalculated, // New callback prop for March balances
   onInterestLiabilityUpdate,
 }) => {
-  console.log("formData :", formData);
+  // console.log("formData :", formData);
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
 
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
@@ -345,6 +345,8 @@ if (cadence === 1) {
       onInterestCalculated(yearlyInterestLiabilities);
     }
   }, [JSON.stringify(data)]);
+
+  console.log("yearlyInterestLiabilities :" , yearlyInterestLiabilities)
 
   useEffect(() => {
     const marchClosingBalances = data.map((yearData) => {
