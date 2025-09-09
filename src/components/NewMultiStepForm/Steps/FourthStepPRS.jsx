@@ -230,7 +230,6 @@ const FourthStepPRS = ({
             CAName: value,
             MembershipNumber: selectedCA.membershipNumber,
             MobileNumber: selectedCA.mobileNumber,
-            DebtPercentage: debtPercentage,
             [name]: name === "AmountIn" ? String(value) : value,
           },
         }));
@@ -572,15 +571,15 @@ const FourthStepPRS = ({
                 <div className="col-4">
                   <div className="input">
                     <input
-                      id="DebtPercentage"
-                      name="DebtPercentage"
+                      id="debtPercentage"
+                      name="debtPercentage"
                       type="number"
                       placeholder="Debt %"
                       required
-                      value={localData.DebtPercentage || ""}
+                      value="debtPercentage"
                       onChange={handleChange} // Use the main handleChange
                     />
-                    <label htmlFor="DebtPercentage">Debt %</label>
+                    <label htmlFor="debtPercentage">Debt %</label>
                   </div>
                 </div>
               )}
