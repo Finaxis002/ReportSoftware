@@ -1130,7 +1130,6 @@ const GeneratedPDF = () => {
                   <div className="flex gap-1 bg-white/10 backdrop-blur-sm rounded-lg p-1 shadow-md">
                     <button
                       onClick={() => {
-                        setIsLoading(true);
                         setOrientation("portrait");
                       }}
                       className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${
@@ -1144,7 +1143,6 @@ const GeneratedPDF = () => {
                     </button>
                     <button
                       onClick={() => {
-                        setIsLoading(true);
                         setOrientation("landscape");
                       }}
                       className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${
