@@ -50,6 +50,7 @@ const ProjectedProfitability = ({
   pdfType,
   orientation,
 }) => {
+  console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -302,15 +303,7 @@ const ProjectedProfitability = ({
         }, 0);
     }
 
-    // LOGGING the row values for this year:
-    // console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
-    // directRows.forEach((row, i) =>
-    //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-    // );
-    // console.log(`   Salary and Wages: ${salaryTotal}`);
-    // console.log(
-    //   `   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`
-    // );
+    
 
     // FINAL direct expenses for this year
     return directTotal + salaryTotal + advanceDirectTotal;
@@ -346,62 +339,7 @@ const ProjectedProfitability = ({
     return 0;
   });
 
-  // const totalIndirectExpensesArray = Array.from({
-  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  // }).map((_, yearIndex) => {
-  //   const totalIndirectExpenses = indirectExpense
-  //     .filter((expense) => expense.type === "indirect")
-  //     .reduce((sum, expense) => {
-  //       const annual = Number(expense.total) || 0;
-  //       const escalated = calculateExpense(annual, yearIndex);
-  //       return sum + escalated;
-  //     }, 0);
-
-  //   const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-  //   const interestExpenseOnWorkingCapital = calculateInterestOnWorkingCapital(
-
-  //     yearIndex
-  //   );
-  //   const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-  //   const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
-
-  //   const yearTotal =
-  //     totalIndirectExpenses +
-  //     interestOnTermLoan +
-  //     interestExpenseOnWorkingCapital +
-  //     depreciationExpense +
-  //     preliminaryWriteOff; // ✅ ADDED HERE
-
-  //   return yearTotal;
-  // });
-
-  // const totalIndirectExpensesArray = Array.from({
-  //   length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  // }).map((_, yearIndex) => {
-  //   const totalIndirectExpenses = indirectExpense
-  //     .filter((expense) => expense.type === "indirect")
-  //     .reduce((sum, expense) => {
-  //       const annual = Number(expense.total) || 0;
-  //       const escalated = calculateExpense(annual, yearIndex);
-  //       return sum + escalated;
-  //     }, 0);
-
-  //   const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-  //   const interestExpenseOnWorkingCapital =
-  //     calculateInterestOnWorkingCapital(yearIndex);
-  //   const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-  //   const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0; // ✅ NEW LINE
-
-  //   const yearTotal =
-  //     totalIndirectExpenses +
-  //     interestOnTermLoan +
-  //     interestExpenseOnWorkingCapital +
-  //     depreciationExpense +
-  //     preliminaryWriteOff; // ✅ ADDED HERE
-
-  //   return yearTotal;
-  // });
-
+  
   // ✅ Extract required values from formData
 
   const totalIndirectExpensesArray = Array.from({
@@ -704,6 +642,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
 
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+
+      console.log(formData, "formdata in pp");
 
       return (
         <Page

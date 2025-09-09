@@ -198,6 +198,7 @@ const CMAProjectedProfitability = ({
   const FinPosextractors = CMAExtractorFinPos(formData);
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
+  const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
   const value10reduceRevenueReceipt =
     PPExtractor.value10reduceRevenueReceipt() || [];
   const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
@@ -319,15 +320,7 @@ const CMAProjectedProfitability = ({
     }
   });
 
-  // const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
-  //   const depreciation = totalDepreciationPerYear[yearIndex] || 0;
-
-  //   // ✅ Correctly Compute Cash Profit
-  //   const cashProfit = npat + depreciation;
-
-  //   // ✅ Round values correctly
-  //   return cashProfit;
-  // });
+  
 
   const cashProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])
@@ -521,6 +514,7 @@ const CMAProjectedProfitability = ({
                       styles.Total,
                     ]}
                   >
+
                     A
                   </Text>
                   <Text
@@ -532,6 +526,7 @@ const CMAProjectedProfitability = ({
                     ]}
                   >
                     Total Revenue Receipt
+
                   </Text>
 
                   {labels.map((_, localIdx) => (
@@ -1845,7 +1840,7 @@ const CMAProjectedProfitability = ({
                   </Text>
                 ) : null
               )} */}
-              {totalRevenueReceipt.map((val, idx) => (
+              {totalRevenueForOthers.map((val, idx) => (
                 <Text
                   key={idx}
                   style={[

@@ -17,7 +17,7 @@ import { calculateTermLoanRepayment } from "./TermloanCalculations";
 export const makeCMAExtractors = (formData) => {
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const receivedtotalRevenueReceipts =
-    formData?.computedData?.totalRevenueReceipts || [];
+    formData?.Revenue?.totalRevenueForOthers || [];
 
   // Set up expense lists
   const directExpense = formData?.Expenses?.directExpense || [];
@@ -223,7 +223,7 @@ export const makeCMAExtractors = (formData) => {
   });
 
   const OperatingProfit = (
-    formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []
+    formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || []
   ).map((n, i) => {
     const grossProfit = (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0);
     const interestTL =
@@ -265,10 +265,11 @@ export const makeCMAExtractors = (formData) => {
   }),
 
     grossSales: () =>
-      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+      formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || [],
+
     dutiesTaxes: () => Array(years).fill(0),
     netSales: () =>
-      formData?.computedData?.totalRevenueReceipts?.slice(0, years) || [],
+      formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || [],
     salary: () => salaryAndWages,
     ...Object.fromEntries(
       directExpenseRows.map((row) => [row.key, () => row.values])
@@ -289,7 +290,7 @@ export const makeCMAExtractors = (formData) => {
     closingStocks: () => closingStocks,
     TotalCostofSales: () => TotalCostofSales,
     GrossProfit: () =>
-      (formData?.computedData?.totalRevenueReceipts?.slice(0, years) || []).map(
+      (formData?.Revenue?.totalRevenueForOthers?.slice(0, years) || []).map(
         (n, i) => (Number(n) || 0) - (Number(TotalCostofSales[i]) || 0)
       ),
 
