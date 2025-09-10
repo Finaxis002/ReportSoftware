@@ -38,7 +38,9 @@ const Repayment = ({
 
   const repaymentMethod = formData.ProjectReportSetting.SelectRepaymentMethod; // Get selected repayment method
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+  const debtEquityOption =
+    formData?.ProjectReportSetting?.DebtEquityOption ||
+    formData?.ProjectReportSetting?.debtEquityOption;
 
   // ---- NORMALIZE INPUTS (force numbers; handle empty strings) ----
   const TL = Number(formData?.MeansOfFinance?.termLoan?.termLoan ?? 0);
@@ -259,7 +261,7 @@ const Repayment = ({
         repayEventNo += 1;
       }
 
-      console.log("debtEquityOption :", debtEquityOption)
+      console.log("debtEquityOption :", debtEquityOption);
 
       if (debtEquityOption === "Equity") {
         principalRepayment = 0;
@@ -288,11 +290,11 @@ const Repayment = ({
         interestLiability = principalOpeningBalance * interestRate; // Annual interest rate
       }
 
-
-     
-
       const totalRepayment =
-        principalRepayment + (principalRepayment > 0 ? interestLiability : 0);
+        principalRepayment +
+        (debtEquityOption === "Equity" || principalRepayment > 0
+          ? interestLiability
+          : 0);
 
       yearData.push({
         month: months[i],
@@ -327,42 +329,60 @@ const Repayment = ({
   }, []);
 
   // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
-  useEffect(() => {
-    if (!Array.isArray(data)) return;
+useEffect(() => {
+  if (!Array.isArray(data)) return;
 
-    const yearlyInterestLiabilities = [];
+  const yearlyInterestLiabilities = [];
 
-    data.forEach((yearData) => {
-      let totalPrincipalRepayment = 0;
-      let totalInterestLiability = 0;
-      let totalRepayment = 0;
+  data.forEach((yearData) => {
+    let totalPrincipalRepayment = 0;
+    let totalInterestLiability = 0;
+    let totalRepayment = 0;
 
-      yearData.forEach((entry) => {
-        if (entry?.principalRepayment > 0) {
-          totalPrincipalRepayment += entry.principalRepayment;
-          totalInterestLiability += entry.interestLiability;
-          totalRepayment += entry.totalRepayment;
-        }
-      });
+    yearData.forEach((entry) => {
+      // Skip moratorium months (months within the moratorium period)
+      if (entry.absOffset < moratoriumPeriod) return;
 
-      // ✅ If principal repayment is 0 for the year, ignore interest
-      if (totalPrincipalRepayment === 0) {
-        totalInterestLiability = 0;
-        totalRepayment = 0;
-      }
+      // Calculate totalPrincipalRepayment
+      totalPrincipalRepayment += entry.principalRepayment;
 
-      yearlyInterestLiabilities.push(totalInterestLiability);
+      // Apply the logic for totalInterestLiability calculation
+      totalInterestLiability +=
+        entry.principalRepayment > 0 || debtEquityOption === "Equity"
+          ? entry.interestLiability
+          : 0;
+
+      // Calculate totalRepayment (principal + interest)
+      totalRepayment +=
+        entry.principalRepayment +
+        (entry.principalRepayment > 0 || debtEquityOption === "Equity"
+          ? entry.interestLiability
+          : 0);
     });
 
-    setYearlyInterestLiabilities(yearlyInterestLiabilities);
-    // console.log("correctYearlyInterestLiabilities", yearlyInterestLiabilities);
-
-    if (onInterestCalculated) {
-      onInterestCalculated(yearlyInterestLiabilities);
+    // If principal repayment is 0 and debtEquityOption is not "Equity", reset interest liability
+    if (totalPrincipalRepayment === 0 && debtEquityOption !== "Equity") {
+      totalInterestLiability = 0;
+      totalRepayment = 0;
     }
-  }, [JSON.stringify(data)]);
 
-  // console.log("yearlyInterestLiabilities :", yearlyInterestLiabilities);
+    // Push the calculated totalInterestLiability for the year
+    yearlyInterestLiabilities.push(totalInterestLiability);
+  });
+
+  // Set the calculated yearly interest liabilities
+  setYearlyInterestLiabilities(yearlyInterestLiabilities);
+
+  // Call onInterestCalculated if available
+  if (onInterestCalculated) {
+    onInterestCalculated(yearlyInterestLiabilities);
+  }
+}, [JSON.stringify(data), debtEquityOption, moratoriumPeriod]);
+
+
+
+
+   console.log("yearlyInterestLiabilities from Repaymnet:", yearlyInterestLiabilities);
 
   useEffect(() => {
     const marchClosingBalances = data.map((yearData) => {
@@ -631,7 +651,9 @@ const Repayment = ({
                     },
                   ]}
                 >
-                  {debtEquityOption === "Equity" ? "Divident Payout @ _ %" :"Interest Liability"}
+                  {debtEquityOption === "Equity"
+                    ? "Divident Payout @ _ %"
+                    : "Interest Liability"}
                 </Text>
                 <Text
                   style={[
@@ -679,11 +701,18 @@ const Repayment = ({
 
               visibleMonths.forEach((e) => {
                 totalPrincipalRepayment += e.principalRepayment;
+
+                // Include interest liability even if principalRepayment is 0 when "Equity" is selected
                 totalInterestLiability +=
-                  e.principalRepayment > 0 ? e.interestLiability : 0;
+                  e.principalRepayment > 0 || debtEquityOption === "Equity"
+                    ? e.interestLiability
+                    : 0;
+
                 totalRepayment +=
                   e.principalRepayment +
-                  (e.principalRepayment > 0 ? e.interestLiability : 0);
+                  (e.principalRepayment > 0 || debtEquityOption === "Equity"
+                    ? e.interestLiability
+                    : 0);
               });
 
               // console.log(
@@ -766,6 +795,13 @@ const Repayment = ({
 
                     // console.log("Interst Liability : (",monthIndex,")", entry.interestLiability)
 
+                    // console.log(
+                    //   "Interst Liability : (",
+                    //   monthIndex,
+                    //   ")",
+                    //   entry.totalRepayment
+                    // );
+
                     return (
                       <View
                         key={monthIndex}
@@ -834,10 +870,17 @@ const Repayment = ({
                             { textAlign: "center", width: "15.35%" },
                           ]}
                         >
-                          {formatNumber(
+                          {/* {formatNumber(
                             entry.principalRepayment === 0
                               ? 0
                               : entry.interestLiability
+                          )} */}
+
+                          {formatNumber(
+                            debtEquityOption === "Equity" ||
+                              entry.principalRepayment !== 0
+                              ? entry.interestLiability
+                              : 0
                           )}
                         </Text>
                         <Text

@@ -37,6 +37,8 @@ const ProjectedCashflow = ({
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
 
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
   useEffect(() => {
     if (onClosingCashBalanceCalculated && closingCashBalanceArray2.length > 0) {
       onClosingCashBalanceCalculated(closingCashBalanceArray2);
@@ -833,7 +835,7 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Bank Term Loan
+                        {debtEquityOption === "Equity"? "Equity Investment Received" : "Bank Term Loan"}
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -1991,7 +1993,7 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Bank Term Loan
+                    {debtEquityOption === "Equity"? "Equity Investment Received" : "Bank Term Loan"}
                   </Text>
                   {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text

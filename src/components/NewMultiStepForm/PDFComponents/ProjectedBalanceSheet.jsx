@@ -1518,7 +1518,7 @@ const ProjectedBalanceSheet = ({
     });
   }
 
-  console.log("receivedMarchClosingBalances :", receivedMarchClosingBalances);
+  // console.log("receivedMarchClosingBalances :", receivedMarchClosingBalances);
 
   return (
     <Page
@@ -1785,16 +1785,16 @@ const ProjectedBalanceSheet = ({
                       : marchBalance - repaymentValue;
 
                   // Log the data in a table format
-                  console.table([
-                    {
-                      Index: index,
-                      "Received March Closing Balance": marchBalance,
-                      "Repayment Value within 12 months": repaymentValue,
-                      "Repayment Months": repaymentMonths,
-                      "Term Loan Amount": termLoanAmount,
-                      "Net Balance": netBalance,
-                    },
-                  ]);
+                  // console.table([
+                  //   {
+                  //     Index: index,
+                  //     "Received March Closing Balance": marchBalance,
+                  //     "Repayment Value within 12 months": repaymentValue,
+                  //     "Repayment Months": repaymentMonths,
+                  //     "Term Loan Amount": termLoanAmount,
+                  //     "Net Balance": netBalance,
+                  //   },
+                  // ]);
 
                   return (
                     <Text
