@@ -196,6 +196,26 @@ const CMADataPdfGeneration = () => {
     setIsLoading(loading);
   };
 
+   const pdfViewerRef = useRef(null);
+  
+   useEffect(() => {
+      // Poll for the iframe created by @react-pdf/renderer to disable right-click
+      const pollIframe = setInterval(() => {
+        const iframe = pdfViewerRef.current?.querySelector("iframe");
+        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+          // Disable right-click by adding contextmenu event listener to iframe document
+          iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+            e.preventDefault(); // Prevent the default context menu
+            alert("Right-click is disabled on this PDF."); // Optional alert
+          });
+          clearInterval(pollIframe);
+        }
+      }, 300); // Poll every 300ms
+  
+      // Cleanup
+      return () => clearInterval(pollIframe);
+    }, []);
+
   return (
     <>
       {/* <div style={{ height: "100vh", width: "100%" }}>
