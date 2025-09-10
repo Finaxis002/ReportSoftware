@@ -261,7 +261,7 @@ const Repayment = ({
         repayEventNo += 1;
       }
 
-      console.log("debtEquityOption :", debtEquityOption);
+      // console.log("debtEquityOption :", debtEquityOption);
 
       if (debtEquityOption === "Equity") {
         principalRepayment = 0;
@@ -382,7 +382,7 @@ useEffect(() => {
 
 
 
-   console.log("yearlyInterestLiabilities from Repaymnet:", yearlyInterestLiabilities);
+  //  console.log("yearlyInterestLiabilities from Repaymnet:", yearlyInterestLiabilities);
 
   useEffect(() => {
     const marchClosingBalances = data.map((yearData) => {

@@ -1031,6 +1031,26 @@ const GeneratedPDF = () => {
     totalRevenueReceipts,
   });
 
+
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    // Once the iframe has loaded, disable clicks but allow scrolling
+    const iframe = iframeRef.current;
+
+    iframe.onload = () => {
+      const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+      if (iframeDocument) {
+        // Disable pointer events for the iframe content (disabling clicks)
+        iframeDocument.body.style.pointerEvents = 'none';
+
+        // Allow scrolling interaction inside the iframe by re-enabling pointer events for the document body
+        iframeDocument.body.style.pointerEvents = 'auto';
+      }
+    };
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen generatedpdf">
       {/* ✅ Loader Section */}
@@ -1225,7 +1245,7 @@ const GeneratedPDF = () => {
                     width: "100%",
                   }}
                 >
-                  <div style={{ height: "100vh", width: "100%" }}>
+                  <div style={{ height: "94vh", width: "100%" , top:0 , position:"relative", marginTop:0}} ref={iframeRef}>
                     <PDFViewer
                       width="100%"
                       height="100%"
@@ -1233,6 +1253,8 @@ const GeneratedPDF = () => {
                         height: "100%",
                         width: "100%",
                         overflow: "auto",
+                        PointerEvent:"none"
+                        
                       }}
                       showToolbar={false}
                       key={orientation}
