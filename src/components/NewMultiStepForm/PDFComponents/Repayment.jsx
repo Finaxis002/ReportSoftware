@@ -38,6 +38,10 @@ const Repayment = ({
 
   const repaymentMethod = formData.ProjectReportSetting.SelectRepaymentMethod; // Get selected repayment method
 
+  const debtEquityOption =
+    formData?.ProjectReportSetting?.DebtEquityOption ||
+    formData?.ProjectReportSetting?.debtEquityOption;
+
   // ---- NORMALIZE INPUTS (force numbers; handle empty strings) ----
   const TL = Number(formData?.MeansOfFinance?.termLoan?.termLoan ?? 0);
   const annualRate =
@@ -47,8 +51,6 @@ const Repayment = ({
     formData?.ProjectReportSetting?.RepaymentMonths ?? 0
   );
 
-
-  
   // ---- REPAYMENT METHOD -> cadence in months (case/typo tolerant) ----
   const rmRaw = String(
     formData?.ProjectReportSetting?.SelectRepaymentMethod || "Monthly"
@@ -97,20 +99,27 @@ const Repayment = ({
   let repaymentPeriod = 1; // Default to monthly
   let periodsInYear = 12; // Default to monthly (12 months in a year)
 
-
   // Keep your existing months array (you have April→March). Use whatever you already use.
-const MONTHS = [
-  "April","May","June","July","August","September",
-  "October","November","December","January","February","March"
-];
+  const MONTHS = [
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
+  ];
 
-// safe mod
-const imod = (n, m = 12) => ((n % m) + m) % m;
+  // safe mod
+  const imod = (n, m = 12) => ((n % m) + m) % m;
 
-// 3-letter lowercase like "jan", "apr"
-const m3 = (name) => name.slice(0, 3).toLowerCase();
-
-
+  // 3-letter lowercase like "jan", "apr"
+  const m3 = (name) => name.slice(0, 3).toLowerCase();
 
   if (repaymentMethod === "Quarterly") {
     repaymentPeriod = 3; // Every 3 months
@@ -159,42 +168,46 @@ const m3 = (name) => name.slice(0, 3).toLowerCase();
   }
 
   // Label for a period ending at absolute offset `endAbsOff` from the start month,
-// covering `cadence` months (3 = quarter, 6 = semi, 12 = annual).
-const periodLabelAt = (endAbsOff, cadence, startMonthIndex) => {
-  const endIdx = imod(startMonthIndex + endAbsOff);
-  const startIdx = imod(endIdx - (cadence - 1));
-  return `${m3(MONTHS[startIdx])}-${m3(MONTHS[endIdx])}`;
-};
+  // covering `cadence` months (3 = quarter, 6 = semi, 12 = annual).
+  const periodLabelAt = (endAbsOff, cadence, startMonthIndex) => {
+    const endIdx = imod(startMonthIndex + endAbsOff);
+    const startIdx = imod(endIdx - (cadence - 1));
+    return `${m3(MONTHS[startIdx])}-${m3(MONTHS[endIdx])}`;
+  };
 
-/**
- * Your same alignment from earlier:
- * - cadence = 3 (Quarterly) / 6 (Semi-annual) / 12 (Annual)
- * - phase = cadence - 1  -> we repay on the *last* month of each window
- */
+  /**
+   * Your same alignment from earlier:
+   * - cadence = 3 (Quarterly) / 6 (Semi-annual) / 12 (Annual)
+   * - phase = cadence - 1  -> we repay on the *last* month of each window
+   */
 
-// Precompute labels for all events
-const eventEndOffsets = Array.from({ length: eventsCount }, (_, i) => firstRepayOffset + i * cadence);
-const periodLabels = eventEndOffsets.map(off => periodLabelAt(off, cadence, startMonthIndex));
+  // Precompute labels for all events
+  const eventEndOffsets = Array.from(
+    { length: eventsCount },
+    (_, i) => firstRepayOffset + i * cadence
+  );
+  const periodLabels = eventEndOffsets.map((off) =>
+    periodLabelAt(off, cadence, startMonthIndex)
+  );
 
-const capitalizeFirstLetter = (str) => {
-  return str.replace(/\b\w/g, char => char.toUpperCase());
-};
+  const capitalizeFirstLetter = (str) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
-const labelForEntry = (absOff) => {
-  if (cadence === 1) {
-    // Capitalize the month abbreviation and return it
-    return capitalizeFirstLetter(MONTHS[imod(startMonthIndex + absOff)]);
-  }
-  if (absOff < firstRepayOffset) return "";                        // moratorium
-  if ((absOff - firstRepayOffset) % cadence !== 0) return "";      // not an event month
-  
-  // Map offset → index
-  const idx = Math.floor((absOff - firstRepayOffset) / cadence);
-  
-  // Capitalize the period label if it exists
-  return periodLabels[idx] ? capitalizeFirstLetter(periodLabels[idx]) : "";
-};
+  const labelForEntry = (absOff) => {
+    if (cadence === 1) {
+      // Capitalize the month abbreviation and return it
+      return capitalizeFirstLetter(MONTHS[imod(startMonthIndex + absOff)]);
+    }
+    if (absOff < firstRepayOffset) return ""; // moratorium
+    if ((absOff - firstRepayOffset) % cadence !== 0) return ""; // not an event month
 
+    // Map offset → index
+    const idx = Math.floor((absOff - firstRepayOffset) / cadence);
+
+    // Capitalize the period label if it exists
+    return periodLabels[idx] ? capitalizeFirstLetter(periodLabels[idx]) : "";
+  };
 
   // let remainingBalance = termLoan; // Remaining loan balance
 
@@ -248,35 +261,40 @@ const labelForEntry = (absOff) => {
         repayEventNo += 1;
       }
 
+      console.log("debtEquityOption :", debtEquityOption);
+
+      if (debtEquityOption === "Equity") {
+        principalRepayment = 0;
+      }
+
       const principalClosingBalance = Math.max(
         0,
         principalOpeningBalance - principalRepayment
       );
 
-      // monthly interest (we show it only on repayment rows in the table)
-      const repaymentMethod = formData.ProjectReportSetting.SelectRepaymentMethod; // Get selected repayment method
+      const interestRate = formData.ProjectReportSetting.interestOnTL / 100; // Annual rate as a decimal
+      let interestLiability = 0; // Initialize interest liability
 
-
-const interestRate = formData.ProjectReportSetting.interestOnTL / 100; // Annual rate as a decimal
-let interestLiability = 0; // Initialize interest liability
-
-// Adjust the interest calculation based on the selected repayment method
-if (cadence === 1) {
-  // Monthly Repayment
-  interestLiability = principalOpeningBalance * (interestRate / 12); // Monthly interest rate
-} else if (cadence === 3) {
-  // Quarterly Repayment
-  interestLiability = principalOpeningBalance * (interestRate / 4); // Quarterly interest rate
-} else if (cadence === 6) {
-  // Semi-Annually Repayment
-  interestLiability = principalOpeningBalance * (interestRate / 2); // Semi-annual interest rate
-} else if (cadence === 12) {
-  // Annually Repayment
-  interestLiability = principalOpeningBalance * interestRate; // Annual interest rate
-}
+      // Adjust the interest calculation based on the selected repayment method
+      if (cadence === 1) {
+        // Monthly Repayment
+        interestLiability = principalOpeningBalance * (interestRate / 12); // Monthly interest rate
+      } else if (cadence === 3) {
+        // Quarterly Repayment
+        interestLiability = principalOpeningBalance * (interestRate / 4); // Quarterly interest rate
+      } else if (cadence === 6) {
+        // Semi-Annually Repayment
+        interestLiability = principalOpeningBalance * (interestRate / 2); // Semi-annual interest rate
+      } else if (cadence === 12) {
+        // Annually Repayment
+        interestLiability = principalOpeningBalance * interestRate; // Annual interest rate
+      }
 
       const totalRepayment =
-        principalRepayment + (principalRepayment > 0 ? interestLiability : 0);
+        principalRepayment +
+        (debtEquityOption === "Equity" || principalRepayment > 0
+          ? interestLiability
+          : 0);
 
       yearData.push({
         month: months[i],
@@ -311,42 +329,60 @@ if (cadence === 1) {
   }, []);
 
   // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
-  useEffect(() => {
-    if (!Array.isArray(data)) return;
+useEffect(() => {
+  if (!Array.isArray(data)) return;
 
-    const yearlyInterestLiabilities = [];
+  const yearlyInterestLiabilities = [];
 
-    data.forEach((yearData) => {
-      let totalPrincipalRepayment = 0;
-      let totalInterestLiability = 0;
-      let totalRepayment = 0;
+  data.forEach((yearData) => {
+    let totalPrincipalRepayment = 0;
+    let totalInterestLiability = 0;
+    let totalRepayment = 0;
 
-      yearData.forEach((entry) => {
-        if (entry?.principalRepayment > 0) {
-          totalPrincipalRepayment += entry.principalRepayment;
-          totalInterestLiability += entry.interestLiability;
-          totalRepayment += entry.totalRepayment;
-        }
-      });
+    yearData.forEach((entry) => {
+      // Skip moratorium months (months within the moratorium period)
+      if (entry.absOffset < moratoriumPeriod) return;
 
-      // ✅ If principal repayment is 0 for the year, ignore interest
-      if (totalPrincipalRepayment === 0) {
-        totalInterestLiability = 0;
-        totalRepayment = 0;
-      }
+      // Calculate totalPrincipalRepayment
+      totalPrincipalRepayment += entry.principalRepayment;
 
-      yearlyInterestLiabilities.push(totalInterestLiability);
+      // Apply the logic for totalInterestLiability calculation
+      totalInterestLiability +=
+        entry.principalRepayment > 0 || debtEquityOption === "Equity"
+          ? entry.interestLiability
+          : 0;
+
+      // Calculate totalRepayment (principal + interest)
+      totalRepayment +=
+        entry.principalRepayment +
+        (entry.principalRepayment > 0 || debtEquityOption === "Equity"
+          ? entry.interestLiability
+          : 0);
     });
 
-    setYearlyInterestLiabilities(yearlyInterestLiabilities);
-    // console.log("correctYearlyInterestLiabilities", yearlyInterestLiabilities);
-
-    if (onInterestCalculated) {
-      onInterestCalculated(yearlyInterestLiabilities);
+    // If principal repayment is 0 and debtEquityOption is not "Equity", reset interest liability
+    if (totalPrincipalRepayment === 0 && debtEquityOption !== "Equity") {
+      totalInterestLiability = 0;
+      totalRepayment = 0;
     }
-  }, [JSON.stringify(data)]);
 
-  console.log("yearlyInterestLiabilities :" , yearlyInterestLiabilities)
+    // Push the calculated totalInterestLiability for the year
+    yearlyInterestLiabilities.push(totalInterestLiability);
+  });
+
+  // Set the calculated yearly interest liabilities
+  setYearlyInterestLiabilities(yearlyInterestLiabilities);
+
+  // Call onInterestCalculated if available
+  if (onInterestCalculated) {
+    onInterestCalculated(yearlyInterestLiabilities);
+  }
+}, [JSON.stringify(data), debtEquityOption, moratoriumPeriod]);
+
+
+
+
+   console.log("yearlyInterestLiabilities from Repaymnet:", yearlyInterestLiabilities);
 
   useEffect(() => {
     const marchClosingBalances = data.map((yearData) => {
@@ -399,9 +435,6 @@ if (cadence === 1) {
   let finalRepaymentReached = false;
   let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
   let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
-
-
-  
 
   return (
     <>
@@ -558,7 +591,7 @@ if (cadence === 1) {
                     },
                   ]}
                 >
-                 Years
+                  Years
                 </Text>
                 <Text
                   style={[
@@ -618,7 +651,9 @@ if (cadence === 1) {
                     },
                   ]}
                 >
-                  Interest Liability
+                  {debtEquityOption === "Equity"
+                    ? "Divident Payout @ _ %"
+                    : "Interest Liability"}
                 </Text>
                 <Text
                   style={[
@@ -666,11 +701,18 @@ if (cadence === 1) {
 
               visibleMonths.forEach((e) => {
                 totalPrincipalRepayment += e.principalRepayment;
+
+                // Include interest liability even if principalRepayment is 0 when "Equity" is selected
                 totalInterestLiability +=
-                  e.principalRepayment > 0 ? e.interestLiability : 0;
+                  e.principalRepayment > 0 || debtEquityOption === "Equity"
+                    ? e.interestLiability
+                    : 0;
+
                 totalRepayment +=
                   e.principalRepayment +
-                  (e.principalRepayment > 0 ? e.interestLiability : 0);
+                  (e.principalRepayment > 0 || debtEquityOption === "Equity"
+                    ? e.interestLiability
+                    : 0);
               });
 
               // console.log(
@@ -751,6 +793,15 @@ if (cadence === 1) {
                       return null;
                     }
 
+                    // console.log("Interst Liability : (",monthIndex,")", entry.interestLiability)
+
+                    // console.log(
+                    //   "Interst Liability : (",
+                    //   monthIndex,
+                    //   ")",
+                    //   entry.totalRepayment
+                    // );
+
                     return (
                       <View
                         key={monthIndex}
@@ -781,7 +832,9 @@ if (cadence === 1) {
                             },
                           ]}
                         >
-                           {cadence === 1 ? entry.month : labelForEntry(entry.absOffset)}
+                          {cadence === 1
+                            ? entry.month
+                            : labelForEntry(entry.absOffset)}
                         </Text>
                         <Text
                           style={[
@@ -817,10 +870,17 @@ if (cadence === 1) {
                             { textAlign: "center", width: "15.35%" },
                           ]}
                         >
-                          {formatNumber(
+                          {/* {formatNumber(
                             entry.principalRepayment === 0
                               ? 0
                               : entry.interestLiability
+                          )} */}
+
+                          {formatNumber(
+                            debtEquityOption === "Equity" ||
+                              entry.principalRepayment !== 0
+                              ? entry.interestLiability
+                              : 0
                           )}
                         </Text>
                         <Text

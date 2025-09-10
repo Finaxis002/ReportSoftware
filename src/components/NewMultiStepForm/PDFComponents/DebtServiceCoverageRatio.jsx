@@ -233,6 +233,8 @@ const DebtServiceCoverageRatio = ({
     (val) => val === 0
   );
 
+console.log("yearlyInterestLiabilities :", yearlyInterestLiabilities);
+
   // Check if all Repayment of Term Loan values are zero
   const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every(
     (val) => val === 0
