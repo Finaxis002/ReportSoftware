@@ -509,10 +509,12 @@ useEffect(() => {
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
+                    width:"100%",
                   },
                 ]}
               >
-                Term Loan = {formatNumber(termLoan)}
+                {/* Term Loan = {formatNumber(termLoan)} */}
+                {debtEquityOption === "Equity" ? `Equity Capital Infusion = ${formatNumber(termLoan)}` : `Term Loan = ${formatNumber(termLoan)}` } 
               </Text>
 
               <Text
@@ -524,7 +526,8 @@ useEffect(() => {
                   },
                 ]}
               >
-                Interest Rate = {interestRate * 100}% per annum
+                {/* Interest Rate = {interestRate * 100}% per annum */}
+                {debtEquityOption === "Equity" ? `Return On Equity = ${interestRate * 100}% per annum` : `Interest Rate  = ${interestRate * 100}% per annum` } 
               </Text>
 
               <Text

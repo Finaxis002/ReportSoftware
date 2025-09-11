@@ -21,6 +21,7 @@ const ProjectSynopsis = React.memo(
     pdfType,
     handleContextMenu,
   }) => {
+     const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
     // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
     const getOrdinalYear = (n) => {
       if (n === 1) return "1st";
@@ -1231,7 +1232,8 @@ const ProjectSynopsis = React.memo(
                     { padding: "8px", width: "45%", textAlign: "left" },
                   ]}
                 >
-                  Debt Service Coverage Ratio
+                  {/* Debt Service Coverage Ratio */}
+                  {debtEquityOption === "Equity" ? "Equity Service" : "Debt Service"} Coverage Ratio
                 </Text>
                 <Text
                   style={[

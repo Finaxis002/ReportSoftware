@@ -67,6 +67,28 @@ const ProjectedProfitability = ({
     (expense) => expense.type === "indirect"
   );
 
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
+const interestRateTL = formData?.ProjectReportSetting?.interestOnTL;
+
+  const renderIOTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Dividend Payout @${interestRateTL}%`; // Format for equity case
+    } else {
+      return "Interest On Term Loan"; // Default case
+    }
+  };
+
+  const renderIOWCLabel = () => {
+    if (debtEquityOption === "Equity"){
+      return "Return On Operational Equity";
+    }
+    else{
+      return "Interest On Working Capital"
+    }
+  }
+
+
   const months = [
     "April",
     "May",
@@ -1441,7 +1463,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Term Loan
+                        {renderIOTLLabel()}
+                        {/* Interest On Term Loan */}
                       </Text>
 
                       {/* Get totals aligned to current page */}
@@ -1479,7 +1502,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Working Capital
+                        {/* Interest On Working Capital */}
+                        {renderIOWCLabel()}
                       </Text>
 
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -3023,7 +3047,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Term Loan
+                    {renderIOTLLabel()}
+                    {/* Interest On Term Loan */}
                   </Text>
 
                   {/* Get total projection years */}
@@ -3063,7 +3088,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {/* Interest On Working Capital */}
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` */}

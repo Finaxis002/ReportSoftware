@@ -37,8 +37,6 @@ const ProjectedCashflow = ({
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-
   useEffect(() => {
     if (onClosingCashBalanceCalculated && closingCashBalanceArray2.length > 0) {
       onClosingCashBalanceCalculated(closingCashBalanceArray2);
@@ -60,6 +58,36 @@ const ProjectedCashflow = ({
 
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
+
+    const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
+const interestRate = formData?.ProjectReportSetting?.interestOnTL;
+
+  const renderIOTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Dividend Payout @${interestRate}%`; // Format for equity case
+    } else {
+      return "Interest On Term Loan"; // Default case
+    }
+  };
+
+  const renderIOWCLabel = () => {
+    if (debtEquityOption === "Equity"){
+      return "Return On Operational Equity";
+    }
+    else{
+      return "Interest On Working Capital"
+    }
+  }
+
+  const renderWCLLabel = () => {
+     if (debtEquityOption === "Equity"){
+      return "Equity Of Running Operations";
+    }
+    else{
+      return "Working Capital Loan"
+    }
+  }
 
   const monthMap = {
     April: 1,
@@ -835,7 +863,7 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        {debtEquityOption === "Equity"? "Equity Investment Received" : "Bank Term Loan"}
+                        {debtEquityOption === "Equity"? "Equity Capital Infusion" : "Bank Term Loan"}
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -878,7 +906,10 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Working Capital Loan
+                        {/* Working Capital Loan */}
+                        {/* {renderIOWCLabel()} */}
+                        {renderWCLLabel()}
+
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -1236,7 +1267,8 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Term Loan
+                        {/* Interest On Term Loan */}
+                        {renderIOTLLabel()}
                       </Text>
 
                       {/* Get visible years */}
@@ -1281,7 +1313,8 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Working Capital
+                        {/* Interest On Working Capital */}
+                        {renderIOWCLabel()}
                       </Text>
 
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` with global index */}
@@ -1993,7 +2026,7 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    {debtEquityOption === "Equity"? "Equity Investment Received" : "Bank Term Loan"}
+                    {debtEquityOption === "Equity"? "Equity Capital Infusion" : "Bank Term Loan"}
                   </Text>
                   {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text
@@ -2033,7 +2066,8 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Working Capital Loan
+                    {/* Working Capital Loan */}
+                    {renderWCLLabel()}
                   </Text>
                   {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text
@@ -2351,7 +2385,8 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Term Loan
+                    {/* Interest On Term Loan */}
+                    {renderIOTLLabel()}
                   </Text>
 
                   {/* Get total projection years */}
@@ -2395,7 +2430,8 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {/* Interest On Working Capital */}
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
