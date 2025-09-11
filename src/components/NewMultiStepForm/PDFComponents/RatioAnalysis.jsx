@@ -48,6 +48,8 @@ const RatioAnalysis = ({
   const cumulativeLoanForPreviousYears =
     receivedWorkingCapitalValues?.termLoanValues || [];
 
+     const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
   const computeWorkingCapitalFallbackArray = (arr, desiredLength) => {
     let fallback = [];
     let lastNonZero = 0;
@@ -878,7 +880,7 @@ const RatioAnalysis = ({
                   ></Text>
                 </View>
 
-                {/*6 Total Deb */}
+                {/*6 Total Debt */}
                 <View style={styles.tableRow}>
                   <Text
                     style={[
@@ -897,7 +899,8 @@ const RatioAnalysis = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Total Deb
+                    {/* Total Debt */}
+                    {debtEquityOption === "Equity" ? "Total Equity" : "Total Debt"}
                   </Text>
 
                   {/* ✅ Display Total Debt per visible year */}
@@ -1693,7 +1696,8 @@ const RatioAnalysis = ({
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Debt Service Coverage Ratio
+                      {/* Debt Service Coverage Ratio */}
+                      {debtEquityOption === "Equity" ? "Equity Service Coverage Ratio" : "Debt Service Coverage Ratio"}
                     </Text>
 
                     {labels.map((_, localIdx) => {
@@ -2230,7 +2234,7 @@ const RatioAnalysis = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Total Deb
+                {debtEquityOption === "Equity" ? "Total Equity" : "Total Debt"}
               </Text>
 
               {/* ✅ Display Total Debt from Stored Variable */}
@@ -2992,7 +2996,8 @@ const RatioAnalysis = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Debt Service Coverage Ratio
+                  {/* Debt Service Coverage Ratio */}
+                  {debtEquityOption === "Equity" ? "Equity Service Coverage Ratio" : "Debt Service Coverage Ratio"}
                 </Text>
 
                 {Array.from({ length: projectionYears }).map((_, index) => {

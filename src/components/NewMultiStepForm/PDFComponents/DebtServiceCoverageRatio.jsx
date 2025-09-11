@@ -39,6 +39,28 @@ const DebtServiceCoverageRatio = ({
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
 
+
+    const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
+const interestRate = formData?.ProjectReportSetting?.interestOnTL;
+
+  const renderIOTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Dividend Payout @${interestRate}%`; // Format for equity case
+    } else {
+      return "Interest On Term Loan"; // Default case
+    }
+  };
+
+  const renderIOWCLabel = () => {
+    if (debtEquityOption === "Equity"){
+      return "Return On Operational Equity";
+    }
+    else{
+      return "Interest On Working Capital"
+    }
+  }
+
   // ✅ Months Array for Indexing
   const monthMap = {
     April: 1,
@@ -366,7 +388,8 @@ const DebtServiceCoverageRatio = ({
               ]}
             >
               <Text>
-                Debt-Service Coverage Ratio
+                
+                {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
                 {splitFinancialYearLabels.length > 1
                   ? ` (${toRoman(pageIdx)})`
                   : ""}
@@ -525,7 +548,8 @@ const DebtServiceCoverageRatio = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Term Loan
+                    {/* Interest On Term Loan */}
+                    {renderIOTLLabel()}
                   </Text>
 
                   {/* Get total projection years - per visible column */}
@@ -569,7 +593,8 @@ const DebtServiceCoverageRatio = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {/* Interest On Working Capital */}
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` for each visible global year index */}
@@ -666,7 +691,8 @@ const DebtServiceCoverageRatio = ({
                       { paddingTop: "20px" },
                     ]}
                   >
-                    Interest On Term Loan
+                    {/* Interest On Term Loan */}
+                    {renderIOTLLabel()}
                   </Text>
 
                   {/* Per visible column */}
@@ -711,7 +737,8 @@ const DebtServiceCoverageRatio = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {/* Interest On Working Capital */}
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -1085,7 +1112,9 @@ const DebtServiceCoverageRatio = ({
             },
           ]}
         >
-          <Text>Debt-Service Coverage Ratio</Text>
+          <Text>
+            {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
+          </Text>
         </View>
         {/* Table Header */}
         <View style={styles.tableHeader}>
@@ -1226,7 +1255,8 @@ const DebtServiceCoverageRatio = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Term Loan
+                {/* Interest On Term Loan */}
+                {renderIOTLLabel()}
               </Text>
 
               {/* Get total projection years */}
@@ -1270,7 +1300,8 @@ const DebtServiceCoverageRatio = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Working Capital
+                {/* Interest On Working Capital */}
+                {renderIOWCLabel()}
               </Text>
 
               {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -1367,7 +1398,8 @@ const DebtServiceCoverageRatio = ({
                   { paddingTop: "20px" },
                 ]}
               >
-                Interest On Term Loan
+                {/* Interest On Term Loan */}
+                {renderIOTLLabel()}
               </Text>
 
               {/* Get total projection years */}
@@ -1412,7 +1444,8 @@ const DebtServiceCoverageRatio = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Working Capital
+                {/* Interest On Working Capital */}
+                {renderIOWCLabel()}
               </Text>
 
               {/* ✅ Apply `calculateInterestOnWorkingCapital` */}

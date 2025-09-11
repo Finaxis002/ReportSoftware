@@ -64,6 +64,36 @@ const ProjectedBalanceSheet = ({
 
   const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
 
+  
+const interestRate = formData?.ProjectReportSetting?.interestOnTL;
+
+  const renderIOTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Dividend Payout @${interestRate}%`; // Format for equity case
+    } else {
+      return "Interest On Term Loan"; // Default case
+    }
+  };
+
+  const renderIOWCLabel = () => {
+    if (debtEquityOption === "Equity"){
+      return "Return On Operational Equity";
+    }
+    else{
+      return "Interest On Working Capital"
+    }
+  }
+
+    const renderWCLLabel = () => {
+     if (debtEquityOption === "Equity"){
+      return "Equity Of Running Operations";
+    }
+    else{
+      return "Working Capital Loan"
+    }
+  }
+
+
   // If it's undefined, default to an empty array.
   const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
 
@@ -764,7 +794,7 @@ const ProjectedBalanceSheet = ({
                         styleExpenses.bordernone,
                       ]}
                     >
-                      {debtEquityOption === "Equity" ? "Equity Investment Received" : "Bank Loan - Term Loan"}
+                      {debtEquityOption === "Equity" ? "Equity Capital Infusion" : "Bank Loan - Term Loan"}
                       
                     </Text>
                     {labels.map((_, localIdx) => {
@@ -858,7 +888,9 @@ const ProjectedBalanceSheet = ({
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Bank Loan - Working Capital Loan
+                      {/* Bank Loan - Working Capital Loan */}
+                      {renderWCLLabel()}
+                      
                     </Text>
                     {/* Display the cumulative working capital loan for each visible year */}
                     {labels.map((_, localIdx) => {
@@ -1762,7 +1794,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                   {debtEquityOption === "Equity" ? "Equity Investment Received" : "Bank Loan - Term Loan"}
+                   {debtEquityOption === "Equity" ? "Equity Capital Infusion" : "Bank Loan - Term Loan"}
                 </Text>
                 {Array.from({ length: projectionYears }).map((_, index) => {
                   const marchBalance =
@@ -1857,7 +1889,8 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Bank Loan - Working Capital Loan
+                  {/* Bank Loan - Working Capital Loan  */}
+                  {renderWCLLabel()}
                 </Text>
                 {/* Display the cumulative working capital loan for each year */}
                 {cumulativeLoanForPreviousYears.map((loan, index) => (
