@@ -4,28 +4,12 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
-const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
+const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , renderWCLFBLabel , renderTotalBankLoanLabel}) => {
   // console.log("form data", formData);
 
   const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
 
-  const renderTLFBLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Equity Capital Infusion`; // Format for equity case
-    } else {
-      return "Term Loan From Bank"; // Default case
-    }
-  };
 
-  const renderWCLFBLabel = () => {
-    if (debtEquityOption === "Equity"){
-      return "Equity Of Running Operations";
-    }
-    else{
-      return "Loan From Bank"
-    }
-
-  }
   return (
     <Page style={[styles.page]}>
       {/* watermark  */}
@@ -385,7 +369,10 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
 
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell, { width: 50 }]}></Text>
-            <Text style={stylesMOF.cell}>Total Bank Loan</Text>
+            <Text style={stylesMOF.cell}>
+              {/* Total Bank Loan */}
+              {renderTotalBankLoanLabel()}
+              </Text>
             <Text
               style={[stylesMOF.cell, { textAlign: "center", width: "20%" }]}
             >

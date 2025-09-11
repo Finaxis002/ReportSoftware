@@ -49,6 +49,9 @@ const ProjectedProfitability = ({
   onComputedDataToProfit,
   pdfType,
   orientation,
+  renderIOTLLabel,
+  renderIOWCLabel,
+   renderWithdrawalLabel
 }) => {
   // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
@@ -67,26 +70,6 @@ const ProjectedProfitability = ({
     (expense) => expense.type === "indirect"
   );
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-
-const interestRateTL = formData?.ProjectReportSetting?.interestOnTL;
-
-  const renderIOTLLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Dividend Payout @${interestRateTL}%`; // Format for equity case
-    } else {
-      return "Interest On Term Loan"; // Default case
-    }
-  };
-
-  const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity"){
-      return "Return On Operational Equity";
-    }
-    else{
-      return "Interest On Working Capital"
-    }
-  }
 
 
   const months = [
@@ -1987,7 +1970,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Withdrawals during the year
+                      {/* Withdrawals during the year */}
+                      { renderWithdrawalLabel()} during the year
                     </Text>
 
                     {labels.map((_, localIdx) => {
@@ -3569,7 +3553,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Withdrawals during the year
+                  {/* Withdrawals during the year */}
+                  { renderWithdrawalLabel()} during the year
                 </Text>
 
                 {Array.from({

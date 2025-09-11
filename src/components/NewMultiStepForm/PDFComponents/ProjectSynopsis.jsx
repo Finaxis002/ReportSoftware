@@ -20,6 +20,7 @@ const ProjectSynopsis = React.memo(
     receivedAssetsLiabilities = [],
     pdfType,
     handleContextMenu,
+    renderTotalBankLoanLabel
   }) => {
      const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
     // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
@@ -1132,7 +1133,8 @@ const ProjectSynopsis = React.memo(
                     },
                   ]}
                 >
-                  Total Bank Loan
+                  {/* Total Bank Loan */}
+                  {renderTotalBankLoanLabel()}
                 </Text>
                 <Text
                   style={[

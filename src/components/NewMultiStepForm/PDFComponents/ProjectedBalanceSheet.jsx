@@ -39,6 +39,8 @@ const ProjectedBalanceSheet = ({
   formatNumber,
   orientation,
   receivedtotalRevenueReceipts,
+  renderBankLoanTermLoanLabel,
+  renderWCLLabel
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
@@ -62,36 +64,6 @@ const ProjectedBalanceSheet = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-
-  
-const interestRate = formData?.ProjectReportSetting?.interestOnTL;
-
-  const renderIOTLLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Dividend Payout @${interestRate}%`; // Format for equity case
-    } else {
-      return "Interest On Term Loan"; // Default case
-    }
-  };
-
-  const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity"){
-      return "Return On Operational Equity";
-    }
-    else{
-      return "Interest On Working Capital"
-    }
-  }
-
-    const renderWCLLabel = () => {
-     if (debtEquityOption === "Equity"){
-      return "Equity Of Running Operations";
-    }
-    else{
-      return "Working Capital Loan"
-    }
-  }
 
 
   // If it's undefined, default to an empty array.
@@ -794,7 +766,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
                         styleExpenses.bordernone,
                       ]}
                     >
-                      {debtEquityOption === "Equity" ? "Equity Capital Infusion" : "Bank Loan - Term Loan"}
+                      {renderBankLoanTermLoanLabel()}
                       
                     </Text>
                     {labels.map((_, localIdx) => {
@@ -1794,7 +1766,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
                     styleExpenses.bordernone,
                   ]}
                 >
-                   {debtEquityOption === "Equity" ? "Equity Capital Infusion" : "Bank Loan - Term Loan"}
+                   {renderBankLoanTermLoanLabel()}
                 </Text>
                 {Array.from({ length: projectionYears }).map((_, index) => {
                   const marchBalance =

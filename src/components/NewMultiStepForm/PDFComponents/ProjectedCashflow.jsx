@@ -32,7 +32,11 @@ const ProjectedCashflow = ({
   pdfType,
   orientation,
   receivedtotalRevenueReceipts,
-  surplusDuringYear,
+ renderIOTLLabel,
+ renderIOWCLabel,
+ renderWCLLabel,
+ renderBankTLLabel,
+ renderWithdrawalLabel
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
@@ -59,35 +63,8 @@ const ProjectedCashflow = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-    const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
 
-const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
-  const renderIOTLLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Dividend Payout @${interestRate}%`; // Format for equity case
-    } else {
-      return "Interest On Term Loan"; // Default case
-    }
-  };
-
-  const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity"){
-      return "Return On Operational Equity";
-    }
-    else{
-      return "Interest On Working Capital"
-    }
-  }
-
-  const renderWCLLabel = () => {
-     if (debtEquityOption === "Equity"){
-      return "Equity Of Running Operations";
-    }
-    else{
-      return "Working Capital Loan"
-    }
-  }
 
   const monthMap = {
     April: 1,
@@ -863,7 +840,7 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        {debtEquityOption === "Equity"? "Equity Capital Infusion" : "Bank Term Loan"}
+                        {renderBankTLLabel()}
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -1363,7 +1340,8 @@ if (isAdvancedLandscape) {
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Withdrawals
+                        {/* Withdrawals */}
+                        {renderWithdrawalLabel()}
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -2026,7 +2004,7 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    {debtEquityOption === "Equity"? "Equity Capital Infusion" : "Bank Term Loan"}
+                    {renderBankTLLabel()}
                   </Text>
                   {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text
@@ -2479,7 +2457,8 @@ if (isAdvancedLandscape) {
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Withdrawals
+                    {/* Withdrawals */}
+                    {renderWithdrawalLabel()}
                   </Text>
                   {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text

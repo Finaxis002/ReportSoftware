@@ -49,6 +49,8 @@ const BreakEvenPoint = ({
   receivedtotalRevenueReceipts,
   pdfType,
   orientation,
+  renderIOTLLabel,
+  renderIOWCLabel,
 }) => {
   // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
   const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
@@ -100,23 +102,7 @@ const BreakEvenPoint = ({
     formData?.ProjectReportSetting?.DebtEquityOption ||
     formData?.ProjectReportSetting?.debtEquityOption;
 
-  const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
-  const renderIOTLLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Dividend Payout @${interestRate}%`; // Format for equity case
-    } else {
-      return "Interest On Term Loan"; // Default case
-    }
-  };
-
-  const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return "Return On Operational Equity";
-    } else {
-      return "Interest On Working Capital";
-    }
-  };
 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {

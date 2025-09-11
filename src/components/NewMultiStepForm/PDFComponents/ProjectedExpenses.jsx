@@ -31,6 +31,8 @@ const ProjectedExpenses = ({
   onTotalExpenseSend,
   pdfType,
   orientation,
+  renderIOTLLabel,
+  renderIOWCLabel
 }) => {
   const activeRowIndex = 0;
   // console.log("formdata in projected expense", formData);
@@ -53,26 +55,7 @@ const ProjectedExpenses = ({
     const val = row?.values?.[yearLabel];
     return num(val);
   };
-const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
 
-const interestRate = formData?.ProjectReportSetting?.interestOnTL;
-
-  const renderIOTLLabel = () => {
-    if (debtEquityOption === "Equity") {
-      return `Dividend Payout @${interestRate}%`; // Format for equity case
-    } else {
-      return "Interest On Term Loan"; // Default case
-    }
-  };
-
-  const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity"){
-      return "Return On Operational Equity";
-    }
-    else{
-      return "Interest On Working Capital"
-    }
-  }
 
   // Month Mapping
   const monthMap = {
