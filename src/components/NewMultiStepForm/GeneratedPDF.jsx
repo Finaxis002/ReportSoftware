@@ -645,6 +645,92 @@ const GeneratedPDF = () => {
     }
   };
 
+  const debtEquityOption =
+    formData?.ProjectReportSetting?.DebtEquityOption ||
+    formData?.ProjectReportSetting?.debtEquityOption;
+
+  const interestRate = formData?.ProjectReportSetting?.interestOnTL;
+
+  const renderIOTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Dividend Payout @${interestRate}%`; // Format for equity case
+    } else {
+      return "Interest On Term Loan"; // Default case
+    }
+  };
+
+  const renderIOWCLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return "Return On Operational Equity";
+    } else {
+      return "Interest On Working Capital";
+    }
+  };
+
+  const renderTLFBLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Equity Capital Infusion`; // Format for equity case
+    } else {
+      return "Term Loan From Bank"; // Default case
+    }
+  };
+
+  const renderWCLFBLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return "Equity Of Running Operations";
+    } else {
+      return "Loan From Bank";
+    }
+  };
+
+  const renderBankTLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Equity Capital Infusion`; // Format for equity case
+    } else {
+      return "Bank Term Loan"; // Default case
+    }
+  };
+
+  const renderBankLoanTermLoanLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Equity Capital Infusion`; // Format for equity case
+    } else {
+      return "Bank Loan - Term Loan"; // Default case
+    }
+  };
+
+  const renderWCLLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return "Equity Of Running Operations";
+    } else {
+      return "Working Capital Loan";
+    }
+  };
+
+  const renderTotalBankLoanLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return "Total Equity Capital Infusion";
+    } else {
+      return "Total Bank Loan";
+    }
+  };
+
+  const renderRepaymentSheetheading = () => {
+    if (debtEquityOption === "Equity") {
+      return "Dividend Payout On Equity";
+    } else {
+      return "Repayment of Term Loan";
+    }
+  }
+
+  const renderWithdrawalLabel =() => {
+    if (debtEquityOption === "Equity") {
+      return "Return On Equity";
+    } else {
+      return "Withdrawals";
+    }
+  }
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document
@@ -673,6 +759,7 @@ const GeneratedPDF = () => {
           receivedAssetsLiabilities={assetsliabilities}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          renderTotalBankLoanLabel={renderTotalBankLoanLabel}
           onRender={() => {
             console.log("✅ProjectSynopsis rendered");
             setIsPDFLoading(false);
@@ -702,6 +789,9 @@ const GeneratedPDF = () => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          renderTLFBLabel={renderTLFBLabel}
+          renderWCLFBLabel={renderWCLFBLabel}
+          renderTotalBankLoanLabel={renderTotalBankLoanLabel}
         />
         {/* cost of project table */}
         <CostOfProject
@@ -753,6 +843,8 @@ const GeneratedPDF = () => {
           formatNumber={formatNumber}
           pageNumber={pageNumber}
           orientation={orientation}
+          renderIOTLLabel={renderIOTLLabel}
+          renderIOWCLabel={renderIOWCLabel}
         />
         {/* Projected Revenue/ Sales */}
         <ProjectedRevenue
@@ -787,6 +879,9 @@ const GeneratedPDF = () => {
           pdfType={pdfType}
           pageNumber={pageNumber}
           orientation={orientation}
+          renderIOTLLabel={renderIOTLLabel}
+          renderIOWCLabel={renderIOWCLabel}
+          renderWithdrawalLabel={renderWithdrawalLabel}
         />
         <Repayment
           formData={formData}
@@ -798,6 +893,7 @@ const GeneratedPDF = () => {
           formatNumber={formatNumber}
           pdfType={pdfType}
           pageNumber={pageNumber}
+          renderRepaymentSheetheading={renderRepaymentSheetheading}
         />
         {computedData.netProfitBeforeTax.length > 0 && (
           <IncomeTaxCalculation
@@ -832,6 +928,11 @@ const GeneratedPDF = () => {
           orientation={orientation}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           surplusDuringYear={surplusDuringYear}
+          renderIOTLLabel={renderIOTLLabel}
+          renderIOWCLabel={renderIOWCLabel}
+          renderWCLLabel={renderWCLFBLabel}
+          renderBankTLLabel={renderBankTLLabel}
+          renderWithdrawalLabel={renderWithdrawalLabel}
         />
         <ProjectedBalanceSheet
           formData={formData}
@@ -857,6 +958,8 @@ const GeneratedPDF = () => {
           pageNumber={pageNumber}
           orientation={orientation}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
+          renderBankLoanTermLoanLabel={renderBankLoanTermLoanLabel}
+          renderWCLLabel={renderWCLLabel}
         />
         <CurrentRatio
           formData={formData}
@@ -924,6 +1027,8 @@ const GeneratedPDF = () => {
           pdfType={pdfType}
           pageNumber={pageNumber}
           orientation={orientation}
+          renderIOTLLabel={renderIOTLLabel}
+          renderIOWCLabel={renderIOWCLabel}
         />
         <Assumptions
           formData={formData}
@@ -935,6 +1040,8 @@ const GeneratedPDF = () => {
           receivedtotalRevenueReceipts={totalRevenueReceipts}
           pageNumber={pageNumber}
           orientation={orientation}
+          renderTLFBLabel={renderTLFBLabel}
+          renderWCLFBLabel={renderWCLFBLabel}
         />
       </Document>
     );

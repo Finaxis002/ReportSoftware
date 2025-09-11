@@ -24,6 +24,7 @@ const Repayment = ({
   onPrincipalRepaymentCalculated,
   onMarchClosingBalanceCalculated, // New callback prop for March balances
   onInterestLiabilityUpdate,
+  renderRepaymentSheetheading
 }) => {
   // console.log("formData :", formData);
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
@@ -498,7 +499,10 @@ useEffect(() => {
                 },
               ]}
             >
-              <Text>Repayment of Term Loan</Text>
+              <Text>
+                {/* Repayment of Term Loan */}
+                {renderRepaymentSheetheading()}
+              </Text>
             </View>
 
             {/* Term Loan Details Section */}
