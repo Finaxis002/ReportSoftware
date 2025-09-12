@@ -158,4 +158,7 @@ fund flow state sales
 profitability revenue decreased by 10 % - total revenue receipt and new receipt 
 profitability revenue increased by 10 % - total revenue receipt 
 operating statement - gross sales , net sales and gross profit 
-changes in finposExtrator , ppextractor 
+changes in finposExtrator , ppextractor , cmaExtractor(operating profit)
+
+in cma data , in profitability and balance sheet something is missed to add in reserves and surplus , cash and cash equilavent
+

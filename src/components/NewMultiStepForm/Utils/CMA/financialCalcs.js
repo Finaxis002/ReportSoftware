@@ -49,30 +49,106 @@ export function calculateDirectExpense(base, yearIndex, monthsPerYear) {
 }
 
 // Raw material % logic exactly like your code
+// export function calculateRawMaterialExpense(
+//   expense,
+//   totalRevenueReceipts,
+//   yearIndex,
+//   formData
+// ) {
+//   const isRawMaterial =
+//     expense.name.trim() === "Raw Material Expenses / Purchases";
+//   const isPercentage = String(expense.value).trim().endsWith("%");
+//   const ClosingStock = Number(
+//     formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
+//   );
+//   const OpeningStock = Number(
+//     formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
+//   );
+
+//   if (isRawMaterial && isPercentage) {
+//     const baseValue =
+//       (parseFloat(expense.value) / 100) *
+//       (totalRevenueReceipts?.[yearIndex] || 0);
+//     return baseValue + ClosingStock - OpeningStock;
+//   }
+//   return Number(expense.total) || 0;
+// }
+
+
+// financialCalcs.js
+
 export function calculateRawMaterialExpense(
   expense,
-  totalRevenueReceipts,
+  totalRevenueReceipts, // array
   yearIndex,
   formData
 ) {
-  const isRawMaterial =
-    expense.name.trim() === "Raw Material Expenses / Purchases";
-  const isPercentage = String(expense.value).trim().endsWith("%");
-  const ClosingStock = Number(
-    formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
-  );
-  const OpeningStock = Number(
-    formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
-  );
+  // helpers
+  const num = (v) => {
+    if (v == null) return 0;
+    if (typeof v === "number") return v;
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (s.endsWith("%")) {
+        const n = parseFloat(s.replace("%", "").replace(/,/g, "").trim());
+        return isNaN(n) ? 0 : n / 100; // percentage -> fraction
+      }
+      const n = parseFloat(s.replace(/,/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+    return Number(v) || 0;
+  };
+  const pctToFloat = (v) => {
+    const n = num(v);
+    return n > 1 ? n / 100 : n; // if 60 -> 0.60; if "60%" -> 0.60
+  };
 
-  if (isRawMaterial && isPercentage) {
-    const baseValue =
-      (parseFloat(expense.value) / 100) *
-      (totalRevenueReceipts?.[yearIndex] || 0);
-    return baseValue + ClosingStock - OpeningStock;
+  const isRawMaterial =
+    expense?.name?.trim() === "Raw Material Expenses / Purchases";
+  const isPercentage =
+    typeof expense?.value === "string" &&
+    expense.value.trim().endsWith("%");
+
+  if (!isRawMaterial) {
+    // Not RM → behave like old fallback
+    return num(expense?.total);
   }
-  return Number(expense.total) || 0;
+
+  // ---------- % path (NO stock here in CMA flow) ----------
+  if (isPercentage) {
+    const perc = pctToFloat(expense.value);
+    const receipts = num(totalRevenueReceipts?.[yearIndex]);
+    return receipts * perc;
+  }
+
+  // ---------- non-% path → annual base then moratorium/escalation ----------
+  // Prefer explicit annual fields; if only monthly given, annualize; fallback to total/value
+  const annualBase =
+    num(expense?.annual) ||
+    num(expense?.perYear) ||
+    (expense?.total ? 0 : num(expense?.monthly) * 12) ||
+    (expense?.total ? 0 : num(expense?.perMonth) * 12) ||
+    num(expense?.total) ||
+    num(expense?.value);
+
+  // Apply moratorium + YoY increase using your existing helper
+  return calculateExpense(formData, annualBase, yearIndex);
 }
+
+// Convenience: build RM array for all years
+export function getRawMaterialPerYear(formData, rmExpenseRow, receiptsArr) {
+  const years = parseInt(formData?.ProjectReportSetting?.ProjectionYears || 5);
+  return Array.from({ length: years }).map((_, yearIndex) =>
+    calculateRawMaterialExpense(
+      rmExpenseRow,
+      receiptsArr, // totalRevenueReceipts array
+      yearIndex,
+      formData
+    )
+  );
+}
+
+
 
 // 1. Utility to get number of operating months in each projection year, accounting for moratorium
 export const getMonthsPerYear = (

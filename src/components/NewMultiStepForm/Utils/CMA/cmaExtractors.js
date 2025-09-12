@@ -10,6 +10,7 @@ import {
   calculateCostOfSalesData,
   calculateInterestOnWorkingCapital,
   totalRevenueReceipts,
+   getRawMaterialPerYear
 } from "./financialCalcs";
 
 import { calculateTermLoanRepayment } from "./TermloanCalculations";
@@ -118,21 +119,38 @@ export const makeCMAExtractors = (formData) => {
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
 
-  // 3. Raw Material row
-  const rawMatRow = directExpense.find(
-    (row) => row.name.trim() === "Raw Material Expenses / Purchases"
-  );
+  // // 3. Raw Material row
+  // const rawMatRow = directExpense.find(
+  //   (row) => row.name.trim() === "Raw Material Expenses / Purchases"
+  // );
 
-  const rawMaterial = rawMatRow
-    ? Array.from({ length: years }).map((_, yearIdx) =>
-        calculateRawMaterialExpense(
-          rawMatRow,
-          receivedtotalRevenueReceipts,
-          yearIdx,
-          formData
-        )
-      )
-    : Array(years).fill(0);
+  // const rawMaterial = rawMatRow
+  //   ? Array.from({ length: years }).map((_, yearIdx) =>
+  //       calculateRawMaterialExpense(
+  //         rawMatRow,
+  //         receivedtotalRevenueReceipts,
+  //         yearIdx,
+  //         formData
+  //       )
+  //     )
+  //   : Array(years).fill(0);
+
+  // Build receipts array consistently (use helper)
+const receiptsArr = totalRevenueReceipts(
+  formData,
+  formData?.Revenue?.formType || "Others"
+);
+
+// 3. Raw Material row
+const rawMatRow = directExpense.find(
+  (row) => row?.name?.trim() === "Raw Material Expenses / Purchases"
+);
+
+// Use the consolidated helper to build RM per year
+const rawMaterial = rawMatRow
+  ? getRawMaterialPerYear(formData, rawMatRow, receiptsArr)
+  : Array(years).fill(0);
+
 
   // 4. Advance direct expenses (uses values array per year)
   const advanceDirectRows = advanceExpenses
