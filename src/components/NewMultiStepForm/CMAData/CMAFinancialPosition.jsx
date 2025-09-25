@@ -35,6 +35,34 @@ const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
 const CMAFinancialPosition = ({ formData, orientation }) => {
+
+  const pageStyles = {
+    page: {
+      padding: 40,
+      paddingTop: 50, // Extra top margin for print safety
+      paddingBottom: 80, // Extra bottom margin for print safety
+      paddingLeft: 40,
+      paddingRight: 40,
+      fontFamily: "Helvetica",
+      position: "relative",
+    },
+    contentWrapper: {
+      flex: 1,
+      marginBottom: 30, // Space before footer
+    },
+    // Safe area to avoid content being cut off
+    safeArea: {
+      marginTop: 20, // Top margin for content
+      marginBottom: 40, // Bottom margin for content
+    },
+    footer: {
+      position: "absolute",
+      bottom: 30,
+      left: 40,
+      right: 40,
+      height: 50, // Fixed footer height
+    },
+  };
   // You can import these:
   const FinPosextractors = CMAExtractorFinPos(formData);
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
@@ -201,7 +229,8 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page size="A4" style={styles.page} orientation="landscape">
+      <Page size="A4" style={pageStyles.page} orientation="landscape">
+          <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
           <Header formData={formData} />
@@ -1326,13 +1355,15 @@ if (isAdvancedLandscape) {
             </View>
           </View>
         </View>
+        </View>
       </Page>
     );
   });
 }
 
   return (
-    <Page size="A4" style={styles.page} orientation={orientation}>
+    <Page size="A4" style={pageStyles.page} orientation={orientation}>
+        <View style={pageStyles.safeArea}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
         <Header formData={formData} />
@@ -2487,6 +2518,7 @@ if (isAdvancedLandscape) {
             </Text>
           </View>
         </View>
+      </View>
       </View>
     </Page>
   );

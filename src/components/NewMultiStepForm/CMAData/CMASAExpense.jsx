@@ -49,6 +49,34 @@ const CMASAExpense = ({
   pdfType,
   orientation,
 }) => {
+
+  const pageStyles = {
+    page: {
+      padding: 40,
+      paddingTop: 50, // Extra top margin for print safety
+      paddingBottom: 80, // Extra bottom margin for print safety
+      paddingLeft: 40,
+      paddingRight: 40,
+      fontFamily: "Helvetica",
+      position: "relative",
+    },
+    contentWrapper: {
+      flex: 1,
+      marginBottom: 30, // Space before footer
+    },
+    // Safe area to avoid content being cut off
+    safeArea: {
+      marginTop: 20, // Top margin for content
+      marginBottom: 40, // Bottom margin for content
+    },
+    footer: {
+      position: "absolute",
+      bottom: 30,
+      left: 40,
+      right: 40,
+      height: 50, // Fixed footer height
+    },
+  };
   const PPExtractor = CMAExtractorProfitability(formData);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
@@ -56,11 +84,7 @@ const CMASAExpense = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
+  
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
@@ -333,7 +357,7 @@ const CMASAExpense = ({
       <Page
         size="A4"
         orientation="landscape"
-        style={styles.page}
+        style={pageStyles.page}
       >
         {/* watermark  */}
         {pdfType &&
@@ -359,6 +383,7 @@ const CMASAExpense = ({
             </View>
           )}
 
+  <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* businees name and financial year  */}
           <View>
@@ -781,6 +806,7 @@ const CMASAExpense = ({
             </View>
           </View>
         </View>
+        </View>
       </Page>
     );
   });
@@ -791,7 +817,7 @@ const CMASAExpense = ({
     <Page
       size="A4"
       orientation={orientation}
-      style={styles.page}
+      style={pageStyles.page}
     >
       {/* watermark  */}
       {pdfType &&
@@ -820,6 +846,7 @@ const CMASAExpense = ({
           </View>
         )}
 
+  <View style={pageStyles.safeArea}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* businees name and financial year  */}
         <View>
@@ -1257,6 +1284,7 @@ const CMASAExpense = ({
             </Text>
           </View>
         </View>
+      </View>
       </View>
     </Page>
   );
