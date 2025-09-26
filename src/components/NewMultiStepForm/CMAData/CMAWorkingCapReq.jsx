@@ -25,12 +25,14 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
-
+import { getCurrentAssetsArray } from '../Utils/CMA/CmaReport/calculateCurrentAssets';
 // Font registration (optional)
 Font.register({
   family: "Roboto",
   src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf",
 });
+
+
 
 // Main component
 const CMAWorkingCapReq = ({ formData, orientation }) => {
@@ -90,6 +92,11 @@ const pageStyles = {
   // new data Assessment of Working Capital Requirements
   const WorkingReqExtractor = CMAExtractorWorkingCap(formData);
   const currentAssets = WorkingReqExtractor.currentAssets() || [];
+  //  const correctCurrentAssets = getCurrentAssetsArray(formData);
+  
+  // // Use the correct current assets instead of the potentially wrong ones
+  // const currentAssets = correctCurrentAssets || WorkingReqExtractor.currentAssets() || [];
+  console.log("current asset in working cap",currentAssets )
   const otherCurrLiabilities = WorkingReqExtractor.otherCurrLiabilities() || [];
   const workingCapGap = WorkingReqExtractor.workingCapGap() || [];
   const workingCapitalLoanArr =

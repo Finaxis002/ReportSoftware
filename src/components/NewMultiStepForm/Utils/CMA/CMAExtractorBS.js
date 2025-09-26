@@ -72,8 +72,17 @@ export const CMAExtractorBS = (formData) => {
     }
   });
 
+   const otherTermLiabilitiesQEObj = formData?.MoreDetails?.currentLiabilities?.find(
+    (liab) => liab.particular === "Quasi Equity"
+  );
+  
+  const otherTermLiabilities = otherTermLiabilitiesQEObj 
+    ? otherTermLiabilitiesQEObj.years.map(Number) 
+    : Array(years).fill(0);
+
   const totalTermLiabilities = Array.from({ length: years }).map((_, idx) =>
-    Number(bankTermLoanArr[idx] || 0)
+    Number(bankTermLoanArr[idx] || 0) +
+    Number(otherTermLiabilities[idx] || 0)
   );
 
   const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
@@ -192,13 +201,7 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
       Number(investments[i] || 0)
   );
 
-   const otherTermLiabilitiesQEObj = formData?.MoreDetails?.currentLiabilities?.find(
-    (liab) => liab.particular === "Quasi Equity"
-  );
   
-  const otherTermLiabilities = otherTermLiabilitiesQEObj 
-    ? otherTermLiabilitiesQEObj.years.map(Number) 
-    : Array(years).fill(0);
 
   const exportsIncludingBpBdObj = formData?.MoreDetails?.currentAssets?.find(
     (ast) => ast.particular === "Trade Receivables / Sundry Debtors"
