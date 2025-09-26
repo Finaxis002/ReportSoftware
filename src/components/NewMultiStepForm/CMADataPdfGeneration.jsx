@@ -3,10 +3,14 @@ import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { PDFDownloadLink, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import CMAMultiPagePDF from "./CMAData/CMAMultiPagePDF";
+import axios from "axios";
 
 const CMADataPdfGeneration = () => {
-  const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
+  const formDataFromLocalStorage =
+    JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
+  const [formData, setFormData] = useState(formDataFromLocalStorage);
   const source = localStorage.getItem("cmaSource") || "final-step";
+  console.log("formDataFromLocalStorage :", formDataFromLocalStorage);
 
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
@@ -14,8 +18,71 @@ const CMADataPdfGeneration = () => {
     return years > 6 ? "landscape" : "portrait";
   });
 
+  const businessName =
+    formDataFromLocalStorage?.AccountInformation?.businessName;
+  const businessOwner =
+    formDataFromLocalStorage?.AccountInformation?.businessOwner;
+
+  console.log("Business NAme :", businessName);
+  console.log("Client Name :", businessOwner);
+
   const pdfContainerRef = useRef(null);
   const containerRef = useRef(null);
+
+  // Fetch formData from backend API on component mount
+  useEffect(() => {
+    const fetchFormData = async () => {
+      // Ensure that both businessName and businessOwner are available
+      const businessName =
+        formDataFromLocalStorage?.AccountInformation?.businessName;
+      const businessOwner =
+        formDataFromLocalStorage?.AccountInformation?.businessOwner;
+
+      if (!businessName || !businessOwner) {
+        // If either value is missing, stop fetching data and show an error
+        Swal.fire({
+          icon: "error",
+          title: "Missing Information",
+          text: "Business Name or Client Name is missing.",
+          confirmButtonColor: "#6366f1",
+        });
+        return;
+      }
+
+      try {
+        // Make the API call to fetch form data
+        const response = await axios.get(
+          `https://reportsbe.sharda.co.in/fetch-business-data?businessName=${encodeURIComponent(
+            businessName
+          )}&businessOwner=${encodeURIComponent(businessOwner)}`
+        );
+
+        // Check if the API returns data
+        if (response.status === 200 && response.data?.data?.length > 0) {
+          setFormData(response.data.data[0]); // Set fetched data to formData state
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "No Data Found",
+            text: "No matching data was found.",
+            confirmButtonColor: "#6366f1",
+          });
+        }
+      } catch (error) {
+        // Show error if API call fails
+        Swal.fire({
+          icon: "error",
+          title: "Error Fetching Data",
+          text: "Unable to fetch form data from the server.",
+          confirmButtonColor: "#6366f1",
+        });
+      }
+    };
+
+    if (!formData) {
+      fetchFormData();
+    }
+  }, [formData]);
 
   // Hide any toolbar buttons (if toolbar is visible)
   useEffect(() => {
@@ -129,6 +196,26 @@ const CMADataPdfGeneration = () => {
     setIsLoading(loading);
   };
 
+   const pdfViewerRef = useRef(null);
+  
+   useEffect(() => {
+      // Poll for the iframe created by @react-pdf/renderer to disable right-click
+      const pollIframe = setInterval(() => {
+        const iframe = pdfViewerRef.current?.querySelector("iframe");
+        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+          // Disable right-click by adding contextmenu event listener to iframe document
+          iframe.contentWindow.document.addEventListener("contextmenu", (e) => {
+            e.preventDefault(); // Prevent the default context menu
+            alert("Right-click is disabled on this PDF."); // Optional alert
+          });
+          clearInterval(pollIframe);
+        }
+      }, 300); // Poll every 300ms
+  
+      // Cleanup
+      return () => clearInterval(pollIframe);
+    }, []);
+
   return (
     <>
       {/* <div style={{ height: "100vh", width: "100%" }}>
@@ -238,7 +325,7 @@ const CMADataPdfGeneration = () => {
         style={{ height: "100vh", width: "100%", background: "#F3F4F6" }}
         ref={containerRef}
       >
-        <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
+        {/* <div className="w-full bg-gradient-to-r from-blue-900 to-blue-950 p-2 shadow-md flex justify-between items-center">
           <div className="text-white font-normal text-sm px-4 tracking-wide">
             📄 CMA PDF Report Viewer
           </div>
@@ -313,6 +400,98 @@ const CMADataPdfGeneration = () => {
               </button>
             )}
           </BlobProvider>
+        </div> */}
+
+        <div className="w-full bg-[#161616] p-3 py-1 shadow-lg flex flex-wrap justify-between items-center gap-3">
+          <div className="text-white font-medium text-sm px-3 py-2 tracking-wide flex items-center bg-white/10 backdrop-blur-sm rounded-lg shadow-md">
+            <i className="fas fa-file-pdf mr-2 text-red-400"></i>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-blue-300">
+              CMA PDF Report Viewer
+            </span>
+          </div>
+
+          <div className="flex gap-1 bg-white/10 backdrop-blur-sm rounded-lg p-1 shadow-md">
+            <button
+              onClick={() => {
+                setIsLoading(true);
+                setOrientation("portrait");
+              }}
+              className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${
+                orientation === "portrait"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-indigo-600"
+              }`}
+            >
+              <i className="fas fa-portrait text-sm"></i>
+              <span>Portrait</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsLoading(true);
+                setOrientation("landscape");
+              }}
+              className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${
+                orientation === "landscape"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-indigo-600"
+              }`}
+            >
+              <i className="fas fa-landscape text-sm"></i>
+              <span>Landscape</span>
+            </button>
+            <button
+              onClick={() => setOrientation("advanced-landscape")}
+              className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button advanced-landscape-btn ${
+                orientation === "advanced-landscape"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-indigo-600"
+              }`}
+            >
+              <i className="fas fa-expand-alt text-sm"></i>
+              <span>Advanced-Landscape</span>
+            </button>
+          </div>
+
+          <div className="flex gap-2">
+            <BlobProvider
+              document={
+                <CMAMultiPagePDF
+                  formData={formData}
+                  orientation={orientation}
+                />
+              }
+            >
+              {({ blob, url, loading }) => (
+                <>
+                  <button
+                    onClick={() => {
+                      if (!blob) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "PDF is not ready yet!",
+                          timer: 1300,
+                          showConfirmButton: false,
+                        });
+                        return;
+                      }
+                      const businessName =
+                        formData?.AccountInformation?.businessName || "Report";
+                      const businessOwner =
+                        formData?.AccountInformation?.businessOwner || "Owner";
+                      const safeName = `${businessName} (${businessOwner})`
+                        .replace(/[/\\?%*:|"<>]/g, "-")
+                        .trim();
+                      saveAs(blob, `${safeName}.pdf`);
+                    }}
+                    className="text-sm px-2 py-1 rounded bg-white text-indigo-600 ml-2 border border-indigo-600 hover:bg-indigo-100 transition"
+                    disabled={loading}
+                  >
+                    {loading ? "Preparing..." : "Download PDF"}
+                  </button>
+                </>
+              )}
+            </BlobProvider>
+          </div>
         </div>
         {/* Show loading spinner when the PDF is being generated */}
         {isLoading && (
@@ -323,6 +502,10 @@ const CMADataPdfGeneration = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               zIndex: 10,
+              justifyContent: "center",
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <svg

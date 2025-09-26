@@ -39,10 +39,14 @@ const ProjectedBalanceSheet = ({
   formatNumber,
   orientation,
   receivedtotalRevenueReceipts,
+  renderBankLoanTermLoanLabel,
+  renderWCLLabel
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
+
+  
 
   // Update the state when the prop value changes
   useEffect(() => {
@@ -60,8 +64,7 @@ const ProjectedBalanceSheet = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  const rateOfInterest =
-    Number(formData?.ProjectReportSetting?.rateOfInterest) || 5;
+
 
   // If it's undefined, default to an empty array.
   const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
@@ -284,6 +287,7 @@ const ProjectedBalanceSheet = ({
   // And use totalAssetArray for your further calculations
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
+  
 
   // console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
@@ -470,17 +474,17 @@ const ProjectedBalanceSheet = ({
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
-if (isAdvancedLandscape) {
-  // Always use all years, do NOT hide the first year
-  const visibleLabels = financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+  if (isAdvancedLandscape) {
+    // Always use all years, do NOT hide the first year
+    const visibleLabels = financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 
@@ -762,7 +766,8 @@ if (isAdvancedLandscape) {
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Bank Loan - Term Loan
+                      {renderBankLoanTermLoanLabel()}
+                      
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
@@ -855,7 +860,9 @@ if (isAdvancedLandscape) {
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Bank Loan - Working Capital Loan
+                      {/* Bank Loan - Working Capital Loan */}
+                      {renderWCLLabel()}
+                      
                     </Text>
                     {/* Display the cumulative working capital loan for each visible year */}
                     {labels.map((_, localIdx) => {
@@ -1515,6 +1522,8 @@ if (isAdvancedLandscape) {
     });
   }
 
+  // console.log("receivedMarchClosingBalances :", receivedMarchClosingBalances);
+
   return (
     <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
@@ -1757,7 +1766,7 @@ if (isAdvancedLandscape) {
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Bank Loan - Term Loan
+                   {renderBankLoanTermLoanLabel()}
                 </Text>
                 {Array.from({ length: projectionYears }).map((_, index) => {
                   const marchBalance =
@@ -1778,6 +1787,18 @@ if (isAdvancedLandscape) {
                     repaymentMonths === 0
                       ? termLoanAmount
                       : marchBalance - repaymentValue;
+
+                  // Log the data in a table format
+                  // console.table([
+                  //   {
+                  //     Index: index,
+                  //     "Received March Closing Balance": marchBalance,
+                  //     "Repayment Value within 12 months": repaymentValue,
+                  //     "Repayment Months": repaymentMonths,
+                  //     "Term Loan Amount": termLoanAmount,
+                  //     "Net Balance": netBalance,
+                  //   },
+                  // ]);
 
                   return (
                     <Text
@@ -1840,7 +1861,8 @@ if (isAdvancedLandscape) {
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Bank Loan - Working Capital Loan
+                  {/* Bank Loan - Working Capital Loan  */}
+                  {renderWCLLabel()}
                 </Text>
                 {/* Display the cumulative working capital loan for each year */}
                 {cumulativeLoanForPreviousYears.map((loan, index) => (

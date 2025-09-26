@@ -4,8 +4,12 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 
-const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
+const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , renderWCLFBLabel , renderTotalBankLoanLabel}) => {
   // console.log("form data", formData);
+
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
+
   return (
     <Page style={[styles.page]}>
       {/* watermark  */}
@@ -167,7 +171,10 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
 
               <View style={[stylesMOF.row, styles.noBorder]}>
                 <Text style={[stylesMOF.Snocell, { width: 50 }]}>b.</Text>
-                <Text style={[stylesMOF.cell]}>Term Loan from Bank</Text>
+                <Text style={[stylesMOF.cell]}>
+                  {/* Term Loan from Bank */}
+                  {renderTLFBLabel()}
+                  </Text>
                 <Text
                   style={[
                     stylesMOF.cell,
@@ -269,7 +276,10 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
 
               <View style={[stylesMOF.row, styles.noBorder]}>
                 <Text style={[stylesMOF.Snocell, { width: 50 }]}>b.</Text>
-                <Text style={stylesMOF.cell}>Loan from Bank</Text>
+                <Text style={stylesMOF.cell}>
+                  {/* Loan from Bank */}
+                  {renderWCLFBLabel()}
+                  </Text>
                 <Text
                   style={[
                     stylesMOF.cell,
@@ -359,7 +369,10 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
 
           <View style={[stylesMOF.row, styles.noBorder]}>
             <Text style={[stylesMOF.Snocell, { width: 50 }]}></Text>
-            <Text style={stylesMOF.cell}>Total Bank Loan</Text>
+            <Text style={stylesMOF.cell}>
+              {/* Total Bank Loan */}
+              {renderTotalBankLoanLabel()}
+              </Text>
             <Text
               style={[stylesMOF.cell, { textAlign: "center", width: "20%" }]}
             >
@@ -391,8 +404,9 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
           </View>
         </View>
       </View>
-      {formData?.ProjectReportSetting?.subsidyName && (
+     
         <View style={[styles.text, { marginTop: 5, marginLeft: 2 }]}>
+           {formData?.ProjectReportSetting?.subsidyName && (
           <Text style={{ fontSize: 9 }}>
             *Inclusive of Subsidy {formData.ProjectReportSetting.subsidyName}
             {formData.ProjectReportSetting.subsidyAmount &&
@@ -411,6 +425,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
               )}`}
             .
           </Text>
+                )}
 
           {/* 👉 Display additional subsidy text on the next line */}
           {formData?.ProjectReportSetting?.subsidyText && (
@@ -419,7 +434,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber }) => {
             </Text>
           )}
         </View>
-      )}
+
 
       {/* businees name and Client Name  */}
       <View

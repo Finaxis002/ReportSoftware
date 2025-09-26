@@ -31,6 +31,8 @@ const ProjectedExpenses = ({
   onTotalExpenseSend,
   pdfType,
   orientation,
+  renderIOTLLabel,
+  renderIOWCLabel
 }) => {
   const activeRowIndex = 0;
   // console.log("formdata in projected expense", formData);
@@ -54,16 +56,6 @@ const ProjectedExpenses = ({
     return num(val);
   };
 
-  // For a yearIndex, sum up all direct/indirect advance expenses for that year
-  const sumAdvanceExpensesForType = (yearIndex, type, yearsList) => {
-    if (!advanceExpenses.length) return 0;
-    return advanceExpenses
-      .filter((row) => row.type === type)
-      .reduce((sum, row) => {
-        const yearLabel = financialYearLabels[yearIndex];
-        return sum + getAdvanceExpenseValueForYear(row, yearLabel);
-      }, 0);
-  };
 
   // Month Mapping
   const monthMap = {
@@ -1071,7 +1063,7 @@ const ProjectedExpenses = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Term Loan
+                    {renderIOTLLabel()}
                   </Text>
 
                   {/* Get totals for the current page */}
@@ -1106,7 +1098,7 @@ const ProjectedExpenses = ({
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -2000,7 +1992,7 @@ const ProjectedExpenses = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Term Loan
+                {renderIOTLLabel()}
               </Text>
 
               {/* Get total projection years */}
@@ -2039,7 +2031,8 @@ const ProjectedExpenses = ({
                   styleExpenses.bordernone,
                 ]}
               >
-                Interest On Working Capital
+                {/* Interest On Working Capital */}
+                {renderIOWCLabel()}
               </Text>
 
               {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
