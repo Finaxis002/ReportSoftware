@@ -21,10 +21,18 @@ export const CMAExtractorFundFlow = (formData) => {
   const bankTermLoanArray = Array.from({ length: years }).map((_, idx) =>
     idx === 0 ? bankTermLoan : 0
   );
+const otherTermLiabilitiesQEObj = formData?.MoreDetails?.currentLiabilities?.find(
+    (liab) => liab.particular === "Quasi Equity"
+  );
+  
+  const otherTermLiabilities = otherTermLiabilitiesQEObj 
+    ? otherTermLiabilitiesQEObj.years.map(Number) 
+    : Array(years).fill(0);
 
   const subtotalB= Array.from({length:years}).map((_, idx)=>(
     Number(promotersCapitalArray[idx] || 0)+
-     Number( bankTermLoanArray[idx] || 0)
+     Number( bankTermLoanArray[idx] || 0)+
+     Number(otherTermLiabilities[idx] || 0)
   ))
 
   const workingCapitalLoan = Number(formData.MeansOfFinance?.workingCapital?.termLoan || 0);
@@ -61,9 +69,13 @@ const firstYearGrossFixedAssets = Array.from({length: years}).map((_, idx)=>(
     idx === 0 ? grossFixedAssetsPerYear[0] :0 
 ))
 const repaymentOfTermLoan = formData?.computedData?.yearlyPrincipalRepayment || [];
+ const investments = Array.from({ length: years }).map((_, i) =>
+    Number(formData?.MoreDetails?.currentAssets?.Investments?.[i] || 0)
+  );
 const subTotalD = Array.from({length:years}).map((_,idx)=>(
     Number(firstYearGrossFixedAssets[idx] || 0)+
-    Number(repaymentOfTermLoan[idx] || 0)
+    Number(repaymentOfTermLoan[idx] || 0)+
+    Number(investments[idx] || 0)
 ))
 
 const inventory = Array.from({
@@ -84,7 +96,9 @@ const sundryDebitorsArr = sundryDebitorsObj? sundryDebitorsObj.years.map(Number)
 
 const currentAssets = formData?.MoreDetails?.currentAssets || [];
 const excludedParticularsAssets = [
-  "Trade Receivables / Sundry Debtors"
+  "Trade Receivables / Sundry Debtors",
+  "Investments",
+  "Inventory"
 ];
 const includedCurrentAssets = currentAssets.filter(
   (liab) =>
