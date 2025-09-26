@@ -34,6 +34,26 @@ const Assumptions = ({
   const years = Math.floor(formData.ProjectReportSetting.RepaymentMonths / 12);
   const months = formData.ProjectReportSetting.RepaymentMonths % 12;
 
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+
+  const renderTLFBLabel = () => {
+    if (debtEquityOption === "Equity") {
+      return `Equity Capital Infusion`; // Format for equity case
+    } else {
+      return "Term Loan From Bank Repayment"; // Default case
+    }
+  };
+
+  const renderWCLFBLabel = () => {
+    if (debtEquityOption === "Equity"){
+      return "Equity Of Running Operations";
+    }
+    else{
+      return "Loan From Bank Repayment"
+    }
+
+  }
+
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
 
@@ -378,12 +398,12 @@ if (isAdvancedLandscape) {
           {/* Notes Section */}
           <View style={[styles.text, { marginTop: 20, marginLeft: 2 }]}>
             <Text style={{ fontSize: 9 }}>
-              The Term Loan Repayment for {years} Years {months} Months is
+              The {renderTLFBLabel()} for {years} Years {months} Months is
               calculated at an interest rate of{" "}
               {formData.ProjectReportSetting.interestOnTL}% per annum.
             </Text>
             <Text style={{ fontSize: 9 }}>
-              The Working Capital Loan Repayment is calculated at an interest
+              The {renderWCLFBLabel()} Repayment is calculated at an interest
               rate of {formData.ProjectReportSetting.interestOnWC}% per annum.
             </Text>
             <Text style={{ fontSize: 9 }}>
@@ -714,12 +734,12 @@ if (isAdvancedLandscape) {
       {/* Notes Section */}
       <View style={[styles.text, { marginTop: 20, marginLeft: 2 }]}>
         <Text style={{ fontSize: 9 }}>
-          The Term Loan Repayment for {years} Years {months} Months is
+          The  {renderTLFBLabel()} for {years} Years {months} Months is
           calculated at an interest rate of{" "}
           {formData.ProjectReportSetting.interestOnTL}% per annum.
         </Text>
         <Text style={{ fontSize: 9 }}>
-          The Working Capital Loan Repayment is calculated at an interest rate
+          The {renderWCLFBLabel()} is calculated at an interest rate
           of {formData.ProjectReportSetting.interestOnWC}% per annum.
         </Text>
         <Text style={{ fontSize: 9 }}>

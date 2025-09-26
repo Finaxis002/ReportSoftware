@@ -739,32 +739,51 @@ const totalDirectExpensesArray = Array.from({
   // );
 
 
-    const totalAssetArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-      const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0;
+const totalAssetArray = Array.from({ length: projectionYears }).map(
+  (_, index) => {
+    const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+    const cashEquivalent = storedData?.closingCashBalanceArray[index] || 0;
 
-      const currentYearAssets = formData?.MoreDetails?.currentAssets
-        ?.filter(
-          (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-        )
-        .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+    const currentYearAssets = formData?.MoreDetails?.currentAssets
+      ?.filter(
+        (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+      )
+      .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
-      cumulativeCurrentAssets += currentYearAssets;
+    cumulativeCurrentAssets += currentYearAssets;
 
+    const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0;
 
-      const preliminaryAsset = preliminaryWriteOffPerYear[index] || 0; // ✅ NEW
+    const inventoryValue = inventory[index] || 0;  // Ensure this is a number
 
-      const totalAssets =
-        Number(netFixedAssetValue) +
-        Number(cashEquivalent) +
-        Number(cumulativeCurrentAssets) +
-        Number(inventory[index]) +
-        Number(preliminaryAsset); // ✅ INCLUDED
+    // Log all intermediate values
+    console.log(`Index: ${index}`);
+    console.log(`Net Fixed Asset Value: ${netFixedAssetValue}`);
+    console.log(`Cash Equivalent: ${cashEquivalent}`);
+    console.log(`Current Year Assets: ${currentYearAssets}`);
+    console.log(`Cumulative Current Assets: ${cumulativeCurrentAssets}`);
+    console.log(`Preliminary Asset: ${preliminaryAsset}`);
+    console.log(`Inventory Value: ${inventoryValue}`);
 
-      return totalAssets;
+    // Ensure all parts are numbers before summing them
+    const totalAssets =
+      Number(netFixedAssetValue) +
+      Number(cashEquivalent) +
+      Number(cumulativeCurrentAssets) +
+      Number(inventoryValue) +
+      Number(preliminaryAsset);
+
+    console.log(`Total Assets: ${totalAssets}`);
+
+    // If totalAssets is NaN, this will help pinpoint which part is causing it
+    if (isNaN(totalAssets)) {
+      console.log("ERROR: Total Assets calculation resulted in NaN");
     }
-  );
+
+    return totalAssets;
+  }
+);
+
   const repaymentValueswithin12months = Array.from({
     length: formData.ProjectReportSetting.ProjectionYears || 0,
   }).map((_, index) => {

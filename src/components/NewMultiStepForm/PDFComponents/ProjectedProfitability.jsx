@@ -49,8 +49,11 @@ const ProjectedProfitability = ({
   onComputedDataToProfit,
   pdfType,
   orientation,
+  renderIOTLLabel,
+  renderIOWCLabel,
+   renderWithdrawalLabel
 }) => {
-  console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
+  // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
@@ -66,6 +69,8 @@ const ProjectedProfitability = ({
   const indirectExpense = directExpense.filter(
     (expense) => expense.type === "indirect"
   );
+
+
 
   const months = [
     "April",
@@ -735,7 +740,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
-      console.log(formData, "formdata in pp");
+      // console.log(formData, "formdata in pp");
 
       return (
         <Page
@@ -1533,7 +1538,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Term Loan
+                        {renderIOTLLabel()}
+                        {/* Interest On Term Loan */}
                       </Text>
 
                       {/* Get totals aligned to current page */}
@@ -1571,7 +1577,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                           styleExpenses.bordernone,
                         ]}
                       >
-                        Interest On Working Capital
+                        {/* Interest On Working Capital */}
+                        {renderIOWCLabel()}
                       </Text>
 
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -2055,7 +2062,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Withdrawals during the year
+                      {/* Withdrawals during the year */}
+                      { renderWithdrawalLabel()} during the year
                     </Text>
 
                     {labels.map((_, localIdx) => {
@@ -3115,7 +3123,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Term Loan
+                    {renderIOTLLabel()}
+                    {/* Interest On Term Loan */}
                   </Text>
 
                   {/* Get total projection years */}
@@ -3155,7 +3164,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                       styleExpenses.bordernone,
                     ]}
                   >
-                    Interest On Working Capital
+                    {/* Interest On Working Capital */}
+                    {renderIOWCLabel()}
                   </Text>
 
                   {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
@@ -3635,7 +3645,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                     styleExpenses.bordernone,
                   ]}
                 >
-                  Withdrawals during the year
+                  {/* Withdrawals during the year */}
+                  { renderWithdrawalLabel()} during the year
                 </Text>
 
                 {Array.from({
