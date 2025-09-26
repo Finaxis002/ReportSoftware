@@ -88,14 +88,47 @@ const pageStyles = {
 
   //new data
   const FinPosextractors = CMAExtractorFinPos(formData);
+ 
+  const closingCashBalanceArray = FundFlowExtractor.closingCashBalanceArray ? 
+    FundFlowExtractor.closingCashBalanceArray() : 
+    Array(years).fill(0);
+   const closingCashBalanceFromBS = BSextractors.closingCashBalanceArray ? 
+    BSextractors.closingCashBalanceArray() : 
+    Array(years).fill(0);
+  const closingCashFromComputed = formData?.computedData?.closingCashBalanceArray || 
+                                 Array(years).fill(0);
+
+  
+  
+  // Try the most likely source first, fallback to others
+  let finalClosingCashBalance = closingCashBalanceArray;
+  
+  // If FundFlow returns all zeros, try BalanceSheet
+  if (closingCashBalanceArray.every(val => val === 0) && !closingCashBalanceFromBS.every(val => val === 0)) {
+    finalClosingCashBalance = closingCashBalanceFromBS;
+    console.log('Using BalanceSheet closing cash balance');
+  }
+  // If both are zeros, try computed data
+  else if (closingCashBalanceArray.every(val => val === 0) && closingCashBalanceFromBS.every(val => val === 0) && 
+           !closingCashFromComputed.every(val => val === 0)) {
+    finalClosingCashBalance = closingCashFromComputed;
+    console.log('Using Computed Data closing cash balance');
+  }
+
+  console.log('Final Closing Cash Balance to use:', finalClosingCashBalance);
+
+  // ✅ USE THE UTILITY FUNCTION WITH THE CORRECT CLOSING CASH BALANCE
+  const correctCurrentAssets = getCurrentAssetsArray(formData, finalClosingCashBalance);
+  
+  console.log('Correct Current Assets with Cash:', correctCurrentAssets);
 
   // new data Assessment of Working Capital Requirements
   const WorkingReqExtractor = CMAExtractorWorkingCap(formData);
-  const currentAssets = WorkingReqExtractor.currentAssets() || [];
-  //  const correctCurrentAssets = getCurrentAssetsArray(formData);
+  // const currentAssets = WorkingReqExtractor.currentAssets() || [];
+  
   
   // // Use the correct current assets instead of the potentially wrong ones
-  // const currentAssets = correctCurrentAssets || WorkingReqExtractor.currentAssets() || [];
+  const currentAssets = correctCurrentAssets || WorkingReqExtractor.currentAssets() || [];
   console.log("current asset in working cap",currentAssets )
   const otherCurrLiabilities = WorkingReqExtractor.otherCurrLiabilities() || [];
   const workingCapGap = WorkingReqExtractor.workingCapGap() || [];
