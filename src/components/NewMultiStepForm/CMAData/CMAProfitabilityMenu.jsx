@@ -49,6 +49,34 @@ const CMAProfitabilityMenu = ({
   pdfType,
   orientation,
 }) => {
+
+  const pageStyles = {
+    page: {
+      padding: 40,
+      paddingTop: 50, // Extra top margin for print safety
+      paddingBottom: 80, // Extra bottom margin for print safety
+      paddingLeft: 40,
+      paddingRight: 40,
+      fontFamily: "Helvetica",
+      position: "relative",
+    },
+    contentWrapper: {
+      flex: 1,
+      marginBottom: 30, // Space before footer
+    },
+    // Safe area to avoid content being cut off
+    safeArea: {
+      marginTop: 20, // Top margin for content
+      marginBottom: 40, // Bottom margin for content
+    },
+    footer: {
+      position: "absolute",
+      bottom: 30,
+      left: 40,
+      right: 40,
+      height: 50, // Fixed footer height
+    },
+  };
   const PPExtractor = CMAExtractorProfitability(formData);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
@@ -346,7 +374,7 @@ const CMAProfitabilityMenu = ({
           key={`proj-profitability-${pageIdx}`}
           size="A4"
           orientation="landscape"
-          style={styles.page}
+          style={pageStyles.page}
         >
           {/* watermark  */}
           {pdfType &&
@@ -377,6 +405,7 @@ const CMAProfitabilityMenu = ({
               </View>
             )}
 
+  <View style={pageStyles.safeArea}>
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
             {/* businees name and financial year  */}
             <View>
@@ -1620,13 +1649,14 @@ const CMAProfitabilityMenu = ({
               </View>
             </View>
           </View>
+          </View>
         </Page>
       );
     });
   }
 
   return (
-    <Page size="A4" orientation={orientation} style={styles.page}>
+    <Page size="A4" orientation={orientation} style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -1654,6 +1684,7 @@ const CMAProfitabilityMenu = ({
           </View>
         )}
 
+  <View style={pageStyles.safeArea}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* businees name and financial year  */}
         <View>
@@ -2984,6 +3015,7 @@ const CMAProfitabilityMenu = ({
             </Text>
           </View>
         </View>
+      </View>
       </View>
     </Page>
   );

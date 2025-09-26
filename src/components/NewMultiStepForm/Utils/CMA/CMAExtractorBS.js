@@ -32,9 +32,12 @@ export const CMAExtractorBS = (formData) => {
   const currentLiabilitiesArr = formData?.MoreDetails?.currentLiabilities || [];
 
   // (Use this if you want to sum all other rows)
+  // const excludedParticulars = [
+  //   "Sundry Creditors / Trade Payables",
+  //   "Short term loans"
+  // ];
   const excludedParticulars = [
-    "Sundry Creditors / Trade Payables",
-    "Short term loans",
+    "Quasi Equity",
   ];
   const includedOtherLiabilitiesB = currentLiabilitiesArr.filter(
     (liab) => !excludedParticulars.includes(liab.particular)
@@ -173,6 +176,9 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
     formData?.computedData?.grossFixedAssetsPerYear || [];
   const totalDepreciation = formData?.computedData?.totalDepreciation || [];
 
+
+
+
   const netBlock = Array.from({ length: years }).map(
     (_, i) =>
       Number(grossFixedAssetsPerYear[i] || 0) -
@@ -186,6 +192,19 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
       Number(investments[i] || 0)
   );
 
+   const otherTermLiabilitiesQEObj = formData?.MoreDetails?.currentLiabilities?.find(
+    (liab) => liab.particular === "Quasi Equity"
+  );
+  
+  const otherTermLiabilities = otherTermLiabilitiesQEObj 
+    ? otherTermLiabilitiesQEObj.years.map(Number) 
+    : Array(years).fill(0);
+
+  const exportsIncludingBpBdObj = formData?.MoreDetails?.currentAssets?.find(
+    (ast) => ast.particular === "Trade Receivables / Sundry Debtors"
+  );
+
+  const exportsIncludingBpBd = exportsIncludingBpBdObj ? exportsIncludingBpBdObj.years.map(Number) : Array(years).fill(0);
   
   return {
     workingCapitalLoanArr: () => workingCapitalLoanArr,
@@ -204,7 +223,7 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
     bankTermLoanArr: () => bankTermLoanArr,
     vehicleLoan: () => Array(years).fill(0),
     deferredTaxLiability: () => Array(years).fill(0),
-    otherTermLiabilities: () => Array(years).fill(0),
+    otherTermLiabilities: () => otherTermLiabilities,
     totalTermLiabilities: () => totalTermLiabilities,
     shareCapital: () => shareCapital,
     generalReserve: () => Array(years).fill(0),
@@ -215,7 +234,7 @@ const commulativeSundryDebtors = sundryDebtors.reduce(
     closingCashBalanceArray: () => closingCashBalanceArray,
     investments: () => investments,
     fixedDeposits: () => Array(years).fill(0),
-    exportsIncludingBpBd: () => Array(years).fill(0),
+    exportsIncludingBpBd: () => exportsIncludingBpBd,
     exportReceivables: () => Array(years).fill(0),
     instalments: () => Array(years).fill(0),
     rawMaterialInventory: () => Array(years).fill(0),

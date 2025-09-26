@@ -401,20 +401,61 @@ const ProjectedExpenses = ({
       : 0;
 
   // Generate the array for yearly values
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
-  }).map((_, index) => {
-    const startIndex = hideFirstYear ? 1 : 0;
-    const endIndex = startIndex + preliminaryWriteOffYears;
+  // const preliminaryWriteOffPerYear = Array.from({
+  //   length: projectionYears,
+  // }).map((_, index) => {
+  //   const startIndex = hideFirstYear ? 1 : 0;
+  //   const endIndex = startIndex + preliminaryWriteOffYears;
 
-    // 👇 Only insert value if it's within the write-off window
-    if (index >= startIndex && index < endIndex) {
-      return yearlyWriteOffAmount;
-    }
+  //   // 👇 Only insert value if it's within the write-off window
+  //   if (index >= startIndex && index < endIndex) {
+  //     return yearlyWriteOffAmount;
+  //   }
 
-    // 👇 Insert 0 for all other years (including hidden first year)
+  //   // 👇 Insert 0 for all other years (including hidden first year)
+  //   return 0;
+  // });
+
+   const preliminaryWriteOffPerYear = Array.from({
+  length: projectionYears,
+}).map((_, yearIndex) => {
+  // Use the same monthsPerYear array that other expenses use
+  const monthsInYear = monthsPerYear[yearIndex] || 0;
+  
+  console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
+  
+  // If no months in this year (full moratorium), return 0
+  if (monthsInYear === 0) {
     return 0;
-  });
+  }
+  
+  // Find the first year that has actual months (moratorium ends)
+  const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
+  if (firstYearWithMonths === -1) {
+    return 0; // All years in moratorium
+  }
+  
+  // Calculate the actual start year for write-off (considering hideFirstYear)
+  const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
+  const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
+  
+  console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
+  
+  // Check if this year is within the write-off period
+  if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
+    // If it's a partial year, prorate the write-off
+    if (monthsInYear < 12) {
+      const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
+      console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
+      return proratedAmount;
+    }
+    console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
+    return yearlyWriteOffAmount;
+  }
+  
+  console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
+  return 0;
+});
 
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,

@@ -141,6 +141,7 @@ const CMAMultiPagePDF = ({
             formatNumber={formatNumber} />
         </>
       )}
+      <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
       <CMAAnalysisOfBS formData={formData} orientation={orientation} />
       <CMAWorkingCapReq formData={formData} orientation={orientation} />
       <CMAFundFlow formData={formData} orientation={orientation} />
@@ -180,7 +181,7 @@ const CMAMultiPagePDF = ({
         formatNumber={formatNumber}
         orientation={orientation}
       />
-      <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
+      
     </Document>
   );
 };

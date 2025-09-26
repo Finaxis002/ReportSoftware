@@ -162,3 +162,8 @@ changes in finposExtrator , ppextractor , cmaExtractor(operating profit)
 
 in cma data , in profitability and balance sheet something is missed to add in reserves and surplus , cash and cash equilavent
 
+#---------------------Sixth revenue step ----------------------------#
+try to resolve value NaN error 
+const handleFormChange and const handleFormChange2 is changed and handleImportExcel is changed previous code in comments and on the top some hepler function added 
+
+

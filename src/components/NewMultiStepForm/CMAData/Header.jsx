@@ -13,7 +13,7 @@ export const Header = ({formData}) => {
   return (
     <>
      {/* name and financial year  */}
-          <View>
+          <View style={{marginTop: 0 , paddingTop: 0}}>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Name"}
             </Text>
