@@ -186,11 +186,7 @@ const CMADSCRRevenue = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  console.log("Preliminary Write-Off Per Year:", preliminaryWriteOffPerYear);
-  console.log(
-    "Is Preliminary Write-Off All Zero:",
-    isPreliminaryWriteOffAllZero
-  );
+ 
 
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
@@ -221,7 +217,7 @@ const CMADSCRRevenue = ({
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
 
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
+ 
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
@@ -279,9 +275,7 @@ const CMADSCRRevenue = ({
   const NPBT = Array.from({ length: projectionYears }).map(
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
-  console.log("NPBT", NPBT);
-  console.log("grossProfit", grossProfit);
-  console.log("newRevenueReceipt", newRevenueReceipt);
+  
 
   const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
   const incomeTaxCalculation = Array.from({ length: projectionYears }).map(

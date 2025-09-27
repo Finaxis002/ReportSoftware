@@ -115,7 +115,7 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
       Number(totalOutsidersLiabilities[idx] || 0) + Number(netWorth[idx] || 0)
   );
 
-  const closingCashBalanceArray = BSextractors.closingCashBalanceArray() || [];
+ 
 
   const investments = BSextractors.investments() || [];
   const fixedDeposits = BSextractors.fixedDeposits() || [];
@@ -143,9 +143,31 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
   const netWorkingCapital = Array.from({ length: years }).map(
     (_, i) => Number(totalCurrentAssets[i] || 0) - Number(totalAandB[i] || 0)
   );
-  const currentRatio = Array.from({ length: years }).map(
-    (_, i) => Number(totalCurrentAssets[i] || 0) / Number(totalAandB[i] || 0)
-  );
+
+  const closingCashBalanceArray = formData?.computedData?.closingCashBalanceArray
+  const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray
+  const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities
+
+
+  // const currentRatio = Array.from({ length: years }).map(
+  //   (_, i) => Number(totalCurrentAssets[i] || 0) / Number(totalAandB[i] || 0)
+  // );
+ 
+  const currentRatio = Array.from({ length: years }).map((_, i) => {
+  const cash = currentAssets?.[i];
+  const liabilities = currentLiabilities?.[i];
+  
+  
+  
+  const numerator = Number(cash || 0);
+  const denominator = Number(liabilities || 1); // Avoid division by zero
+  
+  const ratio = numerator / denominator;
+  
+  
+  return ratio;
+});
+
   const TOLDividedByTNW = Array.from({ length: years }).map((_, i) =>
     netWorth[i] === 0
       ? "NA"

@@ -223,7 +223,7 @@ const CMADSCRExpense = ({
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
 
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
+
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
@@ -288,7 +288,7 @@ const CMADSCRExpense = ({
     const expenseIncreasePercentage = localStorage.getItem('expenseIncreasePercentage') 
     ? parseFloat(localStorage.getItem('expenseIncreasePercentage')) 
     : 10;
-    console.log("expenseIncreasePercentage", expenseIncreasePercentage);
+   
   //expense increase by 10%
   const increaseValueExpense = Array.from({length:projectionYears}).map((_, i)=>
    Number(totalExpenseWithoutRM[i] *(expenseIncreasePercentage/100))
@@ -357,7 +357,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
     const validDSCRValues = dscr.filter(
       (value, index) => !(index === 0 && value === 0)
     );
-  console.log('validDSCRValues', validDSCRValues)
+
     // ✅ Memoize averageDSCR calculation
     const averageDSCR = useMemo(() => {
       if (validDSCRValues.length === 0) return 0;
@@ -366,7 +366,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
         validDSCRValues.length)
       );
     }, [JSON.stringify(validDSCRValues)]); // Deep dependency check with stringify
-    console.log('averageDSCR',averageDSCR)
+
   
     const generateFinancialYearLabels = useMemo(
         () => (startingFY, totalYears) => {

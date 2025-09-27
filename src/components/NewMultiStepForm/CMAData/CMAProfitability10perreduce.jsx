@@ -95,11 +95,7 @@ const CMAProjectedProfitability = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
+ 
 
   const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
@@ -216,11 +212,7 @@ const CMAProjectedProfitability = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  console.log("Preliminary Write-Off Per Year:", preliminaryWriteOffPerYear);
-  console.log(
-    "Is Preliminary Write-Off All Zero:",
-    isPreliminaryWriteOffAllZero
-  );
+  
 
   //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
@@ -252,7 +244,7 @@ const CMAProjectedProfitability = ({
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
 
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
+ 
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 

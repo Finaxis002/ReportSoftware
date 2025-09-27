@@ -32,7 +32,7 @@ const ProjectedExpenses = ({
   pdfType,
   orientation,
   renderIOTLLabel,
-  renderIOWCLabel
+  renderIOWCLabel,
 }) => {
   const activeRowIndex = 0;
   // console.log("formdata in projected expense", formData);
@@ -55,7 +55,6 @@ const ProjectedExpenses = ({
     const val = row?.values?.[yearLabel];
     return num(val);
   };
-
 
   // Month Mapping
   const monthMap = {
@@ -273,14 +272,6 @@ const ProjectedExpenses = ({
         }, 0);
     }
 
-    // LOGGING the row values for this year:
-    // console.log(`Direct Expense Breakdown for Year ${yearIndex + 1}:`);
-    // directRows.forEach((row, i) =>
-    //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-    // );
-    // console.log(`   Salary and Wages: ${salaryTotal}`);
-    // console.log(`   Total Direct (sum): ${directTotal + salaryTotal + advanceDirectTotal}`);
-
     // FINAL direct expenses for this year
     return directTotal + salaryTotal + advanceDirectTotal;
   });
@@ -416,46 +407,57 @@ const ProjectedExpenses = ({
   //   return 0;
   // });
 
-   const preliminaryWriteOffPerYear = Array.from({
-  length: projectionYears,
-}).map((_, yearIndex) => {
-  // Use the same monthsPerYear array that other expenses use
-  const monthsInYear = monthsPerYear[yearIndex] || 0;
-  
-  console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
-  
-  // If no months in this year (full moratorium), return 0
-  if (monthsInYear === 0) {
-    return 0;
-  }
-  
-  // Find the first year that has actual months (moratorium ends)
-  const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
-  if (firstYearWithMonths === -1) {
-    return 0; // All years in moratorium
-  }
-  
-  // Calculate the actual start year for write-off (considering hideFirstYear)
-  const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
-  const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
-  
-  console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
-  
-  // Check if this year is within the write-off period
-  if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
-    // If it's a partial year, prorate the write-off
-    if (monthsInYear < 12) {
-      const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
-      console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
-      return proratedAmount;
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, yearIndex) => {
+    // Use the same monthsPerYear array that other expenses use
+    const monthsInYear = monthsPerYear[yearIndex] || 0;
+
+    console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
+
+    // If no months in this year (full moratorium), return 0
+    if (monthsInYear === 0) {
+      return 0;
     }
-    console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
-    return yearlyWriteOffAmount;
-  }
-  
-  console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
-  return 0;
-});
+
+    // Find the first year that has actual months (moratorium ends)
+    const firstYearWithMonths = monthsPerYear.findIndex((months) => months > 0);
+    if (firstYearWithMonths === -1) {
+      return 0; // All years in moratorium
+    }
+
+    // Calculate the actual start year for write-off (considering hideFirstYear)
+    const effectiveStartYear = Math.max(
+      hideFirstYear ? 1 : 0,
+      firstYearWithMonths
+    );
+    const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
+
+    console.log(
+      `Year ${
+        yearIndex + 1
+      }: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`
+    );
+
+    // Check if this year is within the write-off period
+    if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
+      // If it's a partial year, prorate the write-off
+      if (monthsInYear < 12) {
+        const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
+        console.log(
+          `Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`
+        );
+        return proratedAmount;
+      }
+      console.log(
+        `Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`
+      );
+      return yearlyWriteOffAmount;
+    }
+
+    console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
+    return 0;
+  });
 
   const totalIndirectExpensesArray = Array.from({
     length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
@@ -498,16 +500,6 @@ const ProjectedExpenses = ({
       calculateInterestOnWorkingCapital(yearIndex);
     const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
     const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
-
-    // Optionally, console log for debugging:
-    // console.log(`Indirect Expense Breakdown for Year ${yearIndex + 1}:`);
-    // indirectRows.forEach((row, i) =>
-    //   console.log(`   ${i + 1}. ${row.name}: ${row.value}`)
-    // );
-    // console.log(`   Advance Indirect: ${advanceIndirectTotal}`);
-    // console.log(
-    //   `   Total Indirect (sum): ${indirectTotal + advanceIndirectTotal + interestOnTermLoan + interestExpenseOnWorkingCapital + depreciationExpense + preliminaryWriteOff}`
-    // );
 
     // FINAL indirect expenses for this year
     return (
@@ -586,16 +578,18 @@ const ProjectedExpenses = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+    // Remove first year if hidden
+    const visibleLabels = hideFirstYear
+      ? financialYearLabels.slice(1)
+      : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 
@@ -900,7 +894,7 @@ const ProjectedExpenses = ({
                 })}
 
               {/* Advance Expenses of type "direct" */}
-              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+              {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
                 formData.Expenses.advanceExpenses
                   .filter(
                     (row) =>
@@ -950,7 +944,102 @@ const ProjectedExpenses = ({
                         );
                       })}
                     </View>
-                  ))}
+                  ))} */}
+              {/* Advance Expenses of type "direct" */}
+              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+                formData.Expenses.advanceExpenses
+                  .filter(
+                    (row) =>
+                      row.type === "direct" &&
+                      row.name &&
+                      row.name.trim() !== ""
+                  )
+                  .map((row, advIdx) => {
+                    // Calculate the correct serial number - continue from regular direct expenses
+                    const regularDirectCount = directExpense.filter(
+                      (expense) => {
+                        const isAllYearsZero = Array.from({
+                          length: hideFirstYear
+                            ? projectionYears - 1
+                            : projectionYears,
+                        }).every((_, yearIndex) => {
+                          const adjustedYearIndex = hideFirstYear
+                            ? yearIndex + 1
+                            : yearIndex;
+                          let expenseValue = 0;
+                          const isRawMaterial =
+                            expense.name.trim() ===
+                            "Raw Material Expenses / Purchases";
+                          const isPercentage = String(expense.value)
+                            .trim()
+                            .endsWith("%");
+
+                          if (isRawMaterial && isPercentage) {
+                            expenseValue = calculateRawMaterialExpense(
+                              expense,
+                              receivedtotalRevenueReceipts,
+                              adjustedYearIndex
+                            );
+                          } else {
+                            expenseValue = Number(expense.total) || 0;
+                          }
+                          return expenseValue === 0;
+                        });
+                        return expense.type === "direct" && !isAllYearsZero;
+                      }
+                    ).length;
+
+                    // Serial number continues from regular direct expenses (1 for salary + regularDirectCount)
+                    const serialNumber = 1 + regularDirectCount + advIdx + 1; // +1 for salary, + regular count, +1 because we want to continue numbering
+
+                    return (
+                      <View
+                        key={"adv-direct-" + advIdx}
+                        style={[styles.tableRow, styles.totalRow]}
+                      >
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {serialNumber}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {row.name}
+                        </Text>
+
+                        {Array.from({
+                          length: hideFirstYear
+                            ? projectionYears - 1
+                            : projectionYears,
+                        }).map((_, yearIndex) => {
+                          const adjustedYearIndex = hideFirstYear
+                            ? yearIndex + 1
+                            : yearIndex;
+                          const value =
+                            (row.values &&
+                              row.values[
+                                financialYearLabels[adjustedYearIndex]
+                              ]) ||
+                            (row.values && row.values[adjustedYearIndex]) ||
+                            0;
+                          return (
+                            <Text
+                              key={yearIndex}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(Number(value) || 0)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  })}
 
               {/* direct Expenses total  */}
               <View style={[styles.tableRow, styles.totalRow]}>
@@ -1279,7 +1368,7 @@ const ProjectedExpenses = ({
                   );
                 })}
               ;{/* Advance Expenses of type "indirect" */}
-              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+              {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
                 formData.Expenses.advanceExpenses
                   .filter(
                     (row) =>
@@ -1327,7 +1416,110 @@ const ProjectedExpenses = ({
                         );
                       })}
                     </View>
-                  ))}
+                  ))} */}
+              {/* Advance Expenses of type "indirect" */}
+              {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+                formData.Expenses.advanceExpenses
+                  .filter(
+                    (row) =>
+                      row.type === "indirect" &&
+                      row.name &&
+                      row.name.trim() !== ""
+                  )
+                  .map((row, advIdx) => {
+                    // Calculate base serial number for indirect expenses
+                    let baseSerial = 0;
+
+                    if (!isInterestOnTermLoanZero) baseSerial++;
+                    if (!isWorkingCapitalInterestZero) baseSerial++;
+                    if (!isDepreciationZero) baseSerial++;
+
+                    // Count regular indirect expenses
+                    const regularIndirectCount = directExpense.filter(
+                      (expense) => {
+                        const isAllYearsZero = Array.from({
+                          length: hideFirstYear
+                            ? projectionYears - 1
+                            : projectionYears,
+                        }).every((_, yearIndex) => {
+                          const adjustedYearIndex = hideFirstYear
+                            ? yearIndex + 1
+                            : yearIndex;
+                          let expenseValue = 0;
+                          const isRawMaterial =
+                            expense.name.trim() ===
+                            "Raw Material Expenses / Purchases";
+                          const isPercentage = String(expense.value)
+                            .trim()
+                            .endsWith("%");
+
+                          if (isRawMaterial && isPercentage) {
+                            expenseValue = calculateRawMaterialExpense(
+                              expense,
+                              receivedtotalRevenueReceipts,
+                              adjustedYearIndex
+                            );
+                          } else {
+                            expenseValue = Number(expense.total) || 0;
+                          }
+                          return expenseValue === 0;
+                        });
+                        return expense.type === "indirect" && !isAllYearsZero;
+                      }
+                    ).length;
+
+                    // Serial number continues from regular indirect expenses
+                    const serialNumber =
+                      baseSerial + regularIndirectCount + advIdx + 1;
+
+                    return (
+                      <View
+                        key={"adv-indirect-" + advIdx}
+                        style={[styles.tableRow, styles.totalRow]}
+                      >
+                        <Text style={stylesCOP.serialNoCellDetail}>
+                          {serialNumber}
+                        </Text>
+                        <Text
+                          style={[
+                            stylesCOP.detailsCellDetail,
+                            styleExpenses.particularWidth,
+                            styleExpenses.bordernone,
+                          ]}
+                        >
+                          {row.name}
+                        </Text>
+
+                        {Array.from({
+                          length: hideFirstYear
+                            ? projectionYears - 1
+                            : projectionYears,
+                        }).map((_, yearIndex) => {
+                          const adjustedYearIndex = hideFirstYear
+                            ? yearIndex + 1
+                            : yearIndex;
+                          const value =
+                            (row.values &&
+                              row.values[
+                                financialYearLabels[adjustedYearIndex]
+                              ]) ||
+                            (row.values && row.values[adjustedYearIndex]) ||
+                            0;
+                          return (
+                            <Text
+                              key={yearIndex}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {formatNumber(Number(value) || 0)}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    );
+                  })}
               {/* ✅ Render Preliminary Row */}
               {!isPreliminaryWriteOffAllZero && (
                 <View style={[styles.tableRow, styles.totalRow]}>
@@ -1832,7 +2024,7 @@ const ProjectedExpenses = ({
             })}
 
           {/* Advance Expenses of type "direct" */}
-          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+          {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
             formData.Expenses.advanceExpenses
               .filter(
                 (row) =>
@@ -1884,7 +2076,97 @@ const ProjectedExpenses = ({
                     );
                   })}
                 </View>
-              ))}
+              ))} */}
+
+          {/* Advance Expenses of type "direct" */}
+          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+            formData.Expenses.advanceExpenses
+              .filter(
+                (row) =>
+                  row.type === "direct" && row.name && row.name.trim() !== ""
+              )
+              .map((row, advIdx) => {
+                // Calculate the correct serial number - continue from regular direct expenses
+                const regularDirectCount = directExpense.filter((expense) => {
+                  const isAllYearsZero = Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).every((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+
+                    if (isRawMaterial && isPercentage) {
+                      expenseValue = calculateRawMaterialExpense(
+                        expense,
+                        receivedtotalRevenueReceipts,
+                        adjustedYearIndex
+                      );
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+                    return expenseValue === 0;
+                  });
+                  return expense.type === "direct" && !isAllYearsZero;
+                }).length;
+
+                // Serial number continues from regular direct expenses (1 for salary + regularDirectCount)
+                const serialNumber = 1 + regularDirectCount + advIdx + 1; // +1 for salary, + regular count, +1 because we want to continue numbering
+
+                return (
+                  <View
+                    key={"adv-direct-" + advIdx}
+                    style={[styles.tableRow, styles.totalRow]}
+                  >
+                    <Text style={stylesCOP.serialNoCellDetail}>
+                      {serialNumber}
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {row.name}
+                    </Text>
+
+                    {Array.from({
+                      length: hideFirstYear
+                        ? projectionYears - 1
+                        : projectionYears,
+                    }).map((_, yearIndex) => {
+                      const adjustedYearIndex = hideFirstYear
+                        ? yearIndex + 1
+                        : yearIndex;
+                      const value =
+                        (row.values &&
+                          row.values[financialYearLabels[adjustedYearIndex]]) ||
+                        (row.values && row.values[adjustedYearIndex]) ||
+                        0;
+                      return (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(Number(value) || 0)}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                );
+              })}
 
           {/* direct Expenses total  */}
           <View style={[styles.tableRow, styles.totalRow]}>
@@ -2219,7 +2501,7 @@ const ProjectedExpenses = ({
               );
             })}
           ;{/* Advance Expenses of type "indirect" */}
-          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+          {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
             formData.Expenses.advanceExpenses
               .filter(
                 (row) =>
@@ -2269,7 +2551,104 @@ const ProjectedExpenses = ({
                     );
                   })}
                 </View>
-              ))}
+              ))} */}
+          {/* Advance Expenses of type "indirect" */}
+          {Array.isArray(formData?.Expenses?.advanceExpenses) &&
+            formData.Expenses.advanceExpenses
+              .filter(
+                (row) =>
+                  row.type === "indirect" && row.name && row.name.trim() !== ""
+              )
+              .map((row, advIdx) => {
+                // Calculate base serial number for indirect expenses
+                let baseSerial = 0;
+
+                if (!isInterestOnTermLoanZero) baseSerial++;
+                if (!isWorkingCapitalInterestZero) baseSerial++;
+                if (!isDepreciationZero) baseSerial++;
+
+                // Count regular indirect expenses
+                const regularIndirectCount = directExpense.filter((expense) => {
+                  const isAllYearsZero = Array.from({
+                    length: hideFirstYear
+                      ? projectionYears - 1
+                      : projectionYears,
+                  }).every((_, yearIndex) => {
+                    const adjustedYearIndex = hideFirstYear
+                      ? yearIndex + 1
+                      : yearIndex;
+                    let expenseValue = 0;
+                    const isRawMaterial =
+                      expense.name.trim() ===
+                      "Raw Material Expenses / Purchases";
+                    const isPercentage = String(expense.value)
+                      .trim()
+                      .endsWith("%");
+
+                    if (isRawMaterial && isPercentage) {
+                      expenseValue = calculateRawMaterialExpense(
+                        expense,
+                        receivedtotalRevenueReceipts,
+                        adjustedYearIndex
+                      );
+                    } else {
+                      expenseValue = Number(expense.total) || 0;
+                    }
+                    return expenseValue === 0;
+                  });
+                  return expense.type === "indirect" && !isAllYearsZero;
+                }).length;
+
+                // Serial number continues from regular indirect expenses
+                const serialNumber =
+                  baseSerial + regularIndirectCount + advIdx + 1;
+
+                return (
+                  <View
+                    key={"adv-indirect-" + advIdx}
+                    style={[styles.tableRow, styles.totalRow]}
+                  >
+                    <Text style={stylesCOP.serialNoCellDetail}>
+                      {serialNumber}
+                    </Text>
+                    <Text
+                      style={[
+                        stylesCOP.detailsCellDetail,
+                        styleExpenses.particularWidth,
+                        styleExpenses.bordernone,
+                      ]}
+                    >
+                      {row.name}
+                    </Text>
+
+                    {Array.from({
+                      length: hideFirstYear
+                        ? projectionYears - 1
+                        : projectionYears,
+                    }).map((_, yearIndex) => {
+                      const adjustedYearIndex = hideFirstYear
+                        ? yearIndex + 1
+                        : yearIndex;
+                      const value =
+                        (row.values &&
+                          row.values[financialYearLabels[adjustedYearIndex]]) ||
+                        (row.values && row.values[adjustedYearIndex]) ||
+                        0;
+                      return (
+                        <Text
+                          key={yearIndex}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styleExpenses.fontSmall,
+                          ]}
+                        >
+                          {formatNumber(Number(value) || 0)}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                );
+              })}
           {/* ✅ Render Preliminary Row */}
           {!isPreliminaryWriteOffAllZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
