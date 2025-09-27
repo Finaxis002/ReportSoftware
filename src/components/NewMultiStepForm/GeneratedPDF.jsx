@@ -721,15 +721,15 @@ const GeneratedPDF = () => {
     } else {
       return "Repayment of Term Loan";
     }
-  }
+  };
 
-  const renderWithdrawalLabel =() => {
+  const renderWithdrawalLabel = () => {
     if (debtEquityOption === "Equity") {
       return "Return On Equity";
     } else {
       return "Withdrawals";
     }
-  }
+  };
 
   const memoizedPDF = useMemo(() => {
     return (
@@ -1358,6 +1358,48 @@ const GeneratedPDF = () => {
                       height: "100%",
                       zIndex: 10,
                       backgroundColor: "transparent",
+                      overflow: "hidden", // Hide any overflow from the overlay
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault(); // Disable right-click on the overlay
+                      Swal.fire({
+                        icon: "error",
+                        title: "Right-click Disabled",
+                        text: "Right-click is disabled on this PDF for security reasons.",
+                        confirmButtonColor: "#6366f1", // Indigo-500, optional
+                        background: "#fff", // optional, matches most UIs
+                        timer: 1600,
+                        showConfirmButton: false,
+                      });
+                    }}
+                    onWheel={(e) => {
+                      const pdfIframe = document.querySelector("iframe"); // Select the iframe inside the PDFViewer
+                      if (pdfIframe) {
+                        pdfIframe.contentWindow.scrollBy(0, e.deltaY); // Scroll the content of the iframe by deltaY amount
+                      }
+                    }}
+                    onTouchMove={(e) => {
+                      // Ensure scrolling works for touch devices as well
+                      const pdfIframe = document.querySelector("iframe");
+                      if (pdfIframe) {
+                        pdfIframe.contentWindow.scrollBy(
+                          0,
+                          e.touches[0].clientY
+                        );
+                      }
+                    }}
+                  ></div>
+
+                  {/* <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "98%",
+                      height: "100%",
+                      zIndex: 10,
+                      backgroundColor: "transparent",
                     }}
                     onContextMenu={(e) => {
                       e.preventDefault();
@@ -1377,7 +1419,7 @@ const GeneratedPDF = () => {
                         pdfIframe.contentWindow.scrollBy(0, e.deltaY);
                       }
                     }}
-                  />
+                  /> */}
                 </div>
               </div>
             </>
