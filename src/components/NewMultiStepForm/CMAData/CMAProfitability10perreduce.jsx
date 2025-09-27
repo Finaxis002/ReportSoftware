@@ -320,8 +320,6 @@ const CMAProjectedProfitability = ({
     }
   });
 
-  
-
   const cashProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])
   );
@@ -514,7 +512,6 @@ const CMAProjectedProfitability = ({
                       styles.Total,
                     ]}
                   >
-
                     A
                   </Text>
                   <Text
@@ -526,7 +523,6 @@ const CMAProjectedProfitability = ({
                     ]}
                   >
                     Total Revenue Receipt
-
                   </Text>
 
                   {labels.map((_, localIdx) => (
