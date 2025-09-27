@@ -466,6 +466,51 @@ export function calculateTotalDirect({
   );
 }
 
+// export function calculateCostOfSalesData({
+//   formData,
+//   years,
+//   salaryAndWages,
+//   rawMaterial,
+//   directExpenseRows,
+//   advanceDirectRows,
+// }) {
+//   // Get depreciation per year
+//   const depreciationArray = depreciation(formData).totalDepreciationPerYear;
+
+//   // Calculate TotalCostofSales (array of numbers)
+//   const TotalCostofSales = calculateTotalDirect({
+//     years,
+//     salaryAndWages,
+//     rawMaterial,
+//     directExpenseRows,
+//     advanceDirectRows,
+//     depreciationArray,
+//   });
+
+// // Ensure OpeningStock and ClosingStock are arrays before calling .slice()
+//   const OpeningStocks = Array.isArray(formData?.MoreDetails?.OpeningStock)
+//     ? formData?.MoreDetails?.OpeningStock.slice(0, years)
+//     : new Array(years).fill(0);  // Default to an array of 0s if not valid
+
+//   const ClosingStocks = Array.isArray(formData?.MoreDetails?.ClosingStock)
+//     ? formData?.MoreDetails?.ClosingStock.slice(0, years)
+//     : new Array(years).fill(0);  // Default to an array of 0s if not valid
+
+//   // Calculate Cost of Production year-wise
+//   const costOfProduction = Array.from({ length: years }).map(
+//     (_, idx) =>
+//       (Number(TotalCostofSales[idx]) || 0) +
+//       (Number(OpeningStocks[idx]) || 0) - 
+//       (Number(ClosingStocks[idx]) || 0)
+//   );
+
+//   return {
+//     TotalCostofSales,
+//     openingStocks: OpeningStocks,
+//     closingStocks: ClosingStocks,
+//     costOfProduction, // <-- This is the main 'cost of production'
+//   };
+// }
 export function calculateCostOfSalesData({
   formData,
   years,
@@ -477,24 +522,37 @@ export function calculateCostOfSalesData({
   // Get depreciation per year
   const depreciationArray = depreciation(formData).totalDepreciationPerYear;
 
-  // Calculate TotalCostofSales (array of numbers)
-  const TotalCostofSales = calculateTotalDirect({
+  // Calculate base TotalCostofSales without advance expenses
+  const baseTotalCostofSales = calculateTotalDirect({
     years,
     salaryAndWages,
     rawMaterial,
     directExpenseRows,
-    advanceDirectRows,
+    advanceDirectRows: [], // Pass empty array to original function
     depreciationArray,
   });
 
-// Ensure OpeningStock and ClosingStock are arrays before calling .slice()
+  // Add advance expenses separately
+  const TotalCostofSales = Array.from({ length: years }).map((_, i) => {
+    const baseCost = Number(baseTotalCostofSales[i]) || 0;
+    
+    // Sum all advance direct expenses for this year
+    const totalAdvanceExpenses = advanceDirectRows.reduce(
+      (sum, row) => sum + (Number(row.values[i]) || 0),
+      0
+    );
+
+    return baseCost + totalAdvanceExpenses;
+  });
+
+  // Ensure OpeningStock and ClosingStock are arrays before calling .slice()
   const OpeningStocks = Array.isArray(formData?.MoreDetails?.OpeningStock)
     ? formData?.MoreDetails?.OpeningStock.slice(0, years)
-    : new Array(years).fill(0);  // Default to an array of 0s if not valid
+    : new Array(years).fill(0);
 
   const ClosingStocks = Array.isArray(formData?.MoreDetails?.ClosingStock)
     ? formData?.MoreDetails?.ClosingStock.slice(0, years)
-    : new Array(years).fill(0);  // Default to an array of 0s if not valid
+    : new Array(years).fill(0);
 
   // Calculate Cost of Production year-wise
   const costOfProduction = Array.from({ length: years }).map(
@@ -504,11 +562,29 @@ export function calculateCostOfSalesData({
       (Number(ClosingStocks[idx]) || 0)
   );
 
+  // Debug logging to verify the calculation
+  console.log('Cost of Sales Calculation Debug:');
+  Array.from({ length: years }).forEach((_, i) => {
+    const baseCost = Number(baseTotalCostofSales[i]) || 0;
+    const advanceCost = advanceDirectRows.reduce((sum, row) => sum + (Number(row.values[i]) || 0), 0);
+    console.log(`Year ${i}: Base=${baseCost}, Advance=${advanceCost}, Total=${TotalCostofSales[i]}`);
+  });
+
   return {
     TotalCostofSales,
     openingStocks: OpeningStocks,
     closingStocks: ClosingStocks,
-    costOfProduction, // <-- This is the main 'cost of production'
+    costOfProduction,
+    // Return additional breakdown for debugging
+    salaryAndWages,
+    rawMaterial,
+    directExpenses: Array.from({ length: years }).map((_, i) =>
+      directExpenseRows.reduce((sum, row) => sum + (Number(row.values[i]) || 0), 0)
+    ),
+    advanceExpenses: Array.from({ length: years }).map((_, i) =>
+      advanceDirectRows.reduce((sum, row) => sum + (Number(row.values[i]) || 0), 0)
+    ),
+    depreciation: depreciationArray,
   };
 }
 

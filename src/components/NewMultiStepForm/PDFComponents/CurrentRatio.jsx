@@ -35,6 +35,8 @@ const CurrentRatio = ({
   // ✅ Safely handle undefined formData and provide fallback
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+
+
   const currentRatio = Array.from({
     length: receivedAssetsLiabilities?.CurrentAssetsArray?.length || 0,
   }).map((_, index) => {

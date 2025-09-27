@@ -31,13 +31,11 @@ export const CMAExtractorBS = (formData) => {
     [];
   const currentLiabilitiesArr = formData?.MoreDetails?.currentLiabilities || [];
 
-  // (Use this if you want to sum all other rows)
-  // const excludedParticulars = [
-  //   "Sundry Creditors / Trade Payables",
-  //   "Short term loans"
-  // ];
+  
   const excludedParticulars = [
-    "Quasi Equity",
+    "Sundry Creditors / Trade Payables",
+     "Short term loans",
+    "Quasi Equity"
   ];
   const includedOtherLiabilitiesB = currentLiabilitiesArr.filter(
     (liab) => !excludedParticulars.includes(liab.particular)

@@ -119,22 +119,7 @@ export const makeCMAExtractors = (formData) => {
   const adminValues = administrativeExpenseRows[0]?.values || [];
 
 
-  // // 3. Raw Material row
-  // const rawMatRow = directExpense.find(
-  //   (row) => row.name.trim() === "Raw Material Expenses / Purchases"
-  // );
-
-  // const rawMaterial = rawMatRow
-  //   ? Array.from({ length: years }).map((_, yearIdx) =>
-  //       calculateRawMaterialExpense(
-  //         rawMatRow,
-  //         receivedtotalRevenueReceipts,
-  //         yearIdx,
-  //         formData
-  //       )
-  //     )
-  //   : Array(years).fill(0);
-
+ 
   // Build receipts array consistently (use helper)
 const receiptsArr = totalRevenueReceipts(
   formData,
@@ -153,15 +138,30 @@ const rawMaterial = rawMatRow
 
 
   // 4. Advance direct expenses (uses values array per year)
-  const advanceDirectRows = advanceExpenses
-    .filter((row) => row.type === "direct" && row.name && row.values)
-    .map((row, idx) => ({
+ const advanceDirectRows = advanceExpenses
+  .filter((row) => row.type === "direct" && row.name && row.values)
+  .map((row, idx) => {
+    // Get the year labels from your existing function
+    const yearLabels = Array.from({ length: years }, (_, i) => {
+      const startYear = Number(formData?.ProjectReportSetting?.FinancialYear) || 2024;
+      const yearStart = startYear + i;
+      const yearEnd = yearStart + 1;
+      return `${yearStart}-${yearEnd.toString().slice(-2)}`;
+    });
+
+    // Map values using the year labels as keys
+    const values = yearLabels.map(yearLabel => 
+      Number(row.values?.[yearLabel] || 0)
+    );
+
+    return {
       key: `advanceDirectExpense_${idx}`,
-      values: Array.from({ length: years }).map(
-        (_, yearIdx) => Number(row.values?.[yearIdx]) || 0
-      ),
+      values: values,
       name: row.name,
-    }));
+    };
+  });
+
+console.log('Processed advanceDirectRows:', advanceDirectRows);
 
   const costData = calculateCostOfSalesData({
     years,
@@ -325,6 +325,6 @@ const rawMaterial = rawMatRow
     ProvisionforInvestmentAllowance: () => ProvisionforInvestmentAllowance,
     incomeTaxCal: () => incomeTaxCal,
     netProfitAfterTax : () => netProfitAfterTax ,
-
+    advanceDirectRows: () => advanceDirectRows,
   };
 };
