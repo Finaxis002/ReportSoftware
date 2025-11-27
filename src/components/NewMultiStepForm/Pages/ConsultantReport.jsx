@@ -370,7 +370,10 @@ const ConsultantReport = ({ userRole }) => {
                       {/* Right Section - Action Buttons */}
                       <div className="flex flex-col space-y-2 ml-4">
                         {/* Select Button - Primary */}
-                        <button
+                       
+                        {/* Secondary Actions */}
+                        <div className="flex space-x-2">
+                           <button
                           onClick={() => navigate('/create-consultant-report', { state: { selectedConsultantId: consultant._id } })}
                           className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm font-medium flex items-center space-x-2"
                           title="Select Consultant"
@@ -381,8 +384,6 @@ const ConsultantReport = ({ userRole }) => {
                           <span>Select</span>
                         </button>
 
-                        {/* Secondary Actions */}
-                        <div className="flex space-x-2">
                           <button
                             onClick={() => handleEditConsultant(consultant)}
                             className="p-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 border border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
