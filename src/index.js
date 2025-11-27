@@ -41,6 +41,7 @@ import SettingsPage from "./components/NewMultiStepForm/SettingsPage.jsx";
 import CMADataPdfGeneration from "./components/NewMultiStepForm/CMADataPdfGeneration.jsx";
 import CmaPage from "./components/NewMultiStepForm/Pages/CmaPage.jsx";
 import CmaPdfPage from "./components/NewMultiStepForm/Pages/CmaPdfPage.jsx";
+import ConsultantReport from "./components/NewMultiStepForm/Pages/ConsultantReport.jsx";
 
 // Initialize query client
 const queryClient = new QueryClient();
@@ -346,6 +347,8 @@ const App = () => {
               }
             />
 
+
+
             <Route
               path="/profile"
               element={
@@ -401,6 +404,17 @@ const App = () => {
                 <ProtectedRoute>
                   {" "}
                   <CmaPage userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
+
+            
+             <Route
+              path="/consultant-report"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <ConsultantReport userRole={userRole} />{" "}
                 </ProtectedRoute>
               }
             />
