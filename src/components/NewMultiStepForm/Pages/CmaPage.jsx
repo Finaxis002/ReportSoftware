@@ -75,50 +75,50 @@ const CmaPage = ({ userRole }) => {
 
         <div className="p-6">
           {/* Selection Card - Fixed z-index for dropdown */}
-         <div className="w-full bg-white/70 dark:bg-[#232733]/80 backdrop-blur-[6px] rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-800 transition-all duration-300 hover:shadow-xl mb-2 relative z-40">
-  <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-    <div className="flex items-center gap-3 flex-shrink-0">
-      <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
-        <svg
-          className="w-6 h-6 text-teal-600 dark:text-teal-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      </div>
-      <h2 className="text-xl md:text-2xl font-semibold text-neutral-800 dark:text-white">
-        Select Project Report
-      </h2>
-    </div>
-    <div className="w-full md:w-auto flex-1 max-w-6xl relative z-50">
-      <ReportDropdown
-        onBusinessSelect={handleBusinessSelect}
-        className="w-full"
-      />
-    </div>
-  </div>
-  
-  {!isDataSelected && (
-    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
-      <div className="flex items-start">
-        <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-        </svg>
-        <p className="text-blue-700 dark:text-blue-300 text-sm">
-          Please select a business from the dropdown to generate a comprehensive CMA report.
-        </p>
-      </div>
-    </div>
-  )}
-</div>
+          <div className="w-full bg-white/70 dark:bg-[#232733]/80 backdrop-blur-[6px] rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-800 transition-all duration-300 hover:shadow-xl mb-2 relative z-40">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-teal-600 dark:text-teal-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-xl md:text-2xl font-semibold text-neutral-800 dark:text-white">
+                  Select Project Report
+                </h2>
+              </div>
+              <div className="w-full md:w-auto flex-1 max-w-6xl relative z-50">
+                <ReportDropdown
+                  onBusinessSelect={handleBusinessSelect}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {!isDataSelected && (
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-blue-700 dark:text-blue-300 text-sm">
+                    Please select a business from the dropdown to generate a comprehensive CMA report.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Report Section with Smooth Transition */}
           <div className={`transition-all duration-500 ${isDataSelected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>

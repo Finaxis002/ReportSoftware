@@ -24,6 +24,7 @@ const CreateConsultantReport = ({ userRole }) => {
   });
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedConsultant, setSelectedConsultant] = useState(null);
+  const [reportCount, setReportCount] = useState(0);
 
   const navigate = useNavigate();
 
@@ -118,15 +119,27 @@ const CreateConsultantReport = ({ userRole }) => {
     const fetchSelectedConsultant = async () => {
       if (location.state?.selectedConsultantId) {
         try {
-          const response = await fetch(`${BASE_URL}/api/consultants/${location.state.selectedConsultantId}`);
-          if (response.ok) {
-            const consultant = await response.json();
+          const [consultantRes, reportsRes] = await Promise.all([
+            fetch(`${BASE_URL}/api/consultants/${location.state.selectedConsultantId}`),
+            fetch(`${BASE_URL}/api/consultant-reports/get-all-reports?consultantId=${location.state.selectedConsultantId}`)
+          ]);
+
+          if (consultantRes.ok) {
+            const consultant = await consultantRes.json();
             setSelectedConsultant(consultant);
           } else {
             console.error("Failed to fetch consultant");
           }
+
+          if (reportsRes.ok) {
+            const reportsData = await reportsRes.json();
+            setReportCount(reportsData.data.length);
+          } else {
+            setReportCount(0);
+          }
         } catch (error) {
-          console.error("Error fetching consultant:", error);
+          console.error("Error fetching data:", error);
+          setReportCount(0);
         }
       }
     };
@@ -224,7 +237,7 @@ const CreateConsultantReport = ({ userRole }) => {
           {/* ✅ Update Report Card */}
           {((userRole === "admin" &&
             (!localStorage.getItem("adminName") || permissions.updateReport)) ||
-            (userRole === "employee" && permissions.updateReport)) && (
+            (userRole === "employee" && permissions.updateReport)) && reportCount > 0 && (
             <div className="bg-yellow-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-semibold text-center">
                 Update Report
