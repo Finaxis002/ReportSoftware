@@ -62,3 +62,16 @@ embed[type="application/pdf"] {
     display: none;
 }
 }
+
+/* Dark mode border fixes */
+.dark .border {
+  border-color: #374151 !important; /* gray-800 */
+}
+
+.dark .border-gray-200 {
+  border-color: #374151 !important; /* gray-800 */
+}
+
+.dark .border-gray-300 {
+  border-color: #4b5563 !important; /* gray-700 */
+}
