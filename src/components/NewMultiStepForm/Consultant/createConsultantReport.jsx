@@ -254,7 +254,7 @@ const CreateConsultantReport = ({ userRole }) => {
           )}
 
           {/* ✅ Create New with Existing Card */}
-          {((userRole === "admin" &&
+          {/* {((userRole === "admin" &&
             (!localStorage.getItem("adminName") ||
               permissions.createNewWithExisting)) ||
             (userRole === "employee" && permissions.createNewWithExisting)) && (
@@ -274,7 +274,7 @@ const CreateConsultantReport = ({ userRole }) => {
                 </button>
               </Link>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
@@ -282,3 +282,4 @@ const CreateConsultantReport = ({ userRole }) => {
 };
 
 export default CreateConsultantReport;
+
