@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 
 const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
   const [formData, setFormData] = useState({
@@ -6,10 +6,24 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
     mobile: consultant?.mobile || "",
     email: consultant?.email || "",
     address: consultant?.address || "",
-    logoImage: consultant?.logoImage || null,
   });
 
-  const [logoPreview, setLogoPreview] = useState(consultant?.logoImage || null);
+  const [logoFile, setLogoFile] = useState(null);
+   const [logoPreview, setLogoPreview] = useState(null);
+   const [removeLogo, setRemoveLogo] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
+   useEffect(() => {
+    if (consultant?.logo) {
+      setLogoPreview(`${BASE_URL}${consultant.logo}`);
+      setRemoveLogo(false);
+    } else {
+      setLogoPreview(null);
+    }
+    
+    setLogoFile(null);
+  }, [consultant]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,36 +36,62 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setLogoFile(file);
+      setRemoveLogo(false); 
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result);
-        setFormData({
-          ...formData,
-          logoImage: reader.result,
-        });
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleRemoveImage = () => {
+    setLogoFile(null);
     setLogoPreview(null);
-    setFormData({
-      ...formData,
-      logoImage: null,
-    });
+    setRemoveLogo(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const submitData = new FormData();
+    
+    // Append form fields
+    submitData.append('name', formData.name);
+    submitData.append('mobile', formData.mobile);
+    submitData.append('email', formData.email);
+    submitData.append('address', formData.address);
+    
+    // Append logo file if exists
+    if (logoFile) {
+      submitData.append('logo', logoFile);
+    }
+
+    if (removeLogo && !logoFile) {
+        submitData.append('removeLogo', 'true');
+      }
+
+    console.log('=== FORM DATA BEING SENT ===');
+    for (let [key, value] of submitData.entries()) {
+      console.log(key, value);
+    }
+
+    await onSubmit(submitData);
     onClose();
-  };
+  } catch (error) {
+    console.error('Error submitting form:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">
@@ -60,6 +100,7 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              disabled={loading}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -83,6 +124,7 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
                     type="button"
                     onClick={handleRemoveImage}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200"
+                    disabled={loading}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -101,17 +143,19 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
             <label className="cursor-pointer">
               <input
                 type="file"
+                name="logo"
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
+                disabled={loading}
               />
-              <span className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors duration-200 text-sm">
+              <span className={`px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors duration-200 text-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 {logoPreview ? 'Change Logo' : 'Upload Logo'}
               </span>
             </label>
           </div>
 
-          {/* Name Field - Full Width */}
+          {/* Name Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Name *
@@ -121,15 +165,15 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4  border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               placeholder="Enter consultant name"
               required
+              disabled={loading}
             />
           </div>
 
           {/* Two Fields in a Row */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Mobile Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mobile *
@@ -139,13 +183,13 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
                 name="mobile"
                 value={formData.mobile}
                 onChange={handleChange}
-                className="w-full px-4  border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="Mobile number"
                 required
+                disabled={loading}
               />
             </div>
 
-            {/* Email Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email *
@@ -155,14 +199,15 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4  border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="Email address"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
-          {/* Address Field - Full Width */}
+          {/* Address Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Address *
@@ -172,9 +217,10 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
               value={formData.address}
               onChange={handleChange}
               rows="3"
-              className="w-full px-4 py-1 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+              className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
               placeholder="Enter complete address"
               required
+              disabled={loading}
             />
           </div>
 
@@ -183,15 +229,27 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-1 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-1"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 disabled:opacity-50"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4  bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 flex items-center justify-center"
+              disabled={loading}
             >
-              {consultant ? 'Update' : 'Add'} Consultant
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {consultant ? 'Updating...' : 'Adding...'}
+                </>
+              ) : (
+                consultant ? 'Update' : 'Add Consultant'
+              )}
             </button>
           </div>
         </form>

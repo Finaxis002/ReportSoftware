@@ -42,7 +42,9 @@ import CMADataPdfGeneration from "./components/NewMultiStepForm/CMADataPdfGenera
 import CmaPage from "./components/NewMultiStepForm/Pages/CmaPage.jsx";
 import CmaPdfPage from "./components/NewMultiStepForm/Pages/CmaPdfPage.jsx";
 import ConsultantReport from "./components/NewMultiStepForm/Pages/ConsultantReport.jsx";
-
+import CreateConsultantReport from "./components/NewMultiStepForm/Consultant/createConsultantReport.jsx";
+import createConsultantReportForm from "./components/NewMultiStepForm/Consultant/createConsultantReportForm.jsx";
+import CreateConsultantReportForm from "./components/NewMultiStepForm/Consultant/createConsultantReportForm.jsx";
 // Initialize query client
 const queryClient = new QueryClient();
 
@@ -418,6 +420,27 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/create-consultant-report"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CreateConsultantReport userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/create-consultant-report-form"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <CreateConsultantReportForm userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
+
 
             <Route
               path="/cma-report/pdf"
