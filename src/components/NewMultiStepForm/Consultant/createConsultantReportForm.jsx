@@ -17,10 +17,12 @@ import FourthStepPRS from "../Steps/FourthStepPRS";
 import FifthStepExpenses from "../Steps/FifthStepExpenses";
 import SixthRevenue from "../Steps/SixthRevenue";
 import SeventhStepMD from "../Steps/SeventhStepMD";
+import EighthStep from "../Steps/EighthStep"
 import MenuBar from "../MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AllReportsDropdown from "../Dropdown/AllReportsDropdown";
+
 import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
 
@@ -116,9 +118,9 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     "Expenses",
     "Revenue",
     "More Details",
+    "Report Word",
     "Complete",
   ];
-
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
@@ -520,7 +522,19 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
             MoreDetailsData={formData?.MoreDetails}
           />
         );
-      case 8:
+         case 8:
+        return (
+          <EighthStep
+            businessData={formData}
+            sections={formData?.generatedPDF || {}}
+            loading={false}
+            formData={formData}
+            onFormDataChange={handleFormDataChange}
+            years={projectionYears}
+            MoreDetailsData={formData?.MoreDetails}
+          />
+        );
+      case 9:
         return (
           <ConsultantFinalStep
             formData={formData}
