@@ -114,7 +114,7 @@ const MultiStepForm = ({ userRole, userName }) => {
     "Expenses",
     "Revenue",
     "More Details",
-    "Project Report Export",
+    "Report Word",
     "Complete",
   ];
 
