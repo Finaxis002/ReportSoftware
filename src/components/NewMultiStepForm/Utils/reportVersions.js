@@ -1,0 +1,147 @@
+// Utils/consultantReportVersions.js
+export const CONSULTANT_REPORT_VERSIONS = {
+  "Version 1": {
+    name: "Version 1 - Basic Report",
+    pages: 10,
+    description: "Essential project overview with basic financials",
+    sections: [
+      "Cover Page",
+      "Executive Summary",
+      "Project Introduction",
+      "Market Analysis",
+      "Technical Feasibility",
+      "Financial Overview",
+      "Funding Requirements",
+      "Risk Assessment",
+      "Implementation Timeline",
+      "Conclusion"
+    ],
+    includes: ["Basic financial projections", "Market analysis", "Risk assessment"]
+  },
+  "Version 2": {
+    name: "Version 2 - Standard Report",
+    pages: 15,
+    description: "Comprehensive project analysis with detailed financials",
+    sections: [
+      "Cover Page",
+      "Table of Contents",
+      "Executive Summary",
+      "Project Background",
+      "Market Analysis",
+      "Technical Study",
+      "Financial Analysis",
+      "Funding Plan",
+      "Risk Management",
+      "Implementation Strategy",
+      "SWOT Analysis",
+      "Environmental Impact",
+      "Social Considerations",
+      "Recommendations",
+      "Appendices"
+    ],
+    includes: ["Detailed financial projections", "SWOT analysis", "Environmental impact", "Implementation strategy"]
+  },
+  "Version 3": {
+    name: "Version 3 - Premium Report",
+    pages: 20,
+    description: "Detailed project evaluation with comprehensive analysis",
+    sections: [
+      "Cover Page",
+      "Table of Contents",
+      "Executive Summary",
+      "Introduction",
+      "Project Concept",
+      "Market Analysis",
+      "Technical Analysis",
+      "Financial Analysis",
+      "Funding Requirements",
+      "Risk Assessment",
+      "Implementation Plan",
+      "Monitoring Framework",
+      "Environmental Study",
+      "Social Impact Assessment",
+      "Economic Analysis",
+      "Legal Compliance",
+      "SWOT Analysis",
+      "PESTLE Analysis",
+      "Conclusions",
+      "Recommendations"
+    ],
+    includes: ["Comprehensive financial analysis", "PESTLE analysis", "Social impact assessment", "Legal compliance"]
+  },
+  "Version 4": {
+    name: "Version 4 - Comprehensive Report",
+    pages: 25,
+    description: "Complete project documentation with in-depth analysis",
+    sections: [
+      "Cover Page",
+      "Table of Contents",
+      "Executive Summary",
+      "Introduction",
+      "Project Concept & Objectives",
+      "Market Analysis & Demand Study",
+      "Technical Analysis & Feasibility",
+      "Financial Analysis & Projections",
+      "Funding Requirements & Sources",
+      "Risk Assessment & Mitigation",
+      "Implementation Plan & Timeline",
+      "Monitoring & Evaluation Framework",
+      "Environmental Impact Assessment",
+      "Social Impact Assessment",
+      "Economic Benefit Analysis",
+      "Legal & Regulatory Compliance",
+      "SWOT Analysis",
+      "PESTLE Analysis",
+      "Stakeholder Analysis",
+      "Sustainability Plan",
+      "Quality Assurance",
+      "Conclusions",
+      "Recommendations",
+      "Appendices",
+      "Annexures"
+    ],
+    includes: ["In-depth financial modeling", "Stakeholder analysis", "Sustainability plan", "Quality assurance"]
+  },
+  "Version 5": {
+    name: "Version 5 - Enterprise Report",
+    pages: 30,
+    description: "Enterprise-level project documentation with advanced analytics",
+    sections: [
+      "Cover Page",
+      "Title Page",
+      "Certificate of Analysis",
+      "Table of Contents",
+      "List of Tables",
+      "List of Figures",
+      "Executive Summary",
+      "Introduction & Background",
+      "Project Concept & Vision",
+      "Market Analysis & Industry Study",
+      "Technical Analysis & Specifications",
+      "Financial Analysis & Projections",
+      "Funding Strategy & Capital Structure",
+      "Risk Assessment & Management",
+      "Implementation Roadmap",
+      "Monitoring & Control Framework",
+      "Environmental Impact Assessment",
+      "Social Impact & CSR Initiatives",
+      "Economic Viability Analysis",
+      "Legal, Regulatory & Compliance",
+      "SWOT Analysis",
+      "PESTLE Analysis",
+      "Stakeholder Engagement Plan",
+      "Sustainability & ESG Factors",
+      "Quality Management System",
+      "Technology Stack & Innovation",
+      "Human Resource Planning",
+      "Marketing & Go-to-Market Strategy",
+      "Conclusions & Key Findings",
+      "Strategic Recommendations"
+    ],
+    includes: ["Advanced financial modeling", "ESG factors", "Technology stack", "Marketing strategy", "HR planning"]
+  }
+};
+
+export const getConsultantVersionDetails = (version) => {
+  return CONSULTANT_REPORT_VERSIONS[version] || CONSULTANT_REPORT_VERSIONS["Version 1"];
+};

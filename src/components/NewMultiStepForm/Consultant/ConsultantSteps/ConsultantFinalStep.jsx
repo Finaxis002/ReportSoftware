@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { REPORT_VERSIONS, getVersionDetails } from "../../Utils/reportVersions";
 
-import * as XLSX from "xlsx"; // ✅ Import xlsx library
+import * as XLSX from "xlsx";
 import GraphGenerator from "../../GraphGenerator";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const FinalStep = ({ formData, userRole }) => {
+const ConsultantFinalStep = ({ formData, userRole }) => {
   const navigate = useNavigate();
   const [permissions, setPermissions] = useState({
     generateReport: false,
@@ -17,6 +18,10 @@ const FinalStep = ({ formData, userRole }) => {
     advanceReport: false,
     generateWord: false,
   });
+  const [selectedVersion, setSelectedVersion] = useState(
+    localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
+  );
+  const [showVersionModal, setShowVersionModal] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
@@ -34,6 +39,12 @@ const FinalStep = ({ formData, userRole }) => {
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
   let isComponentMounted = useRef(true);
+
+
+  const handleVersionChange = (version) => {
+    setSelectedVersion(version);
+    localStorage.setItem("selectedConsultantReportVersion", version);
+  };
 
   useEffect(() => {
     if (selectedOption !== "select option") {
@@ -432,6 +443,9 @@ const FinalStep = ({ formData, userRole }) => {
   };
 
   const handleCheckProfit = async () => {
+    // Save selected version to localStorage
+    localStorage.setItem("selectedConsultantReportVersion", selectedVersion);
+
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
@@ -490,7 +504,7 @@ const FinalStep = ({ formData, userRole }) => {
     }
 
     if (iframeRef.current) {
-      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+      iframeRef.current.src = `/consultant-report-pdf?t=${Date.now()}`;
 
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
@@ -543,7 +557,7 @@ const FinalStep = ({ formData, userRole }) => {
   //             generateGraph: true,
   //             advanceReport: true,
   //             generateWord: true,
-              
+
   //           });
   //           return;
   //         }
@@ -580,61 +594,61 @@ const FinalStep = ({ formData, userRole }) => {
   // }, [userRole, userName]);
 
   useEffect(() => {
-  const fetchPermissions = async () => {
-    try {
-      const [empRes, adminRes] = await Promise.all([
-        fetch("https://reportsbe.sharda.co.in/api/employees"),
-        fetch("https://reportsbe.sharda.co.in/api/admins"),
-      ]);
+    const fetchPermissions = async () => {
+      try {
+        const [empRes, adminRes] = await Promise.all([
+          fetch("https://reportsbe.sharda.co.in/api/employees"),
+          fetch("https://reportsbe.sharda.co.in/api/admins"),
+        ]);
 
-      if (!empRes.ok || !adminRes.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const employeeList = await empRes.json();
-      const adminList = await adminRes.json();
-
-      const normalizedUserName = userName?.trim().toLowerCase();
-
-      if (userRole === "admin") {
-        // Set all permissions to true for admin role
-        console.log("Setting all permissions to true for admin!");
-        setPermissions({
-          generateReport: true,
-          updateReport: true,
-          createNewWithExisting: true,
-          downloadPDF: true,
-          exportData: true,
-          createReport: true,
-          generateGraph: true,
-          advanceReport: true,
-          generateWord: true,
-          cmaData: true,
-        });
-        return;
-      }
-
-      if (userRole === "employee") {
-        const employee = employeeList.find(
-          (emp) =>
-            emp.name?.trim().toLowerCase() === normalizedUserName ||
-            emp.email?.trim().toLowerCase() === normalizedUserName ||
-            emp.employeeId?.trim().toLowerCase() === normalizedUserName
-        );
-
-        if (employee?.permissions) {
-          setPermissions(employee.permissions);
+        if (!empRes.ok || !adminRes.ok) {
+          throw new Error("Failed to fetch data");
         }
-      }
-    } catch (err) {
-      console.error("Error fetching permissions:", err.message);
-    }
-  };
 
-  if (userRole && userName) {
-    fetchPermissions();
-  }
-}, [userRole, userName]);
+        const employeeList = await empRes.json();
+        const adminList = await adminRes.json();
+
+        const normalizedUserName = userName?.trim().toLowerCase();
+
+        if (userRole === "admin") {
+          // Set all permissions to true for admin role
+          console.log("Setting all permissions to true for admin!");
+          setPermissions({
+            generateReport: true,
+            updateReport: true,
+            createNewWithExisting: true,
+            downloadPDF: true,
+            exportData: true,
+            createReport: true,
+            generateGraph: true,
+            advanceReport: true,
+            generateWord: true,
+            cmaData: true,
+          });
+          return;
+        }
+
+        if (userRole === "employee") {
+          const employee = employeeList.find(
+            (emp) =>
+              emp.name?.trim().toLowerCase() === normalizedUserName ||
+              emp.email?.trim().toLowerCase() === normalizedUserName ||
+              emp.employeeId?.trim().toLowerCase() === normalizedUserName
+          );
+
+          if (employee?.permissions) {
+            setPermissions(employee.permissions);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err.message);
+      }
+    };
+
+    if (userRole && userName) {
+      fetchPermissions();
+    }
+  }, [userRole, userName]);
 
   const buttonClass = (permission) => {
     return permissions[permission]
@@ -672,6 +686,9 @@ const FinalStep = ({ formData, userRole }) => {
 
   const handleGeneratePdfClick = async () => {
     try {
+      // Save selected version to localStorage
+      localStorage.setItem("selectedConsultantReportVersion", selectedVersion);
+
       console.log("🚀 Logging 'generated-pdf' activity...");
 
       const reportTitle =
@@ -718,128 +735,151 @@ const FinalStep = ({ formData, userRole }) => {
       console.log("✅ Logged 'generated-pdf' activity");
 
       // ✅ Open PDF in new tab
-      window.open("/generated-pdf", "_blank", "noopener,noreferrer");
+      window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("❌ Failed to log 'generated-pdf' activity:", error);
     }
   };
 
   return (
-    <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
-      <h2 className="text-3xl font-semibold text-gray-700 mb-6">
-        Final Step: Generate PDF
-      </h2>
-      <p className="text-gray-600 mb-4">
-        Review the information and click the button below to proceed.
-      </p>
-
-      {/* PDF Type Dropdown */}
-      <div className="mb-6">
-        <label className="block text-gray-700 font-medium mb-2">
-          Select PDF Type:
-        </label>
-        <select
-          value={selectedOption}
-          onChange={(e) => setSelectedOption(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="select option">Select Report Type</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-
-      {/* Color Picker and Font Dropdown */}
-      {selectedOption === "Other" && (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-gray-700 font-medium">
-              Select Color:
-            </label>
-            <div className="flex flex-wrap gap-4">
-              {[
-                "Red",
-                "Blue",
-                "Green",
-                "Purple",
-                "SkyBlue",
-                "Orange",
-                "Teal",
-              ].map((color) => (
-                <label
-                  key={color}
-                  className={`flex items-center gap-1 px-2 py-2 rounded-md border cursor-pointer 
-                  ${
-                    selectedColor === color
-                      ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
-                      : "border-gray-300"
-                  } 
-                  hover:shadow-sm`}
-                  onClick={() => setSelectedColor(color)}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full"
-                    style={{ backgroundColor: color }}
-                  ></div>
-                  <span className="text-sm">{color}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Hex Color Input */}
-          <div>
-            <label className="block text-gray-700 font-medium">
-              Or enter custom HEX code:
-            </label>
-            <input
-              type="text"
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.target.value)}
-              className="border border-gray-300 rounded-md px-4 py-2 w-full"
-            />
-          </div>
-
-          {/* Font Selection */}
-          <div className="mb-4">
+    <>
+      <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg form-scroll">
+        <h2 className="text-3xl font-semibold text-gray-700 mb-6">
+          Final Step: Generate PDF
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Review the information and click the button below to proceed.
+        </p>
+        <div className="flex gap-4 mb-6">
+          {/* ✅ Simple Version Dropdown */}
+          <div className="flex-1 ">
             <label className="block text-gray-700 font-medium mb-2">
-              Choose Font:
+              Select Report Version:
             </label>
             <select
+              value={selectedVersion}
+              onChange={(e) => handleVersionChange(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={selectedFont}
-              onChange={(e) => {
-                const font = e.target.value;
-                setSelectedFont(font);
-                localStorage.setItem("selectedFont", font);
-              }}
             >
-              {[
-                "Roboto",
-                "Poppins",
-                "Times New Roman",
-                "Open Sans",
-                "Inter",
-                "Montserrat",
-                "Lato",
-                "Nunito",
-                "Playfair Display",
-                "Raleway",
-                "Merriweather",
-                "Ubuntu",
-                "Oswald",
-              ].map((font) => (
-                <option key={font} value={font} style={{ fontFamily: font }}>
-                  {font}
-                </option>
-              ))}
+              <option value="Version 1">Version 1</option>
+              <option value="Version 2">Version 2</option>
+              <option value="Version 3">Version 3</option>
+              <option value="Version 4">Version 4</option>
+              <option value="Version 5">Version 5</option>
+            </select>
+            <p className="text-sm text-gray-500 mt-1">
+              Selected: {selectedVersion}
+            </p>
+          </div>
+          {/* PDF Type Dropdown */}
+          <div className="flex-1">
+            <label className="block text-gray-700 font-medium mb-2">
+              Select PDF Type:
+            </label>
+            <select
+              value={selectedOption}
+              onChange={(e) => setSelectedOption(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="select option">Select Report Type</option>
+              <option value="Other">Other</option>
             </select>
           </div>
         </div>
-      )}
 
-      {/* Action Buttons (Check Profit, Generate PDF, Generate Word) */}
-      <div className="flex flex-wrap gap-6 mb-6">
-        {/* <button
+        {/* Color Picker and Font Dropdown */}
+        {selectedOption === "Other" && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-gray-700 font-medium">
+                Select Color:
+              </label>
+              <div className="flex flex-wrap gap-4">
+                {[
+                  "Red",
+                  "Blue",
+                  "Green",
+                  "Purple",
+                  "SkyBlue",
+                  "Orange",
+                  "Teal",
+                ].map((color) => (
+                  <label
+                    key={color}
+                    className={`flex items-center gap-1 px-2 py-2 rounded-md border cursor-pointer 
+                  ${selectedColor === color
+                        ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
+                        : "border-gray-300"
+                      } 
+                  hover:shadow-sm`}
+                    onClick={() => setSelectedColor(color)}
+                  >
+                    <div
+                      className="w-6 h-6 rounded-full"
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <span className="text-sm">{color}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-4 mb-6">
+
+            {/* Hex Color Input */}
+            <div className="flex-1">
+              <label className="block text-gray-700 font-medium">
+                Or enter custom HEX code:
+              </label>
+              <input
+                type="text"
+                value={selectedColor}
+                onChange={(e) => setSelectedColor(e.target.value)}
+                className="border border-gray-300 rounded-md px-4 py-2 w-full"
+              />
+            </div>
+
+            {/* Font Selection */}
+            <div className="flex-1">
+              <label className="block text-gray-700 font-medium">
+                Choose Font:
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={selectedFont}
+                onChange={(e) => {
+                  const font = e.target.value;
+                  setSelectedFont(font);
+                  localStorage.setItem("selectedFont", font);
+                }}
+              >
+                {[
+                  "Roboto",
+                  "Poppins",
+                  "Times New Roman",
+                  "Open Sans",
+                  "Inter",
+                  "Montserrat",
+                  "Lato",
+                  "Nunito",
+                  "Playfair Display",
+                  "Raleway",
+                  "Merriweather",
+                  "Ubuntu",
+                  "Oswald",
+                ].map((font) => (
+                  <option key={font} value={font} style={{ fontFamily: font }}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </div>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons (Check Profit, Generate PDF, Generate Word) */}
+        <div className="flex flex-wrap gap-6 mb-6 mt-2">
+          {/* <button
           onClick={handleCheckProfit}
           className="h-full flex-1 flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group"
         >
@@ -848,37 +888,135 @@ const FinalStep = ({ formData, userRole }) => {
           </svg>
           Check Profit
         </button> */}
-        <button
-          onClick={handleCheckProfit}
-          className="h-full  flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group px-2"
-          disabled={isLoading}
-        >
-          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-blue-200 transition-colors">
-            {isLoading ? (
-              <svg
-                className="animate-spin h-6 w-6 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
+          <button
+            onClick={handleCheckProfit}
+            className="h-full  flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group px-2"
+            disabled={isLoading}
+          >
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-blue-200 transition-colors">
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-6 w-6 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            ) : (
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+                  />
+                </svg>
+              )}
+            </div>
+            <span className="text-sm font-medium text-blue-800">
+              {isLoading ? "Loading..." : "Check Profit"}
+            </span>
+          </button>
+
+          <button
+            onClick={handleGeneratePdfClick}
+            className="flex items-center bg-gradient-to-br from-green-500 to-green-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+              />
+            </svg>
+            Generate Financial
+          </button>
+
+          <button
+            onClick={() => navigate("/intro", { state: { formData } })}
+            className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${!permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
+              }`}
+            disabled={!permissions.generateWord}
+            title={
+              !permissions.generateWord
+                ? "You do not have permission to generate word."
+                : ""
+            }
+          // className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            Generate Word
+          </button>
+        </div>
+
+        {/* Advanced Options */}
+        <div className="flex justify-between items-center mt-6">
+          <h6
+            onClick={() => setShowAdvanced((prev) => !prev)}
+            className=" text-blue-700 px-2 py-2 rounded-lg  transition-all cursor-pointer"
+          >
+            {showAdvanced ? "Hide Advanced" : "Show Advanced"}
+          </h6>
+        </div>
+
+        {showAdvanced && (
+          <div className="flex flex-wrap gap-6 mb-6">
+            {/* Export Data Button */}
+            <button
+              onClick={handleExportData}
+              // className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
+              className={`flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${!permissions.exportData ? "cursor-not-allowed opacity-50" : ""
+                }`}
+              // className={buttonClass("exportData")}
+              disabled={!permissions.exportData}
+              title={
+                !permissions.exportData
+                  ? "You do not have permission to export Data."
+                  : ""
+              }
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-blue-600"
+                className="w-6 h-6 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -887,188 +1025,90 @@ const FinalStep = ({ formData, userRole }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-            )}
-          </div>
-          <span className="text-sm font-medium text-blue-800">
-            {isLoading ? "Loading..." : "Check Profit"}
-          </span>
-        </button>
+              Export Data
+            </button>
 
-        <button
-          onClick={handleGeneratePdfClick}
-          className="flex items-center bg-gradient-to-br from-green-500 to-green-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+            {/* Graph Generator Button */}
+            <GraphGenerator
+              formData={formData}
+              // selectedColor={selectedColor}
+              selectedFont={selectedFont}
+              permissions={permissions}
+              className="flex items-center justify-center w-5 bg-gradient-to-br from-purple-500 to-purple-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
             />
-          </svg>
-          Generate Financial
-        </button>
 
-        <button
-          onClick={() => navigate("/intro", { state: { formData } })}
-         className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
-        !permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
-      }`}
-          disabled={!permissions.generateWord}
-          title={
-            !permissions.generateWord
-              ? "You do not have permission to generate word."
-              : ""
-          }
-          // className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Generate Word
-        </button>
-      </div>
+            <button
+              onClick={() => {
+                const isComputedDataEmpty =
+                  !formData.computedData ||
+                  (typeof formData.computedData === "object" &&
+                    Object.keys(formData.computedData).length === 0);
 
-      {/* Advanced Options */}
-      <div className="flex justify-between items-center mt-6">
-        <h6
-          onClick={() => setShowAdvanced((prev) => !prev)}
-          className=" text-blue-700 px-2 py-2 rounded-lg  transition-all cursor-pointer"
-        >
-          {showAdvanced ? "Hide Advanced" : "Show Advanced"}
-        </h6>
-      </div>
+                if (isComputedDataEmpty) {
+                  // You can use Swal or alert:
+                  Swal.fire({
+                    icon: "error",
+                    title: "Missing Financial Data",
+                    text: "Please generate and download your financial data first.",
+                    confirmButtonColor: "#6366f1",
+                    background: "#fff",
+                    timer: 1600,
+                    showConfirmButton: false,
+                  });
+                  return;
+                }
 
-      {showAdvanced && (
-        <div className="flex flex-wrap gap-6 mb-6">
-          {/* Export Data Button */}
-          <button
-            onClick={handleExportData}
-            // className="flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
-            className={`flex items-center bg-gradient-to-br from-yellow-500 to-yellow-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${
-        !permissions.exportData ? "cursor-not-allowed opacity-50" : ""
-      }`}
-            // className={buttonClass("exportData")}
-            disabled={!permissions.exportData}
-            title={
-              !permissions.exportData
-                ? "You do not have permission to export Data."
-                : ""
-            }
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            Export Data
-          </button>
+                localStorage.setItem(
+                  "cmaAdvanceFormData",
+                  JSON.stringify(formData)
+                );
+                localStorage.setItem("cmaSource", "final-step");
+                window.open(
+                  "/cma-advance-report",
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }}
 
-          {/* Graph Generator Button */}
-          <GraphGenerator
-            formData={formData}
-            // selectedColor={selectedColor}
-            selectedFont={selectedFont}
-            permissions={permissions}
-            className="flex items-center justify-center w-5 bg-gradient-to-br from-purple-500 to-purple-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
-          />
-
-          <button
-            onClick={() => {
-              const isComputedDataEmpty =
-                !formData.computedData ||
-                (typeof formData.computedData === "object" &&
-                  Object.keys(formData.computedData).length === 0);
-
-              if (isComputedDataEmpty) {
-                // You can use Swal or alert:
-                Swal.fire({
-                  icon: "error",
-                  title: "Missing Financial Data",
-                  text: "Please generate and download your financial data first.",
-                  confirmButtonColor: "#6366f1",
-                  background: "#fff",
-                  timer: 1600,
-                  showConfirmButton: false,
-                });
-                return;
-              }
-
-              localStorage.setItem(
-                "cmaAdvanceFormData",
-                JSON.stringify(formData)
-              );
-              localStorage.setItem("cmaSource", "final-step");
-              window.open(
-                "/cma-advance-report",
-                "_blank",
-                "noopener,noreferrer"
-              );
-            }}
-            
-             className={buttonClass("advanceReport")}
+              className={buttonClass("advanceReport")}
               disabled={!permissions.advanceReport}
               title={
-              !permissions.advanceReport
-                ? "You do not have permission to generate advance report."
-                : ""
-               }
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+                !permissions.advanceReport
+                  ? "You do not have permission to generate advance report."
+                  : ""
+              }
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            Advance Report
-          </button>
-        </div>
-      )}
-      <iframe
-        ref={iframeRef}
-        src=""
-        style={{ width: "0px", height: "0px", border: "none", display: "none" }}
-        onLoad={handleIframeLoad}
-      />
-    </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Advance Report
+            </button>
+          </div>
+        )}
+        <iframe
+          ref={iframeRef}
+          src=""
+          style={{ width: "0px", height: "0px", border: "none", display: "none" }}
+          onLoad={handleIframeLoad}
+        />
+      </div>
+
+    </>
   );
 };
 
-export default FinalStep;
+export default ConsultantFinalStep;
