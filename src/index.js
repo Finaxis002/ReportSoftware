@@ -45,6 +45,7 @@ import ConsultantReport from "./components/NewMultiStepForm/Pages/ConsultantRepo
 import CreateConsultantReport from "./components/NewMultiStepForm/Consultant/createConsultantReport.jsx";
 import createConsultantReportForm from "./components/NewMultiStepForm/Consultant/createConsultantReportForm.jsx";
 import CreateConsultantReportForm from "./components/NewMultiStepForm/Consultant/createConsultantReportForm.jsx";
+import ConsultantGeneratedPDF from "./components/NewMultiStepForm/Consultant/ConsultantReportPDF.jsx";
 // Initialize query client
 const queryClient = new QueryClient();
 
@@ -437,6 +438,16 @@ const App = () => {
                 <ProtectedRoute>
                   {" "}
                   <CreateConsultantReportForm userRole={userRole} />{" "}
+                </ProtectedRoute>
+              }
+            />
+
+             <Route
+              path="/consultant-report-pdf"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <ConsultantGeneratedPDF userRole={userRole} />{" "}
                 </ProtectedRoute>
               }
             />

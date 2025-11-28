@@ -11,7 +11,7 @@ import Stepper from "../Stepper";
 import StepperControl from "../StepperControl";
 import FirstStepBasicDetails from "../Steps/FirstStepBasicDetails";
 import SecondStepMOF from "../Steps/SecondStepMOF";
-import FinalStep from "./ConsultantSteps/FinalStep";
+import ConsultantFinalStep from "./ConsultantSteps/ConsultantFinalStep";
 import ThirdStepCOP from "../Steps/ThirdStepCOP";
 import FourthStepPRS from "../Steps/FourthStepPRS";
 import FifthStepExpenses from "../Steps/FifthStepExpenses";
@@ -522,7 +522,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         );
       case 8:
         return (
-          <FinalStep
+          <ConsultantFinalStep
             formData={formData}
             setCurrentStep={setCurrentStep}
             currentStep={currentStep || 1}
