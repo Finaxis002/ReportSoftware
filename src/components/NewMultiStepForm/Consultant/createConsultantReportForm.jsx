@@ -11,7 +11,7 @@ import Stepper from "../Stepper";
 import StepperControl from "../StepperControl";
 import FirstStepBasicDetails from "../Steps/FirstStepBasicDetails";
 import SecondStepMOF from "../Steps/SecondStepMOF";
-import FinalStep from "../Steps/FinalStep";
+import FinalStep from "./ConsultantSteps/FinalStep";
 import ThirdStepCOP from "../Steps/ThirdStepCOP";
 import FourthStepPRS from "../Steps/FourthStepPRS";
 import FifthStepExpenses from "../Steps/FifthStepExpenses";
@@ -313,7 +313,11 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   
       const requestData = new FormData();
       requestData.append("data", JSON.stringify(newData));
-  
+
+      if (isConsultantReport) {
+        requestData.append("consultantId", consultantId);
+      }
+
       if (formData.AccountInformation?.logoOfBusiness instanceof File) {
         requestData.append("file", formData.AccountInformation.logoOfBusiness);
       }
@@ -610,6 +614,10 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
       const formDataPayload = new FormData();
       formDataPayload.append("data", JSON.stringify(requestData));
+
+      if (isConsultantReport) {
+        formDataPayload.append("consultantId", consultantId);
+      }
 
       const response = await axios.post(
         isConsultantReport ? `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing` : `${BASE_URL}/create-new-from-existing`,

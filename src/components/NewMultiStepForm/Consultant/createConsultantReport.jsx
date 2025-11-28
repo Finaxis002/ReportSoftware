@@ -4,8 +4,6 @@ import MenuBar from "../MenuBar";
 import Header from "../Header";
 import { capitalizeWords } from "../../../utils";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
 const CreateConsultantReport = ({ userRole }) => {
   const location = useLocation();
@@ -254,7 +252,7 @@ const CreateConsultantReport = ({ userRole }) => {
           )}
 
           {/* ✅ Create New with Existing Card */}
-          {/* {((userRole === "admin" &&
+          {((userRole === "admin" &&
             (!localStorage.getItem("adminName") ||
               permissions.createNewWithExisting)) ||
             (userRole === "employee" && permissions.createNewWithExisting)) && (
@@ -274,7 +272,7 @@ const CreateConsultantReport = ({ userRole }) => {
                 </button>
               </Link>
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>
