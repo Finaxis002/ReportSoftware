@@ -40,6 +40,12 @@ import PromoterDetails from "../PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "../PDFComponents/PdfAllChartsWrapper";
 
+import GeneratedSections from "../PDFComponents/GeneratedSections";
+import WordIntroduction from "../PDFComponents/WordIntroduction";
+import WordConclusion from "../PDFComponents/WordConclusion";
+import WordGenericSection from "../PDFComponents/WordGenericSection";
+import VersionBasedSections from "../PDFComponents/VersionBasedSections";
+import ProjectCoverPage from "../PDFComponents/Project_Report_Cover";
 
 const ConsultantGeneratedPDF = () => {
   const userRole = localStorage.getItem("userRole");
@@ -740,6 +746,7 @@ const ConsultantGeneratedPDF = () => {
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
       >
+       {versionNum >= 1 && ( <ProjectCoverPage formData={formData} />)}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         {versionNum >= 1 && (
@@ -766,6 +773,14 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
 
+  {versionNum >= 1 && (
+        <VersionBasedSections
+          formData={formData}
+          selectedVersion={selectedVersion}
+          startPageNumber={2} // Start after Project Synopsis
+        />
+      )}
+
         {versionNum >= 1 && (
           <PdfAllChartsWrapper
             formData={formData}
@@ -785,6 +800,9 @@ const ConsultantGeneratedPDF = () => {
             pageNumber={pageNumber}
           />
         )}
+
+     
+
 
         {/* Means of Finance Table */}
         {versionNum >= 1 && (
@@ -1094,6 +1112,7 @@ const ConsultantGeneratedPDF = () => {
     assetsliabilities,
     lineChartBase64,
     versionNum,
+     selectedVersion,
   ]);
 
   // for filling the form data silently
@@ -1275,8 +1294,8 @@ const ConsultantGeneratedPDF = () => {
                         setOrientation("portrait");
                       }}
                       className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${orientation === "portrait"
-                          ? "bg-indigo-600 text-white"
-                          : "bg-white text-indigo-600"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-white text-indigo-600"
                         }`}
                     >
                       <i className="fas fa-portrait text-sm"></i>
@@ -1287,8 +1306,8 @@ const ConsultantGeneratedPDF = () => {
                         setOrientation("landscape");
                       }}
                       className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${orientation === "landscape"
-                          ? "bg-indigo-600 text-white"
-                          : "bg-white text-indigo-600"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-white text-indigo-600"
                         }`}
                     >
                       <i className="fas fa-landscape text-sm"></i>
@@ -1297,8 +1316,8 @@ const ConsultantGeneratedPDF = () => {
                     <button
                       onClick={() => setOrientation("advanced-landscape")}
                       className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button advanced-landscape-btn ${orientation === "advanced-landscape"
-                          ? "bg-indigo-600 text-white"
-                          : "bg-white text-indigo-600"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-white text-indigo-600"
                         }`}
                     >
                       <i className="fas fa-expand-alt text-sm"></i>
