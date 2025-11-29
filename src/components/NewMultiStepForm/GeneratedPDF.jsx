@@ -44,6 +44,8 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
+import GeneratedSections from "./PDFComponents/GeneratedSections";
+import WordIntro from "./PDFComponents/WordIntroduction";
 import { FiIconName } from "react-icons/fi";
 
 const GeneratedPDF = () => {
@@ -146,6 +148,26 @@ const GeneratedPDF = () => {
     // console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
     setTotalExpense(expenses); // ✅ Update state
   };
+
+  // Fetch consultant data if on consultant PDF route
+  useEffect(() => {
+    if (location.pathname === "/consultant-report-pdf") {
+      const fetchConsultantData = async () => {
+        try {
+          const sessionId = localStorage.getItem("activeSessionId");
+          if (sessionId) {
+            const response = await axios.get(`https://reportsbe.sharda.co.in/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
+            if (response.data.success && response.data.data) {
+              setFormData(response.data.data);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching consultant data:", error);
+        }
+      };
+      fetchConsultantData();
+    }
+  }, [location.pathname]);
 
   // window.addEventListener('keydown', e => console.log(e.key));
 
@@ -766,6 +788,30 @@ const GeneratedPDF = () => {
           }}
         />
 
+        <WordIntro
+          generatedPDF={formData.generatedPDF}
+          startPageNumber={1}
+          formData={formData}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          localData={localData}
+          normalExpense={normalExpense}
+          totalAnnualWages={totalAnnualWages}
+          totalQuantity={totalQuantity}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          fringeCalculation={fringeCalculation}
+          receivedDscr={dscr}
+          receivedAverageCurrentRatio={averageCurrentRatio}
+          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
+          receivedAssetsLiabilities={assetsliabilities}
+          pdfType={pdfType}
+          pageNumber={pageNumber}
+          renderTotalBankLoanLabel={renderTotalBankLoanLabel}
+          onRender={() => {
+            console.log("✅ProjectSynopsis rendered");
+            setIsPDFLoading(false);
+          }}
+        />
+
         <PdfAllChartsWrapper
           formData={formData}
           totalExpenses={totalExpense}
@@ -1239,11 +1285,10 @@ const GeneratedPDF = () => {
                       onClick={() => {
                         setOrientation("portrait");
                       }}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${
-                        orientation === "portrait"
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button portrait-btn ${orientation === "portrait"
                           ? "bg-indigo-600 text-white"
                           : "bg-white text-indigo-600"
-                      }`}
+                        }`}
                     >
                       <i className="fas fa-portrait text-sm"></i>
                       <span>Portrait</span>
@@ -1252,22 +1297,20 @@ const GeneratedPDF = () => {
                       onClick={() => {
                         setOrientation("landscape");
                       }}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${
-                        orientation === "landscape"
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button landscape-btn ${orientation === "landscape"
                           ? "bg-indigo-600 text-white"
                           : "bg-white text-indigo-600"
-                      }`}
+                        }`}
                     >
                       <i className="fas fa-landscape text-sm"></i>
                       <span>Landscape</span>
                     </button>
                     <button
                       onClick={() => setOrientation("advanced-landscape")}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button advanced-landscape-btn ${
-                        orientation === "advanced-landscape"
+                      className={`flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-button advanced-landscape-btn ${orientation === "advanced-landscape"
                           ? "bg-indigo-600 text-white"
                           : "bg-white text-indigo-600"
-                      }`}
+                        }`}
                     >
                       <i className="fas fa-expand-alt text-sm"></i>
                       <span>Advanced-Landscape</span>

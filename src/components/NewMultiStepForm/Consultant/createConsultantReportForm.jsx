@@ -18,6 +18,7 @@ import FifthStepExpenses from "../Steps/FifthStepExpenses";
 import SixthRevenue from "../Steps/SixthRevenue";
 import SeventhStepMD from "../Steps/SeventhStepMD";
 import EighthStep from "../Steps/EighthStep"
+import ConsultantEighthStep from "./ConsultantSteps/ConsultantEighthStep";
 import MenuBar from "../MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -524,7 +525,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         );
          case 8:
         return (
-          <EighthStep
+          <ConsultantEighthStep
             businessData={formData}
             sections={formData?.generatedPDF || {}}
             loading={false}
@@ -532,6 +533,10 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
             onFormDataChange={handleFormDataChange}
             years={projectionYears}
             MoreDetailsData={formData?.MoreDetails}
+            setCurrentStep={setCurrentStep}
+            currentStep={currentStep || 1}
+            userRole={userRole}
+            userName={userName}
           />
         );
       case 9:
