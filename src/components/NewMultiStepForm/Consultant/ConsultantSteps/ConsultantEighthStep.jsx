@@ -66,13 +66,16 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
   useEffect(() => {
     setBusinessDescription(formData?.AccountInformation?.businessDescription || "");
-    setSections(formData?.generatedPDF || {});
+    // setSections(formData?.generatedPDF || {});
+    if (formData?.generatedPDF) {
+      setSections(prev => ({ ...prev, ...formData.generatedPDF }));
+    }
   }, [formData]);
 
   const handleVersionChange = (version) => {
     setSelectedVersion(version);
     localStorage.setItem("selectedConsultantReportVersion", version);
-    setSections({}); // Reset sections when version changes
+    // setSections({}); // Reset sections when version changes
   };
 
   const handleSaveGeneratedSections = async () => {
