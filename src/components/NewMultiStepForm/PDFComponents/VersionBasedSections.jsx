@@ -1,28 +1,23 @@
 import React from "react";
 import WordIntroduction from "./WordIntroduction";
-import WordConclusion from "./WordConclusion";
 import WordGenericSection from "./WordGenericSection";
 
 // Define which sections are included in each version (from your EighthStep.jsx)
 const VERSION_SECTIONS = {
   "Version 1": [
     { type: "introduction", component: WordIntroduction },
-    { type: "conclusion", component: WordConclusion }
   ],
   "Version 2": [
     { type: "introduction", component: WordIntroduction },
-    { type: "conclusion", component: WordConclusion }
   ],
   "Version 3": [
     { type: "introduction", component: WordIntroduction },
     { type: "scope", component: WordGenericSection, props: { sectionKey: "scope", title: "Scope of the Project" } },
-    { type: "conclusion", component: WordConclusion }
   ],
   "Version 4": [
     { type: "introduction", component: WordIntroduction },
     { type: "scope", component: WordGenericSection, props: { sectionKey: "scope", title: "Scope of the Project" } },
     { type: "market_potential", component: WordGenericSection, props: { sectionKey: "market_potential", title: "Market Potential" } },
-    { type: "conclusion", component: WordConclusion }
   ],
   "Version 5": [
     { type: "introduction", component: WordIntroduction },
@@ -30,7 +25,6 @@ const VERSION_SECTIONS = {
     { type: "market_potential", component: WordGenericSection, props: { sectionKey: "market_potential", title: "Market Potential" } },
     { type: "swot", component: WordGenericSection, props: { sectionKey: "swot", title: "SWOT Analysis" } },
     { type: "products_services", component: WordGenericSection, props: { sectionKey: "products_services", title: "Products and Services" } },
-    { type: "conclusion", component: WordConclusion }
   ]
 };
 

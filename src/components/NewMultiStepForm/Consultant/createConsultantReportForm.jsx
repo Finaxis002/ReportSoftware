@@ -86,6 +86,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   const handleVersionChange = async (version) => {
     console.log("VERSION CHANGED TO:", version);
     setSelectedVersion(version);
+    localStorage.setItem("selectedConsultantReportVersion", version);
     // Save version to database immediately
     if (sessionId) {
       try {
@@ -209,9 +210,10 @@ const handleBusinessSelect = (businessData, sessionId) => {
 
   // ✅ Set final data in state
   setFormData(cleanedBusinessData);
-  if (cleanedBusinessData.version) {
-    setSelectedVersion(cleanedBusinessData.version);
-  }
+  const reportVersion = cleanedBusinessData.version || "Version 1";
+  setSelectedVersion(reportVersion);
+  // Save version to localStorage when selecting a report
+  localStorage.setItem("selectedConsultantReportVersion", reportVersion);
 };
 
   const waitForReportId = async (sessionId, retries = 5, delay = 1000) => {

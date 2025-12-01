@@ -761,30 +761,21 @@ const ConsultantGeneratedPDF = () => {
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
       >
-       {versionNum >= 1 && ( <ProjectCoverPage formData={formData} />)}
+        {versionNum >= 1 && (<ProjectCoverPage formData={formData} />)}
+        {/* Index Page */}
+        {/* {versionNum >= 1 && (
+           <VariableIndex
+             formData={formData}
+             directExpense={directExpense}
+             formatNumber={formatNumber}
+             receivedtotalRevenueReceipts={totalRevenueReceipts}
+             pdfType={pdfType}
+             orientation={orientation}
+             selectedVersion={selectedVersion}
+           />
+         )} */}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
-          {/* <VariableIndex
-            formData={formData}
-            receivedtotalRevenueReceipts={totalRevenueReceipts}
-            localData={localData}
-            normalExpense={normalExpense}
-            totalAnnualWages={totalAnnualWages}
-            totalQuantity={totalQuantity}
-            fringAndAnnualCalculation={fringAndAnnualCalculation}
-            fringeCalculation={fringeCalculation}
-            receivedDscr={dscr}
-            receivedAverageCurrentRatio={averageCurrentRatio}
-            receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-            receivedAssetsLiabilities={assetsliabilities}
-            pdfType={pdfType}
-            pageNumber={pageNumber}
-            renderTotalBankLoanLabel={renderTotalBankLoanLabel}
-            onRender={() => {
-              console.log("✅ProjectSynopsis rendered");
-              setIsPDFLoading(false);
-            }}
-          /> */}
         {versionNum >= 1 && (
           <ProjectSynopsis
             formData={formData}
@@ -809,13 +800,13 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
 
-  {versionNum >= 1 && (
-        <VersionBasedSections
-          formData={formData}
-          selectedVersion={selectedVersion}
-          startPageNumber={2} // Start after Project Synopsis
-        />
-      )}
+        {versionNum >= 1 && (
+          <VersionBasedSections
+            formData={formData}
+            selectedVersion={selectedVersion}
+            startPageNumber={2} // Start after Project Synopsis
+          />
+        )}
 
         {versionNum >= 1 && (
           <PdfAllChartsWrapper
@@ -837,7 +828,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
 
-     
+
 
 
         {/* Means of Finance Table */}
@@ -1131,6 +1122,16 @@ const ConsultantGeneratedPDF = () => {
             renderWCLFBLabel={renderWCLFBLabel}
           />
         )}
+        {versionNum >= 1 && (
+          <WordConclusion
+            formData={formData}
+            selectedVersion={selectedVersion}
+            startPageNumber={2} // Start after Project Synopsis
+          />
+        )}
+        {/* {versionNum >= 1 && (
+          <WordConclusion />
+        )} */}
       </Document>
     );
   }, [
@@ -1148,7 +1149,7 @@ const ConsultantGeneratedPDF = () => {
     assetsliabilities,
     lineChartBase64,
     versionNum,
-     selectedVersion,
+    selectedVersion,
   ]);
 
   // for filling the form data silently
@@ -1161,6 +1162,8 @@ const ConsultantGeneratedPDF = () => {
       // console.log("📥 Received Data from Report:", reportData);
       // // ✅ Simulate form population
       // populateForm(reportData);
+      // Save fetched version to localStorage
+      localStorage.setItem("selectedConsultantReportVersion", "Version 1");
     }
   }, [location.state]);
 
