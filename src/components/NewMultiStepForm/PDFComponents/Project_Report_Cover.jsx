@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
     marginTop: 10
   },
