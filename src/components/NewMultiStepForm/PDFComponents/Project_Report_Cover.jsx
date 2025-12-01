@@ -151,9 +151,6 @@ const ProjectCoverPage = ({ formData }) => {
           <Text style={styles.email}>{consultantData?.email}</Text>
         </View>
 
-
-          <Image src={MailIcon} style={{ width: 12, height: 12, position: "absolute", zIndex: 100 }} />
-
       </View>
 
     </Page>
