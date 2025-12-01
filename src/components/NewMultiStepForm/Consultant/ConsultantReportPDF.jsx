@@ -19,6 +19,7 @@ import useStore from "../useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
 
+import VariableIndex from "../PDFComponents/CosultantReport/VariableIndex";
 import ProjectSynopsis from "../PDFComponents/ProjectSynopsis";
 import MeansOfFinance from "../PDFComponents/MeansOfFinance";
 import CostOfProject from "../PDFComponents/CostOfProject";
@@ -52,7 +53,9 @@ const ConsultantGeneratedPDF = () => {
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
-  const selectedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
+  const [selectedVersion, setSelectedVersion] = useState(
+    localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
+  );
   const versionNum = parseInt(selectedVersion.replace("Version ", "")) || 1;
 
   // console.log("userRole:", userRole, "userName:", userName);
@@ -160,6 +163,18 @@ const ConsultantGeneratedPDF = () => {
       setPdfType(storedPdfType);
     }
   }, []);
+
+  // Poll localStorage for version changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const storedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
+      if (storedVersion !== selectedVersion) {
+        setSelectedVersion(storedVersion);
+      }
+    }, 500); // Check every 500ms
+
+    return () => clearInterval(interval);
+  }, [selectedVersion]);
 
   useEffect(() => {
     // Poll for the iframe created by @react-pdf/renderer
@@ -749,6 +764,27 @@ const ConsultantGeneratedPDF = () => {
        {versionNum >= 1 && ( <ProjectCoverPage formData={formData} />)}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
+          <VariableIndex
+            formData={formData}
+            receivedtotalRevenueReceipts={totalRevenueReceipts}
+            localData={localData}
+            normalExpense={normalExpense}
+            totalAnnualWages={totalAnnualWages}
+            totalQuantity={totalQuantity}
+            fringAndAnnualCalculation={fringAndAnnualCalculation}
+            fringeCalculation={fringeCalculation}
+            receivedDscr={dscr}
+            receivedAverageCurrentRatio={averageCurrentRatio}
+            receivedBreakEvenPointPercentage={breakEvenPointPercentage}
+            receivedAssetsLiabilities={assetsliabilities}
+            pdfType={pdfType}
+            pageNumber={pageNumber}
+            renderTotalBankLoanLabel={renderTotalBankLoanLabel}
+            onRender={() => {
+              console.log("✅ProjectSynopsis rendered");
+              setIsPDFLoading(false);
+            }}
+          />
         {versionNum >= 1 && (
           <ProjectSynopsis
             formData={formData}

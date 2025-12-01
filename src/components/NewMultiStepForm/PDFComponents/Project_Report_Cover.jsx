@@ -1,5 +1,8 @@
 import React from "react";
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
+import { capitalizeWords } from "../../../utils";
+import MailIcon from "../Assets/mailIcon.png";
+
 
 // --------------- IMPORT BACKGROUND + LOGO ----------------
 import CoverBackground from "../Assets/Project_Cover.png";
@@ -24,13 +27,13 @@ const styles = StyleSheet.create({
   container: {
     position: "absolute",
     top: 80,
-    right: 60,
+    right: 20,
     width: "50%",
     textAlign: "right",
   },
 
   projectTitle: {
-    fontSize: 40,
+    fontSize: 45,
     marginBottom: 10,
     fontWeight: "light"
   },
@@ -40,50 +43,75 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#043A5E',
   },
-info:{
-marginTop:20,
-},
+  info: {
+    marginTop: 20,
+  },
   label: {
     fontSize: 20,
-    marginTop: 10,
+    marginVertical: 10,
     color: '#043A5E',
     fontWeight: "bold",
-    textDecoration: "underline",
-              
+
   },
 
   value: {
-    fontSize: 12,
+    fontSize: 20,
     fontWeight: "bold",
-    marginTop:10
+    marginTop: 10
   },
 
   logoContainer: {
     position: "absolute",
-    bottom: 50,
-    right: 50,
+    bottom: 100,
+    right: 20,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     textAlign: "right",
   },
 
   logo: {
-    width: 120,
+    width: 200,
     height: "auto",
-    marginBottom: 6,
   },
 
   email: {
-    fontSize: 10,
+    fontSize: 12,
+    color: "#043A5E",
+    marginTop: 2,
+    letterSpacing: 1.5,
+    fontWeight: "bold",
   },
+  horizontalLine: {
+    borderBottomColor: '#043A5E',
+    borderBottomWidth: 3,
+    width: "35%",
+    marginLeft: "auto",
+    marginBottom: 80,
+
+  },
+
+  horizontalLine2: {
+    borderBottomColor: '#000000',
+    borderBottomWidth: 1.5,
+    width: "15%",
+    marginLeft: "auto",
+    marginTop: -5,
+  }
+
 });
 
 
 // -------------------- COMPONENT -------------------------
 const ProjectCoverPage = ({ formData }) => {
+  console.log("formData in ProjectCoverPage:", formData);
+  const consultantData = JSON.parse(localStorage.getItem("consultantData") || "null");
+  console.log("consultantData in ProjectCoverPage:", consultantData);
   return (
     <Page size="A4" style={styles.page}>
 
       {/* Background Image */}
-      <Image src={CoverBackground} style={styles.bgImage} fixed/>
+      <Image src={CoverBackground} style={styles.bgImage} fixed />
 
       {/* Right-Side Text Content */}
       <View style={styles.container}>
@@ -91,26 +119,41 @@ const ProjectCoverPage = ({ formData }) => {
         <Text style={styles.projectTitle}>PROJECT</Text>
         <Text style={styles.projectTitle}>REPORT</Text>
 
+        <View style={styles.horizontalLine} />
+
         {/* <Text style={styles.subTitle}>
           On {formData?.ProjectType || "Digital Marketing"}
         </Text> */}
-<View style={styles.info}>
-        <Text style={styles.label}>Business Name</Text>
-        <Text style={styles.value}>
-          {formData?.AccountInformation?.businessName || "ABC Pvt Ltd."}
-        </Text>
+        <View style={styles.info}>
+          <Text style={styles.label}>Business Name</Text>
+          <View style={styles.horizontalLine2} />
+          <Text style={styles.value}>
+            {capitalizeWords(formData?.AccountInformation?.businessName || "ABC Pvt Ltd.")}
+          </Text>
 
-        <Text style={styles.label}>Proprietor Name</Text>
-        <Text style={styles.value}>
-          {formData?.AccountInformation?.businessOwner || "Name ABC"}
-        </Text>
+          <Text style={styles.label}>Proprietor Name</Text>
+          <View style={(styles.horizontalLine2)} />
+          <Text style={styles.value}>
+            {capitalizeWords(formData?.AccountInformation?.businessOwner || "Name ABC")}
+          </Text>
         </View>
       </View>
 
-      {/* Bottom Right - Finaxis Logo */}
+      {/* Bottom Right - Consultant Logo */}
       <View style={styles.logoContainer}>
-        {/* <Image src={FinaxisLogo} style={styles.logo} /> */}
-        <Text style={styles.email}> {formData?.AccountInformation?.businessEmail || "finaxis.ai@gmail.com"}</Text>
+        {consultantData?.logo ? (
+          <Image src={`${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}${consultantData.logo}`} style={styles.logo} />
+        ) : (
+          null
+        )}
+
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          <Text style={styles.email}>{consultantData?.email}</Text>
+        </View>
+
+
+          <Image src={MailIcon} style={{ width: 12, height: 12, position: "absolute", zIndex: 100 }} />
+
       </View>
 
     </Page>

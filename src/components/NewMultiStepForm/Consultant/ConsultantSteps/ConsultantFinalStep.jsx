@@ -3,11 +3,14 @@ import { REPORT_VERSIONS, getVersionDetails } from "../../Utils/reportVersions";
 
 import * as XLSX from "xlsx";
 import GraphGenerator from "../../GraphGenerator";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const ConsultantFinalStep = ({ formData, userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const navigate = useNavigate();
+  const location = useLocation();
+  const [consultantData, setConsultantData] = useState(null);
   const [permissions, setPermissions] = useState({
     generateReport: false,
     updateReport: false,
@@ -83,6 +86,31 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       }
     };
   }, []);
+
+  // Fetch consultant data
+  useEffect(() => {
+    const fetchConsultantData = async () => {
+      const consultantId = location.state?.consultantId;
+      if (consultantId) {
+        try {
+
+          const response = await fetch(`${BASE_URL}/api/consultants/${consultantId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setConsultantData(data);
+            localStorage.setItem("consultantData", JSON.stringify(data));
+            console.log("Consultant data:", data);
+          } else {
+            console.error("Failed to fetch consultant data");
+          }
+        } catch (error) {
+          console.error("Error fetching consultant data:", error);
+        }
+      }
+    };
+
+    fetchConsultantData();
+  }, [location.state]);
 
   const handleIframeLoad = () => {
     if (!isComponentMounted.current) return; // ✅ Exit if component unmounted
@@ -751,26 +779,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
           Review the information and click the button below to proceed.
         </p>
         <div className="flex gap-4 mb-6">
-          {/* ✅ Simple Version Dropdown */}
-          <div className="flex-1 ">
-            <label className="block text-gray-700 font-medium mb-2">
-              Select Report Version:
-            </label>
-            <select
-              value={selectedVersion}
-              onChange={(e) => handleVersionChange(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="Version 1">Version 1</option>
-              <option value="Version 2">Version 2</option>
-              <option value="Version 3">Version 3</option>
-              <option value="Version 4">Version 4</option>
-              <option value="Version 5">Version 5</option>
-            </select>
-            <p className="text-sm text-gray-500 mt-1">
-              Selected: {selectedVersion}
-            </p>
-          </div>
+
           {/* PDF Type Dropdown */}
           <div className="flex-1">
             <label className="block text-gray-700 font-medium mb-2">
@@ -825,69 +834,61 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
             </div>
             <div className="flex gap-4 mb-6">
 
-            {/* Hex Color Input */}
-            <div className="flex-1">
-              <label className="block text-gray-700 font-medium">
-                Or enter custom HEX code:
-              </label>
-              <input
-                type="text"
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="border border-gray-300 rounded-md px-4 py-2 w-full"
-              />
-            </div>
+              {/* Hex Color Input */}
+              <div className="flex-1">
+                <label className="block text-gray-700 font-medium">
+                  Or enter custom HEX code:
+                </label>
+                <input
+                  type="text"
+                  value={selectedColor}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                />
+              </div>
 
-            {/* Font Selection */}
-            <div className="flex-1">
-              <label className="block text-gray-700 font-medium">
-                Choose Font:
-              </label>
-              <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={selectedFont}
-                onChange={(e) => {
-                  const font = e.target.value;
-                  setSelectedFont(font);
-                  localStorage.setItem("selectedFont", font);
-                }}
-              >
-                {[
-                  "Roboto",
-                  "Poppins",
-                  "Times New Roman",
-                  "Open Sans",
-                  "Inter",
-                  "Montserrat",
-                  "Lato",
-                  "Nunito",
-                  "Playfair Display",
-                  "Raleway",
-                  "Merriweather",
-                  "Ubuntu",
-                  "Oswald",
-                ].map((font) => (
-                  <option key={font} value={font} style={{ fontFamily: font }}>
-                    {font}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Font Selection */}
+              <div className="flex-1">
+                <label className="block text-gray-700 font-medium">
+                  Choose Font:
+                </label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedFont}
+                  onChange={(e) => {
+                    const font = e.target.value;
+                    setSelectedFont(font);
+                    localStorage.setItem("selectedFont", font);
+                  }}
+                >
+                  {[
+                    "Roboto",
+                    "Poppins",
+                    "Times New Roman",
+                    "Open Sans",
+                    "Inter",
+                    "Montserrat",
+                    "Lato",
+                    "Nunito",
+                    "Playfair Display",
+                    "Raleway",
+                    "Merriweather",
+                    "Ubuntu",
+                    "Oswald",
+                  ].map((font) => (
+                    <option key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         )}
 
         {/* Action Buttons (Check Profit, Generate PDF, Generate Word) */}
         <div className="flex flex-wrap gap-6 mb-6 mt-2">
-          {/* <button
-          onClick={handleCheckProfit}
-          className="h-full flex-1 flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
-          </svg>
-          Check Profit
-        </button> */}
+
           <button
             onClick={handleCheckProfit}
             className="h-full  flex  items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md group px-2"
@@ -958,7 +959,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
             Generate Financial
           </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/intro", { state: { formData } })}
             className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${!permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
               }`}
@@ -985,7 +986,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
               />
             </svg>
             Generate Word
-          </button>
+          </button> */}
         </div>
 
         {/* Advanced Options */}
