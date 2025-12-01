@@ -763,7 +763,7 @@ const ConsultantGeneratedPDF = () => {
       >
         {versionNum >= 1 && (<ProjectCoverPage formData={formData} />)}
         {/* Index Page */}
-        {/* {versionNum >= 1 && (
+        {versionNum >= 1 && (
            <VariableIndex
              formData={formData}
              directExpense={directExpense}
@@ -773,7 +773,7 @@ const ConsultantGeneratedPDF = () => {
              orientation={orientation}
              selectedVersion={selectedVersion}
            />
-         )} */}
+         )}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         {versionNum >= 1 && (
