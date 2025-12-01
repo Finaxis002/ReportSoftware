@@ -40,8 +40,8 @@ export const makeCMAExtractors = (formData) => {
     startingMonth
   );
   const termLoan = formData?.MeansOfFinance?.termLoan?.termLoan;
-  const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
-  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
+  const interestRate = formData?.ProjectReportSetting?.interestOnTL / 100;
+  const repaymentMonths = formData?.ProjectReportSetting?.RepaymentMonths;
   // 1. Salary & wages (using same escalation/moratorium as ProjectedProfitability)
 
   const hideFirstYear = totalRevenueReceipts?.[0] === 0;
@@ -194,9 +194,9 @@ console.log('Processed advanceDirectRows:', advanceDirectRows);
     moratoriumPeriod:
       parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0,
     repaymentMonths,
-    startMonthName: formData.ProjectReportSetting.SelectStartingMonth,
+    startMonthName: formData?.ProjectReportSetting?.SelectStartingMonth,
     financialYearStart: parseInt(
-      formData.ProjectReportSetting.FinancialYear || 2025
+      formData?.ProjectReportSetting?.FinancialYear || 2025
     ),
   });
 
@@ -269,7 +269,7 @@ console.log('Processed advanceDirectRows:', advanceDirectRows);
   const incomeTaxCal = formData?.computedData?.incomeTaxCalculation?.incomeTaxCalculation || [] ;
 
 
- const netProfitAfterTax =  formData.computedData.computedData.netProfitAfterTax  || [] ;
+ const netProfitAfterTax =  formData?.computedData?.computedData?.netProfitAfterTax  || [] ;
 
   // Build the final extractors object
   return {
