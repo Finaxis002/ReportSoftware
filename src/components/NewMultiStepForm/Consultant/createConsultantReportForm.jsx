@@ -156,51 +156,63 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     [userRole]
   );
 
-  const handleBusinessSelect = (businessData, sessionId) => {
-    // ✅ Create a deep copy of the fetched business data
-    let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
+const handleBusinessSelect = (businessData, sessionId) => {
+  // Get current consultant ID
+  const currentConsultantId = consultantId || 
+                              localStorage.getItem("consultantId") || 
+                              localStorage.getItem("userId");
+  
+  console.log("👤 Current consultant ID:", currentConsultantId);
+  console.log("📋 Selected report's consultant ID:", businessData.consultantId);
 
-    // ✅ Get current logged-in user and role from localStorage
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
+  // ✅ Create a deep copy of the fetched business data
+  let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
 
-    // ✅ REMOVE _id and sessionId if creating a new report
-    if (isCreateReportWithExistingClicked) {
-      delete cleanedBusinessData._id;
-      delete cleanedBusinessData.sessionId;
-      console.log("🗑 Removing _id and sessionId for new report creation...");
-      setSessionId(null); // Reset sessionId for new report
+  // ✅ Get current logged-in user and role from localStorage
+  const currentUser =
+    localStorage.getItem("adminName") ||
+    localStorage.getItem("employeeName") ||
+    "Unknown";
+  const currentUserRole = localStorage.getItem("userRole") || "unknown";
 
-      // ✅ Force update author info
-      if (!cleanedBusinessData.AccountInformation) {
-        cleanedBusinessData.AccountInformation = {};
-      }
+  // ✅ REMOVE _id and sessionId if creating a new report
+  if (isCreateReportWithExistingClicked) {
+    delete cleanedBusinessData._id;
+    delete cleanedBusinessData.sessionId;
+    delete cleanedBusinessData.consultantId; // ✅ Remove old consultantId
+    
+    console.log("🗑 Removing _id, sessionId, and consultantId for new report creation...");
+    setSessionId(null); // Reset sessionId for new report
 
-      cleanedBusinessData.AccountInformation.userRole = currentUserRole;
-      cleanedBusinessData.AccountInformation.createdBy = currentUser;
+    // ✅ Add current consultantId
+    cleanedBusinessData.consultantId = currentConsultantId;
+    console.log("✅ Setting new consultantId:", currentConsultantId);
 
-      console.log("✍️ Overwriting author info:", {
-        userRole: currentUserRole,
-        createdBy: currentUser,
-      });
-    } else {
-      setSessionId(sessionId || null); // Use sessionId when updating
+    // ✅ Force update author info
+    if (!cleanedBusinessData.AccountInformation) {
+      cleanedBusinessData.AccountInformation = {};
     }
 
-    console.log(
-      "✅ Cleaned Business Data (Before Setting Form):",
-      cleanedBusinessData
-    );
+    cleanedBusinessData.AccountInformation.userRole = currentUserRole;
+    cleanedBusinessData.AccountInformation.createdBy = currentUser;
 
-    // ✅ Set final data in state
-    setFormData(cleanedBusinessData);
-    if (cleanedBusinessData.version) {
-      setSelectedVersion(cleanedBusinessData.version);
-    }
-  };
+    console.log("✍️ Overwriting author info:", {
+      userRole: currentUserRole,
+      createdBy: currentUser,
+      consultantId: currentConsultantId
+    });
+  } else {
+    setSessionId(sessionId || null); // Use sessionId when updating
+  }
+
+  console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
+
+  // ✅ Set final data in state
+  setFormData(cleanedBusinessData);
+  if (cleanedBusinessData.version) {
+    setSelectedVersion(cleanedBusinessData.version);
+  }
+};
 
   const waitForReportId = async (sessionId, retries = 5, delay = 1000) => {
     console.log("⏳ Waiting for reportId for session:", sessionId);
@@ -324,62 +336,77 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   };
   
 
-  const handleCreateNewFromExisting = async () => {
-    try {
-      console.log("🔄 Creating new report from existing...");
-      setSessionId(null);
-  
-      // Step 1: Prepare data
-      let newData = JSON.parse(JSON.stringify(formData));
-      delete newData._id;
-      delete newData.sessionId;
-      newData.cloneFromExisting = true;
-  
-      // Ensure creator info exists
-      if (!newData.AccountInformation) newData.AccountInformation = {};
-      newData.version = selectedVersion;
-      newData.AccountInformation.userRole = userRole;
-      newData.AccountInformation.createdBy = userName;
-  
-      const requestData = new FormData();
-      requestData.append("data", JSON.stringify(newData));
+// In handleCreateNewFromExisting function:
+const handleCreateNewFromExisting = async () => {
+  try {
+    console.log("🔄 Creating new report from existing...");
+    setSessionId(null);
+    
+    // Get current consultant ID from localStorage or props
+    const currentConsultantId = consultantId || 
+                                localStorage.getItem("consultantId") || 
+                                localStorage.getItem("userId");
+    
+    console.log("👤 Current consultant ID:", currentConsultantId);
+    console.log("📋 Original consultant ID in formData:", formData.consultantId);
 
-      if (isConsultantReport) {
-        requestData.append("consultantId", consultantId);
-      }
+    // Step 1: Prepare data
+    let newData = JSON.parse(JSON.stringify(formData));
+    delete newData._id;
+    delete newData.sessionId;
+    newData.cloneFromExisting = true;
+    
+    // ✅ CRITICAL: Override consultantId with current consultant
+    newData.consultantId = currentConsultantId;
 
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
-      }
-  
-      // Step 2: Create report
-      const createResponse = await axios.post(
-        isConsultantReport ? `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing` : `${BASE_URL}/create-new-from-existing`,
-        requestData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-  
-      const newSessionId = createResponse.data.sessionId;
-      setSessionId(newSessionId);
-      localStorage.setItem("activeSessionId", newSessionId);
-  
-      // Step 3: Retry to fetch the Mongo _id using sessionId
-      const reportId = await waitForReportId(newSessionId);
-      if (!reportId) {
-        console.warn("❌ Could not fetch reportId, skipping activity log.");
-        return;
-      }
-  
-      // Step 4: Log activity now
-      const reportTitle = newData.AccountInformation?.businessName || "Untitled";
-      await logActivity("create", reportTitle, reportId);
-  
-      alert("✅ New Report Created Successfully!");
-    } catch (error) {
-      console.error("🔥 Error in create from existing:", error);
-      alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
+    // Ensure creator info exists
+    if (!newData.AccountInformation) newData.AccountInformation = {};
+    newData.version = selectedVersion;
+    newData.AccountInformation.userRole = userRole;
+    newData.AccountInformation.createdBy = userName;
+
+    const requestData = new FormData();
+    requestData.append("data", JSON.stringify(newData));
+    
+    // ✅ Use current consultantId in request
+    if (currentConsultantId) {
+      requestData.append("consultantId", currentConsultantId);
     }
-  };
+
+    if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+      requestData.append("file", formData.AccountInformation.logoOfBusiness);
+    }
+
+    // Step 2: Create report
+    const createResponse = await axios.post(
+      `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing`,
+      requestData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    console.log("✅ New report created with consultantId:", currentConsultantId);
+    
+    const newSessionId = createResponse.data.sessionId;
+    setSessionId(newSessionId);
+    localStorage.setItem("activeSessionId", newSessionId);
+
+    // Step 3: Fetch report ID for activity logging
+    const reportId = await waitForReportId(newSessionId);
+    if (!reportId) {
+      console.warn("❌ Could not fetch reportId, skipping activity log.");
+      return;
+    }
+
+    // Step 4: Log activity
+    const reportTitle = newData.AccountInformation?.businessName || "Untitled";
+    await logActivity("create", reportTitle, reportId);
+
+    alert("✅ New Report Created Successfully!");
+  } catch (error) {
+    console.error("🔥 Error in create from existing:", error);
+    alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
+  }
+};
 
   
 
