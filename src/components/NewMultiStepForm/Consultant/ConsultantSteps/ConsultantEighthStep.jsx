@@ -47,7 +47,7 @@ const SectionHeading = (text) =>
     spacing: { after: 300 },
   });
 
-const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsData }) => {
+const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsData, selectedVersion }) => {
    const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const businessData = formData;
   const [businessDescription, setBusinessDescription] = useState(
@@ -57,9 +57,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState(
-    localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
-  );
 
   const currentSections = VERSION_SECTIONS[selectedVersion] || [];
 
@@ -73,48 +70,33 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
 
   useEffect(() => {
-  const savedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
-  setSelectedVersion(savedVersion);
+   if (formData?.generatedPDF) {
+     const requiredKeys = VERSION_SECTIONS[selectedVersion];
+     const filtered = {};
 
-  if (formData?.generatedPDF) {
-    const requiredKeys = VERSION_SECTIONS[savedVersion];
-    const filtered = {};
+     requiredKeys.forEach(key => {
+       if (formData.generatedPDF[key]) {
+         filtered[key] = formData.generatedPDF[key];
+       }
+     });
 
-    requiredKeys.forEach(key => {
-      if (formData.generatedPDF[key]) {
-        filtered[key] = formData.generatedPDF[key];
-      }
-    });
-
-    setSections(filtered);
-  }
-}, [formData]);
+     setSections(filtered);
+   }
+ }, [formData, selectedVersion]);
 
 
-useEffect(() => {
-  const requiredKeys = VERSION_SECTIONS[selectedVersion];
-  const filtered = {};
+ useEffect(() => {
+   const requiredKeys = VERSION_SECTIONS[selectedVersion];
+   const filtered = {};
 
-  requiredKeys.forEach(key => {
-    if (sections[key]) {
-      filtered[key] = sections[key];
-    }
-  });
+   requiredKeys.forEach(key => {
+     if (sections[key]) {
+       filtered[key] = sections[key];
+     }
+   });
 
-  setSections(filtered);
-}, [selectedVersion]);
-
-  // Poll localStorage for version changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const storedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
-      if (storedVersion !== selectedVersion) {
-        setSelectedVersion(storedVersion);
-      }
-    }, 500); // Check every 500ms
-
-    return () => clearInterval(interval);
-  }, [selectedVersion]);
+   setSections(filtered);
+ }, [selectedVersion]);
 
   const handleGenerateProjectReport = async () => {
     if (!businessDescription) {
