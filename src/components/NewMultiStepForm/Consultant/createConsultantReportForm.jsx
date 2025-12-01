@@ -48,7 +48,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
-  const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const [selectedVersion, setSelectedVersion] = useState("Version 1");
 
   useEffect(() => {

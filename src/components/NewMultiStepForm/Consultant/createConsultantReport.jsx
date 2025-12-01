@@ -11,7 +11,7 @@ const CreateConsultantReport = ({ userRole }) => {
 
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
-    const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+    const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
 
   const [permissions, setPermissions] = useState({
     generateReport: false,

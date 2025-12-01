@@ -12,7 +12,7 @@ const AddConsultantForm = ({ onClose, onSubmit, consultant }) => {
    const [logoPreview, setLogoPreview] = useState(null);
    const [removeLogo, setRemoveLogo] = useState(false);
   const [loading, setLoading] = useState(false);
-  const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
 
    useEffect(() => {
     if (consultant?.logo) {
