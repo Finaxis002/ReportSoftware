@@ -764,7 +764,7 @@ const ConsultantGeneratedPDF = () => {
        {versionNum >= 1 && ( <ProjectCoverPage formData={formData} />)}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
-          <VariableIndex
+          {/* <VariableIndex
             formData={formData}
             receivedtotalRevenueReceipts={totalRevenueReceipts}
             localData={localData}
@@ -784,7 +784,7 @@ const ConsultantGeneratedPDF = () => {
               console.log("✅ProjectSynopsis rendered");
               setIsPDFLoading(false);
             }}
-          />
+          /> */}
         {versionNum >= 1 && (
           <ProjectSynopsis
             formData={formData}
