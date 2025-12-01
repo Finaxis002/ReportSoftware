@@ -44,9 +44,9 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
-import GeneratedSections from "./PDFComponents/GeneratedSections";
-import WordIntro from "./PDFComponents/WordIntroduction";
-import { FiIconName } from "react-icons/fi";
+// import GeneratedSections from "./PDFComponents/GeneratedSections";
+// import WordIntro from "./PDFComponents/WordIntroduction";
+
 
 const GeneratedPDF = () => {
   const userRole = localStorage.getItem("userRole");
@@ -788,7 +788,7 @@ const GeneratedPDF = () => {
           }}
         />
 
-        <WordIntro
+        {/* <WordIntro
           generatedPDF={formData.generatedPDF}
           startPageNumber={1}
           formData={formData}
@@ -810,7 +810,7 @@ const GeneratedPDF = () => {
             console.log("✅ProjectSynopsis rendered");
             setIsPDFLoading(false);
           }}
-        />
+        /> */}
 
         <PdfAllChartsWrapper
           formData={formData}
