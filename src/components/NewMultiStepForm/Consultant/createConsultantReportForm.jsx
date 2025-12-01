@@ -23,6 +23,7 @@ import MenuBar from "../MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AllReportsDropdown from "../Dropdown/AllReportsDropdown";
+import VersionDropdown from "../Dropdown/VersionDropdown";
 
 import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
@@ -48,6 +49,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
   const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+  const [selectedVersion, setSelectedVersion] = useState("Version 1");
 
   useEffect(() => {
     if (step) {
@@ -69,6 +71,9 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       delete preFilledData._id;
       delete preFilledData.sessionId;
       setFormData(preFilledData);
+      if (reportData.version) {
+        setSelectedVersion(reportData.version);
+      }
       hasPreFilled.current = true;
     }
   }, [isCreateReportWithExistingClicked, reportData]);
@@ -76,6 +81,23 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {
     setProjectionYears(newYears);
+  };
+
+  const handleVersionChange = async (version) => {
+    console.log("VERSION CHANGED TO:", version);
+    setSelectedVersion(version);
+    // Save version to database immediately
+    if (sessionId) {
+      try {
+        await axios.post(`${BASE_URL}/api/consultant-reports/update-consultant-step`, {
+          sessionId,
+          data: { version },
+        });
+        console.log("✅ Version saved to database:", version);
+      } catch (error) {
+        console.error("❌ Failed to save version:", error);
+      }
+    }
   };
 
   const [formData, setFormData] = useState({
@@ -175,6 +197,9 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
     // ✅ Set final data in state
     setFormData(cleanedBusinessData);
+    if (cleanedBusinessData.version) {
+      setSelectedVersion(cleanedBusinessData.version);
+    }
   };
 
   const waitForReportId = async (sessionId, retries = 5, delay = 1000) => {
@@ -225,6 +250,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   
       let formDataWithoutFile = {
         ...formData,
+        version: selectedVersion,
         AccountInformation: {
           ...formData.AccountInformation,
           userRole: currentUserRole,
@@ -311,6 +337,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   
       // Ensure creator info exists
       if (!newData.AccountInformation) newData.AccountInformation = {};
+      newData.version = selectedVersion;
       newData.AccountInformation.userRole = userRole;
       newData.AccountInformation.createdBy = userName;
   
@@ -368,6 +395,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     try {
       const updatedData = {
         ...formData,
+        version: selectedVersion,
         userRole, // ✅ Include userRole here
       };
 
@@ -537,6 +565,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
             currentStep={currentStep || 1}
             userRole={userRole}
             userName={userName}
+            selectedVersion={selectedVersion}
           />
         );
       case 9:
@@ -628,6 +657,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       const requestData = {
         ...safeFormData,
         ...sanitizedStepData,
+        version: selectedVersion,
         sessionId: sessionId || undefined, // Send sessionId if exists
       };
 
@@ -737,14 +767,18 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
           />
         </div>
 
-        {/* ✅ Dropdown placed outside steps to persist selection */}
-        {!isCreateReportClicked && userRole !== "client" && (
-          <div className="">
-            {/* <ClientNameDropdown
-              onClientSelect={() => { }}
-              onBusinessSelect={handleBusinessSelect}
-            /> */}
-            <AllReportsDropdown onBusinessSelect={handleBusinessSelect} showAll={isCreateReportWithExistingClicked} consultantId={consultantId} />
+        {/* ✅ Dropdowns placed outside steps to persist selection */}
+        {userRole !== "client" && (
+          <div className="flex gap-4 mb-4 pl-4">
+            {!isCreateReportClicked && (
+              <div className="flex-2">
+                <AllReportsDropdown onBusinessSelect={handleBusinessSelect} showAll={isCreateReportWithExistingClicked} consultantId={consultantId} />
+              </div>
+            )}
+            {/* ✅ Version Dropdown */}
+            <div className="flex-1">
+              <VersionDropdown selectedVersion={selectedVersion} onVersionChange={handleVersionChange} />
+            </div>
           </div>
         )}
         <div>{stepContent}</div>
