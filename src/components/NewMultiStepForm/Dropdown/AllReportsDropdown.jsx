@@ -10,7 +10,7 @@ const AllReportsDropdown = ({ onBusinessSelect, showAll = false, consultantId })
   const [isDarkMode, setIsDarkMode] = useState(
     document.documentElement.classList.contains("dark")
   );
-   const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+   const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
