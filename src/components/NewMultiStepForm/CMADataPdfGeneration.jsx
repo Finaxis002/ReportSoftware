@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { PDFDownloadLink, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import CMAMultiPagePDF from "./CMAData/CMAMultiPagePDF";
+import ConsultantCMAMultipagePDF from "./CMAData/ConsultantCMAMultipagePDF";
 import axios from "axios";
 
 const CMADataPdfGeneration = () => {
@@ -11,6 +12,8 @@ const CMADataPdfGeneration = () => {
   const [formData, setFormData] = useState(formDataFromLocalStorage);
   const source = localStorage.getItem("cmaSource") || "final-step";
   console.log("formDataFromLocalStorage :", formDataFromLocalStorage);
+
+  const PDFComponent = source === "consultant" ? ConsultantCMAMultipagePDF : CMAMultiPagePDF;
 
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
@@ -455,7 +458,7 @@ const CMADataPdfGeneration = () => {
           <div className="flex gap-2">
             <BlobProvider
               document={
-                <CMAMultiPagePDF
+                <PDFComponent
                   formData={formData}
                   orientation={orientation}
                 />
@@ -553,7 +556,7 @@ const CMADataPdfGeneration = () => {
               showToolbar={false}
               key={orientation}
             >
-              <CMAMultiPagePDF
+              <PDFComponent
                 formData={formData}
                 orientation={orientation}
                 source={source}
