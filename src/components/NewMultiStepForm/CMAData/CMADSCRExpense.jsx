@@ -228,10 +228,15 @@ const CMADSCRExpense = ({
   const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
 
+  const administrativeExpenseRows =
+    extractors.administrativeExpenseRows() || [];
+  const adminValues = administrativeExpenseRows[0]?.values || [];
+
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
       let totalSalary = Number(salaryandwages[idx] || 0);
       let totalMaterial = Number(rawmaterial[idx] || 0);
+      let administrativeExpenses = Number(adminValues[idx] || 0);
 
       // Sum values from OnlyfilteredDirectExpenses
       let totalDirectExpense = OnlyfilteredDirectExpenses.reduce(
@@ -242,8 +247,8 @@ const CMADSCRExpense = ({
         0
       );
 
-      // Return the total of salary, material, and direct expenses for the year
-      return totalSalary + totalMaterial + totalDirectExpense;
+      // Return the total of salary, material, direct expenses, and administrative expenses for the year
+      return totalSalary + totalMaterial + totalDirectExpense + administrativeExpenses;
     }
   );
 
