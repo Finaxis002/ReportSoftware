@@ -1066,7 +1066,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
                   "cmaAdvanceFormData",
                   JSON.stringify(formData)
                 );
-                localStorage.setItem("cmaSource", "final-step");
+                localStorage.setItem("cmaSource", "consultant");
                 window.open(
                   "/cma-advance-report",
                   "_blank",
