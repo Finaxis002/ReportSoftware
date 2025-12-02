@@ -13,6 +13,9 @@ const CMADataPdfGeneration = () => {
   const source = localStorage.getItem("cmaSource") || "final-step";
   console.log("formDataFromLocalStorage :", formDataFromLocalStorage);
 
+  const selectedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
+  const versionNum = parseInt(selectedVersion.replace("Version ", "")) || 1;
+
   const PDFComponent = source === "consultant" ? ConsultantCMAMultipagePDF : CMAMultiPagePDF;
 
   const [orientation, setOrientation] = useState(() => {
@@ -461,6 +464,7 @@ const CMADataPdfGeneration = () => {
                 <PDFComponent
                   formData={formData}
                   orientation={orientation}
+                  versionNum={versionNum}
                 />
               }
             >
@@ -560,6 +564,7 @@ const CMADataPdfGeneration = () => {
                 formData={formData}
                 orientation={orientation}
                 source={source}
+                versionNum={versionNum}
                 onLoadingComplete={() => handleBlobLoading(false)}
               />
             </PDFViewer>

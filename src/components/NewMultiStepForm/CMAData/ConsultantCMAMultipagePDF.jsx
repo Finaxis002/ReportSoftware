@@ -19,12 +19,16 @@ import CMACashflowMenu from './CMACashflowMenu';
 import CMAContents from './CMAContents';
 import CMADSCR from './CMADSCR';
 import CMARatioAnalysis from "./CMARatioAnalysis";
+import CMAAssumptions from "./CMAAssumptions";
+import WordConclusion from "../PDFComponents/WordConclusion";
+import ConsultantCMAContents from "../CMAData/ConsultantCMAContents"
 
 const ConsultantCMAMultipagePDF = ({
     formData,
     setIsPDFLoading,
     orientation,
     source,
+    versionNum,
     onLoadingComplete
 }) => {
     //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
@@ -116,11 +120,13 @@ const ConsultantCMAMultipagePDF = ({
                 if (setIsPDFLoading) setIsPDFLoading(false); // <-- Only call if provided!
             }}
         >
-            {/* Each sub-component must return <Page> or an array of <Page> */}
-
-
-
-            <CMAContents formData={formData} orientation={orientation} formatNumber={formatNumber} />
+           
+            <ConsultantCMAContents formData={formData} orientation={orientation} formatNumber={formatNumber} versionNum={versionNum} />
+             <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
+             <CMAAnalysisOfBS formData={formData} orientation={orientation} />
+            <CMAWorkingCapReq formData={formData} orientation={orientation} />
+            <CMAFundFlow formData={formData} orientation={orientation} />
+            <CMAFinancialPosition formData={formData} orientation={orientation} />
             <CMAProfitabilityMenu
                 handleDataSend={handleDataSend}
                 formData={formData}
@@ -133,6 +139,13 @@ const ConsultantCMAMultipagePDF = ({
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
+            {versionNum >= 3 && (
+                <CMARatioAnalysis
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
             <CMABalanceSheetMenu
                 handleDataSend={handleDataSend}
                 formData={formData}
@@ -148,53 +161,66 @@ const ConsultantCMAMultipagePDF = ({
                 formatNumber={formatNumber} />
 
 
-            <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
-            <CMAAnalysisOfBS formData={formData} orientation={orientation} />
-            <CMAWorkingCapReq formData={formData} orientation={orientation} />
-            <CMAFundFlow formData={formData} orientation={orientation} />
-            <CMAFinancialPosition formData={formData} orientation={orientation} />
-            <CMAProfitability10perreduce
-                handleDataSend={handleDataSend}
-                formData={formData}
-                totalRevenueReceipts={reducedRevenueReceipts}
-                formatNumber={formatNumber}
-                orientation={orientation}
-            />
-            <CMASARevenue
-                formData={formData}
-                formatNumber={formatNumber}
-                orientation={orientation}
-            />
-            <CMADSCRRevenue
-                formData={formData}
-                formatNumber={formatNumber}
-                orientation={orientation}
-            />
+           
+            
+            {versionNum >= 3 && (
+                <CMAProfitability10perreduce
+                    handleDataSend={handleDataSend}
+                    formData={formData}
+                    totalRevenueReceipts={reducedRevenueReceipts}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
+            {versionNum >= 3 && (
+                <CMASARevenue
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
+            {versionNum >= 3 && (
+                <CMADSCRRevenue
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
 
-            <CMAProfitabiltyExpenseInc
+            {versionNum >= 4 && (
+                <CMAProfitabiltyExpenseInc
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
+
+            {versionNum >= 4 && (
+                <CMASAExpense
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
+
+            {versionNum >= 4 && (
+                <CMADSCRExpense
+                    formData={formData}
+                    formatNumber={formatNumber}
+                    orientation={orientation}
+                />
+            )}
+
+            
+            <CMAAssumptions
                 formData={formData}
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
-
-            <CMASAExpense
-                formData={formData}
-                formatNumber={formatNumber}
-                orientation={orientation}
+            <WordConclusion 
+            formData={formData}
+            startPageNumber={2} 
             />
-
-            <CMADSCRExpense
-                formData={formData}
-                formatNumber={formatNumber}
-                orientation={orientation}
-            />
-
-            <CMARatioAnalysis
-                formData={formData}
-                formatNumber={formatNumber}
-                orientation={orientation}
-            />
-
         </Document>
     );
 };
