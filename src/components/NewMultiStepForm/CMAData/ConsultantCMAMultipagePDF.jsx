@@ -18,6 +18,7 @@ import CMABalanceSheetMenu from './CMABalanceSheetMenu';
 import CMACashflowMenu from './CMACashflowMenu';
 import CMAContents from './CMAContents';
 import CMADSCR from './CMADSCR';
+import CMARatioAnalysis from "./CMARatioAnalysis";
 
 const ConsultantCMAMultipagePDF = ({
     formData,
@@ -127,7 +128,7 @@ const ConsultantCMAMultipagePDF = ({
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
-             <CMADSCR
+            <CMADSCR
                 formData={formData}
                 formatNumber={formatNumber}
                 orientation={orientation}
@@ -183,6 +184,12 @@ const ConsultantCMAMultipagePDF = ({
             />
 
             <CMADSCRExpense
+                formData={formData}
+                formatNumber={formatNumber}
+                orientation={orientation}
+            />
+
+            <CMARatioAnalysis
                 formData={formData}
                 formatNumber={formatNumber}
                 orientation={orientation}
