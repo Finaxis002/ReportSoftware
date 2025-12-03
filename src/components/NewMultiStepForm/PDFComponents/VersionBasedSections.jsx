@@ -2,7 +2,7 @@ import React from "react";
 import WordIntroduction from "./WordIntroduction";
 import WordGenericSection from "./WordGenericSection";
 
-// Define which sections are included in each version (from your EighthStep.jsx)
+// Define which sections are included in each version
 const VERSION_SECTIONS = {
   "Version 1": [
     { type: "introduction", component: WordIntroduction },
@@ -28,8 +28,12 @@ const VERSION_SECTIONS = {
   ]
 };
 
-const VersionBasedSections = ({ formData, selectedVersion = "Version 1", startPageNumber = 2 }) => {
-  console.log("🎯 VersionBasedSections rendering for version:", selectedVersion);
+const VersionBasedSections = ({ formData, startPageNumber = 2 }) => {
+  // Get version directly from formData
+  const selectedVersion = formData?.version || "Version 1";
+  
+  console.log("🎯 VersionBasedSections - formData version:", selectedVersion);
+  console.log("📊 formData.generatedPDF:", formData?.generatedPDF);
   
   const sectionsConfig = VERSION_SECTIONS[selectedVersion] || VERSION_SECTIONS["Version 1"];
   
@@ -38,10 +42,32 @@ const VersionBasedSections = ({ formData, selectedVersion = "Version 1", startPa
     return null;
   }
 
-  console.log("📋 Sections to render:", sectionsConfig);
+  console.log("📋 Sections to render for version", selectedVersion, ":", sectionsConfig.map(s => s.type));
 
   return sectionsConfig.map((sectionConfig, index) => {
     const { component: Component, props = {} } = sectionConfig;
+    
+    // For WordGenericSection, check if the section content exists in formData
+    if (sectionConfig.type !== "introduction") {
+      const sectionKey = props.sectionKey;
+      const sectionContent = formData?.generatedPDF?.[sectionKey];
+      
+      // Log for debugging
+      console.log(`Checking section ${sectionKey}:`, sectionContent ? "Content exists" : "No content");
+      
+      // If section content doesn't exist or is empty, don't render this section
+      if (!sectionContent || sectionContent.trim() === "") {
+        console.log(`⚠️ Section ${sectionKey} has no content, skipping`);
+        return null;
+      }
+    } else {
+      // For introduction, check if it exists
+      const introductionContent = formData?.generatedPDF?.introduction;
+      if (!introductionContent || introductionContent.trim() === "") {
+        console.log(`⚠️ Introduction has no content, skipping`);
+        return null;
+      }
+    }
     
     return (
       <Component
@@ -50,7 +76,7 @@ const VersionBasedSections = ({ formData, selectedVersion = "Version 1", startPa
         {...props}
       />
     );
-  });
+  }).filter(Boolean); // Remove null values (skipped sections)
 };
 
 export default VersionBasedSections;

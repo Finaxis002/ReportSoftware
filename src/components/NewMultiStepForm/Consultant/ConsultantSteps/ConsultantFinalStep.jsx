@@ -58,13 +58,6 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     }
   }, [selectedOption]);
 
-  useEffect(() => {
-    if (selectedColor !== "select color") {
-      localStorage.setItem("selectedColor", selectedColor);
-    } else {
-      localStorage.removeItem("selectedColor");
-    }
-  }, [selectedColor]);
 
   useEffect(() => {
     isComponentMounted.current = true;
@@ -488,7 +481,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     // ✅ Try to fetch reportId via sessionId
     try {
       const res = await fetch(
-        `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+        `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
       );
       const data = await res.json();
       if (data?.reportId) {
@@ -500,7 +493,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     const reportOwner = formData?.AccountInformation?.businessOwner || "";
     // ✅ Log activity
     try {
-      await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
+      await fetch(`${BASE_URL}/api/activity/log`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -532,7 +525,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     }
 
     if (iframeRef.current) {
-      iframeRef.current.src = `/consultant-report-pdf?t=${Date.now()}`;
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
 
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
@@ -625,8 +618,8 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
+          fetch(`${BASE_URL}/api/employees`),
+          fetch(`${BASE_URL}/api/admins`),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
@@ -684,20 +677,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       : "flex items-center bg-gray-300 text-gray-500 rounded-lg px-6 py-2 shadow-md cursor-not-allowed opacity-50";
   };
 
-  const getColorHex = (color) => {
-    const colorMap = {
-      Red: "#ef4444", // Tailwind red-500 (vibrant)
-      Blue: "#3b82f6", // Tailwind blue-500
-      Green: "#22c55e", // Tailwind green-500
-      Purple: "#8b5cf6", // Tailwind purple-500
-      SkyBlue: "#0ea5e9", // Tailwind sky-500
-      Orange: "#f97316", // Tailwind orange-500
-      Pink: "#ec4899", // Tailwind pink-500
-      Teal: "#14b8a6", // Tailwind teal-500
-    };
 
-    return colorMap[color] || "#172554"; // default fallback (dark blue)
-  };
 
   useEffect(() => {
     const handleUnload = () => {
@@ -712,62 +692,151 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     };
   }, []);
 
-  const handleGeneratePdfClick = async () => {
+ const handleGeneratePdfClick = async () => {
+  try {
+    console.log("🚀 Saving calculations to database...");
+    
+    // DEBUG: Check what's in localStorage before saving
+    console.log("🔍 BEFORE - formData in localStorage:", 
+      JSON.parse(localStorage.getItem("formData") || "{}").version);
+    console.log("🔍 BEFORE - selectedVersion state:", selectedVersion);
+    console.log("🔍 BEFORE - selectedColor state:", selectedColor);
+
+    const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
+    const sessionId = localStorage.getItem("activeSessionId") || formData?.sessionId;
+
+    // ✅ FIRST: Save calculations to database
     try {
-      // Save selected version to localStorage
-      localStorage.setItem("selectedConsultantReportVersion", selectedVersion);
+      // Prepare formData with updated color and version for saving
+      const formDataToSave = {
+        ...formData,
+        color: selectedColor !== "select color" ? selectedColor : null,
+        version: selectedVersion
+      };
 
-      console.log("🚀 Logging 'generated-pdf' activity...");
+      console.log("🔍 Sending to server - version:", formDataToSave.version);
+      console.log("🔍 Sending to server - color:", formDataToSave.color);
 
-      const reportTitle =
-        formData?.AccountInformation?.businessName || "Untitled";
-      const sessionId =
-        localStorage.getItem("activeSessionId") || formData?.sessionId;
+      const saveResponse = await fetch(`${BASE_URL}/api/consultant-reports/save-calculations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          formData: formDataToSave, // Send updated formData
+          consultantData,
+          calculations: formData.computedData,
+          timestamp: new Date().toISOString(),
+          generatedBy: userName || "Unknown"
+        }),
+      });
 
-      let reportId = null;
-
-      // ✅ Try to fetch reportId via sessionId
-      try {
-        const res = await fetch(
-          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
-        );
-        const data = await res.json();
-        if (data?.reportId) {
-          reportId = data.reportId;
-        }
-      } catch (err) {
-        console.warn("⚠️ Could not fetch reportId for generated_pdf log");
-      }
-      const reportOwner = formData?.AccountInformation?.businessOwner || "";
-      // ✅ Log activity
-      try {
-        await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "generated_pdf",
-            reportTitle,
-            reportId,
-            reportOwner, // ✅ send this
-            performedBy: {
-              name: userName || "Unknown",
-              role: userRole || "unknown",
-            },
-          }),
-        });
-        console.log("✅ Logged 'generated_pdf' activity");
-      } catch (error) {
-        console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+      if (!saveResponse.ok) {
+        throw new Error("Failed to save calculations");
       }
 
-      console.log("✅ Logged 'generated-pdf' activity");
+      const saveResult = await saveResponse.json();
+      console.log("✅ Calculations saved:", saveResult);
 
-      // ✅ Open PDF in new tab
-      window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
+      // Check what the server returned
+      console.log("🔍 Server returned formData version:", saveResult?.formData?.version);
+      console.log("🔍 Server returned formData color:", saveResult?.formData?.color);
+
+      if (saveResult.calculationId) {
+        localStorage.setItem("lastCalculationId", saveResult.calculationId);
+      }
+
+      // ⚠️ IMPORTANT: If server is returning old data, don't update localStorage with it
+      // Instead, keep our current version and color
+      if (!saveResult.formData || saveResult.formData.version !== selectedVersion) {
+        console.log("⚠️ Server returned outdated version. Keeping local version.");
+        // Update localStorage with our current values
+        const currentFormData = JSON.parse(localStorage.getItem("formData") || "{}");
+        const updatedFormData = {
+          ...currentFormData,
+          version: selectedVersion,
+          color: selectedColor !== "select color" ? selectedColor : null
+        };
+        localStorage.setItem("formData", JSON.stringify(updatedFormData));
+      }
+      
+    } catch (saveError) {
+      console.error("❌ Failed to save calculations:", saveError);
+      Swal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text: "Could not save calculations to database. PDF generation may be incomplete.",
+        confirmButtonColor: "#6366f1",
+      });
+    }
+
+    // DEBUG: Check what's in localStorage after saving
+    console.log("🔍 AFTER - formData in localStorage:", 
+      JSON.parse(localStorage.getItem("formData") || "{}").version);
+
+    // ✅ SECOND: Log activity (existing code)
+    let reportId = null;
+    try {
+      const res = await fetch(
+        `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
+      );
+      const data = await res.json();
+      if (data?.reportId) {
+        reportId = data.reportId;
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch reportId for generated_pdf log");
+    }
+
+    const reportOwner = formData?.AccountInformation?.businessOwner || "";
+
+    try {
+      await fetch(`${BASE_URL}/api/activity/log`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generated_pdf",
+          reportTitle,
+          reportId,
+          reportOwner,
+          performedBy: {
+            name: userName || "Unknown",
+            role: userRole || "unknown",
+          },
+        }),
+      });
+      console.log("✅ Logged 'generated_pdf' activity");
     } catch (error) {
-      console.error("❌ Failed to log 'generated-pdf' activity:", error);
+      console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+    }
+
+    console.log("✅ Logged 'generated-pdf' activity");
+
+    // ✅ THIRD: Open PDF in new tab
+    window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
+  } catch (error) {
+    console.error("❌ Failed to log 'generated-pdf' activity:", error);
+  }
+};
+
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+
+    // Update formData in localStorage with the new color
+    if (formData) {
+      const updatedFormData = {
+        ...formData,
+        color: color !== "select color" ? color : null
+      };
+
+      // Update localStorage
+      localStorage.setItem("formData", JSON.stringify(updatedFormData));
+
+      // Also update the state if you're using it elsewhere
+      // Note: You might need to lift this state up or use context
+      // if you need the updated formData in parent components
     }
   };
+
 
   return (
     <>
@@ -816,12 +885,12 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
                   <label
                     key={color}
                     className={`flex items-center gap-1 px-2 py-2 rounded-md border cursor-pointer 
-                  ${selectedColor === color
+      ${selectedColor === color
                         ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
                         : "border-gray-300"
                       } 
-                  hover:shadow-sm`}
-                    onClick={() => setSelectedColor(color)}
+      hover:shadow-sm`}
+                    onClick={() => handleColorChange(color)}
                   >
                     <div
                       className="w-6 h-6 rounded-full"
@@ -842,8 +911,12 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
                 <input
                   type="text"
                   value={selectedColor}
-                  onChange={(e) => setSelectedColor(e.target.value)}
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    handleColorChange(color);
+                  }}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                  placeholder="#000000"
                 />
               </div>
 

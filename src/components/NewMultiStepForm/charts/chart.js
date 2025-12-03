@@ -528,7 +528,10 @@ export const generateChart = async (data) => {
     });
 
     // ✅ Get selected color from localStorage
-    const selectedColor = localStorage.getItem('selectedColor');
+    const formData = JSON.parse(localStorage.getItem("formData")) || {};
+    
+    // ✅ Get selected color from localStorage
+    const selectedColor = formData?.color || localStorage.getItem("selectedColor");
     let backgroundColors = defaultColors;
 
     // ✅ If a color is selected, generate color palette based on it

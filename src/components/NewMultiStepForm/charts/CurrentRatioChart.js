@@ -348,10 +348,12 @@ const CurrentRatioChart = ({
   labels = [],
   values = [],
   onBase64Generated,
-  selectedColor,
   selectedFont = "Arial",
 }) => {
-  
+  const formData = JSON.parse(localStorage.getItem("formData")) || {};
+    
+    // ✅ Get selected color from localStorage
+    const selectedColor = formData?.color || localStorage.getItem("selectedColor");
   useEffect(() => {
     let mounted = true;
     

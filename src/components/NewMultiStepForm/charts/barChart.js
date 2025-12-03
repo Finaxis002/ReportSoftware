@@ -227,6 +227,8 @@ export const generateBarChart = async ({
   formData,
 }) => {
   try {
+    //  const expenses = formData?.computedData?.totalExpense || formData?.totalExpense || [];
+    console.log("Expenses in generateBarChart:", expenses);
     const canvas = document.createElement("canvas");
     canvas.width = 600;
     canvas.height = 500;
@@ -257,9 +259,10 @@ export const generateBarChart = async ({
     const yInterval = Math.round(maxYValue / 4);
 
     Chart.defaults.font.family = "Times New Roman";
+    // const formData = JSON.parse(localStorage.getItem("formData")) || {};
     
     // ✅ Get selected color from localStorage
-    const selectedColor = localStorage.getItem('selectedColor');
+    const selectedColor = formData?.color || localStorage.getItem("selectedColor");
     let colors;
     
     if (selectedColor && selectedColor.trim() !== '') {

@@ -306,8 +306,8 @@ const colorMap = {
   Teal: "#14b8a6", // Tailwind teal-500
   Black: "#172554", // Default / fallback
 };
-
-const storedColor = localStorage.getItem("selectedColor");
+const formData = JSON.parse(localStorage.getItem("formData")) || {};
+const storedColor = formData?.color || localStorage.getItem("selectedColor");
 //  console.log("stored color" , storedColor)
 
 // If it's a predefined color in colorMap, use its hex

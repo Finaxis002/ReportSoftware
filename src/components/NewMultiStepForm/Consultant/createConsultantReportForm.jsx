@@ -87,6 +87,13 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     console.log("VERSION CHANGED TO:", version);
     setSelectedVersion(version);
     localStorage.setItem("selectedConsultantReportVersion", version);
+
+     const formDataFromStorage = JSON.parse(localStorage.getItem("formData") || "{}");
+  const updatedFormData = {
+    ...formDataFromStorage,
+    version: version
+  };
+  localStorage.setItem("formData", JSON.stringify(updatedFormData));
     // Save version to database immediately
     if (sessionId) {
       try {
@@ -110,6 +117,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     Revenue: {},
     MoreDetails: {},
     generatedPDF: {},
+    version: "Version 1",
   });
 
   // useEffect(() => {

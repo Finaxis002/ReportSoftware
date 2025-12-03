@@ -50,13 +50,18 @@ const PdfAllChartsWrapper = ({
       setChartsReady(true);
     }
   }, [pieChart, barChart, dscrChart, currentRatioChart]);
+
+    const totalExpensestosend = formData?.computedData?.totalExpense || formData?.totalExpense || totalExpenses || [];
+    console.log("formDATA in PdfAllChartsWrapper:", formData);
+
+    console.log("✅ PdfAllChartsWrapper: totalExpensestosend:", totalExpensestosend);
   
   // Render the chart components to generate charts
   return (
     <>
       <PdfWithChart
         formData={formData}
-        totalExpenses={totalExpenses}
+        totalExpenses={totalExpensestosend}
         onPieChartReady={setPieChart}
         onBarChartReady={setBarChart}
       />
