@@ -837,6 +837,26 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     }
   };
 
+  // Helper function to update ONLY formData in localStorage
+const updateFormDataInLocalStorage = (updates) => {
+  try {
+    // Get existing formData from localStorage
+    const existingFormDataStr = localStorage.getItem("formData");
+    const existingFormData = existingFormDataStr ? JSON.parse(existingFormDataStr) : {};
+    
+    // Merge with updates
+    const updatedFormData = {
+      ...existingFormData,
+      ...updates
+    };
+    
+    // Save back to localStorage
+    localStorage.setItem("formData", JSON.stringify(updatedFormData));
+    console.log("✅ Updated formData in localStorage with:", updates);
+  } catch (error) {
+    console.error("❌ Failed to update formData in localStorage:", error);
+  }
+};
 
   return (
     <>
@@ -920,41 +940,45 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
                 />
               </div>
 
-              {/* Font Selection */}
-              <div className="flex-1">
-                <label className="block text-gray-700 font-medium">
-                  Choose Font:
-                </label>
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={selectedFont}
-                  onChange={(e) => {
-                    const font = e.target.value;
-                    setSelectedFont(font);
-                    localStorage.setItem("selectedFont", font);
-                  }}
-                >
-                  {[
-                    "Roboto",
-                    "Poppins",
-                    "Times New Roman",
-                    "Open Sans",
-                    "Inter",
-                    "Montserrat",
-                    "Lato",
-                    "Nunito",
-                    "Playfair Display",
-                    "Raleway",
-                    "Merriweather",
-                    "Ubuntu",
-                    "Oswald",
-                  ].map((font) => (
-                    <option key={font} value={font} style={{ fontFamily: font }}>
-                      {font}
-                    </option>
-                  ))}
-                </select>
-              </div>
+             {/* Font Selection */}
+<div className="flex-1">
+  <label className="block text-gray-700 font-medium">
+    Choose Font:
+  </label>
+  <select
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    value={selectedFont}
+    onChange={(e) => {
+      const font = e.target.value;
+      setSelectedFont(font);
+      
+      // Save ONLY in formData (not as separate localStorage item)
+      updateFormDataInLocalStorage({ 
+        font: font
+      });
+    }}
+  >
+    {[
+      "Roboto",
+      "Poppins",
+      "Times New Roman",
+      "Open Sans",
+      "Inter",
+      "Montserrat",
+      "Lato",
+      "Nunito",
+      "Playfair Display",
+      "Raleway",
+      "Merriweather",
+      "Ubuntu",
+      "Oswald",
+    ].map((font) => (
+      <option key={font} value={font} style={{ fontFamily: font }}>
+        {font}
+      </option>
+    ))}
+  </select>
+</div>
             </div>
           </div>
         )}
