@@ -753,6 +753,9 @@ const GeneratedPDF = () => {
     }
   };
 
+  console.log("totalExpense in generated pdf", totalExpense);
+  console.log("formData in generated pdf", formData);
+
   const memoizedPDF = useMemo(() => {
     return (
       <Document
@@ -1156,7 +1159,7 @@ const GeneratedPDF = () => {
 
   const selectedColor = localStorage.getItem("selectedColor");
 
-  // console.log("selected color : " ,selectedColor)
+  console.log("selected color : " ,selectedColor)
 
   const aggregateComputedData = () => ({
     normalExpense,

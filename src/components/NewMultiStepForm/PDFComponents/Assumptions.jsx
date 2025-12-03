@@ -57,15 +57,19 @@ const Assumptions = ({
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
 
-  const expenseArray = Array.isArray(receiveTotalExpense)
-    ? receiveTotalExpense
-    : [];
-  useEffect(() => {
-    if (receiveTotalExpense && receiveTotalExpense.length > 0) {
-      // console.log("Expense data ready for rendering");
-      setIsDataReady(true);
+
+ useEffect(() => {
+    // Check if computed data has totalExpense available
+    if (formData?.computedData?.totalExpense && formData.computedData.totalExpense.length > 0) {
+        // console.log("Expense data ready for rendering from computed data");
+        setIsDataReady(true);
+    } 
+    // Fall back to the original prop if computed data is not available
+    else if (receiveTotalExpense && receiveTotalExpense.length > 0) {
+        // console.log("Expense data ready for rendering from prop");
+        setIsDataReady(true);
     }
-  }, [receiveTotalExpense]);
+}, [formData?.computedData?.totalExpense, receiveTotalExpense]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -236,7 +240,7 @@ if (isAdvancedLandscape) {
                         { padding: "2px" },
                       ]}
                     >
-                      {formatNumber(totalRevenueReceipts[gIdx] || 0)}
+                      {formatNumber(formData?.computedData?.totalRevenueReceipts[gIdx] || 0)}
                     </Text>
                   );
                 })}
@@ -306,7 +310,7 @@ if (isAdvancedLandscape) {
                           { padding: "2px" },
                         ]}
                       >
-                        {formatNumber(receiveTotalExpense[gIdx] || 0)}
+                        {formatNumber(formData?.computedData?.totalExpense[gIdx] || 0)}
                       </Text>
                     );
                   })
@@ -559,7 +563,7 @@ if (isAdvancedLandscape) {
                       { padding: "2px" },
                     ]}
                   >
-                    {formatNumber(totalRevenueReceipts[index] || 0)}
+                    {formatNumber(formData?.computedData?.totalRevenueReceipts[index] || 0)}
                   </Text>
                 )
             )}
@@ -622,7 +626,7 @@ if (isAdvancedLandscape) {
                         { padding: "2px" },
                       ]}
                     >
-                      {formatNumber(receiveTotalExpense[index] || 0)}
+                      {formatNumber(formData?.computedData?.totalExpense[index] || 0)}
                     </Text>
                   )
               )

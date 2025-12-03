@@ -8,11 +8,12 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
 
 const PdfWithChart = ({
-  formData,
   totalExpenses,
+  formData,
   onPieChartReady,
   onBarChartReady,
 }) => {
+
   const [pieBase64, setPieBase64] = useState(null);
   const [barBase64, setBarBase64] = useState(null);
 

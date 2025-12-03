@@ -25,17 +25,17 @@ import MeansOfFinance from "../PDFComponents/MeansOfFinance";
 import CostOfProject from "../PDFComponents/CostOfProject";
 import ProjectedExpenses from "../PDFComponents/ProjectedExpenses";
 import ProjectedRevenue from "../PDFComponents/ProjectedRevenue";
-import ProjectedProfitability from "../PDFComponents/ProjectedProfitability";
+import ConsultantProjectedProfitability from "./ConsultantPdfComponents/ConsultantProjectedProfitability";
 import ProjectedSalaries from "../PDFComponents/ProjectedSalaries";
 import ProjectedDepreciation from "../PDFComponents/ProjectedDepreciation";
 import Repayment from "../PDFComponents/Repayment";
 import IncomeTaxCalculation from "../PDFComponents/IncomeTaxCalculation";
 import BreakEvenPoint from "../PDFComponents/BreakEvenPoint";
-import DebtServiceCoverageRatio from "../PDFComponents/DebtServiceCoverageRatio";
-import ProjectedCashflow from "../PDFComponents/ProjectedCashflow";
-import ProjectedBalanceSheet from "../PDFComponents/ProjectedBalanceSheet";
+import ConsultantDSCR from "./ConsultantPdfComponents/ConsultantDSCR";
+import ConsultantCashflow from "./ConsultantPdfComponents/ConsultantCashflow";
+import ConsultantBalanceSheet from "./ConsultantPdfComponents/ConsultantBalanceSheet";
 import RatioAnalysis from "../PDFComponents/RatioAnalysis";
-import CurrentRatio from "../PDFComponents/CurrentRatio";
+import ConsultantCurrentRatio from "./ConsultantPdfComponents/ConsultantCurrentRatio";
 import Assumptions from "../PDFComponents/Assumptions";
 import PromoterDetails from "../PDFComponents/PromoterDetails";
 
@@ -57,10 +57,6 @@ const ConsultantGeneratedPDF = () => {
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
-  const [selectedVersion, setSelectedVersion] = useState(
-    pdfData?.version || localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
-  );
-  const versionNum = parseInt(selectedVersion.replace("Version ", "")) || 1;
 
   // console.log("userRole:", userRole, "userName:", userName);
 
@@ -87,6 +83,7 @@ const ConsultantGeneratedPDF = () => {
   const [computedData1, setComputedData1] = useState({
     totalDepreciationPerYear: [],
   });
+  
 
   const [totalDepreciation, setTotalDepreciation] = useState([]);
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
@@ -159,6 +156,26 @@ const ConsultantGeneratedPDF = () => {
 
   // window.addEventListener('keydown', e => console.log(e.key));
 
+  // Fetch consultant data if on consultant PDF route
+  useEffect(() => {
+    if (location.pathname === "/consultant-report-pdf") {
+      const fetchConsultantData = async () => {
+        try {
+          const sessionId = localStorage.getItem("activeSessionId");
+          if (sessionId) {
+            const response = await axios.get(`https://reportsbe.sharda.co.in/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
+            if (response.data.success && response.data.data) {
+              setFormData(response.data.data);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching consultant data:", error);
+        }
+      };
+      fetchConsultantData();
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
     const storedPdfType = localStorage.getItem("pdfType");
@@ -229,6 +246,8 @@ const ConsultantGeneratedPDF = () => {
     }
   };
 
+
+
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
@@ -270,6 +289,29 @@ const ConsultantGeneratedPDF = () => {
   // console.log("formData1", formData1);
 
   const formData = pdfData || formData1;
+
+  // Add these debug logs:
+console.log("🔍 DEBUG - Form Data Sources:");
+console.log("1. pdfData from location.state:", pdfData?.version);
+console.log("2. formData1 from localStorage:", formData1?.version);
+console.log("3. Final formData version:", formData?.version);
+console.log("4. localStorage 'selectedConsultantReportVersion':", localStorage.getItem("selectedConsultantReportVersion"));
+
+  const consultantComputedData = formData?.computedData || {};
+
+
+const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
+const versionNum = parseInt(storedVersion.replace("Version ", "")) || 1;
+
+console.log("✅ FINAL Version Decision:");
+console.log("- From localStorage:", localStorage.getItem("selectedConsultantReportVersion"));
+console.log("- From formData:", formData?.version);
+console.log("- Selected for PDF:", storedVersion);
+
+
+
+  console.log("Consultant Computed Data:", consultantComputedData);
+  
 
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
@@ -766,7 +808,7 @@ const ConsultantGeneratedPDF = () => {
             receivedtotalRevenueReceipts={totalRevenueReceipts}
             pdfType={pdfType}
             orientation={orientation}
-            selectedVersion={selectedVersion}
+            selectedVersion={storedVersion}
           />
         )}
         {/* basic details table */}
@@ -808,7 +850,7 @@ const ConsultantGeneratedPDF = () => {
         {versionNum >= 1 && (
           <VersionBasedSections
             formData={formData}
-            selectedVersion={selectedVersion}
+            selectedVersion={storedVersion}
             startPageNumber={2} // Start after Project Synopsis
           />
         )}
@@ -931,7 +973,7 @@ const ConsultantGeneratedPDF = () => {
         />
 
         {/* Projected Profitability Statement */}
-        <ProjectedProfitability
+        <ConsultantProjectedProfitability
           versionNum={versionNum}
           formData={formData}
           localData={localData}
@@ -973,7 +1015,7 @@ const ConsultantGeneratedPDF = () => {
         />
        )}
         {versionNum >= 1 && (
-          <ProjectedCashflow
+          <ConsultantCashflow
             formData={formData}
             localData={localData}
             totalDepreciationPerYear={totalDepreciation}
@@ -1001,7 +1043,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
         {versionNum >= 1 && (
-          <ProjectedBalanceSheet
+          <ConsultantBalanceSheet
             formData={formData}
             localData={localData}
             totalDepreciationPerYear={totalDepreciation}
@@ -1030,7 +1072,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
           {versionNum >= 1 && (
-          <DebtServiceCoverageRatio
+          <ConsultantDSCR
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
             yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
@@ -1046,7 +1088,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
         {versionNum >= 1 && (
-          <CurrentRatio
+          <ConsultantCurrentRatio
             formData={formData}
             financialYearLabels={financialYearLabels}
             receivedAssetsLiabilities={assetsliabilities}
@@ -1125,7 +1167,7 @@ const ConsultantGeneratedPDF = () => {
         {versionNum >= 1 && (
           <WordConclusion
             formData={formData}
-            selectedVersion={selectedVersion}
+            selectedVersion={storedVersion}
             startPageNumber={2} // Start after Project Synopsis
           />
         )}
@@ -1149,7 +1191,7 @@ const ConsultantGeneratedPDF = () => {
     assetsliabilities,
     lineChartBase64,
     versionNum,
-    selectedVersion,
+    storedVersion,
   ]);
 
   // for filling the form data silently

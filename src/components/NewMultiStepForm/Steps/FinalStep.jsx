@@ -672,6 +672,26 @@ const FinalStep = ({ formData, userRole }) => {
     };
   }, []);
 
+    const handleColorChange = (color) => {
+    setSelectedColor(color);
+
+    // Update formData in localStorage with the new color
+    if (formData) {
+      const updatedFormData = {
+        ...formData,
+        color: color !== "select color" ? color : null
+      };
+
+      // Update localStorage
+      localStorage.setItem("formData", JSON.stringify(updatedFormData));
+
+      // Also update the state if you're using it elsewhere
+      // Note: You might need to lift this state up or use context
+      // if you need the updated formData in parent components
+    }
+  };
+
+
   const handleGeneratePdfClick = async () => {
     try {
       console.log("🚀 Logging 'generated-pdf' activity...");
@@ -750,94 +770,99 @@ const FinalStep = ({ formData, userRole }) => {
         </select>
       </div>
 
-      {/* Color Picker and Font Dropdown */}
-      {selectedOption === "Other" && (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-gray-700 font-medium">
-              Select Color:
-            </label>
-            <div className="flex flex-wrap gap-4">
-              {[
-                "Red",
-                "Blue",
-                "Green",
-                "Purple",
-                "SkyBlue",
-                "Orange",
-                "Teal",
-              ].map((color) => (
-                <label
-                  key={color}
-                  className={`flex items-center gap-1 px-2 py-2 rounded-md border cursor-pointer 
-                  ${
-                    selectedColor === color
-                      ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
-                      : "border-gray-300"
-                  } 
-                  hover:shadow-sm`}
-                  onClick={() => setSelectedColor(color)}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full"
-                    style={{ backgroundColor: color }}
-                  ></div>
-                  <span className="text-sm">{color}</span>
+       {/* Color Picker and Font Dropdown */}
+        {selectedOption === "Other" && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-gray-700 font-medium">
+                Select Color:
+              </label>
+              <div className="flex flex-wrap gap-4">
+                {[
+                  "Red",
+                  "Blue",
+                  "Green",
+                  "Purple",
+                  "SkyBlue",
+                  "Orange",
+                  "Teal",
+                ].map((color) => (
+                  <label
+                    key={color}
+                    className={`flex items-center gap-1 px-2 py-2 rounded-md border cursor-pointer 
+      ${selectedColor === color
+                        ? "border-2 border-indigo-600 bg-indigo-50 scale-105 shadow-md"
+                        : "border-gray-300"
+                      } 
+      hover:shadow-sm`}
+                    onClick={() => handleColorChange(color)}
+                  >
+                    <div
+                      className="w-6 h-6 rounded-full"
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <span className="text-sm">{color}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-4 mb-6">
+
+              {/* Hex Color Input */}
+              <div className="flex-1">
+                <label className="block text-gray-700 font-medium">
+                  Or enter custom HEX code:
                 </label>
-              ))}
+                <input
+                  type="text"
+                  value={selectedColor}
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    handleColorChange(color);
+                  }}
+                  className="border border-gray-300 rounded-md px-4 py-2 w-full"
+                  placeholder="#000000"
+                />
+              </div>
+
+              {/* Font Selection */}
+              <div className="flex-1">
+                <label className="block text-gray-700 font-medium">
+                  Choose Font:
+                </label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedFont}
+                  onChange={(e) => {
+                    const font = e.target.value;
+                    setSelectedFont(font);
+                    localStorage.setItem("selectedFont", font);
+                  }}
+                >
+                  {[
+                    "Roboto",
+                    "Poppins",
+                    "Times New Roman",
+                    "Open Sans",
+                    "Inter",
+                    "Montserrat",
+                    "Lato",
+                    "Nunito",
+                    "Playfair Display",
+                    "Raleway",
+                    "Merriweather",
+                    "Ubuntu",
+                    "Oswald",
+                  ].map((font) => (
+                    <option key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-
-          {/* Hex Color Input */}
-          <div>
-            <label className="block text-gray-700 font-medium">
-              Or enter custom HEX code:
-            </label>
-            <input
-              type="text"
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.target.value)}
-              className="border border-gray-300 rounded-md px-4 py-2 w-full"
-            />
-          </div>
-
-          {/* Font Selection */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Choose Font:
-            </label>
-            <select
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={selectedFont}
-              onChange={(e) => {
-                const font = e.target.value;
-                setSelectedFont(font);
-                localStorage.setItem("selectedFont", font);
-              }}
-            >
-              {[
-                "Roboto",
-                "Poppins",
-                "Times New Roman",
-                "Open Sans",
-                "Inter",
-                "Montserrat",
-                "Lato",
-                "Nunito",
-                "Playfair Display",
-                "Raleway",
-                "Merriweather",
-                "Ubuntu",
-                "Oswald",
-              ].map((font) => (
-                <option key={font} value={font} style={{ fontFamily: font }}>
-                  {font}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Action Buttons (Check Profit, Generate PDF, Generate Word) */}
       <div className="flex flex-wrap gap-6 mb-6">
