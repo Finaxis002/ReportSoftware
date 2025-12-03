@@ -315,7 +315,7 @@ const storedColor = formData?.color || localStorage.getItem("selectedColor");
 const backgroundColor = colorMap[storedColor] || storedColor || "#172554";
 
 
-const selectedFont = localStorage.getItem("selectedFont") || "TimesNewRoman";
+const selectedFont = formData?.font || "TimesNewRoman";
 
 
 console.log("Selected font:", selectedFont);
