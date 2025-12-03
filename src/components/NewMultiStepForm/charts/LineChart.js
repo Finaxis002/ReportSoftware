@@ -1,11 +1,234 @@
 
+// import React, { useEffect } from "react";
+// import { Chart, registerables } from "chart.js";
+// import html2canvas from "html2canvas";
+// import ChartDataLabels from "chartjs-plugin-datalabels";
+
+// Chart.register(...registerables);
+
+// const COLOR_NAME_MAP = {
+//   Red: "#ef4444",
+//   Blue: "#3b82f6",
+//   Green: "#22c55e",
+//   Purple: "#8b5cf6",
+//   SkyBlue: "#0ea5e9",
+//   Orange: "#f97316",
+//   Pink: "#ec4899",
+//   Teal: "#14b8a6",
+// };
+
+// function toHex(color) {
+//   if (!color) return "#3674b5";
+//   if (color.startsWith("#")) return color;
+//   return COLOR_NAME_MAP[color] || color;
+// }
+
+// function hexToRgba(hex, alpha = 1) {
+//   if (!hex) return `rgba(54,116,181,${alpha})`;
+//   if (!hex.startsWith("#")) return `rgba(54,116,181,${alpha})`;
+//   let h = hex.slice(1);
+//   if (h.length === 3)
+//     h = h
+//       .split("")
+//       .map((x) => x + x)
+//       .join("");
+//   const num = parseInt(h, 16);
+//   const r = (num >> 16) & 255;
+//   const g = (num >> 8) & 255;
+//   const b = num & 255;
+//   return `rgba(${r},${g},${b},${alpha})`;
+// }
+
+// const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor, selectedFont = "Arial" }) => {
+//   useEffect(() => {
+//     let mounted = true;
+
+//     const generateChart = async () => {
+//       if (labels.length > 0 && values.length > 0) {
+//         // console.log("✅ Generating DSCR Chart...");
+
+//         // ✅ Create a canvas dynamically
+//         const canvas = document.createElement("canvas");
+//         canvas.width = 600;
+//         canvas.height = 500;
+//         canvas.style.backgroundColor = "#ffffff"; // ✅ Black background
+//         canvas.style.width = "300px";
+//         canvas.style.height = "250px";
+
+//         const ctx = canvas.getContext("2d");
+
+//         // ✅ Append to DOM for html2canvas to work
+//         document.body.appendChild(canvas);
+
+//         // ✅ Ensure existing chart instance is destroyed
+//         if (Chart.getChart(ctx)) {
+//           Chart.getChart(ctx).destroy();
+//         }
+
+//         // ✅ Create gradient for line chart
+//         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+//         gradient.addColorStop(0, "rgba(128, 196, 233, 0.5)");
+//         gradient.addColorStop(1, "rgba(128, 196, 233, 0.2)");
+
+
+
+//         // ✅ Calculate Y-axis range based on last year's value
+//         const lastYearValue = values[values.length - 1] || 0;
+//         let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
+//         const yInterval = Number((maxYValue / 4).toFixed(2)); // ✅ Divide into 4 equal parts with decimals
+
+
+//         Chart.defaults.font.family = "Times New Roman";
+//         const chartFont = selectedFont || "Arial";
+//         const hexColor = toHex(selectedColor);
+//         const lineColor = hexToRgba(hexColor, 1); // Solid line
+//         const fillColor = hexToRgba(hexColor, 0.18);
+//         // ✅ Create Chart Instance
+//         new Chart(ctx, {
+//           type: "line",
+//           data: {
+//             labels,
+//             datasets: [
+//               {
+//                 label: "DSCR",
+//                 data: values,
+//                 borderColor: lineColor, //lineColor // ✅ Blue line color
+//                 backgroundColor: fillColor,
+//                 borderWidth: 3,
+//                 tension: 0.4,
+//                 pointBackgroundColor: fillColor,// pointColor,
+//                 pointBorderColor: lineColor,
+//                 pointBorderWidth: 2,
+//                 pointRadius: 6,
+//                 pointHoverRadius: 8,
+//                 fill: true,
+//               },
+//             ],
+//           },
+//           options: {
+//             responsive: false,
+//             maintainAspectRatio: false,
+//             scales: {
+//               x: {
+//                 title: {
+//                   display: true,
+//                   text: "Years",
+//                   color: "#000000", // ✅ White x-axis label
+//                   font: {
+//                     size: 14,
+//                     weight: "bold",
+//                     family: chartFont,
+//                   },
+//                 },
+//                 ticks: {
+//                   color: "#000000", // ✅ White x-axis ticks
+//                   stepSize: 1,
+//                   maxTicksLimit: labels.length,
+//                 },
+//                 grid: {
+//                   color: "rgba(255, 255, 255, 0.1)", // ✅ Light white gridlines
+//                   drawBorder: true, // ✅ Ensure border is drawn
+//                 },
+//               },
+//               y: {
+//                 beginAtZero: true,
+//                 min: 0,
+//                 max: Number(maxYValue.toFixed(2)),
+//                 title: {
+//                   display: true,
+//                   text: "Value",
+//                   color: "#000000", // ✅ White y-axis label
+//                   font: {
+//                     size: 14,
+//                     weight: "bold",
+//                   },
+//                 },
+//                 ticks: {
+//                   color: "#000000", // ✅ White y-axis ticks
+//                   stepSize: yInterval, // ✅ Divide into 4 equal parts
+//                   callback: (value) => value.toFixed(2),
+//                 },
+//                 grid: {
+//                   color: "rgba(255, 255, 255, 0.1)", // ✅ Light white gridlines
+//                   drawBorder: true,
+//                 },
+//               },
+//             },
+//             plugins: {
+//               legend: {
+//                 display: true,
+//                 position: "top",
+//                 labels: {
+//                   color: "#000000", // ✅ White legend text
+//                   padding: 16,
+//                   font: {
+//                     size: 14,
+//                     weight: "bold",
+//                   },
+//                 },
+//               },
+//               tooltip: {
+//                 enabled: true,
+//               },
+
+//             },
+//           },
+//         });
+
+//         // ✅ Allow time for rendering to complete
+//         await new Promise((resolve) => setTimeout(resolve, 200));
+
+//         try {
+//           // console.log("✅ Capturing chart with html2canvas...");
+
+//           // ✅ Capture chart using html2canvas
+//           const canvasImage = await html2canvas(canvas, {
+//             scale: 2,
+//             useCORS: true,
+//             backgroundColor: "#000000", // ✅ Set background for capture
+//           });
+
+//           // ✅ Convert to base64
+//           const base64Image = canvasImage.toDataURL("image/png");
+//           // console.log("✅ DSCR Chart Base64:", base64Image);
+
+//           // ✅ Pass Base64 to parent component
+//           if (mounted && onBase64Generated) {
+//             onBase64Generated(base64Image);
+//           }
+//         } catch (error) {
+//           // console.error("❌ Error capturing chart:", error);
+//         } finally {
+//           // ✅ Cleanup: remove canvas from DOM
+//           document.body.removeChild(canvas);
+//         }
+//       }
+//     };
+
+//     generateChart();
+
+//     return () => {
+//       mounted = false;
+//     };
+//   }, [labels, values, onBase64Generated]);
+
+//   return null;
+// };
+
+// export default LineChart;
+
+
+
+
+
+
+
 import React, { useEffect } from "react";
 import { Chart, registerables } from "chart.js";
-import html2canvas from "html2canvas";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 
 Chart.register(...registerables);
 
+// ✅ Color mapping for common color names
 const COLOR_NAME_MAP = {
   Red: "#ef4444",
   Blue: "#3b82f6",
@@ -17,40 +240,95 @@ const COLOR_NAME_MAP = {
   Teal: "#14b8a6",
 };
 
+// ✅ Function to convert color names or values to hex
 function toHex(color) {
-  if (!color) return "#3674b5";
+  if (!color) return "#3674b5"; // Default blue
   if (color.startsWith("#")) return color;
   return COLOR_NAME_MAP[color] || color;
 }
+
+// ✅ Function to convert hex to rgba
 function hexToRgba(hex, alpha = 1) {
-  if (!hex) return `rgba(54,116,181,${alpha})`;
-  if (!hex.startsWith("#")) return `rgba(54,116,181,${alpha})`;
+  if (!hex) return `rgba(54, 116, 181, ${alpha})`;
+  if (!hex.startsWith("#")) return `rgba(54, 116, 181, ${alpha})`;
+  
   let h = hex.slice(1);
-  if (h.length === 3)
+  if (h.length === 3) {
     h = h
       .split("")
       .map((x) => x + x)
       .join("");
+  }
+  
   const num = parseInt(h, 16);
   const r = (num >> 16) & 255;
   const g = (num >> 8) & 255;
   const b = num & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor , selectedFont = "Arial"}) => {
+// ✅ Function to generate colors for line chart
+const generateLineChartColors = (baseColor) => {
+  try {
+    const hex = toHex(baseColor);
+    
+    // Convert hex to RGB
+    let h = hex.slice(1);
+    if (h.length === 3) {
+      h = h
+        .split("")
+        .map((x) => x + x)
+        .join("");
+    }
+    
+    const num = parseInt(h, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    
+    // Create gradient colors
+    const lightR = Math.min(255, Math.round(r * 1.3));
+    const lightG = Math.min(255, Math.round(g * 1.3));
+    const lightB = Math.min(255, Math.round(b * 1.3));
+    
+    return {
+      lineColor: `rgba(${r}, ${g}, ${b}, 1)`,
+      fillColor: `rgba(${r}, ${g}, ${b}, 0.18)`,
+      gradientColors: [
+        `rgba(${lightR}, ${lightG}, ${lightB}, 0.5)`,
+        `rgba(${lightR}, ${lightG}, ${lightB}, 0.2)`
+      ]
+    };
+  } catch (error) {
+    console.error("Error generating line chart colors:", error);
+    return {
+      lineColor: "rgba(54, 116, 181, 1)",
+      fillColor: "rgba(54, 116, 181, 0.18)",
+      gradientColors: [
+        "rgba(128, 196, 233, 0.5)",
+        "rgba(128, 196, 233, 0.2)"
+      ]
+    };
+  }
+};
+
+const LineChart = ({ 
+  labels = [], 
+  values = [], 
+  onBase64Generated, 
+  selectedColor, 
+  selectedFont = "Arial" 
+}) => {
   useEffect(() => {
     let mounted = true;
 
     const generateChart = async () => {
       if (labels.length > 0 && values.length > 0) {
-        // console.log("✅ Generating DSCR Chart...");
-
         // ✅ Create a canvas dynamically
         const canvas = document.createElement("canvas");
         canvas.width = 600;
         canvas.height = 500;
-        canvas.style.backgroundColor = "#ffffff"; // ✅ Black background
+        canvas.style.backgroundColor = "#ffffff";
         canvas.style.width = "300px";
         canvas.style.height = "250px";
 
@@ -64,24 +342,46 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
           Chart.getChart(ctx).destroy();
         }
 
+        // ✅ Get the color to use (either from props or localStorage)
+        let colorToUse = selectedColor;
+        
+        // If no color provided in props, check localStorage
+        if (!colorToUse) {
+          colorToUse = localStorage.getItem('selectedColor');
+        }
+        
+        // Generate colors based on selected color
+        let lineColor, fillColor, gradientColors;
+        
+        if (colorToUse) {
+          const generatedColors = generateLineChartColors(colorToUse);
+          lineColor = generatedColors.lineColor;
+          fillColor = generatedColors.fillColor;
+          gradientColors = generatedColors.gradientColors;
+        } else {
+          // Use default blue colors
+          lineColor = "rgba(54, 116, 181, 1)";
+          fillColor = "rgba(54, 116, 181, 0.18)";
+          gradientColors = [
+            "rgba(128, 196, 233, 0.5)",
+            "rgba(128, 196, 233, 0.2)"
+          ];
+        }
+
         // ✅ Create gradient for line chart
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, "rgba(128, 196, 233, 0.5)");
-        gradient.addColorStop(1, "rgba(128, 196, 233, 0.2)");
-
-    
+        gradient.addColorStop(0, gradientColors[0]);
+        gradient.addColorStop(1, gradientColors[1]);
 
         // ✅ Calculate Y-axis range based on last year's value
         const lastYearValue = values[values.length - 1] || 0;
-        let maxYValue = lastYearValue + lastYearValue * 0.5; // ✅ Max = last value + 50%
-        const yInterval = Number((maxYValue / 4).toFixed(2)); // ✅ Divide into 4 equal parts with decimals
+        let maxYValue = lastYearValue + lastYearValue * 0.5;
+        const yInterval = Number((maxYValue / 4).toFixed(2));
 
+        // ✅ Set font family
+        const chartFont = selectedFont || "Arial";
+        Chart.defaults.font.family = chartFont;
 
-        Chart.defaults.font.family = "Times New Roman";
-  const chartFont = selectedFont || "Arial";
-        const hexColor = toHex(selectedColor);
-        const lineColor = hexToRgba(hexColor, 1); // Solid line
-        const fillColor = hexToRgba(hexColor, 0.18); 
         // ✅ Create Chart Instance
         new Chart(ctx, {
           type: "line",
@@ -91,11 +391,11 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
               {
                 label: "DSCR",
                 data: values,
-                borderColor: lineColor, //lineColor // ✅ Blue line color
-                backgroundColor: fillColor,
+                borderColor: lineColor,
+                backgroundColor: gradient, // Use gradient for area fill
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: fillColor,// pointColor,
+                pointBackgroundColor: fillColor,
                 pointBorderColor: lineColor,
                 pointBorderWidth: 2,
                 pointRadius: 6,
@@ -112,7 +412,7 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
                 title: {
                   display: true,
                   text: "Years",
-                  color: "#000000", // ✅ White x-axis label
+                  color: "#000000",
                   font: {
                     size: 14,
                     weight: "bold",
@@ -120,13 +420,16 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
                   },
                 },
                 ticks: {
-                  color: "#000000", // ✅ White x-axis ticks
+                  color: "#000000",
+                  font: {
+                    family: chartFont,
+                  },
                   stepSize: 1,
                   maxTicksLimit: labels.length,
                 },
                 grid: {
-                  color: "rgba(255, 255, 255, 0.1)", // ✅ Light white gridlines
-                  drawBorder: true, // ✅ Ensure border is drawn
+                  color: "rgba(0, 0, 0, 0.1)",
+                  drawBorder: true,
                 },
               },
               y: {
@@ -136,19 +439,23 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
                 title: {
                   display: true,
                   text: "Value",
-                  color: "#000000", // ✅ White y-axis label
+                  color: "#000000",
                   font: {
                     size: 14,
                     weight: "bold",
+                    family: chartFont,
                   },
                 },
                 ticks: {
-                  color: "#000000", // ✅ White y-axis ticks
-                  stepSize: yInterval, // ✅ Divide into 4 equal parts
+                  color: "#000000",
+                  font: {
+                    family: chartFont,
+                  },
+                  stepSize: yInterval,
                   callback: (value) => value.toFixed(2),
                 },
                 grid: {
-                  color: "rgba(255, 255, 255, 0.1)", // ✅ Light white gridlines
+                  color: "rgba(0, 0, 0, 0.1)",
                   drawBorder: true,
                 },
               },
@@ -158,18 +465,23 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
                 display: true,
                 position: "top",
                 labels: {
-                  color: "#000000", // ✅ White legend text
+                  color: "#000000",
                   padding: 16,
                   font: {
                     size: 14,
                     weight: "bold",
+                    family: chartFont,
                   },
                 },
               },
               tooltip: {
                 enabled: true,
+                callbacks: {
+                  label: function(context) {
+                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}`;
+                  }
+                }
               },
-              
             },
           },
         });
@@ -178,25 +490,15 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         try {
-          // console.log("✅ Capturing chart with html2canvas...");
-
-          // ✅ Capture chart using html2canvas
-          const canvasImage = await html2canvas(canvas, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#000000", // ✅ Set background for capture
-          });
-
-          // ✅ Convert to base64
-          const base64Image = canvasImage.toDataURL("image/png");
-          // console.log("✅ DSCR Chart Base64:", base64Image);
+          // ✅ Convert canvas directly to base64 (no need for html2canvas)
+          const base64Image = canvas.toDataURL("image/png");
 
           // ✅ Pass Base64 to parent component
           if (mounted && onBase64Generated) {
             onBase64Generated(base64Image);
           }
         } catch (error) {
-          // console.error("❌ Error capturing chart:", error);
+          console.error("❌ Error capturing chart:", error);
         } finally {
           // ✅ Cleanup: remove canvas from DOM
           document.body.removeChild(canvas);
@@ -209,9 +511,30 @@ const LineChart = ({ labels = [], values = [], onBase64Generated, selectedColor 
     return () => {
       mounted = false;
     };
-  }, [labels, values, onBase64Generated]);
+  }, [labels, values, onBase64Generated, selectedColor, selectedFont]);
 
   return null;
+};
+
+// ✅ Helper function to save selected color to localStorage
+export const saveSelectedColor = (color) => {
+  try {
+    localStorage.setItem('selectedColor', color);
+    return true;
+  } catch (error) {
+    console.error("❌ Error saving color to localStorage:", error);
+    return false;
+  }
+};
+
+// ✅ Helper function to get current selected color
+export const getSelectedColor = () => {
+  return localStorage.getItem('selectedColor') || null;
+};
+
+// ✅ Helper function to reset to default colors
+export const resetToDefaultColors = () => {
+  localStorage.removeItem('selectedColor');
 };
 
 export default LineChart;
