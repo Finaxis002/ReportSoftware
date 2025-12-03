@@ -49,12 +49,16 @@ import VersionBasedSections from "../PDFComponents/VersionBasedSections";
 import ProjectCoverPage from "../PDFComponents/Project_Report_Cover";
 
 const ConsultantGeneratedPDF = () => {
+  const location = useLocation();
+
+  const pdfData = location.state?.reportData; // ✅ Get report data from state
+
   const userRole = localStorage.getItem("userRole");
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
   const [selectedVersion, setSelectedVersion] = useState(
-    localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
+    pdfData?.version || localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
   );
   const versionNum = parseInt(selectedVersion.replace("Version ", "")) || 1;
 
@@ -141,13 +145,12 @@ const ConsultantGeneratedPDF = () => {
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
   //for otp
 
-  const location = useLocation();
+
+
 
   const pdfContainerRef = useRef(null);
 
   const stableLocation = useMemo(() => location, []);
-
-  const pdfData = location.state?.reportData; // ✅ Get report data from state
 
   const handleTotalExpenseUpdate = (expenses) => {
     // console.log("✅ Total Expenses received in GeneratedPDF:", expenses);
@@ -164,17 +167,6 @@ const ConsultantGeneratedPDF = () => {
     }
   }, []);
 
-  // Poll localStorage for version changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const storedVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
-      if (storedVersion !== selectedVersion) {
-        setSelectedVersion(storedVersion);
-      }
-    }, 500); // Check every 500ms
-
-    return () => clearInterval(interval);
-  }, [selectedVersion]);
 
   useEffect(() => {
     // Poll for the iframe created by @react-pdf/renderer
@@ -750,9 +742,12 @@ const ConsultantGeneratedPDF = () => {
     }
   };
 
+
+    console.log("Form Data in PDF:", formData);
+
   const memoizedPDF = useMemo(() => {
     return (
-      <Document
+       <Document
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
@@ -764,16 +759,16 @@ const ConsultantGeneratedPDF = () => {
         {versionNum >= 1 && (<ProjectCoverPage formData={formData} />)}
         {/* Index Page */}
         {versionNum >= 1 && (
-           <VariableIndex
-             formData={formData}
-             directExpense={directExpense}
-             formatNumber={formatNumber}
-             receivedtotalRevenueReceipts={totalRevenueReceipts}
-             pdfType={pdfType}
-             orientation={orientation}
-             selectedVersion={selectedVersion}
-           />
-         )}
+          <VariableIndex
+            formData={formData}
+            directExpense={directExpense}
+            formatNumber={formatNumber}
+            receivedtotalRevenueReceipts={totalRevenueReceipts}
+            pdfType={pdfType}
+            orientation={orientation}
+            selectedVersion={selectedVersion}
+          />
+        )}
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         {versionNum >= 1 && (
@@ -801,6 +796,16 @@ const ConsultantGeneratedPDF = () => {
         )}
 
         {versionNum >= 1 && (
+          <PromoterDetails
+            formData={formData}
+            pdfType={pdfType}
+            formatNumber={formatNumber}
+            pageNumber={pageNumber}
+          />
+        )}
+
+
+        {versionNum >= 1 && (
           <VersionBasedSections
             formData={formData}
             selectedVersion={selectedVersion}
@@ -808,7 +813,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
 
-        {versionNum >= 1 && (
+        {versionNum >= 4 && (
           <PdfAllChartsWrapper
             formData={formData}
             totalExpenses={totalExpense}
@@ -819,16 +824,16 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
 
+
+        {/* cost of project table */}
         {versionNum >= 1 && (
-          <PromoterDetails
+          <CostOfProject
             formData={formData}
-            pdfType={pdfType}
+            localData={localData}
             formatNumber={formatNumber}
             pageNumber={pageNumber}
           />
         )}
-
-
 
 
         {/* Means of Finance Table */}
@@ -844,17 +849,22 @@ const ConsultantGeneratedPDF = () => {
             renderTotalBankLoanLabel={renderTotalBankLoanLabel}
           />
         )}
-        {/* cost of project table */}
-        {versionNum >= 1 && (
-          <CostOfProject
+
+
+        {/* Projected Revenue/ Sales */}
+        {versionNum >= 3 && (
+          <ProjectedRevenue
             formData={formData}
-            localData={localData}
+            onTotalRevenueUpdate={setTotalRevenueReceipts}
+            financialYearLabels={financialYearLabels}
             formatNumber={formatNumber}
+            pdfType={pdfType}
             pageNumber={pageNumber}
+            orientation={orientation}
           />
         )}
         {/* Projected Salaries & Wages Table*/}
-        {versionNum >= 1 && (
+        {versionNum >= 5 && (
           <ProjectedSalaries
             localData={localData}
             normalExpense={normalExpense}
@@ -867,7 +877,7 @@ const ConsultantGeneratedPDF = () => {
             pageNumber={pageNumber}
           />
         )}
-        {versionNum >= 1 && (
+        {versionNum >= 4 && (
           <ProjectedDepreciation
             formData={formData}
             localData={localData}
@@ -884,7 +894,7 @@ const ConsultantGeneratedPDF = () => {
           />
         )}
         {/* Projected Expense Table Direct and Indirect */}
-        {versionNum >= 1 && (
+        {versionNum >= 5 && (
           <ProjectedExpenses
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -905,75 +915,64 @@ const ConsultantGeneratedPDF = () => {
             renderIOWCLabel={renderIOWCLabel}
           />
         )}
-        {/* Projected Revenue/ Sales */}
-        {versionNum >= 1 && (
-          <ProjectedRevenue
-            formData={formData}
-            onTotalRevenueUpdate={setTotalRevenueReceipts}
-            financialYearLabels={financialYearLabels}
-            formatNumber={formatNumber}
-            pdfType={pdfType}
-            pageNumber={pageNumber}
-            orientation={orientation}
-          />
-        )}
+
+         <Repayment
+          versionNum={versionNum}
+          formData={formData}
+          localData={localData}
+          onInterestCalculated={handleInterestCalculated}
+          onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
+          financialYearLabels={financialYearLabels}
+          onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
+          formatNumber={formatNumber}
+          pdfType={pdfType}
+          pageNumber={pageNumber}
+          renderRepaymentSheetheading={renderRepaymentSheetheading}
+        />
+
         {/* Projected Profitability Statement */}
-        {versionNum >= 2 && (
-          <ProjectedProfitability
-            formData={formData}
-            localData={localData}
-            normalExpense={normalExpense}
-            directExpense={directExpense}
-            location={stableLocation}
-            totalDepreciationPerYear={totalDepreciation}
-            onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
-            netProfitBeforeTax={computedData.netProfitBeforeTax || []}
-            yearlyInterestLiabilities={yearlyInterestLiabilities || []}
-            setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
-            totalRevenueReceipts={totalRevenueReceipts}
-            fringAndAnnualCalculation={fringAndAnnualCalculation}
-            financialYearLabels={financialYearLabels}
-            handleDataSend={handleDataSend} // Ensure this is passed correctly
-            handleIncomeTaxDataSend={handleIncomeTaxCalculation}
-            formatNumber={formatNumber}
-            receivedtotalRevenueReceipts={totalRevenueReceipts}
-            onComputedDataToProfit={setComputedDataToProfit}
-            pdfType={pdfType}
-            pageNumber={pageNumber}
-            orientation={orientation}
-            renderIOTLLabel={renderIOTLLabel}
-            renderIOWCLabel={renderIOWCLabel}
-            renderWithdrawalLabel={renderWithdrawalLabel}
-          />
-        )}
-        {versionNum >= 2 && (
-          <Repayment
-            formData={formData}
-            localData={localData}
-            onInterestCalculated={handleInterestCalculated}
-            onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
-            financialYearLabels={financialYearLabels}
-            onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
-            formatNumber={formatNumber}
-            pdfType={pdfType}
-            pageNumber={pageNumber}
-            renderRepaymentSheetheading={renderRepaymentSheetheading}
-          />
-        )}
-        {versionNum >= 2 && computedData.netProfitBeforeTax.length > 0 && (
-          <IncomeTaxCalculation
-            formData={formData}
-            netProfitBeforeTax={computedData.netProfitBeforeTax}
-            totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
-            financialYearLabels={financialYearLabels}
-            formatNumber={formatNumber}
-            pdfType={pdfType}
-            receivedtotalRevenueReceipts={totalRevenueReceipts}
-            pageNumber={pageNumber}
-            orientation={orientation}
-          />
-        )}
-        {versionNum >= 3 && (
+        <ProjectedProfitability
+          versionNum={versionNum}
+          formData={formData}
+          localData={localData}
+          normalExpense={normalExpense}
+          directExpense={directExpense}
+          location={stableLocation}
+          totalDepreciationPerYear={totalDepreciation}
+          onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
+          netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+          yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+          setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
+          totalRevenueReceipts={totalRevenueReceipts}
+          fringAndAnnualCalculation={fringAndAnnualCalculation}
+          financialYearLabels={financialYearLabels}
+          handleDataSend={handleDataSend} // Ensure this is passed correctly
+          handleIncomeTaxDataSend={handleIncomeTaxCalculation}
+          formatNumber={formatNumber}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          onComputedDataToProfit={setComputedDataToProfit}
+          pdfType={pdfType}
+          pageNumber={pageNumber}
+          orientation={orientation}
+          renderIOTLLabel={renderIOTLLabel}
+          renderIOWCLabel={renderIOWCLabel}
+          renderWithdrawalLabel={renderWithdrawalLabel}
+        />
+       {versionNum >= 5 && (
+        <IncomeTaxCalculation
+          versionNum={versionNum}
+          formData={formData}
+          netProfitBeforeTax={computedData.netProfitBeforeTax}
+          totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+          financialYearLabels={financialYearLabels}
+          formatNumber={formatNumber}
+          pdfType={pdfType}
+          receivedtotalRevenueReceipts={totalRevenueReceipts}
+          pageNumber={pageNumber}
+          orientation={orientation}
+        />
+       )}
+        {versionNum >= 1 && (
           <ProjectedCashflow
             formData={formData}
             localData={localData}
@@ -1001,7 +1000,7 @@ const ConsultantGeneratedPDF = () => {
             renderWithdrawalLabel={renderWithdrawalLabel}
           />
         )}
-        {versionNum >= 3 && (
+        {versionNum >= 1 && (
           <ProjectedBalanceSheet
             formData={formData}
             localData={localData}
@@ -1030,22 +1029,7 @@ const ConsultantGeneratedPDF = () => {
             renderWCLLabel={renderWCLLabel}
           />
         )}
-        {versionNum >= 3 && (
-          <CurrentRatio
-            formData={formData}
-            financialYearLabels={financialYearLabels}
-            receivedAssetsLiabilities={assetsliabilities}
-            formatNumber={formatNumber}
-            sendAverageCurrentRation={setAverageCurrentRatio}
-            pdfType={pdfType}
-            receivedtotalRevenueReceipts={totalRevenueReceipts}
-            sendCurrentRatio={setCurrentRatio}
-            pageNumber={pageNumber}
-            orientation={orientation}
-          />
-        )}
-
-        {versionNum >= 4 && (
+          {versionNum >= 1 && (
           <DebtServiceCoverageRatio
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1061,7 +1045,23 @@ const ConsultantGeneratedPDF = () => {
             orientation={orientation}
           />
         )}
-        {versionNum >= 4 && (
+        {versionNum >= 1 && (
+          <CurrentRatio
+            formData={formData}
+            financialYearLabels={financialYearLabels}
+            receivedAssetsLiabilities={assetsliabilities}
+            formatNumber={formatNumber}
+            sendAverageCurrentRation={setAverageCurrentRatio}
+            pdfType={pdfType}
+            receivedtotalRevenueReceipts={totalRevenueReceipts}
+            sendCurrentRatio={setCurrentRatio}
+            pageNumber={pageNumber}
+            orientation={orientation}
+          />
+        )}
+
+      
+        {versionNum >= 5 && (
           <RatioAnalysis
             formData={formData}
             localData={localData}
@@ -1089,7 +1089,7 @@ const ConsultantGeneratedPDF = () => {
             orientation={orientation}
           />
         )}
-        {versionNum >= 4 && (
+        {versionNum >= 3 && (
           <BreakEvenPoint
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1107,7 +1107,7 @@ const ConsultantGeneratedPDF = () => {
             renderIOWCLabel={renderIOWCLabel}
           />
         )}
-        {versionNum >= 5 && (
+        {versionNum >= 1 && (
           <Assumptions
             formData={formData}
             financialYearLabels={financialYearLabels}
