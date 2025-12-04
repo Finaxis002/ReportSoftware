@@ -8,9 +8,14 @@ const FourthStepPRS = ({
 }) => {
   const prevDataRef = useRef(null);
   const [projectionYears, setProjectionYears] = useState(0);
-  const [rateOfExpense, setRateOfExpense] = useState(0);
   const [showAdvance, setShowAdvance] = useState(false);
   const [caList, setCaList] = useState([]);
+
+   const [isConsultantRoute] = useState(() => 
+    window.location.pathname.includes('create-consultant-report-form')
+  );
+  const [projectionWarning, setProjectionWarning] = useState('');
+
 
   console.log("form data in prs setting", formData);
 
@@ -296,6 +301,64 @@ const FourthStepPRS = ({
 const handleChange = (e) => {
   const { name, value } = e.target;
 
+  // ✅ Special case for ProjectionYears with validation
+  if (name === "ProjectionYears") {
+    const numericValue = Number(value);
+    
+    // Check if coming from consultant route and value > 10
+    if (isConsultantRoute && numericValue > 10) {
+      // Show warning
+      setProjectionWarning('Maximum 10 years allowed for consultant reports');
+      
+      // Clear the field
+      const updatedData = { ProjectionYears: "" };
+      setLocalData(prevData => ({
+        ...prevData,
+        ...updatedData
+      }));
+      
+      // Clear the warning after 3 seconds
+      setTimeout(() => {
+        setProjectionWarning('');
+      }, 3000);
+      
+      // Update parent form
+      onFormDataChange((prev) => ({
+        ...prev,
+        ProjectReportSetting: {
+          ...(prev.ProjectReportSetting || {}),
+          ...updatedData
+        },
+      }));
+      
+      return; // Exit early
+    }
+    
+    // Clear warning if value is valid
+    if (projectionWarning) {
+      setProjectionWarning('');
+    }
+    
+    // Normal handling for valid values
+    setLocalData(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+    
+    setProjectionYears(value);
+    onProjectionYearChange(value);
+    
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
+        [name]: value,
+      },
+    }));
+    
+    return; // Exit early to prevent double handling
+  }
+
   // Handle DebtEquityOption change
   if (name === "DebtEquityOption") {
     const updatedData = {
@@ -327,6 +390,15 @@ const handleChange = (e) => {
     setLocalData(prevData => ({
       ...prevData,
       debtPercentage: value
+    }));
+    
+    // Update parent form too
+    onFormDataChange((prev) => ({
+      ...prev,
+      ProjectReportSetting: {
+        ...(prev.ProjectReportSetting || {}),
+        debtPercentage: value,
+      },
     }));
     return;
   }
@@ -383,7 +455,7 @@ const handleChange = (e) => {
       },
     }));
   } else {
-    // ✅ For normal fields (REMOVED the problematic DebtEquityOption assignment)
+    // ✅ For normal fields
     setLocalData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -396,12 +468,6 @@ const handleChange = (e) => {
         [name]: value,
       },
     }));
-  }
-
-  // ✅ Special case for ProjectionYears
-  if (name === "ProjectionYears") {
-    setProjectionYears(value);
-    onProjectionYearChange(value);
   }
 };
 
@@ -444,21 +510,39 @@ const handleChange = (e) => {
                 <label htmlFor="RepaymentMonths">Repayment Months</label>
               </div>
             </div>
-            <div className="col-4">
-              <div className="input">
-                <input
-                  id="ProjectionYears"
-                  name="ProjectionYears"
-                  type="number"
-                  placeholder="Projection Years"
-                  required
-                  value={localData.ProjectionYears}
-                  onChange={handleChange}
-                />
 
-                <label htmlFor="ProjectionYears">Projection Years</label>
-              </div>
-            </div>
+<div className="col-4">
+  <div className="input">
+    <input
+      id="ProjectionYears"
+      name="ProjectionYears"
+      type="number"
+      placeholder="Projection Years"
+      required
+      value={localData.ProjectionYears}
+      onChange={handleChange}
+      // ✅ Add max attribute conditionally (still useful for browser validation)
+      max={isConsultantRoute ? 10 : undefined}
+      // ✅ Optional: Add min to prevent negative values
+      min="1"
+    />
+    <label htmlFor="ProjectionYears">Projection Years</label>
+  </div>
+  
+  {/* ✅ Show warning message */}
+  {projectionWarning && (
+    <div className="text-danger small mt-1" style={{ fontSize: '12px' }}>
+      {projectionWarning}
+    </div>
+  )}
+  
+  {/* ✅ Optional: Show info message for consultant route */}
+  {isConsultantRoute && !projectionWarning && (
+    <div className="text-muted small mt-1" style={{ fontSize: '12px' }}>
+      Maximum 10 years allowed
+    </div>
+  )}
+</div>
             <div className="col-4">
               <div className="input">
                 <input

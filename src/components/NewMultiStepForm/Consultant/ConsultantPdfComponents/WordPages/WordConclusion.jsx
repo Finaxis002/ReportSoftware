@@ -1,6 +1,6 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
-import { styles, styleExpenses } from "./Styles";
+import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
 
 const WordConclusion = ({ formData, pageNumber }) => {
   // Get conclusion content directly from formData

@@ -1,22 +1,21 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
-import { styles, styleExpenses } from "./Styles";
+import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
 
-const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
-  // Get content directly from formData using the sectionKey
-  const content = formData?.generatedPDF?.[sectionKey];
+const WordIntroduction = ({ formData, pageNumber }) => {
+  // Get introduction content directly from formData
+  const content = formData?.generatedPDF?.introduction;
   
-  console.log(`📖 WordGenericSection [${sectionKey}] checking content:`, {
+  console.log("📖 WordIntroduction checking content:", {
     hasGeneratedPDF: !!formData?.generatedPDF,
-    hasContent: !!content,
+    hasIntroduction: !!content,
     content: content
   });
 
   if (!content || content.trim() === "") {
+    console.log("❌ WordIntroduction: No content found");
     return null;
   }
-
-  const displayTitle = title || sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1).replace(/_/g, " ");
 
   return (
     <Page size="A4" style={styles.page}>
@@ -36,9 +35,9 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
           </Text>
         </View>
         
-        {/* Section Content */}
+        {/* Introduction Content */}
         <View style={styles.section}>
-          <Text style={styles.title}>{displayTitle}</Text>
+          <Text style={styles.title} >Introduction</Text>
           <Text  style={{ fontSize: 10 }}>{content}</Text>
         </View>
         
@@ -48,4 +47,4 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
   );
 };
 
-export default WordGenericSection;
+export default WordIntroduction;

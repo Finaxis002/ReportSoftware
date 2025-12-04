@@ -31,7 +31,7 @@
 //      // ✅ Step 1: Filter out zero values and their corresponding labels
 //      const filteredLabels = [];
 //      const filteredValues = [];
-     
+
 //      data.values.forEach((value, index) => {
 //        if (value !== 0 && value !== null && value !== undefined) {
 //          filteredLabels.push(data.labels[index]);
@@ -100,7 +100,7 @@
 
 //           borderWidth: 2, 
 //           hoverOffset: 12,
-          
+
 //           borderJoinStyle: 'round',
 //           spacing: 2
 
@@ -109,13 +109,13 @@
 //       options: {
 //         responsive: false,
 //         maintainAspectRatio: false,
-        
-        
+
+
 //         plugins: {
 //           legend: {
 //             display: true,
 //             position: 'right',
-           
+
 //             labels: {
 //               color: '#000', // ✅ Black legend color
 //               font: {
@@ -133,7 +133,7 @@
 //           datalabels: {
 //             display: false, // ✅ Enable datalabels properly
 //           },
-          
+
 //         },
 //         animation: {
 //             animateRotate: true,
@@ -147,10 +147,10 @@
 //           //     bottom: 0
 //           //   }
 //           // },
-         
+
 //       },
-      
-      
+
+
 //     });
 
 //     // ✅ Wait for chart rendering to finish
@@ -196,10 +196,10 @@
 // // ✅ Function to generate color variations based on a base color
 // const generateColorVariations = (baseColor) => {
 //   const colors = [];
-  
+
 //   // Parse the base color
 //   let r, g, b, a = 1;
-  
+
 //   if (baseColor.startsWith('rgb')) {
 //     const match = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
 //     if (match) {
@@ -220,20 +220,20 @@
 //       b = parseInt(hex.substring(4, 6), 16);
 //     }
 //   }
-  
+
 //   // Generate variations by adjusting brightness and saturation
 //   for (let i = 0; i < 8; i++) {
 //     const factor = 0.7 + (i * 0.05); // Vary brightness
 //     const newR = Math.min(255, Math.max(0, Math.round(r * factor)));
 //     const newG = Math.min(255, Math.max(0, Math.round(g * factor)));
 //     const newB = Math.min(255, Math.max(0, Math.round(b * factor)));
-    
+
 //     // Adjust alpha for some variations
 //     const newAlpha = i % 3 === 0 ? 0.6 : a;
-    
+
 //     colors.push(`rgba(${newR}, ${newG}, ${newB}, ${newAlpha})`);
 //   }
-  
+
 //   return colors;
 // };
 
@@ -273,7 +273,7 @@
 //     // ✅ Step 1: Filter out zero values and their corresponding labels
 //     const filteredLabels = [];
 //     const filteredValues = [];
-    
+
 //     data.values.forEach((value, index) => {
 //       if (value !== 0 && value !== null && value !== undefined) {
 //         filteredLabels.push(data.labels[index]);
@@ -288,15 +288,15 @@
 //     // ✅ If a color is selected, generate color palette based on it
 //     if (selectedColor && selectedColor.trim() !== '') {
 //       let colorValue = selectedColor.trim().toLowerCase();
-      
+
 //       // Convert color name to RGB value if it's a named color
 //       if (colorNameToRGB[colorValue]) {
 //         colorValue = colorNameToRGB[colorValue];
 //       }
-      
+
 //       // Generate color variations from the selected color
 //       backgroundColors = generateColorVariations(colorValue);
-      
+
 //       // If the selected color is a valid hex or rgb but variations generation fails,
 //       // create a simple palette with transparency variations
 //       if (backgroundColors.length === 0) {
@@ -313,7 +313,7 @@
 //     canvas.width = 500;
 //     canvas.height = 500;
 //     const ctx = canvas.getContext('2d');
-    
+
 //     const borderColors = backgroundColors.map(color =>
 //       color.replace('0.6', '1').replace('0.8', '1')
 //     );
@@ -437,15 +437,15 @@ const shadowPlugin = {
   }
 };
 
-Chart.register(shadowPlugin);
+// Chart.register(shadowPlugin);
 
 // ✅ Function to generate color variations based on a base color
 const generateColorVariations = (baseColor) => {
   const colors = [];
-  
+
   // Parse the base color
   let r, g, b, a = 1;
-  
+
   if (baseColor.startsWith('rgb')) {
     const match = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
     if (match) {
@@ -466,31 +466,31 @@ const generateColorVariations = (baseColor) => {
       b = parseInt(hex.substring(4, 6), 16);
     }
   }
-  
+
   // Generate variations by adjusting brightness and saturation
   for (let i = 0; i < 8; i++) {
     const factor = 0.7 + (i * 0.05); // Vary brightness
     const newR = Math.min(255, Math.max(0, Math.round(r * factor)));
     const newG = Math.min(255, Math.max(0, Math.round(g * factor)));
     const newB = Math.min(255, Math.max(0, Math.round(b * factor)));
-    
+
     // Adjust alpha for some variations
     const newAlpha = i % 3 === 0 ? 0.6 : a;
-    
+
     colors.push(`rgba(${newR}, ${newG}, ${newB}, ${newAlpha})`);
   }
-  
+
   return colors;
 };
 
 // ✅ Default blue color palette (your original colors)
 const defaultColors = [
-  'rgb(54, 116, 181)', 
+  'rgb(54, 116, 181)',
   'rgba(32, 164, 243, 1)',
   'rgb(121, 206, 241)',
-  'rgb(32, 164, 243)', 
-  'rgba(87, 143, 202, 0.6)', 
-  'rgb(71, 130, 192)', 
+  'rgb(32, 164, 243)',
+  'rgba(87, 143, 202, 0.6)',
+  'rgb(71, 130, 192)',
   'rgb(124, 185, 226)',
   'rgb(87, 143, 202)',
 ];
@@ -519,7 +519,7 @@ export const generateChart = async (data) => {
     // ✅ Step 1: Filter out zero values and their corresponding labels
     const filteredLabels = [];
     const filteredValues = [];
-    
+
     data.values.forEach((value, index) => {
       if (value !== 0 && value !== null && value !== undefined) {
         filteredLabels.push(data.labels[index]);
@@ -529,7 +529,7 @@ export const generateChart = async (data) => {
 
     // ✅ Get selected color from localStorage
     const formData = JSON.parse(localStorage.getItem("formData")) || {};
-    
+
     // ✅ Get selected color from localStorage
     const selectedColor = formData?.color || localStorage.getItem("selectedColor");
     let backgroundColors = defaultColors;
@@ -537,15 +537,15 @@ export const generateChart = async (data) => {
     // ✅ If a color is selected, generate color palette based on it
     if (selectedColor && selectedColor.trim() !== '') {
       let colorValue = selectedColor.trim().toLowerCase();
-      
+
       // Convert color name to RGB value if it's a named color
       if (colorNameToRGB[colorValue]) {
         colorValue = colorNameToRGB[colorValue];
       }
-      
+
       // Generate color variations from the selected color
       backgroundColors = generateColorVariations(colorValue);
-      
+
       // If the selected color is a valid hex or rgb but variations generation fails,
       // create a simple palette with transparency variations
       if (backgroundColors.length === 0) {
@@ -562,7 +562,7 @@ export const generateChart = async (data) => {
     canvas.width = 500;
     canvas.height = 500;
     const ctx = canvas.getContext('2d');
-    
+
     const borderColors = backgroundColors.map(color =>
       color.replace('0.6', '1').replace('0.8', '1')
     );
@@ -584,6 +584,7 @@ export const generateChart = async (data) => {
       type: 'pie',
       data: {
         labels: filteredLabels,
+        // In your chart options, add shadow to the dataset instead:
         datasets: [{
           data: filteredValues,
           backgroundColor: backgroundColors,
@@ -591,7 +592,12 @@ export const generateChart = async (data) => {
           borderWidth: 2,
           hoverOffset: 12,
           borderJoinStyle: 'round',
-          spacing: 2
+          spacing: 2,
+          // Add subtle shadow here instead
+          shadowColor: 'rgba(0, 0, 0, 0.1)',
+          shadowBlur: 5,
+          shadowOffsetX: 2,
+          shadowOffsetY: 2,
         }]
       },
       options: {

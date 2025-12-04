@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -351,7 +351,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
           {/* Amount format */}
 
-          <View
+          {/* <View
             style={{
               display: "flex",
               alignContent: "flex-end",
@@ -376,8 +376,8 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               }
               )
             </Text>
-          </View>
-          <View style={[styles.table, { borderRightWidth: 0 }]}>
+          </View> */}
+         
             <View
               style={[
                 stylesCOP.heading,
@@ -395,6 +395,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
                   : ""}
               </Text>
             </View>
+            <View style={[styles.table]}>
             {/* Table Header */}
             <View style={styles.tableHeader}>
               <Text
@@ -1078,7 +1079,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
       {/* Amount format */}
 
-      <View
+      {/* <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -1103,8 +1104,8 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           }
           )
         </Text>
-      </View>
-      <View style={[styles.table, { borderRightWidth: 0 }]}>
+      </View> */}
+
         <View
           style={[
             stylesCOP.heading,
@@ -1118,6 +1119,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
           </Text>
         </View>
+        <View style={[styles.table]}>
         {/* Table Header */}
         <View style={styles.tableHeader}>
           <Text

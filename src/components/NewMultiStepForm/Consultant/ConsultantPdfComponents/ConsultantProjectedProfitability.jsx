@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -224,116 +224,116 @@ const ConsultantProjectedProfitability = ({
         return (incrementedExpense / 12) * monthsInYear;
     };
 
-  const calculateRawMaterialExpense = (
-    expense,
-    receivedtotalRevenueReceipts,
-    yearIndex
-) => {
-    const isRawMaterial =
-        expense.name.trim() === "Raw Material Expenses / Purchases";
-    const isPercentage = String(expense.value).trim().endsWith("%");
+    const calculateRawMaterialExpense = (
+        expense,
+        receivedtotalRevenueReceipts,
+        yearIndex
+    ) => {
+        const isRawMaterial =
+            expense.name.trim() === "Raw Material Expenses / Purchases";
+        const isPercentage = String(expense.value).trim().endsWith("%");
 
-    const ClosingStock = Number(
-        // ✅ Use computed data if available
-       ( formData?.computedData?.MoreDetails?.ClosingStock?.[yearIndex] ??
-        formData?.MoreDetails?.ClosingStock?.[yearIndex]) || 0
-    );
-    const OpeningStock = Number(
-        // ✅ Use computed data if available
-       ( formData?.computedData?.MoreDetails?.OpeningStock?.[yearIndex] ??
-        formData?.MoreDetails?.OpeningStock?.[yearIndex] )|| 0
-    );
-
-    let expenseValue = 0;
-
-    if (isRawMaterial && isPercentage) {
-        // ✅ Use computed revenue data if available, otherwise use received data
-        const revenueValue = 
-           ( formData?.computedData?.totalRevenueReceipts?.[yearIndex] ??
-            receivedtotalRevenueReceipts?.[yearIndex] )|| 0;
-            
-        const baseValue =
-            (parseFloat(expense.value) / 100) * revenueValue;
-        expenseValue = baseValue + ClosingStock - OpeningStock;
-    } else {
-        expenseValue = num(expense.total);
-    }
-
-    return expenseValue;
-};
-   const totalDirectExpensesArray = Array.from({
-    length: projectionYears,
-}).map((_, yearIndex) => {
-    let directRows = [];
-    
-    // 1. All regular direct expenses, escalated if required
-    const directTotal = directExpense
-        .filter((expense) => expense.type === "direct")
-        .reduce((sum, expense) => {
-            let value;
-            if (
-                expense.name.trim() === "Raw Material Expenses / Purchases" &&
-                String(expense.value).trim().endsWith("%")
-            ) {
-                value = calculateRawMaterialExpense(
-                    expense,
-                    receivedtotalRevenueReceipts,
-                    yearIndex
-                );
-            } else {
-                value = calculateExpense(Number(expense.total) || 0, yearIndex);
-            }
-            directRows.push({ name: expense.name, value });
-            return sum + value;
-        }, 0);
-
-    // 2. Salary/wages (from normalExpense, always only one row)
-    let salaryTotal = 0;
-    if (Array.isArray(normalExpense) && normalExpense.length > 0) {
-        salaryTotal = calculateExpense(
-            Number(fringAndAnnualCalculation) || 0,
-            yearIndex
+        const ClosingStock = Number(
+            // ✅ Use computed data if available
+            (formData?.computedData?.MoreDetails?.ClosingStock?.[yearIndex] ??
+                formData?.MoreDetails?.ClosingStock?.[yearIndex]) || 0
         );
-    }
+        const OpeningStock = Number(
+            // ✅ Use computed data if available
+            (formData?.computedData?.MoreDetails?.OpeningStock?.[yearIndex] ??
+                formData?.MoreDetails?.OpeningStock?.[yearIndex]) || 0
+        );
 
-    // 3. Advance expenses of type "direct"
-    let advanceDirectTotal = 0;
-    if (
-        Array.isArray(formData?.Expenses?.advanceExpenses) &&
-        formData.Expenses.advanceExpenses.length > 0
-    ) {
-        advanceDirectTotal = formData.Expenses.advanceExpenses
-            .filter((row) => row.type === "direct" && row.name && row.values)
-            .reduce((sum, row) => {
-                // ✅ Use computed data if available for advance expenses
-                const computedValues = formData?.computedData?.Expenses?.advanceExpenses;
-                let computedRow = null;
-                
-                if (computedValues && Array.isArray(computedValues)) {
-                    computedRow = computedValues.find(
-                        compRow => compRow.name === row.name && compRow.type === "direct"
+        let expenseValue = 0;
+
+        if (isRawMaterial && isPercentage) {
+            // ✅ Use computed revenue data if available, otherwise use received data
+            const revenueValue =
+                (formData?.computedData?.totalRevenueReceipts?.[yearIndex] ??
+                    receivedtotalRevenueReceipts?.[yearIndex]) || 0;
+
+            const baseValue =
+                (parseFloat(expense.value) / 100) * revenueValue;
+            expenseValue = baseValue + ClosingStock - OpeningStock;
+        } else {
+            expenseValue = num(expense.total);
+        }
+
+        return expenseValue;
+    };
+    const totalDirectExpensesArray = Array.from({
+        length: projectionYears,
+    }).map((_, yearIndex) => {
+        let directRows = [];
+
+        // 1. All regular direct expenses, escalated if required
+        const directTotal = directExpense
+            .filter((expense) => expense.type === "direct")
+            .reduce((sum, expense) => {
+                let value;
+                if (
+                    expense.name.trim() === "Raw Material Expenses / Purchases" &&
+                    String(expense.value).trim().endsWith("%")
+                ) {
+                    value = calculateRawMaterialExpense(
+                        expense,
+                        receivedtotalRevenueReceipts,
+                        yearIndex
                     );
+                } else {
+                    value = calculateExpense(Number(expense.total) || 0, yearIndex);
                 }
-                
-                // Use computed value if available, otherwise use original value
-                const value = 
-                    computedRow?.values?.[financialYearLabels[yearIndex]] ??
-                    computedRow?.values?.[yearIndex] ??
-                    row.values?.[financialYearLabels[yearIndex]] ??
-                    row.values?.[yearIndex] ??
-                    0;
-                    
-                directRows.push({
-                    name: row.name + " (Advance)",
-                    value: Number(value) || 0,
-                });
-                return sum + (Number(value) || 0);
+                directRows.push({ name: expense.name, value });
+                return sum + value;
             }, 0);
-    }
 
-    // FINAL direct expenses for this year
-    return directTotal + salaryTotal + advanceDirectTotal;
-});
+        // 2. Salary/wages (from normalExpense, always only one row)
+        let salaryTotal = 0;
+        if (Array.isArray(normalExpense) && normalExpense.length > 0) {
+            salaryTotal = calculateExpense(
+                Number(fringAndAnnualCalculation) || 0,
+                yearIndex
+            );
+        }
+
+        // 3. Advance expenses of type "direct"
+        let advanceDirectTotal = 0;
+        if (
+            Array.isArray(formData?.Expenses?.advanceExpenses) &&
+            formData.Expenses.advanceExpenses.length > 0
+        ) {
+            advanceDirectTotal = formData.Expenses.advanceExpenses
+                .filter((row) => row.type === "direct" && row.name && row.values)
+                .reduce((sum, row) => {
+                    // ✅ Use computed data if available for advance expenses
+                    const computedValues = formData?.computedData?.Expenses?.advanceExpenses;
+                    let computedRow = null;
+
+                    if (computedValues && Array.isArray(computedValues)) {
+                        computedRow = computedValues.find(
+                            compRow => compRow.name === row.name && compRow.type === "direct"
+                        );
+                    }
+
+                    // Use computed value if available, otherwise use original value
+                    const value =
+                        computedRow?.values?.[financialYearLabels[yearIndex]] ??
+                        computedRow?.values?.[yearIndex] ??
+                        row.values?.[financialYearLabels[yearIndex]] ??
+                        row.values?.[yearIndex] ??
+                        0;
+
+                    directRows.push({
+                        name: row.name + " (Advance)",
+                        value: Number(value) || 0,
+                    });
+                    return sum + (Number(value) || 0);
+                }, 0);
+        }
+
+        // FINAL direct expenses for this year
+        return directTotal + salaryTotal + advanceDirectTotal;
+    });
 
     const preliminaryExpensesTotal = Number(
         formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -821,7 +821,7 @@ const ConsultantProjectedProfitability = ({
                             </Text>
                         </View>
 
-                        <View
+                        {/* <View
                             style={{
                                 display: "flex",
                                 alignContent: "flex-end",
@@ -846,7 +846,7 @@ const ConsultantProjectedProfitability = ({
                                 }
                                 )
                             </Text>
-                        </View>
+                        </View> */}
 
                         <View>
                             <View style={stylesCOP.heading}>
@@ -857,7 +857,7 @@ const ConsultantProjectedProfitability = ({
                                         : ""}
                                 </Text>
                             </View>
-                            <View style={[styles.table, { borderRightWidth: 0 }]}>
+                            <View style={[styles.table]}>
                                 <View style={styles.tableHeader}>
                                     <Text
                                         style={[
@@ -974,28 +974,29 @@ const ConsultantProjectedProfitability = ({
                                         Total Revenue Receipt
                                     </Text>
 
-                                    {/* ✅ Display revenue values - use computed data if available */}
-                                    {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                                        !hideFirstYear || yearIndex !== 0 ? (
+
+
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+                                        return (
                                             <Text
-                                                key={yearIndex}
+                                                key={`ClosingStock-${gIdx}`}
                                                 style={[
                                                     stylesCOP.particularsCellsDetail,
-                                                    stylesCOP.boldText,
                                                     styleExpenses.fontSmall,
-                                                    styles.Total,
-                                                    { borderLeftWidth: "0px" },
+                                                    { paddingVertical: "10px" },
                                                 ]}
                                             >
                                                 {formatNumber(
                                                     // ✅ Use computed data if available, otherwise use regular data
-                                                    formData?.computedData?.totalRevenueReceipts?.[yearIndex] ??
-                                                    totalRevenueReceipts?.[yearIndex] ??
+                                                    formData?.computedData?.totalRevenueReceipts?.[localIdx] ??
+                                                    totalRevenueReceipts?.[localIdx] ??
                                                     0
                                                 )}
                                             </Text>
-                                        ) : null
-                                    )}
+                                        );
+                                    })}
                                 </View>
 
                                 {/* Closing Stock / Inventory */}
@@ -1497,8 +1498,9 @@ const ConsultantProjectedProfitability = ({
                                                     stylesCOP.boldText,
                                                     styleExpenses.fontSmall,
                                                     {
-                                                        borderWidth: "1.2px",
+                                                        borderWidth: "1px",
                                                         borderLeftWidth: "0px",
+                                                        borderRightWidth: "0px",
 
                                                         //
                                                     },
@@ -1644,21 +1646,25 @@ const ConsultantProjectedProfitability = ({
                                                 Depreciation
                                             </Text>
 
-                                            {/* ✅ Display Depreciation Values from computedData */}
-                                            {formData?.computedData?.totalDepreciation?.map(
-                                                (depreciationValue, yearIndex) =>
-                                                    (!hideFirstYear || yearIndex !== 0) && (
-                                                        <Text
-                                                            key={yearIndex}
-                                                            style={[
-                                                                stylesCOP.particularsCellsDetail,
-                                                                styleExpenses.fontSmall,
-                                                            ]}
-                                                        >
-                                                            {formatNumber(depreciationValue)}
-                                                        </Text>
-                                                    )
-                                            )}
+                                            {labels.map((_, localIdx) => {
+                                                const gIdx = globalIndex(localIdx);
+                                                if (shouldSkipCol(gIdx)) return null;
+
+                                                return (
+                                                    <Text
+                                                        key={`depreciation-${gIdx}`}
+                                                        style={[
+                                                            stylesCOP.particularsCellsDetail,
+                                                            styleExpenses.fontSmall,
+                                                        ]}
+                                                    >
+                                                        {formatNumber(
+                                                            // ✅ Use computed data if available
+                                                            formData?.computedData?.totalDepreciation?.[gIdx] ?? 0
+                                                        )}
+                                                    </Text>
+                                                );
+                                            })}
                                         </View>
                                     )}
                                     {directExpense
@@ -1948,13 +1954,12 @@ const ConsultantProjectedProfitability = ({
                                                     stylesCOP.boldText,
                                                     styleExpenses.fontSmall,
                                                     {
-                                                        borderWidth: "1.2px",
 
                                                         fontWeight: "bold",
                                                         color: "#000",
                                                         borderLeftWidth: "0px",
                                                         borderTop: 0,
-                                                        borderBottom: 0,
+                                                        border: 0,
                                                     },
                                                 ]}
                                             >
@@ -2046,11 +2051,12 @@ const ConsultantProjectedProfitability = ({
                                                     stylesCOP.boldText,
                                                     styleExpenses.fontSmall,
                                                     {
-                                                        borderWidth: "1.2px",
+                                                        borderWidth: "1px",
 
                                                         fontWeight: "bold",
                                                         color: "#000",
                                                         borderLeftWidth: "0px",
+                                                        borderRightWidth: "0px",
                                                     },
                                                 ]}
                                             >
@@ -2212,25 +2218,37 @@ const ConsultantProjectedProfitability = ({
                                         Cash Profit (NPAT + Dep.)
                                     </Text>
 
-                                    {netProfitAfterTax.map((npat, yearIndex) => {
-                                        if (hideFirstYear && yearIndex === 0) return null;
-                                        const depreciation = totalDepreciationPerYear[yearIndex] || 0;
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+
+                                        // Apply hideFirstYear logic
+                                        if (hideFirstYear && gIdx === 0) return null;
+
+                                        // ✅ Get values from computed data first, then regular data
+                                        const npat =
+                                            formData?.computedData?.netProfitAfterTax?.[gIdx] ??
+                                            netProfitAfterTax?.[gIdx] ??
+                                            0;
+
+                                        const depreciation =
+                                            formData?.computedData?.totalDepreciation?.[gIdx] ??
+                                            totalDepreciationPerYear?.[gIdx] ??
+                                            0;
 
                                         // ✅ Correctly Compute Cash Profit
                                         const cashProfit = npat + depreciation;
 
-                                        // ✅ Round values correctly
-                                        const roundedValue = cashProfit;
                                         return (
                                             <Text
-                                                key={`cashProfit-${yearIndex}`}
+                                                key={`cashProfit-${gIdx}`}
                                                 style={[
                                                     stylesCOP.particularsCellsDetail,
                                                     styleExpenses.fontSmall,
                                                     { paddingVertical: "10px" },
                                                 ]}
                                             >
-                                                {formatNumber(roundedValue)}
+                                                {formatNumber(cashProfit)}
                                             </Text>
                                         );
                                     })}
@@ -2405,7 +2423,7 @@ const ConsultantProjectedProfitability = ({
                     </Text>
                 </View>
 
-                <View
+                {/* <View
                     style={{
                         display: "flex",
                         alignContent: "flex-end",
@@ -2430,13 +2448,13 @@ const ConsultantProjectedProfitability = ({
                         }
                         )
                     </Text>
-                </View>
+                </View> */}
 
                 <View>
                     <View style={stylesCOP.heading}>
                         <Text>Projected Profitability Statement</Text>
                     </View>
-                    <View style={[styles.table, { borderRightWidth: 0 }]}>
+                    <View style={[styles.table]}>
                         <View style={styles.tableHeader}>
                             <Text
                                 style={[
@@ -3084,8 +3102,9 @@ const ConsultantProjectedProfitability = ({
                                                 stylesCOP.boldText,
                                                 styleExpenses.fontSmall,
                                                 {
-                                                    borderWidth: "1.2px",
+                                                    borderWidth: "1px",
                                                     borderLeftWidth: "0px",
+                                                    borderRightWidth: "0px",
 
                                                     //
                                                 },
@@ -3539,13 +3558,12 @@ const ConsultantProjectedProfitability = ({
                                                 stylesCOP.boldText,
                                                 styleExpenses.fontSmall,
                                                 {
-                                                    borderWidth: "1.2px",
 
                                                     fontWeight: "bold",
                                                     color: "#000",
                                                     borderLeftWidth: "0px",
                                                     borderTop: 0,
-                                                    borderBottom: 0,
+                                                    border: 0,
                                                 },
                                             ]}
                                         >
@@ -3633,11 +3651,12 @@ const ConsultantProjectedProfitability = ({
                                                 stylesCOP.boldText,
                                                 styleExpenses.fontSmall,
                                                 {
-                                                    borderWidth: "1.2px",
+                                                    borderWidth: "1px",
 
                                                     fontWeight: "bold",
                                                     color: "#000",
                                                     borderLeftWidth: "0px",
+                                                    borderRightWidth: "0px",
                                                 },
                                             ]}
                                         >
