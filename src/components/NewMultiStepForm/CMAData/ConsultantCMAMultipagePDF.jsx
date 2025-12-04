@@ -20,7 +20,7 @@ import CMAContents from './CMAContents';
 import CMADSCR from './CMADSCR';
 import CMARatioAnalysis from "./CMARatioAnalysis";
 import CMAAssumptions from "./CMAAssumptions";
-import WordConclusion from "../PDFComponents/WordConclusion";
+import WordConclusion from "../Consultant/ConsultantPdfComponents/WordPages/WordConclusion";
 import ConsultantCMAContents from "../CMAData/ConsultantCMAContents"
 
 const ConsultantCMAMultipagePDF = ({
