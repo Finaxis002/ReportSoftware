@@ -898,7 +898,6 @@ const updateFormDataInLocalStorage = (updates) => {
                   "Blue",
                   "Green",
                   "Purple",
-                  "SkyBlue",
                   "Orange",
                   "Teal",
                 ].map((color) => (

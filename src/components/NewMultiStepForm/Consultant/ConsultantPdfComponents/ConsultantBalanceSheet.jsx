@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -555,7 +555,7 @@ for (let i = 1; i < projectionYears; i++) {
 
                         {/* Amount format */}
 
-                        <View
+                        {/* <View
                             style={{
                                 display: "flex",
                                 alignContent: "flex-end",
@@ -580,7 +580,7 @@ for (let i = 1; i < projectionYears; i++) {
                                 }
                                 )
                             </Text>
-                        </View>
+                        </View> */}
 
                         <View
                             style={[
@@ -596,7 +596,7 @@ for (let i = 1; i < projectionYears; i++) {
                             </Text>
                         </View>
 
-                        <View style={[styles.table, { borderRightWidth: 0 }]}>
+                        <View style={[styles.table]}>
                             {/* Header  */}
                             <View style={styles.tableHeader}>
                                 <Text
@@ -1056,21 +1056,27 @@ for (let i = 1; i < projectionYears; i++) {
                                             Fixed Assets
                                         </Text>
 
-                                        {Array.from({ length: projectionYears }).map((_, index) => {
-                                            // Use computed data if available, otherwise fall back to calculated value
-                                            const value = formData?.computedData?.grossFixedAssetsPerYear?.[index] ?? computedFixedAssets[index] ?? 0;
-                                            return (
-                                                <Text
-                                                    key={index}
-                                                    style={[
-                                                        stylesCOP.particularsCellsDetail,
-                                                        styleExpenses.fontSmall,
-                                                    ]}
-                                                >
-                                                    {formatNumber(value)}
-                                                </Text>
-                                            );
-                                        })}
+                                        {labels.map((_, localIdx) => {
+    const gIdx = globalIndex(localIdx);
+    
+    // ✅ Use computed data if available, otherwise fall back to calculated value
+    const value = 
+        formData?.computedData?.grossFixedAssetsPerYear?.[gIdx] ?? 
+        computedFixedAssets?.[gIdx] ?? 
+        0;
+    
+    return (
+        <Text
+            key={gIdx}
+            style={[
+                stylesCOP.particularsCellsDetail,
+                styleExpenses.fontSmall,
+            ]}
+        >
+            {formatNumber(value)}
+        </Text>
+    );
+})}
                                     </View>
                                 )}
 
@@ -1582,7 +1588,7 @@ for (let i = 1; i < projectionYears; i++) {
 
                 {/* Amount format */}
 
-                <View
+                {/* <View
                     style={{
                         display: "flex",
                         alignContent: "flex-end",
@@ -1607,7 +1613,7 @@ for (let i = 1; i < projectionYears; i++) {
                         }
                         )
                     </Text>
-                </View>
+                </View> */}
 
                 <View
                     style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -1615,7 +1621,7 @@ for (let i = 1; i < projectionYears; i++) {
                     <Text>Projected Balance Sheet </Text>
                 </View>
 
-                <View style={[styles.table, { borderRightWidth: 0 }]}>
+                <View style={[styles.table]}>
                     {/* Header  */}
                     <View style={styles.tableHeader}>
                         <Text

@@ -19,34 +19,29 @@ import useStore from "../useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
 
-import VariableIndex from "../PDFComponents/CosultantReport/VariableIndex";
-import ProjectSynopsis from "../PDFComponents/ProjectSynopsis";
-import MeansOfFinance from "../PDFComponents/MeansOfFinance";
-import CostOfProject from "../PDFComponents/CostOfProject";
-import ProjectedExpenses from "../PDFComponents/ProjectedExpenses";
-import ProjectedRevenue from "../PDFComponents/ProjectedRevenue";
+import ConsultantVariableIndex from "./ConsultantPdfComponents/ConsultantVariableIndex";
 import ConsultantProjectedProfitability from "./ConsultantPdfComponents/ConsultantProjectedProfitability";
-import ProjectedSalaries from "../PDFComponents/ProjectedSalaries";
-import ProjectedDepreciation from "../PDFComponents/ProjectedDepreciation";
-import Repayment from "../PDFComponents/Repayment";
-import IncomeTaxCalculation from "../PDFComponents/IncomeTaxCalculation";
-import BreakEvenPoint from "../PDFComponents/BreakEvenPoint";
 import ConsultantDSCR from "./ConsultantPdfComponents/ConsultantDSCR";
 import ConsultantCashflow from "./ConsultantPdfComponents/ConsultantCashflow";
 import ConsultantBalanceSheet from "./ConsultantPdfComponents/ConsultantBalanceSheet";
-import RatioAnalysis from "../PDFComponents/RatioAnalysis";
 import ConsultantCurrentRatio from "./ConsultantPdfComponents/ConsultantCurrentRatio";
-import Assumptions from "../PDFComponents/Assumptions";
-import PromoterDetails from "../PDFComponents/PromoterDetails";
-
 import PdfAllChartsWrapper from "../PDFComponents/PdfAllChartsWrapper";
-
-import GeneratedSections from "../PDFComponents/GeneratedSections";
-import WordIntroduction from "../PDFComponents/WordIntroduction";
-import WordConclusion from "../PDFComponents/WordConclusion";
-import WordGenericSection from "../PDFComponents/WordGenericSection";
-import VersionBasedSections from "../PDFComponents/VersionBasedSections";
+import WordConclusion from "./ConsultantPdfComponents/WordPages/WordConclusion";
+import VersionBasedSections from "./ConsultantPdfComponents/WordPages/VersionBasedSections";
 import ProjectCoverPage from "../PDFComponents/Project_Report_Cover";
+import ConsultantProjectSynopsis from "./ConsultantPdfComponents/ConsultantProjectSynopsis";
+import ConsultantPromoterDetails from "./ConsultantPdfComponents/ConsultantPromoterDetails";
+import ConsultantCostOfProject from "./ConsultantPdfComponents/ConsultantCostOfProject";
+import ConsultantMeansOfFinance from "./ConsultantPdfComponents/ConsultantMeansOfFinance";
+import ConsultantProjectedRevenue from "./ConsultantPdfComponents/ConsultantProjectedRevenue";
+import ConsultantProjectedSalaries from "./ConsultantPdfComponents/ConsultantProjectedSalaries";
+import ConsultantProjectedDepreciation from "./ConsultantPdfComponents/ConsultantProjectedDepreciation";
+import ConsultantProjectedExpenses from "./ConsultantPdfComponents/ConsultantProjectedExpenses";
+import ConsultantRepayment from "./ConsultantPdfComponents/ConsultantRepayment";
+import ConsultantIncomeTaxCalculation from "./ConsultantPdfComponents/ConsultantIncomeTaxCalculation";
+import ConsultantRatioAnalysis from "./ConsultantPdfComponents/ConsultantRatioAnalysis";
+import ConsultantBreakEvenPoint from "./ConsultantPdfComponents/ConsultantBreakEvenPoint";
+import ConsultantAssumptions from "./ConsultantPdfComponents/ConsultantAssumptions";
 
 const ConsultantGeneratedPDF = () => {
   const location = useLocation();
@@ -801,7 +796,7 @@ console.log("- Selected for PDF:", storedVersion);
         {versionNum >= 1 && (<ProjectCoverPage formData={formData} />)}
         {/* Index Page */}
         {versionNum >= 1 && (
-          <VariableIndex
+          <ConsultantVariableIndex
             formData={formData}
             directExpense={directExpense}
             formatNumber={formatNumber}
@@ -814,7 +809,7 @@ console.log("- Selected for PDF:", storedVersion);
         {/* basic details table */}
         {/* <BasicDetails formData={formData} /> */}
         {versionNum >= 1 && (
-          <ProjectSynopsis
+          <ConsultantProjectSynopsis
             formData={formData}
             receivedtotalRevenueReceipts={totalRevenueReceipts}
             localData={localData}
@@ -838,7 +833,7 @@ console.log("- Selected for PDF:", storedVersion);
         )}
 
         {versionNum >= 1 && (
-          <PromoterDetails
+          <ConsultantPromoterDetails
             formData={formData}
             pdfType={pdfType}
             formatNumber={formatNumber}
@@ -869,7 +864,7 @@ console.log("- Selected for PDF:", storedVersion);
 
         {/* cost of project table */}
         {versionNum >= 1 && (
-          <CostOfProject
+          <ConsultantCostOfProject
             formData={formData}
             localData={localData}
             formatNumber={formatNumber}
@@ -880,7 +875,7 @@ console.log("- Selected for PDF:", storedVersion);
 
         {/* Means of Finance Table */}
         {versionNum >= 1 && (
-          <MeansOfFinance
+          <ConsultantMeansOfFinance
             formData={formData}
             localData={localData}
             formatNumber={formatNumber}
@@ -895,7 +890,7 @@ console.log("- Selected for PDF:", storedVersion);
 
         {/* Projected Revenue/ Sales */}
         {versionNum >= 3 && (
-          <ProjectedRevenue
+          <ConsultantProjectedRevenue
             formData={formData}
             onTotalRevenueUpdate={setTotalRevenueReceipts}
             financialYearLabels={financialYearLabels}
@@ -907,7 +902,7 @@ console.log("- Selected for PDF:", storedVersion);
         )}
         {/* Projected Salaries & Wages Table*/}
         {versionNum >= 5 && (
-          <ProjectedSalaries
+          <ConsultantProjectedSalaries
             localData={localData}
             normalExpense={normalExpense}
             totalAnnualWages={totalAnnualWages}
@@ -920,7 +915,7 @@ console.log("- Selected for PDF:", storedVersion);
           />
         )}
         {versionNum >= 4 && (
-          <ProjectedDepreciation
+          <ConsultantProjectedDepreciation
             formData={formData}
             localData={localData}
             setTotalDepreciation={setTotalDepreciation}
@@ -937,7 +932,7 @@ console.log("- Selected for PDF:", storedVersion);
         )}
         {/* Projected Expense Table Direct and Indirect */}
         {versionNum >= 5 && (
-          <ProjectedExpenses
+          <ConsultantProjectedExpenses
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
             totalDepreciationPerYear={totalDepreciation}
@@ -958,7 +953,7 @@ console.log("- Selected for PDF:", storedVersion);
           />
         )}
 
-         <Repayment
+         <ConsultantRepayment
           versionNum={versionNum}
           formData={formData}
           localData={localData}
@@ -1001,7 +996,7 @@ console.log("- Selected for PDF:", storedVersion);
           renderWithdrawalLabel={renderWithdrawalLabel}
         />
        {versionNum >= 5 && (
-        <IncomeTaxCalculation
+        <ConsultantIncomeTaxCalculation
           versionNum={versionNum}
           formData={formData}
           netProfitBeforeTax={computedData.netProfitBeforeTax}
@@ -1104,7 +1099,7 @@ console.log("- Selected for PDF:", storedVersion);
 
       
         {versionNum >= 5 && (
-          <RatioAnalysis
+          <ConsultantRatioAnalysis
             formData={formData}
             localData={localData}
             totalDepreciationPerYear={totalDepreciation}
@@ -1132,7 +1127,7 @@ console.log("- Selected for PDF:", storedVersion);
           />
         )}
         {versionNum >= 3 && (
-          <BreakEvenPoint
+          <ConsultantBreakEvenPoint
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
             totalDepreciationPerYear={totalDepreciation}
@@ -1150,7 +1145,7 @@ console.log("- Selected for PDF:", storedVersion);
           />
         )}
         {versionNum >= 1 && (
-          <Assumptions
+          <ConsultantAssumptions
             formData={formData}
             financialYearLabels={financialYearLabels}
             formatNumber={formatNumber}

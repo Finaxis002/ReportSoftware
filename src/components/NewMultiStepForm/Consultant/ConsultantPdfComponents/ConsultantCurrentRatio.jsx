@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -176,7 +176,7 @@ const ConsultantCurrentRatio = ({
 
                     {/* Amount format */}
 
-                    <View
+                    {/* <View
                         style={{
                             display: "flex",
                             alignContent: "flex-end",
@@ -201,7 +201,7 @@ const ConsultantCurrentRatio = ({
                             }
                             )
                         </Text>
-                    </View>
+                    </View> */}
 
                     <View>
                         {/* Table Heading */}
@@ -221,221 +221,222 @@ const ConsultantCurrentRatio = ({
                                     : ""}
                             </Text>
                         </View>
-
-                        {/* Table Header */}
-                        <View style={styles.tableHeader}>
-                            <Text
-                                style={[
-                                    styles.serialNoCell,
-                                    styleExpenses.sno,
-                                    styleExpenses.fontBold,
-                                    { textAlign: "center" },
-                                ]}
-                            >
-                                S. No.
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.detailsCell,
-                                    styleExpenses.particularWidth,
-                                    styleExpenses.fontBold,
-                                    { textAlign: "center" },
-                                ]}
-                            >
-                                Particulars
-                            </Text>
-
-                            {/* ✅ Dynamically generate year headers for THIS PAGE using labels */}
-                            {labels.map((yearLabel, localIdx) => {
-                                const gIdx = globalIndex(localIdx);
-                                if (shouldSkipCol(gIdx)) return null;
-                                return (
-                                    <Text
-                                        key={gIdx}
-                                        style={[styles.particularsCell, stylesCOP.boldText]}
-                                    >
-                                        {yearLabel}
-                                    </Text>
-                                );
-                            })}
-                        </View>
-
-                        <View style={[styles.table, { borderRightWidth: 0 }]}>
-                            {/* Current Assets  */}
-                            <View style={styles.tableRow}>
-                                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
-                                    1
-                                </Text>
+                        <View style={[styles.table]}>
+                            {/* Table Header */}
+                            <View style={styles.tableHeader}>
                                 <Text
                                     style={[
-                                        stylesCOP.detailsCellDetail,
-                                        styleExpenses.particularWidth,
-                                        styleExpenses.bordernone,
-                                    ]}
-                                >
-                                    Current Assets
-                                </Text>
-                                {labels.map((_, localIdx) => {
-                                    const gIdx = globalIndex(localIdx);
-                                    if (shouldSkipCol(gIdx)) return null;
-
-                                    // Use computed data first, fall back to other sources
-                                    const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[gIdx]
-                                        ?? receivedAssetsLiabilities?.CurrentAssetsArray?.[gIdx]
-                                        ?? 0;
-
-                                    return (
-                                        <Text
-                                            key={`current-assets-${gIdx}`}
-                                            style={[
-                                                stylesCOP.particularsCellsDetail,
-                                                styleExpenses.fontSmall,
-                                            ]}
-                                        >
-                                            {formatNumber(currentAssets)}
-                                        </Text>
-                                    );
-                                })}
-                            </View>
-
-                            {/* Current Liabilities  */}
-                            <View style={styles.tableRow}>
-                                <Text
-                                    style={[
-                                        stylesCOP.serialNoCellDetail,
+                                        styles.serialNoCell,
                                         styleExpenses.sno,
-                                        styleExpenses.bordernone,
+                                        styleExpenses.fontBold,
+                                        { textAlign: "center" },
                                     ]}
                                 >
-                                    2
+                                    S. No.
                                 </Text>
                                 <Text
                                     style={[
-                                        stylesCOP.detailsCellDetail,
+                                        styles.detailsCell,
                                         styleExpenses.particularWidth,
-                                        styleExpenses.bordernone,
+                                        styleExpenses.fontBold,
+                                        { textAlign: "center" },
                                     ]}
                                 >
-                                    Current Liabilities
-                                </Text>
-                                {labels.map((_, localIdx) => {
-                                    const gIdx = globalIndex(localIdx);
-                                    if (shouldSkipCol(gIdx)) return null;
-
-                                    // Use computed data first, fall back to other sources
-                                    const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities?.[gIdx]
-                                        ?? receivedAssetsLiabilities?.yearlycurrentLiabilities?.[gIdx]
-                                        ?? 0;
-
-                                    return (
-                                        <Text
-                                            key={`current-liabilities-${gIdx}`}
-                                            style={[
-                                                stylesCOP.particularsCellsDetail,
-                                                styleExpenses.fontSmall,
-                                            ]}
-                                        >
-                                            {formatNumber(currentLiabilities)}
-                                        </Text>
-                                    );
-                                })}
-                            </View>
-
-                            {/* Current Ratio  */}
-                            <View
-                                style={[
-                                    stylesMOF.row,
-                                    styles.tableRow,
-                                    styleExpenses.totalRow,
-                                    { borderWidth: 0 },
-                                ]}
-                            >
-                                <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}></Text>
-                                <Text
-                                    style={[
-                                        stylesCOP.detailsCellDetail,
-                                        styleExpenses.particularWidth,
-                                        styleExpenses.bordernone,
-                                        { fontWeight: "bold", textAlign: "left" },
-                                    ]}
-                                >
-                                    Current Ratio
+                                    Particulars
                                 </Text>
 
-                                {labels.map((_, localIdx) => {
+                                {/* ✅ Dynamically generate year headers for THIS PAGE using labels */}
+                                {labels.map((yearLabel, localIdx) => {
                                     const gIdx = globalIndex(localIdx);
                                     if (shouldSkipCol(gIdx)) return null;
-
-                                    // Use computed data for current ratio calculation
-                                    const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[gIdx]
-                                        ?? receivedAssetsLiabilities?.CurrentAssetsArray?.[gIdx]
-                                        ?? 0;
-
-                                    const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities?.[gIdx]
-                                        ?? receivedAssetsLiabilities?.yearlycurrentLiabilities?.[gIdx]
-                                        ?? 0;
-
-                                    const ratioValue = currentLiabilities === 0
-                                        ? "-"
-                                        : (currentAssets / currentLiabilities).toFixed(2);
-
-                                    return (
-                                        <Text
-                                            key={`current-ratio-${gIdx}`}
-                                            style={[
-                                                stylesCOP.particularsCellsDetail,
-                                                styleExpenses.fontSmall,
-                                            ]}
-                                        >
-                                            {ratioValue}
-                                        </Text>
-                                    );
-                                })}
-                            </View>
-
-                            {/* Average Current Ratio */}
-                            <View
-                                style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
-                            >
-                                <Text
-                                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                                ></Text>
-                                <Text
-                                    style={[
-                                        stylesCOP.detailsCellDetail,
-                                        styleExpenses.particularWidth,
-                                        styleExpenses.bordernone,
-                                        { fontWeight: "bold", fontSize: "10px" },
-                                    ]}
-                                >
-                                    Average Current Ratio
-                                </Text>
-
-                                {labels.map((_, localIdx) => {
-                                    const gIdx = globalIndex(localIdx);
-                                    if (shouldSkipCol(gIdx)) return null;
-                                    const isCenter = localIdx === centerLocalIdx;
                                     return (
                                         <Text
                                             key={gIdx}
-                                            style={[
-                                                stylesCOP.particularsCellsDetail,
-                                                styleExpenses.fontSmall,
-                                                {
-                                                    fontWeight: "bold",
-                                                    textAlign: "center",
-                                                    borderWidth: 0,
-                                                },
-                                            ]}
+                                            style={[styles.particularsCell, stylesCOP.boldText]}
                                         >
-                                            {isCenter
-                                                ? averageCurrentRatio !== "-"
-                                                    ? `${averageCurrentRatio}`
-                                                    : "0"
-                                                : ""}
+                                            {yearLabel}
                                         </Text>
                                     );
                                 })}
+                            </View>
+
+                            <View style={[styles.table, { borderRightWidth: 0 }]}>
+                                {/* Current Assets  */}
+                                <View style={styles.tableRow}>
+                                    <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}>
+                                        1
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            stylesCOP.detailsCellDetail,
+                                            styleExpenses.particularWidth,
+                                            styleExpenses.bordernone,
+                                        ]}
+                                    >
+                                        Current Assets
+                                    </Text>
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+
+                                        // Use computed data first, fall back to other sources
+                                        const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[gIdx]
+                                            ?? receivedAssetsLiabilities?.CurrentAssetsArray?.[gIdx]
+                                            ?? 0;
+
+                                        return (
+                                            <Text
+                                                key={`current-assets-${gIdx}`}
+                                                style={[
+                                                    stylesCOP.particularsCellsDetail,
+                                                    styleExpenses.fontSmall,
+                                                ]}
+                                            >
+                                                {formatNumber(currentAssets)}
+                                            </Text>
+                                        );
+                                    })}
+                                </View>
+
+                                {/* Current Liabilities  */}
+                                <View style={styles.tableRow}>
+                                    <Text
+                                        style={[
+                                            stylesCOP.serialNoCellDetail,
+                                            styleExpenses.sno,
+                                            styleExpenses.bordernone,
+                                        ]}
+                                    >
+                                        2
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            stylesCOP.detailsCellDetail,
+                                            styleExpenses.particularWidth,
+                                            styleExpenses.bordernone,
+                                        ]}
+                                    >
+                                        Current Liabilities
+                                    </Text>
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+
+                                        // Use computed data first, fall back to other sources
+                                        const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities?.[gIdx]
+                                            ?? receivedAssetsLiabilities?.yearlycurrentLiabilities?.[gIdx]
+                                            ?? 0;
+
+                                        return (
+                                            <Text
+                                                key={`current-liabilities-${gIdx}`}
+                                                style={[
+                                                    stylesCOP.particularsCellsDetail,
+                                                    styleExpenses.fontSmall,
+                                                ]}
+                                            >
+                                                {formatNumber(currentLiabilities)}
+                                            </Text>
+                                        );
+                                    })}
+                                </View>
+
+                                {/* Current Ratio  */}
+                                <View
+                                    style={[
+                                        stylesMOF.row,
+                                        styles.tableRow,
+                                        styleExpenses.totalRow,
+                                        { borderWidth: 0 },
+                                    ]}
+                                >
+                                    <Text style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}></Text>
+                                    <Text
+                                        style={[
+                                            stylesCOP.detailsCellDetail,
+                                            styleExpenses.particularWidth,
+                                            styleExpenses.bordernone,
+                                            { fontWeight: "bold", textAlign: "left" },
+                                        ]}
+                                    >
+                                        Current Ratio
+                                    </Text>
+
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+
+                                        // Use computed data for current ratio calculation
+                                        const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[gIdx]
+                                            ?? receivedAssetsLiabilities?.CurrentAssetsArray?.[gIdx]
+                                            ?? 0;
+
+                                        const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities?.[gIdx]
+                                            ?? receivedAssetsLiabilities?.yearlycurrentLiabilities?.[gIdx]
+                                            ?? 0;
+
+                                        const ratioValue = currentLiabilities === 0
+                                            ? "-"
+                                            : (currentAssets / currentLiabilities).toFixed(2);
+
+                                        return (
+                                            <Text
+                                                key={`current-ratio-${gIdx}`}
+                                                style={[
+                                                    stylesCOP.particularsCellsDetail,
+                                                    styleExpenses.fontSmall,
+                                                ]}
+                                            >
+                                                {ratioValue}
+                                            </Text>
+                                        );
+                                    })}
+                                </View>
+
+                                {/* Average Current Ratio */}
+                                <View
+                                    style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
+                                >
+                                    <Text
+                                        style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                                    ></Text>
+                                    <Text
+                                        style={[
+                                            stylesCOP.detailsCellDetail,
+                                            styleExpenses.particularWidth,
+                                            styleExpenses.bordernone,
+                                            { fontWeight: "bold", fontSize: "10px" },
+                                        ]}
+                                    >
+                                        Average Current Ratio
+                                    </Text>
+
+                                    {labels.map((_, localIdx) => {
+                                        const gIdx = globalIndex(localIdx);
+                                        if (shouldSkipCol(gIdx)) return null;
+                                        const isCenter = localIdx === centerLocalIdx;
+                                        return (
+                                            <Text
+                                                key={gIdx}
+                                                style={[
+                                                    stylesCOP.particularsCellsDetail,
+                                                    styleExpenses.fontSmall,
+                                                    {
+                                                        fontWeight: "bold",
+                                                        textAlign: "center",
+                                                        borderWidth: 0,
+                                                    },
+                                                ]}
+                                            >
+                                                {isCenter
+                                                    ? averageCurrentRatio !== "-"
+                                                        ? `${averageCurrentRatio}`
+                                                        : "0"
+                                                    : ""}
+                                            </Text>
+                                        );
+                                    })}
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -516,7 +517,7 @@ const ConsultantCurrentRatio = ({
 
             {/* Amount format */}
 
-            <View
+            {/* <View
                 style={{
                     display: "flex",
                     alignContent: "flex-end",
@@ -541,7 +542,7 @@ const ConsultantCurrentRatio = ({
                     }
                     )
                 </Text>
-            </View>
+            </View> */}
 
             <View>
                 {/* Table Heading */}
@@ -557,6 +558,7 @@ const ConsultantCurrentRatio = ({
                     <Text>Current Ratio</Text>
                 </View>
 
+                 <View style={[styles.table]}>
                 {/* Table Header */}
                 <View style={styles.tableHeader}>
                     <Text
@@ -782,6 +784,7 @@ const ConsultantCurrentRatio = ({
                                 );
                             })}
                     </View>
+                </View>
                 </View>
             </View>
 

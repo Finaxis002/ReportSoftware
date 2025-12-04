@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -627,7 +627,7 @@ const ConsultantCashflow = ({
                         </View>
 
                         {/* Amount format */}
-                        <View
+                        {/* <View
                             style={{
                                 display: "flex",
                                 alignContent: "flex-end",
@@ -652,7 +652,7 @@ const ConsultantCashflow = ({
                                 }
                                 )
                             </Text>
-                        </View>
+                        </View> */}
                         <View style={[styleExpenses.paddingx]}>
                             <View
                                 style={[
@@ -668,7 +668,7 @@ const ConsultantCashflow = ({
                                 </Text>
                             </View>
 
-                            <View style={[styles.table, { borderRight: 0 }]}>
+                            <View style={[styles.table]}>
                                 {/* Header  */}
                                 <View style={styles.tableHeader}>
                                     <Text
@@ -1822,7 +1822,7 @@ const ConsultantCashflow = ({
 
                 {/* Amount format */}
 
-                <View
+                {/* <View
                     style={{
                         display: "flex",
                         alignContent: "flex-end",
@@ -1847,7 +1847,7 @@ const ConsultantCashflow = ({
                         }
                         )
                     </Text>
-                </View>
+                </View> */}
                 <View style={[styleExpenses.paddingx]}>
                     <View
                         style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -1855,7 +1855,7 @@ const ConsultantCashflow = ({
                         <Text>Projected Cashflow</Text>
                     </View>
 
-                    <View style={[styles.table, { borderRight: 0 }]}>
+                    <View style={[styles.table]}>
                         {/* Header  */}
                         <View style={styles.tableHeader}>
                             <Text
