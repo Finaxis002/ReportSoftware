@@ -25,16 +25,6 @@ import {
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
 
-// Font registration (optional)
-Font.register({
-  family: "Roboto",
-  src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf",
-});
-
-const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
-
-// Main component
-const CMAFundFlow = ({ formData, orientation }) => {
   const pageStyles = {
     page: {
       padding: 40,
@@ -62,37 +52,24 @@ const CMAFundFlow = ({ formData, orientation }) => {
       height: 50, // Fixed footer height
     },
   };
-  // You can import these:
+
+// Main component
+const CMAFundFlow = ({ formData, orientation }) => {
+
+
 
   const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
   const grossSales = extractors.grossSales();
-  const dutiesTaxes = extractors.dutiesTaxes();
-  const netSales = extractors.netSales();
-  const depreciation = extractors.depreciation();
-  const salaryandwages = extractors.salary();
   const rawmaterial = extractors.rawMaterial();
   const directExpensesArray = extractors.directExpenses?.() || [];
-  const StockAdjustment = extractors.StockAdjustment();
-  const OpeningStockinProcess = extractors.OpeningStockinProcess();
-  const SubTotalCostofSales = extractors.SubTotalCostofSales();
-  const OpeningStock = extractors.openingStocks() || [];
-  const closingStocks = extractors.closingStocks() || [];
-  const TotalCostofSales = extractors.TotalCostofSales() || [];
-  const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
-  const interestOnWCArray = extractors.interestOnWCArray() || [];
-  const administrativeExpenseRows =
-    extractors.administrativeExpenseRows() || [];
-  const adminValues = administrativeExpenseRows[0]?.values || [];
-
-  const OperatingProfit = extractors.OperatingProfit() || [];
-  const ProfitbeforeTax = extractors.ProfitbeforeTax() || [];
-  const ProvisionforInvestmentAllowance =
-    extractors.ProvisionforInvestmentAllowance() || [];
-
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
+
+    const projectionYears =
+    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
+  // You can import these:
+
 
   console.log("form Data : ", formData);
 
@@ -155,7 +132,7 @@ const CMAFundFlow = ({ formData, orientation }) => {
   const SubTotalE = FundFlowExtractor.SubTotalE() || [];
   const withdrawals = FundFlowExtractor.withdrawals() || [];
 
-  const otherTermLiabilities = BSextractors.otherTermLiabilities() || [];
+  const otherTermLiabilities = (BSextractors.otherTermLiabilities() || []).slice(0, projectionYears);
   const investments = BSextractors.investments() || [];
 
   const TOTALFUNDSUSED = Array.from({ length: years }).map(
@@ -3950,7 +3927,7 @@ const CMAFundFlow = ({ formData, orientation }) => {
                     Net funds lost - Sub-total (F)
                   </Text>
 
-                  {withdrawals.map((val, idx) => (
+                  {withdrawals.slice(0, projectionYears).map((val, idx) => (
                     <Text
                       key={idx}
                       style={[
@@ -4025,7 +4002,7 @@ const CMAFundFlow = ({ formData, orientation }) => {
                     TOTAL FUNDS USED (D+E+F)
                   </Text>
 
-                  {TOTALFUNDSUSED.map((val, idx) => (
+                  {TOTALFUNDSUSED.slice(0, projectionYears).map((val, idx) => (
                     <Text
                       key={idx}
                       style={[
