@@ -235,7 +235,7 @@ const CMACashflowMenu = ({
   const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
   // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
   const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
-  const Withdrawals = PPExtractor.Withdrawals() || [];
+  const Withdrawals = (PPExtractor.Withdrawals() || []).slice(0, projectionYears);
   const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
@@ -1735,7 +1735,7 @@ if (isAdvancedLandscape) {
                 Withdrawals
               </Text>
 
-              {withdrawals.map((val, idx) => (
+              {Withdrawals.slice(0, projectionYears).map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -1761,7 +1761,7 @@ if (isAdvancedLandscape) {
                 Income Tax
               </Text>
 
-              {incomeTaxCal.map((val, idx) => (
+              {incomeTaxCal.slice(0, projectionYears).map((val, idx) => (
                 <Text
                   key={idx}
                   style={[
@@ -1928,7 +1928,7 @@ if (isAdvancedLandscape) {
               </Text>
 
               {/* ✅ Display Precomputed Gross Profit Values */}
-              {totalUsesArray.map((total, index) => (
+              {totalUsesArray.slice(0, projectionYears).map((total, index) => (
                 <Text
                   key={index}
                   style={[
@@ -1970,7 +1970,7 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Display Updated Opening Cash Balance for Each Year */}
-                {cashBalances.map((cb, index) => (
+                {cashBalances.slice(0, projectionYears).map((cb, index) => (
                   <Text
                     key={index}
                     style={[
@@ -2005,7 +2005,7 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Display Surplus for Each Year */}
-                {cashBalances.map((cb, index) => (
+                {cashBalances.slice(0, projectionYears).map((cb, index) => (
                   <Text
                     key={index}
                     style={[
@@ -2040,7 +2040,7 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Display Closing Cash Balance for Each Year */}
-                {cashBalances.map((cb, index) => (
+                {cashBalances.slice(0, projectionYears).map((cb, index) => (
                   <Text
                     key={index}
                     style={[
