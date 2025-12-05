@@ -1,27 +1,25 @@
 import React from "react";
 import { useState, useCallback, useEffect } from "react";
-import { Document, Page } from "@react-pdf/renderer";
-import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
-import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
-import CMAFundFlow from "./CMAFundFlow";
-import CMAFinancialPosition from "./CMAFinancialPosition";
-import ProjectedProfitability from "../PDFComponents/ProjectedProfitability";
-import CMAProfitability10perreduce from "./CMAProfitability10perreduce";
-import CMAProfitabiltyExpenseInc from "./CMAProfitabiltyExpenseInc";
-import CMASARevenue from "./CMASARevenue";
-import CMASAExpense from "./CMASAExpense";
-import CMADSCRRevenue from "./CMADSCRRevenue";
-import CMADSCRExpense from "./CMADSCRExpense";
-import CMAWorkingCapReq from "./CMAWorkingCapReq";
-import CMAProfitabilityMenu from "./CMAProfitabilityMenu";
-import CMABalanceSheetMenu from './CMABalanceSheetMenu';
-import CMACashflowMenu from './CMACashflowMenu';
-import CMAContents from './CMAContents';
-import CMADSCR from './CMADSCR';
-import CMARatioAnalysis from "./CMARatioAnalysis";
-import CMAAssumptions from "./CMAAssumptions";
-import WordConclusion from "../Consultant/ConsultantPdfComponents/WordPages/WordConclusion";
-import ConsultantCMAContents from "../CMAData/ConsultantCMAContents"
+import { Document } from "@react-pdf/renderer";
+import WordConclusion from "../../Consultant/ConsultantPdfComponents/WordPages/WordConclusion";
+import ConsultantCMAContents from "./ConsultantCMAContents"
+import ConsultantCMAOperatingStatementPDF from "./ConsultantCMAOperatingStatementPDF";
+import ConsultantCMAAnalysisOfBS from "./ConsultantCMAAnalysisOfBS";
+import ConsultantCMAWorkingCapReq from "./CosultantCMAWorkingCapReq";
+import ConsultantCMAFundFlow from "./ConsultantCMAFundFlow";
+import ConsultantCMAFinancialPosition from "./ConsultantCMAFinancialPosition";
+import ConsultantCMAProfitabilityMenu from "./ConsultantCMAProfitabilityMenu";
+import ConsultantCMADSCR from "./ConsultantCMADSCR";
+import ConsultantCMARatioAnalysis from "./ConsultantCMARatioAnalysis";
+import ConsultantCMABalanceSheetMenu from "./ConsultantCMABalanceSheetMenu";
+import ConsultantCMACashflowMenu from "./ConsultantCMACashflowMenu";
+import ConsultantCMAProfitability10perreduce from "./ConsultantCMAProfitability10perreduce";
+import ConsultantCMASARevenue from "./ConsultantCMASARevenue";
+import ConsultantCMADSCRRevenue from "./ConsultantCMADSCRRevenue";
+import ConsultantCMAProfitabiltyExpenseInc from "./ConsultantCMAProfitabiltyExpenseInc";
+import ConsultantCMASAExpense from "./ConsultantCMASAExpense";
+import ConsultantCMADSCRExpense from "./ConsultantCMADSCRExpense";
+import ConsultantCMAAssumptions from "./ConsultantCMAAssumptions";
 
 const ConsultantCMAMultipagePDF = ({
     formData,
@@ -122,38 +120,38 @@ const ConsultantCMAMultipagePDF = ({
         >
            
             <ConsultantCMAContents formData={formData} orientation={orientation} formatNumber={formatNumber} versionNum={versionNum} />
-             <CMAOperatingStatementPDF formData={formData} orientation={orientation} />
-             <CMAAnalysisOfBS formData={formData} orientation={orientation} />
-            <CMAWorkingCapReq formData={formData} orientation={orientation} />
-            <CMAFundFlow formData={formData} orientation={orientation} />
-            <CMAFinancialPosition formData={formData} orientation={orientation} />
-            <CMAProfitabilityMenu
+             <ConsultantCMAOperatingStatementPDF formData={formData} orientation={orientation} />
+             <ConsultantCMAAnalysisOfBS formData={formData} orientation={orientation} />
+            <ConsultantCMAWorkingCapReq formData={formData} orientation={orientation} />
+            <ConsultantCMAFundFlow formData={formData} orientation={orientation} />
+            <ConsultantCMAFinancialPosition formData={formData} orientation={orientation} />
+            <ConsultantCMAProfitabilityMenu
                 handleDataSend={handleDataSend}
                 formData={formData}
                 totalRevenueReceipts={reducedRevenueReceipts}
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
-            <CMADSCR
+            <ConsultantCMADSCR
                 formData={formData}
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
             {versionNum >= 3 && (
-                <CMARatioAnalysis
+                <ConsultantCMARatioAnalysis
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
                 />
             )}
-            <CMABalanceSheetMenu
+            <ConsultantCMABalanceSheetMenu
                 handleDataSend={handleDataSend}
                 formData={formData}
                 totalRevenueReceipts={reducedRevenueReceipts}
                 formatNumber={formatNumber}
                 orientation={orientation}
             />
-            <CMACashflowMenu
+            <ConsultantCMACashflowMenu
                 handleDataSend={handleDataSend}
                 totalRevenueReceipts={reducedRevenueReceipts}
                 formData={formData}
@@ -164,7 +162,7 @@ const ConsultantCMAMultipagePDF = ({
            
             
             {versionNum >= 3 && (
-                <CMAProfitability10perreduce
+                <ConsultantCMAProfitability10perreduce
                     handleDataSend={handleDataSend}
                     formData={formData}
                     totalRevenueReceipts={reducedRevenueReceipts}
@@ -173,14 +171,14 @@ const ConsultantCMAMultipagePDF = ({
                 />
             )}
             {versionNum >= 3 && (
-                <CMASARevenue
+                <ConsultantCMASARevenue
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
                 />
             )}
             {versionNum >= 3 && (
-                <CMADSCRRevenue
+                <ConsultantCMADSCRRevenue
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
@@ -188,7 +186,7 @@ const ConsultantCMAMultipagePDF = ({
             )}
 
             {versionNum >= 4 && (
-                <CMAProfitabiltyExpenseInc
+                <ConsultantCMAProfitabiltyExpenseInc
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
@@ -196,7 +194,7 @@ const ConsultantCMAMultipagePDF = ({
             )}
 
             {versionNum >= 4 && (
-                <CMASAExpense
+                <ConsultantCMASAExpense
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
@@ -204,7 +202,7 @@ const ConsultantCMAMultipagePDF = ({
             )}
 
             {versionNum >= 4 && (
-                <CMADSCRExpense
+                <ConsultantCMADSCRExpense
                     formData={formData}
                     formatNumber={formatNumber}
                     orientation={orientation}
@@ -212,7 +210,7 @@ const ConsultantCMAMultipagePDF = ({
             )}
 
             
-            <CMAAssumptions
+            <ConsultantCMAAssumptions
                 formData={formData}
                 formatNumber={formatNumber}
                 orientation={orientation}

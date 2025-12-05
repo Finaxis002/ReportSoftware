@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { cleanFormDataArrays } from "../Utils/arrayCleaner";
 
 import * as XLSX from "xlsx"; // ✅ Import xlsx library
 import GraphGenerator from "../GraphGenerator";
@@ -36,6 +37,10 @@ const FinalStep = ({ formData, userRole }) => {
   const iframeRef = useRef(null);
   let timeoutId = useRef(null);
   let isComponentMounted = useRef(true);
+
+    const cleanedFormData = React.useMemo(() => {
+    return cleanFormDataArrays(formData);
+  }, [formData]);
 
   useEffect(() => {
     if (selectedOption !== "select option") {
@@ -117,6 +122,7 @@ const FinalStep = ({ formData, userRole }) => {
   };
 
   const handleExportData = () => {
+     if (!cleanedFormData) return;
     if (!formData) return;
 
     // ✅ Flatten the object for easy processing
@@ -434,12 +440,12 @@ const FinalStep = ({ formData, userRole }) => {
   };
 
   const handleCheckProfit = async () => {
+    
     console.log("🚀 Triggering PDF Load...");
     setIsPDFLoaded(false);
     setIsLoading(true);
 
-    const reportTitle =
-      formData?.AccountInformation?.businessName || "Untitled";
+    const reportTitle = cleanedFormData?.AccountInformation?.businessName || "Untitled";
     const sessionId =
       localStorage.getItem("activeSessionId") || formData?.sessionId;
 
@@ -696,8 +702,7 @@ const FinalStep = ({ formData, userRole }) => {
     try {
       console.log("🚀 Logging 'generated-pdf' activity...");
 
-      const reportTitle =
-        formData?.AccountInformation?.businessName || "Untitled";
+       const reportTitle = cleanedFormData?.AccountInformation?.businessName || "Untitled"; 
       const sessionId =
         localStorage.getItem("activeSessionId") || formData?.sessionId;
 

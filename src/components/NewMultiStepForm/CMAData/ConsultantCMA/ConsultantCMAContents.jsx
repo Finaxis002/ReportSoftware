@@ -6,29 +6,18 @@ import {
   stylesMOF,
   styleExpenses,
   stylesContents,
-} from "../PDFComponents/Styles";
+} from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
-import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
-import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
-import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
+import SAWatermark from "../../Assets/SAWatermark";
+import CAWatermark from "../../Assets/CAWatermark";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
+import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
+import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
+import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
+import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 
 
 
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
 
 const ConsultantCMAContents = ({
   formData,
@@ -179,7 +168,7 @@ const ConsultantCMAContents = ({
             </Text>
           </View>
 
-          <View
+          {/* <View
             style={{
               display: "flex",
               alignContent: "flex-end",
@@ -204,20 +193,20 @@ const ConsultantCMAContents = ({
               }
               )
             </Text>
-          </View>
+          </View> */}
 
           <View>
             <View style={stylesCOP.heading}>
               <Text>CONTENTS</Text>
             </View>
-            <View style={[styles.table, { borderRightWidth: 0 }]}>
+            <View style={[styles.table,  ]}>
               <View style={styles.tableHeader}>
                 <Text
                   style={[
                     styles.serialNoCell,
                     styleExpenses.sno,
                     styleExpenses.fontBold,
-                    { textAlign: "center", fontSize: "15px" },
+                    { textAlign: "center", fontSize: "12px" },
                   ]}
                 >
                   S. No.
@@ -227,7 +216,7 @@ const ConsultantCMAContents = ({
                     styles.detailsCell,
                     styleExpenses.particularWidth,
                     styleExpenses.fontBold,
-                    { textAlign: "left", fontSize: "15px" },
+                    { textAlign: "left", fontSize: "12px" },
                   ]}
                 >
                   Particulars

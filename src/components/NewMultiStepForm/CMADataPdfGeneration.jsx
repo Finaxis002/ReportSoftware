@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 import { PDFDownloadLink, PDFViewer, BlobProvider } from "@react-pdf/renderer";
 import CMAMultiPagePDF from "./CMAData/CMAMultiPagePDF";
-import ConsultantCMAMultipagePDF from "./CMAData/ConsultantCMAMultipagePDF";
+import ConsultantCMAMultipagePDF from "./CMAData/ConsultantCMA/ConsultantCMAMultipagePDF";
 import axios from "axios";
 
 const CMADataPdfGeneration = () => {

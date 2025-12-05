@@ -5,17 +5,17 @@ import {
   stylesCOP,
   stylesMOF,
   styleExpenses,
-} from "../PDFComponents/Styles";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
-import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
-import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
-import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
-import { CMAExtractorBS } from "../Utils/CMA/CMAExtractorBS";
+} from "../../Consultant/ConsultantPdfComponents/Styles";
+import SAWatermark from "../../Assets/SAWatermark";
+import CAWatermark from "../../Assets/CAWatermark";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
+import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
+import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
+import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
+import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
+import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 
-const CMABalanceSheetMenu = ({
+const ConsultantCMABalanceSheetMenu = ({
   formData,
   formatNumber,
   receivedtotalRevenueReceipts,
@@ -1960,4 +1960,4 @@ if (isAdvancedLandscape) {
   );
 };
 
-export default React.memo(CMABalanceSheetMenu);
+export default React.memo(ConsultantCMABalanceSheetMenu);
