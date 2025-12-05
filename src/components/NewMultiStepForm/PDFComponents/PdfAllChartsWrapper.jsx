@@ -51,7 +51,11 @@ const PdfAllChartsWrapper = ({
     }
   }, [pieChart, barChart, dscrChart, currentRatioChart]);
 
-    const totalExpensestosend = formData?.computedData?.totalExpense || formData?.totalExpense || totalExpenses || [];
+  const currentRoute = window.location.pathname;
+
+   const totalExpensestosend = currentRoute === '/generated-pdf' 
+  ? totalExpenses  // Use totalExpenses when on /generated-pdf route
+  : (formData?.computedData?.totalExpense || formData?.totalExpense || totalExpenses || []);
     console.log("formDATA in PdfAllChartsWrapper:", formData);
 
     console.log("✅ PdfAllChartsWrapper: totalExpensestosend:", totalExpensestosend);

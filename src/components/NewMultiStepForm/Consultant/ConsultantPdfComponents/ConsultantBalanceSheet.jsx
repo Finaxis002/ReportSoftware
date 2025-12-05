@@ -109,20 +109,20 @@ const ConsultantBalanceSheet = ({
     const computedFixedAssets = [];
     const computedNetFixedAssets = [];
 
-// For the first year, use computed data if available, otherwise fall back
-computedFixedAssets[0] = formData?.computedData?.grossFixedAssetsPerYear?.[0] ?? grossFixedAssetsPerYear[0] ?? 0;
-const depreciationYear0 = formData?.computedData?.totalDepreciation?.[0] ?? totalDepreciationPerYear[0] ?? 0;
-computedNetFixedAssets[0] = computedFixedAssets[0] - depreciationYear0;
+    // For the first year, use computed data if available, otherwise fall back
+    computedFixedAssets[0] = formData?.computedData?.grossFixedAssetsPerYear?.[0] ?? grossFixedAssetsPerYear[0] ?? 0;
+    const depreciationYear0 = formData?.computedData?.totalDepreciation?.[0] ?? totalDepreciationPerYear[0] ?? 0;
+    computedNetFixedAssets[0] = computedFixedAssets[0] - depreciationYear0;
 
-// For subsequent years, carry forward the net value as the new fixed asset value
-for (let i = 1; i < projectionYears; i++) {
-    // Use computed data if available for gross fixed assets, otherwise use calculated net from previous year
-    const computedGross = formData?.computedData?.grossFixedAssetsPerYear?.[i];
-    computedFixedAssets[i] = computedGross ?? computedNetFixedAssets[i - 1];
-    
-    const depreciationYearI = formData?.computedData?.totalDepreciation?.[i] ?? totalDepreciationPerYear[i] ?? 0;
-    computedNetFixedAssets[i] = computedFixedAssets[i] - depreciationYearI;
-}
+    // For subsequent years, carry forward the net value as the new fixed asset value
+    for (let i = 1; i < projectionYears; i++) {
+        // Use computed data if available for gross fixed assets, otherwise use calculated net from previous year
+        const computedGross = formData?.computedData?.grossFixedAssetsPerYear?.[i];
+        computedFixedAssets[i] = computedGross ?? computedNetFixedAssets[i - 1];
+
+        const depreciationYearI = formData?.computedData?.totalDepreciation?.[i] ?? totalDepreciationPerYear[i] ?? 0;
+        computedNetFixedAssets[i] = computedFixedAssets[i] - depreciationYearI;
+    }
     // ✅ Compute Corrected Total Assets for Each Year
     let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
@@ -1057,26 +1057,26 @@ for (let i = 1; i < projectionYears; i++) {
                                         </Text>
 
                                         {labels.map((_, localIdx) => {
-    const gIdx = globalIndex(localIdx);
-    
-    // ✅ Use computed data if available, otherwise fall back to calculated value
-    const value = 
-        formData?.computedData?.grossFixedAssetsPerYear?.[gIdx] ?? 
-        computedFixedAssets?.[gIdx] ?? 
-        0;
-    
-    return (
-        <Text
-            key={gIdx}
-            style={[
-                stylesCOP.particularsCellsDetail,
-                styleExpenses.fontSmall,
-            ]}
-        >
-            {formatNumber(value)}
-        </Text>
-    );
-})}
+                                            const gIdx = globalIndex(localIdx);
+
+                                            // ✅ Use computed data if available, otherwise fall back to calculated value
+                                            const value =
+                                                formData?.computedData?.grossFixedAssetsPerYear?.[gIdx] ??
+                                                computedFixedAssets?.[gIdx] ??
+                                                0;
+
+                                            return (
+                                                <Text
+                                                    key={gIdx}
+                                                    style={[
+                                                        stylesCOP.particularsCellsDetail,
+                                                        styleExpenses.fontSmall,
+                                                    ]}
+                                                >
+                                                    {formatNumber(value)}
+                                                </Text>
+                                            );
+                                        })}
                                     </View>
                                 )}
 

@@ -1,46 +1,72 @@
-import React, { useEffect, useMemo , useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
+import SAWatermark from "../../Assets/SAWatermark";
+import CAWatermark from "../../Assets/CAWatermark";
 
 Font.register({
   family: "Roboto",
   fonts: [
     {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      src: require("../../Assets/Fonts/times-new-roman.ttf"),
       fontWeight: "normal",
     },
     {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
+      src: require("../../Assets/Fonts/times-new-roman-bold.ttf"),
       fontWeight: "bold",
     },
   ],
 });
 
-const CMARatioAnalysis = ({
+const ConsultantCMARatioAnalysis = ({
+  formData = {},
+  financialYearLabels = [],
+  // receivedCummulativeTansferedData,
+  // receivedMarchClosingBalances,
+  // receivedWorkingCapitalValues,
+  // receivedTotalLiabilities,
   formatNumber,
+  pdfType,
   orientation,
 }) => {
-      const [pdfType, setPdfType] = useState("");
-      
-   // ✅ FIX: Parse the JSON string
-const formData = localStorage.getItem("formData");
-const formDataToUse = formData 
-  ? JSON.parse(formData) 
-  : {};
-
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
+  // Generate financial year labels if not provided
+  let effectiveFinancialYearLabels = financialYearLabels;
+  if (!effectiveFinancialYearLabels || effectiveFinancialYearLabels.length === 0) {
+    const startYear = parseInt(formData?.ProjectReportSetting?.FinancialYear) || 2025;
+    effectiveFinancialYearLabels = Array.from({ length: projectionYears }, (_, i) => {
+      const year = startYear + i;
+      return `${year}-${(year + 1).toString().slice(-2)}`;
+    });
+  }
+
+  const grossProfitValues = formData?.computedData?.computedData?.grossProfitValues || []
+
+  const netProfitBeforeTax = formData?.computedData?.computedData?.netProfitBeforeTax || []
+
+  const netProfitAfterTax = formData?.computedData?.computedData?.netProfitAfterTax || []
+
+  const receivedTotalLiabilities = formData?.computedData?.totalLiabilities || {}
+
+  const cashProfitArray = formData?.computedData?.computedData?.cashProfitArray || []
+
+  const receivedDscr = formData?.computedData?.dscr || {}
+
+  const receivedCummulativeTansferedData = formData?.computedData?.receivedData || {}
+
+  const receivedMarchClosingBalances = formData?.computedData?.marchClosingBalances || []
+
+  const receivedWorkingCapitalValues = formData?.computedData?.workingCapitalvalues || [];
+
   // Destructure termLoanValues from the object.
   // If it's undefined, default to an empty array.
-  const { termLoanValues = [] } = formDataToUse?.computedData?.workingCapitalValues || {};
   const cumulativeLoanForPreviousYears =
-    formDataToUse?.computedData?.workingCapitalValues?.termLoanValues || [];
+    receivedWorkingCapitalValues?.termLoanValues || [];
 
-     const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption;
 
   const computeWorkingCapitalFallbackArray = (arr, desiredLength) => {
     let fallback = [];
@@ -67,8 +93,8 @@ const formDataToUse = formData
 
     // Retrieve Reserves & Surplus for the current year; ensure it isn’t negative
     const reservesValue = Number(
-      formDataToUse?.receivedData?.cumulativeBalanceTransferred?.cumulativeBalanceTransferred?.[index] ||
-        0
+      receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[index] ||
+      0
     );
 
     // Sum the two values to get Net Worth
@@ -79,12 +105,12 @@ const formDataToUse = formData
 
   const totalDebtArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const termLoan = Number(formDataToUse?.marchClosingBalances?.[index + 1]) || 0;
+      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
 
       // ✅ Don't shift repayment index — use current year index
       const bankLoan =
         Number(
-          formDataToUse?.totalLiabilities?.repaymentValueswithin12months?.[index]
+          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
         ) || 0;
 
       const workingCapitalLoan = workingCapitalArray[index] || 0;
@@ -100,12 +126,12 @@ const formDataToUse = formData
     length: projectionYears,
   }).map((_, index) => {
     // Use raw value for Term Loan
-    const termLoan = Number(formDataToUse?.marchClosingBalances?.[index + 1]) || 0;
+    const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
 
     // Use raw value for Bank Loan Payable from the next year (index + 1)
     const bankLoan =
       Number(
-        formDataToUse?.totalLiabilities?.repaymentValueswithin12months?.[index]
+        receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
       ) || 0;
 
     // Use the fallback array for Working Capital
@@ -137,14 +163,14 @@ const formDataToUse = formData
   const CurrentAssetsArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const cashBalance =
-        Number(formDataToUse?.totalLiabilities?.closingCashBalanceArray?.[index]) || 0;
+        Number(receivedTotalLiabilities?.closingCashBalanceArray?.[index]) || 0;
 
       const currentYearAssets = (formData?.MoreDetails?.currentAssets ?? [])
         .filter((asset) => asset.particular !== "Investments")
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       const inventory = Array.from({
-        length: formData?.MoreDetails?.OpeningStock,
+        length: formData.MoreDetails.OpeningStock.length,
       }).map((_, yearIndex) => {
         const ClosingStock =
           formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
@@ -175,45 +201,25 @@ const formDataToUse = formData
 
   // console.log("Final Current Liabilities Array:", currentLiabilities);
 
-// ✅ Calculate Gross Profit / Sales Ratio and store in a variable
-const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
-  (_, index) => {
-    // Access totalRevenueReceipts from the root level, not computedData
-    const sales = formDataToUse?.computedData?.totalRevenueReceipts?.[index] || 0; 
-    
-    // Check if grossProfitValues exists in your data - adjust this based on actual data structure
-    // If it doesn't exist, you may need to calculate it or find where it's stored
-    const grossProfit = formDataToUse?.grossProfitValues?.[index] || 
-                       formDataToUse?.computedData1?.grossProfitValues?.[index] || 
-                       formDataToUse?.computedData?.computedData?.grossProfitValues?.[index] || 0;
-    
-    // Alternative: If grossProfit doesn't exist in your data, you might need to calculate it
-    // Gross Profit = Total Revenue - Direct Expenses
-    // const grossProfit = (formDataToUse?.computedData?.totalRevenueReceipts?.[index] || 0) - 
-    //                    (formDataToUse?.totalDirectExpensesArray?.[index] || 0);
-    
-    if (sales === 0) {
-      return "-";
+  // ✅ Calculate Gross Profit / Sales Ratio and store in a variable
+  const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      const sales = formData?.computedData?.totalRevenueReceipts[index] || 0; // Sales value
+      const grossProfit = grossProfitValues[index] || 0; // Gross profit value
+      if (sales === 0 || grossProfit === 0) {
+        return "-";
+      }
+      const ratio = ((grossProfit / sales) * 100).toFixed(2); // Avoid division by zero and format to 2 decimal places
+      return ratio; // Store ratio
     }
-    
-    // Calculate ratio
-    const ratio = (grossProfit / sales) * 100;
-    
-    // Check for valid ratio
-    if (isNaN(ratio) || !isFinite(ratio)) {
-      return "-";
-    }
-    
-    return ratio.toFixed(2);
-  }
-);
+  );
 
   // ✅ Calculate Operating Profit / Sales Ratio and store in a variable
   const operatingProfitSalesRatios = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-    const sales = formDataToUse?.computedData?.totalRevenueReceipts[index] || 0;
-    const operatingProfit = formDataToUse?.computedData?.computedData?.netProfitBeforeTax[index] || 0;
+    const sales = formData?.computedData?.totalRevenueReceipts[index] || 0;
+    const operatingProfit = netProfitBeforeTax[index] || 0;
     if (sales === 0 || operatingProfit === 0) {
       return "-";
     }
@@ -224,8 +230,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   // ✅ Calculate Profit Before Tax / Sales Ratio and store in a variable
   const ProfitBeforeTaxRatios = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const sales = formDataToUse?.computedData?.totalRevenueReceipts[index] || 0;
-      const operatingProfit = formDataToUse?.computedData?.computedData?.netProfitBeforeTax[index] || 0;
+      const sales = formData?.computedData?.totalRevenueReceipts[index] || 0;
+      const operatingProfit = netProfitBeforeTax[index] || 0;
       if (sales === 0 || operatingProfit === 0) {
         return "-";
       }
@@ -237,8 +243,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   // ✅ Calculate Net Profit / Sales Ratio and store in a variable
   const netProfitSalesRatio = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const sales = formDataToUse?.computedData?.totalRevenueReceipts[index] || 0;
-      const netProfit = formDataToUse?.computedData?.computedData?.netProfitBeforeTax[index] || 0;
+      const sales = formData?.computedData?.totalRevenueReceipts[index] || 0;
+      const netProfit = netProfitAfterTax[index] || 0;
       if (netProfit === 0 || sales === 0) {
         return "-";
       }
@@ -250,7 +256,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   // ✅ Calculate Net Profit / Net Worth Ratio and store in a variable
   const netProfitNetWorthRatio = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const netProfit = formDataToUse?.computedData?.computedData?.netProfitBeforeTax[index] || 0;
+      const netProfit = netProfitAfterTax[index] || 0;
       const netWorthValue = netWorth[index] || 0;
       if (netWorthValue === 0 || netProfit === 0) {
         return "-";
@@ -290,23 +296,51 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
     const capitalValue = Number(formData?.MeansOfFinance?.totalPC) || 0;
     const reservesValue =
       Number(
-        formDataToUse?.receivedData?.cumulativeBalanceTransferred?.cumulativeBalanceTransferred?.[index]
+        receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[index]
       ) || 0;
     const netWorth = capitalValue + Math.max(reservesValue, 0);
 
     const totalLiabilities =
-      Number(formDataToUse?.totalLiabilities?.totalLiabilitiesArray?.[index]) || 0;
+      Number(receivedTotalLiabilities?.totalLiabilitiesArray?.[index]) || 0;
 
     return totalLiabilities === 0
       ? "-"
       : (netWorth / totalLiabilities).toFixed(2);
   });
 
+  // Exclude "Quasi Equity" from Current Liabilities when calculating Total Liabilities
+  const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map(
+    (_, index) => {
+      // Get term loan, bank loan, etc., as per your structure:
+      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
+      const bankLoan =
+        Number(
+          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
+        ) || 0;
+      const workingCapitalLoan = workingCapitalArray[index] || 0;
+
+      // Exclude "Quasi Equity" from current liabilities sum:
+      const currentYearLiabilities = (
+        formData?.MoreDetails?.currentLiabilities ?? []
+      )
+        .filter((liability) => liability.particular !== "Quasi Equity")
+        .reduce(
+          (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
+          0
+        );
+
+      // Compose the total liabilities for the year:
+      return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
+    }
+  );
+
+  const yearlycurrentLiabilities =
+    receivedTotalLiabilities?.yearlyTotalLiabilities;
 
   // ✅ Calculate Current Ratio for each year
   const currentRatio = CurrentAssetsArray.map((assets, index) => {
     const liabilities =
-      Number(formDataToUse?.totalLiabilities?.yearlyTotalLiabilities?.[index]) || 0;
+      Number(receivedTotalLiabilities?.yearlyTotalLiabilities?.[index]) || 0;
 
     return liabilities > 0
       ? (assets / liabilities).toFixed(2) // ✅ Format to 2 decimal places
@@ -318,7 +352,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   // ✅ Return on Investment (ROI)
   const returnOnInvestment = Array.from({ length: projectionYears }).map(
     (_, index) => {
-      const Npat = Number(formDataToUse?.computedData?.computedData?.netProfitBeforeTax?.[index]) || 0;
+      const Npat = Number(netProfitAfterTax?.[index]) || 0;
       const toitalMOF = Number(formData?.MeansOfFinance?.total) || 0;
 
       return toitalMOF === 0 ? "-" : ((Npat / toitalMOF) * 100).toFixed(2);
@@ -336,14 +370,6 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
     const total = validNumbers.reduce((sum, value) => sum + value, 0);
     return (total / validNumbers.length).toFixed(2);
   };
-
-   useEffect(() => {
-      // ✅ Fetch from localStorage when component mounts
-      const storedPdfType = localStorage.getItem("pdfType");
-      if (storedPdfType) {
-        setPdfType(storedPdfType);
-      }
-    }, []);
 
   // ✅ Calculate Average for Each Ratio
   const averageGrossProfitSalesRatio = calculateAverage(
@@ -384,12 +410,12 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
 
   // ✅ Correct Average Calculation by filtering out invalid values
   const averageDebtServiceCoverageRatio = calculateAverage(
-    formDataToUse?.dscr?.DSCR?.filter((r) => !isNaN(parseFloat(r)) && r !== 0).map(
+    receivedDscr?.DSCR?.filter((r) => !isNaN(parseFloat(r)) && r !== 0).map(
       (r) => parseFloat(r)
     ) || []
   );
 
-  const hideFirstYear = formDataToUse?.computedData?.totalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear = formData?.computedData?.totalRevenueReceipts?.[0] <= 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
     .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
@@ -433,61 +459,31 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   const averageReturnOnInvestment =
     filteredROI.length > 0
       ? (
-          filteredROI.reduce((sum, value) => sum + value, 0) /
-          filteredROI.length
-        ).toFixed(2)
+        filteredROI.reduce((sum, value) => sum + value, 0) /
+        filteredROI.length
+      ).toFixed(2)
       : "0.00"; // ✅ Ensures two decimal places
 
-  const generateFinancialYearLabels = useMemo(
-     () => (startingFY, totalYears) => {
-       const yearLabels = [];
-       for (let i = 0; i < totalYears; i++) {
-         const fromYear = startingFY + i;
-         const toYear = (fromYear + 1) % 100; // Only last two digits for the second year
-         yearLabels.push(`${fromYear}-${toYear < 10 ? "0" + toYear : toYear}`);
-       }
-       return yearLabels;
-     },
-     []
-   );
- 
-   // Example Usage
-   const financialYear =
-     parseInt(formData?.ProjectReportSetting?.FinancialYear) || 2025; // Use the provided year
- 
-   const financialYearLabels = generateFinancialYearLabels(
-     financialYear,
-     projectionYears
-   );
+  // console.log("Filtered ROI Values:", filteredROI);
+  // console.log("Average ROI:", averageReturnOnInvestment);
 
-  // ✅ Properly update the state using useEffect
-//   useEffect(() => {
-//     if (
-//       formDataToUse?.totalLiabilities?.closingCashBalanceArray?.length > 0 ||
-//       formDataToUse?.totalLiabilities?.currentLiabilities?.length > 0
-//     ) {
-//       onAssetsLiabilitiesSend((prev) => ({
-//         ...prev,
-//         CurrentAssetsArray,
-//         yearlycurrentLiabilities,
-//         averageCurrentRatio,
-//         numOfYearsUsedForAvg,
-//       }));
-//     }
-//   }, [
-//     JSON.stringify(CurrentAssetsArray || []),
-//     JSON.stringify(yearlycurrentLiabilities || []),
-//     JSON.stringify(averageCurrentRatio),
-//     numOfYearsUsedForAvg,
-//   ]);
+  // ✅ Calculate Cumulative Cash Profit for each year
+  const cumulativeCashProfit = cashProfitArray.reduce((acc, value, index) => {
+    const previousTotal = index > 0 ? acc[index - 1] : 0;
+    acc.push(previousTotal + (Number(value) || 0));
+    return acc;
+  }, []);
+
+  // ✅ Calculate Total Cash Profit
+  const totalCashProfitValue = cashProfitArray.reduce((sum, value) => sum + (Number(value) || 0), 0);
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
-  let splitFinancialYearLabels = [financialYearLabels];
+  let splitFinancialYearLabels = [effectiveFinancialYearLabels];
   if (isAdvancedLandscape) {
     // Remove first year if hidden
     const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+      ? effectiveFinancialYearLabels.slice(1)
+      : effectiveFinancialYearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -561,17 +557,17 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               Financial Year{" "}
               {formData?.ProjectReportSetting?.FinancialYear
                 ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                  )
-                    .toString()
-                    .slice(-2)}`
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
                 : "2025-26"}
             </Text>
           </View>
 
           {/* Amount format */}
 
-          <View
+          {/* <View
             style={{
               display: "flex",
               alignContent: "flex-end",
@@ -596,7 +592,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               }
               )
             </Text>
-          </View>
+          </View> */}
           <View>
             <View
               style={[
@@ -612,7 +608,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               </Text>
             </View>
 
-            <View style={[styles.table, { borderRightWidth: 0 }]}>
+            <View style={[styles.table]}>
               {/* Header  */}
               <View style={styles.tableHeader}>
                 <Text
@@ -695,7 +691,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                           },
                         ]}
                       >
-                        {formatNumber(formDataToUse?.computedData?.totalRevenueReceipts[gIdx] || 0)}
+                        {formatNumber(formData?.computedData?.totalRevenueReceipts[gIdx] || 0)}
                       </Text>
                     );
                   })}
@@ -731,7 +727,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                   {labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
-                    const profit = formDataToUse?.computedData?.computedData?.grossProfitValues?.[gIdx] ?? 0;
+                    const profit = grossProfitValues?.[gIdx] ?? 0;
                     return (
                       <Text
                         key={`grossProfit-${gIdx}`}
@@ -777,7 +773,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                   {labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
-                    const npbt = formDataToUse?.computedData?.computedData?.netProfitBeforeTax?.[gIdx] ?? 0;
+                    const npbt = netProfitBeforeTax?.[gIdx] ?? 0;
                     return (
                       <Text
                         key={`npbt-${gIdx}`}
@@ -823,7 +819,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                   {labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
-                    const npat = formDataToUse?.computedData?.computedData?.netProfitBeforeTax?.[gIdx] ?? 0;
+                    const npat = netProfitAfterTax?.[gIdx] ?? 0;
                     return (
                       <Text
                         key={`npat-${gIdx}`}
@@ -1013,8 +1009,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
                     const total =
-                      (formDataToUse?.totalLiabilities?.totalLiabilitiesArray || [])[
-                        gIdx
+                      (receivedTotalLiabilities?.totalLiabilitiesArray || [])[
+                      gIdx
                       ] ?? 0;
                     return (
                       <Text
@@ -1110,8 +1106,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
                     const total =
-                      (formDataToUse?.totalLiabilities?.yearlyTotalLiabilities || [])[
-                        gIdx
+                      (receivedTotalLiabilities?.yearlyTotalLiabilities || [])[
+                      gIdx
                       ] ?? 0;
                     return (
                       <Text
@@ -1159,7 +1155,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                   {labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
-                    const total = formDataToUse?.computedData?.cashProfitArray?.[gIdx] ?? 0;
+                    const total = cashProfitArray?.[gIdx] ?? 0;
                     return (
                       <Text
                         key={`cashprofit-${gIdx}`}
@@ -1182,11 +1178,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
 
                 {/* ✅ Total Cash Profit Calculation */}
                 <View
-                  style={[
-                    stylesMOF.row,
-                    styles.tableRow,
-                    styleExpenses.totalRow,
-                  ]}
+                  style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow ,{border:0}]}
                 >
                   <Text
                     style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
@@ -1196,52 +1188,40 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                       stylesCOP.detailsCellDetail,
                       styleExpenses.particularWidth,
                       styleExpenses.bordernone,
-                      { fontWeight: "bold" },
+                      { fontWeight: "bold" , border:0},
                     ]}
                   >
                     Total Cash Profit
                   </Text>
 
-                  {labels.map((_, localIdx) => {
-                    const gIdx = globalIndex(localIdx);
-                    if (shouldSkipCol(gIdx)) return null;
 
-                    const totalCashProfit = Array.isArray(formDataToUse?.computedData?.cashProfitArray)
-                      ? formDataToUse?.computedData?.cashProfitArray.reduce(
-                          (acc, value) => acc + Number(value || 0),
-                          0
-                        )
-                      : 0;
 
-                    return (
-                      <Text
-                        key={`tcp-${gIdx}`}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          {
-                            fontWeight: "bold",
+                  <Text
+                    
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      {
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        border: 0,
+                      },
+                    ]}
+                  >
+                    {formatNumber(totalCashProfitValue)}
+                  </Text>
 
-                            textAlign: "center",
-                            borderRightWidth: 0,
-                            borderTopWidth: 1,
-                          },
-                        ]}
-                      >
-                        {localIdx === centerLocalIdx
-                          ? formatNumber(totalCashProfit)
-                          : ""}
-                      </Text>
-                    );
-                  })}
+
 
                   <Text
                     style={[
                       stylesCOP.particularsCellsDetail,
                       styleExpenses.fontSmall,
-                      { borderLeftWidth: 1 },
+                      { border: 0 },
                     ]}
-                  ></Text>
+                  >
+                    {/* {formatNumber(totalCashProfitValue)} */}
+                  </Text>
                 </View>
               </View>
 
@@ -1714,7 +1694,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
                       if (shouldSkipCol(gIdx)) return null;
-                      const ratio = formDataToUse?.dscr?.DSCR?.[gIdx] ?? 0;
+                      const ratio = receivedDscr?.DSCR?.[gIdx] ?? 0;
                       return (
                         <Text
                           key={`dscr-${gIdx}`}
@@ -1917,17 +1897,17 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
           Financial Year{" "}
           {formData?.ProjectReportSetting?.FinancialYear
             ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
+              parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+            )
+              .toString()
+              .slice(-2)}`
             : "2025-26"}
         </Text>
       </View>
 
       {/* Amount format */}
 
-      <View
+      {/* <View
         style={{
           display: "flex",
           alignContent: "flex-end",
@@ -1952,7 +1932,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
           }
           )
         </Text>
-      </View>
+      </View> */}
       <View>
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -1960,7 +1940,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
           <Text>Ratio Analysis </Text>
         </View>
 
-        <View style={[styles.table, { borderRightWidth: 0 }]}>
+        <View style={[styles.table]}>
           {/* Header  */}
           <View style={styles.tableHeader}>
             <Text
@@ -1983,9 +1963,9 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
             >
               Particulars
             </Text>
-            {/* Generate Dynamic Year Headers using financialYearLabels */}
-            {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedformDataToUse?.computedData?.totalRevenueReceipts[0] < 0
+            {/* Generate Dynamic Year Headers using effectiveFinancialYearLabels */}
+            {effectiveFinancialYearLabels
+              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedformData?.computedData?.totalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -2038,7 +2018,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                         },
                       ]}
                     >
-                      {formatNumber(formDataToUse?.computedData?.totalRevenueReceipts[index] || 0)}
+                      {formatNumber(formData?.computedData?.totalRevenueReceipts[index] || 0)}
                     </Text>
                   )
               )}
@@ -2071,7 +2051,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               >
                 Gross Profit
               </Text>
-              {formDataToUse?.computedData?.computedData?.grossProfitValues.map(
+              {grossProfitValues.map(
                 (profit, yearIndex) =>
                   (!hideFirstYear || yearIndex !== 0) && (
                     <Text
@@ -2115,7 +2095,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                 Operating Profit / Profit Before Tax
               </Text>
               {/* ✅ Dynamically generate years based on projectionYears */}
-              {formDataToUse?.computedData?.computedData?.netProfitBeforeTax.map(
+              {netProfitBeforeTax.map(
                 (npbt, yearIndex) =>
                   (!hideFirstYear || yearIndex !== 0) && (
                     <Text
@@ -2159,7 +2139,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                 Net Profit After Tax
               </Text>
 
-              {formDataToUse?.computedData?.computedData?.netProfitBeforeTax.map(
+              {netProfitAfterTax.map(
                 (npat, yearIndex) =>
                   (!hideFirstYear || yearIndex !== 0) && (
                     <Text
@@ -2339,8 +2319,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               </Text>
 
               {/* ✅ Access the nested array correctly */}
-              {Array.isArray(formDataToUse?.computedData?.totalLiabilities.totalLiabilitiesArray) &&
-                formDataToUse?.computedData?.totalLiabilities.totalLiabilitiesArray.map(
+              {Array.isArray(formData?.computedData?.totalLiabilities?.yearlyTotalLiabilities) &&
+                formData?.computedData?.totalLiabilities?.yearlyTotalLiabilities.map(
                   (total, index) =>
                     (!hideFirstYear || index !== 0) && (
                       <Text
@@ -2430,7 +2410,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               </Text>
 
               {/* ✅ Display Updated Current Liabilities */}
-              {(formDataToUse?.totalLiabilities?.yearlyTotalLiabilities ?? []).map(
+              {(receivedTotalLiabilities?.yearlyTotalLiabilities ?? []).map(
                 (total, index) =>
                   (!hideFirstYear || index !== 0) && (
                     <Text
@@ -2475,8 +2455,8 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               </Text>
 
               {/* ✅ Access the nested array correctly */}
-              {Array.isArray(formDataToUse?.computedData?.cashProfitArray) &&
-                formDataToUse?.computedData?.cashProfitArray.map(
+              {Array.isArray(cashProfitArray) &&
+                cashProfitArray.map(
                   (total, index) =>
                     (!hideFirstYear || index !== 0) && (
                       <Text
@@ -2500,7 +2480,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
 
             {/* ✅ Total Cash Profit Calculation */}
             <View
-              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow]}
+              style={[stylesMOF.row, styles.tableRow, styleExpenses.totalRow ,{borderTop:1}]}
             >
               <Text
                 style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
@@ -2510,56 +2490,36 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                   stylesCOP.detailsCellDetail,
                   styleExpenses.particularWidth,
                   styleExpenses.bordernone,
-                  { fontWeight: "bold" },
+                  { fontWeight: "bold"  , border:0},
                 ]}
               >
                 Total Cash Profit
               </Text>
 
-              {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0)
-                .map((yearLabel, yearIndex) => {
-                  const visibleLabels = financialYearLabels.slice(
-                    hideFirstYear ? 1 : 0
-                  );
-                  const centerIndex = Math.floor(visibleLabels.length / 2);
-
-                  const totalCashProfit = Array.isArray(formDataToUse?.computedData?.cashProfitArray)
-                    ? formDataToUse?.computedData?.cashProfitArray.reduce(
-                        (acc, value) => acc + Number(value || 0),
-                        0
-                      )
-                    : 0;
-
-                  return (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        {
-                          fontWeight: "bold",
-
-                          textAlign: "center",
-                          borderRightWidth: 0,
-                          borderTopWidth: 1,
-                        },
-                      ]}
-                    >
-                      {yearIndex === centerIndex
-                        ? formatNumber(totalCashProfit)
-                        : ""}
-                    </Text>
-                  );
-                })}
 
               <Text
                 style={[
                   stylesCOP.particularsCellsDetail,
                   styleExpenses.fontSmall,
-                  { borderLeftWidth: 1 },
+                  {
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    border:0
+                  },
                 ]}
-              ></Text>
+              >
+                {formatNumber(totalCashProfitValue)}
+              </Text>
+
+              <Text
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  {border:0}
+                ]}
+              >
+                {/* {formatNumber(totalCashProfitValue)} */}
+              </Text>
             </View>
           </View>
 
@@ -3014,7 +2974,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
                 {Array.from({ length: projectionYears }).map((_, index) => {
                   if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is
                   // Retrieve DSCR value or default to 0 if not available
-                  const ratio = formDataToUse?.dscr?.DSCR?.[index] ?? 0;
+                  const ratio = receivedDscr?.DSCR?.[index] ?? 0;
 
                   return (
                     <Text
@@ -3168,4 +3128,4 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
   );
 };
 
-export default React.memo(CMARatioAnalysis);
+export default React.memo(ConsultantCMARatioAnalysis);

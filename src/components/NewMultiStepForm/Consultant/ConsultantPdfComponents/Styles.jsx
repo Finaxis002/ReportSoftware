@@ -13,7 +13,15 @@ Font.register({
       src: require("../../Assets/Fonts/Roboto/Roboto-Bold.ttf"),
       fontWeight: "bold",
     },
-
+    {
+      src: require("../../Assets/Fonts/Roboto/Roboto-Medium.ttf"),
+      fontWeight: "medium",
+    },
+     {
+      src: require("../../Assets/Fonts/Roboto/Roboto-BoldItalic.ttf"),
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
   ],
 });
 
