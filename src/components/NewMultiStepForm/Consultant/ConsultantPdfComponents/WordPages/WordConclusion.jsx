@@ -38,7 +38,7 @@ const WordConclusion = ({ formData, pageNumber }) => {
         {/* Conclusion Content */}
         <View style={styles.section}>
           <Text style={styles.title}>Conclusion</Text>
-          <Text  style={{ fontSize: 13 }}>{content}</Text>
+          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px" }}>{content}</Text>
         </View>
         
        

@@ -39,7 +39,7 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
         {/* Section Content */}
         <View style={styles.section}>
           <Text style={styles.title}>{displayTitle}</Text>
-          <Text  style={{ fontSize: 13}}>{content}</Text>
+          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px"}}>{content}</Text>
         </View>
         
        
