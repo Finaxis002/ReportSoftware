@@ -12,7 +12,7 @@ const WordConclusion = ({ formData, pageNumber }) => {
     content: content
   });
 
-  if (!content || content.trim() === "") {
+  if (!content?.text || content.text.trim() === "") {
     console.log("❌ WordConclusion: No content found");
     return null;
   }
@@ -34,11 +34,11 @@ const WordConclusion = ({ formData, pageNumber }) => {
               : "2025-26"}
           </Text>
         </View>
-        
+
         {/* Conclusion Content */}
         <View style={styles.section}>
           <Text style={styles.title}>Conclusion</Text>
-          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px" }}>{content}</Text>
+          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px" }}>{content.text}</Text>
         </View>
         
        

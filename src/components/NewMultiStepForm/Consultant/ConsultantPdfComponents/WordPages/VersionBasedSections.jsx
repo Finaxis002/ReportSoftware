@@ -51,19 +51,19 @@ const VersionBasedSections = ({ formData, startPageNumber = 2 }) => {
     if (sectionConfig.type !== "introduction") {
       const sectionKey = props.sectionKey;
       const sectionContent = formData?.generatedPDF?.[sectionKey];
-      
+
       // Log for debugging
       console.log(`Checking section ${sectionKey}:`, sectionContent ? "Content exists" : "No content");
-      
+
       // If section content doesn't exist or is empty, don't render this section
-      if (!sectionContent || sectionContent.trim() === "") {
+      if (!sectionContent?.text || sectionContent.text.trim() === "") {
         console.log(`⚠️ Section ${sectionKey} has no content, skipping`);
         return null;
       }
     } else {
       // For introduction, check if it exists
       const introductionContent = formData?.generatedPDF?.introduction;
-      if (!introductionContent || introductionContent.trim() === "") {
+      if (!introductionContent?.text || introductionContent.text.trim() === "") {
         console.log(`⚠️ Introduction has no content, skipping`);
         return null;
       }

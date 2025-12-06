@@ -43,7 +43,7 @@ const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData, pdfTyp
   }
 
   const sections = Object.entries(generatedPDF).filter(([_, content]) => {
-    const isValid = content && typeof content === "string" && content.trim() !== "";
+    const isValid = content?.text && content.text.trim() !== "";
     console.log(`🔍 Section "${_[0]}" validation:`, isValid);
     return isValid;
   });
@@ -80,7 +80,7 @@ const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData, pdfTyp
          <View>
             <View style={styles.section}>
               <Text style={styles.title}>{title}</Text>
-              <Text style={styles.content}>{content}</Text> {/* THIS LINE RENDERS THE CONTENT */}
+              <Text style={styles.content}>{content.text}</Text> {/* THIS LINE RENDERS THE CONTENT */}
             </View>
             <Text style={styles.pageNumber}>
               Page {startPageNumber + index}
