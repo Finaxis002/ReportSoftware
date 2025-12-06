@@ -8,11 +8,11 @@ import {
   TextRun,
   BorderStyle,
   PageBreak,
-  ImageRun,
 } from "docx";
 import { saveAs } from "file-saver";
 import axios from "axios";
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+
 const ALL_SECTIONS = {
   introduction: "Introduction",
   about: "About the Project",
@@ -47,56 +47,72 @@ const SectionHeading = (text) =>
     spacing: { after: 300 },
   });
 
-const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsData, selectedVersion }) => {
-   const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const businessData = formData;
   const [businessDescription, setBusinessDescription] = useState(
     formData?.AccountInformation?.businessDescription || ""
   );
-  const [sections, setSections] = useState(formData?.generatedPDF || {});
+  const [allSections, setAllSections] = useState(formData?.generatedPDF || {});
+  const [filteredSections, setFilteredSections] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState(() => {
+    return localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
+  });
 
-  const currentSections = VERSION_SECTIONS[selectedVersion] || [];
+  // Listen for localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
+      if (newVersion !== selectedVersion) {
+        setSelectedVersion(newVersion);
+      }
+    };
 
+    // Initial check
+    handleStorageChange();
+
+    // Listen for storage events (from other tabs/windows)
+    window.addEventListener('storage', handleStorageChange);
+
+    // Poll for changes (for same tab changes)
+    const intervalId = setInterval(handleStorageChange, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, [selectedVersion]);
+
+  // Initialize business description
   useEffect(() => {
     setBusinessDescription(formData?.AccountInformation?.businessDescription || "");
-    // setSections(formData?.generatedPDF || {});
-    if (formData?.generatedPDF) {
-      setSections(prev => ({ ...prev, ...formData.generatedPDF }));
-    }
   }, [formData]);
 
-
+  // Initialize and update all sections
   useEffect(() => {
-   if (formData?.generatedPDF) {
-     const requiredKeys = VERSION_SECTIONS[selectedVersion];
-     const filtered = {};
+    if (formData?.generatedPDF) {
+      setAllSections(prev => ({ ...prev, ...formData.generatedPDF }));
+    }
+  }, [formData?.generatedPDF]);
 
-     requiredKeys.forEach(key => {
-       if (formData.generatedPDF[key]) {
-         filtered[key] = formData.generatedPDF[key];
-       }
-     });
+  // Filter sections based on selected version
+  useEffect(() => {
+    const currentVersionSections = VERSION_SECTIONS[selectedVersion] || [];
+    const filtered = {};
+    
+    currentVersionSections.forEach(key => {
+      if (allSections[key]) {
+        filtered[key] = allSections[key];
+      }
+    });
+    
+    setFilteredSections(filtered);
+  }, [selectedVersion, allSections]);
 
-     setSections(filtered);
-   }
- }, [formData, selectedVersion]);
-
-
- useEffect(() => {
-   const requiredKeys = VERSION_SECTIONS[selectedVersion];
-   const filtered = {};
-
-   requiredKeys.forEach(key => {
-     if (sections[key]) {
-       filtered[key] = sections[key];
-     }
-   });
-
-   setSections(filtered);
- }, [selectedVersion]);
+  // Get current sections for the selected version
+  const currentSections = VERSION_SECTIONS[selectedVersion] || [];
 
   const handleGenerateProjectReport = async () => {
     if (!businessDescription) {
@@ -106,13 +122,13 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
     setError("");
     setLoading(true);
 
-    let generatedSections = {};
+    const generatedSections = { ...allSections };
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     for (const secKey of currentSections) {
       try {
         const res = await axios.post(
-          `${BASE_URL }/api/openai/generate-section`,
+          `${BASE_URL}/api/openai/generate-section`,
           {
             section: secKey,
             businessName: businessData?.AccountInformation?.businessName || "",
@@ -130,12 +146,13 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
         );
 
         generatedSections[secKey] = res.data.sectionText || "No text generated.";
-
-        setSections({ ...generatedSections });
+        
+        // Update all sections immediately
+        setAllSections({ ...generatedSections });
         onFormDataChange({ generatedPDF: { ...generatedSections } });
       } catch (err) {
         generatedSections[secKey] = "Error generating section.";
-        setSections({ ...generatedSections });
+        setAllSections({ ...generatedSections });
         onFormDataChange({ generatedPDF: { ...generatedSections } });
       }
 
@@ -146,9 +163,9 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
     // Auto-save generated sections to database
     try {
-      await axios.post(`${BASE_URL }/api/consultant-reports/update-consultant-step`, {
+      await axios.post(`${BASE_URL}/api/consultant-reports/update-consultant-step`, {
         sessionId: businessData.sessionId,
-        data: { generatedPDF: sections },
+        data: { generatedPDF: generatedSections },
       });
       console.log("✅ Generated sections auto-saved to database");
     } catch (err) {
@@ -158,20 +175,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
   const businessName = businessData?.AccountInformation?.businessName || "";
   const financialYear = businessData?.ProjectReportSetting?.FinancialYear || "";
-
-
-  const fetchImageAsBuffer = async (url) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const arrayBuffer = await blob.arrayBuffer();
-      return new Uint8Array(arrayBuffer);
-    } catch (err) {
-      console.error("Failed to fetch image:", url, err);
-      return null;
-    }
-  };
-
 
   const sectionTextToParagraphs = (section) => {
     const text = (typeof section === 'string' ? section : section?.text) || "";
@@ -185,7 +188,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
         continue;
       }
 
-      // Normal paragraph
       const cleanedLine = trimmed.replace(/\*\*(.+?)\*\*/g, "$1");
       paragraphs.push(
         new Paragraph({
@@ -199,11 +201,9 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
     return paragraphs;
   };
 
-
-
   const exportToWord = async () => {
     try {
-      setLoading(true); // Use your loading state or create a new one for export
+      setLoading(true);
 
       const BORDER = {
         top: { style: BorderStyle.SINGLE, size: 8, color: "000000" },
@@ -213,10 +213,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
       };
 
       const children = [];
-
-      console.log("📝 Starting Word export...");
-      console.log("Current sections:", currentSections);
-      console.log("Sections data:", sections);
 
       // Heading with Business Name and Financial Year
       children.push(
@@ -250,24 +246,25 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
       // Check if we have any valid sections
       const validSections = currentSections.filter(secKey => {
-        const section = sections[secKey];
+        const section = filteredSections[secKey];
         return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
       });
 
       if (validSections.length === 0) {
-        alert("No content available to export. Please generate sections first.");
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Content',
+          text: 'No content available to export. Please generate sections first.',
+          confirmButtonText: 'OK'
+        });
         setLoading(false);
         return;
       }
 
-      console.log("Valid sections to export:", validSections);
-
       // Loop over valid sections
       for (let i = 0; i < validSections.length; i++) {
         const secKey = validSections[i];
-        const section = sections[secKey];
-
-        console.log(`Processing section: ${secKey}`, section);
+        const section = filteredSections[secKey];
 
         // Add page break for all sections except the first one
         if (i !== 0) {
@@ -281,8 +278,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
         const paragraphs = sectionTextToParagraphs(section);
         children.push(...paragraphs);
       }
-
-      console.log("Final document children:", children);
 
       // Create document
       const doc = new Document({
@@ -308,8 +303,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
       saveAs(blob, fileName);
 
-      console.log("✅ Word document exported successfully");
-
       // Show success message
       Swal.fire({
         icon: 'success',
@@ -334,11 +327,8 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
     }
   };
 
-
   return (
     <div className="my-6 px-4">
-
-
       <div className="">
         <div className="mt-4 max-h-96 overflow-y-auto">
           <div className="">
@@ -355,9 +345,12 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
               onChange={(e) => setBusinessDescription(e.target.value)}
             />
           </div>
-          <div className="flex gap-4 mb-6 mt-4">
-        
+          
+          {/* Display current version for debugging */}
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            Current Version: <span className="font-semibold">{selectedVersion}</span>
           </div>
+          
           <div className="flex flex-wrap gap-4 mt-4">
             <button
               className={`px-4 py-2 rounded transition duration-300 ease-in-out ${!businessDescription || loading
@@ -371,26 +364,9 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
                 ? "Generating All Sections..."
                 : "Generate Full Project Report"}
             </button>
-            {/* <button
-              className={`px-4 py-2 rounded transition duration-300 ease-in-out ${Object.keys(sections).length === 0 || saving
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-purple-600 text-white hover:bg-purple-700"
-                }`}
-              onClick={handleSaveGeneratedSections}
-              disabled={Object.keys(sections).length === 0 || saving}
-            >
-              {saving ? "Saving..." : "Save Generated Sections"}
-            </button> */}
-            {/* <button
-              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-              onClick={exportToWord}
-              disabled={!currentSections.every(secKey => sections[secKey] && sections[secKey].text)}
-            >
-              Export Full Project Report to Word
-            </button> */}
             <button
               className={`px-4 py-2 rounded transition duration-300 ease-in-out ${!currentSections.every(secKey => {
-                const section = sections[secKey];
+                const section = filteredSections[secKey];
                 return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
               }) || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -398,7 +374,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
                 }`}
               onClick={exportToWord}
               disabled={!currentSections.every(secKey => {
-                const section = sections[secKey];
+                const section = filteredSections[secKey];
                 return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
               }) || loading}
             >
@@ -406,6 +382,8 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
             </button>
           </div>
           {error && <p className="text-red-500 mt-3">{error}</p>}
+          
+          {/* Display sections for current version */}
           {currentSections.map((secKey) => (
             <div key={secKey} className="my-3">
               <div className="font-bold mb-1">{ALL_SECTIONS[secKey]}</div>
@@ -417,17 +395,17 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
                   <span className="text-blue-400">Generating...</span>
                 ) : (
                   <div>
-                    {typeof sections[secKey] === 'string' ? sections[secKey] : sections[secKey]?.text || (
-                      <span className="text-gray-400">Not generated yet.</span>
-                    )}
+                    {typeof filteredSections[secKey] === 'string' 
+                      ? filteredSections[secKey] 
+                      : filteredSections[secKey]?.text || (
+                        <span className="text-gray-400">Not generated yet.</span>
+                      )}
                   </div>
                 )}
               </div>
             </div>
           ))}
         </div>
-
-
       </div>
     </div>
   );

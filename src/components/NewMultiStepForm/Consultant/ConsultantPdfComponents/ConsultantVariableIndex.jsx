@@ -5,7 +5,6 @@ import {
   stylesCOP,
   styleExpenses,
 } from "./Styles";
-import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
@@ -14,19 +13,6 @@ import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 
-import { ppid } from "process";
-
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
 
 // Index data for project report
 const index = [
