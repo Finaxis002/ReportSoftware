@@ -52,11 +52,21 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
   useEffect(() => {
     if (selectedOption !== "select option") {
       localStorage.setItem("pdfType", selectedOption);
+      // Save current font and color to formData when "Other" is selected
+      updateFormDataInLocalStorage({
+        font: selectedFont,
+        color: selectedColor !== "select color" ? selectedColor : null
+      });
     } else {
       localStorage.removeItem("pdfType");
       localStorage.removeItem("selectedColor");
+      // Also remove font and color from formData in localStorage
+      updateFormDataInLocalStorage({
+        font: null,
+        color: null
+      });
     }
-  }, [selectedOption]);
+  }, [selectedOption, selectedFont, selectedColor]);
 
 
   useEffect(() => {
@@ -746,7 +756,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       }
 
       // ⚠️ IMPORTANT: If server is returning old data, don't update localStorage with it
-      // Instead, keep our current version and color
+      // Instead, keep our current version, color, and font
       if (!saveResult.formData || saveResult.formData.version !== selectedVersion) {
         console.log("⚠️ Server returned outdated version. Keeping local version.");
         // Update localStorage with our current values
@@ -754,7 +764,8 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
         const updatedFormData = {
           ...currentFormData,
           version: selectedVersion,
-          color: selectedColor !== "select color" ? selectedColor : null
+          color: selectedColor !== "select color" ? selectedColor : null,
+          font: selectedFont
         };
         localStorage.setItem("formData", JSON.stringify(updatedFormData));
       }
@@ -822,19 +833,10 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     setSelectedColor(color);
 
     // Update formData in localStorage with the new color
-    if (formData) {
-      const updatedFormData = {
-        ...formData,
-        color: color !== "select color" ? color : null
-      };
-
-      // Update localStorage
-      localStorage.setItem("formData", JSON.stringify(updatedFormData));
-
-      // Also update the state if you're using it elsewhere
-      // Note: You might need to lift this state up or use context
-      // if you need the updated formData in parent components
-    }
+    // Use the same pattern as updateFormDataInLocalStorage to ensure we have the latest data
+    updateFormDataInLocalStorage({
+      color: color !== "select color" ? color : null
+    });
   };
 
   // Helper function to update ONLY formData in localStorage
