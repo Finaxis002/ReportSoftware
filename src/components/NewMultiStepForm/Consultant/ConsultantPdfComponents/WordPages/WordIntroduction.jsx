@@ -38,7 +38,7 @@ const WordIntroduction = ({ formData, pageNumber }) => {
         {/* Introduction Content */}
         <View style={styles.section}>
           <Text style={styles.title} >Introduction</Text>
-          <Text  style={{ fontSize: 13 }}>{content}</Text>
+          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px" }}>{content}</Text>
         </View>
         
        
