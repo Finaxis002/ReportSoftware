@@ -45,11 +45,21 @@ const FinalStep = ({ formData, userRole }) => {
   useEffect(() => {
     if (selectedOption !== "select option") {
       localStorage.setItem("pdfType", selectedOption);
+      // Save current font and color to formData when "Other" is selected
+      updateFormDataInLocalStorage({
+        font: selectedFont,
+        color: selectedColor !== "select color" ? selectedColor : null
+      });
     } else {
       localStorage.removeItem("pdfType");
       localStorage.removeItem("selectedColor");
+      // Also remove font and color from formData in localStorage
+      updateFormDataInLocalStorage({
+        font: null,
+        color: null
+      });
     }
-  }, [selectedOption]);
+  }, [selectedOption, selectedFont, selectedColor]);
 
   useEffect(() => {
     if (selectedColor !== "select color") {
@@ -678,23 +688,14 @@ const FinalStep = ({ formData, userRole }) => {
     };
   }, []);
 
-    const handleColorChange = (color) => {
+  const handleColorChange = (color) => {
     setSelectedColor(color);
 
     // Update formData in localStorage with the new color
-    if (formData) {
-      const updatedFormData = {
-        ...formData,
-        color: color !== "select color" ? color : null
-      };
-
-      // Update localStorage
-      localStorage.setItem("formData", JSON.stringify(updatedFormData));
-
-      // Also update the state if you're using it elsewhere
-      // Note: You might need to lift this state up or use context
-      // if you need the updated formData in parent components
-    }
+    // Use the same pattern as updateFormDataInLocalStorage to ensure we have the latest data
+    updateFormDataInLocalStorage({
+      color: color !== "select color" ? color : null
+    });
   };
 
 
@@ -834,7 +835,7 @@ const updateFormDataInLocalStorage = (updates) => {
             <div className="flex gap-4 mb-6">
 
               {/* Hex Color Input */}
-              <div className="flex-1">
+              <div className="flex-1 mb-4">
                 <label className="block text-gray-700 font-medium">
                   Or enter custom HEX code:
                 </label>
