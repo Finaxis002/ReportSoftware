@@ -12,7 +12,7 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
     content: content
   });
 
-  if (!content || content.trim() === "") {
+  if (!content?.text || content.text.trim() === "") {
     return null;
   }
 
@@ -35,11 +35,11 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
               : "2025-26"}
           </Text>
         </View>
-        
+
         {/* Section Content */}
         <View style={styles.section}>
           <Text style={styles.title}>{displayTitle}</Text>
-          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px"}}>{content}</Text>
+          <Text  style={{ fontSize: 13 , textAlign:"justify" , lineHeight:"1.5px"}}>{content.text}</Text>
         </View>
         
        

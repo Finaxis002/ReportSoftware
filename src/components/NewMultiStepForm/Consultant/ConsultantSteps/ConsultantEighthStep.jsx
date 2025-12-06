@@ -174,7 +174,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
 
 
   const sectionTextToParagraphs = (section) => {
-    const text = section || "";
+    const text = (typeof section === 'string' ? section : section?.text) || "";
     const lines = text.split(/\r?\n/);
     const paragraphs = [];
 
@@ -249,9 +249,10 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
       );
 
       // Check if we have any valid sections
-      const validSections = currentSections.filter(secKey =>
-        sections[secKey] && sections[secKey].trim() !== ""
-      );
+      const validSections = currentSections.filter(secKey => {
+        const section = sections[secKey];
+        return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
+      });
 
       if (validSections.length === 0) {
         alert("No content available to export. Please generate sections first.");
@@ -388,12 +389,18 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
               Export Full Project Report to Word
             </button> */}
             <button
-              className={`px-4 py-2 rounded transition duration-300 ease-in-out ${!currentSections.every(secKey => sections[secKey] && sections[secKey].trim() !== "") || loading
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-green-600 text-white hover:bg-green-700"
+              className={`px-4 py-2 rounded transition duration-300 ease-in-out ${!currentSections.every(secKey => {
+                const section = sections[secKey];
+                return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
+              }) || loading
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-green-600 text-white hover:bg-green-700"
                 }`}
               onClick={exportToWord}
-              disabled={!currentSections.every(secKey => sections[secKey] && sections[secKey].trim() !== "") || loading}
+              disabled={!currentSections.every(secKey => {
+                const section = sections[secKey];
+                return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
+              }) || loading}
             >
               {loading ? "Exporting..." : "Export Full Project Report to Word"}
             </button>
@@ -410,7 +417,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
                   <span className="text-blue-400">Generating...</span>
                 ) : (
                   <div>
-                    {sections[secKey] || (
+                    {typeof sections[secKey] === 'string' ? sections[secKey] : sections[secKey]?.text || (
                       <span className="text-gray-400">Not generated yet.</span>
                     )}
                   </div>
