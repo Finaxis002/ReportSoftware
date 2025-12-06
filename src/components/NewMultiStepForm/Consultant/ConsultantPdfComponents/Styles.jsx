@@ -329,7 +329,123 @@ console.log("Selected font:", selectedFont);
 console.log("Registered fonts:", Font.getRegisteredFonts?.());
 
 
+const coverPageStyle = StyleSheet.create({
+  page: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+    fontFamily: selectedFont,
+  },
 
+  bgImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    fontFamily: selectedFont,
+  },
+
+  container: {
+    position: "absolute",
+    top: 80,
+    right: 20,
+    width: "50%",
+    textAlign: "right",
+    fontFamily: selectedFont,
+  },
+
+  projectTitle: {
+    fontSize: 45,
+    marginBottom: 10,
+    fontWeight: "light",
+    fontFamily: selectedFont,
+  },
+
+  subTitle: {
+    fontSize: 14,
+    marginBottom: 20,
+    color: '#043A5E',
+    fontFamily: selectedFont,
+  },
+  info: {
+    marginTop: 20,
+    fontFamily: selectedFont,
+  },
+  label: {
+    fontSize: 20,
+    marginVertical: 10,
+    color: '#043A5E',
+    fontWeight: "bold",
+    fontFamily: selectedFont,
+
+  },
+
+  value: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
+    fontFamily: selectedFont,
+  },
+
+  logoContainer: {
+    position: "absolute",
+    bottom: 100,
+    right: 20,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent:"flex-end",
+    textAlign: "right",
+    fontFamily: selectedFont,
+  },
+
+  logo: {
+    width: 200,
+    height: "auto",
+    fontFamily: selectedFont,
+  },
+
+  email: {
+    fontSize: 12,
+    color: "#043A5E",
+    marginTop: 2,
+    letterSpacing: 1.5,
+    fontWeight: "bold",
+    fontFamily: selectedFont,
+  },
+   addressText: {
+    fontSize: 12,
+    color: "#043A5E",
+    marginTop: 2,
+    letterSpacing: 1.5,
+    fontWeight: "bold",
+    fontFamily: selectedFont,
+    textAlign: "right",
+    flexWrap: "wrap", // Allow text to wrap
+    maxWidth: 250, // Constrain width
+    textAlign: "right",
+  },
+  horizontalLine: {
+    borderBottomColor: '#043A5E',
+    borderBottomWidth: 3,
+    width: "35%",
+    marginLeft: "auto",
+    marginBottom: 80,
+  fontFamily: selectedFont,
+  },
+
+  horizontalLine2: {
+    borderBottomColor: '#000000',
+    borderBottomWidth: 1.5,
+    width: "15%",
+    marginLeft: "auto",
+    marginTop: -5,
+    fontFamily: selectedFont,
+  }
+
+
+})
 
 
 const styles = StyleSheet.create({
@@ -349,7 +465,7 @@ const styles = StyleSheet.create({
     marginBottom: 10, 
     textAlign: "center", 
     borderBottom: "1px solid black",
-    fontFamily:"Times New Roman"
+    fontFamily: selectedFont,
    },
   pieChart: {
     width: 300,
@@ -385,7 +501,7 @@ const styles = StyleSheet.create({
   FinancialYear: {
     fontSize: "11px",
     fontFamily: selectedFont,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     paddingVertical: "3px",
     paddingBottom: "20px",
     wrap: false,
@@ -409,7 +525,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     textTransform: "capitalize",
     fontFamily: selectedFont,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     wrap: false,
   },
   caName: {
@@ -934,5 +1050,6 @@ export {
   styleExpenses,
   columnWidths,
   stylesRepayment,
-  stylesContents
+  stylesContents,
+  coverPageStyle
 };

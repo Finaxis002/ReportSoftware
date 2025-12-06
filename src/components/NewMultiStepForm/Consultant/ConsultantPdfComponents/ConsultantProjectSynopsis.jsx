@@ -1017,7 +1017,7 @@ const ConsultantProjectSynopsis = React.memo(
               </View>
 
               {/* Total Promoter's Contribution  */}
-              <View style={[styles.tableRow, {backgroundColor: "#e2e2e2ff"}]}>
+              <View style={[styles.tableRow,]}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,
@@ -1086,7 +1086,7 @@ const ConsultantProjectSynopsis = React.memo(
               </View>
 
               {/*  Total Bank Loan  */}
-               <View style={[styles.tableRow, {backgroundColor: "#e2e2e2ff"}]}>
+               <View style={[styles.tableRow,]}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,
@@ -1154,7 +1154,7 @@ const ConsultantProjectSynopsis = React.memo(
               </View>
 
               {/* total  */}
-               <View style={[styles.tableRow, {backgroundColor: "#e2e2e2ff"}]}>
+               <View style={[styles.tableRow,]}>
                 <Text
                   style={[
                     styles.serialNoCellDetail,

@@ -85,6 +85,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
   const handleVersionChange = async (version) => {
     console.log("VERSION CHANGED TO:", version);
+    console.log("📊 Current formData.generatedPDF:", formData.generatedPDF);
     setSelectedVersion(version);
     localStorage.setItem("selectedConsultantReportVersion", version);
 
@@ -591,6 +592,7 @@ const handleCreateNewFromExisting = async () => {
          case 8:
         return (
           <ConsultantEighthStep
+          key={`eighth-step-${selectedVersion}`} 
             businessData={formData}
             sections={formData?.generatedPDF || {}}
             loading={false}
