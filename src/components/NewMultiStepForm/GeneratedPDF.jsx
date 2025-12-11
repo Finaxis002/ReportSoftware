@@ -22,6 +22,7 @@ import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
 import { FiDownload, FiShare2 } from "react-icons/fi"; // npm i react-icons
 
+
 // Register chart.js components
 import BasicDetails from "./PDFComponents/BasicDetails";
 import ProjectSynopsis from "./PDFComponents/ProjectSynopsis";
@@ -49,6 +50,7 @@ import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 
 const GeneratedPDF = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const userRole = localStorage.getItem("userRole");
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
@@ -156,7 +158,7 @@ const GeneratedPDF = () => {
         try {
           const sessionId = localStorage.getItem("activeSessionId");
           if (sessionId) {
-            const response = await axios.get(`https://reportsbe.sharda.co.in/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
+            const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
             if (response.data.success && response.data.data) {
               setFormData(response.data.data);
             }
@@ -519,8 +521,8 @@ const GeneratedPDF = () => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
+          fetch(`${BASE_URL}/api/employees`),
+          fetch(`${BASE_URL}/api/admins`),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
@@ -636,7 +638,7 @@ const GeneratedPDF = () => {
     // ✅ API call to save computed data
     try {
       await axios.put(
-        `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
+        `${BASE_URL}/save-computed-data/${formData._id}`,
         { computedData: aggregatedComputedData }
       );
       console.log("✅ Computed data saved successfully.");
@@ -653,7 +655,7 @@ const GeneratedPDF = () => {
 
       if (sessionId) {
         const res = await fetch(
-          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+          `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
         );
         const data = await res.json();
         if (data?.reportId) {
@@ -666,6 +668,10 @@ const GeneratedPDF = () => {
       console.warn("❌ Failed to log render activity:", error);
     }
   };
+
+
+
+  
 
   const debtEquityOption =
     formData?.ProjectReportSetting?.DebtEquityOption ||
@@ -1219,7 +1225,7 @@ const GeneratedPDF = () => {
             // ✅ API call to save computed data
             try {
               await axios.put(
-                `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
+                `${BASE_URL}/save-computed-data/${formData._id}`,
                 { computedData: aggregatedComputedData }
               );
 
@@ -1239,7 +1245,7 @@ const GeneratedPDF = () => {
 
               if (sessionId) {
                 const res = await fetch(
-                  `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+                  `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
                 );
                 const data = await res.json();
                 if (data?.reportId) {
@@ -1247,7 +1253,7 @@ const GeneratedPDF = () => {
                 }
               }
 
-              await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
+              await fetch(`${BASE_URL}/api/activity/log`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

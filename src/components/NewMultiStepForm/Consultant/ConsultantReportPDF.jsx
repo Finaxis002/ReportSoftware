@@ -44,6 +44,7 @@ import ConsultantBreakEvenPoint from "./ConsultantPdfComponents/ConsultantBreakE
 import ConsultantAssumptions from "./ConsultantPdfComponents/ConsultantAssumptions";
 
 const ConsultantGeneratedPDF = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const location = useLocation();
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
@@ -120,6 +121,8 @@ const ConsultantGeneratedPDF = () => {
 
   const [pdfType, setPdfType] = useState("");
 
+  console.log("pdf type ::::::::" , pdfType)
+
   const [years, setYears] = useState(5);
 
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
@@ -132,10 +135,12 @@ const ConsultantGeneratedPDF = () => {
   const [numPages, setNumPages] = useState(null);
 
   //share demo pdf
-  const [showShareModal, setShowShareModal] = useState(false);
+
   const [shareLink, setShareLink] = useState("");
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
-  //for otp
+  
+
+  const [hasPreSavedData, setHasPreSavedData] = useState(false);
 
 
 
@@ -158,7 +163,7 @@ const ConsultantGeneratedPDF = () => {
         try {
           const sessionId = localStorage.getItem("activeSessionId");
           if (sessionId) {
-            const response = await axios.get(`https://reportsbe.sharda.co.in/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
+            const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
             if (response.data.success && response.data.data) {
               setFormData(response.data.data);
             }
@@ -442,6 +447,83 @@ console.log("- Selected for PDF:", storedVersion);
     }
   };
 
+
+
+// ✅ Function to save consultant computed data
+const saveConsultantComputedData = async () => {
+  if (!formData?._id) {
+    console.warn("⚠️ No formData._id found, skipping save");
+    return null;
+  }
+
+  try {
+    console.log("💾 Saving consultant computed data for report:", {
+      reportId: formData._id,
+      version: storedVersion,
+      versionNum
+    });
+    
+    // ✅ Aggregate all computed data
+    const aggregatedComputedData = {
+      // Core financial data
+      normalExpense,
+      totalAnnualWages,
+      directExpenses,
+      totalDirectExpensesArray,
+      computedData,
+      computedData1,
+      totalDepreciation,
+      yearlyInterestLiabilities,
+      yearlyPrincipalRepayment,
+      interestOnWorkingCapital,
+      receivedData,
+      marchClosingBalances,
+      workingCapitalvalues,
+      grossFixedAssetsPerYear,
+      incomeTaxCalculation,
+      closingCashBalanceArray,
+      totalLiabilities,
+      assetsliabilities,
+      dscr,
+      averageCurrentRatio,
+      breakEvenPointPercentage,
+      totalExpense,
+      totalRevenueReceipts,
+      surplusDuringYear,
+      
+      // Version info
+      version: storedVersion || formData?.version,
+      versionNum,
+      processedAt: new Date().toISOString(),
+      
+      // Financial metrics
+      financialYear,
+      projectionYears,
+      financialYearLabels,
+      
+      // Business info
+      businessName: formData?.AccountInformation?.businessName,
+      businessOwner: formData?.AccountInformation?.businessOwner,
+      
+      // User info
+      savedBy: userName,
+      userRole,
+    };
+
+    // ✅ API call to save consultant computed data
+    const response = await axios.put(
+      `${BASE_URL}/api/consultant-reports/save-consultant-computed-data/${formData._id}`,
+      { computedData: aggregatedComputedData }
+    );
+
+    console.log("✅ Consultant computed data saved successfully");
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to save consultant computed data:", error.message);
+    return null;
+  }
+};
+
   // useEffect(() => {
   //   console.log("🔄 GeneratedPDF is re-rendering");
   // });
@@ -545,8 +627,8 @@ console.log("- Selected for PDF:", storedVersion);
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
+          fetch(`${BASE_URL}/api/employees`),
+          fetch(`${BASE_URL}/api/admins`),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
@@ -655,43 +737,49 @@ console.log("- Selected for PDF:", storedVersion);
     };
   }, []);
 
-  const handlePDFRender = async () => {
-    // ✅ Aggregated computed data
-    const aggregatedComputedData = aggregateComputedData();
+const handlePDFRender = async () => {
+  console.log("🔄 PDF rendering started for consultant report");
+  
+  // ✅ Save computed data
+  await saveConsultantComputedData();
+  
+  // ✅ Log activity
+  try {
+    await axios.post(`${BASE_URL}/api/activity/log`, {
+      action: "pdf_render",
+      reportId: formData?._id,
+      reportTitle: formData?.AccountInformation?.businessName,
+      version: storedVersion,
+      performedBy: userName,
+      role: userRole,
+      timestamp: new Date().toISOString()
+    });
+    console.log("✅ PDF render activity logged");
+  } catch (error) {
+    console.warn("⚠️ Failed to log render activity:", error);
+  }
+};
 
-    // ✅ API call to save computed data
-    try {
-      await axios.put(
-        `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
-        { computedData: aggregatedComputedData }
-      );
-      console.log("✅ Computed data saved successfully.");
-    } catch (error) {
-      console.error("❌ Failed to save computed data:", error);
-    }
-
-    // ✅ Send activity log
-    try {
-      const sessionId =
-        localStorage.getItem("activeSessionId") || formData?.sessionId || "";
-
-      let reportId = null;
-
-      if (sessionId) {
-        const res = await fetch(
-          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
-        );
-        const data = await res.json();
-        if (data?.reportId) {
-          reportId = data.reportId;
-        }
+// Add this useEffect to save data as soon as we have the required data
+useEffect(() => {
+  const saveDataBeforeRender = async () => {
+    // Only save once and when we have the required data
+    if (!hasPreSavedData && formData?._id && totalRevenueReceipts?.length > 0) {
+      console.log("📥 Pre-saving computed data before PDF generation...");
+      
+      try {
+        await saveConsultantComputedData();
+        setHasPreSavedData(true);
+        console.log("✅ Data pre-saved successfully");
+      } catch (error) {
+        console.log("⚠️ Pre-save failed, will save during render");
       }
-
-      console.log("✅ Logged PDF render activity");
-    } catch (error) {
-      console.warn("❌ Failed to log render activity:", error);
     }
   };
+
+  saveDataBeforeRender();
+}, [formData, totalRevenueReceipts, hasPreSavedData]);
+
 
   const debtEquityOption =
     formData?.ProjectReportSetting?.DebtEquityOption ||
@@ -789,6 +877,12 @@ console.log("- Selected for PDF:", storedVersion);
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
           handlePDFRender(); // Save data after the PDF has been rendered
+           if (!hasPreSavedData) {
+          handlePDFRender();
+        } else {
+          console.log("✅ Data was already saved before render");
+        }
+      
         }}
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
@@ -1159,13 +1253,13 @@ console.log("- Selected for PDF:", storedVersion);
             renderWCLFBLabel={renderWCLFBLabel}
           />
         )}
-        {versionNum >= 1 && (
+         {versionNum >= 1 && (
           <WordConclusion
             formData={formData}
             selectedVersion={storedVersion}
             startPageNumber={2} // Start after Project Synopsis
           />
-        )}
+         )}
         {/* {versionNum >= 1 && (
           <WordConclusion />
         )} */}
@@ -1187,6 +1281,7 @@ console.log("- Selected for PDF:", storedVersion);
     lineChartBase64,
     versionNum,
     storedVersion,
+     hasPreSavedData,
   ]);
 
   // for filling the form data silently
@@ -1300,7 +1395,7 @@ console.log("- Selected for PDF:", storedVersion);
             // ✅ API call to save computed data
             try {
               await axios.put(
-                `https://reportsbe.sharda.co.in/save-computed-data/${formData._id}`,
+                `${BASE_URL}/api/consultant-reports/save-consultant-computed-data/${formData._id}`,
                 { computedData: aggregatedComputedData }
               );
 
@@ -1320,7 +1415,7 @@ console.log("- Selected for PDF:", storedVersion);
 
               if (sessionId) {
                 const res = await fetch(
-                  `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+                  `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
                 );
                 const data = await res.json();
                 if (data?.reportId) {
@@ -1328,7 +1423,7 @@ console.log("- Selected for PDF:", storedVersion);
                 }
               }
 
-              await fetch("https://reportsbe.sharda.co.in/api/activity/log", {
+              await fetch(`${BASE_URL}/api/activity/log`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

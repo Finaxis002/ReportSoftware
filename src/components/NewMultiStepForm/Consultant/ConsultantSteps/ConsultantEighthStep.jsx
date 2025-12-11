@@ -145,13 +145,13 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
           }
         );
 
-        generatedSections[secKey] = res.data.sectionText || "No text generated.";
-        
+        generatedSections[secKey] = { text: res.data.sectionText || "No text generated." };
+
         // Update all sections immediately
         setAllSections({ ...generatedSections });
         onFormDataChange({ generatedPDF: { ...generatedSections } });
       } catch (err) {
-        generatedSections[secKey] = "Error generating section.";
+        generatedSections[secKey] = { text: "Error generating section." };
         setAllSections({ ...generatedSections });
         onFormDataChange({ generatedPDF: { ...generatedSections } });
       }

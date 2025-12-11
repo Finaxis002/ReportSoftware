@@ -727,49 +727,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       console.log("🔍 Sending to server - version:", formDataToSave.version);
       console.log("🔍 Sending to server - color:", formDataToSave.color);
 
-      const saveResponse = await fetch(`${BASE_URL}/api/consultant-reports/save-calculations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          formData: formDataToSave, // Send updated formData
-          consultantData,
-          calculations: formData.computedData,
-          timestamp: new Date().toISOString(),
-          generatedBy: userName || "Unknown"
-        }),
-      });
 
-      if (!saveResponse.ok) {
-        throw new Error("Failed to save calculations");
-      }
-
-      const saveResult = await saveResponse.json();
-      console.log("✅ Calculations saved:", saveResult);
-
-      // Check what the server returned
-      console.log("🔍 Server returned formData version:", saveResult?.formData?.version);
-      console.log("🔍 Server returned formData color:", saveResult?.formData?.color);
-
-      if (saveResult.calculationId) {
-        localStorage.setItem("lastCalculationId", saveResult.calculationId);
-      }
-
-      // ⚠️ IMPORTANT: If server is returning old data, don't update localStorage with it
-      // Instead, keep our current version, color, and font
-      if (!saveResult.formData || saveResult.formData.version !== selectedVersion) {
-        console.log("⚠️ Server returned outdated version. Keeping local version.");
-        // Update localStorage with our current values
-        const currentFormData = JSON.parse(localStorage.getItem("formData") || "{}");
-        const updatedFormData = {
-          ...currentFormData,
-          version: selectedVersion,
-          color: selectedColor !== "select color" ? selectedColor : null,
-          font: selectedFont
-        };
-        localStorage.setItem("formData", JSON.stringify(updatedFormData));
-      }
-      
     } catch (saveError) {
       console.error("❌ Failed to save calculations:", saveError);
       Swal.fire({
