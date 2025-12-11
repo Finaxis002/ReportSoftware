@@ -171,7 +171,7 @@ const ProjectedBalanceSheet = ({
   for (let i = 0; i < projectionYears; i++) {
     if (i === 0) {
       preliminaryExpenseBalanceSheet[i] = Math.max(
-        preliminaryExpensesTotal - yearlyWriteOffAmount,
+        preliminaryExpensesTotal,
         0
       );
     } else {
