@@ -112,7 +112,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange, years, MoreDetailsDa
     for (const secKey of currentSections) {
       try {
         const res = await axios.post(
-          `${BASE_URL }/api/openai/generate-section`,
+          `${BASE_URL}/api/openai/generate-section`,
           {
             section: secKey,
             businessName: businessData?.AccountInformation?.businessName || "",
