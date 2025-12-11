@@ -322,7 +322,7 @@ const storedColor = formData?.color || localStorage.getItem("selectedColor");
 const backgroundColor = colorMap[storedColor] || storedColor || "#20a7db";
 
 
-const selectedFont = formData?.font || "Roboto";
+const selectedFont = formData?.font || "Poppins";
 
 
 console.log("Selected font:", selectedFont);
@@ -401,10 +401,11 @@ const coverPageStyle = StyleSheet.create({
   },
 
   logo: {
-    width: 200,
-    height: "auto",
-    fontFamily: selectedFont,
-  },
+  objectFit: "cover",
+  height: 100, // Set a height for the logo
+  width: 100,  // Set a width for the logo (if you want a fixed size)
+  fontFamily: selectedFont,
+},
 
   email: {
     fontSize: 12,
