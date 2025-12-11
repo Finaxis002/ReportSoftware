@@ -5,14 +5,16 @@ import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
 const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
   // Get content directly from formData using the sectionKey
   const content = formData?.generatedPDF?.[sectionKey];
-  
+  const text = typeof content === 'string' ? content : content?.text || '';
+
   console.log(`📖 WordGenericSection [${sectionKey}] checking content:`, {
     hasGeneratedPDF: !!formData?.generatedPDF,
     hasContent: !!content,
-    content: content
+    content: content,
+    text: text
   });
 
-  if (!content?.text || content.text.trim() === "") {
+  if (!text || text.trim() === "") {
     return null;
   }
 
@@ -39,7 +41,7 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
         {/* Section Content */}
         <View style={styles.section}>
           <Text style={styles.title}>{displayTitle}</Text>
-          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px"}}>{content.text}</Text>
+          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px"}}>{text}</Text>
         </View>
         
        

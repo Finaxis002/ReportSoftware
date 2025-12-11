@@ -5,14 +5,16 @@ import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
 const WordConclusion = ({ formData, pageNumber }) => {
   // Get conclusion content directly from formData
   const content = formData?.generatedPDF?.conclusion;
-  
+  const text = typeof content === 'string' ? content : content?.text || '';
+
   console.log("📖 WordConclusion checking content:", {
     hasGeneratedPDF: !!formData?.generatedPDF,
     hasConclusion: !!content,
-    content: content
+    content: content,
+    text: text
   });
 
-  if (!content?.text || content.text.trim() === "") {
+  if (!text || text.trim() === "") {
     console.log("❌ WordConclusion: No content found");
     return null;
   }
@@ -38,7 +40,7 @@ const WordConclusion = ({ formData, pageNumber }) => {
         {/* Conclusion Content */}
         <View style={styles.section}>
           <Text style={styles.title}>Conclusion</Text>
-          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px" }}>{content.text}</Text>
+          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px" }}>{text}</Text>
         </View>
         
        

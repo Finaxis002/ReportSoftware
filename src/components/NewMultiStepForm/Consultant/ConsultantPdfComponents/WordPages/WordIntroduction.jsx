@@ -5,14 +5,16 @@ import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
 const WordIntroduction = ({ formData, pageNumber }) => {
   // Get introduction content directly from formData
   const content = formData?.generatedPDF?.introduction;
-  
+  const text = typeof content === 'string' ? content : content?.text || '';
+
   console.log("📖 WordIntroduction checking content:", {
     hasGeneratedPDF: !!formData?.generatedPDF,
     hasIntroduction: !!content,
-    content: content
+    content: content,
+    text: text
   });
 
-  if (!content?.text || content.text.trim() === "") {
+  if (!text || text.trim() === "") {
     console.log("❌ WordIntroduction: No content found");
     return null;
   }
@@ -38,7 +40,7 @@ const WordIntroduction = ({ formData, pageNumber }) => {
         {/* Introduction Content */}
         <View style={styles.section}>
           <Text style={styles.title} >Introduction</Text>
-          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px" }}>{content.text}</Text>
+          <Text  style={{ fontSize: 12 , textAlign:"justify" , lineHeight:"1.5px" }}>{text}</Text>
         </View>
         
        
