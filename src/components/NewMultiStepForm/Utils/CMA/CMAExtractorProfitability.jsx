@@ -15,7 +15,7 @@ import { CMAExtractorFundFlow } from "./CMAExtractorFundFlow";import {
 
 export const CMAExtractorProfitability = (formData) => {
      const projectionYears =
-     parseInt(formData.ProjectReportSetting.ProjectionYears) || 5;
+     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 5;
       const totalRevenueForOthers = formData?.Revenue?.totalRevenueForOthers || [] ;
      const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;

@@ -152,12 +152,12 @@ const ConsultantRatioAnalysis = ({
         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
 
       const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
+        length: formData?.MoreDetails?.OpeningStock.length,
       }).map((_, yearIndex) => {
         const ClosingStock =
-          formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+          formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
         const OpeningStock =
-          formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+          formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
         return ClosingStock - OpeningStock;
       });
 
@@ -549,8 +549,8 @@ const ConsultantRatioAnalysis = ({
             <Text style={styles.FinancialYear}>
               Financial Year{" "}
               {formData?.ProjectReportSetting?.FinancialYear
-                ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
                   )
                     .toString()
                     .slice(-2)}`
@@ -1905,8 +1905,8 @@ const ConsultantRatioAnalysis = ({
         <Text style={styles.FinancialYear}>
           Financial Year{" "}
           {formData?.ProjectReportSetting?.FinancialYear
-            ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+            ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
               )
                 .toString()
                 .slice(-2)}`

@@ -543,7 +543,7 @@ const ConsultantProjectedProfitability = ({
     // Precompute Balance Transferred to Balance Sheet
     const balanceTransferred = netProfitAfterTax.map(
         (npbt, yearIndex) => {
-            const withdrawal = formData.MoreDetails.Withdrawals?.[yearIndex] || 0;
+            const withdrawal = formData?.MoreDetails?.Withdrawals?.[yearIndex] || 0;
             const result = npbt - withdrawal;
 
             console.log(`BalanceTrf Year ${yearIndex}: NPAT=${npbt}, Withdrawal=${withdrawal}, Result=${result}`);
@@ -554,7 +554,7 @@ const ConsultantProjectedProfitability = ({
 
     console.log("=== DEBUG CUMULATIVE BALANCE CALCULATION ===");
     console.log("netProfitAfterTax:", netProfitAfterTax);
-    console.log("Withdrawals:", formData.MoreDetails.Withdrawals);
+    console.log("Withdrawals:", formData?.MoreDetails?.Withdrawals);
     console.log("balanceTransferred:", balanceTransferred);
     console.log("hideFirstYear:", hideFirstYear);
     console.log("projectionYears:", projectionYears);
@@ -1036,7 +1036,7 @@ const ConsultantProjectedProfitability = ({
                                                 ]}
                                             >
                                                 {formatNumber(
-                                                    formData.MoreDetails.ClosingStock?.[gIdx] ?? 0
+                                                    formData?.MoreDetails?.ClosingStock?.[gIdx] ?? 0
                                                 )}
                                             </Text>
                                         );
@@ -1073,7 +1073,7 @@ const ConsultantProjectedProfitability = ({
                                                 ]}
                                             >
                                                 {formatNumber(
-                                                    formData.MoreDetails.OpeningStock?.[gIdx] ?? 0
+                                                    formData?.MoreDetails?.OpeningStock?.[gIdx] ?? 0
                                                 )}
                                             </Text>
                                         );
@@ -2631,7 +2631,7 @@ const ConsultantProjectedProfitability = ({
                                             ]}
                                         >
                                             {formatNumber(
-                                                formData.MoreDetails.ClosingStock?.[index] ?? 0
+                                                formData?.MoreDetails?.ClosingStock?.[index] ?? 0
                                             )}
                                         </Text>
                                     )
@@ -2670,7 +2670,7 @@ const ConsultantProjectedProfitability = ({
                                             ]}
                                         >
                                             {formatNumber(
-                                                formData.MoreDetails.OpeningStock?.[index] ?? 0
+                                                formData?.MoreDetails?.OpeningStock?.[index] ?? 0
                                             )}
                                         </Text>
                                     )

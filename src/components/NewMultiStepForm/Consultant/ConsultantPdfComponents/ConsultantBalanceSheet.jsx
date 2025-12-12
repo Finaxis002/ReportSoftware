@@ -97,7 +97,7 @@ const ConsultantBalanceSheet = ({
 
     // ✅ Calculate Current Liabilities for Each Year
     const currentLiabilities = Array.from({
-        length: formData.ProjectReportSetting.ProjectionYears || 0,
+        length: formData?.ProjectReportSetting.ProjectionYears || 0,
     }).map((_, index) => {
         const bankLoanNext12Months = yearlyPrincipalRepayment[index + 1] || 0; // Shift repayment from next year
         const workingCapitalLoan = cumulativeLoanForPreviousYears[index] || 0; // Fetch working capital loan
@@ -127,7 +127,7 @@ const ConsultantBalanceSheet = ({
     let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
     // const inventory = Array.from({
-    //   length: formData.MoreDetails.OpeningStock.length,
+    //   length: formData?.MoreDetails?.OpeningStock.length,
     // }).map((_, yearIndex) => {
     //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
     //   const finalStock = ClosingStock;
@@ -185,9 +185,9 @@ const ConsultantBalanceSheet = ({
     }
 
     const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
+        length: formData?.MoreDetails?.OpeningStock.length,
     }).map((_, yearIndex) => {
-        const ClosingStock = formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+        const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
         return safeNumber(ClosingStock);
     });
 
@@ -544,8 +544,8 @@ const ConsultantBalanceSheet = ({
                             <Text style={styles.FinancialYear}>
                                 Financial Year{" "}
                                 {formData?.ProjectReportSetting?.FinancialYear
-                                    ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                                        parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                                    ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                                        parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
                                     )
                                         .toString()
                                         .slice(-2)}`
@@ -1577,8 +1577,8 @@ const ConsultantBalanceSheet = ({
                     <Text style={styles.FinancialYear}>
                         Financial Year{" "}
                         {formData?.ProjectReportSetting?.FinancialYear
-                            ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                            ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                                parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
                             )
                                 .toString()
                                 .slice(-2)}`
@@ -1687,7 +1687,7 @@ const ConsultantBalanceSheet = ({
                                 Liabilities
                             </Text>
                             {Array.from({
-                                length: formData.ProjectReportSetting.ProjectionYears || 0,
+                                length: formData?.ProjectReportSetting.ProjectionYears || 0,
                             }).map((_, index) => (
                                 <Text
                                     key={index}
@@ -2016,7 +2016,7 @@ const ConsultantBalanceSheet = ({
                                 Assests
                             </Text>
                             {Array.from({
-                                length: formData.ProjectReportSetting.ProjectionYears || 0,
+                                length: formData?.ProjectReportSetting.ProjectionYears || 0,
                             }).map((_, index) => (
                                 <Text
                                     key={index}
@@ -2193,7 +2193,7 @@ const ConsultantBalanceSheet = ({
 
                                 {/* Render the incomeTaxCalculation values */}
                                 {Array.from({
-                                    length: formData.ProjectReportSetting.ProjectionYears,
+                                    length: formData?.ProjectReportSetting.ProjectionYears,
                                 }).map((_, yearIndex) => {
                                     const inventorymap = inventory[yearIndex] || 0;
 

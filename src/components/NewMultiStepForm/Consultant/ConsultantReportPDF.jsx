@@ -44,7 +44,7 @@ import ConsultantBreakEvenPoint from "./ConsultantPdfComponents/ConsultantBreakE
 import ConsultantAssumptions from "./ConsultantPdfComponents/ConsultantAssumptions";
 
 const ConsultantGeneratedPDF = () => {
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const location = useLocation();
 
   const pdfData = location.state?.reportData; // ✅ Get report data from state
