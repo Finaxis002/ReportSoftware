@@ -5,7 +5,7 @@ export const CMAExtractorBS = (formData) => {
   const termLoanValues =
     formData?.computedData?.workingCapitalvalues?.termLoanValues || [];
   const workingCapitalLoanArr = calculateWorkingCapitalLoan(termLoanValues);
-  const sundryCreditorsObj = formData.MoreDetails.currentLiabilities.find(
+  const sundryCreditorsObj = formData?.MoreDetails?.currentLiabilities?.find(
     (liab) => liab.particular === "Sundry Creditors / Trade Payables"
   );
   const marchClosingBalances =

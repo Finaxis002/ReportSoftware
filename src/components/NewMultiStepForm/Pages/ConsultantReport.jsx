@@ -15,10 +15,10 @@ const ConsultantReport = ({ userRole }) => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
 
 
-  
+
   const handleAddConsultant = () => {
     setEditingConsultant(null);
     setShowForm(true);

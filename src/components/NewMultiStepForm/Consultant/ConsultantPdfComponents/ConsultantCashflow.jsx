@@ -252,7 +252,7 @@ const ConsultantCashflow = ({
         incomeTaxCalculation?.incomeTaxCalculation || [];
 
     const inventory = Array.from({
-        length: formData.MoreDetails.OpeningStock.length,
+        length: formData?.MoreDetails?.OpeningStock?.length,
     }).map((_, yearIndex) => {
         const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
         const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
@@ -389,12 +389,12 @@ const ConsultantCashflow = ({
 
             // ✅ Ensuring Inventory Calculation - Closing Stock - Opening Stock
             const inventory = Array.from({
-                length: formData.MoreDetails.OpeningStock.length,
+                length: formData?.MoreDetails?.OpeningStock?.length || projectionYears,
             }).map((_, yearIndex) => {
                 const ClosingStock =
-                    formData?.MoreDetails.ClosingStock?.[yearIndex] || 0;
+                    formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
                 const OpeningStock =
-                    formData?.MoreDetails.OpeningStock?.[yearIndex] || 0;
+                    formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
                 const finalStock = ClosingStock - OpeningStock;
                 return finalStock;
             });
@@ -1324,7 +1324,7 @@ const ConsultantCashflow = ({
                                     {/* Withdrawals */}
                                     {labels.every((_, localIdx) => {
                                         const gIdx = globalIndex(localIdx);
-                                        return !Number(formData.MoreDetails?.Withdrawals?.[gIdx]);
+                                        return !Number(formData?.MoreDetails?.Withdrawals?.[gIdx]);
                                     }) ? null : (
                                         <View style={styles.tableRow}>
                                             <Text
@@ -1359,7 +1359,7 @@ const ConsultantCashflow = ({
                                                         ]}
                                                     >
                                                         {formatNumber(
-                                                            formData.MoreDetails?.Withdrawals?.[gIdx] || "-"
+                                                            formData?.MoreDetails?.Withdrawals?.[gIdx] || "-"
                                                         )}
                                                     </Text>
                                                 );
@@ -2445,7 +2445,7 @@ const ConsultantCashflow = ({
                             {/* Withdrawals */}
                             {Array.from({ length: projectionYears }).every(
                                 (_, index) =>
-                                    !Number(formData.MoreDetails?.Withdrawals?.[index])
+                                    !Number(formData?.MoreDetails?.Withdrawals?.[index])
                             ) ? null : (
                                 <View style={styles.tableRow}>
                                     <Text
@@ -2477,7 +2477,7 @@ const ConsultantCashflow = ({
                                             ]}
                                         >
                                             {formatNumber(
-                                                formData.MoreDetails?.Withdrawals?.[index] || "-"
+                                                formData?.MoreDetails?.Withdrawals?.[index] || "-"
                                             )}
                                         </Text>
                                     ))}

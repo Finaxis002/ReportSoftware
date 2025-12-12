@@ -48,7 +48,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [selectedVersion, setSelectedVersion] = useState("Version 1");
 
   useEffect(() => {
@@ -56,6 +56,16 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       setCurrentStep(parseInt(step)); // Update step in state
     }
   }, [step]);
+
+  // Ensure version defaults to "Version 1" for new consultant reports
+  useEffect(() => {
+    if (isCreateReportClicked && !isCreateReportWithExistingClicked) {
+      setSelectedVersion("Version 1");
+      localStorage.setItem("selectedConsultantReportVersion", "Version 1");
+      // Update formData version as well
+      setFormData(prev => ({ ...prev, version: "Version 1" }));
+    }
+  }, [isCreateReportClicked, isCreateReportWithExistingClicked]);
 
   // 👇 Add at the top
   const hasPreFilled = useRef(false);

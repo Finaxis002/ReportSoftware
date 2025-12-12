@@ -50,7 +50,7 @@ import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
 
 
 const GeneratedPDF = () => {
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const userRole = localStorage.getItem("userRole");
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");

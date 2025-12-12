@@ -146,12 +146,12 @@ const ConsultantBreakEvenPoint = ({
 
   // ✅ Calculate Interest on Working Capital for each projection year
   const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+    length: parseInt(formData?.ProjectReportSetting.ProjectionYears) || 0,
   }).map(() => {
     const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+      Number(formData?.MeansOfFinance.workingCapital.termLoan) || 0;
     const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+      Number(formData?.ProjectReportSetting.interestOnTL) || 0;
 
     // ✅ Annual Interest Calculation
     return (workingCapitalLoan * interestRate) / 100;
@@ -163,8 +163,8 @@ const ConsultantBreakEvenPoint = ({
     // console.log("moratorium month", moratoriumPeriodMonths);
 
     const principal =
-      Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
-    const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
+      Number(formData?.MeansOfFinance?.workingCapital?.termLoan) || 0;
+    const rate = Number(formData?.ProjectReportSetting?.interestOnWC) || 0;
     const annualInterestAmount = (principal * rate) / 100;
 
     // console.log("principal:", principal);
@@ -661,7 +661,7 @@ const ConsultantBreakEvenPoint = ({
 
       return (
         <Page
-          // size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
+          // size={formData?.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
           wrap={false}
@@ -706,8 +706,8 @@ const ConsultantBreakEvenPoint = ({
               <Text style={styles.FinancialYear}>
                 Financial Year{" "}
                 {formData?.ProjectReportSetting?.FinancialYear
-                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
                     )
                       .toString()
                       .slice(-2)}`
@@ -1161,7 +1161,7 @@ const ConsultantBreakEvenPoint = ({
 
                     {/* Get total projection years */}
                     {Array.from({
-                      length: formData.ProjectReportSetting.ProjectionYears,
+                      length: formData?.ProjectReportSetting.ProjectionYears,
                     }).map((_, index) => {
                       if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
 
@@ -1207,7 +1207,7 @@ const ConsultantBreakEvenPoint = ({
 
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
                       {Array.from({
-                        length: formData.ProjectReportSetting.ProjectionYears,
+                        length: formData?.ProjectReportSetting.ProjectionYears,
                       }).map((_, yearIndex) => {
                         if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
                         const calculatedInterest =
@@ -1639,7 +1639,7 @@ const ConsultantBreakEvenPoint = ({
 
   return (
     <Page
-      // size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
+      // size={formData?.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
       wrap={false}
@@ -1682,8 +1682,8 @@ const ConsultantBreakEvenPoint = ({
           <Text style={styles.FinancialYear}>
             Financial Year{" "}
             {formData?.ProjectReportSetting?.FinancialYear
-              ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              ? `${formData?.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData?.ProjectReportSetting.FinancialYear) + 1
                 )
                   .toString()
                   .slice(-2)}`
@@ -1839,7 +1839,7 @@ const ConsultantBreakEvenPoint = ({
 
             {Array.from({
               length:
-                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+                parseInt(formData?.ProjectReportSetting.ProjectionYears) || 0,
             }).map(
               (_, index) =>
                 (!hideFirstYear || index !== 0) && (
@@ -1851,7 +1851,7 @@ const ConsultantBreakEvenPoint = ({
                     ]}
                   >
                     {formatNumber(
-                      formData.MoreDetails.ClosingStock?.[index] ?? 0
+                      formData?.MoreDetails?.ClosingStock?.[index] ?? 0
                     )}
                   </Text>
                 )
@@ -1874,7 +1874,7 @@ const ConsultantBreakEvenPoint = ({
 
             {Array.from({
               length:
-                parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+                parseInt(formData?.ProjectReportSetting.ProjectionYears) || 0,
             }).map(
               (_, index) =>
                 (!hideFirstYear || index !== 0) && (
@@ -1886,7 +1886,7 @@ const ConsultantBreakEvenPoint = ({
                     ]}
                   >
                     {formatNumber(
-                      formData.MoreDetails.OpeningStock?.[index] ?? 0
+                      formData?.MoreDetails?.OpeningStock?.[index] ?? 0
                     )}
                   </Text>
                 )
@@ -2223,7 +2223,7 @@ const ConsultantBreakEvenPoint = ({
 
                 {/* Get total projection years */}
                 {Array.from({
-                  length: formData.ProjectReportSetting.ProjectionYears,
+                  length: formData?.ProjectReportSetting.ProjectionYears,
                 }).map((_, index) => {
                   if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
 
@@ -2269,7 +2269,7 @@ const ConsultantBreakEvenPoint = ({
 
                 {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
                 {Array.from({
-                  length: formData.ProjectReportSetting.ProjectionYears,
+                  length: formData?.ProjectReportSetting.ProjectionYears,
                 }).map((_, yearIndex) => {
                   if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
                   const calculatedInterest =
@@ -2508,7 +2508,7 @@ const ConsultantBreakEvenPoint = ({
 
                 {/* Get total projection years */}
                 {Array.from({
-                  length: formData.ProjectReportSetting.ProjectionYears,
+                  length: formData?.ProjectReportSetting.ProjectionYears,
                 }).map((_, index) => {
                   if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
 
@@ -2554,7 +2554,7 @@ const ConsultantBreakEvenPoint = ({
 
                 {/* ✅ Apply `calculateInterestOnWorkingCapital` */}
                 {Array.from({
-                  length: formData.ProjectReportSetting.ProjectionYears,
+                  length: formData?.ProjectReportSetting.ProjectionYears,
                 }).map((_, yearIndex) => {
                   if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
                   const calculatedInterest =

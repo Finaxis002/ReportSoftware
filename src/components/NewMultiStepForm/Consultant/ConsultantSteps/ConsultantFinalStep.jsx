@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const ConsultantFinalStep = ({ formData, userRole }) => {
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const location = useLocation();
   const [consultantData, setConsultantData] = useState(null);

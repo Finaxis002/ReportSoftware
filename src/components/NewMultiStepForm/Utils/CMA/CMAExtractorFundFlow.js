@@ -35,7 +35,7 @@ const otherTermLiabilitiesQEObj = formData?.MoreDetails?.currentLiabilities?.fin
      Number(otherTermLiabilities[idx] || 0)
   ))
 
-  const workingCapitalLoan = Number(formData.MeansOfFinance?.workingCapital?.termLoan || 0);
+  const workingCapitalLoan = Number(formData?.MeansOfFinance?.workingCapital?.termLoan || 0);
   const workingCapitalArr = Array.from({length:years}).map((_, idx)=>(
     idx ===  0 ? workingCapitalLoan : 0 
   ))
@@ -79,8 +79,8 @@ const subTotalD = Array.from({length:years}).map((_,idx)=>(
 ))
 
 const inventory = Array.from({
-    length: formData.MoreDetails.OpeningStock.length,
-  }).map((_, yearIndex) => {
+   length: years,
+ }).map((_, yearIndex) => {
     const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
     const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
     const finalStock = ClosingStock - OpeningStock;
