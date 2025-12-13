@@ -184,7 +184,7 @@ const VersionDropdown = ({ selectedVersion, onVersionChange, onUpdateClick }) =>
   const selectedOption = versionOptions.find(option => option.value === localSelectedVersion);
 
   const handleSelect = (selectedOption) => {
-    const version = selectedOption ? selectedOption.value : "Version 1";
+    const version = selectedOption ? selectedOption.value : "Version 5";
     setLocalSelectedVersion(version);
     setShowUpdateButton(true);
     

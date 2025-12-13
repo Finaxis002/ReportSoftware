@@ -49,7 +49,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   const [searchParams] = useSearchParams();
   const step = searchParams.get("step");
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
-  const [selectedVersion, setSelectedVersion] = useState("Version 1");
+  const [selectedVersion, setSelectedVersion] = useState("Version 5");
 
   useEffect(() => {
     if (step) {
@@ -57,13 +57,13 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     }
   }, [step]);
 
-  // Ensure version defaults to "Version 1" for new consultant reports
+  // Ensure version defaults to "Version 5" for new consultant reports
   useEffect(() => {
     if (isCreateReportClicked && !isCreateReportWithExistingClicked) {
-      setSelectedVersion("Version 1");
-      localStorage.setItem("selectedConsultantReportVersion", "Version 1");
+      setSelectedVersion("Version 5");
+      localStorage.setItem("selectedConsultantReportVersion", "Version 5");
       // Update formData version as well
-      setFormData(prev => ({ ...prev, version: "Version 1" }));
+      setFormData(prev => ({ ...prev, version: "Version 5" }));
     }
   }, [isCreateReportClicked, isCreateReportWithExistingClicked]);
 
@@ -128,7 +128,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     Revenue: {},
     MoreDetails: {},
     generatedPDF: {},
-    version: "Version 1",
+    version: "Version 5",
   });
 
   // useEffect(() => {
@@ -229,7 +229,7 @@ const handleBusinessSelect = (businessData, sessionId) => {
 
   // ✅ Set final data in state
   setFormData(cleanedBusinessData);
-  const reportVersion = cleanedBusinessData.version || "Version 1";
+  const reportVersion = cleanedBusinessData.version || "Version 5";
   setSelectedVersion(reportVersion);
   // Save version to localStorage when selecting a report
   localStorage.setItem("selectedConsultantReportVersion", reportVersion);
