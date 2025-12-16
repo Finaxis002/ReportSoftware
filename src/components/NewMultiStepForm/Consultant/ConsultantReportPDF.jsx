@@ -79,7 +79,7 @@ const ConsultantGeneratedPDF = () => {
   const [computedData1, setComputedData1] = useState({
     totalDepreciationPerYear: [],
   });
-  
+
 
   const [totalDepreciation, setTotalDepreciation] = useState([]);
   const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
@@ -121,7 +121,7 @@ const ConsultantGeneratedPDF = () => {
 
   const [pdfType, setPdfType] = useState("");
 
-  console.log("pdf type ::::::::" , pdfType)
+  console.log("pdf type ::::::::", pdfType)
 
   const [years, setYears] = useState(5);
 
@@ -138,11 +138,22 @@ const ConsultantGeneratedPDF = () => {
 
   const [shareLink, setShareLink] = useState("");
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
-  
+
 
   const [hasPreSavedData, setHasPreSavedData] = useState(false);
 
   const [consultantReportVersion, setConsultantReportVersion] = useState("Version 5");
+
+  const [isVersionChanging, setIsVersionChanging] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState(
+    localStorage.getItem("selectedConsultantReportVersion") || "Version 5"
+  );
+
+  const [loadingProgress, setLoadingProgress] = useState({
+    step: 0,
+    totalSteps: 4,
+    message: 'Initializing...'
+  });
 
   useEffect(() => {
     localStorage.setItem("selectedConsultantReportVersion", "Version 5");
@@ -157,6 +168,39 @@ const ConsultantGeneratedPDF = () => {
   };
 
   // window.addEventListener('keydown', e => console.log(e.key));
+
+
+  // Add this function before your useEffect hooks
+  const handleVersionChange = useCallback(async (newVersion) => {
+    setIsVersionChanging(true);
+
+    // Progress tracking
+    const updateProgress = (step, message) => {
+      setLoadingProgress(prev => ({ ...prev, step, message }));
+    };
+
+    try {
+      updateProgress(1, 'Updating version settings...');
+      setSelectedVersion(newVersion);
+      setConsultantReportVersion(newVersion);
+      localStorage.setItem("selectedConsultantReportVersion", newVersion);
+
+      updateProgress(2, 'Loading report Pages...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      updateProgress(3, 'Preparing PDF layout...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      updateProgress(4, 'Finalizing...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+    } finally {
+      setIsVersionChanging(false);
+      setLoadingProgress({ step: 0, totalSteps: 4, message: '' });
+    }
+  }, []);
+
+
 
   // Fetch consultant data if on consultant PDF route
   useEffect(() => {
@@ -295,10 +339,10 @@ const ConsultantGeneratedPDF = () => {
   const consultantComputedData = formData?.computedData || {};
 
 
-const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
-const versionNum = parseInt(consultantReportVersion.replace("Version ", "")) || 1;
+  const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
+  const versionNum = parseInt(consultantReportVersion.replace("Version ", "")) || 1;
 
-console.log("Stored Version :: ", storedVersion)
+  console.log("Stored Version :: ", storedVersion)
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
@@ -435,80 +479,80 @@ console.log("Stored Version :: ", storedVersion)
 
 
 
-// ✅ Function to save consultant computed data
-const saveConsultantComputedData = async () => {
-  if (!formData?._id) {
-    console.warn("⚠️ No formData._id found, skipping save");
-    return null;
-  }
+  // ✅ Function to save consultant computed data
+  const saveConsultantComputedData = async () => {
+    if (!formData?._id) {
+      console.warn("⚠️ No formData._id found, skipping save");
+      return null;
+    }
 
-  try {
-    console.log("💾 Saving consultant computed data for report:", {
-      reportId: formData._id,
-      version: storedVersion,
-      versionNum
-    });
-    
-    // ✅ Aggregate all computed data
-    const aggregatedComputedData = {
-      // Core financial data
-      normalExpense,
-      totalAnnualWages,
-      directExpenses,
-      totalDirectExpensesArray,
-      computedData,
-      computedData1,
-      totalDepreciation,
-      yearlyInterestLiabilities,
-      yearlyPrincipalRepayment,
-      interestOnWorkingCapital,
-      receivedData,
-      marchClosingBalances,
-      workingCapitalvalues,
-      grossFixedAssetsPerYear,
-      incomeTaxCalculation,
-      closingCashBalanceArray,
-      totalLiabilities,
-      assetsliabilities,
-      dscr,
-      averageCurrentRatio,
-      breakEvenPointPercentage,
-      totalExpense,
-      totalRevenueReceipts,
-      surplusDuringYear,
-      
-      // Version info
-      version: storedVersion || formData?.version,
-      versionNum,
-      processedAt: new Date().toISOString(),
-      
-      // Financial metrics
-      financialYear,
-      projectionYears,
-      financialYearLabels,
-      
-      // Business info
-      businessName: formData?.AccountInformation?.businessName,
-      businessOwner: formData?.AccountInformation?.businessOwner,
-      
-      // User info
-      savedBy: userName,
-      userRole,
-    };
+    try {
+      console.log("💾 Saving consultant computed data for report:", {
+        reportId: formData._id,
+        version: storedVersion,
+        versionNum
+      });
 
-    // ✅ API call to save consultant computed data
-    const response = await axios.put(
-      `${BASE_URL}/api/consultant-reports/save-consultant-computed-data/${formData._id}`,
-      { computedData: aggregatedComputedData }
-    );
+      // ✅ Aggregate all computed data
+      const aggregatedComputedData = {
+        // Core financial data
+        normalExpense,
+        totalAnnualWages,
+        directExpenses,
+        totalDirectExpensesArray,
+        computedData,
+        computedData1,
+        totalDepreciation,
+        yearlyInterestLiabilities,
+        yearlyPrincipalRepayment,
+        interestOnWorkingCapital,
+        receivedData,
+        marchClosingBalances,
+        workingCapitalvalues,
+        grossFixedAssetsPerYear,
+        incomeTaxCalculation,
+        closingCashBalanceArray,
+        totalLiabilities,
+        assetsliabilities,
+        dscr,
+        averageCurrentRatio,
+        breakEvenPointPercentage,
+        totalExpense,
+        totalRevenueReceipts,
+        surplusDuringYear,
 
-    console.log("✅ Consultant computed data saved successfully");
-    return response.data;
-  } catch (error) {
-    console.error("❌ Failed to save consultant computed data:", error.message);
-    return null;
-  }
-};
+        // Version info
+        version: storedVersion || formData?.version,
+        versionNum,
+        processedAt: new Date().toISOString(),
+
+        // Financial metrics
+        financialYear,
+        projectionYears,
+        financialYearLabels,
+
+        // Business info
+        businessName: formData?.AccountInformation?.businessName,
+        businessOwner: formData?.AccountInformation?.businessOwner,
+
+        // User info
+        savedBy: userName,
+        userRole,
+      };
+
+      // ✅ API call to save consultant computed data
+      const response = await axios.put(
+        `${BASE_URL}/api/consultant-reports/save-consultant-computed-data/${formData._id}`,
+        { computedData: aggregatedComputedData }
+      );
+
+      console.log("✅ Consultant computed data saved successfully");
+      return response.data;
+    } catch (error) {
+      console.error("❌ Failed to save consultant computed data:", error.message);
+      return null;
+    }
+  };
 
   // useEffect(() => {
   //   console.log("🔄 GeneratedPDF is re-rendering");
@@ -723,48 +767,48 @@ const saveConsultantComputedData = async () => {
     };
   }, []);
 
-const handlePDFRender = async () => {
-  console.log("🔄 PDF rendering started for consultant report");
-  
-  // ✅ Save computed data
-  await saveConsultantComputedData();
-  
-  // ✅ Log activity
-  try {
-    await axios.post(`${BASE_URL}/api/activity/log`, {
-      action: "pdf_render",
-      reportId: formData?._id,
-      reportTitle: formData?.AccountInformation?.businessName,
-      version: storedVersion,
-      performedBy: userName,
-      role: userRole,
-      timestamp: new Date().toISOString()
-    });
-    console.log("✅ PDF render activity logged");
-  } catch (error) {
-    console.warn("⚠️ Failed to log render activity:", error);
-  }
-};
+  const handlePDFRender = async () => {
+    console.log("🔄 PDF rendering started for consultant report");
 
-// Add this useEffect to save data as soon as we have the required data
-useEffect(() => {
-  const saveDataBeforeRender = async () => {
-    // Only save once and when we have the required data
-    if (!hasPreSavedData && formData?._id && totalRevenueReceipts?.length > 0) {
-      console.log("📥 Pre-saving computed data before PDF generation...");
-      
-      try {
-        await saveConsultantComputedData();
-        setHasPreSavedData(true);
-        console.log("✅ Data pre-saved successfully");
-      } catch (error) {
-        console.log("⚠️ Pre-save failed, will save during render");
-      }
+    // ✅ Save computed data
+    await saveConsultantComputedData();
+
+    // ✅ Log activity
+    try {
+      await axios.post(`${BASE_URL}/api/activity/log`, {
+        action: "pdf_render",
+        reportId: formData?._id,
+        reportTitle: formData?.AccountInformation?.businessName,
+        version: storedVersion,
+        performedBy: userName,
+        role: userRole,
+        timestamp: new Date().toISOString()
+      });
+      console.log("✅ PDF render activity logged");
+    } catch (error) {
+      console.warn("⚠️ Failed to log render activity:", error);
     }
   };
 
-  saveDataBeforeRender();
-}, [formData, totalRevenueReceipts, hasPreSavedData]);
+  // Add this useEffect to save data as soon as we have the required data
+  useEffect(() => {
+    const saveDataBeforeRender = async () => {
+      // Only save once and when we have the required data
+      if (!hasPreSavedData && formData?._id && totalRevenueReceipts?.length > 0) {
+        console.log("📥 Pre-saving computed data before PDF generation...");
+
+        try {
+          await saveConsultantComputedData();
+          setHasPreSavedData(true);
+          console.log("✅ Data pre-saved successfully");
+        } catch (error) {
+          console.log("⚠️ Pre-save failed, will save during render");
+        }
+      }
+    };
+
+    saveDataBeforeRender();
+  }, [formData, totalRevenueReceipts, hasPreSavedData]);
 
 
   const debtEquityOption =
@@ -854,7 +898,7 @@ useEffect(() => {
   };
 
 
-    console.log("Form Data in PDF:", formData);
+  console.log("Form Data in PDF:", formData);
 
   // const memoizedPDF = useMemo(() => {
   //   return (
@@ -868,15 +912,15 @@ useEffect(() => {
   //       } else {
   //         console.log("✅ Data was already saved before render");
   //       }
-      
+
   //       }}
   //       onContextMenu={(e) => e.preventDefault()}
   //       className="pdf-container"
   //     >
-       
+
   //         <ProjectCoverPage formData={formData} />
   //       {/* Index Page */}
-        
+
   //         <ConsultantVariableIndex
   //           formData={formData}
   //           directExpense={directExpense}
@@ -886,10 +930,10 @@ useEffect(() => {
   //           orientation={orientation}
   //           selectedVersion={consultantReportVersion}
   //         />
-      
+
   //       {/* basic details table */}
   //       {/* <BasicDetails formData={formData} /> */}
-        
+
   //         <ConsultantProjectSynopsis
   //           formData={formData}
   //           receivedtotalRevenueReceipts={totalRevenueReceipts}
@@ -911,27 +955,27 @@ useEffect(() => {
   //             setIsPDFLoading(false);
   //           }}
   //         />
-        
 
-        
+
+
   //         <ConsultantPromoterDetails
   //           formData={formData}
   //           pdfType={pdfType}
   //           formatNumber={formatNumber}
   //           pageNumber={pageNumber}
   //         />
-      
 
 
-        
+
+
   //         <VersionBasedSections
   //           formData={formData}
   //           selectedVersion={consultantReportVersion}
   //           startPageNumber={2} // Start after Project Synopsis
   //         />
-       
 
-       
+
+
   //         <PdfAllChartsWrapper
   //           formData={formData}
   //           totalExpenses={totalExpense}
@@ -940,22 +984,22 @@ useEffect(() => {
   //           currentRatio={currentRatio?.currentRatio || []}
   //           pageNumber={pageNumber}
   //         />
-       
+
 
 
   //       {/* cost of project table */}
-        
+
   //         <ConsultantCostOfProject
   //           formData={formData}
   //           localData={localData}
   //           formatNumber={formatNumber}
   //           pageNumber={pageNumber}
   //         />
-       
+
 
 
   //       {/* Means of Finance Table */}
-        
+
   //         <ConsultantMeansOfFinance
   //           formData={formData}
   //           localData={localData}
@@ -966,11 +1010,11 @@ useEffect(() => {
   //           renderWCLFBLabel={renderWCLFBLabel}
   //           renderTotalBankLoanLabel={renderTotalBankLoanLabel}
   //         />
-       
+
 
 
   //       {/* Projected Revenue/ Sales */}
-        
+
   //         <ConsultantProjectedRevenue
   //           formData={formData}
   //           onTotalRevenueUpdate={setTotalRevenueReceipts}
@@ -980,9 +1024,9 @@ useEffect(() => {
   //           pageNumber={pageNumber}
   //           orientation={orientation}
   //         />
-      
+
   //       {/* Projected Salaries & Wages Table*/}
-        
+
   //         <ConsultantProjectedSalaries
   //           localData={localData}
   //           normalExpense={normalExpense}
@@ -994,8 +1038,8 @@ useEffect(() => {
   //           formData={formData}
   //           pageNumber={pageNumber}
   //         />
-        
-       
+
+
   //         <ConsultantProjectedDepreciation
   //           formData={formData}
   //           localData={localData}
@@ -1010,9 +1054,9 @@ useEffect(() => {
   //           pageNumber={pageNumber}
   //           orientation={orientation}
   //         />
-       
+
   //       {/* Projected Expense Table Direct and Indirect */}
-        
+
   //         <ConsultantProjectedExpenses
   //           formData={formData}
   //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1032,7 +1076,7 @@ useEffect(() => {
   //           renderIOTLLabel={renderIOTLLabel}
   //           renderIOWCLabel={renderIOWCLabel}
   //         />
-        
+
 
   //        <ConsultantRepayment
   //         versionNum={versionNum}
@@ -1076,7 +1120,7 @@ useEffect(() => {
   //         renderIOWCLabel={renderIOWCLabel}
   //         renderWithdrawalLabel={renderWithdrawalLabel}
   //       />
-       
+
   //       <ConsultantIncomeTaxCalculation
   //         versionNum={versionNum}
   //         formData={formData}
@@ -1089,7 +1133,7 @@ useEffect(() => {
   //         pageNumber={pageNumber}
   //         orientation={orientation}
   //       />
-      
+
   //       {versionNum >= 1 && (
   //         <ConsultantCashflow
   //           formData={formData}
@@ -1118,7 +1162,7 @@ useEffect(() => {
   //           renderWithdrawalLabel={renderWithdrawalLabel}
   //         />
   //       )}
-       
+
   //         <ConsultantBalanceSheet
   //           formData={formData}
   //           localData={localData}
@@ -1146,8 +1190,8 @@ useEffect(() => {
   //           renderBankLoanTermLoanLabel={renderBankLoanTermLoanLabel}
   //           renderWCLLabel={renderWCLLabel}
   //         />
-       
-          
+
+
   //         <ConsultantDSCR
   //           formData={formData}
   //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1162,8 +1206,8 @@ useEffect(() => {
   //           pageNumber={pageNumber}
   //           orientation={orientation}
   //         />
-       
-        
+
+
   //         <ConsultantCurrentRatio
   //           formData={formData}
   //           financialYearLabels={financialYearLabels}
@@ -1176,10 +1220,10 @@ useEffect(() => {
   //           pageNumber={pageNumber}
   //           orientation={orientation}
   //         />
-       
 
-      
-        
+
+
+
   //         <ConsultantRatioAnalysis
   //           formData={formData}
   //           localData={localData}
@@ -1206,7 +1250,7 @@ useEffect(() => {
   //           pageNumber={pageNumber}
   //           orientation={orientation}
   //         />
-       
+
   //         <ConsultantBreakEvenPoint
   //           formData={formData}
   //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1223,8 +1267,8 @@ useEffect(() => {
   //           renderIOTLLabel={renderIOTLLabel}
   //           renderIOWCLabel={renderIOWCLabel}
   //         />
-        
-        
+
+
   //         <ConsultantAssumptions
   //           formData={formData}
   //           financialYearLabels={financialYearLabels}
@@ -1238,14 +1282,14 @@ useEffect(() => {
   //           renderTLFBLabel={renderTLFBLabel}
   //           renderWCLFBLabel={renderWCLFBLabel}
   //         />
-       
-        
+
+
   //         <WordConclusion
   //           formData={formData}
   //           selectedVersion={consultantReportVersion}
   //           startPageNumber={2} // Start after Project Synopsis
   //         />
-        
+
   //       {/* {versionNum >= 1 && (
   //         <WordConclusion />
   //       )} */}
@@ -1275,19 +1319,19 @@ useEffect(() => {
 
 
 
-const memoizedPDF = useMemo(() => {
+  const memoizedPDF = useMemo(() => {
     return (
-       <Document
+      <Document
         onRender={() => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
           handlePDFRender(); // Save data after the PDF has been rendered
-           if (!hasPreSavedData) {
-          handlePDFRender();
-        } else {
-          console.log("✅ Data was already saved before render");
-        }
-      
+          if (!hasPreSavedData) {
+            handlePDFRender();
+          } else {
+            console.log("✅ Data was already saved before render");
+          }
+
         }}
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
@@ -1452,7 +1496,7 @@ const memoizedPDF = useMemo(() => {
           />
         )}
 
-         <ConsultantRepayment
+        <ConsultantRepayment
           versionNum={versionNum}
           formData={formData}
           localData={localData}
@@ -1494,20 +1538,20 @@ const memoizedPDF = useMemo(() => {
           renderIOWCLabel={renderIOWCLabel}
           renderWithdrawalLabel={renderWithdrawalLabel}
         />
-       {versionNum >= 5 && (
-        <ConsultantIncomeTaxCalculation
-          versionNum={versionNum}
-          formData={formData}
-          netProfitBeforeTax={computedData.netProfitBeforeTax}
-          totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
-          financialYearLabels={financialYearLabels}
-          formatNumber={formatNumber}
-          pdfType={pdfType}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          pageNumber={pageNumber}
-          orientation={orientation}
-        />
-       )}
+        {versionNum >= 5 && (
+          <ConsultantIncomeTaxCalculation
+            versionNum={versionNum}
+            formData={formData}
+            netProfitBeforeTax={computedData.netProfitBeforeTax}
+            totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+            financialYearLabels={financialYearLabels}
+            formatNumber={formatNumber}
+            pdfType={pdfType}
+            receivedtotalRevenueReceipts={totalRevenueReceipts}
+            pageNumber={pageNumber}
+            orientation={orientation}
+          />
+        )}
         {versionNum >= 1 && (
           <ConsultantCashflow
             formData={formData}
@@ -1565,7 +1609,7 @@ const memoizedPDF = useMemo(() => {
             renderWCLLabel={renderWCLLabel}
           />
         )}
-          {versionNum >= 1 && (
+        {versionNum >= 1 && (
           <ConsultantDSCR
             formData={formData}
             yearlyInterestLiabilities={yearlyInterestLiabilities || []}
@@ -1596,7 +1640,7 @@ const memoizedPDF = useMemo(() => {
           />
         )}
 
-      
+
         {versionNum >= 5 && (
           <ConsultantRatioAnalysis
             formData={formData}
@@ -1658,13 +1702,13 @@ const memoizedPDF = useMemo(() => {
             renderWCLFBLabel={renderWCLFBLabel}
           />
         )}
-         {versionNum >= 1 && (
+        {versionNum >= 1 && (
           <WordConclusion
             formData={formData}
             selectedVersion={storedVersion}
             startPageNumber={2} // Start after Project Synopsis
           />
-         )}
+        )}
         {/* {versionNum >= 1 && (
           <WordConclusion />
         )} */}
@@ -1686,10 +1730,12 @@ const memoizedPDF = useMemo(() => {
     lineChartBase64,
     versionNum,
     storedVersion,
-     hasPreSavedData,
+    hasPreSavedData,
+    selectedVersion, // Add this
+    isVersionChanging, // Add this
   ]);
 
-  
+
   useEffect(() => {
     const reportData = location.state?.reportData;
     const sessionId = location.state?.sessionId;
@@ -1853,7 +1899,7 @@ const memoizedPDF = useMemo(() => {
 
           return (
             <>
-              <div ref={pdfContainerRef} className="w-full">
+              <div ref={pdfContainerRef} className="w-full bg-black">
                 {/* Toolbar */}
                 <div className="w-full bg-[#161616] p-3 py-1 shadow-lg flex flex-wrap justify-between items-center gap-3">
                   <div className="text-white font-medium text-sm px-3 py-2 tracking-wide flex items-center bg-white/10 backdrop-blur-sm rounded-lg shadow-md">
@@ -1900,74 +1946,70 @@ const memoizedPDF = useMemo(() => {
                     </button>
                   </div>
 
-                 <div className="flex gap-2">
-  <div className="relative flex-1">
-    <select
-      name="consultantReportVersion"
-      value={consultantReportVersion}
-      onChange={(e) => {
-        const value = e.target.value;
-        setConsultantReportVersion(value);
-        localStorage.setItem("selectedConsultantReportVersion", value);
-      }}
-      className="appearance-none w-full bg-white text-indigo-600 px-4 py-2.5 pr-10 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm cursor-pointer transition-all duration-200 hover:border-indigo-400 shadow-sm"
-    >
-      <option value="Version 1">Version 1</option>
-      <option value="Version 2">Version 2</option>
-      <option value="Version 3">Version 3</option>
-      <option value="Version 4">Version 4</option>
-      <option value="Version 5">Version 5</option>
-    </select>
-  
-  </div>
-  <button
-    onClick={handleDownloadPDF}
-    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
-  >
-    <i className="fas fa-download"></i>
-    <span>Download PDF</span>
-  </button>
-</div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <select
+                        name="consultantReportVersion"
+                        value={selectedVersion}
+                        onChange={(e) => handleVersionChange(e.target.value)}
+                        disabled={isVersionChanging}
+                        className={`appearance-none w-full bg-white text-indigo-600 px-4 py-2.5 pr-10 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm cursor-pointer transition-all duration-200 hover:border-indigo-400 shadow-sm ${isVersionChanging ? 'opacity-70 cursor-not-allowed' : ''
+                          }`}
+                      >
+                        <option value="Version 1">Version 1</option>
+                        <option value="Version 2">Version 2</option>
+                        <option value="Version 3">Version 3</option>
+                        <option value="Version 4">Version 4</option>
+                        <option value="Version 5">Version 5</option>
+                      </select>
+
+                      {isVersionChanging && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
+                    >
+                      <i className="fas fa-download"></i>
+                      <span>Download PDF</span>
+                    </button>
+                  </div>
                 </div>
 
                 {isPDFLoading && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      zIndex: 10,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <div>
-                      <svg
-                        className="animate-spin h-12 w-12 text-indigo-600"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
-                        />
-                      </svg>
+                  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center">
+                    {/* Animated Spinner */}
+                    <div className="relative">
+                      {/* Outer ring */}
+                      <div className="w-20 h-20 rounded-full border-4 border-blue-200 border-t-blue-500 animate-spin"></div>
+
+                      {/* Center dot */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full"></div>
                     </div>
-                    <span className="ml-2 text-gray-500 font-medium">
-                      Loading PDF...
-                    </span>
+
+                    {/* Loading Text */}
+                    <div className="mt-8 text-center">
+                      <h3 className="text-white text-xl font-semibold mb-2">
+                        Loading PDF
+                      </h3>
+                      <p className="text-gray-300">
+                        Preparing report pages...
+                      </p>
+
+                      {/* Progress dots animation */}
+                      <div className="flex justify-center mt-4 space-x-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-3 h-3 bg-white mt-4 rounded-full animate-bounce"
+                            style={{ animationDelay: `${i * 0.1}s` }}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1977,20 +2019,81 @@ const memoizedPDF = useMemo(() => {
                     width: "100%",
                   }}
                 >
-                  <div style={{ height: "100vh", width: "100%" }}>
-                    <PDFViewer
-                      width="100%"
-                      height="100%"
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                        overflow: "auto",
-                      }}
-                      showToolbar={false}
-                      key={orientation}
-                    >
-                      {memoizedPDF}
-                    </PDFViewer>
+                  {isVersionChanging && (
+                    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center">
+                      {/* Animated Spinner */}
+                      <div className="relative">
+                        {/* Outer ring */}
+                        <div className="w-20 h-20 rounded-full border-4 border-blue-200 border-t-blue-500 animate-spin"></div>
+
+                        {/* Inner ring */}
+                        {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-4 border-green-200 border-t-green-500 animate-spin animation-delay-300"></div> */}
+
+                        {/* Center dot */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full"></div>
+                      </div>
+
+                      {/* Loading Text */}
+                      <div className="mt-8 text-center">
+                        <h3 className="text-white text-xl font-semibold mb-2">
+                          Loading Version {selectedVersion.replace("Version ", "")}
+                        </h3>
+                        <p className="text-gray-300">
+                          Preparing report Pages...
+                        </p>
+
+                        {/* Progress dots animation */}
+                        <div className="flex justify-center mt-4 space-x-2">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="w-3 h-3 bg-white mt-4 rounded-full animate-bounce"
+                              style={{ animationDelay: `${i * 0.1}s` }}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Optional: Loading percentage */}
+                      <div className="mt-6 w-64">
+                        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                            style={{ width: `${(loadingProgress.step / loadingProgress.totalSteps) * 100}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-gray-400 text-sm mt-2 text-center">
+                          {loadingProgress.message || 'Loading report Pages...'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={`${isVersionChanging ? 'pdf-loading' : ''} `}
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      transition: 'filter 0.3s ease',
+                      background:"#282828"
+                    }}
+                  >
+                    <div style={{ height: "100vh", width: "100%" }}>
+
+                      <PDFViewer
+                        width="100%"
+                        height="100%"
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          overflow: "auto",
+                           background:"#282828"
+                        }}
+                        showToolbar={false}
+                        key={orientation + selectedVersion}
+                      >
+                        {memoizedPDF}
+                      </PDFViewer>
+                    </div>
                   </div>
 
                   <div
@@ -2035,36 +2138,7 @@ const memoizedPDF = useMemo(() => {
                     }}
                   ></div>
 
-                  {/* <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "98%",
-                      height: "100%",
-                      zIndex: 10,
-                      backgroundColor: "transparent",
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      Swal.fire({
-                        icon: "error",
-                        title: "Right-click Disabled",
-                        text: "Right-click is disabled on this PDF for security reasons.",
-                        confirmButtonColor: "#6366f1", // Indigo-500, optional
-                        background: "#fff", // optional, matches most UIs
-                        timer: 1600,
-                        showConfirmButton: false,
-                      });
-                    }}
-                    onWheel={(e) => {
-                      const pdfIframe = document.querySelector("iframe");
-                      if (pdfIframe) {
-                        pdfIframe.contentWindow.scrollBy(0, e.deltaY);
-                      }
-                    }}
-                  /> */}
+                 
                 </div>
               </div>
             </>
