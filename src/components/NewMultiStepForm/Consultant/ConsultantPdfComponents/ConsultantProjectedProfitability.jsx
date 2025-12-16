@@ -45,7 +45,6 @@ const ConsultantProjectedProfitability = ({
     handleDataSend,
     handleIncomeTaxDataSend,
     formatNumber,
-    receivedtotalRevenueReceipts,
     onComputedDataToProfit,
     pdfType,
     orientation,
@@ -53,7 +52,11 @@ const ConsultantProjectedProfitability = ({
     renderIOWCLabel,
     renderWithdrawalLabel
 }) => {
-    // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
+    
+    const receivedtotalRevenueReceipts = totalRevenueReceipts || []
+
+    console.log("receivedtotalRevenueReceipts : " , receivedtotalRevenueReceipts)
+
     // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
     useEffect(() => {
         if (yearlyInterestLiabilities.length > 0) {
@@ -667,19 +670,9 @@ const ConsultantProjectedProfitability = ({
             calculateExpense,
         };
 
-        localStorage.setItem(
-            "storedProfitabilityData",
-            JSON.stringify(storedProfitabilityData)
-        );
+       
     }, [totalDirectExpensesArray, totalIndirectExpensesArray, calculateExpense]); // Runs when these values change
 
-    useEffect(() => {
-        const storedData = localStorage.getItem("storedProfitabilityData");
-        if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            // console.log("Retrieved Data:", parsedData);
-        }
-    }, []);
 
 
     console.log("computed Data from ConsultantProjectedProfitability:", formData.computedData);

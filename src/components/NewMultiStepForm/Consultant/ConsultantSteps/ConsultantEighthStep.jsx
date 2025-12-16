@@ -24,10 +24,6 @@ const ALL_SECTIONS = {
 };
 
 const VERSION_SECTIONS = {
-  "Version 1": ["introduction", "conclusion"],
-  "Version 2": ["introduction", "conclusion"],
-  "Version 3": ["introduction", "scope", "conclusion"],
-  "Version 4": ["introduction", "scope", "market_potential", "conclusion"],
   "Version 5": ["introduction", "scope", "market_potential", "swot", "products_services", "conclusion"],
 };
 
@@ -54,36 +50,9 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
     formData?.AccountInformation?.businessDescription || ""
   );
   const [allSections, setAllSections] = useState(formData?.generatedPDF || {});
-  const [filteredSections, setFilteredSections] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedVersion, setSelectedVersion] = useState(() => {
-    return localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
-  });
-
-  // Listen for localStorage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const newVersion = localStorage.getItem("selectedConsultantReportVersion") || "Version 1";
-      if (newVersion !== selectedVersion) {
-        setSelectedVersion(newVersion);
-      }
-    };
-
-    // Initial check
-    handleStorageChange();
-
-    // Listen for storage events (from other tabs/windows)
-    window.addEventListener('storage', handleStorageChange);
-
-    // Poll for changes (for same tab changes)
-    const intervalId = setInterval(handleStorageChange, 500);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, [selectedVersion]);
+  const selectedVersion = "Version 5";
 
   // Initialize business description
   useEffect(() => {
@@ -97,19 +66,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
     }
   }, [formData?.generatedPDF]);
 
-  // Filter sections based on selected version
-  useEffect(() => {
-    const currentVersionSections = VERSION_SECTIONS[selectedVersion] || [];
-    const filtered = {};
-    
-    currentVersionSections.forEach(key => {
-      if (allSections[key]) {
-        filtered[key] = allSections[key];
-      }
-    });
-    
-    setFilteredSections(filtered);
-  }, [selectedVersion, allSections]);
 
   // Get current sections for the selected version
   const currentSections = VERSION_SECTIONS[selectedVersion] || [];
@@ -246,7 +202,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
 
       // Check if we have any valid sections
       const validSections = currentSections.filter(secKey => {
-        const section = filteredSections[secKey];
+        const section = allSections[secKey];
         return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
       });
 
@@ -264,7 +220,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
       // Loop over valid sections
       for (let i = 0; i < validSections.length; i++) {
         const secKey = validSections[i];
-        const section = filteredSections[secKey];
+        const section = allSections[secKey];
 
         // Add page break for all sections except the first one
         if (i !== 0) {
@@ -346,10 +302,6 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
             />
           </div>
           
-          {/* Display current version for debugging */}
-          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Current Version: <span className="font-semibold">{selectedVersion}</span>
-          </div>
           
           <div className="flex flex-wrap gap-4 mt-4">
             <button
@@ -366,7 +318,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
             </button>
             <button
               className={`px-4 py-2 rounded transition duration-300 ease-in-out ${!currentSections.every(secKey => {
-                const section = filteredSections[secKey];
+                const section = allSections[secKey];
                 return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
               }) || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -374,7 +326,7 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
                 }`}
               onClick={exportToWord}
               disabled={!currentSections.every(secKey => {
-                const section = filteredSections[secKey];
+                const section = allSections[secKey];
                 return section && (typeof section === 'string' ? section.trim() !== "" : section.text && section.text.trim() !== "");
               }) || loading}
             >
@@ -395,9 +347,9 @@ const ConsultantEighthStep = ({ formData, onFormDataChange }) => {
                   <span className="text-blue-400">Generating...</span>
                 ) : (
                   <div>
-                    {typeof filteredSections[secKey] === 'string' 
-                      ? filteredSections[secKey] 
-                      : filteredSections[secKey]?.text || (
+                    {typeof allSections[secKey] === 'string'
+                      ? allSections[secKey]
+                      : allSections[secKey]?.text || (
                         <span className="text-gray-400">Not generated yet.</span>
                       )}
                   </div>
