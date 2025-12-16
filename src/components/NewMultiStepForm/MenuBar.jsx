@@ -9,6 +9,7 @@ const MenuBar = ({ userRole }) => {
   const [adminName, setAdminName] = useState("");
   const [unseenCount, setUnseenCount] = useState(0);
   const [showProfile, setShowProfile] = useState(false); // State for profile popup
+  const [permissions, setPermissions] = useState({});
 
   useEffect(() => {
     const storedAdminName = localStorage.getItem("adminName");
@@ -22,8 +23,9 @@ const MenuBar = ({ userRole }) => {
   };
 
   useEffect(() => {
+    const employeeId = localStorage.getItem("employeeId");
+
     const fetchUnseenNotifications = async () => {
-      const employeeId = localStorage.getItem("employeeId");
       if (!employeeId) return;
 
       try {
@@ -38,7 +40,20 @@ const MenuBar = ({ userRole }) => {
     };
 
     fetchUnseenNotifications();
-  }, [location]);
+
+    if (userRole === 'employee') {
+      const fetchPermissions = async () => {
+        try {
+          const res = await fetch(`https://reportsbe.sharda.co.in/api/employees/${employeeId}`);
+          const data = await res.json();
+          setPermissions(data.permissions || {});
+        } catch (err) {
+          console.error("Error fetching permissions:", err);
+        }
+      };
+      fetchPermissions();
+    }
+  }, [location, userRole]);
 
   // Define menu items with roles
   const menuItems = [
@@ -425,10 +440,12 @@ const MenuBar = ({ userRole }) => {
     nav("/login");
   };
 
-  // Filter menu items based on the user's role
-  const visibleMenuItems = menuItems.filter((item) =>
-    item.roles.includes(userRole)
-  );
+  // Filter menu items based on the user's role and permissions
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (!item.roles.includes(userRole)) return false;
+    if (item.path === '/consultant-report' && userRole === 'employee' && !permissions.consultantReport) return false;
+    return true;
+  });
 
   const paths = visibleMenuItems.map((item) => item.path);
   const uniquePaths = new Set(paths);
