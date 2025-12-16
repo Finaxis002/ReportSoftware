@@ -142,11 +142,13 @@ const ConsultantGeneratedPDF = () => {
 
   const [hasPreSavedData, setHasPreSavedData] = useState(false);
 
+  const [consultantReportVersion, setConsultantReportVersion] = useState("Version 5");
 
-
+  useEffect(() => {
+    localStorage.setItem("selectedConsultantReportVersion", "Version 5");
+  }, []);
 
   const pdfContainerRef = useRef(null);
-
   const stableLocation = useMemo(() => location, []);
 
   const handleTotalExpenseUpdate = (expenses) => {
@@ -290,29 +292,13 @@ const ConsultantGeneratedPDF = () => {
 
   const formData = pdfData || formData1;
 
-  // Add these debug logs:
-console.log("🔍 DEBUG - Form Data Sources:");
-console.log("1. pdfData from location.state:", pdfData?.version);
-console.log("2. formData1 from localStorage:", formData1?.version);
-console.log("3. Final formData version:", formData?.version);
-console.log("4. localStorage 'selectedConsultantReportVersion':", localStorage.getItem("selectedConsultantReportVersion"));
-
   const consultantComputedData = formData?.computedData || {};
 
 
 const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
-const versionNum = parseInt(storedVersion.replace("Version ", "")) || 1;
+const versionNum = parseInt(consultantReportVersion.replace("Version ", "")) || 1;
 
-console.log("✅ FINAL Version Decision:");
-console.log("- From localStorage:", localStorage.getItem("selectedConsultantReportVersion"));
-console.log("- From formData:", formData?.version);
-console.log("- Selected for PDF:", storedVersion);
-
-
-
-  console.log("Consultant Computed Data:", consultantComputedData);
-  
-
+console.log("Stored Version :: ", storedVersion)
   const [orientation, setOrientation] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("formData"));
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
@@ -870,7 +856,426 @@ useEffect(() => {
 
     console.log("Form Data in PDF:", formData);
 
-  const memoizedPDF = useMemo(() => {
+  // const memoizedPDF = useMemo(() => {
+  //   return (
+  //      <Document
+  //       onRender={() => {
+  //         console.log("✅ PDF fully rendered");
+  //         setIsPDFLoading(false);
+  //         handlePDFRender(); // Save data after the PDF has been rendered
+  //          if (!hasPreSavedData) {
+  //         handlePDFRender();
+  //       } else {
+  //         console.log("✅ Data was already saved before render");
+  //       }
+      
+  //       }}
+  //       onContextMenu={(e) => e.preventDefault()}
+  //       className="pdf-container"
+  //     >
+       
+  //         <ProjectCoverPage formData={formData} />
+  //       {/* Index Page */}
+        
+  //         <ConsultantVariableIndex
+  //           formData={formData}
+  //           directExpense={directExpense}
+  //           formatNumber={formatNumber}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pdfType={pdfType}
+  //           orientation={orientation}
+  //           selectedVersion={consultantReportVersion}
+  //         />
+      
+  //       {/* basic details table */}
+  //       {/* <BasicDetails formData={formData} /> */}
+        
+  //         <ConsultantProjectSynopsis
+  //           formData={formData}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           localData={localData}
+  //           normalExpense={normalExpense}
+  //           totalAnnualWages={totalAnnualWages}
+  //           totalQuantity={totalQuantity}
+  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
+  //           fringeCalculation={fringeCalculation}
+  //           receivedDscr={dscr}
+  //           receivedAverageCurrentRatio={averageCurrentRatio}
+  //           receivedBreakEvenPointPercentage={breakEvenPointPercentage}
+  //           receivedAssetsLiabilities={assetsliabilities}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           renderTotalBankLoanLabel={renderTotalBankLoanLabel}
+  //           onRender={() => {
+  //             console.log("✅ProjectSynopsis rendered");
+  //             setIsPDFLoading(false);
+  //           }}
+  //         />
+        
+
+        
+  //         <ConsultantPromoterDetails
+  //           formData={formData}
+  //           pdfType={pdfType}
+  //           formatNumber={formatNumber}
+  //           pageNumber={pageNumber}
+  //         />
+      
+
+
+        
+  //         <VersionBasedSections
+  //           formData={formData}
+  //           selectedVersion={consultantReportVersion}
+  //           startPageNumber={2} // Start after Project Synopsis
+  //         />
+       
+
+       
+  //         <PdfAllChartsWrapper
+  //           formData={formData}
+  //           totalExpenses={totalExpense}
+  //           labels={financialYearLabelsforChart}
+  //           dscr={dscr?.DSCR || []}
+  //           currentRatio={currentRatio?.currentRatio || []}
+  //           pageNumber={pageNumber}
+  //         />
+       
+
+
+  //       {/* cost of project table */}
+        
+  //         <ConsultantCostOfProject
+  //           formData={formData}
+  //           localData={localData}
+  //           formatNumber={formatNumber}
+  //           pageNumber={pageNumber}
+  //         />
+       
+
+
+  //       {/* Means of Finance Table */}
+        
+  //         <ConsultantMeansOfFinance
+  //           formData={formData}
+  //           localData={localData}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           renderTLFBLabel={renderTLFBLabel}
+  //           renderWCLFBLabel={renderWCLFBLabel}
+  //           renderTotalBankLoanLabel={renderTotalBankLoanLabel}
+  //         />
+       
+
+
+  //       {/* Projected Revenue/ Sales */}
+        
+  //         <ConsultantProjectedRevenue
+  //           formData={formData}
+  //           onTotalRevenueUpdate={setTotalRevenueReceipts}
+  //           financialYearLabels={financialYearLabels}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //         />
+      
+  //       {/* Projected Salaries & Wages Table*/}
+        
+  //         <ConsultantProjectedSalaries
+  //           localData={localData}
+  //           normalExpense={normalExpense}
+  //           totalAnnualWages={totalAnnualWages}
+  //           totalQuantity={totalQuantity}
+  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
+  //           fringeCalculation={fringeCalculation}
+  //           formatNumber={formatNumber}
+  //           formData={formData}
+  //           pageNumber={pageNumber}
+  //         />
+        
+       
+  //         <ConsultantProjectedDepreciation
+  //           formData={formData}
+  //           localData={localData}
+  //           setTotalDepreciation={setTotalDepreciation}
+  //           onComputedData1={setComputedData1}
+  //           financialYearLabels={financialYearLabels}
+  //           onGrossFixedAssetsPerYearCalculated={(data) => {
+  //             setGrossFixedAssetsPerYear(data);
+  //           }}
+  //           formatNumber={formatNumber}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //         />
+       
+  //       {/* Projected Expense Table Direct and Indirect */}
+        
+  //         <ConsultantProjectedExpenses
+  //           formData={formData}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
+  //           fringeCalculation={fringeCalculation}
+  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+  //           financialYearLabels={financialYearLabels}
+  //           directExpenses={directExpenses}
+  //           projectionYears={projectionYears}
+  //           totalDirectExpensesArray={totalDirectExpensesArray}
+  //           onTotalExpenseSend={handleTotalExpenseUpdate}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           formatNumber={formatNumber}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //           renderIOTLLabel={renderIOTLLabel}
+  //           renderIOWCLabel={renderIOWCLabel}
+  //         />
+        
+
+  //        <ConsultantRepayment
+  //         versionNum={versionNum}
+  //         formData={formData}
+  //         localData={localData}
+  //         onInterestCalculated={handleInterestCalculated}
+  //         onPrincipalRepaymentCalculated={handlePrincipalRepaymentCalculated} // ✅ Passing to Repayment
+  //         financialYearLabels={financialYearLabels}
+  //         onMarchClosingBalanceCalculated={setMarchClosingBalances} // Callback to update state
+  //         formatNumber={formatNumber}
+  //         pdfType={pdfType}
+  //         pageNumber={pageNumber}
+  //         renderRepaymentSheetheading={renderRepaymentSheetheading}
+  //       />
+
+  //       {/* Projected Profitability Statement */}
+  //       <ConsultantProjectedProfitability
+  //         versionNum={versionNum}
+  //         formData={formData}
+  //         localData={localData}
+  //         normalExpense={normalExpense}
+  //         directExpense={directExpense}
+  //         location={stableLocation}
+  //         totalDepreciationPerYear={totalDepreciation}
+  //         onComputedData={setComputedData} // ✅ Storing computed NPAT in `computedData`
+  //         netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+  //         yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //         setInterestOnWorkingCapital={setInterestOnWorkingCapital} // ✅ Pass Setter Function
+  //         totalRevenueReceipts={totalRevenueReceipts}
+  //         fringAndAnnualCalculation={fringAndAnnualCalculation}
+  //         financialYearLabels={financialYearLabels}
+  //         handleDataSend={handleDataSend} // Ensure this is passed correctly
+  //         handleIncomeTaxDataSend={handleIncomeTaxCalculation}
+  //         formatNumber={formatNumber}
+  //         receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //         onComputedDataToProfit={setComputedDataToProfit}
+  //         pdfType={pdfType}
+  //         pageNumber={pageNumber}
+  //         orientation={orientation}
+  //         renderIOTLLabel={renderIOTLLabel}
+  //         renderIOWCLabel={renderIOWCLabel}
+  //         renderWithdrawalLabel={renderWithdrawalLabel}
+  //       />
+       
+  //       <ConsultantIncomeTaxCalculation
+  //         versionNum={versionNum}
+  //         formData={formData}
+  //         netProfitBeforeTax={computedData.netProfitBeforeTax}
+  //         totalDepreciationPerYear={computedData1.totalDepreciationPerYear}
+  //         financialYearLabels={financialYearLabels}
+  //         formatNumber={formatNumber}
+  //         pdfType={pdfType}
+  //         receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //         pageNumber={pageNumber}
+  //         orientation={orientation}
+  //       />
+      
+  //       {versionNum >= 1 && (
+  //         <ConsultantCashflow
+  //           formData={formData}
+  //           localData={localData}
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+  //           grossProfitValues={computedData.grossProfitValues || []}
+  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+  //           totalRevenueReceipts={totalRevenueReceipts}
+  //           financialYearLabels={financialYearLabels}
+  //           handleWorkingCapitalValuesTransfer={workingCapitalHandler} // <-- Add this
+  //           incomeTaxCalculation={incomeTaxCalculation}
+  //           onClosingCashBalanceCalculated={setClosingCashBalanceArray}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           surplusDuringYear={surplusDuringYear}
+  //           renderIOTLLabel={renderIOTLLabel}
+  //           renderIOWCLabel={renderIOWCLabel}
+  //           renderWCLLabel={renderWCLFBLabel}
+  //           renderBankTLLabel={renderBankTLLabel}
+  //           renderWithdrawalLabel={renderWithdrawalLabel}
+  //         />
+  //       )}
+       
+  //         <ConsultantBalanceSheet
+  //           formData={formData}
+  //           localData={localData}
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           netProfitBeforeTax={computedData.netProfitBeforeTax || []}
+  //           grossProfitValues={computedData.grossProfitValues || []}
+  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+  //           firstYearGrossFixedAssets={firstYearGrossFixedAssets}
+  //           grossFixedAssetsPerYear={grossFixedAssetsPerYear}
+  //           onGrossFixedAssetsPerYearCalculated={setGrossFixedAssetsPerYear}
+  //           totalRevenueReceipts={totalRevenueReceipts}
+  //           financialYearLabels={financialYearLabels}
+  //           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
+  //           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
+  //           receivedWorkingCapitalValues={workingCapitalvalues}
+  //           closingCashBalanceArray={closingCashBalanceArray}
+  //           onTotalLiabilitiesSend={handleTotalLiabilitiesArray}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           renderBankLoanTermLoanLabel={renderBankLoanTermLoanLabel}
+  //           renderWCLLabel={renderWCLLabel}
+  //         />
+       
+          
+  //         <ConsultantDSCR
+  //           formData={formData}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment || []} // ✅ Passing Principal Repayment to DSCR
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           netProfitAfterTax={computedData.netProfitAfterTax || []} // ✅ Passing NPAT to DebtServiceCoverageRatio
+  //           financialYearLabels={financialYearLabels}
+  //           DSCRSend={setDscr}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //         />
+       
+        
+  //         <ConsultantCurrentRatio
+  //           formData={formData}
+  //           financialYearLabels={financialYearLabels}
+  //           receivedAssetsLiabilities={assetsliabilities}
+  //           formatNumber={formatNumber}
+  //           sendAverageCurrentRation={setAverageCurrentRatio}
+  //           pdfType={pdfType}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           sendCurrentRatio={setCurrentRatio}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //         />
+       
+
+      
+        
+  //         <ConsultantRatioAnalysis
+  //           formData={formData}
+  //           localData={localData}
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           yearlyPrincipalRepayment={yearlyPrincipalRepayment}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           interestOnWorkingCapital={interestOnWorkingCapital} // ✅ Pass Correctly
+  //           totalRevenueReceipts={totalRevenueReceipts}
+  //           financialYearLabels={financialYearLabels}
+  //           receivedCummulativeTansferedData={receivedData} // Passing the parent's state as a new prop
+  //           receivedMarchClosingBalances={marchClosingBalances} // The computed March balances
+  //           receivedWorkingCapitalValues={workingCapitalvalues}
+  //           closingCashBalanceArray={closingCashBalanceArray}
+  //           receivedTotalLiabilities={totalLiabilities}
+  //           cashProfitArray={computedData.cashProfitArray}
+  //           grossProfitValues={computedData.grossProfitValues}
+  //           netProfitBeforeTax={computedData.netProfitBeforeTax}
+  //           netProfitAfterTax={computedData.netProfitAfterTax}
+  //           receivedDscr={dscr}
+  //           onAssetsLiabilitiesSend={setAssetsLiabilities}
+  //           formatNumber={formatNumber}
+  //           pdfType={pdfType}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //         />
+       
+  //         <ConsultantBreakEvenPoint
+  //           formData={formData}
+  //           yearlyInterestLiabilities={yearlyInterestLiabilities || []}
+  //           totalDepreciationPerYear={totalDepreciation}
+  //           totalRevenueReceipts={totalRevenueReceipts}
+  //           fringAndAnnualCalculation={fringAndAnnualCalculation}
+  //           financialYearLabels={financialYearLabels}
+  //           formatNumber={formatNumber}
+  //           sendBreakEvenPointPercentage={setBreakEvenPointPercentage}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pdfType={pdfType}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //           renderIOTLLabel={renderIOTLLabel}
+  //           renderIOWCLabel={renderIOWCLabel}
+  //         />
+        
+        
+  //         <ConsultantAssumptions
+  //           formData={formData}
+  //           financialYearLabels={financialYearLabels}
+  //           formatNumber={formatNumber}
+  //           totalRevenueReceipts={totalRevenueReceipts}
+  //           receiveTotalExpense={totalExpense}
+  //           pdfType={pdfType}
+  //           receivedtotalRevenueReceipts={totalRevenueReceipts}
+  //           pageNumber={pageNumber}
+  //           orientation={orientation}
+  //           renderTLFBLabel={renderTLFBLabel}
+  //           renderWCLFBLabel={renderWCLFBLabel}
+  //         />
+       
+        
+  //         <WordConclusion
+  //           formData={formData}
+  //           selectedVersion={consultantReportVersion}
+  //           startPageNumber={2} // Start after Project Synopsis
+  //         />
+        
+  //       {/* {versionNum >= 1 && (
+  //         <WordConclusion />
+  //       )} */}
+  //     </Document>
+  //   );
+  // }, [
+  //   formData,
+  //   totalRevenueReceipts,
+  //   localData,
+  //   normalExpense,
+  //   totalAnnualWages,
+  //   totalQuantity,
+  //   fringAndAnnualCalculation,
+  //   fringeCalculation,
+  //   dscr,
+  //   averageCurrentRatio,
+  //   breakEvenPointPercentage,
+  //   assetsliabilities,
+  //   lineChartBase64,
+  //   versionNum,
+  //   consultantReportVersion,
+  //    hasPreSavedData,
+  // ]);
+
+  // for filling the form data silently
+
+
+
+
+const memoizedPDF = useMemo(() => {
     return (
        <Document
         onRender={() => {
@@ -944,7 +1349,7 @@ useEffect(() => {
           />
         )}
 
-        {versionNum >= 4 && (
+        {versionNum >= 3 && (
           <PdfAllChartsWrapper
             formData={formData}
             totalExpenses={totalExpense}
@@ -1284,8 +1689,7 @@ useEffect(() => {
      hasPreSavedData,
   ]);
 
-  // for filling the form data silently
-
+  
   useEffect(() => {
     const reportData = location.state?.reportData;
     const sessionId = location.state?.sessionId;
@@ -1295,7 +1699,7 @@ useEffect(() => {
       // // ✅ Simulate form population
       // populateForm(reportData);
       // Save fetched version to localStorage
-      localStorage.setItem("selectedConsultantReportVersion", "Version 1");
+      localStorage.setItem("selectedConsultantReportVersion", "Version 5");
     }
   }, [location.state]);
 
@@ -1496,15 +1900,34 @@ useEffect(() => {
                     </button>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
-                    >
-                      <i className="fas fa-download"></i>
-                      <span>Download PDF</span>
-                    </button>
-                  </div>
+                 <div className="flex gap-2">
+  <div className="relative flex-1">
+    <select
+      name="consultantReportVersion"
+      value={consultantReportVersion}
+      onChange={(e) => {
+        const value = e.target.value;
+        setConsultantReportVersion(value);
+        localStorage.setItem("selectedConsultantReportVersion", value);
+      }}
+      className="appearance-none w-full bg-white text-indigo-600 px-4 py-2.5 pr-10 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm cursor-pointer transition-all duration-200 hover:border-indigo-400 shadow-sm"
+    >
+      <option value="Version 1">Version 1</option>
+      <option value="Version 2">Version 2</option>
+      <option value="Version 3">Version 3</option>
+      <option value="Version 4">Version 4</option>
+      <option value="Version 5">Version 5</option>
+    </select>
+  
+  </div>
+  <button
+    onClick={handleDownloadPDF}
+    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
+  >
+    <i className="fas fa-download"></i>
+    <span>Download PDF</span>
+  </button>
+</div>
                 </div>
 
                 {isPDFLoading && (

@@ -820,14 +820,16 @@ const handleCreateNewFromExisting = async () => {
         {userRole !== "client" && (
           <div className="flex gap-4 mb-4 pl-4">
             {!isCreateReportClicked && (
-              <div className="flex-2">
-                <AllReportsDropdown onBusinessSelect={handleBusinessSelect} showAll={isCreateReportWithExistingClicked} consultantId={consultantId} />
-              </div>
+              <>
+                <div className="flex-2">
+                  <AllReportsDropdown onBusinessSelect={handleBusinessSelect} showAll={isCreateReportWithExistingClicked} consultantId={consultantId} />
+                </div>
+                {/* ✅ Version Dropdown */}
+                {/* <div className="flex-1">
+                  <VersionDropdown selectedVersion={selectedVersion} onVersionChange={handleVersionChange} />
+                </div> */}
+              </>
             )}
-            {/* ✅ Version Dropdown */}
-            <div className="flex-1">
-              <VersionDropdown selectedVersion={selectedVersion} onVersionChange={handleVersionChange} />
-            </div>
           </div>
         )}
         <div>{stepContent}</div>

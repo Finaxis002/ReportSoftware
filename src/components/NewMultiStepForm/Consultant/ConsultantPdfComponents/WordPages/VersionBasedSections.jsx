@@ -18,6 +18,7 @@ const VERSION_SECTIONS = {
     { type: "introduction", component: WordIntroduction },
     { type: "scope", component: WordGenericSection, props: { sectionKey: "scope", title: "Scope of the Project" } },
     { type: "market_potential", component: WordGenericSection, props: { sectionKey: "market_potential", title: "Market Potential" } },
+   { type: "swot", component: WordGenericSection, props: { sectionKey: "swot", title: "SWOT Analysis" } },
   ],
   "Version 5": [
     { type: "introduction", component: WordIntroduction },
@@ -28,9 +29,9 @@ const VERSION_SECTIONS = {
   ]
 };
 
-const VersionBasedSections = ({ formData, startPageNumber = 2 }) => {
+const VersionBasedSections = ({ formData }) => {
   // Get version directly from formData
-  const selectedVersion = formData?.version || "Version 1";
+  const selectedVersion = localStorage.getItem("selectedConsultantReportVersion");
   
   console.log("🎯 VersionBasedSections - formData version:", selectedVersion);
   console.log("📊 formData.generatedPDF:", formData?.generatedPDF);
