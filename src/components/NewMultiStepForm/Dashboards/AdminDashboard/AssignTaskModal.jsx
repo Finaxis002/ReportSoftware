@@ -14,7 +14,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
     setMessage("");
 
     try {
-      const response = await fetch("https://reportsbe.sharda.co.in/api/tasks", {
+      const response = await fetch("http://localhost:5000/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

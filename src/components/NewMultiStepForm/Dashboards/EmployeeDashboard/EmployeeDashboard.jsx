@@ -232,12 +232,12 @@ const EmployeeDashboard = ({ userRole }) => {
 
       {showDueDatePopup && Array.isArray(dueTask) && dueTask.length > 0 && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex justify-center items-center z-50">
-          <div className="border bg-gray-50 dark:bg-black p-6 rounded-xl shadow-lg w-full max-w-md text-center">
+          <div className="border bg-gray-50 dark:bg-black p-6 rounded-xl shadow-lg w-96 h-96 flex flex-col text-center">
             <h2 className="text-xl font-bold mb-3 text-blue-700">
               📢 Report Due Reminder
             </h2>
 
-            <div className="text-left space-y-4">
+            <div className="text-left space-y-4 flex-1 overflow-y-auto">
               {dueTask.map((task, index) => (
                 <div key={index} className="border-b pb-2">
                   <p className="text-gray-700 dark:text-white mb-1">
