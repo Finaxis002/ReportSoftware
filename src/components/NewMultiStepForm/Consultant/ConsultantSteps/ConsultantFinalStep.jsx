@@ -8,7 +8,6 @@ import Swal from "sweetalert2";
 
 const ConsultantFinalStep = ({ formData, userRole }) => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
-  const navigate = useNavigate();
   const location = useLocation();
   const [consultantData, setConsultantData] = useState(null);
   const [permissions, setPermissions] = useState({
@@ -779,6 +778,9 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     }
 
     console.log("✅ Logged 'generated-pdf' activity");
+
+    // ✅ Ensure default version is set to Version 5
+    localStorage.setItem("selectedConsultantReportVersion", "Version 5");
 
     // ✅ THIRD: Open PDF in new tab
     window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
