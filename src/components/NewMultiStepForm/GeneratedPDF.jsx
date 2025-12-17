@@ -1338,43 +1338,36 @@ const GeneratedPDF = () => {
                 </div>
 
                 {isPDFLoading && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      zIndex: 10,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <div>
-                      <svg
-                        className="animate-spin h-12 w-12 text-indigo-600"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v2.5A5.5 5.5 0 005.5 12H4z"
-                        />
-                      </svg>
+                  <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex flex-col items-center justify-center">
+                    {/* Animated Spinner */}
+                    <div className="relative">
+                      {/* Outer ring */}
+                      <div className="w-20 h-20 rounded-full border-4 border-blue-200 border-t-blue-500 animate-spin"></div>
+
+                      {/* Center dot */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full"></div>
                     </div>
-                    <span className="ml-2 text-gray-500 font-medium">
-                      Loading PDF...
-                    </span>
+
+                    {/* Loading Text */}
+                    <div className="mt-8 text-center">
+                      <h3 className="text-white text-xl font-semibold mb-2">
+                        Loading PDF
+                      </h3>
+                      <p className="text-gray-300">
+                        Preparing report pages...
+                      </p>
+
+                      {/* Progress dots animation */}
+                      <div className="flex justify-center mt-4 space-x-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-3 h-3 bg-white mt-4 rounded-full animate-bounce"
+                            style={{ animationDelay: `${i * 0.1}s` }}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1382,9 +1375,10 @@ const GeneratedPDF = () => {
                   style={{
                     position: "relative",
                     width: "100%",
+                    background:"#282828"
                   }}
                 >
-                  <div style={{ height: "100vh", width: "100%" }}>
+                  <div style={{ height: "95vh", width: "100%" , background:"#282828" }}>
                     <PDFViewer
                       width="100%"
                       height="100%"

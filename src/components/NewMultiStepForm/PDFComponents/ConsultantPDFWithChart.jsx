@@ -143,9 +143,9 @@ import { View, Text, Image, StyleSheet, Page } from "@react-pdf/renderer";
 import { generateChart } from "../charts/chart";
 import { generateBarChart } from "../charts/barChart";
 
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "../Consultant/ConsultantPdfComponents/Styles";
 
-const PdfWithChart = ({
+const ConsultantPDFWithChart = ({
   totalExpenses,
   formData,
   onPieChartReady,
@@ -248,10 +248,9 @@ const PdfWithChart = ({
         {/* ✅ Apply conditional styling for consultant route */}
         <View 
           style={[
-            stylesCOP.heading,
-          ]}
+            stylesCOP.heading,          ]}
         >
-          <Text style={isConsultantRoute && { color: '#ffffff' }}>
+          <Text >
             Financial Graphs
           </Text>
         </View>
@@ -278,4 +277,4 @@ const PdfWithChart = ({
   );
 };
 
-export default PdfWithChart;
+export default ConsultantPDFWithChart;

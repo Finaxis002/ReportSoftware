@@ -10,3 +10,42 @@
 .generatedpdf *::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
 }
+
+
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce {
+  animation: bounce 0.6s infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+/* Smooth transitions for PDF content */
+.pdf-container {
+  transition: opacity 0.3s ease;
+}
+
+/* Blur effect during loading */
+.pdf-loading {
+  filter: blur(2px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+
+

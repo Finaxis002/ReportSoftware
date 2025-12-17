@@ -14,6 +14,7 @@ import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const ConsultantCMADSCR = ({
   formData,
@@ -390,7 +391,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
+      <PageWithFooter key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
         {/* watermark  */}
         {pdfType &&
           pdfType !== "select option" &&
@@ -966,7 +967,7 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
@@ -974,7 +975,7 @@ if (isAdvancedLandscape) {
   
 
   return (
-    <Page
+    <PageWithFooter
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1753,7 +1754,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 
