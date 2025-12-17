@@ -732,13 +732,15 @@ const handlePDFRender = async () => {
   // ✅ Log activity
   try {
     await axios.post(`${BASE_URL}/api/activity/log`, {
-      action: "pdf_render",
+      action: "consultant_generated_pdf",
       reportId: formData?._id,
       reportTitle: formData?.AccountInformation?.businessName,
-      version: storedVersion,
-      performedBy: userName,
-      role: userRole,
-      timestamp: new Date().toISOString()
+      reportOwner: formData?.AccountInformation?.clientName,
+      performedBy: {
+        name: userName,
+        role: userRole,
+        userId: formData?.consultantId,
+      },
     });
     console.log("✅ PDF render activity logged");
   } catch (error) {
@@ -1831,16 +1833,14 @@ const memoizedPDF = useMemo(() => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  action: "download",
+                  action: "consultant_download",
                   reportTitle: businessName,
                   reportOwner: businessOwner,
                   reportId,
                   performedBy: {
-                    name:
-                      localStorage.getItem("adminName") ||
-                      localStorage.getItem("employeeName") ||
-                      "Unknown",
-                    role: localStorage.getItem("userRole") || "unknown",
+                    name: userName,
+                    role: userRole,
+                    userId: formData?.consultantId,
                   },
                 }),
               });

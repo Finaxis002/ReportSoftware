@@ -9,7 +9,6 @@ const History = ({ userRole }) => {
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
@@ -17,27 +16,13 @@ const History = ({ userRole }) => {
   const [totalActivities, setTotalActivities] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const res = await axios.get(
-          "https://reportsbe.sharda.co.in/api/activity/unread-count"
-        );
-        setUnreadCount(res.data.count);
-      } catch (err) {
-        console.error("❌ Failed to fetch unread count", err);
-      }
-    };
-
-    fetchUnreadCount();
-  }, []);
 
   // Fetch total count of activities on component mount
   useEffect(() => {
     const fetchTotalCount = async () => {
       try {
         const res = await axios.get(
-          "https://reportsbe.sharda.co.in/api/activity/total-count"
+          "http://localhost:5000/api/activity/total-count"
         );
         setTotalActivities(res.data.total);
       } catch (err) {
@@ -69,10 +54,10 @@ const History = ({ userRole }) => {
     }
   };
 
-  // Fetch activities only when dates are selected
+  // Fetch activities only when both dates are selected
   useEffect(() => {
     const fetchActivityLog = async () => {
-      if (!startDate && !endDate) {
+      if (!startDate || !endDate) {
         setActivities([]);
         return;
       }
@@ -84,9 +69,16 @@ const History = ({ userRole }) => {
         if (endDate) params.endDate = endDate;
 
         const res = await axios.get(
-          "https://reportsbe.sharda.co.in/api/activity/history",
+          "http://localhost:5000/api/activity/history",
           { params }
         );
+          console.log("📊 Activities received from API:", res.data.map(a => ({
+        action: a.action,
+        title: a.reportTitle,
+        owner: a.reportOwner,
+        timestamp: a.timestamp,
+        isConsultantAction: a.action.startsWith("consultant_")
+      })));
         setActivities(res.data);
       } catch (error) {
         console.error("Failed to fetch history:", error);
@@ -175,7 +167,14 @@ const History = ({ userRole }) => {
     reportTitle,
     reportOwner,
     timestamp,
+    reportType
   }) => {
+      console.log("📝 formatActivityMessage called with:", {
+    action,
+    reportTitle,
+    reportOwner,
+    isConsultant: action.startsWith("consultant_")
+  });
     const name = performedBy?.name || "Unknown";
     const role = performedBy?.role === "admin" ? "Admin" : "User";
 
@@ -186,8 +185,16 @@ const History = ({ userRole }) => {
         download: "downloaded",
         check_profit: "checked profit for",
         generated_pdf: "generated PDF for",
+        consultant_create: "created consultant report",
+        consultant_update: "updated consultant report",
+        consultant_download: "downloaded consultant report",
+        consultant_generated_pdf: "generated PDF for",
       }[action] || "performed an action on";
-
+ console.log("🔍 Action mapping:", { 
+    action, 
+    formattedAction,
+    "consultant_generated_pdf": formattedAction === "generated PDF for" 
+  });
     const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
       dateStyle: "medium",
       timeStyle: "short",
@@ -197,8 +204,25 @@ const History = ({ userRole }) => {
     const cleanOwner = reportOwner?.trim();
     const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
 
-    const message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
+    // let message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
 
+    // if (action === "consultant_generated_pdf") {
+    //   message += " - consultant Report";
+    // }
+
+      //  const isConsultant = action.startsWith("consultant_");
+       const isConsultant = reportType === "consultant" || action.startsWith("consultant_");
+   
+    let message;
+  if (isConsultant && (action === "consultant_generated_pdf" || action === "generated_pdf")) {
+    message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate} - consultant report`;
+  } else if (isConsultant) {
+    message = `${name} (${role}) ${formattedAction} consultant report "${fullTitle}" on ${formattedDate}`;
+  } else {
+    message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
+  }
+
+  console.log("✅ Final message:", message);
     if (!searchQuery) return message;
 
     const regex = new RegExp(
