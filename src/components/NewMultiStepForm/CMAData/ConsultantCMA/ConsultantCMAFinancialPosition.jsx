@@ -24,6 +24,7 @@ import {
   styleExpenses,
 } from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Header } from "../Header";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 // Font registration (optional)
 Font.register({
@@ -229,7 +230,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page size="A4" style={pageStyles.page} orientation="landscape">
+      <PageWithFooter size="A4" style={pageStyles.page} orientation="landscape">
           <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
@@ -1356,13 +1357,13 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
 
   return (
-    <Page size="A4" style={pageStyles.page} orientation={orientation}>
+    <PageWithFooter size="A4" style={pageStyles.page} orientation={orientation}>
         <View style={pageStyles.safeArea}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
@@ -2520,7 +2521,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

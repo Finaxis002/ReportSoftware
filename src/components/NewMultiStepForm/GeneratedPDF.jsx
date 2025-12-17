@@ -1378,7 +1378,7 @@ const GeneratedPDF = () => {
                     background:"#282828"
                   }}
                 >
-                  <div style={{ height: "100vh", width: "100%" , background:"#282828" }}>
+                  <div style={{ height: "95vh", width: "100%" , background:"#282828" }}>
                     <PDFViewer
                       width="100%"
                       height="100%"

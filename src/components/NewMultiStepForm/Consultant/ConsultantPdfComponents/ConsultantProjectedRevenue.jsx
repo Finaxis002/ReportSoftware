@@ -1,9 +1,10 @@
 import React , {useMemo , useEffect} from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
+import { View, Text, Image, Font } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 const ConsultantProjectedRevenue = ({
   formData,
@@ -91,7 +92,7 @@ const ConsultantProjectedRevenue = ({
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <Page
+        <PageWithFooter
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -552,13 +553,13 @@ const ConsultantProjectedRevenue = ({
               </Text>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
      size="A4"
       orientation={orientation}
@@ -980,7 +981,7 @@ const ConsultantProjectedRevenue = ({
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

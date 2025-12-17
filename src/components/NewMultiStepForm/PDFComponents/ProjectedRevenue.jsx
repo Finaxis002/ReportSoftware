@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 const ProjectedRevenue = ({
   formData,
@@ -91,7 +92,7 @@ const ProjectedRevenue = ({
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <Page
+        <PageWithFooter
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -552,13 +553,13 @@ const ProjectedRevenue = ({
               </Text>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
      size="A4"
       orientation={orientation}
@@ -980,7 +981,7 @@ const ProjectedRevenue = ({
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

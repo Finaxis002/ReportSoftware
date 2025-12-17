@@ -14,7 +14,7 @@ import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
-import { ppid } from "process";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -396,7 +396,7 @@ const CMAProjectedProfitability = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <Page size="A4" style={styles.page} orientation="landscape">
+        <PageWithFooter size="A4" style={styles.page} orientation="landscape">
           {/* watermark  */}
           {pdfType &&
             pdfType !== "select option" &&
@@ -1687,14 +1687,14 @@ const CMAProjectedProfitability = ({
             </View>
           </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
 
-    <Page
+    <PageWithFooter
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -3177,7 +3177,7 @@ const CMAProjectedProfitability = ({
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

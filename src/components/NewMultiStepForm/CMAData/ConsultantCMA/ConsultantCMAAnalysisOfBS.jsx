@@ -22,6 +22,7 @@ import {
   styleExpenses,
 } from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Header } from "../Header";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
@@ -196,7 +197,7 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <Page
+        <PageWithFooter
           size="A4"
           style={[pageStyles.page]}
           orientation="landscape"
@@ -2690,13 +2691,13 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
               </View>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       size="A4"
       style={[pageStyles.page]}
       orientation={orientation}
@@ -4984,7 +4985,7 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

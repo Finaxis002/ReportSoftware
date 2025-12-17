@@ -14,7 +14,7 @@ import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
-import { ppid } from "process";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -386,7 +386,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page key={`adv-dscr-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
+      <PageWithFooter key={`adv-dscr-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
         {/* watermark  */}
         {pdfType &&
           pdfType !== "select option" &&
@@ -962,13 +962,13 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
 
   return (
-    <Page size="A4" orientation={orientation} style={pageStyles.page}>
+    <PageWithFooter size="A4" orientation={orientation} style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -1727,7 +1727,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

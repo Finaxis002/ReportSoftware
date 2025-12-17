@@ -5,6 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -757,7 +758,7 @@ const ConsultantProjectedProfitability = ({
             // console.log(formData, "formdata in pp");
 
             return (
-                <Page
+                <PageWithFooter
                     // size={
                     //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
                     // }
@@ -2357,13 +2358,13 @@ const ConsultantProjectedProfitability = ({
                             </View>
                         </View>
                     </View>
-                </Page>
+                </PageWithFooter>
             );
         });
     }
 
     return (
-        <Page
+        <PageWithFooter
             // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
             size="A4"
             orientation={orientation}
@@ -3944,7 +3945,7 @@ const ConsultantProjectedProfitability = ({
                     </View>
                 </View>
             </View>
-        </Page>
+        </PageWithFooter>
     );
 };
 

@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -366,7 +367,7 @@ if (isAdvancedLandscape) {
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <Page
+        <PageWithFooter
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -732,7 +733,7 @@ if (isAdvancedLandscape) {
                     const yearlyDep =
                       depreciationValues[index]?.yearlyDepreciation || [];
 
-                    // Page-scope values respecting hideFirstYear
+                    // PageWithFooter-scope values respecting hideFirstYear
                     const pageVals = labels
                       .map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -859,7 +860,7 @@ if (isAdvancedLandscape) {
                     const cumDep =
                       depreciationValues[index]?.cumulativeDepreciation || [];
 
-                    // Page visible values
+                    // PageWithFooter visible values
                     const pageVals = labels
                       .map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -1005,7 +1006,7 @@ if (isAdvancedLandscape) {
                     )
                       return null;
 
-                    // Page-scope values (respect hideFirstYear)
+                    // PageWithFooter-scope values (respect hideFirstYear)
                     const pageVals = labels
                       .map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
@@ -1089,13 +1090,13 @@ if (isAdvancedLandscape) {
               </Text>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation} // ✅ Now using prop
@@ -1778,7 +1779,7 @@ if (isAdvancedLandscape) {
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 
