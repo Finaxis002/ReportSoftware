@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 const num = (v) => {
   // Handle percentages by dividing by 100
@@ -603,7 +604,7 @@ const ProjectedExpenses = ({
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <Page
+        <PageWithFooter
           key={pageIdx}
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
@@ -1680,13 +1681,13 @@ const ProjectedExpenses = ({
               </Text>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation} // ✅ Now using prop
@@ -2806,7 +2807,7 @@ const ProjectedExpenses = ({
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

@@ -590,8 +590,6 @@ const ConsultantGeneratedPDF = () => {
       surplusDuringYear,
     };
 
-    // console.log("Saving to localStorage:", saveData);
-    localStorage.setItem("storedGeneratedPdfData", JSON.stringify(saveData));
   }, [
     normalExpense,
     totalAnnualWages,
@@ -2077,7 +2075,7 @@ const ConsultantGeneratedPDF = () => {
                       background:"#282828"
                     }}
                   >
-                    <div style={{ height: "100vh", width: "100%" }}>
+                    <div style={{ height: "95vh", width: "100%" , background:"#282828" }}>
 
                       <PDFViewer
                         width="100%"

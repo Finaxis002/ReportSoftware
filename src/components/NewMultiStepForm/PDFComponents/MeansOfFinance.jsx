@@ -3,15 +3,14 @@ import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , renderWCLFBLabel , renderTotalBankLoanLabel}) => {
   // console.log("form data", formData);
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-
 
   return (
-    <Page style={[styles.page]}>
+    <PageWithFooter style={[styles.page]}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -456,7 +455,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , re
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

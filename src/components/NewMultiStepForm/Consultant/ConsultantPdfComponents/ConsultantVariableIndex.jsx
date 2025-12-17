@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
@@ -12,6 +12,7 @@ import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 
 // Index data for project report
@@ -59,15 +60,6 @@ const ConsultantVariableIndex = ({
   selectedVersion,
 }) => {
   const pageStyles = {
-    page: {
-      padding: 40,
-      paddingTop: 50, // Extra top margin for print safety
-      paddingBottom: 80, // Extra bottom margin for print safety
-      paddingLeft: 40,
-      paddingRight: 40,
-      fontFamily: "Helvetica",
-      position: "relative",
-    },
     contentWrapper: {
       flex: 1,
       marginBottom: 30, // Space before footer
@@ -76,13 +68,6 @@ const ConsultantVariableIndex = ({
     safeArea: {
       marginTop: 20, // Top margin for content
       marginBottom: 40, // Bottom margin for content
-    },
-    footer: {
-      position: "absolute",
-      bottom: 30,
-      left: 40,
-      right: 40,
-      height: 50, // Fixed footer height
     },
   };
   const PPExtractor = CMAExtractorProfitability(formData);
@@ -153,34 +138,34 @@ const ConsultantVariableIndex = ({
     projectionYears
   );
 
+  const watermark = pdfType &&
+    pdfType !== "select option" &&
+    (pdfType === "Sharda Associates" || pdfType === "CA Certified") ? (
+      <View
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: 500,
+          height: 700,
+          marginLeft: -200,
+          marginTop: -350,
+          opacity: 0.4,
+          zIndex: -1,
+        }}
+      >
+        <Image
+          src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      </View>
+    ) : null;
+
   return (
-    <Page size="A4" orientation="portrait" style={pageStyles.page}>
-      {/* watermark  */}
-      {pdfType &&
-        pdfType !== "select option" &&
-        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-          <View
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              width: 500,
-              height: 700,
-              marginLeft: -200,
-              marginTop: -350,
-              opacity: 0.4,
-              zIndex: -1,
-            }}
-          >
-            <Image
-              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            />
-          </View>
-        )}
+    <PageWithFooter size="A4" orientation="portrait" watermark={watermark}>
       <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* businees name and financial year  */}
@@ -374,7 +359,7 @@ const ConsultantVariableIndex = ({
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

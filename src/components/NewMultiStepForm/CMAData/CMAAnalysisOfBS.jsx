@@ -22,6 +22,7 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 // Font registration (optional)
 Font.register({
@@ -202,7 +203,7 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <Page
+        <PageWithFooter
           size="A4"
           style={[pageStyles.page]}
           orientation="landscape"
@@ -2696,13 +2697,13 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
               </View>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       size="A4"
       style={[pageStyles.page]}
       orientation={orientation}
@@ -4990,7 +4991,7 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

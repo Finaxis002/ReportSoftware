@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 Font.register({
   family: "Roboto",
@@ -505,7 +506,7 @@ const ConsultantRatioAnalysis = ({
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <Page
+        <PageWithFooter
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1857,13 +1858,13 @@ const ConsultantRatioAnalysis = ({
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3153,7 +3154,7 @@ const ConsultantRatioAnalysis = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 
