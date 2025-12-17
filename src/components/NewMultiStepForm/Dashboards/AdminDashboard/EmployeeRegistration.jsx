@@ -20,6 +20,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
       advanceReport: false,
       generateGraph: false,
       cmaData: false,
+      consultantReport: false,
     },
   });
 
@@ -49,7 +50,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
 
     try {
       const response = await axios.post(
-        "https://reportsbe.sharda.co.in/api/employees/register",
+        "http://localhost:5000/api/employees/register",
         formData
       );
 
@@ -72,6 +73,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
           advanceReport: false,
           generateGraph: false,
           cmaData: false,
+          consultantReport: false,
         },
       });
     } catch (error) {
@@ -447,6 +449,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
                 { name: "advanceReport", label: "Advance Report" },
                 { name: "generateGraph", label: "Generate Graph" },
                 { name: "cmaData", label: "CMA Data" },
+                { name: "consultantReport", label: "Consultant Report" }
               ].map((perm) => (
                 <label
                   key={perm.name}

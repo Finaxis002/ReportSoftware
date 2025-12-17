@@ -13,7 +13,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
         // Ensure your backend accepts query parameters:
         // GET /api/tasks?employeeId=XYZ
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employee.employeeId}`
+          `http://localhost:5000/api/tasks?employeeId=${employee.employeeId}`
         );
         if (!response.ok) {
           throw new Error("No Task Assigned Yet");
@@ -141,7 +141,8 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
               { key: "advanceReport", label: "Advance Report" },
               { key: "generateWord", label: "Generate Word" },
               { key: "exportData", label: "Export Data" },
-              { key: "cmaData", label: "CMA Data" }
+              { key: "cmaData", label: "CMA Data" },
+              { key: "consultantReport", label: "Consultant Report" }
             ].map((perm) => (
               <div key={perm.key} className="flex items-center gap-3">
                 <label className="flex items-center gap-3 cursor-pointer">

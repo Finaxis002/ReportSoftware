@@ -169,7 +169,7 @@ const EmployeeNotifications = () => {
       if (!employeeId) return;
 
       try {
-        await fetch("http://localhost:5000/api/notifications/mark-seen", {
+        await fetch("https://reportsbe.sharda.co.in/api/notifications/mark-seen", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ employeeId }),

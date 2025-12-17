@@ -765,8 +765,32 @@ const ConsultantGeneratedPDF = () => {
     };
   }, []);
 
-  const handlePDFRender = async () => {
-    console.log("🔄 PDF rendering started for consultant report");
+
+const handlePDFRender = async () => {
+  console.log("🔄 PDF rendering started for consultant report");
+  
+  // ✅ Save computed data
+  await saveConsultantComputedData();
+  
+  // ✅ Log activity
+  try {
+    await axios.post(`${BASE_URL}/api/activity/log`, {
+      action: "consultant_generated_pdf",
+      reportId: formData?._id,
+      reportTitle: formData?.AccountInformation?.businessName,
+      reportOwner: formData?.AccountInformation?.clientName,
+      performedBy: {
+        name: userName,
+        role: userRole,
+        userId: formData?.consultantId,
+      },
+    });
+    console.log("✅ PDF render activity logged");
+  } catch (error) {
+    console.warn("⚠️ Failed to log render activity:", error);
+  }
+};
+
 
     // ✅ Save computed data
     await saveConsultantComputedData();
@@ -1875,16 +1899,14 @@ const ConsultantGeneratedPDF = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  action: "download",
+                  action: "consultant_download",
                   reportTitle: businessName,
                   reportOwner: businessOwner,
                   reportId,
                   performedBy: {
-                    name:
-                      localStorage.getItem("adminName") ||
-                      localStorage.getItem("employeeName") ||
-                      "Unknown",
-                    role: localStorage.getItem("userRole") || "unknown",
+                    name: userName,
+                    role: userRole,
+                    userId: formData?.consultantId,
                   },
                 }),
               });

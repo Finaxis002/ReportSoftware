@@ -15,9 +15,10 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
       downloadPDF: employee?.permissions?.downloadPDF || false,
       exportData: employee?.permissions?.exportData || false,
       generateGraph: employee?.permissions?.generateGraph || false,
-      advanceReport: employee?.permissions?.advanceReport || false,
-      generateWord: employee?.permissions?.generateWord || false,
-      cmaData: employee?.permissions?.cmaData || false,
+    advanceReport: employee?.permissions?.advanceReport || false,
+    generateWord: employee?.permissions?.generateWord || false,
+    cmaData: employee?.permissions?.cmaData || false,
+    consultantReport: employee?.permissions?.consultantReport || false,
     },
   });
 
@@ -40,9 +41,10 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
         downloadPDF: employee?.permissions?.downloadPDF || false,
         exportData: employee?.permissions?.exportData || false,
         generateGraph: employee?.permissions?.generateGraph || false,
-      advanceReport: employee?.permissions?.advanceReport || false,
-      generateWord: employee?.permissions?.generateWord || false,
-      cmaData: employee?.permissions?.cmaData || false,
+        advanceReport: employee?.permissions?.advanceReport || false,
+        generateWord: employee?.permissions?.generateWord || false,
+        cmaData: employee?.permissions?.cmaData || false,
+        consultantReport: employee?.permissions?.consultantReport || false,
       },
     });
   }, [employee]);
@@ -73,7 +75,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
 
     try {
       const response = await fetch(
-        `https://reportsbe.sharda.co.in/api/employees/${employee.employeeId}`,
+        `http://localhost:5000/api/employees/${employee.employeeId}`,
         {
           method: "PUT", // or "PATCH" if updating only certain fields
           headers: {
@@ -414,7 +416,8 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
                 { name: "generateWord", label: "Generate Word" },
                 { name: "advanceReport", label: "Advance Report" },
                 { name: "generateGraph", label: "Generate Graph" },
-                { name: "cmaData", label: "CMA Data" }
+                { name: "cmaData", label: "CMA Data" },
+                { name: "consultantReport", label: "Consultant Report" }
               ].map((perm) => (
                   <label key={perm.name} className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-indigo-700 transition">
                     <input
