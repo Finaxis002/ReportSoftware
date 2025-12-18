@@ -6,6 +6,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 
 
 const MainLogin = ({ onLogin }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [activeTab, setActiveTab] = useState("admin");
   const [inputUsername, setInputUsername] = useState("");
   const [inputPassword, setInputPassword] = useState("");
@@ -93,7 +94,7 @@ const MainLogin = ({ onLogin }) => {
     // 1️⃣ Try Main Admin Login API (Admin collection)
     try {
       const response = await fetch(
-        "https://reportsbe.sharda.co.in/api/admin/login",
+        `${BASE_URL}/api/admin/login`,
         {
           method: "POST",
           headers: {
@@ -136,7 +137,7 @@ const MainLogin = ({ onLogin }) => {
     // 2️⃣ Try Fallback Login API (MainAdminPassword collection)
     try {
       const fallbackResponse = await fetch(
-        "https://reportsbe.sharda.co.in/api/admin/hardcoded-login",
+        `${BASE_URL}/api/admin/hardcoded-login`,
         {
           method: "POST",
           headers: {
@@ -185,7 +186,7 @@ const MainLogin = ({ onLogin }) => {
 
         try {
           const verifyResponse = await fetch(
-            "https://reportsbe.sharda.co.in/api/verify-captcha",
+            `${BASE_URL}/api/verify-captcha`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -209,7 +210,7 @@ const MainLogin = ({ onLogin }) => {
 
         // ✅ STEP 2: Send OTP
         const sendOtpRes = await fetch(
-          "https://reportsbe.sharda.co.in/api/otp/send-otp",
+          `${BASE_URL}/api/otp/send-otp`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -231,7 +232,7 @@ const MainLogin = ({ onLogin }) => {
 
       // ✅ STEP 3: Verify OTP
       const verifyRes = await fetch(
-        "https://reportsbe.sharda.co.in/api/otp/verify-otp",
+        `${BASE_URL}/api/otp/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -247,7 +248,7 @@ const MainLogin = ({ onLogin }) => {
 
       // ✅ STEP 4: Final login
       const loginRes = await fetch(
-        "https://reportsbe.sharda.co.in/api/employees/login",
+        `${BASE_URL}/api/employees/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -284,7 +285,7 @@ const MainLogin = ({ onLogin }) => {
 
       try {
         const verifyResponse = await fetch(
-          "https://reportsbe.sharda.co.in/api/verify-captcha",
+          `${BASE_URL}/api/verify-captcha`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -319,7 +320,7 @@ const MainLogin = ({ onLogin }) => {
 
       try {
         const verifyResponse = await fetch(
-          "https://reportsbe.sharda.co.in/api/verify-captcha",
+          `${BASE_URL}/api/verify-captcha`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

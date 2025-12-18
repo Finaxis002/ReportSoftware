@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toggleTheme } from "./Utils/themeToggle";
 
 const Header = ({ dashboardType }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [darkMode, setDarkMode] = React.useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -19,7 +20,7 @@ const Header = ({ dashboardType }) => {
     if (employeeId) {
       try {
         await fetch(
-          "https://reportsbe.sharda.co.in/api/employees/logout",
+          `${BASE_URL}/api/employees/logout`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

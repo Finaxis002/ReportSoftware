@@ -26,6 +26,7 @@ import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
   const isUpdateMode = location.state?.isUpdateMode || false;
@@ -180,7 +181,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       try {
         console.log(`🔍 Attempt ${attempt} to fetch reportId...`);
         const res = await axios.get(
-          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+          `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
         );
         
         console.log("📡 Response from get-report-id:", res.data);
@@ -235,7 +236,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
   
-      let apiUrl = "https://reportsbe.sharda.co.in/save-step";
+      let apiUrl = `${BASE_URL}/save-step`;
       const isNew = !sessionId || isCreateReportWithExistingClicked;
   
       if (!isNew) {
@@ -315,7 +316,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       // Step 2: Create report
       const createResponse = await axios.post(
-        "https://reportsbe.sharda.co.in/create-new-from-existing",
+        `${BASE_URL}/create-new-from-existing`,
         requestData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -360,7 +361,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       };
 
       const response = await axios.post(
-        "https://reportsbe.sharda.co.in/update-step",
+        `${BASE_URL}/update-step`,
         {
           sessionId,
           data: updatedData,
@@ -619,7 +620,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       formDataPayload.append("data", JSON.stringify(requestData));
 
       const response = await axios.post(
-        "https://reportsbe.sharda.co.in/create-new-from-existing",
+        `${BASE_URL}/create-new-from-existing`,
         formDataPayload
       );
 
@@ -672,7 +673,7 @@ const MultiStepForm = ({ userRole, userName }) => {
         role: currentUserRole
       });
   
-      const response = await axios.post("https://reportsbe.sharda.co.in/api/activity/log", {
+      const response = await axios.post(`${BASE_URL}/api/activity/log`, {
         action,
         reportTitle,
         reportId,

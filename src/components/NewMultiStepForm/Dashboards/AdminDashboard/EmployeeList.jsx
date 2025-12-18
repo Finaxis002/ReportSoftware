@@ -5,6 +5,7 @@ import EmployeeEditModal from "./EmployeeEditModal"; // Adjust the import path a
 import AssignTaskModal from "./AssignTaskModal";
 
 const EmployeeList = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [employees, setEmployees] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -15,7 +16,7 @@ const EmployeeList = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch("https://reportsbe.sharda.co.in/api/employees");
+        const response = await fetch(`${BASE_URL}/api/employees`);
         if (!response.ok) {
           throw new Error("Failed to fetch employee data");
         }
@@ -45,7 +46,7 @@ const EmployeeList = () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/api/employees/${employeeId}`,
+          `${BASE_URL}/api/employees/${employeeId}`,
           {
             method: "DELETE",
           }

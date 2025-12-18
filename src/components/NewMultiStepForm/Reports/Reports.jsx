@@ -14,12 +14,15 @@ import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const Reports = ({ sendPdfData }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
   // const [selectedReportData, setSelectedReportData] = useState(null); // ✅ State to store report data
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedRow, setExpandedRow] = useState(null);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+const [matches, setMatches] = useState([]);
   const toggleDescription = (index) => {
     setExpandedRow((prev) => (prev === index ? null : index));
   };
@@ -30,7 +33,7 @@ const Reports = ({ sendPdfData }) => {
     const fetchReports = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/get-report"
+          `${BASE_URL}/get-report`
         );
 
         if (!response.ok) {
@@ -61,7 +64,7 @@ const Reports = ({ sendPdfData }) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
       try {
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/get-report/delete-report/${reportId}`,
+          `${BASE_URL}/get-report/delete-report/${reportId}`,
           {
             method: "DELETE",
           }
@@ -84,7 +87,7 @@ const Reports = ({ sendPdfData }) => {
   const handleDownload = async (sessionId) => {
     try {
       const response = await fetch(
-        `https://reportsbe.sharda.co.in/get-report/get-report-data/${sessionId}`
+        `${BASE_URL}/get-report/get-report-data/${sessionId}`
       );
       if (!response.ok) throw new Error("Failed to fetch report data");
 
@@ -109,6 +112,19 @@ const Reports = ({ sendPdfData }) => {
 
   const authRole = localStorage.getItem("userRole");
 
+  // ✅ ADD THIS FUNCTION (around line 105):
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && matches.length > 0) {
+      e.preventDefault();
+      if (currentMatchIndex >= 0) {
+        const nextIndex = (currentMatchIndex + 1) % matches.length;
+        setCurrentMatchIndex(nextIndex);
+      } else {
+        setCurrentMatchIndex(0);
+      }
+    }
+  };
+
   const renderMenuBar = () => {
     const authRole = localStorage.getItem("userRole"); // Get the role from localStorage or state
 
@@ -131,24 +147,41 @@ const Reports = ({ sendPdfData }) => {
     }
   };
 
-  const filteredReports = reports.filter((report) => {
-    const name = report?.AccountInformation?.businessName?.toLowerCase() || "";
-    const desc = report?.AccountInformation?.businessDescription?.toLowerCase() || "";
-    const owner = report?.AccountInformation?.clientName?.toLowerCase() || "";
-  
-    return (
-      name.includes(searchTerm) ||
-      desc.includes(searchTerm) ||
-      owner.includes(searchTerm)
-    );
-  });
-  
+  // ✅ NEW IMPROVED SEARCH LOGIC:
+  const filteredReports = React.useMemo(() => {
+    if (!searchTerm) {
+      setMatches([]);
+      setCurrentMatchIndex(-1);
+      return reports;
+    }
+
+    const normalizedQuery = searchTerm.toLowerCase().trim();
+    const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
+
+    const filtered = reports.filter((report) => {
+      const searchText = `
+      ${report?.AccountInformation?.businessName || ''}
+      ${report?.AccountInformation?.businessDescription || ''}
+      ${report?.AccountInformation?.clientName || ''}
+      ${report?.AccountInformation?.createdBy || ''}
+    `.toLowerCase();
+
+      return queryWords.every(word => searchText.includes(word));
+    });
+
+    // Store matching IDs for highlighting
+    const matchingIds = filtered.map(report => report._id);
+    setMatches(matchingIds);
+    setCurrentMatchIndex(matchingIds.length > 0 ? 0 : -1);
+
+    return filtered;
+  }, [reports, searchTerm]);
 
   const fetchReports = async () => {
     setIsLoading(true); // Show loading during refresh too
     try {
       const response = await fetch(
-        "https://reportsbe.sharda.co.in/get-report"
+        `${BASE_URL}/get-report`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch reports");
@@ -173,50 +206,81 @@ const Reports = ({ sendPdfData }) => {
     fetchReports(); // Re-fetch reports from the backend
   };
 
-    // Assume userRole is stored in localStorage after login.
-    const userRole = localStorage.getItem("userRole") || "admin";
+  // Assume userRole is stored in localStorage after login.
+  const userRole = localStorage.getItem("userRole") || "admin";
+
+
+  // ✅ ADD THIS useEffect FOR AUTO-SCROLLING (after your existing useEffect):
+useEffect(() => {
+  if (currentMatchIndex >= 0 && matches.length > 0) {
+    const element = document.getElementById(`report-${matches[currentMatchIndex]}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      element.classList.add("ring-2", "ring-orange-500");
+      setTimeout(() => {
+        element.classList.remove("ring-2", "ring-orange-500");
+      }, 2000);
+    }
+  }
+}, [currentMatchIndex, matches]);
 
   return (
     <div className="flex h-[100vh]">
       {renderMenuBar()}
       <div className="app-content">
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
+        <Header dashboardType={userRole === "admin" ? "Admin Dashboard" : "User Dashboard"} />
 
-        {/* ✅ Enhanced Search Bar */}
-        <div className="w-full flex  items-center mb-6 p-4">
-          <div className="flex w-80 justify-between items-center mb-2 px-2 me-6">
-            <button
-              onClick={handleRefresh}
-              className="flex items-center gap-1 text-sm text-teal-900 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
-            >
-              <FontAwesomeIcon icon={faSync} className="text-lg" />
-            </button>
-          </div>
-          <div className="relative ">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="Search by Keyword..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition duration-150 ease-in-out"
-            />
-          </div>
-        </div>
+       {/* ✅ MINIMAL ENHANCED SEARCH BAR */}
+<div className="w-full flex items-center gap-3 mb-4 px-2 mt-4">
+  {/* Refresh Button */}
+  <button
+    onClick={handleRefresh}
+    className="p-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
+    title="Refresh"
+  >
+    <FontAwesomeIcon icon={faSync} className="text-lg" />
+  </button>
+
+  {/* Search Input */}
+  <div className="relative flex-1">
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Search reports..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className="w-full pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-800 dark:text-white"
+      />
+      <svg
+        className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
+      </svg>
+      {searchTerm && (
+        <button
+          onClick={() => setSearchTerm("")}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          ×
+        </button>
+      )}
+    </div>
+  </div>
+
+  {/* Match Counter - Only show when searching */}
+  {searchTerm && matches.length > 0 && (
+    <div className="flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-3 py-1.5 rounded-lg text-sm border border-teal-200 dark:border-teal-700">
+      <span className="font-medium">{currentMatchIndex + 1}</span>
+      <span className="text-teal-400">/</span>
+      <span className="font-medium">{matches.length}</span>
+      <span className="text-xs ml-1">matches</span>
+    </div>
+  )}
+</div>
 
         {/* ✅ Better Structured Table */}
         <div className="w-[175vh] h-[80vh] overflow-x-auto">
@@ -279,7 +343,11 @@ const Reports = ({ sendPdfData }) => {
                 filteredReports.map((report, index) => (
                   <tr
                     key={index}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-200"
+                    id={`report-${report._id}`}  // ✅ ADD ID for scrolling
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-200 ${matches[currentMatchIndex] === report._id
+                        ? "bg-teal-50 dark:bg-teal-900/20 ring-2 ring-teal-400"  // ✅ HIGHLIGHT CURRENT MATCH
+                        : ""
+                      }`}
                   >
                     <td className="border px-4 py-2 font-medium text-gray-800 dark:text-white w-[250px]">
                       {report.AccountInformation?.businessName || "N/A"}
@@ -290,7 +358,7 @@ const Reports = ({ sendPdfData }) => {
 
                     {authRole !== "employee" && (
                       <td className="border px-4 py-2 text-gray-700 dark:text-white w-[100px]">
-                       {report.AccountInformation?.createdBy || report.AccountInformation?.userRole || "N/A"}
+                        {report.AccountInformation?.createdBy || report.AccountInformation?.userRole || "N/A"}
 
                       </td>
                     )}
@@ -298,8 +366,8 @@ const Reports = ({ sendPdfData }) => {
                     <td className="border px-4 py-2 text-gray-700 dark:text-white w-[120px]">
                       {report.AccountInformation?.createdAt
                         ? new Date(
-                            report.AccountInformation.createdAt
-                          ).toLocaleDateString()
+                          report.AccountInformation.createdAt
+                        ).toLocaleDateString()
                         : "N/A"}
                     </td>
 
@@ -307,21 +375,21 @@ const Reports = ({ sendPdfData }) => {
                       <p className="text-sm">
                         {expandedRow === index
                           ? report.AccountInformation?.businessDescription ||
-                            "No description available"
+                          "No description available"
                           : (
-                              report.AccountInformation?.businessDescription ||
-                              "No description available"
-                            ).slice(0, 60) + "..."}
+                            report.AccountInformation?.businessDescription ||
+                            "No description available"
+                          ).slice(0, 60) + "..."}
                       </p>
                       {report.AccountInformation?.businessDescription?.length >
                         60 && (
-                        <button
-                          onClick={() => toggleDescription(index)}
-                          className="text-blue-500 dark:text-blue-300 text-xs mt-1"
-                        >
-                          {expandedRow === index ? "Show less" : "Read more"}
-                        </button>
-                      )}
+                          <button
+                            onClick={() => toggleDescription(index)}
+                            className="text-blue-500 dark:text-blue-300 text-xs mt-1"
+                          >
+                            {expandedRow === index ? "Show less" : "Read more"}
+                          </button>
+                        )}
                     </td>
 
                     <td className="border px-4 py-2 text-gray-700 dark:text-white w-[130px]">

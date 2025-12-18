@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const EmployeeRegistrationModal = ({ setShowForm }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   // Initial form state with keys that match your API (update keys if needed)
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -50,7 +51,7 @@ const EmployeeRegistrationModal = ({ setShowForm }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/employees/register",
+        `${BASE_URL}/api/employees/register`,
         formData
       );
 

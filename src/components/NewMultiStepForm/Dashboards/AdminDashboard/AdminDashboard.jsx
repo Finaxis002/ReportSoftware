@@ -52,6 +52,7 @@ function AdminBadgeWithClock() {
 }
 
 const AdminDashboard = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [reports, setReports] = useState([]);
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/api/employees"
+          `${BASE_URL}/api/employees`
         );
 
         if (!response.ok) {
@@ -101,7 +102,7 @@ const AdminDashboard = () => {
     const fetchReports = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/get-report"
+          `${BASE_URL}/get-report`
         );
         const data = await response.json();
 

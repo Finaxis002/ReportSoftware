@@ -16,6 +16,7 @@ import EmployeeRegistration from "./EmployeeRegistration";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 
 const EmployeeDetailsList = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [employees, setEmployees] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -30,7 +31,7 @@ const EmployeeDetailsList = () => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/api/employees"
+          `${BASE_URL}/api/employees`
         );
 
         if (!response.ok) {
@@ -76,7 +77,7 @@ const EmployeeDetailsList = () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/api/employees/${employeeId}`,
+          `${BASE_URL}/api/employees/${employeeId}`,
           { method: "DELETE" }
         );
         if (response.ok) {
@@ -127,7 +128,7 @@ const EmployeeDetailsList = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://reportsbe.sharda.co.in/api/employees"
+        `${BASE_URL}/api/employees`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch employees");

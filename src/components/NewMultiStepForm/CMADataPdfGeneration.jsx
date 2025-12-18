@@ -7,6 +7,7 @@ import ConsultantCMAMultipagePDF from "./CMAData/ConsultantCMA/ConsultantCMAMult
 import axios from "axios";
 
 const CMADataPdfGeneration = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const formDataFromLocalStorage =
     JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
   const [formData, setFormData] = useState(formDataFromLocalStorage);
@@ -58,7 +59,7 @@ const CMADataPdfGeneration = () => {
       try {
         // Make the API call to fetch form data
         const response = await axios.get(
-          `https://reportsbe.sharda.co.in/fetch-business-data?businessName=${encodeURIComponent(
+          `${BASE_URL}/fetch-business-data?businessName=${encodeURIComponent(
             businessName
           )}&businessOwner=${encodeURIComponent(businessOwner)}`
         );

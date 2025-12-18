@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
 const CreateReport = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
@@ -25,8 +26,8 @@ const CreateReport = ({ userRole }) => {
     const fetchPermissions = async () => {
       try {
         const [empRes, adminRes] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/employees"),
-          fetch("https://reportsbe.sharda.co.in/api/admins"),
+          fetch(`${BASE_URL}/api/employees`),
+          fetch(`${BASE_URL}/api/admins`),
         ]);
 
         if (!empRes.ok || !adminRes.ok) {
