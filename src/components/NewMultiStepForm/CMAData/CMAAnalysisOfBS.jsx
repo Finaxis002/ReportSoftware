@@ -203,7 +203,7 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <PageWithFooter
+        <Page
           size="A4"
           style={[pageStyles.page]}
           orientation="landscape"
@@ -2697,13 +2697,13 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
               </View>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       size="A4"
       style={[pageStyles.page]}
       orientation={orientation}
@@ -4991,7 +4991,7 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

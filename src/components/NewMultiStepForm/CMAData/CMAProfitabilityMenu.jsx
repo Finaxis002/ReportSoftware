@@ -369,7 +369,7 @@ const CMAProfitabilityMenu = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <PageWithFooter
+        <Page
           key={`proj-profitability-${pageIdx}`}
           size="A4"
           orientation="landscape"
@@ -1649,13 +1649,13 @@ const CMAProfitabilityMenu = ({
               </View>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter size="A4" orientation={orientation} style={pageStyles.page}>
+    <Page size="A4" orientation={orientation} style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -3016,7 +3016,7 @@ const CMAProfitabilityMenu = ({
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

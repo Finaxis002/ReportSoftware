@@ -127,7 +127,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <PageWithFooter
+        <Page
           key={`cma-operating-${pageIdx}`}
           size="A4"
           style={pageStyles.page}
@@ -1352,13 +1352,13 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
               </View>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter size="A4" style={pageStyles.page} orientation={orientation}>
+    <Page size="A4" style={pageStyles.page} orientation={orientation}>
       <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
@@ -2584,7 +2584,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

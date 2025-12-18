@@ -325,7 +325,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <PageWithFooter key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
+      <Page key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
         {/* watermark  */}
         {pdfType &&
           pdfType !== "select option" &&
@@ -901,7 +901,7 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </PageWithFooter>
+      </Page>
     );
   });
 }
@@ -909,7 +909,7 @@ if (isAdvancedLandscape) {
   
 
   return (
-    <PageWithFooter
+    <Page
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1688,7 +1688,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

@@ -396,7 +396,7 @@ const CMAProjectedProfitability = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <PageWithFooter size="A4" style={styles.page} orientation="landscape">
+        <Page size="A4" style={styles.page} orientation="landscape">
           {/* watermark  */}
           {pdfType &&
             pdfType !== "select option" &&
@@ -1687,14 +1687,14 @@ const CMAProjectedProfitability = ({
             </View>
           </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
 
-    <PageWithFooter
+    <Page
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -3177,7 +3177,7 @@ const CMAProjectedProfitability = ({
         </View>
       </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 
