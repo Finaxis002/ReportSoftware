@@ -805,7 +805,10 @@ const ConsultantGeneratedPDF = () => {
       }
     };
 
-    saveDataBeforeRender();
+    // Handle the async function properly in useEffect
+    saveDataBeforeRender().catch(error => {
+      console.error("Error in saveDataBeforeRender:", error);
+    });
   }, [formData, totalRevenueReceipts, hasPreSavedData]);
 
 
