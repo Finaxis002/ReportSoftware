@@ -71,7 +71,7 @@ const IncomeTaxCalculation = ({
     const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
     return (
-      <PageWithFooter
+      <Page
         // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
         size="A4"
         orientation="landscape"
@@ -561,14 +561,14 @@ const IncomeTaxCalculation = ({
             </Text>
           </View>
         </View>
-      </PageWithFooter>
+      </Page>
     );
   });
 }
 
 
   return (
-    <PageWithFooter
+    <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -986,7 +986,7 @@ const IncomeTaxCalculation = ({
           </Text>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

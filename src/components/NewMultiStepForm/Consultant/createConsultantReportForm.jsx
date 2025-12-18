@@ -270,92 +270,108 @@ const handleBusinessSelect = (businessData, sessionId) => {
     return null;
   };
 
-  const handleSaveData = async () => {
-    try {
-      let requestData = new FormData();
-      requestData.append("step", steps[currentStep - 1]);
+const handleSaveData = async () => {
+  try {
+    let requestData = new FormData();
+    requestData.append("step", steps[currentStep - 1]);
   
-      const currentUser =
-        localStorage.getItem("adminName") ||
-        localStorage.getItem("employeeName") ||
-        "Unknown";
-      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+    const currentUser =
+      localStorage.getItem("adminName") ||
+      localStorage.getItem("employeeName") ||
+      "Unknown";
+    const currentUserRole = localStorage.getItem("userRole") || "unknown";
   
-      let formDataWithoutFile = {
-        ...formData,
-        version: selectedVersion,
-        AccountInformation: {
-          ...formData.AccountInformation,
-          userRole: currentUserRole,
-          createdBy: currentUser,
-        },
-      };
+    // ✅ GET CONSULTANT ID FROM FORMDATA
+    const currentConsultantId = formData.consultantId || 
+                               consultantId || 
+                               localStorage.getItem("consultantId") || 
+                               localStorage.getItem("userId");
+    
+    console.log("👤 Consultant ID for activity logging:", currentConsultantId);
   
-      formDataWithoutFile.CostOfProject = {
-        ...formDataWithoutFile.CostOfProject,
-        preliminaryExpenses: formData.preliminaryExpenses,
-      };
+    let formDataWithoutFile = {
+      ...formData,
+      version: selectedVersion,
+      consultantId: currentConsultantId, // ✅ ADD CONSULTANT ID HERE
+      AccountInformation: {
+        ...formData.AccountInformation,
+        userRole: currentUserRole,
+        createdBy: currentUser,
+      },
+    };
   
-      if (formDataWithoutFile._id) delete formDataWithoutFile._id;
+    formDataWithoutFile.CostOfProject = {
+      ...formDataWithoutFile.CostOfProject,
+      preliminaryExpenses: formData.preliminaryExpenses,
+    };
   
-      let apiUrl = isConsultantReport ? `${BASE_URL}/api/consultant-reports/save-consultant-step` : `${BASE_URL}/save-step`;
-      const isNew = !sessionId || isCreateReportWithExistingClicked;
+    if (formDataWithoutFile._id) delete formDataWithoutFile._id;
+  
+    let apiUrl = isConsultantReport ? `${BASE_URL}/api/consultant-reports/save-consultant-step` : `${BASE_URL}/save-step`;
+    const isNew = !sessionId || isCreateReportWithExistingClicked;
 
-      if (!isNew) {
-        requestData.append("sessionId", sessionId);
-      }
-
-      if (isConsultantReport) {
-        requestData.append("consultantId", consultantId);
-      }
-
-      if (formDataWithoutFile.AccountInformation) {
-        delete formDataWithoutFile.AccountInformation.logoOfBusiness;
-      }
-
-      requestData.append("data", JSON.stringify(formDataWithoutFile));
-  
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
-      }
-  
-      // ✅ API call first
-      const response = await axios.post(apiUrl, requestData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-  
-      console.log("✅ Response from API:", response.data);
-  
-      // ✅ Set sessionId if it was just created
-      if (isNew) {
-        const newSessionId = response.data.sessionId;
-        setSessionId(newSessionId);
-        localStorage.setItem("activeSessionId", newSessionId);
-  
-        const reportTitle =
-          formDataWithoutFile?.AccountInformation?.businessName || "Untitled";
-  
-        try {
-          const reportId = await waitForReportId(newSessionId);
-          if (reportId) {
-            await logActivity("create", reportTitle, reportId);
-          } else {
-            console.warn("⚠️ No reportId available for logging");
-          }
-        } catch (err) {
-          console.warn("⚠️ Activity logging failed:", err.message);
-        }
-      }
-  
-      alert("Data saved successfully!");
-    } catch (error) {
-      console.error("🔥 Error saving data:", error);
-      alert(
-        `Failed to save data: ${error.response?.data?.message || error.message}`
-      );
+    if (!isNew) {
+      requestData.append("sessionId", sessionId);
     }
-  };
+
+    // ✅ ALWAYS APPEND CONSULTANT ID FOR CONSULTANT REPORTS
+    if (isConsultantReport && currentConsultantId) {
+      requestData.append("consultantId", currentConsultantId);
+    }
+
+    if (formDataWithoutFile.AccountInformation) {
+      delete formDataWithoutFile.AccountInformation.logoOfBusiness;
+    }
+
+    requestData.append("data", JSON.stringify(formDataWithoutFile));
   
+    if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+      requestData.append("file", formData.AccountInformation.logoOfBusiness);
+    }
+  
+    // ✅ API call first
+    const response = await axios.post(apiUrl, requestData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  
+    console.log("✅ Response from API:", response.data);
+  
+    // ✅ Set sessionId if it was just created
+    if (isNew) {
+      const newSessionId = response.data.sessionId;
+      setSessionId(newSessionId);
+      localStorage.setItem("activeSessionId", newSessionId);
+  
+      const reportTitle = formDataWithoutFile?.AccountInformation?.businessName || "Untitled";
+      const reportOwner = formDataWithoutFile?.AccountInformation?.clientName || "Unknown";
+      
+      // ✅ LOG ACTIVITY IMMEDIATELY WITHOUT WAITING
+      try {
+        await axios.post(`${BASE_URL}/api/activity/log`, {
+          action: "consultant_create", // ✅ USE consultant_create NOT create
+          reportTitle: reportTitle,
+          reportOwner: reportOwner,
+          reportType: "consultant", // ✅ EXPLICITLY SET TO "consultant"
+          performedBy: {
+            name: currentUser,
+            role: currentUserRole,
+            userId: currentConsultantId
+          }
+        });
+        console.log("✅ Consultant activity logged successfully");
+      } catch (logError) {
+        console.warn("⚠️ Activity logging failed:", logError.message);
+      }
+    }
+  
+    alert("Data saved successfully!");
+  } catch (error) {
+    console.error("🔥 Error saving data:", error);
+    alert(
+      `Failed to save data: ${error.response?.data?.message || error.message}`
+    );
+  }
+};
 
 // In handleCreateNewFromExisting function:
 const handleCreateNewFromExisting = async () => {
@@ -418,10 +434,36 @@ const handleCreateNewFromExisting = async () => {
       return;
     }
 
-    // Step 4: Log activity
-    const reportTitle = newData.AccountInformation?.businessName || "Untitled";
-    await logActivity("create", reportTitle, reportId);
+// Step 4: Log activity
+const reportTitle = newData.AccountInformation?.businessName || "Untitled";
+const reportOwner = newData.AccountInformation?.clientName || "Unknown";
 
+// ✅ GET USER INFO FROM LOCALSTORAGE (FIX FOR UNDEFINED VARIABLES)
+const logUserName = userName || 
+                   localStorage.getItem("adminName") ||
+                   localStorage.getItem("employeeName") ||
+                   localStorage.getItem("consultantName") ||
+                   "Unknown";
+                   
+const logUserRole = userRole || localStorage.getItem("userRole") || "unknown";
+
+// ✅ LOG CONSULTANT ACTIVITY DIRECTLY
+try {
+  await axios.post(`${BASE_URL}/api/activity/log`, {
+    action: "consultant_create",
+    reportTitle: reportTitle,
+    reportOwner: reportOwner,
+    reportType: "consultant",
+    performedBy: {
+      name: logUserName, // ✅ FIXED: Use defined variable
+      role: logUserRole, // ✅ FIXED: Use defined variable
+      userId: currentConsultantId
+    }
+  });
+  console.log("✅ New consultant report activity logged");
+} catch (logError) {
+  console.warn("⚠️ Activity logging failed:", logError.message);
+}
     alert("✅ New Report Created Successfully!");
   } catch (error) {
     console.error("🔥 Error in create from existing:", error);
@@ -466,10 +508,27 @@ const handleCreateNewFromExisting = async () => {
       alert("Failed to update report."); 
     }
 
-      await logActivity(
-        "update",
-        formData?.AccountInformation?.businessName || "Untitled"
-      );
+      // ✅ LOG CONSULTANT UPDATE ACTIVITY
+const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
+const reportOwner = formData?.AccountInformation?.clientName || "Unknown";
+const currentConsultantId = formData.consultantId || consultantId;
+
+try {
+  await axios.post(`${BASE_URL}/api/activity/log`, {
+    action: "consultant_update",
+    reportTitle: reportTitle,
+    reportOwner: reportOwner,
+    reportType: "consultant",
+    performedBy: {
+      name: userName,
+      role: userRole,
+      userId: currentConsultantId
+    }
+  });
+  console.log("✅ Consultant update activity logged");
+} catch (logError) {
+  console.warn("⚠️ Update activity logging failed:", logError.message);
+}
 
     } catch (error) {
       console.error(
@@ -753,48 +812,80 @@ const handleCreateNewFromExisting = async () => {
     setCurrentStep(stepNumber);
   };
 
-  const logActivity = async (action, reportTitle = "", reportId = "") => {
-    try {
-      const currentUser =
-        localStorage.getItem("adminName") ||
-        localStorage.getItem("employeeName") ||
-        "Unknown";
-      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+const logActivity = async (action, reportTitle = "", reportId = "") => {
+  try {
+    const currentUser =
+      localStorage.getItem("adminName") ||
+      localStorage.getItem("employeeName") ||
+      "Unknown";
+    const currentUserRole = localStorage.getItem("userRole") || "unknown";
   
-      const reportOwner = formData?.AccountInformation?.businessOwner || "";
-  
-      console.log("📝 Logging activity with:", {
-        action,
-        reportTitle,
-        reportId,
-        name: currentUser,
-        role: currentUserRole
-      });
-  
-      const response = await axios.post(`${BASE_URL}/api/activity/log`, {
-        action,
-        reportTitle,
-        reportId,
-        reportOwner,
-        performedBy: {
-          name: currentUser,
-          role: currentUserRole
-        },
-        timestamp: new Date().toISOString()
-      });
-  
-      console.log("✅ Activity logged successfully:", response.data);
-      return response.data;
-    } catch (err) {
-      console.error("❌ Failed to log activity:", {
-        error: err.response?.data || err.message,
-        action,
-        reportTitle,
-        reportId
-      });
-      throw err;
+    // ✅ GET CONSULTANT ID
+    const currentConsultantId = formData.consultantId || 
+                               consultantId || 
+                               localStorage.getItem("consultantId") || 
+                               localStorage.getItem("userId");
+    
+    const reportOwner = formData?.AccountInformation?.clientName || 
+                       formData?.AccountInformation?.businessOwner || 
+                       "";
+    
+    // ✅ DETERMINE IF THIS IS CONSULTANT REPORT
+    const isConsultant = !!currentConsultantId || 
+                        formData.type === "consultant" || 
+                        action.startsWith("consultant_");
+    
+    let finalAction = action;
+    let reportType = "regular";
+    
+    if (isConsultant) {
+      reportType = "consultant";
+      
+      // ✅ MAP REGULAR ACTIONS TO CONSULTANT ACTIONS
+      if (action === "create") finalAction = "consultant_create";
+      else if (action === "update") finalAction = "consultant_update";
+      else if (action === "download") finalAction = "consultant_download";
+      else if (action === "generated_pdf") finalAction = "consultant_generated_pdf";
     }
-  };
+  
+    console.log("📝 Logging activity with:", {
+      originalAction: action,
+      finalAction: finalAction,
+      reportType: reportType,
+      reportTitle,
+      reportOwner,
+      name: currentUser,
+      role: currentUserRole,
+      consultantId: currentConsultantId,
+      isConsultant: isConsultant
+    });
+  
+    const response = await axios.post(`${BASE_URL}/api/activity/log`, {
+      action: finalAction, // ✅ USE FINAL ACTION
+      reportTitle,
+      reportId,
+      reportOwner,
+      reportType: reportType, // ✅ ADD REPORT TYPE
+      performedBy: {
+        name: currentUser,
+        role: currentUserRole,
+        userId: currentConsultantId
+      },
+      timestamp: new Date().toISOString()
+    });
+  
+    console.log("✅ Activity logged successfully:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("❌ Failed to log activity:", {
+      error: err.response?.data || err.message,
+      action,
+      reportTitle,
+      reportId
+    });
+    throw err;
+  }
+};
   
 
   return (

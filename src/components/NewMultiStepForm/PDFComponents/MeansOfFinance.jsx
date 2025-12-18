@@ -10,7 +10,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , re
 
 
   return (
-    <PageWithFooter style={[styles.page]}>
+    <Page style={[styles.page]}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -455,7 +455,7 @@ const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , re
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

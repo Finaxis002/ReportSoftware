@@ -744,7 +744,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
       // console.log(formData, "formdata in pp");
 
       return (
-        <PageWithFooter
+        <Page
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -2327,13 +2327,13 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
               </View>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3903,7 +3903,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 
