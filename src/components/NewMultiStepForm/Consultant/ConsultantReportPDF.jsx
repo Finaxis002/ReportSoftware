@@ -766,45 +766,24 @@ const ConsultantGeneratedPDF = () => {
   }, []);
 
 
-const handlePDFRender = async () => {
-  console.log("🔄 PDF rendering started for consultant report");
-  
-  // ✅ Save computed data
-  await saveConsultantComputedData();
-  
-  // ✅ Log activity
-  try {
-    await axios.post(`${BASE_URL}/api/activity/log`, {
-      action: "consultant_generated_pdf",
-      reportId: formData?._id,
-      reportTitle: formData?.AccountInformation?.businessName,
-      reportOwner: formData?.AccountInformation?.clientName,
-      performedBy: {
-        name: userName,
-        role: userRole,
-        userId: formData?.consultantId,
-      },
-    });
-    console.log("✅ PDF render activity logged");
-  } catch (error) {
-    console.warn("⚠️ Failed to log render activity:", error);
-  }
-};
-
-
+  const handlePDFRender = async () => {
+    console.log("🔄 PDF rendering started for consultant report");
+    
     // ✅ Save computed data
     await saveConsultantComputedData();
-
+    
     // ✅ Log activity
     try {
       await axios.post(`${BASE_URL}/api/activity/log`, {
-        action: "pdf_render",
+        action: "consultant_generated_pdf",
         reportId: formData?._id,
         reportTitle: formData?.AccountInformation?.businessName,
-        version: storedVersion,
-        performedBy: userName,
-        role: userRole,
-        timestamp: new Date().toISOString()
+        reportOwner: formData?.AccountInformation?.clientName,
+        performedBy: {
+          name: userName,
+          role: userRole,
+          userId: formData?.consultantId,
+        },
       });
       console.log("✅ PDF render activity logged");
     } catch (error) {
@@ -1343,7 +1322,6 @@ const handlePDFRender = async () => {
 
 
 
-
   const memoizedPDF = useMemo(() => {
     return (
       <Document
@@ -1351,12 +1329,6 @@ const handlePDFRender = async () => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
           handlePDFRender(); // Save data after the PDF has been rendered
-          if (!hasPreSavedData) {
-            handlePDFRender();
-          } else {
-            console.log("✅ Data was already saved before render");
-          }
-
         }}
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
@@ -2161,7 +2133,7 @@ const handlePDFRender = async () => {
                     }}
                   ></div>
 
-                 
+                  
                 </div>
               </div>
             </>
