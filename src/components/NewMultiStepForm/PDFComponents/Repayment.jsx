@@ -440,7 +440,7 @@ useEffect(() => {
 
   return (
     <>
-      <PageWithFooter style={[styles.page, { paddingTop: 40 }]}>
+      <Page style={[styles.page, { paddingTop: 40 }]}>
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}
           <View>
@@ -1020,7 +1020,7 @@ useEffect(() => {
             </Text>
           </View>
         </View>
-      </PageWithFooter>
+      </Page>
     </>
   );
 };

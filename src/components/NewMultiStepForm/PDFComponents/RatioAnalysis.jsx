@@ -506,7 +506,7 @@ const RatioAnalysis = ({
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1858,13 +1858,13 @@ const RatioAnalysis = ({
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3154,7 +3154,7 @@ const RatioAnalysis = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

@@ -26,7 +26,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
   // ✅ Determine pronouns based on gender
 
   return (
-    <PageWithFooter size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page}>
       {/* ✅ Watermark */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -549,7 +549,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
           </View>
         )}
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

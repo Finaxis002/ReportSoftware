@@ -498,7 +498,7 @@ const ProjectedBalanceSheet = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1518,7 +1518,7 @@ const ProjectedBalanceSheet = ({
               </View>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
@@ -1526,7 +1526,7 @@ const ProjectedBalanceSheet = ({
   // console.log("receivedMarchClosingBalances :", receivedMarchClosingBalances);
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -2455,7 +2455,7 @@ const ProjectedBalanceSheet = ({
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

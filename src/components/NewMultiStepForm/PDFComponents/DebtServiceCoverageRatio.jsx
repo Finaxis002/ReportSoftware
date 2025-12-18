@@ -1024,7 +1024,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -1741,7 +1741,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

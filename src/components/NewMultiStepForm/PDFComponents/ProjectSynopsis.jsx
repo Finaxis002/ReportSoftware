@@ -225,7 +225,7 @@ const ProjectSynopsis = React.memo(
 
     return (
       <>
-        <PageWithFooter size="A4" style={styles.page} ref={handleContextMenu}>
+        <Page size="A4" style={styles.page} ref={handleContextMenu}>
           <View>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Bame"}
@@ -1527,7 +1527,7 @@ const ProjectSynopsis = React.memo(
               {formData?.AccountInformation?.businessOwner || "Client Name"}
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       </>
     );
   }

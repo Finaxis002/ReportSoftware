@@ -18,7 +18,7 @@ const ProjectedSalaries = ({
   pdfType,
 }) => {
   return (
-    <PageWithFooter size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -294,7 +294,7 @@ const ProjectedSalaries = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 
