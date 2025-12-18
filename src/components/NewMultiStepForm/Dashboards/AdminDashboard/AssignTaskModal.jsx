@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
 const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
+  // const BASE_URL = "http://localhost:5000"
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -14,7 +16,7 @@ const AssignTaskModal = ({ employeeId, onClose, onTaskAssigned }) => {
     setMessage("");
 
     try {
-      const response = await fetch("https://reportsbe.sharda.co.in/api/tasks", {
+      const response = await fetch(`${BASE_URL}/api/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

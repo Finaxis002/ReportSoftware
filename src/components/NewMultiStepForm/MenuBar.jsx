@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const nav = useNavigate();
   const location = useLocation();
   const [adminName, setAdminName] = useState("");
@@ -30,7 +31,7 @@ const MenuBar = ({ userRole }) => {
 
       try {
         const res = await fetch(
-          `https://reportsbe.sharda.co.in/api/notifications/unseen?employeeId=${employeeId}`
+          `${BASE_URL}/api/notifications/unseen?employeeId=${employeeId}`
         );
         const data = await res.json();
         setUnseenCount(data.length);
@@ -44,7 +45,7 @@ const MenuBar = ({ userRole }) => {
     if (userRole === 'employee') {
       const fetchPermissions = async () => {
         try {
-          const res = await fetch(`https://reportsbe.sharda.co.in/api/employees/${employeeId}`);
+          const res = await fetch(`${BASE_URL}/api/employees/${employeeId}`);
           const data = await res.json();
           setPermissions(data.permissions || {});
         } catch (err) {

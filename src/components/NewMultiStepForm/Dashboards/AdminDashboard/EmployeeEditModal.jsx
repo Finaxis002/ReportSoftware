@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   // Initialize form data with the employee's data
   const [formData, setFormData] = useState({
     employeeId: employee.employeeId || "",
@@ -75,7 +76,7 @@ const EmployeeEditModal = ({ employee, setShowEditModal, onUpdate }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/employees/${employee.employeeId}`,
+        `${BASE_URL}/api/employees/${employee.employeeId}`,
         {
           method: "PUT", // or "PATCH" if updating only certain fields
           headers: {

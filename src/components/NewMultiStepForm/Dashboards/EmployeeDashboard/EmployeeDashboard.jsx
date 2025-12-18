@@ -7,6 +7,7 @@ import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import load
 import LimitedEmployeeTaskView from "./LimitedEmployeeTaskView";
 
 const EmployeeDashboard = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Loading state for spinner
@@ -27,11 +28,11 @@ const EmployeeDashboard = ({ userRole }) => {
       const fetchEmployeeData = async () => {
         try {
           console.log(
-            `🚀 Fetching data from: https://reportsbe.sharda.co.in/api/employees/${employeeId}`
+            `🚀 Fetching data from: ${BASE_URL}/api/employees/${employeeId}`
           );
 
           const response = await fetch(
-            `https://reportsbe.sharda.co.in/api/employees/${employeeId}`
+            `${BASE_URL}/api/employees/${employeeId}`
           );
 
           console.log("🛡️ Response status:", response.status);
@@ -70,7 +71,7 @@ const EmployeeDashboard = ({ userRole }) => {
       const timeout = setTimeout(() => controller.abort(), 8000); // ⏱️ 8s timeout
   
       const res = await fetch(
-        `https://reportsbe.sharda.co.in/api/tasks?employeeId=${empId}`,
+        `${BASE_URL}/api/tasks?employeeId=${empId}`,
         { signal: controller.signal }
       );
       clearTimeout(timeout);

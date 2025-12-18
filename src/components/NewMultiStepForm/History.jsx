@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const History = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
@@ -16,13 +17,25 @@ const History = ({ userRole }) => {
   const [totalActivities, setTotalActivities] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ ADD this right after your useState declarations (around line 20):
+const [debouncedSearch, setDebouncedSearch] = useState("");
+
+// ✅ ADD this useEffect for debouncing (after the useState, before other useEffects):
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(searchQuery);
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [searchQuery]);
+
 
   // Fetch total count of activities on component mount
   useEffect(() => {
     const fetchTotalCount = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/activity/total-count"
+          `${BASE_URL}/api/activity/total-count`
         );
         setTotalActivities(res.data.total);
       } catch (err) {
@@ -69,7 +82,7 @@ const History = ({ userRole }) => {
         if (endDate) params.endDate = endDate;
 
         const res = await axios.get(
-          "http://localhost:5000/api/activity/history",
+          `${BASE_URL}/api/activity/history`,
           { params }
         );
           console.log("📊 Activities received from API:", res.data.map(a => ({
@@ -92,51 +105,36 @@ const History = ({ userRole }) => {
     }
   }, [userRole, startDate, endDate]);
 
-  // Filter activities based on search query
-  useEffect(() => {
-    if (!searchQuery) {
-      setFilteredActivities(activities);
-      setMatches([]);
-      setCurrentMatchIndex(-1);
-      return;
-    }
+  
+// ✅ ADD THIS NEW useEffect BLOCK:
+useEffect(() => {
+    if (!debouncedSearch) {
+    setFilteredActivities(activities);
+    setMatches([]);
+    setCurrentMatchIndex(-1);
+    return;
+  }
 
-    const filtered = activities.filter((act) => {
-      const q = searchQuery.toLowerCase();
-      return (
-        act?.performedBy?.name?.toLowerCase().includes(q) ||
-        act?.reportTitle?.toLowerCase().includes(q) ||
-        act?.reportOwner?.toLowerCase().includes(q)
-      );
-    });
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
 
-    setFilteredActivities(filtered);
-    setCurrentMatchIndex(filtered.length > 0 ? 0 : -1);
-  }, [activities, searchQuery]);
+  const filtered = activities.filter((act) => {
+    const searchText = `
+      ${act?.performedBy?.name || ''}
+      ${act?.reportTitle || ''}
+      ${act?.reportOwner || ''}
+      ${act?.action || ''}
+    `.toLowerCase();
+    
+    return queryWords.every(word => searchText.includes(word));
+  });
 
-  // Find all activity IDs that match the search query
-  useEffect(() => {
-    if (!searchQuery) {
-      setMatches([]);
-      return;
-    }
+  setFilteredActivities(filtered);
+  const matchingIds = filtered.map(act => act._id);
+  setMatches(matchingIds);
+  setCurrentMatchIndex(matchingIds.length > 0 ? 0 : -1);
+}, [activities, searchQuery]);
 
-    const matchingIds = activities
-      .filter((act) => {
-        const q = searchQuery.toLowerCase();
-        return (
-          act?.performedBy?.name?.toLowerCase().includes(q) ||
-          act?.reportTitle?.toLowerCase().includes(q) ||
-          act?.reportOwner?.toLowerCase().includes(q)
-        );
-      })
-      .map((act) => act._id);
-
-    setMatches(matchingIds);
-  }, [activities, searchQuery]);
-
-  // Scroll to current match
-  // Scroll to current match
   useEffect(() => {
     if (currentMatchIndex >= 0 && matches.length > 0) {
       const element = document.getElementById(
@@ -152,68 +150,56 @@ const History = ({ userRole }) => {
     }
   }, [currentMatchIndex, matches]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && matches.length > 0) {
-      e.preventDefault();
+// ✅ REPLACE the existing handleKeyDown function with this:
+const handleKeyDown = (e) => {
+  if (e.key === "Enter" && matches.length > 0) {
+    e.preventDefault();
+    if (currentMatchIndex >= 0) {
       const nextIndex = (currentMatchIndex + 1) % matches.length;
       setCurrentMatchIndex(nextIndex);
+    } else {
+      setCurrentMatchIndex(0);
     }
-  };
+  }
+};
 
-  const formatActivityMessage = ({
-    _id,
-    action,
-    performedBy,
-    reportTitle,
-    reportOwner,
-    timestamp,
-    reportType
-  }) => {
-      console.log("📝 formatActivityMessage called with:", {
-    action,
-    reportTitle,
-    reportOwner,
-    isConsultant: action.startsWith("consultant_")
+ // ✅ REPLACE the entire formatActivityMessage function with this:
+const formatActivityMessage = ({
+  _id,
+  action,
+  performedBy,
+  reportTitle,
+  reportOwner,
+  timestamp,
+  reportType
+}) => {
+  const name = performedBy?.name || "Unknown";
+  const role = performedBy?.role === "admin" ? "Admin" : "User";
+
+  const formattedAction = {
+    create: "created",
+    update: "updated",
+    download: "downloaded",
+    check_profit: "checked profit for",
+    generated_pdf: "generated PDF for",
+    consultant_create: "created consultant report",
+    consultant_update: "updated consultant report",
+    consultant_download: "downloaded consultant report",
+    consultant_generated_pdf: "generated PDF for",
+  }[action] || "performed an action on";
+
+  const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
   });
-    const name = performedBy?.name || "Unknown";
-    const role = performedBy?.role === "admin" ? "Admin" : "User";
 
-    const formattedAction =
-      {
-        create: "created",
-        update: "updated",
-        download: "downloaded",
-        check_profit: "checked profit for",
-        generated_pdf: "generated PDF for",
-        consultant_create: "created consultant report",
-        consultant_update: "updated consultant report",
-        consultant_download: "downloaded consultant report",
-        consultant_generated_pdf: "generated PDF for",
-      }[action] || "performed an action on";
- console.log("🔍 Action mapping:", { 
-    action, 
-    formattedAction,
-    "consultant_generated_pdf": formattedAction === "generated PDF for" 
-  });
-    const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+  const cleanTitle = reportTitle?.trim() || "Untitled";
+  const cleanOwner = reportOwner?.trim();
+  const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
 
-    const cleanTitle = reportTitle?.trim() || "Untitled";
-    const cleanOwner = reportOwner?.trim();
-    const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
-
-    // let message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
-
-    // if (action === "consultant_generated_pdf") {
-    //   message += " - consultant Report";
-    // }
-
-      //  const isConsultant = action.startsWith("consultant_");
-       const isConsultant = reportType === "consultant" || action.startsWith("consultant_");
-   
-    let message;
+  const isConsultant = reportType === "consultant" || action.startsWith("consultant_");
+  
+  let message;
   if (isConsultant && (action === "consultant_generated_pdf" || action === "generated_pdf")) {
     message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate} - consultant report`;
   } else if (isConsultant) {
@@ -222,32 +208,54 @@ const History = ({ userRole }) => {
     message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
   }
 
-  console.log("✅ Final message:", message);
-    if (!searchQuery) return message;
+  // If no search query, return plain message
+  if (!searchQuery) return message;
 
-    const regex = new RegExp(
-      `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-      "gi"
-    );
-    const parts = message.split(regex);
-
-    return parts.map((part, index) =>
-  regex.test(part) ? (
-    <mark
-      key={index}
-      className={`${
-        matches[currentMatchIndex] === _id
-          ? "bg-orange-300 dark:bg-orange-600"
-          : "bg-yellow-200 dark:bg-yellow-600"
-      }`}
-    >
-      {part}
-    </mark>
-  ) : (
-    part
-  )
-);
+  // Highlight logic
+  const highlightText = (text, searchTerm) => {
+    if (!searchTerm) return text;
+    
+    const normalizedSearch = searchTerm.toLowerCase();
+    const parts = [];
+    let lastIndex = 0;
+    let textLower = text.toLowerCase();
+    
+    let matchIndex = textLower.indexOf(normalizedSearch, lastIndex);
+    
+    while (matchIndex !== -1) {
+      if (matchIndex > lastIndex) {
+        parts.push(text.substring(lastIndex, matchIndex));
+      }
+      
+      const isCurrentMatch = matches[currentMatchIndex] === _id && 
+                           matchIndex <= searchTerm.length;
+      
+      parts.push(
+        <mark
+          key={`${_id}-${matchIndex}`}
+          className={`${
+            isCurrentMatch 
+              ? "bg-orange-300 dark:bg-orange-600 font-semibold" 
+              : "bg-yellow-200 dark:bg-yellow-600"
+          }`}
+        >
+          {text.substring(matchIndex, matchIndex + searchTerm.length)}
+        </mark>
+      );
+      
+      lastIndex = matchIndex + searchTerm.length;
+      matchIndex = textLower.indexOf(normalizedSearch, lastIndex);
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
   };
+
+  return highlightText(message, searchQuery);
+};
 
   const hasDateFilter = startDate || endDate;
 
