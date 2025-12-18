@@ -660,20 +660,7 @@ const FinalStep = ({ formData, userRole }) => {
       : "flex items-center bg-gray-300 text-gray-500 rounded-lg px-6 py-2 shadow-md cursor-not-allowed opacity-50";
   };
 
-  const getColorHex = (color) => {
-    const colorMap = {
-      Red: "#ef4444", // Tailwind red-500 (vibrant)
-      Blue: "#3b82f6", // Tailwind blue-500
-      Green: "#22c55e", // Tailwind green-500
-      Purple: "#8b5cf6", // Tailwind purple-500
-      SkyBlue: "#0ea5e9", // Tailwind sky-500
-      Orange: "#f97316", // Tailwind orange-500
-      Pink: "#ec4899", // Tailwind pink-500
-      Teal: "#14b8a6", // Tailwind teal-500
-    };
-
-    return colorMap[color] || "#172554"; // default fallback (dark blue)
-  };
+ 
 
   useEffect(() => {
     const handleUnload = () => {
