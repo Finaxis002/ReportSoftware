@@ -108,7 +108,7 @@ if (isAdvancedLandscape) {
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -440,13 +440,13 @@ if (isAdvancedLandscape) {
               of the authorized signatories.
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -775,7 +775,7 @@ if (isAdvancedLandscape) {
           the authorized signatories.
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

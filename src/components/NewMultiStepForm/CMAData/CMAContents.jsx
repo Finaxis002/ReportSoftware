@@ -64,7 +64,7 @@ const CMAContents = ({
 
 
   return (
-    <PageWithFooter size="A4" orientation="portrait" style={pageStyles.page}>
+    <Page size="A4" orientation="portrait" style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -947,7 +947,7 @@ const CMAContents = ({
           </View>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

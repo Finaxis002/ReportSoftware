@@ -230,7 +230,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <PageWithFooter size="A4" style={pageStyles.page} orientation="landscape">
+      <Page size="A4" style={pageStyles.page} orientation="landscape">
           <View style={pageStyles.safeArea}>
         <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
           {/* name and financial year  */}
@@ -1357,13 +1357,13 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </PageWithFooter>
+      </Page>
     );
   });
 }
 
   return (
-    <PageWithFooter size="A4" style={pageStyles.page} orientation={orientation}>
+    <Page size="A4" style={pageStyles.page} orientation={orientation}>
         <View style={pageStyles.safeArea}>
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
         {/* name and financial year  */}
@@ -2521,7 +2521,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

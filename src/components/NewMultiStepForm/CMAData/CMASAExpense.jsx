@@ -353,7 +353,7 @@ const CMASAExpense = ({
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <PageWithFooter
+      <Page
         size="A4"
         orientation="landscape"
         style={pageStyles.page}
@@ -806,14 +806,14 @@ const CMASAExpense = ({
           </View>
         </View>
         </View>
-      </PageWithFooter>
+      </Page>
     );
   });
 }
 
 
   return (
-    <PageWithFooter
+    <Page
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1285,7 +1285,7 @@ const CMASAExpense = ({
         </View>
       </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

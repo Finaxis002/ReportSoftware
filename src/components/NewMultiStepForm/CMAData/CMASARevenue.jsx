@@ -343,7 +343,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <PageWithFooter
+      <Page
         size="A4"
         orientation="landscape"
         style={pageStyles.page}
@@ -755,14 +755,14 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </PageWithFooter>
+      </Page>
     );
   });
 }
 
 
   return (
-    <PageWithFooter
+    <Page
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1234,7 +1234,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 
