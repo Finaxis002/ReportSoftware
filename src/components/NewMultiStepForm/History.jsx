@@ -176,18 +176,17 @@ const formatActivityMessage = ({
   const name = performedBy?.name || "Unknown";
   const role = performedBy?.role === "admin" ? "Admin" : "User";
 
-  const formattedAction = {
-    create: "created",
-    update: "updated",
-    download: "downloaded",
-    check_profit: "checked profit for",
-    generated_pdf: "generated PDF for",
-    consultant_create: "created consultant report",
-    consultant_update: "updated consultant report",
-    consultant_download: "downloaded consultant report",
-    consultant_generated_pdf: "generated PDF for",
-  }[action] || "performed an action on";
-
+ const formattedAction = {
+  create: "created",
+  update: "updated",
+  download: "downloaded",
+  check_profit: "checked profit for",
+  generated_pdf: "generated PDF for",
+  consultant_create: "created", // ✅ REMOVE "consultant report" from here
+  consultant_update: "updated", // ✅ REMOVE "consultant report" from here
+  consultant_download: "downloaded", // ✅ REMOVE "consultant report" from here
+  consultant_generated_pdf: "generated PDF for", // ✅ REMOVE "consultant report" from here
+}[action] || "performed an action on";
   const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -258,6 +257,45 @@ const formatActivityMessage = ({
 };
 
   const hasDateFilter = startDate || endDate;
+
+
+  // Add this helper function near the top of your History component
+const formatDateForAPI = (dateString, isEndDate = false) => {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  
+  if (isEndDate) {
+    // For end date, set to end of day
+    date.setHours(23, 59, 59, 999);
+  } else {
+    // For start date, set to beginning of day
+    date.setHours(0, 0, 0, 0);
+  }
+  
+  return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+};
+
+// Then update your date change handlers:
+const handleStartDateChange = (e) => {
+  const date = e.target.value;
+  setStartDate(date);
+  
+  // Optional: If you want to send formatted dates to API
+  const formattedStart = formatDateForAPI(date, false);
+  const formattedEnd = formatDateForAPI(endDate, true);
+  console.log("📅 Dates to API:", { start: formattedStart, end: formattedEnd });
+};
+
+const handleEndDateChange = (e) => {
+  const date = e.target.value;
+  setEndDate(date);
+  
+  // Optional: If you want to send formatted dates to API
+  const formattedStart = formatDateForAPI(startDate, false);
+  const formattedEnd = formatDateForAPI(date, true);
+  console.log("📅 Dates to API:", { start: formattedStart, end: formattedEnd });
+};
 
   return (
     <div className="flex h-[100vh]">
@@ -348,7 +386,7 @@ const formatActivityMessage = ({
                       <input
                         type="date"
                         value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                       onChange={handleStartDateChange}
                         className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
                       />
                     </div>
@@ -377,7 +415,7 @@ const formatActivityMessage = ({
                       <input
                         type="date"
                         value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        onChange={handleEndDateChange} 
                         className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
                       />
                     </div>
