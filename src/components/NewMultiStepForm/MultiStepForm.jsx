@@ -626,8 +626,21 @@ const MultiStepForm = ({ userRole, userName }) => {
 
       if (response.status === 201 && !sessionId) {
         // Only store sessionId if it's Step 1
-        setSessionId(response.data.sessionId);
-        localStorage.setItem("sessionId", response.data.sessionId);
+        const newSessionId = response.data.sessionId;
+        setSessionId(newSessionId);
+        localStorage.setItem("sessionId", newSessionId);
+        
+        // ✅ CREATE ACTIVITY LOG ONLY ON FIRST STEP WHEN CREATING FROM EXISTING
+        if (currentStep === 1 && isCreateReportWithExistingClicked) {
+          const reportTitle = requestData?.AccountInformation?.businessName || "Untitled";
+          try {
+            const reportId = await waitForReportId(newSessionId);
+            await logActivity("create", reportTitle, reportId || "");
+            console.log("✅ Activity logged for first step 'Save & Next' from existing report");
+          } catch (err) {
+            console.warn("⚠️ Activity logging failed on first step:", err.message);
+          }
+        }
       }
 
       console.log("✅ Step Saved:", response.data);
