@@ -1,20 +1,14 @@
-import React from "react";
 import {
-  Document,
-  Page,
   View,
   Text,
-  StyleSheet,
   Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../../Utils/CMA/financialCalcs";
 
 import {
@@ -31,8 +25,6 @@ Font.register({
   family: "Roboto",
   src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf",
 });
-
-const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
 const ConsultantCMAFinancialPosition = ({ formData, orientation }) => {
@@ -72,97 +64,22 @@ const ConsultantCMAFinancialPosition = ({ formData, orientation }) => {
 
   const depreciation = extractors.depreciation();
 
-  const rawmaterial = extractors.rawMaterial();
-  const directExpensesArray = extractors.directExpenses?.() || [];
-
-  const GrossProfit = extractors.GrossProfit() || [];
   const interestOnTermLoan = FinPosextractors.interestOnTermLoan() || [];
   const interestOnWCArray = extractors.interestOnWCArray() || [];
-  const administrativeExpenseRows =
-    extractors.administrativeExpenseRows() || [];
 
-  console.log("interestOnTermLoan", interestOnTermLoan);
 
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
-  console.log("form Data : ", formData);
-
-  console.log("interest On Term Loan :", interestOnTermLoan);
-
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
-  const netProfitBeforeTax = FundFlowExtractor.netProfitBeforeTax() || [];
-  const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const preliminaryWriteOffPerYear =
-    extractors.preliminaryWriteOffPerYear() || [];
-  const grossFundsGenerated = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(netProfitBeforeTax[idx] || 0) +
-      Number(totalDepreciation[idx] || 0) +
-      Number(preliminaryWriteOffPerYear[idx] || 0)
-  );
+
   const incomeTaxCal = extractors.incomeTaxCal() || [];
-  const dividendsPaid = FundFlowExtractor.dividendsPaid() || [];
 
-  const netFundsGenerated = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(grossFundsGenerated[idx] || 0) - Number(incomeTaxCal[idx] || 0)
-  );
 
-  const promotersCapital = FundFlowExtractor.promotersCapital() || [];
-  const bankTermLoan = FundFlowExtractor.bankTermLoan() || [];
   const fillZero = FundFlowExtractor.fillZero() || [];
-  const subtotalB = FundFlowExtractor.subtotalB() || [];
-  const workingCapitalLoan = FundFlowExtractor.workingCapitalLoan() || [];
-  const sundryCreditorsArr = BSextractors.sundryCreditorsArr() || [];
-  const totalCurrentLiabilities =
-    FundFlowExtractor.totalCurrentLiabilities() || [];
-  const subTotalC = Array.from({ length: years }).map(
-    (_, i) =>
-      Number(workingCapitalLoan[i] || 0) + Number(sundryCreditorsArr[i] || 0)
-  );
 
-  const totalFunds = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(netFundsGenerated[idx] || 0) +
-      Number(subtotalB[idx] || 0) +
-      Number(subTotalC[idx] || 0)
-  );
+  const withdrawals = FundFlowExtractor.withdrawals() || [];;
 
-  const firstYearGrossFixedAssets =
-    FundFlowExtractor.firstYearGrossFixedAssets() || [];
-  const repaymentOfTermLoan = FundFlowExtractor.repaymentOfTermLoan() || [];
-  const subTotalD = FundFlowExtractor.subTotalD() || [];
-  const inventory = FundFlowExtractor.inventory() || [];
-  const sundryDebitorsArr = FundFlowExtractor.sundryDebitorsArr() || [];
-  const totalCurrentAssets = FundFlowExtractor.totalCurrentAssets() || [];
-  const SubTotalE = FundFlowExtractor.SubTotalE() || [];
-  const withdrawals = FundFlowExtractor.withdrawals() || [];
-  const TOTALFUNDSUSED = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(subTotalD[idx] || 0) +
-      Number(SubTotalE[idx] || 0) +
-      Number(withdrawals[idx] || 0)
-  );
-
-  const longTermSources = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(netFundsGenerated[idx] || 0) + Number(subtotalB[idx] || 0)
-  );
-
-  const surplusShortfall = Array.from({ length: years }).map(
-    (_, idx) => Number(longTermSources[idx] || 0) - Number(subTotalD[idx] || 0)
-  );
-
-  const shortTermUses = Array.from({ length: years }).map(
-    (_, idx) => Number(SubTotalE[idx] || 0) + Number(withdrawals[idx] || 0)
-  );
-
-  const surplusShortfall2 = Array.from({ length: years }).map(
-    (_, idx) => Number(subTotalC[idx] || 0) - Number(shortTermUses[idx] || 0)
-  );
 
   //new data
 
@@ -209,7 +126,6 @@ const ConsultantCMAFinancialPosition = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

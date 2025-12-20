@@ -10,11 +10,8 @@ import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
 import { CMAExtractorBS } from "../Utils/CMA/CMAExtractorBS";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 const CMABalanceSheetMenu = ({
   formData,
@@ -59,8 +56,6 @@ const CMABalanceSheetMenu = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
@@ -125,12 +120,9 @@ const CMABalanceSheetMenu = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
 
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
+
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
@@ -150,8 +142,6 @@ const CMABalanceSheetMenu = ({
     [];
 
   console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -204,11 +194,8 @@ const CMABalanceSheetMenu = ({
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
+
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
@@ -218,14 +205,6 @@ const CMABalanceSheetMenu = ({
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
 
-  const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
-  const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
-    (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
-  );
 
   const balanceTransferred = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPBT[i]) - Number(Withdrawals[i])
@@ -273,25 +252,6 @@ const CMABalanceSheetMenu = ({
     return safeNumber(ClosingStock);
   });
   const isInventoryZero = inventory.every((value) => value === 0);
-
-  const writeOffStartIndex = 0;
-  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
-
-  //   const preliminaryWriteOffPerYear = Array.from({
-  //     length: projectionYears,
-  //   }).map((_, index) => {
-  //     const relativeYear = index - writeOffStartIndex;
-
-  //     if (
-  //       index >= writeOffStartIndex &&
-  //       relativeYear < preliminaryWriteOffSteps
-  //     ) {
-  //       // Calculate decreasing value
-  //       return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
-  //     }
-
-  //     return 0;
-  //   });
 
   const preliminaryExpenseBalanceSheet = [];
   for (let i = 0; i < projectionYears; i++) {

@@ -10,7 +10,6 @@ import {
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register Font
 Font.register({
@@ -64,9 +63,7 @@ const CMAAssumptions = ({
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
 
-  const expenseArray = Array.isArray(receiveTotalExpense)
-    ? receiveTotalExpense
-    : [];
+
   useEffect(() => {
     if (receiveTotalExpense && receiveTotalExpense.length > 0) {
       // console.log("Expense data ready for rendering");

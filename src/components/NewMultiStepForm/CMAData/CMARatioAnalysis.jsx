@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/St
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 Font.register({
   family: "Roboto",
@@ -35,9 +34,6 @@ const formDataToUse = formData
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  // Destructure termLoanValues from the object.
-  // If it's undefined, default to an empty array.
-  const { termLoanValues = [] } = formDataToUse?.computedData?.workingCapitalValues || {};
   const cumulativeLoanForPreviousYears =
     formDataToUse?.computedData?.workingCapitalValues?.termLoanValues || [];
 
@@ -131,10 +127,10 @@ const formDataToUse = formData
     return totalDebt; // Store calculated total debt
   });
 
-  // console.log("received DSCR", receivedDscr);
 
   // ✅ Initialize an array to store total current assets for each projection year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum
+
   const CurrentAssetsArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
       const cashBalance =
@@ -172,9 +168,6 @@ const formDataToUse = formData
     }
   );
 
-  // ✅ Initialize an array to store total liabilities for each projection year
-
-  // console.log("Final Current Liabilities Array:", currentLiabilities);
 
 // ✅ Calculate Gross Profit / Sales Ratio and store in a variable
 const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
@@ -182,16 +175,12 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
     // Access totalRevenueReceipts from the root level, not computedData
     const sales = formDataToUse?.computedData?.totalRevenueReceipts?.[index] || 0; 
     
-    // Check if grossProfitValues exists in your data - adjust this based on actual data structure
     // If it doesn't exist, you may need to calculate it or find where it's stored
     const grossProfit = formDataToUse?.grossProfitValues?.[index] || 
                        formDataToUse?.computedData1?.grossProfitValues?.[index] || 
                        formDataToUse?.computedData?.computedData?.grossProfitValues?.[index] || 0;
     
-    // Alternative: If grossProfit doesn't exist in your data, you might need to calculate it
-    // Gross Profit = Total Revenue - Direct Expenses
-    // const grossProfit = (formDataToUse?.computedData?.totalRevenueReceipts?.[index] || 0) - 
-    //                    (formDataToUse?.totalDirectExpensesArray?.[index] || 0);
+
     
     if (sales === 0) {
       return "-";
@@ -274,7 +263,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
     }
   );
 
-  // ✅ Total Outside Liabilities / Total Net Worth Ratio
+
   // Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
   const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map(
     (liability, index) => {
@@ -314,7 +303,6 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
       : "-"; // ✅ Display "-" if liabilities are 0
   });
 
-  // console.log("Current Ratio per Year:", currentRatio);
 
   // ✅ Return on Investment (ROI)
   const returnOnInvestment = Array.from({ length: projectionYears }).map(
@@ -425,7 +413,6 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
     return average;
   })();
 
-  const numOfYearsUsedForAvg = validRatios.length;
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -461,27 +448,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
      projectionYears
    );
 
-  // ✅ Properly update the state using useEffect
-//   useEffect(() => {
-//     if (
-//       formDataToUse?.totalLiabilities?.closingCashBalanceArray?.length > 0 ||
-//       formDataToUse?.totalLiabilities?.currentLiabilities?.length > 0
-//     ) {
-//       onAssetsLiabilitiesSend((prev) => ({
-//         ...prev,
-//         CurrentAssetsArray,
-//         yearlycurrentLiabilities,
-//         averageCurrentRatio,
-//         numOfYearsUsedForAvg,
-//       }));
-//     }
-//   }, [
-//     JSON.stringify(CurrentAssetsArray || []),
-//     JSON.stringify(yearlycurrentLiabilities || []),
-//     JSON.stringify(averageCurrentRatio),
-//     numOfYearsUsedForAvg,
-//   ]);
-
+ 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {

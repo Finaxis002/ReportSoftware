@@ -16,7 +16,6 @@ Font.register({
 
 const CheckBS = ({
   formData = {},
-  calculations = {},
   totalDepreciationPerYear = [],
   grossFixedAssetsPerYear = [],
   yearlyPrincipalRepayment = [],
@@ -32,7 +31,7 @@ const CheckBS = ({
 }) => {
   // console.log("receivedData:", receivedWorkingCapitalValues);
 
-  const [grossFixedAssets, setGrossFixedAssets] = useState(0);
+  const [ setGrossFixedAssets] = useState(0);
 
   // Update the state when the prop value changes
   useEffect(() => {
@@ -123,16 +122,7 @@ const CheckBS = ({
         workingCapitalLoan +
         cumulativeAdditionalLiabilities;
 
-      // console.log(`Year ${index + 1}:`);
-      // console.log(`  - Capital: ${capital}`);
-      // console.log(`  - Reserves & Surplus: ${reservesAndSurplus}`);
-      // console.log(`  - Term Loan: ${termLoan}`);
-      // console.log(`  - Bank Loan Payable Next 12 Months: ${bankLoanPayableWithinNext12Months}`);
-      // console.log(`  - Working Capital Loan: ${workingCapitalLoan}`);
-      // console.log(`  - Current Year Liabilities: ${currentYearLiabilities}`);
-      // console.log(`  - Cumulative Liabilities: ${cumulativeAdditionalLiabilities}`);
-      // console.log(`  - Total Liabilities: ${totalForYear}`);
-
+  
       return totalForYear;
     }
   );
