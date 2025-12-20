@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import {  View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -25,7 +25,6 @@ const ConsultantAssumptions = ({
   formData = {},
   financialYearLabels = [],
   formatNumber,
-  totalRevenueReceipts,
   receiveTotalExpense,
   pdfType,
   receivedtotalRevenueReceipts,
@@ -89,6 +88,8 @@ if (isAdvancedLandscape) {
 }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+  
+  
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
       // labels is the page's array of financial year labels (subset of financialYearLabels)
@@ -98,12 +99,6 @@ if (isAdvancedLandscape) {
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
-      // For centering (kept for parity with other pages; not used here)
-      const visibleLocalCols = labels
-        .map((_, i) => i)
-        .filter((i) => !shouldSkipCol(globalIndex(i)));
-      const centerLocalIdx =
-        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
         <PageWithFooter
@@ -677,30 +672,9 @@ if (isAdvancedLandscape) {
         {/* ✅ Show Cost of Project Items */}
         {formData?.CostOfProject &&
         Object.keys(formData.CostOfProject).length > 0 ? (
-          // Object.entries(formData.CostOfProject).map(([key, field], index) => (
-          //   <View key={key} style={styles.tableRow}>
-          //     <Text
-          //       style={[
-          //         stylesCOP.detailsCellDetail,
-          //         styleExpenses.particularWidth,
-          //         styleExpenses.bordernone,
-          //       ]}
-          //     >
-          //       {field?.name || "N/A"}
-          //     </Text>
-          //     <Text
-          //       style={[
-          //         stylesCOP.particularsCellsDetail,
-          //         styleExpenses.fontSmall,
-          //         { textAlign: "right" },
-          //       ]}
-          //     >
-          //       {formatNumber(field?.rate || 0)}%
-          //     </Text>
-          //   </View>
-          // ))
+        
           Object.entries(formData.CostOfProject)
-            .filter(([_, field]) => field?.name?.trim()) // ⛔ filters out empty or whitespace-only names
+            .filter(([_, field]) => field?.name?.trim()) 
             .map(([key, field]) => (
               <View key={key} style={styles.tableRow}>
                 <Text

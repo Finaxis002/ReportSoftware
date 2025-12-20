@@ -436,10 +436,6 @@ const MenuBar = ({ userRole }) => {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.clear();
-    nav("/login");
-  };
 
   // Filter menu items based on the user's role and permissions
   const visibleMenuItems = menuItems.filter((item) => {

@@ -67,44 +67,58 @@ useEffect(() => {
     }
   };
 
-  // Fetch activities only when both dates are selected
-  useEffect(() => {
-    const fetchActivityLog = async () => {
-      if (!startDate || !endDate) {
-        setActivities([]);
-        return;
-      }
+// Replace the entire fetchActivityLog useEffect with this:
+useEffect(() => {
+  const fetchActivityLog = async () => {
+    if (!startDate || !endDate) {
+      setActivities([]);
+      return;
+    }
 
-      setIsLoading(true);
-      try {
-        const params = {};
-        if (startDate) params.startDate = startDate;
-        if (endDate) params.endDate = endDate;
+    setIsLoading(true);
+    try {
+      // Create Date objects for the selected dates
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      // Set start date to beginning of the day (00:00:00)
+      start.setHours(0, 0, 0, 0);
+      
+      // Set end date to end of the day (23:59:59.999)
+      end.setHours(23, 59, 59, 999);
 
-        const res = await axios.get(
-          `${BASE_URL}/api/activity/history`,
-          { params }
-        );
-          console.log("📊 Activities received from API:", res.data.map(a => ({
+      const params = {
+        startDate: start.toISOString(), // Convert to ISO string with time
+        endDate: end.toISOString()     // Convert to ISO string with time
+      };
+
+      console.log("📅 Dates to API:", params);
+
+      const res = await axios.get(
+        `${BASE_URL}/api/activity/history`,
+        { params }
+      );
+      
+      console.log("📊 Activities received from API:", res.data.map(a => ({
         action: a.action,
         title: a.reportTitle,
         owner: a.reportOwner,
         timestamp: a.timestamp,
         isConsultantAction: a.action.startsWith("consultant_")
       })));
-        setActivities(res.data);
-      } catch (error) {
-        console.error("Failed to fetch history:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userRole === "admin") {
-      fetchActivityLog();
+      
+      setActivities(res.data);
+    } catch (error) {
+      console.error("Failed to fetch history:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [userRole, startDate, endDate]);
+  };
 
+  if (userRole === "admin") {
+    fetchActivityLog();
+  }
+}, [userRole, startDate, endDate]);
   
 // ✅ ADD THIS NEW useEffect BLOCK:
 useEffect(() => {

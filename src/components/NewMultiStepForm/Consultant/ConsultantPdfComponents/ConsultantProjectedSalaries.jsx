@@ -1,13 +1,12 @@
 import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { View, Text, Image} from "@react-pdf/renderer";
+import { styles, stylesCOP} from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
 
 const ConsultantProjectedSalaries = ({
   formData,
-  localData,
   normalExpense,
   totalQuantity,
   totalAnnualWages,

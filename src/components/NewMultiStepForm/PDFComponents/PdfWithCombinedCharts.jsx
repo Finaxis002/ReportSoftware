@@ -1,8 +1,6 @@
-import React from "react";
 import PdfWithCurrentRatioChart from "./PdfWithCurrentRatioChart";
 import PdfWithLineChart from "./PdfWithLineChart";
 import { Page, StyleSheet, View } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
 
 const PdfWithCombinedCharts = ({

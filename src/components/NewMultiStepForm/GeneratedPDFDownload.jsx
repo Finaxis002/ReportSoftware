@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Document, Page } from "@react-pdf/renderer";
 import BasicDetails from "./PDFComponents/BasicDetails";
 import ProjectSynopsis from "./PDFComponents/ProjectSynopsis";
@@ -23,7 +23,7 @@ const GeneratedPDFDownload = ({ pdfData }) => {
   const formData = pdfData || {};
 
   const { Expenses = {} } = formData;
-  const { normalExpense = [], directExpense = [] } = Expenses;
+  const { normalExpense = []} = Expenses;
 
   const totalAnnualWages = normalExpense.reduce(
     (sum, expense) =>
@@ -33,13 +33,6 @@ const GeneratedPDFDownload = ({ pdfData }) => {
 
   const fringeCalculation = totalAnnualWages * 0.05;
   const fringAndAnnualCalculation = totalAnnualWages + fringeCalculation;
-
-  const firstYearGrossFixedAssets = Object.values(
-    formData?.CostOfProject || {}
-  ).reduce((sum, asset) => {
-    let netAsset = asset.amount || 0;
-    return sum + netAsset;
-  }, 0);
 
   const financialYear =
     parseInt(formData?.ProjectReportSetting?.FinancialYear) || 2025;

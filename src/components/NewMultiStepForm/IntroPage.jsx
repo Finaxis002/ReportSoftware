@@ -4,6 +4,7 @@ import ProjectReportWordExport from "./AIIntro/ProjectReportWordExport";
 import axios from "axios";
 import MenuBar from "./MenuBar";
 import { useLocation } from "react-router-dom";
+import { BASE_URL } from "./Utils/baseurl";
 
 const SECTIONS = [
   { key: "introduction", label: "Introduction" },
@@ -62,7 +63,7 @@ const IntroPage = ({ userRole }) => {
     for (const sec of SECTIONS) {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/openai/generate-section",
+          `${BASE_URL}/api/openai/generate-section`,
           {
             section: sec.key,
             businessName: businessData?.AccountInformation?.businessName || "",

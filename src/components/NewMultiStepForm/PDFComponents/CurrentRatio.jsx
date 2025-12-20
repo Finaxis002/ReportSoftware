@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -32,9 +31,7 @@ const CurrentRatio = ({
   sendCurrentRatio,
   orientation,
 }) => {
-  //   console.log("received values", receivedAssetsLiabilities);
-  // ✅ Safely handle undefined formData and provide fallback
-  const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
+
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
 

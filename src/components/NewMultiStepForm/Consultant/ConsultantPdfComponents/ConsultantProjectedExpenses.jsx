@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { View, Text, Image } from "@react-pdf/renderer";
+import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
@@ -46,16 +46,6 @@ const ConsultantProjectedExpenses = ({
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 5;
 
-  // advance expense
-  const advanceExpenses = Array.isArray(Expenses?.advanceExpenses)
-    ? Expenses.advanceExpenses.filter((row) => row && row.name && row.type)
-    : [];
-
-  // Get the value for a given advance expense row for a given year index
-  const getAdvanceExpenseValueForYear = (row, yearLabel) => {
-    const val = row?.values?.[yearLabel];
-    return num(val);
-  };
 
   // Month Mapping
   const monthMap = {
@@ -85,12 +75,6 @@ const ConsultantProjectedExpenses = ({
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
 
-  // console.log("receivedtotalRevenueReceipts", receivedtotalRevenueReceipts)
-
-  // console.log(
-  //   "should hide first year",
-  //   shouldHideFirstYear(receivedtotalRevenueReceipts)
-  // );
 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
@@ -137,53 +121,9 @@ const ConsultantProjectedExpenses = ({
     return (incrementedExpense / 12) * monthsInYear;
   };
 
-  const calculateDirectExpense = (annualExpense, yearIndex) => {
-    // Example: apply a percentage increase for the direct expense over the years
-    const rateOfExpense = 0.05; // Example: 5% increase per year
-    const monthsInYear = monthsPerYear[yearIndex]; // Get the number of months in the year
 
-    let incrementedExpense;
-    const fullYearExpense =
-      annualExpense * Math.pow(1 + rateOfExpense, yearIndex);
 
-    if (monthsInYear === 0) {
-      incrementedExpense = 0;
-    } else {
-      incrementedExpense = fullYearExpense;
-    }
 
-    return incrementedExpense;
-  };
-
-  // const calculateRawMaterialExpense = (
-  //   expense,
-  //   receivedtotalRevenueReceipts,
-  //   yearIndex
-  // ) => {
-  //   const isRawMaterial =
-  //     expense.name.trim() === "Raw Material Expenses / Purchases";
-  //   const isPercentage = String(expense.value).trim().endsWith("%");
-
-  //   const ClosingStock =  num(
-  //     formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
-  //   );
-  //   const OpeningStock =  num(
-  //     formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
-  //   );
-
-  //   let expenseValue = 0;
-
-  //   if (isRawMaterial && isPercentage) {
-  //     const baseValue =
-  //       (parseFloat(expense.value) / 100) *
-  //       (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-  //     expenseValue = baseValue + ClosingStock - OpeningStock; // Ensure it's a sum of numbers
-  //   } else {
-  //     expenseValue = num(expense.total); // Ensure we use num() to prevent string concatenation
-  //   }
-
-  //   return expenseValue;
-  // };
 
   const calculateRawMaterialExpense = (
     expense,
@@ -392,21 +332,6 @@ const ConsultantProjectedExpenses = ({
       ? preliminaryExpensesTotal / preliminaryWriteOffYears
       : 0;
 
-  // Generate the array for yearly values
-  // const preliminaryWriteOffPerYear = Array.from({
-  //   length: projectionYears,
-  // }).map((_, index) => {
-  //   const startIndex = hideFirstYear ? 1 : 0;
-  //   const endIndex = startIndex + preliminaryWriteOffYears;
-
-  //   // 👇 Only insert value if it's within the write-off window
-  //   if (index >= startIndex && index < endIndex) {
-  //     return yearlyWriteOffAmount;
-  //   }
-
-  //   // 👇 Insert 0 for all other years (including hidden first year)
-  //   return 0;
-  // });
 
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
@@ -539,21 +464,6 @@ const ConsultantProjectedExpenses = ({
     .slice(writeOffStartIndex, writeOffEndIndex)
     .every((value) => value === 0);
 
-  const indirectCount = directExpense.filter((expense) => {
-    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
-      return false;
-    }
-
-    const isAllYearsZero = Array.from({
-      length: hideFirstYear ? projectionYears - 1 : projectionYears,
-    }).every((_, yearIndex) => {
-      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-      const expenseValue = Number(expense.total) || 0;
-      return expenseValue === 0;
-    });
-
-    return expense.type === "indirect" && !isAllYearsZero;
-  }).length;
 
   const renderedIndirectExpenses = directExpense.filter((expense) => {
     if (expense.name.trim() === "Raw Material Expenses / Purchases")

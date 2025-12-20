@@ -85,13 +85,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     generatedPDF: {},
   });
 
-  // useEffect(() => {
-  //   if (isCreateReportWithExistingClicked && reportData) {
-  //     // Pre-fill the form data when creating new from existing report
-  //     const preFilledData = { ...reportData }; // Clone the report data
-  //     setFormData(preFilledData);
-  //   }
-  // }, [isCreateReportWithExistingClicked, reportData]);
 
   // Store data in localStorage whenever formData changes
   useEffect(() => {
@@ -768,4 +761,3 @@ const MultiStepForm = ({ userRole, userName }) => {
 
 export default MultiStepForm;
 
-////////////////////////////////////////////////////////////////

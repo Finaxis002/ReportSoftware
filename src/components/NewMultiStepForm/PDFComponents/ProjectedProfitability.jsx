@@ -5,7 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PageWithFooter from "../Helpers/PageWithFooter";
+
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -33,7 +33,6 @@ const num = (v) => {
 
 const ProjectedProfitability = ({
   formData,
-  localData,
   normalExpense,
   directExpense,
   totalDepreciationPerYear,
@@ -52,7 +51,7 @@ const ProjectedProfitability = ({
   orientation,
   renderIOTLLabel,
   renderIOWCLabel,
-   renderWithdrawalLabel
+  renderWithdrawalLabel
 }) => {
   // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
@@ -114,18 +113,6 @@ const ProjectedProfitability = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -205,8 +192,6 @@ const ProjectedProfitability = ({
     return calculatedInterest === 0;
   });
 
-  const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod;
-
   // Function to calculate the expense for each year considering the increment rate
   const calculateExpense = (annualExpense, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
@@ -254,6 +239,7 @@ const ProjectedProfitability = ({
 
     return expenseValue;
   };
+  
   const totalDirectExpensesArray = Array.from({
     length: projectionYears,
   }).map((_, yearIndex) => {
@@ -309,7 +295,7 @@ const ProjectedProfitability = ({
         }, 0);
     }
 
-    
+
 
     // FINAL direct expenses for this year
     return directTotal + salaryTotal + advanceDirectTotal;
@@ -329,68 +315,53 @@ const ProjectedProfitability = ({
       ? preliminaryExpensesTotal / preliminaryWriteOffYears
       : 0;
 
-    
-  // Generate the array for yearly values
-  // const preliminaryWriteOffPerYear = Array.from({
-  //   length: projectionYears,
-  // }).map((_, index) => {
-  //   const startIndex = hideFirstYear ? 1 : 0;
-  //   const endIndex = startIndex + preliminaryWriteOffYears;
 
-  //   // 👇 Only insert value if it's within the write-off window
-  //   if (index >= startIndex && index < endIndex) {
-  //     return yearlyWriteOffAmount;
-  //   }
 
-  //   // 👇 Insert 0 for all other years (including hidden first year)
-  //   return 0;
-  // });
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, yearIndex) => {
+    // Use the same monthsPerYear array that other expenses use
+    const monthsInYear = monthsPerYear[yearIndex] || 0;
 
- const preliminaryWriteOffPerYear = Array.from({
-  length: projectionYears,
-}).map((_, yearIndex) => {
-  // Use the same monthsPerYear array that other expenses use
-  const monthsInYear = monthsPerYear[yearIndex] || 0;
-  
-  console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
-  
-  // If no months in this year (full moratorium), return 0
-  if (monthsInYear === 0) {
-    return 0;
-  }
-  
-  // Find the first year that has actual months (moratorium ends)
-  const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
-  if (firstYearWithMonths === -1) {
-    return 0; // All years in moratorium
-  }
-  
-  // Calculate the actual start year for write-off (considering hideFirstYear)
-  const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
-  const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
-  
-  console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
-  
-  // Check if this year is within the write-off period
-  if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
-    // If it's a partial year, prorate the write-off
-    if (monthsInYear < 12) {
-      const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
-      console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
-      return proratedAmount;
+    console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
+
+    // If no months in this year (full moratorium), return 0
+    if (monthsInYear === 0) {
+      return 0;
     }
-    console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
-    return yearlyWriteOffAmount;
-  }
-  
-  console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
-  return 0;
-});
 
-// Debug the final result
-console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
+    // Find the first year that has actual months (moratorium ends)
+    const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
+    if (firstYearWithMonths === -1) {
+      return 0; // All years in moratorium
+    }
 
-  
+    // Calculate the actual start year for write-off (considering hideFirstYear)
+    const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
+    const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
+
+    console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
+
+    // Check if this year is within the write-off period
+    if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
+      // If it's a partial year, prorate the write-off
+      if (monthsInYear < 12) {
+        const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
+        console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
+        return proratedAmount;
+      }
+      console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
+      return yearlyWriteOffAmount;
+    }
+
+    console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
+    return 0;
+  });
+
+  // Debug the final result
+  console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
+
+
   // ✅ Extract required values from formData
 
   const totalIndirectExpensesArray = Array.from({
@@ -506,61 +477,40 @@ console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
     return (npbt * formData.ProjectReportSetting.incomeTax) / 100;
   });
 
-  // ✅ Precompute Net Profit After Tax (NPAT) for Each Year Before Rendering
-  // const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
-  //   return npat - incomeTaxCalculation[yearIndex]; // ✅ Correct subtraction
-  // });
-
-  // // Precompute Balance Transferred to Balance Sheet
-  // const balanceTransferred = netProfitAfterTax.map(
-  //   (npbt, yearIndex) =>
-  //     npbt - (formData.MoreDetails.Withdrawals?.[yearIndex] || 0)
-  // );
 
   const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
-  const tax = incomeTaxCalculation[yearIndex] || 0;
-  const result = npat - tax;
-  return result;
-});
-
-// Precompute Balance Transferred to Balance Sheet
-const balanceTransferred = netProfitAfterTax.map(
-  (npbt, yearIndex) => {
-    const withdrawal = formData.MoreDetails.Withdrawals?.[yearIndex] || 0;
-    const result = npbt - withdrawal;
-    
-    console.log(`BalanceTrf Year ${yearIndex}: NPAT=${npbt}, Withdrawal=${withdrawal}, Result=${result}`);
-    
+    const tax = incomeTaxCalculation[yearIndex] || 0;
+    const result = npat - tax;
     return result;
-  }
-);
+  });
 
-  console.log("=== DEBUG CUMULATIVE BALANCE CALCULATION ===");
-console.log("netProfitAfterTax:", netProfitAfterTax);
-console.log("Withdrawals:", formData.MoreDetails.Withdrawals);
-console.log("balanceTransferred:", balanceTransferred);
-console.log("hideFirstYear:", hideFirstYear);
-console.log("projectionYears:", projectionYears);
-// Check if any values are NaN or invalid
-const hasInvalidValues = balanceTransferred.some(val => 
-  isNaN(val) || val === null || val === undefined
-);
-console.log("Has invalid values in balanceTransferred:", hasInvalidValues);
+  // Precompute Balance Transferred to Balance Sheet
+  const balanceTransferred = netProfitAfterTax.map(
+    (npbt, yearIndex) => {
+      const withdrawal = formData.MoreDetails.Withdrawals?.[yearIndex] || 0;
+      const result = npbt - withdrawal;
 
-// Log each step of the cumulative calculation
-const debugCumulative = [];
-balanceTransferred.forEach((amount, index) => {
-  if (index === 0) {
-    const year0Amount = Math.max(amount, 0);
-    debugCumulative.push(year0Amount);
-    console.log(`Year ${index}: amount=${amount}, cumulative=${year0Amount}`);
-  } else {
-    const prevCumulative = debugCumulative[index - 1];
-    const newCumulative = Math.max(amount + prevCumulative, 0);
-    debugCumulative.push(newCumulative);
-    console.log(`Year ${index}: amount=${amount}, prevCumulative=${prevCumulative}, cumulative=${newCumulative}`);
-  }
-});
+      console.log(`BalanceTrf Year ${yearIndex}: NPAT=${npbt}, Withdrawal=${withdrawal}, Result=${result}`);
+
+      return result;
+    }
+  );
+
+
+  // Log each step of the cumulative calculation
+  const debugCumulative = [];
+  balanceTransferred.forEach((amount, index) => {
+    if (index === 0) {
+      const year0Amount = Math.max(amount, 0);
+      debugCumulative.push(year0Amount);
+      console.log(`Year ${index}: amount=${amount}, cumulative=${year0Amount}`);
+    } else {
+      const prevCumulative = debugCumulative[index - 1];
+      const newCumulative = Math.max(amount + prevCumulative, 0);
+      debugCumulative.push(newCumulative);
+      console.log(`Year ${index}: amount=${amount}, prevCumulative=${prevCumulative}, cumulative=${newCumulative}`);
+    }
+  });
 
   // Precompute Cumulative Balance Transferred to Balance Sheet
   const cumulativeBalanceTransferred = [];
@@ -576,7 +526,7 @@ balanceTransferred.forEach((amount, index) => {
   });
 
   console.log("Final cumulativeBalanceTransferred:", cumulativeBalanceTransferred);
-console.log("=== END DEBUG ===");
+  console.log("=== END DEBUG ===");
   // ✅ Compute Cash Profit for Each Year
   const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
     const depreciation = totalDepreciationPerYear[yearIndex] || 0;
@@ -664,31 +614,6 @@ console.log("=== END DEBUG ===");
     }
   }, []);
 
-  // ✅ Determine if first-year should be hidden
-
-  // const orientation = hideFirstYear
-  //   ? formData.ProjectReportSetting.ProjectionYears > 6
-  //     ? "landscape"
-  //     : "portrait"
-  //   : formData.ProjectReportSetting.ProjectionYears > 5
-  //   ? "landscape"
-  //   : "portrait";
-
-  const indirectCount = directExpense.filter((expense) => {
-    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
-      return false;
-    }
-
-    const isAllYearsZero = Array.from({
-      length: hideFirstYear ? projectionYears - 1 : projectionYears,
-    }).every((_, yearIndex) => {
-      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-      const expenseValue = Number(expense.total) || 0;
-      return expenseValue === 0;
-    });
-
-    return expense.type === "indirect" && !isAllYearsZero;
-  }).length;
 
   const isPreliminaryWriteOffAllZero = Array.from({
     length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -720,17 +645,16 @@ console.log("=== END DEBUG ===");
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
-const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || (n+1);
+    // Remove first year if hidden
+    const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
 
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
@@ -793,10 +717,10 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                 Financial Year{" "}
                 {formData?.ProjectReportSetting?.FinancialYear
                   ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                    )
-                      .toString()
-                      .slice(-2)}`
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
                   : "2025-26"}
               </Text>
             </View>
@@ -815,14 +739,14 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                   formData?.ProjectReportSetting?.AmountIn === "rupees"
                     ? "Rs." // Show "Rupees" if "rupees" is selected
                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                    ? "Thousands" // Show "Thousands" if "thousand" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "crores"
-                    ? "Crores" // Show "Crores" if "crores" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "millions"
-                    ? "Millions" // Show "Millions" if "millions" is selected
-                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                      ? "Thousands" // Show "Thousands" if "thousand" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                        ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                        : formData?.ProjectReportSetting?.AmountIn === "crores"
+                          ? "Crores" // Show "Crores" if "crores" is selected
+                          : formData?.ProjectReportSetting?.AmountIn === "millions"
+                            ? "Millions" // Show "Millions" if "millions" is selected
+                            : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
                 }
                 )
               </Text>
@@ -1279,10 +1203,10 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                             isRawMaterial && isPercentage
                               ? formatNumber(expenseValue.toFixed(2))
                               : formatNumber(
-                                  calculateExpense(expenseValue, gIdx).toFixed(
-                                    2
-                                  )
-                                );
+                                calculateExpense(expenseValue, gIdx).toFixed(
+                                  2
+                                )
+                              );
 
                           return (
                             <Text
@@ -1694,8 +1618,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                         isInterestOnTermLoanZero && isDepreciationZero
                           ? index + 2
                           : isWorkingCapitalInterestZero
-                          ? index + 3
-                          : index + 4;
+                            ? index + 3
+                            : index + 4;
                       return (
                         <View
                           key={index}
@@ -1745,11 +1669,11 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                               isRawMaterialInner && isPercentage
                                 ? formatNumber(expenseValue.toFixed(2))
                                 : formatNumber(
-                                    calculateExpense(
-                                      expenseValue,
-                                      gIdx
-                                    ).toFixed(2)
-                                  );
+                                  calculateExpense(
+                                    expenseValue,
+                                    gIdx
+                                  ).toFixed(2)
+                                );
 
                             return (
                               <Text
@@ -2064,7 +1988,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                       ]}
                     >
                       {/* Withdrawals during the year */}
-                      { renderWithdrawalLabel()} during the year
+                      {renderWithdrawalLabel()} during the year
                     </Text>
 
                     {labels.map((_, localIdx) => {
@@ -2378,10 +2302,10 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
             Financial Year{" "}
             {formData?.ProjectReportSetting?.FinancialYear
               ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                )
-                  .toString()
-                  .slice(-2)}`
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
               : "2025-26"}
           </Text>
         </View>
@@ -2400,14 +2324,14 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
               formData?.ProjectReportSetting?.AmountIn === "rupees"
                 ? "Rs." // Show "Rupees" if "rupees" is selected
                 : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                      ? "Crores" // Show "Crores" if "crores" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "millions"
+                        ? "Millions" // Show "Millions" if "millions" is selected
+                        : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
             }
             )
           </Text>
@@ -2868,11 +2792,11 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                         isRawMaterial && isPercentage
                           ? formatNumber(expenseValue.toFixed(2))
                           : formatNumber(
-                              calculateExpense(
-                                expenseValue,
-                                adjustedYearIndex
-                              ).toFixed(2)
-                            );
+                            calculateExpense(
+                              expenseValue,
+                              adjustedYearIndex
+                            ).toFixed(2)
+                          );
 
                       return (
                         <Text
@@ -3276,8 +3200,8 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                     isInterestOnTermLoanZero && isDepreciationZero
                       ? index + 2
                       : isWorkingCapitalInterestZero
-                      ? index + 3
-                      : index + 4;
+                        ? index + 3
+                        : index + 4;
                   return (
                     <View
                       key={index}
@@ -3334,11 +3258,11 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                           isRawMaterial && isPercentage
                             ? formatNumber(expenseValue.toFixed(2))
                             : formatNumber(
-                                calculateExpense(
-                                  expenseValue,
-                                  adjustedYearIndex
-                                ).toFixed(2)
-                              );
+                              calculateExpense(
+                                expenseValue,
+                                adjustedYearIndex
+                              ).toFixed(2)
+                            );
 
                         return (
                           <Text
@@ -3393,7 +3317,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                         const value =
                           (row.values &&
                             row.values[
-                              financialYearLabels[adjustedYearIndex]
+                            financialYearLabels[adjustedYearIndex]
                             ]) ||
                           (row.values && row.values[adjustedYearIndex]) ||
                           0;
@@ -3647,7 +3571,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
                   ]}
                 >
                   {/* Withdrawals during the year */}
-                  { renderWithdrawalLabel()} during the year
+                  {renderWithdrawalLabel()} during the year
                 </Text>
 
                 {Array.from({

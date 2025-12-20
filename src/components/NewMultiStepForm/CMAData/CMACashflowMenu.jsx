@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
@@ -11,11 +11,9 @@ import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
 import { CMAExtractorBS } from "../Utils/CMA/CMAExtractorBS";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -29,21 +27,8 @@ Font.register({
   ],
 });
 
-const num = (v) => {
-  // Handle percentages by dividing by 100
-  if (typeof v === "string") {
-    if (v.trim().endsWith("%")) {
-      return parseFloat(v.replace("%", "").replace(/,/g, "").trim()) / 100 || 0;
-    }
-    // Handle commas (thousands) and convert to number
-    return parseFloat(v.replace(/,/g, "").trim()) || 0;
-  }
-  return Number(v) || 0;
-};
-
 const CMACashflowMenu = ({
   formData,
-  directExpense,
   formatNumber,
   receivedtotalRevenueReceipts,
   pdfType,
@@ -85,30 +70,9 @@ const CMACashflowMenu = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -150,12 +114,11 @@ const CMACashflowMenu = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
+
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
 
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
+
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
@@ -176,9 +139,6 @@ const CMACashflowMenu = ({
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
 
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -232,10 +192,8 @@ const CMACashflowMenu = ({
   );
 
   const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
+
   const Withdrawals = (PPExtractor.Withdrawals() || []).slice(0, projectionYears);
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
@@ -245,14 +203,6 @@ const CMACashflowMenu = ({
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
 
-  const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
-  const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
-    (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
-  );
 
   const balanceTransferred = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPBT[i]) - Number(Withdrawals[i])
@@ -272,56 +222,14 @@ const CMACashflowMenu = ({
 
   //new data
   const BSextractors = CMAExtractorBS(formData);
-  const reverseAndSurplus = BSextractors.reservesAndSurplusArr() || [];
-  const bankTermLoanArr = BSextractors.bankTermLoanArr() || [];
-  const bankLoan12month =
-    formData?.computedData?.totalLiabilities?.repaymentValueswithin12months ||
-    [];
 
-  const bankLoanPayablewithin12months = Array.from({
-    length: projectionYears,
-  }).map((_, i) => Number(bankLoan12month[i] || 0));
 
-  const workingCapitalLoanArr = BSextractors.workingCapitalLoanArr() || [];
   const currentLiabilities = formData?.MoreDetails?.currentLiabilities || [];
 
-  const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
-
-      const reservesAndSurplus = Number(reverseAndSurplus[index] || 0);
-      const bankTermLoan = Number(bankTermLoanArr?.[index] || 0);
-      const repaymentWithin12 = Number(
-        bankLoanPayablewithin12months[index] || 0
-      ); // Shift by 1
-      const workingCapital = Number(workingCapitalLoanArr[index] || 0);
-
-      let cumulativeAdditionalLiabilities = 0;
-      const currentYearLiabilities = (
-        formData?.MoreDetails?.currentLiabilities ?? []
-      ).reduce(
-        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
-        0
-      );
-
-      cumulativeAdditionalLiabilities += currentYearLiabilities;
-
-      const totalForYear =
-        capital +
-        reservesAndSurplus +
-        bankTermLoan +
-        repaymentWithin12 +
-        workingCapital +
-        cumulativeAdditionalLiabilities;
-
-      return totalForYear;
-    }
-  );
 
   const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
   const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const netBlock = BSextractors.netBlock() || [];
-  const closingCashBalanceArray = BSextractors.closingCashBalanceArray() || [];
+
   const safeNumber = (val) =>
     val === undefined || val === null || val === "" ? 0 : Number(val) || 0;
   const inventory = Array.from({
@@ -346,31 +254,6 @@ const CMACashflowMenu = ({
       );
     }
   }
-
-  const totalAssetsArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netFixed = Number(netBlock[index] || 0);
-
-      const cashEquivalent = Number(closingCashBalanceArray[index] || 0);
-
-      const preliminaryExp = Number(preliminaryExpenseBalanceSheet[index] || 0);
-
-      let cumulativeAdditionalAssets = 0;
-      const currentYearAssets = (
-        formData?.MoreDetails?.currentAssets ?? []
-      ).reduce(
-        (total, assets) => total + Number(assets.years?.[index] || 0),
-        0
-      );
-
-      cumulativeAdditionalAssets += currentYearAssets;
-
-      const totalForYear =
-        netFixed + cashEquivalent + preliminaryExp + cumulativeAdditionalAssets;
-
-      return totalForYear;
-    }
-  );
 
   //new data
 

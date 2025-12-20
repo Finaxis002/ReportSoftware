@@ -1,18 +1,14 @@
-import React from "react";
+
 import {
-  Document,
   Page,
   View,
   Text,
-  StyleSheet,
   Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorBS } from "../Utils/CMA/CMAExtractorBS";
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../Utils/CMA/financialCalcs";
 
 import {
@@ -22,15 +18,11 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
-import PageWithFooter from "../Helpers/PageWithFooter"
-
 // Font registration (optional)
 Font.register({
   family: "Roboto",
   src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf",
 });
-
-const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
 const CMAAnalysisOfBS = ({ formData, orientation }) => {
@@ -129,12 +121,8 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
   const consumableSpares = BSextractors.consumableSpares() || [];
   const advancesToSuppliers = BSextractors.advancesToSuppliers() || [];
   const paymentOfTaxes = BSextractors.paymentOfTaxes() || [];
-  const otherCurrentAssetsTotal = BSextractors.otherCurrentAssetsTotal() || [];
   const totalCurrentAssets = BSextractors.totalCurrentAssets() || [];
   const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
-  const isFixedAssetsZero = grossFixedAssetsPerYear.every(
-    (value) => value === 0
-  );
   const totalDepreciation = BSextractors.totalDepreciation() || [];
   const netBlock = BSextractors.netBlock() || [];
   const invBookDebt = BSextractors.invBookDebt() || [];
@@ -150,9 +138,6 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
   const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities
 
 
-  // const currentRatio = Array.from({ length: years }).map(
-  //   (_, i) => Number(totalCurrentAssets[i] || 0) / Number(totalAandB[i] || 0)
-  // );
  
   const currentRatio = Array.from({ length: years }).map((_, i) => {
   const cash = currentAssets?.[i];
@@ -182,7 +167,6 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 

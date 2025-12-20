@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
@@ -8,12 +8,7 @@ import {
 } from "../PDFComponents/Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
-import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 
 const CMAContents = ({

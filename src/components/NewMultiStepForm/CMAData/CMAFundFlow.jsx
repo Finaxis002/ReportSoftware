@@ -1,20 +1,14 @@
-import React from "react";
 import {
-  Document,
   Page,
   View,
   Text,
-  StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorBS } from "../Utils/CMA/CMAExtractorBS";
 
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../Utils/CMA/financialCalcs";
 
 import {
@@ -24,7 +18,6 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
   const pageStyles = {
     page: {
@@ -63,25 +56,10 @@ const CMAFundFlow = ({ formData, orientation }) => {
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
   const grossSales = extractors.grossSales();
-  const rawmaterial = extractors.rawMaterial();
-  const directExpensesArray = extractors.directExpenses?.() || [];
-  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
 
     const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
   // You can import these:
-
-
-  console.log("form Data : ", formData);
-
-  console.log("net Profit After Tax :", netProfitAfterTax);
-
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
-  );
-
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
@@ -162,7 +140,6 @@ const CMAFundFlow = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import PageWithFooter from "../../Helpers/PageWithFooter";
@@ -29,11 +29,7 @@ const ConsultantIncomeTaxCalculation = ({
     return null;
   }
 
-  // Get starting year (assuming 2025, adjust based on your data)
-  const startYear =
-    Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
-  const projectionYears =
-    Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
+
   // Default to 5 years if not provided
   const rateOfInterest = Number(formData?.ProjectReportSetting?.incomeTax) || 0;
 
@@ -596,32 +592,7 @@ const ConsultantIncomeTaxCalculation = ({
           </Text>
         </View>
 
-        {/* <View
-          style={{
-            display: "flex",
-            alignContent: "flex-end",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <Text style={[styles.AmountIn, styles.italicText]}>
-            (Amount In{" "}
-            {
-              formData?.ProjectReportSetting?.AmountIn === "rupees"
-                ? "Rs." // Show "Rupees" if "rupees" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-            }
-            )
-          </Text>
-        </View> */}
+        
         <View>
           <View style={stylesCOP.heading}>
             <Text>Income Tax Calculation</Text>
@@ -905,29 +876,7 @@ const ConsultantIncomeTaxCalculation = ({
               >
                 Tax {formData.ProjectReportSetting.incomeTax}%
               </Text>
-              {/* {incomeTax.length > 0 ? (
-              incomeTax.map(
-                (tax, index) =>
-
-                  (!hideFirstYear || index !== 0) && (
-                    <Text
-                      key={index}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        {
-                          fontSize: "9px",
-
-                          paddingVertical: "8px",
-                        },
-                      ]}
-                    >
-                      {tax ? formatNumber(tax) : "0"}
-                    </Text>
-                  )
-              )
-            ) : (
-              <Text style={stylesCOP.particularsCellsDetail}>0</Text>
-            )} */}
+             
               {incomeTax.length > 0 ? (
                 incomeTax.map((tax, index) => {
                   // Corresponding Net Profit Before Tax (NPBT) for this year

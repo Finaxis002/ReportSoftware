@@ -12,7 +12,6 @@ const StepperControl = ({
   stepData,
   disableNext,
   handleSubmitFirstStep,
-  onStepClick,
 }) => {
   const [userRole, setUserRole] = useState("");
   const location = useLocation();

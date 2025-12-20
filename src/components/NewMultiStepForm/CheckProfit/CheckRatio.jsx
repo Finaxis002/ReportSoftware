@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles";
 import { Font } from "@react-pdf/renderer";
@@ -17,13 +17,9 @@ Font.register({
 
 const CheckRatio = ({
   formData = {},
-  financialYearLabels = [],
   receivedAssetsLiabilities = [],
-  formatNumber,
   sendAverageCurrentRation,
 }) => {
-  //   console.log("received values", receivedAssetsLiabilities);
-  // ✅ Safely handle undefined formData and provide fallback
   const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
 
   // ✅ Calculate Current Ratio and store in a variable

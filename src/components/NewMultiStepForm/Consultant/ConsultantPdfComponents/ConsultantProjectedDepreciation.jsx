@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
+import { View, Text, Image } from "@react-pdf/renderer";
+import { styles, stylesCOP, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -337,10 +337,7 @@ const ConsultantProjectedDepreciation = ({
   }, [formData, years]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
-  // const orientation =
-  // hideFirstYear
-  //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
-  //   : (formData.ProjectReportSetting.ProjectionYears > 5 ? "landscape" : "portrait");
+
 const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || (n+1);
 
   const isAdvancedLandscape = orientation === "advanced-landscape";

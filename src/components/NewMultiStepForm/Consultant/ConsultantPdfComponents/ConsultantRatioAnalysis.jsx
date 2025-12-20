@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React, { useEffect } from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -22,7 +22,6 @@ Font.register({
 
 const ConsultantRatioAnalysis = ({
   formData = {},
-  yearlyPrincipalRepayment = [],
   financialYearLabels,
   receivedCummulativeTansferedData,
   receivedMarchClosingBalances,
@@ -43,9 +42,7 @@ const ConsultantRatioAnalysis = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  // Destructure termLoanValues from the object.
-  // If it's undefined, default to an empty array.
-  const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
+
   const cumulativeLoanForPreviousYears =
     receivedWorkingCapitalValues?.termLoanValues || [];
 
@@ -167,14 +164,6 @@ const ConsultantRatioAnalysis = ({
       cumulativeCurrentAssets += currentYearAssets + inventoryValue;
 
       const totalCurrentAssets = cashBalance + cumulativeCurrentAssets;
-
-      // ✅ Log everything year-wise
-      // console.log(`\nYear ${index + 1}:`);
-      // console.log("Cash Balance           :", cashBalance);
-      // console.log("Current Year Assets    :", currentYearAssets);
-      // console.log("Inventory Value        :", inventoryValue);
-      // console.log("Cumulative CurrentAssets:", cumulativeCurrentAssets);
-      // console.log("Total Current Assets   :", totalCurrentAssets);
 
       return totalCurrentAssets;
     }
@@ -558,35 +547,6 @@ const ConsultantRatioAnalysis = ({
                 : "2025-26"}
             </Text>
           </View>
-
-          {/* Amount format */}
-
-          {/* <View
-            style={{
-              display: "flex",
-              alignContent: "flex-end",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs." // Show "Rupees" if "rupees" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands" // Show "Thousands" if "thousand" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores" // Show "Crores" if "crores" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions" // Show "Millions" if "millions" is selected
-                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-              }
-              )
-            </Text>
-          </View> */}
           <View>
             <View
               style={[
@@ -1915,34 +1875,7 @@ const ConsultantRatioAnalysis = ({
         </Text>
       </View>
 
-      {/* Amount format */}
-
-      {/* <View
-        style={{
-          display: "flex",
-          alignContent: "flex-end",
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-        <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {
-            formData?.ProjectReportSetting?.AmountIn === "rupees"
-              ? "Rs." // Show "Rupees" if "rupees" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "thousand"
-              ? "Thousands" // Show "Thousands" if "thousand" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "crores"
-              ? "Crores" // Show "Crores" if "crores" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "millions"
-              ? "Millions" // Show "Millions" if "millions" is selected
-              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-          }
-          )
-        </Text>
-      </View> */}
+     
       <View>
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}

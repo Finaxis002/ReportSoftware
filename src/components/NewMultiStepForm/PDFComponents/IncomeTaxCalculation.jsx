@@ -1,8 +1,8 @@
 import React from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { Page, View, Text,} from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
-import PageWithFooter from "../Helpers/PageWithFooter";
+
 Font.register({
   family: "Roboto",
   fonts: [
@@ -28,11 +28,6 @@ const IncomeTaxCalculation = ({
     return null;
   }
 
-  // Get starting year (assuming 2025, adjust based on your data)
-  const startYear =
-    Number(formData?.ProjectReportSetting?.FinancialYear) || 2025;
-  const projectionYears =
-    Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
   // Default to 5 years if not provided
   const rateOfInterest = Number(formData?.ProjectReportSetting?.incomeTax) || 0;
 

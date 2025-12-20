@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 // import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import {
   styles,
@@ -48,9 +48,6 @@ const ConsultantCMAAssumptions = ({
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
 
-  const expenseArray = Array.isArray(receiveTotalExpense)
-    ? receiveTotalExpense
-    : [];
   useEffect(() => {
     if (receiveTotalExpense && receiveTotalExpense.length > 0) {
       // console.log("Expense data ready for rendering");

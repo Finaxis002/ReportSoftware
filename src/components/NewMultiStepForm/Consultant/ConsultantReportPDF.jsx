@@ -132,11 +132,10 @@ const ConsultantGeneratedPDF = () => {
   const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [numPages, setNumPages] = useState(null);
 
   //share demo pdf
 
-  const [shareLink, setShareLink] = useState("");
+
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
 
 
@@ -336,7 +335,6 @@ const ConsultantGeneratedPDF = () => {
 
   const formData = pdfData || formData1;
 
-  const consultantComputedData = formData?.computedData || {};
 
 
   const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
@@ -344,7 +342,7 @@ const ConsultantGeneratedPDF = () => {
 
   console.log("Stored Version :: ", storedVersion)
   const [orientation, setOrientation] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem("formData"));
+  
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
     return years > 6 ? "landscape" : "portrait";
   });
@@ -406,13 +404,7 @@ const ConsultantGeneratedPDF = () => {
     return parseFloat(cleaned) || 0;
   };
 
-  // const firstYearGrossFixedAssets = useMemo(() => {
-  //   return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
-  //     if (asset?.isSelected) return sum; // ✅ Skip selected assets
-  //     const netAsset = parseAmount(asset.amount);
-  //     return sum + netAsset;
-  //   }, 0);
-  // }, [formData?.CostOfProject]);
+
   const firstYearGrossFixedAssets = useMemo(() => {
     return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
       if (asset?.isSelected || asset?.isPreliminary) return sum;
@@ -554,70 +546,7 @@ const ConsultantGeneratedPDF = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("🔄 GeneratedPDF is re-rendering");
-  // });
 
-  //saving data to Local Storage
-
-  useEffect(() => {
-    const saveData = {
-      normalExpense,
-      totalAnnualWages,
-      directExpenses,
-      totalDirectExpensesArray,
-      computedData,
-      computedData1,
-      totalDepreciation,
-      yearlyInterestLiabilities,
-      yearlyPrincipalRepayment,
-      interestOnWorkingCapital,
-      receivedData,
-      marchClosingBalances,
-      workingCapitalvalues,
-      grossFixedAssetsPerYear,
-      incomeTaxCalculation,
-      closingCashBalanceArray,
-      totalLiabilities,
-      assetsliabilities,
-      dscr,
-      averageCurrentRatio,
-      breakEvenPointPercentage,
-      totalExpense,
-      userRole,
-      years,
-      totalRevenueReceipts,
-      surplusDuringYear,
-    };
-
-  }, [
-    normalExpense,
-    totalAnnualWages,
-    directExpenses,
-    totalDirectExpensesArray,
-    computedData,
-    computedData1,
-    totalDepreciation,
-    yearlyInterestLiabilities,
-    yearlyPrincipalRepayment,
-    interestOnWorkingCapital,
-    receivedData,
-    marchClosingBalances,
-    workingCapitalvalues,
-    grossFixedAssetsPerYear,
-    incomeTaxCalculation,
-    closingCashBalanceArray,
-    totalLiabilities,
-    assetsliabilities,
-    dscr,
-    averageCurrentRatio,
-    breakEvenPointPercentage,
-    totalExpense,
-    userRole,
-    years,
-    totalRevenueReceipts,
-    surplusDuringYear,
-  ]);
 
   const setComputedDataToProfit = useStore(
     (state) => state.setComputedDataToProfit

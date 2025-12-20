@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
@@ -12,9 +12,7 @@ import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -28,21 +26,8 @@ Font.register({
   ],
 });
 
-const num = (v) => {
-  // Handle percentages by dividing by 100
-  if (typeof v === "string") {
-    if (v.trim().endsWith("%")) {
-      return parseFloat(v.replace("%", "").replace(/,/g, "").trim()) / 100 || 0;
-    }
-    // Handle commas (thousands) and convert to number
-    return parseFloat(v.replace(/,/g, "").trim()) || 0;
-  }
-  return Number(v) || 0;
-};
-
 const CMAProfitabilityMenu = ({
   formData,
-  directExpense,
   formatNumber,
   receivedtotalRevenueReceipts,
   pdfType,
@@ -63,7 +48,7 @@ const CMAProfitabilityMenu = ({
       flex: 1,
       marginBottom: 30, // Space before footer
     },
-    // Safe area to avoid content being cut off
+
     safeArea: {
       marginTop: 20, // Top margin for content
       marginBottom: 40, // Bottom margin for content
@@ -80,83 +65,15 @@ const CMAProfitabilityMenu = ({
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
 
-  // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  // useEffect(() => {
-  //   if (yearlyInterestLiabilities.length > 0) {
-  //     //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
-  //   }
-  // }, [yearlyInterestLiabilities]); // ✅ Runs when state update
-
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  const indirectExpense = (directExpense || []).filter(
-    (expense) => expense.type === "indirect"
-  );
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
-
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
-
-  const moratoriumPeriodMonths =
-    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
-  // Function to handle moratorium period spillover across financial years
-  const calculateMonthsPerYear = () => {
-    let monthsArray = [];
-    let remainingMoratorium = moratoriumPeriodMonths;
-    for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
-      }
 
-      if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
-        remainingMoratorium -= monthsInYear;
-      } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
-        remainingMoratorium = 0;
-      }
-    }
-    return monthsArray;
-  };
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -195,19 +112,12 @@ const CMAProfitabilityMenu = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
+
   const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
   const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
   const ClosingStock = PPExtractor.ClosingStock() || [];
   const OpeningStock = PPExtractor.OpeningStock() || [];
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
-  // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
   const depreciation = PPExtractor.depreciation() || [];
@@ -280,27 +190,10 @@ const CMAProfitabilityMenu = ({
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
 
-  //expense increased by 10 %- new data
-  const totalExpenseWithoutRM = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(totalDirectExpenses[i] || 0) - Number(rawmaterial[i] || 0)
-  );
-  //expense increase by 10%
-  const increaseValueExpense = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(totalExpenseWithoutRM[i] * 0.1)
-  );
 
-  const increasedExpenseTotal = Array.from({ length: projectionYears }).map(
-    (_, i) =>
-      Number(totalDirectExpenses[i] || 0) + Number(increaseValueExpense[i] || 0)
-  );
+
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
   );
@@ -334,15 +227,6 @@ const CMAProfitabilityMenu = ({
     }
   });
 
-  // const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
-  //   const depreciation = totalDepreciationPerYear[yearIndex] || 0;
-
-  //   // ✅ Correctly Compute Cash Profit
-  //   const cashProfit = npat + depreciation;
-
-  //   // ✅ Round values correctly
-  //   return cashProfit;
-  // });
 
   const cashProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPAT[i]) + Number(depreciation[i])

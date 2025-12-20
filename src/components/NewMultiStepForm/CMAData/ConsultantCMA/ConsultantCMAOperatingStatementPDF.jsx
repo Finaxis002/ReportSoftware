@@ -1,18 +1,12 @@
-import React from "react";
 import {
-  Document,
-  Page,
   View,
   Text,
-  StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import { getCMASchema } from "../../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../../Utils/CMA/financialCalcs";
 
 import {
@@ -53,7 +47,6 @@ const ConsultantCMAOperatingStatementPDF = ({ formData, orientation }) => {
       height: 50, // Fixed footer height
     },
   };
-  const schema = getCMASchema(formData);
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
   const grossSales = extractors.grossSales();
@@ -85,9 +78,6 @@ const ConsultantCMAOperatingStatementPDF = ({ formData, orientation }) => {
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
   const advanceDirectRows = extractors.advanceDirectRows() || [];
 
-  //   console.log("form Data : ", formData);
-
-  // console.log("yearlyInterestLiabilities :" , interestOnTermLoan )
 
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
@@ -98,7 +88,6 @@ const ConsultantCMAOperatingStatementPDF = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

@@ -17,13 +17,11 @@ import FourthStepPRS from "../Steps/FourthStepPRS";
 import FifthStepExpenses from "../Steps/FifthStepExpenses";
 import SixthRevenue from "../Steps/SixthRevenue";
 import SeventhStepMD from "../Steps/SeventhStepMD";
-import EighthStep from "../Steps/EighthStep"
 import ConsultantEighthStep from "./ConsultantSteps/ConsultantEighthStep";
 import MenuBar from "../MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AllReportsDropdown from "../Dropdown/AllReportsDropdown";
-import VersionDropdown from "../Dropdown/VersionDropdown";
 
 import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
@@ -41,7 +39,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   const [requiredFieldErrors, setRequiredFieldErrors] = useState({});
   const isCreateReportClicked = location.state?.isCreateReportClicked || false;
   const isCreateReportWithExistingClicked =
-  location.state?.isCreateReportWithExistingClicked || false;
+    location.state?.isCreateReportWithExistingClicked || false;
   const reportData = location.state?.reportData || null;
   const consultantId = location.state?.consultantId || null;
   const isConsultantReport = !!consultantId;
@@ -93,31 +91,6 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     setProjectionYears(newYears);
   };
 
-  const handleVersionChange = async (version) => {
-    console.log("VERSION CHANGED TO:", version);
-    console.log("📊 Current formData.generatedPDF:", formData.generatedPDF);
-    setSelectedVersion(version);
-    localStorage.setItem("selectedConsultantReportVersion", version);
-
-     const formDataFromStorage = JSON.parse(localStorage.getItem("formData") || "{}");
-  const updatedFormData = {
-    ...formDataFromStorage,
-    version: version
-  };
-  localStorage.setItem("formData", JSON.stringify(updatedFormData));
-    // Save version to database immediately
-    if (sessionId) {
-      try {
-        await axios.post(`${BASE_URL}/api/consultant-reports/update-consultant-step`, {
-          sessionId,
-          data: { version },
-        });
-        console.log("✅ Version saved to database:", version);
-      } catch (error) {
-        console.error("❌ Failed to save version:", error);
-      }
-    }
-  };
 
   const [formData, setFormData] = useState({
     AccountInformation: {},
@@ -131,13 +104,6 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     version: "Version 5",
   });
 
-  // useEffect(() => {
-  //   if (isCreateReportWithExistingClicked && reportData) {
-  //     // Pre-fill the form data when creating new from existing report
-  //     const preFilledData = { ...reportData }; // Clone the report data
-  //     setFormData(preFilledData);
-  //   }
-  // }, [isCreateReportWithExistingClicked, reportData]);
 
   // Store data in localStorage whenever formData changes
   useEffect(() => {
@@ -148,6 +114,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       setFormData(preFilledData);
     }
   }, [isCreateReportWithExistingClicked, reportData]);
+
 
   useEffect(() => {
     localStorage.setItem("formData", JSON.stringify(formData));
@@ -176,82 +143,82 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     [userRole]
   );
 
-const handleBusinessSelect = (businessData, sessionId) => {
-  // Get current consultant ID
-  const currentConsultantId = consultantId || 
-                              localStorage.getItem("consultantId") || 
-                              localStorage.getItem("userId");
-  
-  console.log("👤 Current consultant ID:", currentConsultantId);
-  console.log("📋 Selected report's consultant ID:", businessData.consultantId);
+  const handleBusinessSelect = (businessData, sessionId) => {
+    // Get current consultant ID
+    const currentConsultantId = consultantId ||
+      localStorage.getItem("consultantId") ||
+      localStorage.getItem("userId");
 
-  // ✅ Create a deep copy of the fetched business data
-  let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
+    console.log("👤 Current consultant ID:", currentConsultantId);
+    console.log("📋 Selected report's consultant ID:", businessData.consultantId);
 
-  // ✅ Get current logged-in user and role from localStorage
-  const currentUser =
-    localStorage.getItem("adminName") ||
-    localStorage.getItem("employeeName") ||
-    "Unknown";
-  const currentUserRole = localStorage.getItem("userRole") || "unknown";
+    // ✅ Create a deep copy of the fetched business data
+    let cleanedBusinessData = JSON.parse(JSON.stringify(businessData));
 
-  // ✅ REMOVE _id and sessionId if creating a new report
-  if (isCreateReportWithExistingClicked) {
-    delete cleanedBusinessData._id;
-    delete cleanedBusinessData.sessionId;
-    delete cleanedBusinessData.consultantId; // ✅ Remove old consultantId
-    
-    console.log("🗑 Removing _id, sessionId, and consultantId for new report creation...");
-    setSessionId(null); // Reset sessionId for new report
+    // ✅ Get current logged-in user and role from localStorage
+    const currentUser =
+      localStorage.getItem("adminName") ||
+      localStorage.getItem("employeeName") ||
+      "Unknown";
+    const currentUserRole = localStorage.getItem("userRole") || "unknown";
 
-    // ✅ Add current consultantId
-    cleanedBusinessData.consultantId = currentConsultantId;
-    console.log("✅ Setting new consultantId:", currentConsultantId);
+    // ✅ REMOVE _id and sessionId if creating a new report
+    if (isCreateReportWithExistingClicked) {
+      delete cleanedBusinessData._id;
+      delete cleanedBusinessData.sessionId;
+      delete cleanedBusinessData.consultantId; // ✅ Remove old consultantId
 
-    // ✅ Force update author info
-    if (!cleanedBusinessData.AccountInformation) {
-      cleanedBusinessData.AccountInformation = {};
+      console.log("🗑 Removing _id, sessionId, and consultantId for new report creation...");
+      setSessionId(null); // Reset sessionId for new report
+
+      // ✅ Add current consultantId
+      cleanedBusinessData.consultantId = currentConsultantId;
+      console.log("✅ Setting new consultantId:", currentConsultantId);
+
+      // ✅ Force update author info
+      if (!cleanedBusinessData.AccountInformation) {
+        cleanedBusinessData.AccountInformation = {};
+      }
+
+      cleanedBusinessData.AccountInformation.userRole = currentUserRole;
+      cleanedBusinessData.AccountInformation.createdBy = currentUser;
+
+      console.log("✍️ Overwriting author info:", {
+        userRole: currentUserRole,
+        createdBy: currentUser,
+        consultantId: currentConsultantId
+      });
+    } else {
+      setSessionId(sessionId || null); // Use sessionId when updating
     }
 
-    cleanedBusinessData.AccountInformation.userRole = currentUserRole;
-    cleanedBusinessData.AccountInformation.createdBy = currentUser;
+    console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
 
-    console.log("✍️ Overwriting author info:", {
-      userRole: currentUserRole,
-      createdBy: currentUser,
-      consultantId: currentConsultantId
-    });
-  } else {
-    setSessionId(sessionId || null); // Use sessionId when updating
-  }
-
-  console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
-
-  // ✅ Set final data in state
-  setFormData(cleanedBusinessData);
-  const reportVersion = cleanedBusinessData.version || "Version 5";
-  setSelectedVersion(reportVersion);
-  // Save version to localStorage when selecting a report
-  localStorage.setItem("selectedConsultantReportVersion", reportVersion);
-};
+    // ✅ Set final data in state
+    setFormData(cleanedBusinessData);
+    const reportVersion = cleanedBusinessData.version || "Version 5";
+    setSelectedVersion(reportVersion);
+    // Save version to localStorage when selecting a report
+    localStorage.setItem("selectedConsultantReportVersion", reportVersion);
+  };
 
   const waitForReportId = async (sessionId, retries = 5, delay = 1000) => {
     console.log("⏳ Waiting for reportId for session:", sessionId);
-    
+
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         console.log(`🔍 Attempt ${attempt} to fetch reportId...`);
         const res = await axios.get(
           `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
         );
-        
+
         console.log("📡 Response from get-report-id:", res.data);
-        
+
         if (res.data?.reportId) {
           console.log("🎉 Successfully got reportId:", res.data.reportId);
           return res.data.reportId;
         }
-        
+
         if (attempt < retries) {
           console.log(`⏸ Waiting ${delay}ms before next attempt...`);
           await new Promise(resolve => setTimeout(resolve, delay));
@@ -265,270 +232,265 @@ const handleBusinessSelect = (businessData, sessionId) => {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
-    
+
     console.warn("⚠️ Exhausted all retries without getting reportId");
     return null;
   };
 
-  
+  const handleSaveData = async () => {
+    try {
+      let requestData = new FormData();
+      requestData.append("step", steps[currentStep - 1]);
 
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
 
-const handleSaveData = async () => {
-  try {
-    let requestData = new FormData();
-    requestData.append("step", steps[currentStep - 1]);
-  
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
-    
-    // ✅ FIX: Use simple validation instead of mongoose
-    let currentUserId = localStorage.getItem("userId") || 
-                        localStorage.getItem("adminId") || 
-                        localStorage.getItem("employeeId");
-    
-    // ✅ SIMPLE VALIDATION FUNCTION
-    const isValidObjectId = (id) => {
-      if (!id || id === "null" || id === "undefined") return false;
-      // Check if it's a 24 character hex string (MongoDB ObjectId format)
-      return /^[0-9a-fA-F]{24}$/.test(id);
-    };
-    
-    // ✅ VALIDATE: If it's "null", "undefined", or invalid, set to null
-    if (!isValidObjectId(currentUserId)) {
-      currentUserId = null;
-    }
-    
-    const currentConsultantId = formData.consultantId || 
-                               consultantId || 
-                               localStorage.getItem("consultantId") || 
-                               currentUserId; // Fallback to userId if available
-    
-    console.log("👤 User info for activity logging:", {
-      userId: currentUserId,
-      userName: currentUser,
-      userRole: currentUserRole,
-      consultantId: currentConsultantId
-    });
-  
-    let formDataWithoutFile = {
-      ...formData,
-      version: selectedVersion,
-      consultantId: currentConsultantId,
-      AccountInformation: {
-        ...formData.AccountInformation,
-        userRole: currentUserRole,
-        createdBy: currentUser,
-      },
-    };
-  
-    formDataWithoutFile.CostOfProject = {
-      ...formDataWithoutFile.CostOfProject,
-      preliminaryExpenses: formData.preliminaryExpenses,
-    };
-  
-    if (formDataWithoutFile._id) delete formDataWithoutFile._id;
-  
-    let apiUrl = isConsultantReport ? `${BASE_URL}/api/consultant-reports/save-consultant-step` : `${BASE_URL}/save-step`;
-    const isNew = !sessionId || isCreateReportWithExistingClicked;
+      // ✅ FIX: Use simple validation instead of mongoose
+      let currentUserId = localStorage.getItem("userId") ||
+        localStorage.getItem("adminId") ||
+        localStorage.getItem("employeeId");
 
-    if (!isNew) {
-      requestData.append("sessionId", sessionId);
-    }
+      // ✅ SIMPLE VALIDATION FUNCTION
+      const isValidObjectId = (id) => {
+        if (!id || id === "null" || id === "undefined") return false;
+        // Check if it's a 24 character hex string (MongoDB ObjectId format)
+        return /^[0-9a-fA-F]{24}$/.test(id);
+      };
 
-    if (isConsultantReport && currentConsultantId) {
-      requestData.append("consultantId", currentConsultantId);
-    }
+      // ✅ VALIDATE: If it's "null", "undefined", or invalid, set to null
+      if (!isValidObjectId(currentUserId)) {
+        currentUserId = null;
+      }
 
-    // ✅ FIX: Only append userId if it's valid
-    if (currentUserId && isValidObjectId(currentUserId)) {
-      requestData.append("userId", currentUserId);
-    } else {
-      // Send empty string instead of "null" or null
-      requestData.append("userId", "");
-    }
-    
-    requestData.append("userName", currentUser);
-    requestData.append("userRole", currentUserRole);
+      const currentConsultantId = formData.consultantId ||
+        consultantId ||
+        localStorage.getItem("consultantId") ||
+        currentUserId; // Fallback to userId if available
 
-    if (formDataWithoutFile.AccountInformation) {
-      delete formDataWithoutFile.AccountInformation.logoOfBusiness;
-    }
-
-    requestData.append("data", JSON.stringify(formDataWithoutFile));
-  
-    if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-      requestData.append("file", formData.AccountInformation.logoOfBusiness);
-    }
-  
-    const response = await axios.post(apiUrl, requestData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  
-    console.log("✅ Response from API:", response.data);
-  
-    if (isNew) {
-      const newSessionId = response.data.sessionId;
-      setSessionId(newSessionId);
-      localStorage.setItem("activeSessionId", newSessionId);   
-    }
-  
-    alert("Data saved successfully!");
-  } catch (error) {
-    console.error("🔥 Error saving data:", error);
-    alert(
-      `Failed to save data: ${error.response?.data?.message || error.message}`
-    );
-  }
-};
-
-const handleCreateNewFromExisting = async () => {
-  try {
-    console.log("🔄 Creating new report from existing...");
-    setSessionId(null);
-    
-    // Get current user info
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
-    const currentUserId = localStorage.getItem("userId") || 
-                         localStorage.getItem("adminId") || 
-                         localStorage.getItem("employeeId") || 
-                         null;
-    
-    const currentConsultantId = consultantId || 
-                                localStorage.getItem("consultantId") || 
-                                localStorage.getItem("userId");
-    
-    console.log("👤 User info for new report:", {
-      userId: currentUserId,
-      userName: currentUser,
-      userRole: currentUserRole,
-      consultantId: currentConsultantId
-    });
-
-    // Step 1: Prepare data
-    let newData = JSON.parse(JSON.stringify(formData));
-    delete newData._id;
-    delete newData.sessionId;
-    newData.cloneFromExisting = true;
-    
-    // ✅ CRITICAL: Override consultantId with current consultant
-    newData.consultantId = currentConsultantId;
-
-    // Ensure creator info exists
-    if (!newData.AccountInformation) newData.AccountInformation = {};
-    newData.version = selectedVersion;
-    newData.AccountInformation.userRole = userRole;
-    newData.AccountInformation.createdBy = userName;
-
-    const requestData = new FormData();
-    requestData.append("data", JSON.stringify(newData));
-    
-    // ✅ Use current consultantId in request
-    if (currentConsultantId) {
-      requestData.append("consultantId", currentConsultantId);
-    }
-
-    // ✅ ADD USER INFO FOR ACTIVITY LOGGING
-    requestData.append("userId", currentUserId);
-    requestData.append("userName", currentUser);
-    requestData.append("userRole", currentUserRole);
-
-    if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-      requestData.append("file", formData.AccountInformation.logoOfBusiness);
-    }
-
-    // Step 2: Create report
-    const createResponse = await axios.post(
-      `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing`,
-      requestData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-
-    console.log("✅ New report created with consultantId:", currentConsultantId);
-    
-    const newSessionId = createResponse.data.sessionId;
-    setSessionId(newSessionId);
-    localStorage.setItem("activeSessionId", newSessionId);
-
-    // Step 3: Fetch report ID for activity logging
-    const reportId = await waitForReportId(newSessionId);
-    if (!reportId) {
-      console.warn("❌ Could not fetch reportId, skipping activity log.");
-      return;
-    }
-
-    const reportTitle = newData.AccountInformation?.businessName || "Untitled";
-    const reportOwner = newData.AccountInformation?.clientName || "Unknown";
-
-    alert("✅ New Report Created Successfully!");
-  } catch (error) {
-    console.error("🔥 Error in create from existing:", error);
-    alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
-  }
-};
-
-  
-
-const handleUpdate = async () => {
-  if (!sessionId) {
-    alert("No session ID found. Please select a business first.");
-    return;
-  }
-
-  console.log("🔄 Updating session:", sessionId);
-  console.log("📦 FormData:", formData);
-
-  try {
-    // Get current user info
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
-    const currentUserId = localStorage.getItem("userId") || 
-                         localStorage.getItem("adminId") || 
-                         localStorage.getItem("employeeId") || 
-                         null;
-
-    const updatedData = {
-      ...formData,
-      version: selectedVersion,
-      userRole,
-    };
-
-    const response = await axios.post(
-      isConsultantReport ? `${BASE_URL}/api/consultant-reports/update-consultant-step` : `${BASE_URL}/update-step`,
-      {
-        sessionId,
-        data: updatedData,
-        // ✅ ADD USER INFO FOR ACTIVITY LOGGING
+      console.log("👤 User info for activity logging:", {
         userId: currentUserId,
         userName: currentUser,
         userRole: currentUserRole,
-      }
-    );
+        consultantId: currentConsultantId
+      });
 
-    if (response.status === 200 || response.status === 201) {
-      console.log("✅ Update successful:", response.data);
-      alert("Report updated successfully!");
-    } else {
-      console.error("⚠️ Unexpected response:", response);
-      alert("Failed to update report."); 
+      let formDataWithoutFile = {
+        ...formData,
+        version: selectedVersion,
+        consultantId: currentConsultantId,
+        AccountInformation: {
+          ...formData.AccountInformation,
+          userRole: currentUserRole,
+          createdBy: currentUser,
+        },
+      };
+
+      formDataWithoutFile.CostOfProject = {
+        ...formDataWithoutFile.CostOfProject,
+        preliminaryExpenses: formData.preliminaryExpenses,
+      };
+
+      if (formDataWithoutFile._id) delete formDataWithoutFile._id;
+
+      let apiUrl = isConsultantReport ? `${BASE_URL}/api/consultant-reports/save-consultant-step` : `${BASE_URL}/save-step`;
+      const isNew = !sessionId || isCreateReportWithExistingClicked;
+
+      if (!isNew) {
+        requestData.append("sessionId", sessionId);
+      }
+
+      if (isConsultantReport && currentConsultantId) {
+        requestData.append("consultantId", currentConsultantId);
+      }
+
+      // ✅ FIX: Only append userId if it's valid
+      if (currentUserId && isValidObjectId(currentUserId)) {
+        requestData.append("userId", currentUserId);
+      } else {
+        // Send empty string instead of "null" or null
+        requestData.append("userId", "");
+      }
+
+      requestData.append("userName", currentUser);
+      requestData.append("userRole", currentUserRole);
+
+      if (formDataWithoutFile.AccountInformation) {
+        delete formDataWithoutFile.AccountInformation.logoOfBusiness;
+      }
+
+      requestData.append("data", JSON.stringify(formDataWithoutFile));
+
+      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      }
+
+      const response = await axios.post(apiUrl, requestData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("✅ Response from API:", response.data);
+
+      if (isNew) {
+        const newSessionId = response.data.sessionId;
+        setSessionId(newSessionId);
+        localStorage.setItem("activeSessionId", newSessionId);
+      }
+
+      alert("Data saved successfully!");
+    } catch (error) {
+      console.error("🔥 Error saving data:", error);
+      alert(
+        `Failed to save data: ${error.response?.data?.message || error.message}`
+      );
+    }
+  };
+
+  const handleCreateNewFromExisting = async () => {
+    try {
+      console.log("🔄 Creating new report from existing...");
+      setSessionId(null);
+
+      // Get current user info
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+      const currentUserId = localStorage.getItem("userId") ||
+        localStorage.getItem("adminId") ||
+        localStorage.getItem("employeeId") ||
+        null;
+
+      const currentConsultantId = consultantId ||
+        localStorage.getItem("consultantId") ||
+        localStorage.getItem("userId");
+
+      console.log("👤 User info for new report:", {
+        userId: currentUserId,
+        userName: currentUser,
+        userRole: currentUserRole,
+        consultantId: currentConsultantId
+      });
+
+      // Step 1: Prepare data
+      let newData = JSON.parse(JSON.stringify(formData));
+      delete newData._id;
+      delete newData.sessionId;
+      newData.cloneFromExisting = true;
+
+      // ✅ CRITICAL: Override consultantId with current consultant
+      newData.consultantId = currentConsultantId;
+
+      // Ensure creator info exists
+      if (!newData.AccountInformation) newData.AccountInformation = {};
+      newData.version = selectedVersion;
+      newData.AccountInformation.userRole = userRole;
+      newData.AccountInformation.createdBy = userName;
+
+      const requestData = new FormData();
+      requestData.append("data", JSON.stringify(newData));
+
+      // ✅ Use current consultantId in request
+      if (currentConsultantId) {
+        requestData.append("consultantId", currentConsultantId);
+      }
+
+      // ✅ ADD USER INFO FOR ACTIVITY LOGGING
+      requestData.append("userId", currentUserId);
+      requestData.append("userName", currentUser);
+      requestData.append("userRole", currentUserRole);
+
+      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      }
+
+      // Step 2: Create report
+      const createResponse = await axios.post(
+        `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing`,
+        requestData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      console.log("✅ New report created with consultantId:", currentConsultantId);
+
+      const newSessionId = createResponse.data.sessionId;
+      setSessionId(newSessionId);
+      localStorage.setItem("activeSessionId", newSessionId);
+
+      // Step 3: Fetch report ID for activity logging
+      const reportId = await waitForReportId(newSessionId);
+      if (!reportId) {
+        console.warn("❌ Could not fetch reportId, skipping activity log.");
+        return;
+      }
+
+      const reportTitle = newData.AccountInformation?.businessName || "Untitled";
+      const reportOwner = newData.AccountInformation?.clientName || "Unknown";
+
+      alert("✅ New Report Created Successfully!");
+    } catch (error) {
+      console.error("🔥 Error in create from existing:", error);
+      alert(`❌ Failed: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!sessionId) {
+      alert("No session ID found. Please select a business first.");
+      return;
     }
 
-  } catch (error) {
-    console.error(
-      "❌ Error updating report:",
-      error.response ? error.response.data : error.message
-    );
-  }
-};
+    console.log("🔄 Updating session:", sessionId);
+    console.log("📦 FormData:", formData);
+
+    try {
+      // Get current user info
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+      const currentUserId = localStorage.getItem("userId") ||
+        localStorage.getItem("adminId") ||
+        localStorage.getItem("employeeId") ||
+        null;
+
+      const updatedData = {
+        ...formData,
+        version: selectedVersion,
+        userRole,
+      };
+
+      const response = await axios.post(
+        isConsultantReport ? `${BASE_URL}/api/consultant-reports/update-consultant-step` : `${BASE_URL}/update-step`,
+        {
+          sessionId,
+          data: updatedData,
+          // ✅ ADD USER INFO FOR ACTIVITY LOGGING
+          userId: currentUserId,
+          userName: currentUser,
+          userRole: currentUserRole,
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        console.log("✅ Update successful:", response.data);
+        alert("Report updated successfully!");
+      } else {
+        console.error("⚠️ Unexpected response:", response);
+        alert("Failed to update report.");
+      }
+
+    } catch (error) {
+      console.error(
+        "❌ Error updating report:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   const handleSubmitFirstStep = () => {
     const errors = {};
@@ -548,13 +510,13 @@ const handleUpdate = async () => {
     }
 
     if (!businessDescription || businessDescription.trim() === "") {
-  errors.businessDescription = "Business Description is required";
-} else {
-  const wordCount = businessDescription.trim().split(/\s+/).length;
-  if (wordCount < 10) {
-    errors.businessDescription = "Business Description must be at least 10 words";
-  }
-}
+      errors.businessDescription = "Business Description is required";
+    } else {
+      const wordCount = businessDescription.trim().split(/\s+/).length;
+      if (wordCount < 10) {
+        errors.businessDescription = "Business Description must be at least 10 words";
+      }
+    }
 
     // if (Object.keys(errors).length > 0) {
     //   // 👇 Show alert
@@ -572,11 +534,11 @@ const handleUpdate = async () => {
         (k) => friendlyFieldNames[k] || k
       );
       Swal.fire({
-  icon: 'error',
-  title: 'Required Fields Missing',
-  html: `<div style="text-align:left;"><ul style="padding-left:1.5em;">${missing.map(m => `<li>${m}</li>`).join('')}</ul></div>`,
-  confirmButtonColor: '#3085d6'
-});
+        icon: 'error',
+        title: 'Required Fields Missing',
+        html: `<div style="text-align:left;"><ul style="padding-left:1.5em;">${missing.map(m => `<li>${m}</li>`).join('')}</ul></div>`,
+        confirmButtonColor: '#3085d6'
+      });
 
     }
 
@@ -649,10 +611,10 @@ const handleUpdate = async () => {
             MoreDetailsData={formData?.MoreDetails}
           />
         );
-         case 8:
+      case 8:
         return (
           <ConsultantEighthStep
-          key={`eighth-step-${selectedVersion}`} 
+            key={`eighth-step-${selectedVersion}`}
             businessData={formData}
             sections={formData?.generatedPDF || {}}
             loading={false}
@@ -715,107 +677,107 @@ const handleUpdate = async () => {
     }
   };
 
-const handleNextStep = async (newStepData = {}, event) => {
-  try {
-    // Prevent default behavior if event exists
-    if (event && event.preventDefault) {
-      event.preventDefault();
-    }
-
-    // Get current user info
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
-    const currentUserId = localStorage.getItem("userId") || 
-                         localStorage.getItem("adminId") || 
-                         localStorage.getItem("employeeId") || 
-                         null;
-
-    // Ensure stepData is correctly merged with existing data
-    const sanitizedStepData = { ...newStepData };
-
-    // Remove problematic circular references (e.g., event, React elements, window)
-    Object.keys(sanitizedStepData).forEach((key) => {
-      if (
-        sanitizedStepData[key] instanceof Event ||
-        sanitizedStepData[key] instanceof HTMLElement ||
-        typeof sanitizedStepData[key] === "function" ||
-        (typeof sanitizedStepData[key] === "object" &&
-          sanitizedStepData[key] !== null &&
-          "window" in sanitizedStepData[key])
-      ) {
-        delete sanitizedStepData[key];
+  const handleNextStep = async (newStepData = {}, event) => {
+    try {
+      // Prevent default behavior if event exists
+      if (event && event.preventDefault) {
+        event.preventDefault();
       }
-    });
 
-    // Clone formData safely (Avoid circular structure)
-    const safeFormData = JSON.parse(
-      JSON.stringify(formData, (key, value) => {
+      // Get current user info
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+      const currentUserId = localStorage.getItem("userId") ||
+        localStorage.getItem("adminId") ||
+        localStorage.getItem("employeeId") ||
+        null;
+
+      // Ensure stepData is correctly merged with existing data
+      const sanitizedStepData = { ...newStepData };
+
+      // Remove problematic circular references (e.g., event, React elements, window)
+      Object.keys(sanitizedStepData).forEach((key) => {
         if (
-          typeof value === "object" &&
-          value !== null &&
-          "window" in value
+          sanitizedStepData[key] instanceof Event ||
+          sanitizedStepData[key] instanceof HTMLElement ||
+          typeof sanitizedStepData[key] === "function" ||
+          (typeof sanitizedStepData[key] === "object" &&
+            sanitizedStepData[key] !== null &&
+            "window" in sanitizedStepData[key])
         ) {
-          return undefined; // Remove any window references
+          delete sanitizedStepData[key];
         }
-        return value;
-      })
-    );
+      });
 
-    const requestData = {
-      ...safeFormData,
-      ...sanitizedStepData,
-      version: selectedVersion,
-      sessionId: sessionId || undefined, // Send sessionId if exists
-    };
+      // Clone formData safely (Avoid circular structure)
+      const safeFormData = JSON.parse(
+        JSON.stringify(formData, (key, value) => {
+          if (
+            typeof value === "object" &&
+            value !== null &&
+            "window" in value
+          ) {
+            return undefined; // Remove any window references
+          }
+          return value;
+        })
+      );
 
-    const formDataPayload = new FormData();
-    formDataPayload.append("data", JSON.stringify(requestData));
+      const requestData = {
+        ...safeFormData,
+        ...sanitizedStepData,
+        version: selectedVersion,
+        sessionId: sessionId || undefined, // Send sessionId if exists
+      };
 
-    if (isConsultantReport) {
-      formDataPayload.append("consultantId", consultantId);
-    }
+      const formDataPayload = new FormData();
+      formDataPayload.append("data", JSON.stringify(requestData));
 
-    // ✅ ADD USER INFO FOR ACTIVITY LOGGING
-    formDataPayload.append("userId", currentUserId);
-    formDataPayload.append("userName", currentUser);
-    formDataPayload.append("userRole", currentUserRole);
+      if (isConsultantReport) {
+        formDataPayload.append("consultantId", consultantId);
+      }
 
-    const response = await axios.post(
-      isConsultantReport ? `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing` : `${BASE_URL}/create-new-from-existing`,
-      formDataPayload
-    );
+      // ✅ ADD USER INFO FOR ACTIVITY LOGGING
+      formDataPayload.append("userId", currentUserId);
+      formDataPayload.append("userName", currentUser);
+      formDataPayload.append("userRole", currentUserRole);
 
-    if (response.status === 201 && !sessionId) {
-      // Only store sessionId if it's Step 1
-      const newSessionId = response.data.sessionId;
-      setSessionId(newSessionId);
-      localStorage.setItem("sessionId", newSessionId);
-      
-      // ✅ CREATE ACTIVITY LOG ONLY ON FIRST STEP WHEN CREATING FROM EXISTING
-      if (currentStep === 1 && isCreateReportWithExistingClicked) {
-        const reportTitle = requestData?.AccountInformation?.businessName || "Untitled";
-        try {
-          const reportId = await waitForReportId(newSessionId);
-          await logActivity("create", reportTitle, reportId || "");
-          console.log("✅ Activity logged for first step 'Save & Next' from existing report");
-        } catch (err) {
-          console.warn("⚠️ Activity logging failed on first step:", err.message);
+      const response = await axios.post(
+        isConsultantReport ? `${BASE_URL}/api/consultant-reports/create-consultant-new-from-existing` : `${BASE_URL}/create-new-from-existing`,
+        formDataPayload
+      );
+
+      if (response.status === 201 && !sessionId) {
+        // Only store sessionId if it's Step 1
+        const newSessionId = response.data.sessionId;
+        setSessionId(newSessionId);
+        localStorage.setItem("sessionId", newSessionId);
+
+        // ✅ CREATE ACTIVITY LOG ONLY ON FIRST STEP WHEN CREATING FROM EXISTING
+        if (currentStep === 1 && isCreateReportWithExistingClicked) {
+          const reportTitle = requestData?.AccountInformation?.businessName || "Untitled";
+          try {
+            const reportId = await waitForReportId(newSessionId);
+            await logActivity("create", reportTitle, reportId || "");
+            console.log("✅ Activity logged for first step 'Save & Next' from existing report");
+          } catch (err) {
+            console.warn("⚠️ Activity logging failed on first step:", err.message);
+          }
         }
       }
+
+      console.log("✅ Step Saved:", response.data);
+    } catch (error) {
+      console.error("❌ Error saving step:", error);
     }
 
-    console.log("✅ Step Saved:", response.data);
-  } catch (error) {
-    console.error("❌ Error saving step:", error);
-  }
-
-  if (currentStep < steps.length) {
-    setCurrentStep((prev) => prev + 1);
-  }
-};
+    if (currentStep < steps.length) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
 
   const goToLastStep = () => {
     const lastStep = steps.length;
@@ -832,86 +794,86 @@ const handleNextStep = async (newStepData = {}, event) => {
     setCurrentStep(stepNumber);
   };
 
-const logActivity = async (action, reportTitle = "", reportId = "") => {
-  try {
-    const currentUser =
-      localStorage.getItem("adminName") ||
-      localStorage.getItem("employeeName") ||
-      "Unknown";
-    const currentUserRole = localStorage.getItem("userRole") || "unknown";
-    const currentUserId = localStorage.getItem("userId") || 
-                         localStorage.getItem("adminId") || 
-                         localStorage.getItem("employeeId") || 
-                         null;
-  
-    // ✅ GET CONSULTANT ID
-    const currentConsultantId = formData.consultantId || 
-                               consultantId || 
-                               localStorage.getItem("consultantId") || 
-                               localStorage.getItem("userId");
-    
-    const reportOwner = formData?.AccountInformation?.clientName || 
-                       formData?.AccountInformation?.businessOwner || 
-                       "";
-    
-    // ✅ DETERMINE IF THIS IS CONSULTANT REPORT
-    const isConsultant = !!currentConsultantId || 
-                        formData.type === "consultant" || 
-                        action.startsWith("consultant_");
-    
-    let finalAction = action;
-    let reportType = "regular";
-    
-    if (isConsultant) {
-      reportType = "consultant";
-      
-      // ✅ MAP REGULAR ACTIONS TO CONSULTANT ACTIONS
-      if (action === "create") finalAction = "consultant_create";
-      else if (action === "update") finalAction = "consultant_update";
-      else if (action === "download") finalAction = "consultant_download";
-      else if (action === "generated_pdf") finalAction = "consultant_generated_pdf";
-    }
-  
-    console.log("📝 Logging activity with:", {
-      originalAction: action,
-      finalAction: finalAction,
-      reportType: reportType,
-      reportTitle,
-      reportOwner,
-      userId: currentUserId,
-      name: currentUser,
-      role: currentUserRole,
-      consultantId: currentConsultantId,
-      isConsultant: isConsultant
-    });
-  
-    const response = await axios.post(`${BASE_URL}/api/activity/log`, {
-      action: finalAction,
-      reportTitle,
-      reportId,
-      reportOwner,
-      reportType: reportType,
-      performedBy: {
-        userId: currentUserId, // ✅ Use actual userId
+  const logActivity = async (action, reportTitle = "", reportId = "") => {
+    try {
+      const currentUser =
+        localStorage.getItem("adminName") ||
+        localStorage.getItem("employeeName") ||
+        "Unknown";
+      const currentUserRole = localStorage.getItem("userRole") || "unknown";
+      const currentUserId = localStorage.getItem("userId") ||
+        localStorage.getItem("adminId") ||
+        localStorage.getItem("employeeId") ||
+        null;
+
+      // ✅ GET CONSULTANT ID
+      const currentConsultantId = formData.consultantId ||
+        consultantId ||
+        localStorage.getItem("consultantId") ||
+        localStorage.getItem("userId");
+
+      const reportOwner = formData?.AccountInformation?.clientName ||
+        formData?.AccountInformation?.businessOwner ||
+        "";
+
+      // ✅ DETERMINE IF THIS IS CONSULTANT REPORT
+      const isConsultant = !!currentConsultantId ||
+        formData.type === "consultant" ||
+        action.startsWith("consultant_");
+
+      let finalAction = action;
+      let reportType = "regular";
+
+      if (isConsultant) {
+        reportType = "consultant";
+
+        // ✅ MAP REGULAR ACTIONS TO CONSULTANT ACTIONS
+        if (action === "create") finalAction = "consultant_create";
+        else if (action === "update") finalAction = "consultant_update";
+        else if (action === "download") finalAction = "consultant_download";
+        else if (action === "generated_pdf") finalAction = "consultant_generated_pdf";
+      }
+
+      console.log("📝 Logging activity with:", {
+        originalAction: action,
+        finalAction: finalAction,
+        reportType: reportType,
+        reportTitle,
+        reportOwner,
+        userId: currentUserId,
         name: currentUser,
         role: currentUserRole,
-      },
-      timestamp: new Date().toISOString()
-    });
-  
-    console.log("✅ Activity logged successfully:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error("❌ Failed to log activity:", {
-      error: err.response?.data || err.message,
-      action,
-      reportTitle,
-      reportId
-    });
-    throw err;
-  }
-};
-  
+        consultantId: currentConsultantId,
+        isConsultant: isConsultant
+      });
+
+      const response = await axios.post(`${BASE_URL}/api/activity/log`, {
+        action: finalAction,
+        reportTitle,
+        reportId,
+        reportOwner,
+        reportType: reportType,
+        performedBy: {
+          userId: currentUserId, // ✅ Use actual userId
+          name: currentUser,
+          role: currentUserRole,
+        },
+        timestamp: new Date().toISOString()
+      });
+
+      console.log("✅ Activity logged successfully:", response.data);
+      return response.data;
+    } catch (err) {
+      console.error("❌ Failed to log activity:", {
+        error: err.response?.data || err.message,
+        action,
+        reportTitle,
+        reportId
+      });
+      throw err;
+    }
+  };
+
 
   return (
     <div className="flex h-[100vh]">
