@@ -93,6 +93,8 @@ const Repayment = ({
   // Example: start=April, Quarterly (3) -> months with offsets 2,5,8,11 => Jun, Sep, Dec, Mar
 
   let repaymentPeriod = 1; // Default to monthly
+    let periodsInYear = 12; // Default to monthly (12 months in a year)
+
 
   // Keep your existing months array (you have April→March). Use whatever you already use.
   const MONTHS = [
@@ -115,6 +117,9 @@ const Repayment = ({
 
   // 3-letter lowercase like "jan", "apr"
   const m3 = (name) => name.slice(0, 3).toLowerCase();
+
+
+
 
   if (repaymentMethod === "Quarterly") {
     repaymentPeriod = 3; // Every 3 months
