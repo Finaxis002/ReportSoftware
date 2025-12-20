@@ -1,14 +1,11 @@
 import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
-import { Font } from "@react-pdf/renderer";
+import { styles, stylesCOP } from "./Styles"; // Import only necessary styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 const ProjectedSalaries = ({
   formData,
-  localData,
   normalExpense,
   totalQuantity,
   totalAnnualWages,
@@ -35,6 +32,7 @@ const ProjectedSalaries = ({
             />
           )}
       </View>
+
       {/* businees name and financial year  */}
       <View>
         <Text style={styles.businessName}>
@@ -44,10 +42,10 @@ const ProjectedSalaries = ({
           Financial Year{" "}
           {formData?.ProjectReportSetting?.FinancialYear
             ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
+              parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+            )
+              .toString()
+              .slice(-2)}`
             : "2025-26"}
         </Text>
       </View>
@@ -63,23 +61,24 @@ const ProjectedSalaries = ({
         }}
       >
         <Text style={[styles.AmountIn, styles.italicText]}>
-                  (Amount In{" "}
-                  {
-                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                      ? "Rs." // Show "Rupees" if "rupees" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                      ? "Thousands" // Show "Thousands" if "thousand" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                      ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "crores"
-                      ? "Crores" // Show "Crores" if "crores" is selected
-                      : formData?.ProjectReportSetting?.AmountIn === "millions"
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
                       ? "Millions" // Show "Millions" if "millions" is selected
                       : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                  }
-                  )
-                </Text>
+          }
+          )
+        </Text>
       </View>
+
       <View style={stylesCOP.heading}>
         <Text>Projected Salaries & Wages</Text>
       </View>
@@ -155,12 +154,12 @@ const ProjectedSalaries = ({
               style={[
                 stylesCOP.particularsCellsDetail,
                 stylesCOP.textCenter,
-                {borderRight:0},
+                { borderRight: 0 },
                 index === 0 && { paddingTop: 20 },
                 index === normalExpense.length - 1 && { paddingBottom: 20 },
               ]}
             >
-              {formatNumber(expense.value )}
+              {formatNumber(expense.value)}
             </Text>
           </View>
         ))}
@@ -173,7 +172,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               styles.Total,
-              {textAlign:"left"},
+              { textAlign: "left" },
             ]}
           >
             Total
@@ -196,7 +195,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.boldText,
-              { borderTop: "1px solid #000", borderBottom: "1px solid #000" , borderRightWidth:0},
+              { borderTop: "1px solid #000", borderBottom: "1px solid #000", borderRightWidth: 0 },
             ]}
           >
             {formatNumber(totalAnnualWages)}
@@ -217,7 +216,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
-              {paddingHorizontal:"1px" },
+              { paddingHorizontal: "1px" },
             ]}
           >
             Add: Fringe Benefits @ 5 %
@@ -227,7 +226,7 @@ const ProjectedSalaries = ({
               stylesCOP.particularsCellsDetail,
               stylesCOP.textCenter,
               stylesCOP.verticalPadding,
-              {borderRight:0,}
+              { borderRight: 0, }
             ]}
           >
             {" "}
@@ -252,7 +251,7 @@ const ProjectedSalaries = ({
                 borderTopWidth: "1px",
                 fontSize: "10px",
                 paddingVertical: "6px",
-                width:"110%",
+                width: "110%",
                 borderBottomWidth: 0,
               },
             ]}
@@ -262,11 +261,11 @@ const ProjectedSalaries = ({
           </Text>
 
           <Text
-           style={[
-            stylesCOP.particularsCellsDetail,
-            stylesCOP.textCenter,
-            {borderTopWidth:1, borderBottomWidth:0 , borderRightWidth:0}
-          ]}
+            style={[
+              stylesCOP.particularsCellsDetail,
+              stylesCOP.textCenter,
+              { borderTopWidth: 1, borderBottomWidth: 0, borderRightWidth: 0 }
+            ]}
           >
             {" "}
             {formatNumber(fringAndAnnualCalculation)}
@@ -294,6 +293,7 @@ const ProjectedSalaries = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
+      
     </Page>
   );
 };

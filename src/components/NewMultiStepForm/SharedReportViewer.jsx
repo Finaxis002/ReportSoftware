@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { PDFViewer } from "@react-pdf/renderer";
 import GeneratedPDF from "./GeneratedPDF";
+import { BASE_URL } from "./Utils/baseurl";
 
 const SharedReportViewer = () => {
   const { token } = useParams();
@@ -9,7 +10,7 @@ const SharedReportViewer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/reports/shared/${token}`)
+    fetch(`${BASE_URL}/api/reports/shared/${token}`)
       .then((res) => res.json())
       .then((data) => {
         setReportData(data.report);

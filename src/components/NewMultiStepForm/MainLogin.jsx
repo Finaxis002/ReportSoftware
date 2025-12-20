@@ -21,23 +21,10 @@ const MainLogin = ({ onLogin }) => {
 
   const navigate = useNavigate();
 
-  // Fixed credentials for Admin & Client
-  // const adminCredentials = { username: "admin", password: "admin123" };
   const clientCredentials = { username: "client", password: "client123" };
-  const hardcodedAdminCredentials = {
-    username: "admin",
-    password: "admin123",
-  };
 
-  // ✅ Check if already logged in
-  // useEffect(() => {
-  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
-  //   if (isLoggedIn) {
-  //     const userRole = localStorage.getItem("userRole");
-  //     onLogin(true, userRole);
-  //     navigate("/");
-  //   }
-  // }, [navigate, onLogin]);
+
+
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const loginTime = localStorage.getItem("loginTime");
@@ -358,7 +345,6 @@ const MainLogin = ({ onLogin }) => {
     }
   };
 
-  console.log("Logging in with password:", inputPassword);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">

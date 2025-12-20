@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React, { useEffect } from "react";
+import {  View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";

@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 const ProjectedRevenue = ({
   formData,
@@ -14,7 +13,7 @@ const ProjectedRevenue = ({
   pdfType,
   orientation,
 }) => {
-  // console.log("revenue", formData.Revenue);
+
   // ✅ Extract projection years and formType safely
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;

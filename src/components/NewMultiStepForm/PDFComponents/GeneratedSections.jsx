@@ -1,40 +1,8 @@
-import React from "react";
-import { Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { Page, Text, View, } from "@react-pdf/renderer";
+import { styles, styleExpenses } from "./Styles";
 
-// const styles = StyleSheet.create({
-//   page: {
-//     padding: 40,
-//     fontSize: 12,
-//     fontFamily: "Helvetica",
-//   },
-//   title: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     marginBottom: 15,
-//     textAlign: "center",
-//     color: "#1f2937",
-//     borderBottom: "2px solid #3b82f6",
-//     paddingBottom: 8,
-//   },
-//   content: {
-//     fontSize: 11,
-//     lineHeight: 1.5,
-//     textAlign: "justify",
-//   },
-//   section: {
-//     marginBottom: 20,
-//   },
-//   pageNumber: {
-//     position: "absolute",
-//     bottom: 20,
-//     right: 40,
-//     fontSize: 10,
-//     color: "#666",
-//   }
-// });
 
-const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData, pdfType,}) => {
+const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData}) => {
   console.log("📄 GeneratedSections received generatedPDF:", generatedPDF);
   
   if (!generatedPDF || typeof generatedPDF !== "object" || Object.keys(generatedPDF).length === 0) {

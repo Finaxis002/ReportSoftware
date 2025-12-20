@@ -1,6 +1,6 @@
-import React , {useMemo} from "react";
+import React  from "react";
 import { View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
@@ -16,15 +16,14 @@ const ConsultantProjectSynopsis = React.memo(
     fringeCalculation,
     fringAndAnnualCalculation = [],
     receivedDscr = [],
-    receivedAverageCurrentRatio = [],
     receivedBreakEvenPointPercentage = [],
     receivedAssetsLiabilities = [],
     pdfType,
-    handleContextMenu,
     renderTotalBankLoanLabel
   }) => {
      const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-    // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
+    
+
     const getOrdinalYear = (n) => {
       if (n === 1) return "1st";
       if (n === 2) return "2nd";
@@ -164,13 +163,7 @@ const ConsultantProjectSynopsis = React.memo(
       }
     };
 
-    // ✅ Function to get the first non-zero revenue value
-    // const getFirstNonZeroRevenue = (revenueArray) => {
-    //   const firstValidValue = revenueArray.find((value) => value !== 0);
-    //   return firstValidValue !== undefined
-    //     ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
-    //     : " ";
-    // };
+    
 
     // ✅ Function to get the first non-zero percentage value and its corresponding year
     const getFirstNonZeroPercentageWithYear = (percentageArray) => {

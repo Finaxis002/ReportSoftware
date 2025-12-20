@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register Font
 Font.register({
@@ -25,7 +24,6 @@ const Assumptions = ({
   formData = {},
   financialYearLabels = [],
   formatNumber,
-  totalRevenueReceipts,
   receiveTotalExpense,
   pdfType,
   receivedtotalRevenueReceipts,
@@ -35,7 +33,7 @@ const Assumptions = ({
   const years = Math.floor(formData.ProjectReportSetting.RepaymentMonths / 12);
   const months = formData.ProjectReportSetting.RepaymentMonths % 12;
 
-  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption;
 
   const renderTLFBLabel = () => {
     if (debtEquityOption === "Equity") {
@@ -46,10 +44,10 @@ const Assumptions = ({
   };
 
   const renderWCLFBLabel = () => {
-    if (debtEquityOption === "Equity"){
+    if (debtEquityOption === "Equity") {
       return "Equity Of Running Operations";
     }
-    else{
+    else {
       return "Loan From Bank Repayment"
     }
 
@@ -59,34 +57,34 @@ const Assumptions = ({
   // Depreciation Data
 
 
- useEffect(() => {
+  useEffect(() => {
     // Check if computed data has totalExpense available
     if (formData?.computedData?.totalExpense && formData.computedData.totalExpense.length > 0) {
-        // console.log("Expense data ready for rendering from computed data");
-        setIsDataReady(true);
-    } 
+      // console.log("Expense data ready for rendering from computed data");
+      setIsDataReady(true);
+    }
     // Fall back to the original prop if computed data is not available
     else if (receiveTotalExpense && receiveTotalExpense.length > 0) {
-        // console.log("Expense data ready for rendering from prop");
-        setIsDataReady(true);
+      // console.log("Expense data ready for rendering from prop");
+      setIsDataReady(true);
     }
-}, [formData?.computedData?.totalExpense, receiveTotalExpense]);
+  }, [formData?.computedData?.totalExpense, receiveTotalExpense]);
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
-if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+  if (isAdvancedLandscape) {
+    // Remove first year if hidden
+    const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
   if (isAdvancedLandscape) {
@@ -98,12 +96,6 @@ if (isAdvancedLandscape) {
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
-      // For centering (kept for parity with other pages; not used here)
-      const visibleLocalCols = labels
-        .map((_, i) => i)
-        .filter((i) => !shouldSkipCol(globalIndex(i)));
-      const centerLocalIdx =
-        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
         <Page
@@ -152,10 +144,10 @@ if (isAdvancedLandscape) {
                 Financial Year{" "}
                 {formData?.ProjectReportSetting?.FinancialYear
                   ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                    )
-                      .toString()
-                      .slice(-2)}`
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
                   : "2025-26"}
               </Text>
             </View>
@@ -361,7 +353,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Show Cost of Project Items */}
             {formData?.CostOfProject &&
-            Object.keys(formData.CostOfProject).length > 0 ? (
+              Object.keys(formData.CostOfProject).length > 0 ? (
               Object.entries(formData.CostOfProject)
                 .filter(([_, field]) => field?.name?.trim())
                 .map(([key, field]) => (
@@ -488,10 +480,10 @@ if (isAdvancedLandscape) {
             Financial Year{" "}
             {formData?.ProjectReportSetting?.FinancialYear
               ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                )
-                  .toString()
-                  .slice(-2)}`
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
               : "2025-26"}
           </Text>
         </View>
@@ -676,7 +668,7 @@ if (isAdvancedLandscape) {
 
         {/* ✅ Show Cost of Project Items */}
         {formData?.CostOfProject &&
-        Object.keys(formData.CostOfProject).length > 0 ? (
+          Object.keys(formData.CostOfProject).length > 0 ? (
           // Object.entries(formData.CostOfProject).map(([key, field], index) => (
           //   <View key={key} style={styles.tableRow}>
           //     <Text

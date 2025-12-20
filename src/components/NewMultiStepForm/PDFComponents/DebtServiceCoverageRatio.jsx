@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -85,9 +84,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
-  const rateOfExpense =
-    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
-
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
@@ -111,18 +107,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
   const monthsPerYear = calculateMonthsPerYear();
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -134,16 +118,11 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
     const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
     const annualInterestAmount = (principal * rate) / 100;
 
-    // console.log("principal:", principal);
-    // console.log("rate:", rate);
-    // console.log("annualInterestAmount:", annualInterestAmount);
 
     const firstRepaymentYearIndex = monthsPerYear.findIndex(
       (months) => months > 0
     );
-    // console.log("Months per year:", monthsPerYear);
-    // console.log("First repayment year index:", firstRepaymentYearIndex);
-
+ 
     return (yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex] || 0;
       // console.log(`Year ${yearIndex + 1} months: ${monthsInYear}`);
@@ -152,10 +131,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         return 0;
       }
 
-      // if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
-      //   // Prorated interest for first repayment year
-      //   return (annualInterestAmount * monthsInYear) / 12;
-      // }
       if (
         yearIndex === firstRepaymentYearIndex &&
         (moratoriumPeriodMonths > 0 || monthsInYear < 12)
@@ -164,8 +139,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         // console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
         return prorated;
       }
-
-      // console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
       // Full annual interest for other repayment years
       return annualInterestAmount;
     };
@@ -177,9 +150,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
     const calculatedInterest = calculateInterestOnWorkingCapital(yearIndex);
     return calculatedInterest === 0;
   });
-
-  const { Expenses = {} } = formData;
-  const { normalExpense = [], directExpense = [] } = Expenses;
 
   // ✅ Compute Total Sum for Each Year
   const totalA = Array.from({

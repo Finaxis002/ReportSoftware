@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text} from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
 import PageWithFooter from "../../Helpers/PageWithFooter";
@@ -18,11 +18,9 @@ Font.register({
 
 const Repayment = ({
   formData,
-  pdfType,
   onInterestCalculated,
   onPrincipalRepaymentCalculated,
   onMarchClosingBalanceCalculated, // New callback prop for March balances
-  onInterestLiabilityUpdate,
   renderRepaymentSheetheading
 }) => {
   // console.log("formData :", formData);
@@ -44,8 +42,6 @@ const Repayment = ({
 
   // ---- NORMALIZE INPUTS (force numbers; handle empty strings) ----
   const TL = Number(formData?.MeansOfFinance?.termLoan?.termLoan ?? 0);
-  const annualRate =
-    Number(formData?.ProjectReportSetting?.interestOnTL ?? 0) / 100;
   const MOR = Number(formData?.ProjectReportSetting?.MoratoriumPeriod ?? 0); // months
   const TOTAL_MONTHS = Number(
     formData?.ProjectReportSetting?.RepaymentMonths ?? 0
@@ -97,7 +93,6 @@ const Repayment = ({
   // Example: start=April, Quarterly (3) -> months with offsets 2,5,8,11 => Jun, Sep, Dec, Mar
 
   let repaymentPeriod = 1; // Default to monthly
-  let periodsInYear = 12; // Default to monthly (12 months in a year)
 
   // Keep your existing months array (you have April→March). Use whatever you already use.
   const MONTHS = [
@@ -132,16 +127,6 @@ const Repayment = ({
     periodsInYear = 1; // 1 period in a year (annually)
   }
 
-  let totalRepaymentPeriods =
-    (repaymentMonths - moratoriumPeriod) / repaymentPeriod; // Total repayment periods
-  let fixedPrincipalRepayment = termLoan / totalRepaymentPeriods; // Calculate fixed repayment per period
-
-  // ✅ Correct the total repayment months (including moratorium)
-
-  let effectiveRepaymentMonths = repaymentMonths - moratoriumPeriod;
-  // let fixedPrincipalRepayment =
-  //   effectiveRepaymentMonths > 0 ? termLoan / effectiveRepaymentMonths : 0;
-
   // ✅ Month Mapping (April - March)
   const months = [
     "April",
@@ -175,11 +160,7 @@ const Repayment = ({
     return `${m3(MONTHS[startIdx])}-${m3(MONTHS[endIdx])}`;
   };
 
-  /**
-   * Your same alignment from earlier:
-   * - cadence = 3 (Quarterly) / 6 (Semi-annual) / 12 (Annual)
-   * - phase = cadence - 1  -> we repay on the *last* month of each window
-   */
+
 
   // Precompute labels for all events
   const eventEndOffsets = Array.from(
@@ -209,9 +190,6 @@ const Repayment = ({
     return periodLabels[idx] ? capitalizeFirstLetter(periodLabels[idx]) : "";
   };
 
-  // let remainingBalance = termLoan; // Remaining loan balance
-
-  let repaymentStartIndex = startMonthIndex; // Start from selected month
 
   const financialYear = parseInt(
     formData.ProjectReportSetting.FinancialYear || 2025
@@ -397,8 +375,6 @@ useEffect(() => {
     }
   }, [JSON.stringify(data), onMarchClosingBalanceCalculated]);
 
-  let yearCounter = 1; // ✅ Separate counter for valid years
-  // ─────────────────────────────────────────────────────────────────────────
 
   const formatNumber = (value) => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
@@ -431,7 +407,7 @@ useEffect(() => {
     }
   };
 
-  let globalMonthIndex = 0;
+
   let finalRepaymentReached = false;
   let displayYearCounter = 1; // 👈 Start counting from 1 (for S. No.)
   let globalMonthCounter = 0; // 👈 To calculate absolute months for moratorium
@@ -457,34 +433,7 @@ useEffect(() => {
             </Text>
           </View>
 
-          {/* Amount format */}
-
-          {/* <View
-            style={{
-              display: "flex",
-              alignContent: "flex-end",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs." // Show "Rupees" if "rupees" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands" // Show "Thousands" if "thousand" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores" // Show "Crores" if "crores" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions" // Show "Millions" if "millions" is selected
-                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-              }
-              )
-            </Text>
-          </View> */}
+         
 
           <View>
             {/* Heading */}
@@ -721,11 +670,7 @@ useEffect(() => {
                     : 0);
               });
 
-              // console.log(
-              //   `Year ${
-              //     financialYear + yearIndex
-              //   }: Total Repayment for Visible Months: ${totalRepayment}`
-              // );
+             
 
               return (
                 <View
@@ -798,14 +743,7 @@ useEffect(() => {
                       return null;
                     }
 
-                    // console.log("Interst Liability : (",monthIndex,")", entry.interestLiability)
-
-                    // console.log(
-                    //   "Interst Liability : (",
-                    //   monthIndex,
-                    //   ")",
-                    //   entry.totalRepayment
-                    // );
+                   
 
                     return (
                       <View

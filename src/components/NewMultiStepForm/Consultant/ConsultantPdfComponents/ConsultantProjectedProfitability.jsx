@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React, { useEffect, useMemo } from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -33,7 +33,6 @@ const num = (v) => {
 
 const ConsultantProjectedProfitability = ({
     formData,
-    localData,
     normalExpense,
     directExpense,
     totalDepreciationPerYear,
@@ -208,7 +207,6 @@ const ConsultantProjectedProfitability = ({
         return calculatedInterest === 0;
     });
 
-    const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod;
 
     // Function to calculate the expense for each year considering the increment rate
     const calculateExpense = (annualExpense, yearIndex) => {
@@ -265,6 +263,7 @@ const ConsultantProjectedProfitability = ({
 
         return expenseValue;
     };
+
     const totalDirectExpensesArray = Array.from({
         length: projectionYears,
     }).map((_, yearIndex) => {
@@ -354,22 +353,6 @@ const ConsultantProjectedProfitability = ({
             : 0;
 
 
-    // Generate the array for yearly values
-    // const preliminaryWriteOffPerYear = Array.from({
-    //   length: projectionYears,
-    // }).map((_, index) => {
-    //   const startIndex = hideFirstYear ? 1 : 0;
-    //   const endIndex = startIndex + preliminaryWriteOffYears;
-
-    //   // 👇 Only insert value if it's within the write-off window
-    //   if (index >= startIndex && index < endIndex) {
-    //     return yearlyWriteOffAmount;
-    //   }
-
-    //   // 👇 Insert 0 for all other years (including hidden first year)
-    //   return 0;
-    // });
-
     const preliminaryWriteOffPerYear = Array.from({
         length: projectionYears,
     }).map((_, yearIndex) => {
@@ -411,9 +394,7 @@ const ConsultantProjectedProfitability = ({
         return 0;
     });
 
-    // Debug the final result
-    console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
-
+ 
 
     // ✅ Extract required values from formData
 
@@ -556,12 +537,7 @@ const ConsultantProjectedProfitability = ({
         }
     );
 
-    console.log("=== DEBUG CUMULATIVE BALANCE CALCULATION ===");
-    console.log("netProfitAfterTax:", netProfitAfterTax);
-    console.log("Withdrawals:", formData?.MoreDetails?.Withdrawals);
-    console.log("balanceTransferred:", balanceTransferred);
-    console.log("hideFirstYear:", hideFirstYear);
-    console.log("projectionYears:", projectionYears);
+
     // Check if any values are NaN or invalid
     const hasInvalidValues = balanceTransferred.some(val =>
         isNaN(val) || val === null || val === undefined
@@ -596,8 +572,7 @@ const ConsultantProjectedProfitability = ({
         }
     });
 
-    console.log("Final cumulativeBalanceTransferred:", cumulativeBalanceTransferred);
-    console.log("=== END DEBUG ===");
+
     // ✅ Compute Cash Profit for Each Year
     const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
         const depreciation = totalDepreciationPerYear[yearIndex] || 0;
@@ -678,31 +653,7 @@ const ConsultantProjectedProfitability = ({
 
     console.log("computed Data from ConsultantProjectedProfitability:", formData.computedData);
 
-    // ✅ Determine if first-year should be hidden
 
-    // const orientation = hideFirstYear
-    //   ? formData.ProjectReportSetting.ProjectionYears > 6
-    //     ? "landscape"
-    //     : "portrait"
-    //   : formData.ProjectReportSetting.ProjectionYears > 5
-    //   ? "landscape"
-    //   : "portrait";
-
-    const indirectCount = directExpense.filter((expense) => {
-        if (expense.name.trim() === "Raw Material Expenses / Purchases") {
-            return false;
-        }
-
-        const isAllYearsZero = Array.from({
-            length: hideFirstYear ? projectionYears - 1 : projectionYears,
-        }).every((_, yearIndex) => {
-            const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-            const expenseValue = Number(expense.total) || 0;
-            return expenseValue === 0;
-        });
-
-        return expense.type === "indirect" && !isAllYearsZero;
-    }).length;
 
     const isPreliminaryWriteOffAllZero = Array.from({
         length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -744,7 +695,6 @@ const ConsultantProjectedProfitability = ({
             visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
         ];
     }
-    const toRoman = n => ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || (n + 1);
 
     if (isAdvancedLandscape) {
         return splitFinancialYearLabels.map((labels, pageIdx) => {

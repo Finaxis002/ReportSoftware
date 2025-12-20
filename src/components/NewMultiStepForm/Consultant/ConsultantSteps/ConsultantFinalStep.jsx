@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { REPORT_VERSIONS, getVersionDetails } from "../../Utils/reportVersions";
+import { useState, useEffect, useRef } from "react";
 
 import * as XLSX from "xlsx";
 import GraphGenerator from "../../GraphGenerator";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const ConsultantFinalStep = ({ formData, userRole }) => {
@@ -23,17 +22,17 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
   const [selectedVersion, setSelectedVersion] = useState(
     localStorage.getItem("selectedConsultantReportVersion") || "Version 1"
   );
-  const [showVersionModal, setShowVersionModal] = useState(false);
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const userName =
     localStorage.getItem("adminName") || localStorage.getItem("employeeName");
 
   const [isPDFLoaded, setIsPDFLoaded] = useState(false);
-  const [showError, setShowError] = useState(false);
+
   const [selectedOption, setSelectedOption] = useState("select option");
   const [selectedColor, setSelectedColor] = useState("select color");
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+
   const [selectedFont, setSelectedFont] = useState(
     localStorage.getItem("selectedFont") || "Roboto"
   );
@@ -43,10 +42,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
   let isComponentMounted = useRef(true);
 
 
-  const handleVersionChange = (version) => {
-    setSelectedVersion(version);
-    localStorage.setItem("selectedConsultantReportVersion", version);
-  };
+
 
   useEffect(() => {
     if (selectedOption !== "select option") {
@@ -120,13 +116,6 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     console.log("✅ PDF Loaded Successfully");
     setIsPDFLoaded(true);
     setIsLoading(false);
-
-    // timeoutId.current = setTimeout(() => {
-    //   if (isComponentMounted.current) {
-    //     console.log("✅ Navigating to /checkprofit after delay...");
-    //     navigate("/checkprofit");
-    //   }
-    // }, 10000);
   };
 
   // ✅ Utility function to flatten nested objects
@@ -556,72 +545,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     localStorage.setItem("lastStep", 8);
   };
 
-  // useEffect(() => {
-  //   const fetchPermissions = async () => {
-  //     try {
-  //       const [empRes, adminRes] = await Promise.all([
-  //         fetch("https://reportsbe.sharda.co.in/api/employees"),
-  //         fetch("https://reportsbe.sharda.co.in/api/admins"),
-  //       ]);
 
-  //       if (!empRes.ok || !adminRes.ok) {
-  //         throw new Error("Failed to fetch data");
-  //       }
-
-  //       const employeeList = await empRes.json();
-  //       const adminList = await adminRes.json();
-
-  //       const normalizedUserName = userName?.trim().toLowerCase();
-
-  //       if (userRole === "admin") {
-  //         const storedAdminName = localStorage.getItem("adminName");
-
-  //         if (!storedAdminName) {
-  //           setPermissions({
-  //             generateReport: true,
-  //             updateReport: true,
-  //             createNewWithExisting: true,
-  //             downloadPDF: true,
-  //             exportData: true,
-  //             createReport: true,
-  //             generateGraph: true,
-  //             advanceReport: true,
-  //             generateWord: true,
-
-  //           });
-  //           return;
-  //         }
-
-  //         const admin = adminList.find(
-  //           (a) =>
-  //             a.username?.trim().toLowerCase() === normalizedUserName ||
-  //             a.adminId?.trim().toLowerCase() === normalizedUserName
-  //         );
-
-  //         if (admin?.permissions) {
-  //           setPermissions(admin.permissions);
-  //         }
-  //       }
-
-  //       if (userRole === "employee") {
-  //         const employee = employeeList.find(
-  //           (emp) =>
-  //             emp.name?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.email?.trim().toLowerCase() === normalizedUserName ||
-  //             emp.employeeId?.trim().toLowerCase() === normalizedUserName
-  //         );
-
-  //         if (employee?.permissions) {
-  //           setPermissions(employee.permissions);
-  //         }
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching permissions:", err.message);
-  //     }
-  //   };
-
-  //   fetchPermissions(); // 🔁 Only fetch once when dependencies change
-  // }, [userRole, userName]);
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -636,7 +560,6 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
         }
 
         const employeeList = await empRes.json();
-        const adminList = await adminRes.json();
 
         const normalizedUserName = userName?.trim().toLowerCase();
 
@@ -701,93 +624,93 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     };
   }, []);
 
- const handleGeneratePdfClick = async () => {
-  try {
-    console.log("🚀 Saving calculations to database...");
-    
-    // DEBUG: Check what's in localStorage before saving
-    console.log("🔍 BEFORE - formData in localStorage:", 
-      JSON.parse(localStorage.getItem("formData") || "{}").version);
-    console.log("🔍 BEFORE - selectedVersion state:", selectedVersion);
-    console.log("🔍 BEFORE - selectedColor state:", selectedColor);
-
-    const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
-    const sessionId = localStorage.getItem("activeSessionId") || formData?.sessionId;
-
-    // ✅ FIRST: Save calculations to database
+  const handleGeneratePdfClick = async () => {
     try {
-      // Prepare formData with updated color and version for saving
-      const formDataToSave = {
-        ...formData,
-        color: selectedColor !== "select color" ? selectedColor : null,
-        version: selectedVersion
-      };
+      console.log("🚀 Saving calculations to database...");
 
-      console.log("🔍 Sending to server - version:", formDataToSave.version);
-      console.log("🔍 Sending to server - color:", formDataToSave.color);
+      // DEBUG: Check what's in localStorage before saving
+      console.log("🔍 BEFORE - formData in localStorage:",
+        JSON.parse(localStorage.getItem("formData") || "{}").version);
+      console.log("🔍 BEFORE - selectedVersion state:", selectedVersion);
+      console.log("🔍 BEFORE - selectedColor state:", selectedColor);
+
+      const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
+      const sessionId = localStorage.getItem("activeSessionId") || formData?.sessionId;
+
+      // ✅ FIRST: Save calculations to database
+      try {
+        // Prepare formData with updated color and version for saving
+        const formDataToSave = {
+          ...formData,
+          color: selectedColor !== "select color" ? selectedColor : null,
+          version: selectedVersion
+        };
+
+        console.log("🔍 Sending to server - version:", formDataToSave.version);
+        console.log("🔍 Sending to server - color:", formDataToSave.color);
 
 
-    } catch (saveError) {
-      console.error("❌ Failed to save calculations:", saveError);
-      Swal.fire({
-        icon: "error",
-        title: "Save Failed",
-        text: "Could not save calculations to database. PDF generation may be incomplete.",
-        confirmButtonColor: "#6366f1",
-      });
-    }
-
-    // DEBUG: Check what's in localStorage after saving
-    console.log("🔍 AFTER - formData in localStorage:", 
-      JSON.parse(localStorage.getItem("formData") || "{}").version);
-
-    // ✅ SECOND: Log activity (existing code)
-    let reportId = null;
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
-      );
-      const data = await res.json();
-      if (data?.reportId) {
-        reportId = data.reportId;
+      } catch (saveError) {
+        console.error("❌ Failed to save calculations:", saveError);
+        Swal.fire({
+          icon: "error",
+          title: "Save Failed",
+          text: "Could not save calculations to database. PDF generation may be incomplete.",
+          confirmButtonColor: "#6366f1",
+        });
       }
-    } catch (err) {
-      console.warn("⚠️ Could not fetch reportId for generated_pdf log");
-    }
 
-    const reportOwner = formData?.AccountInformation?.businessOwner || "";
+      // DEBUG: Check what's in localStorage after saving
+      console.log("🔍 AFTER - formData in localStorage:",
+        JSON.parse(localStorage.getItem("formData") || "{}").version);
 
-    try {
-      await fetch(`${BASE_URL}/api/activity/log`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "generated_pdf",
-          reportTitle,
-          reportId,
-          reportOwner,
-          performedBy: {
-            name: userName || "Unknown",
-            role: userRole || "unknown",
-          },
-        }),
-      });
-      console.log("✅ Logged 'generated_pdf' activity");
+      // ✅ SECOND: Log activity (existing code)
+      let reportId = null;
+      try {
+        const res = await fetch(
+          `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
+        );
+        const data = await res.json();
+        if (data?.reportId) {
+          reportId = data.reportId;
+        }
+      } catch (err) {
+        console.warn("⚠️ Could not fetch reportId for generated_pdf log");
+      }
+
+      const reportOwner = formData?.AccountInformation?.businessOwner || "";
+
+      try {
+        await fetch(`${BASE_URL}/api/activity/log`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "generated_pdf",
+            reportTitle,
+            reportId,
+            reportOwner,
+            performedBy: {
+              name: userName || "Unknown",
+              role: userRole || "unknown",
+            },
+          }),
+        });
+        console.log("✅ Logged 'generated_pdf' activity");
+      } catch (error) {
+        console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+      }
+
+      console.log("✅ Logged 'generated-pdf' activity");
+
+      // ✅ Ensure default version is set to Version 5
+      localStorage.setItem("selectedConsultantReportVersion", "Version 5");
+
+      // ✅ THIRD: Open PDF in new tab
+      window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
     } catch (error) {
-      console.warn("❌ Failed to log 'generated_pdf' activity:", error);
+      console.error("❌ Failed to log 'generated-pdf' activity:", error);
     }
-
-    console.log("✅ Logged 'generated-pdf' activity");
-
-    // ✅ Ensure default version is set to Version 5
-    localStorage.setItem("selectedConsultantReportVersion", "Version 5");
-
-    // ✅ THIRD: Open PDF in new tab
-    window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
-  } catch (error) {
-    console.error("❌ Failed to log 'generated-pdf' activity:", error);
-  }
-};
+  };
 
   const handleColorChange = (color) => {
     setSelectedColor(color);
@@ -800,25 +723,25 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
   };
 
   // Helper function to update ONLY formData in localStorage
-const updateFormDataInLocalStorage = (updates) => {
-  try {
-    // Get existing formData from localStorage
-    const existingFormDataStr = localStorage.getItem("formData");
-    const existingFormData = existingFormDataStr ? JSON.parse(existingFormDataStr) : {};
-    
-    // Merge with updates
-    const updatedFormData = {
-      ...existingFormData,
-      ...updates
-    };
-    
-    // Save back to localStorage
-    localStorage.setItem("formData", JSON.stringify(updatedFormData));
-    console.log("✅ Updated formData in localStorage with:", updates);
-  } catch (error) {
-    console.error("❌ Failed to update formData in localStorage:", error);
-  }
-};
+  const updateFormDataInLocalStorage = (updates) => {
+    try {
+      // Get existing formData from localStorage
+      const existingFormDataStr = localStorage.getItem("formData");
+      const existingFormData = existingFormDataStr ? JSON.parse(existingFormDataStr) : {};
+
+      // Merge with updates
+      const updatedFormData = {
+        ...existingFormData,
+        ...updates
+      };
+
+      // Save back to localStorage
+      localStorage.setItem("formData", JSON.stringify(updatedFormData));
+      console.log("✅ Updated formData in localStorage with:", updates);
+    } catch (error) {
+      console.error("❌ Failed to update formData in localStorage:", error);
+    }
+  };
 
   return (
     <>
@@ -901,45 +824,45 @@ const updateFormDataInLocalStorage = (updates) => {
                 />
               </div>
 
-             {/* Font Selection */}
-<div className="flex-1">
-  <label className="block text-gray-700 font-medium">
-    Choose Font:
-  </label>
-  <select
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    value={selectedFont}
-    onChange={(e) => {
-      const font = e.target.value;
-      setSelectedFont(font);
-      
-      // Save ONLY in formData (not as separate localStorage item)
-      updateFormDataInLocalStorage({ 
-        font: font
-      });
-    }}
-  >
-    {[
-      "Roboto",
-      "Poppins",
-      "Times New Roman",
-      "Open Sans",
-      "Inter",
-      "Montserrat",
-      "Lato",
-      "Nunito",
-      "Playfair Display",
-      "Raleway",
-      "Merriweather",
-      "Ubuntu",
-      "Oswald",
-    ].map((font) => (
-      <option key={font} value={font} style={{ fontFamily: font }}>
-        {font}
-      </option>
-    ))}
-  </select>
-</div>
+              {/* Font Selection */}
+              <div className="flex-1">
+                <label className="block text-gray-700 font-medium">
+                  Choose Font:
+                </label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedFont}
+                  onChange={(e) => {
+                    const font = e.target.value;
+                    setSelectedFont(font);
+
+                    // Save ONLY in formData (not as separate localStorage item)
+                    updateFormDataInLocalStorage({
+                      font: font
+                    });
+                  }}
+                >
+                  {[
+                    "Roboto",
+                    "Poppins",
+                    "Times New Roman",
+                    "Open Sans",
+                    "Inter",
+                    "Montserrat",
+                    "Lato",
+                    "Nunito",
+                    "Playfair Display",
+                    "Raleway",
+                    "Merriweather",
+                    "Ubuntu",
+                    "Oswald",
+                  ].map((font) => (
+                    <option key={font} value={font} style={{ fontFamily: font }}>
+                      {font}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         )}
@@ -1017,34 +940,7 @@ const updateFormDataInLocalStorage = (updates) => {
             Generate Financial
           </button>
 
-          {/* <button
-            onClick={() => navigate("/intro", { state: { formData } })}
-            className={`flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all ${!permissions.generateWord ? "cursor-not-allowed opacity-50" : ""
-              }`}
-            disabled={!permissions.generateWord}
-            title={
-              !permissions.generateWord
-                ? "You do not have permission to generate word."
-                : ""
-            }
-          // className="flex items-center bg-gradient-to-br from-amber-500 to-amber-300 text-white rounded-lg px-6 py-2 shadow-md hover:scale-105 transition-all"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            Generate Word
-          </button> */}
+         
         </div>
 
         {/* Advanced Options */}
