@@ -1,8 +1,7 @@
 
 
 
-import React, { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 
 const Stepper = ({ steps, currentStep, onStepClick }) => {
   const [newStep, setNewStep] = useState([]);

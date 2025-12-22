@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
@@ -441,6 +441,7 @@ const MenuBar = ({ userRole }) => {
   const visibleMenuItems = menuItems.filter((item) => {
     if (!item.roles.includes(userRole)) return false;
     if (item.path === '/consultant-report' && userRole === 'employee' && !permissions.consultantReport) return false;
+    if (item.path === '/cma-report' && userRole === 'employee' && !permissions.cmaData) return false;
     return true;
   });
 

@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import MenuBar from "./MenuBar";
-import Header from "./Header";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -155,7 +153,8 @@ useEffect(() => {
         `activity-${matches[currentMatchIndex]}`
       );
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
         element.classList.add("ring-2", "ring-orange-500");
         setTimeout(() => {
           element.classList.remove("ring-2", "ring-orange-500");
@@ -312,11 +311,8 @@ const handleEndDateChange = (e) => {
 };
 
   return (
-    <div className="flex h-[100vh]">
-      {renderMenuBar()}
+    <div className="flex h-[95vh]">
       <div className="app-content w-full p-6">
-        <Header dashboardType="Admin Dashboard" />
-
         {/* Always show total count and date filter section */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/50 shadow-sm p-2 my-2">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -517,7 +513,7 @@ const handleEndDateChange = (e) => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
+              <div className="space-y-3 overflow-y-auto max-h-[58vh] pr-1">
                 {filteredActivities.length > 0 ? (
                   filteredActivities.map((act) => (
                     <div

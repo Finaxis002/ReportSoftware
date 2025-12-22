@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
-import MenuBar from "../../MenuBar";
+import{ useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../../Header";
-import EmployeeTasks from "./EmployeeTasks";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner"; // Import loading spinner
 import LimitedEmployeeTaskView from "./LimitedEmployeeTaskView";
 
-const EmployeeDashboard = ({ userRole }) => {
+const EmployeeDashboard = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
@@ -63,32 +60,32 @@ const EmployeeDashboard = ({ userRole }) => {
 
   const fetchTasksAndCheckDueDate = async (empId) => {
     const justLoggedIn = sessionStorage.getItem("justLoggedIn");
-  
+   
     if (!justLoggedIn || !empId) return;
-  
+   
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000); // ⏱️ 8s timeout
-  
+   
       const res = await fetch(
         `${BASE_URL}/api/tasks?employeeId=${empId}`,
         { signal: controller.signal }
       );
       clearTimeout(timeout);
-  
+   
       const taskData = await res.json();
       const now = new Date();
-  
+   
       const upcomingTasks = taskData.filter((task) => {
         const due = new Date(task.dueDate);
         return due > now;
       });
-  
+   
       if (upcomingTasks.length > 0) {
         setDueTask(upcomingTasks); // Pass array
         setShowDueDatePopup(true);
       }
-  
+   
       sessionStorage.removeItem("justLoggedIn");
     } catch (err) {
       if (err.name === "AbortError") {
@@ -101,135 +98,126 @@ const EmployeeDashboard = ({ userRole }) => {
   
 
   return (
-    <div className="flex h-[100vh] overflow-hidden">
-      <MenuBar userRole={"employee"} />
+    <div className="space-y-6">
+      {/* ✅ Show loader while fetching data */}
+      {isLoading ? (
+        <div className="loader-container">
+          <LoadingSpinner /> {/* Your loading spinner component */}
+        </div>
+      ) : (
+        <>
+          {/* ✅ Display Logged-In Employee Details */}
+          {employeeData ? (
+            <div className="flex justify-center mt-8">
+              <div className="w-full max-w-4xl shadow-sm rounded-lg overflow-hidden border border-gray-200">
+                <div className="bg-gradient-to-r bg-teal-600 text-white text-center py-2">
+                  <h2 className="text-xl font-semibold">
+                    User Details
+                  </h2>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700 dark:text-white">
+                  {/* ✅ Employee ID */}
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                      User ID
+                    </p>
+                    <p className="text-sm capitalize font-medium">
+                      {employeeData?.employeeId || "N/A"}
+                    </p>
+                  </div>
 
-      <div className="app-content">
-        <Header dashboardType="User Dashboard" />
+                  {/* ✅ Name */}
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                      Name
+                    </p>
+                    <p className="text-sm capitalize font-medium">
+                      {employeeData?.name || "N/A"}
+                    </p>
+                  </div>
 
-        <div className="overflow-y-auto flex flex-col items-center justify-center">
-          {/* ✅ Show loader while fetching data */}
-          {isLoading ? (
-            <div className="loader-container">
-              <LoadingSpinner /> {/* Your loading spinner component */}
+                  {/* ✅ Email */}
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                      Email
+                    </p>
+                    <p className="text-sm capitalize font-medium">
+                      {employeeData?.email || "N/A"}
+                    </p>
+                  </div>
+
+                  {/* ✅ Designation */}
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                      Designation
+                    </p>
+                    <p className="text-sm capitalize font-medium">
+                      {employeeData?.designation || "N/A"}
+                    </p>
+                  </div>
+
+                  {/* ✅ Phone (Optional) */}
+                  {employeeData?.phone && (
+                    <div className="flex flex-col">
+                      <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                        Phone
+                      </p>
+                      <p className="text-sm capitalize font-medium">
+                        {employeeData?.phone || "N/A"}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* ✅ Date of Joining */}
+                  {employeeData?.dateOfJoining && (
+                    <div className="flex flex-col">
+                      <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                        Date of Joining
+                      </p>
+                      <p className="text-sm capitalize font-medium">
+                        {new Date(
+                          employeeData?.dateOfJoining
+                        ).toLocaleDateString() || "N/A"}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* ✅ Status */}
+                  {employeeData && employeeData.status !== undefined ? (
+                    <div className="flex flex-col">
+                      <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
+                        Status
+                      </p>
+                      <p
+                        className={`text-sm capitalize font-medium ${
+                          employeeData.status === "Active"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {employeeData.status}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-white">
+                      Status not available
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           ) : (
-            <>
-              {/* ✅ Display Logged-In Employee Details */}
-              {employeeData ? (
-                <div className="flex justify-center mt-8 ">
-                  <div className="w-full max-w-4xl shadow-sm rounded-lg overflow-hidden border border-gray-200">
-                    <div className="bg-gradient-to-r bg-teal-600  text-white text-center py-2">
-                      <h2 className="text-xl font-semibold">
-                        User Details
-                      </h2>
-                    </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-gray-700 dark:text-white">
-                      {/* ✅ Employee ID */}
-                      <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                          User ID
-                        </p>
-                        <p className="text-sm capitalize font-medium">
-                          {employeeData?.employeeId || "N/A"}
-                        </p>
-                      </div>
-
-                      {/* ✅ Name */}
-                      <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                          Name
-                        </p>
-                        <p className="text-sm capitalize font-medium">
-                          {employeeData?.name || "N/A"}
-                        </p>
-                      </div>
-
-                      {/* ✅ Email */}
-                      <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                          Email
-                        </p>
-                        <p className="text-sm capitalize font-medium">
-                          {employeeData?.email || "N/A"}
-                        </p>
-                      </div>
-
-                      {/* ✅ Designation */}
-                      <div className="flex flex-col">
-                        <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                          Designation
-                        </p>
-                        <p className="text-sm capitalize font-medium">
-                          {employeeData?.designation || "N/A"}
-                        </p>
-                      </div>
-
-                      {/* ✅ Phone (Optional) */}
-                      {employeeData?.phone && (
-                        <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                            Phone
-                          </p>
-                          <p className="text-sm capitalize font-medium">
-                            {employeeData?.phone || "N/A"}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* ✅ Date of Joining */}
-                      {employeeData?.dateOfJoining && (
-                        <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                            Date of Joining
-                          </p>
-                          <p className="text-sm capitalize font-medium">
-                            {new Date(
-                              employeeData?.dateOfJoining
-                            ).toLocaleDateString() || "N/A"}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* ✅ Status */}
-                      {employeeData && employeeData.status !== undefined ? (
-                        <div className="flex flex-col">
-                          <p className="text-sm text-gray-500 dark:text-white uppercase font-semibold">
-                            Status
-                          </p>
-                          <p
-                            className={`text-sm capitalize font-medium ${
-                              employeeData.status === "Active"
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }`}
-                          >
-                            {employeeData.status}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500 dark:text-white">
-                          Status not available
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 dark:text-white mt-4">
-                  No employee details found.
-                </p>
-              )}
-            </>
+            <p className="text-center text-gray-500 dark:text-white mt-4">
+              No employee details found.
+            </p>
           )}
 
           {/* Assigned Tasks */}
-
           {employeeData && (
             <LimitedEmployeeTaskView employeeId={employeeData.employeeId} />
           )}
-        </div>
-      </div>
+        </>
+      )}
 
       {showDueDatePopup && Array.isArray(dueTask) && dueTask.length > 0 && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex justify-center items-center z-50">

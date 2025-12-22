@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import{ useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import MenuBar from "../MenuBar";
-import Header from "../Header";
 import ReportDropdown from "../Dropdown/ReportDropdown";
 import CmaReportGenerator from "../CmaReportFromMenu/CmaReportGenerator";
 
@@ -33,19 +31,6 @@ const CmaPage = ({ userRole }) => {
   const [error, setError] = useState("");
   const [isDataSelected, setIsDataSelected] = useState(!!initialFormData);
 
-  const renderMenuBar = () => {
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        return null;
-    }
-  };
-
   function handleBusinessSelect(data) {
     setBusinessData(data);
     setBusinessDescription(data?.AccountInformation?.businessDescription || "");
@@ -65,15 +50,9 @@ const CmaPage = ({ userRole }) => {
 
   return (
     <div className="flex h-[100vh] bg-gray-50 dark:bg-gray-900 transition-colors duration-300 relative">
-      {renderMenuBar()}
       <div className="app-content flex-1 overflow-auto">
-        <Header
-          dashboardType={
-            userRole === "admin" ? "Admin Dashboard" : "User Dashboard"
-          }
-        />
-
-        <div className="p-6">
+       
+        <div className="">
           {/* Selection Card - Fixed z-index for dropdown */}
           <div className="w-full bg-white/70 dark:bg-[#232733]/80 backdrop-blur-[6px] rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-800 transition-all duration-300 hover:shadow-xl mb-2 relative z-40">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">

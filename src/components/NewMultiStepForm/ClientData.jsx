@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BASE_URL } from './Utils/baseurl';
 
 const ClientData = () => {
-  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [clientNames, setClientNames] = useState([]); // State to store client names
   const [selectedClient, setSelectedClient] = useState(''); // State to store selected client name
   const [localData, setLocalData] = useState({}); // State to store client data
