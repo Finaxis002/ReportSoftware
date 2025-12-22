@@ -17,7 +17,7 @@ import {
 } from "@react-pdf/renderer";
 import useStore from "../useStore";
 import axios from "axios";
-import { saveAs } from "file-saver"; // install this via `npm i file-saver`
+import { saveAs } from "file-saver"; 
 
 import ConsultantVariableIndex from "./ConsultantPdfComponents/ConsultantVariableIndex";
 import ConsultantProjectedProfitability from "./ConsultantPdfComponents/ConsultantProjectedProfitability";
@@ -1893,7 +1893,7 @@ const ConsultantGeneratedPDF = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {(userRole === 'admin' || permissions.downloadPDF) && (
                     <button
                       onClick={handleDownloadPDF}
