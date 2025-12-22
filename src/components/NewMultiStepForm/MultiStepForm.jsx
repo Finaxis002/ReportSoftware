@@ -542,26 +542,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    // console.log(authRole);
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   const handleNextStep = async (newStepData = {}, event) => {
     try {
