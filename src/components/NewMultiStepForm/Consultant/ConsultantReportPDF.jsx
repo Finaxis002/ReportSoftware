@@ -1893,6 +1893,7 @@ const ConsultantGeneratedPDF = () => {
                         </div>
                       )}
                     </div>
+                    {(userRole === 'admin' || permissions.downloadPDF) && (
                     <button
                       onClick={handleDownloadPDF}
                       className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
@@ -1900,6 +1901,7 @@ const ConsultantGeneratedPDF = () => {
                       <i className="fas fa-download"></i>
                       <span>Download PDF</span>
                     </button>
+                    )}
                   </div>
                 </div>
 

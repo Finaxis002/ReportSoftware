@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import{ useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import MenuBar from "./MenuBar";
-import Header from "./Header";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
@@ -19,8 +17,6 @@ const CreateReport = ({ userRole }) => {
     exportData: false, // ✅ Add this
   });
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -110,26 +106,6 @@ const CreateReport = ({ userRole }) => {
   }, [userRole, userName, refreshKey]);
 
 
-  // ✅ Render the menu bar based on user role
-  const renderMenuBar = () => {
-    if (!userRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
-
   // ✅ Handle Create Report click
   const handleCreateReportClick = () => {
     localStorage.removeItem("FirstStepBasicDetails");
@@ -138,22 +114,8 @@ const CreateReport = ({ userRole }) => {
 
   return (
     <div className="flex h-[100vh]">
-      {renderMenuBar()}
       <div className="app-content">
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
-
-        {/* ✅ Cards Section */}
-        {/* 🔄 Refresh Button */}
-        <div className="flex justify-start items-center px-5 pt-4">
-          <button
-            onClick={() => setRefreshKey((prev) => prev + 1)}
-            className="flex items-center gap-2 text-sm  text-teal-700 dark:text-teal-200 hover:text-teal-900 transition-all"
-            title="Refresh Permissions & Cards"
-          >
-            <FontAwesomeIcon icon={faSyncAlt} className="text-lg" />
-           
-          </button>
-        </div>
+       
         <div className=" w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
           {/* ✅ New Report Card - show if permission.createReport is true */}
 

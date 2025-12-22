@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useStore from "./useStore";
 import { useNavigate } from "react-router-dom";
 // Add this import at the top of your file
@@ -6,7 +6,6 @@ import { usePDF } from 'react-to-pdf';
 import shouldHideFirstYear from './PDFComponents/HideFirstYear'
 
 const CheckProfit = () => {
-  const computedDataToProfit = useStore((state) => state.computedDataToProfit);
   const [storedData, setStoredData] = useState(null);
 
   const [formData, setFormData] = useState(() => {
@@ -18,14 +17,8 @@ const CheckProfit = () => {
     totalIndirectExpensesArray: [],
   });
 
-  const { toPDF, targetRef } = usePDF({ filename: 'profit-statements.pdf' });
-  const navigate = useNavigate();
+  const { targetRef } = usePDF({ filename: 'profit-statements.pdf' });
 
-  const handleBack = () => {
-    const lastStep = parseInt(localStorage.getItem("lastStep")) || 8; // ✅ Parse and set fallback
-    console.log(`🔄 Navigating back to step: ${lastStep}`);
-    navigate(`/MultistepForm?step=${lastStep}`);
-  };
 
   useEffect(() => {
     try {

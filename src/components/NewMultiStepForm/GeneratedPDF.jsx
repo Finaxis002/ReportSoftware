@@ -1,4 +1,4 @@
-import React, {
+import{
   useState,
   useEffect,
   useMemo,
@@ -14,17 +14,12 @@ import {
   Document,
   PDFViewer,
   BlobProvider,
-  Text,
-  pdf,
 } from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
-import { FiDownload, FiShare2 } from "react-icons/fi"; // npm i react-icons
-
 
 // Register chart.js components
-import BasicDetails from "./PDFComponents/BasicDetails";
 import ProjectSynopsis from "./PDFComponents/ProjectSynopsis";
 import MeansOfFinance from "./PDFComponents/MeansOfFinance";
 import CostOfProject from "./PDFComponents/CostOfProject";
@@ -45,8 +40,6 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
-// import GeneratedSections from "./PDFComponents/GeneratedSections";
-// import WordIntro from "./PDFComponents/WordIntroduction";
 
 
 const GeneratedPDF = () => {
@@ -1292,13 +1285,15 @@ const GeneratedPDF = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
-                    >
-                      <i className="fas fa-download"></i>
-                      <span>Download PDF</span>
-                    </button>
+                    {(userRole === 'admin' || permissions.downloadPDF) && (
+                      <button
+                        onClick={handleDownloadPDF}
+                        className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
+                      >
+                        <i className="fas fa-download"></i>
+                        <span>Download PDF</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 

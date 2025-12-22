@@ -1,13 +1,12 @@
 
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import { BASE_URL } from "../Utils/baseurl";
 
 const EmployeeNotifications = () => {
-  // const BASE_URL = 'https://reportsbe.sharda.co.in';
-   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [notifications, setNotifications] = useState([]);
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
@@ -18,7 +17,7 @@ const EmployeeNotifications = () => {
       if (!employeeId) return;
 
       try {
-        await fetch("https://reportsbe.sharda.co.in/api/notifications/mark-seen", {
+        await fetch(`${BASE_URL}/api/notifications/mark-seen`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ employeeId }),
@@ -88,7 +87,7 @@ const fetchNotifications = async () => {
   }, [notifications]);
 
   return (
-    <div className="mt-4">
+    <div className="">
       <h3 className="text-lg mb-2 dark:text-white">
         {userRole === "admin" ? "Admin Notifications" : "User Notifications"}
       </h3>
@@ -96,7 +95,7 @@ const fetchNotifications = async () => {
       {loading ? (
         <p className="text-gray-500">Loading notifications...</p>
       ) : (
-        <ul className="list-none ml-4 h-[70vh] overflow-y-auto">
+        <ul className="list-none ml-4 overflow-y-auto">
           {Array.isArray(notifications) && notifications.length > 0 ? (
             notifications.map((notification) => (
               <li

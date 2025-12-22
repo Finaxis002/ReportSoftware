@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import Header from "./Header";
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
 import StepperControl from "./StepperControl";
@@ -18,7 +17,6 @@ import FifthStepExpenses from "./Steps/FifthStepExpenses";
 import SixthRevenue from "./Steps/SixthRevenue";
 import SeventhStepMD from "./Steps/SeventhStepMD";
 import EighthStep from "./Steps/EighthStep"
-import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
@@ -707,13 +705,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   return (
     <div className="flex h-[100vh]">
-      {renderMenuBar()}
       <div className="App w-full shadow-xl rounded-2xl pb-2">
-        <Header
-          dashboardType={
-            userRole === "admin" ? "Admin Dashboard" : "Employee Dashboard"
-          }
-        />
 
         {/* Stepper Component */}
         <div className="container horizontal mb-[3.5rem]">

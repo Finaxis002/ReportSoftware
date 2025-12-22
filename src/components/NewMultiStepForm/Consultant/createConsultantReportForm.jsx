@@ -1,11 +1,10 @@
-import React, {
+import {
   useState,
   useCallback,
   useMemo,
   useEffect,
   useRef,
 } from "react";
-import Header from "../Header";
 import "../../../css/reportForm.css";
 import Stepper from "../Stepper";
 import StepperControl from "../StepperControl";
@@ -18,7 +17,6 @@ import FifthStepExpenses from "../Steps/FifthStepExpenses";
 import SixthRevenue from "../Steps/SixthRevenue";
 import SeventhStepMD from "../Steps/SeventhStepMD";
 import ConsultantEighthStep from "./ConsultantSteps/ConsultantEighthStep";
-import MenuBar from "../MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AllReportsDropdown from "../Dropdown/AllReportsDropdown";
@@ -656,27 +654,6 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     }
   };
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    // console.log(authRole);
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
-
   const handleNextStep = async (newStepData = {}, event) => {
     try {
       // Prevent default behavior if event exists
@@ -876,14 +853,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
 
   return (
-    <div className="flex h-[100vh]">
-      {renderMenuBar()}
+     <div className="flex h-[100vh]">
       <div className="App w-full shadow-xl rounded-2xl pb-2">
-        <Header
-          dashboardType={
-            userRole === "admin" ? "Admin Dashboard" : "Employee Dashboard"
-          }
-        />
 
         {/* Stepper Component */}
         <div className="container horizontal mb-[3.5rem]">
@@ -894,20 +865,14 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
           />
         </div>
 
-        {/* ✅ Dropdowns placed outside steps to persist selection */}
-        {userRole !== "client" && (
-          <div className="flex gap-4 mb-4 pl-4">
-            {!isCreateReportClicked && (
-              <>
-                <div className="flex-2">
-                  <AllReportsDropdown onBusinessSelect={handleBusinessSelect} showAll={isCreateReportWithExistingClicked} consultantId={consultantId} />
-                </div>
-                {/* ✅ Version Dropdown */}
-                {/* <div className="flex-1">
-                  <VersionDropdown selectedVersion={selectedVersion} onVersionChange={handleVersionChange} />
-                </div> */}
-              </>
-            )}
+        {/* ✅ Dropdown placed outside steps to persist selection */}
+        {!isCreateReportClicked && userRole !== "client" && (
+          <div className="">
+            {/* <ClientNameDropdown
+              onClientSelect={() => { }}
+              onBusinessSelect={handleBusinessSelect}
+            /> */}
+            <AllReportsDropdown onBusinessSelect={handleBusinessSelect} />
           </div>
         )}
         <div>{stepContent}</div>

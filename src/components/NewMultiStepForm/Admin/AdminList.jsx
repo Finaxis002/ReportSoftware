@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { getAdmins, deleteAdmin, updateAdmin } from "../../../api/adminAPI";
+import { useEffect, useState } from "react";
+import { getAdmins, deleteAdmin } from "../../../api/adminAPI";
 import AddAdminForm from "./AddAdminForm";
-import MenuBar from "../MenuBar";
 import { faEye, faEyeSlash, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Header from "../Header";
+import { BASE_URL } from "../Utils/baseurl";
 
 const AdminList = () => {
   const [admins, setAdmins] = useState([]);
@@ -62,54 +61,7 @@ const AdminList = () => {
     }
   };
 
-  // const handleEdit = async (id) => {
-  //   try {
-  //     await updateAdmin(id, updatedName, updatedPassword, caSign, permissions);
-  //     setEditingAdmin(null);
-  //     fetchAdmins();
-  //     setIsModalOpen(false);
-  //     setUpdatedPassword(""); // ← this clears the input for safety after opening modal
-
-  //   } catch (error) {
-  //     console.error("Failed to update admin:", error);
-  //   }
-  //   if (updatedPassword.trim() === "") {
-  //     const confirm = window.confirm("Password field is empty. Do you want to keep the old password?");
-  //     if (!confirm) return;
-  //   }
-    
-  // };
-
-  // const handleEdit = async () => {
-  //   try {
-  //     // Use the ID of the admin that is being edited (from the state)
-  //     const adminId = editingAdmin._id;
   
-  //     const response = await fetch(`https://reportsbe.sharda.co.in//api/admin/update/${adminId}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         username: updatedName,
-  //         password: updatedPassword,  // Ensure password is included
-  //         roles: roles, // Include roles directly as an object
-  //       }),
-  //     });
-  
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       console.log("Admin updated successfully:", data);
-  //       setEditingAdmin(null);
-  //       fetchAdmins(); // Refresh admin list
-  //       setIsModalOpen(false); // Close the modal
-  //     } else {
-  //       console.error("Error updating admin:", data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during update:", error);
-  //   }
-  // };
   
   const handleEdit = async (id) => {
   try {
@@ -126,7 +78,7 @@ const AdminList = () => {
     }
 
     // Call update API
-    const response = await fetch(`https://reportsbe.sharda.co.in//api/admin/${id}`, {
+    const response = await fetch(`${BASE_URL}//api/admin/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -161,7 +113,7 @@ const AdminList = () => {
     setUpdatedPassword("");
 
     if (admin.caSign) {
-      setCaSign(`https://reportsbe.sharda.co.in//api/uploads/${admin.caSign}`);
+      setCaSign(`${BASE_URL}/api/uploads/${admin.caSign}`);
       setFileName(admin.caSign.split("/").pop());
     } else {
       setFileName("");
@@ -178,9 +130,7 @@ const AdminList = () => {
 
   return (
     <div className="flex h-[100vh]">
-      <MenuBar userRole="admin" />
       <div className="app-content">
-        <Header dashboardType="Admin Dashboard" />
         <div className="flex justify-between mt-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">List of Chartered Accountants (Admin)</h2>
         <div className="flex justify-center">
@@ -197,7 +147,7 @@ const AdminList = () => {
               <div className="flex items-center mb-4">
                 {admin.caSign ? (
                   <img
-                    src={`https://reportsbe.sharda.co.in//${admin.caSign}`}
+                    src={`${BASE_URL}/${admin.caSign}`}
                     alt="CA Sign"
                     className="w-[70px] h-[70px] rounded-lg object-cover border-2 border-gray-300 mr-4"
                   />

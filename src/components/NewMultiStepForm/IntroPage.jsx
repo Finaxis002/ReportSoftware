@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState} from "react";
 import ReportDropdown from "./Dropdown/ReportDropdown";
 import ProjectReportWordExport from "./AIIntro/ProjectReportWordExport";
 import axios from "axios";
-import MenuBar from "./MenuBar";
 import { useLocation } from "react-router-dom";
 import { BASE_URL } from "./Utils/baseurl";
 
@@ -98,7 +97,6 @@ const IntroPage = ({ userRole }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <MenuBar userRole={userRole} />
       <div className="flex-1 p-8">
         <h2 className="text-xl font-bold mb-4">AI Project Report Generator</h2>
 
