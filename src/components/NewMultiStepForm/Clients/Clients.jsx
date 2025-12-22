@@ -16,6 +16,7 @@ const Clients = () => {
   const [clientNames, setClientNames] = useState([]);
   const [error, setError] = useState(null);
   const [selectedClient, setSelectedClient] = useState("All"); // "All" is for showing all clients
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const [newClientDetails, setNewClientDetails] = useState({
     clientName: "",
@@ -28,12 +29,12 @@ const Clients = () => {
   useEffect(() => {
     const fetchClientsAndFormData = async () => {
       try {
+        setLoading(true); // Set loading to true when starting fetch
         const [clientsResponse, formDataResponse] = await Promise.all([
-          axios.get("https://reportsbe.sharda.co.in/api/clients"),
-          axios.get("https://reportsbe.sharda.co.in/api/formdatas"),
+          axios.get(`${BASE_URL}/api/clients`),
+          axios.get(`${BASE_URL}/api/formdatas`),
         ]);
        
-
         setClients(clientsResponse.data);
         setFormData(formDataResponse.data);
 
@@ -44,6 +45,8 @@ const Clients = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to fetch data from APIs");
+      } finally {
+        setLoading(false); // Set loading to false after fetch completes
       }
     };
 
@@ -62,6 +65,7 @@ const Clients = () => {
   const handleDeleteClient = async (clientId) => {
     if (window.confirm("Are you sure you want to delete this client?")) {
       try {
+        setLoading(true);
         await axios.delete(
           `${BASE_URL}/api/clients/${clientId}`
         );
@@ -70,6 +74,8 @@ const Clients = () => {
       } catch (error) {
         console.error("Error deleting client:", error);
         alert("Failed to delete client!");
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -88,6 +94,7 @@ const Clients = () => {
 
   const handleAddClient = async () => {
     try {
+      setLoading(true);
       if (selectedClient) {
         // Update client
         await axios.put(
@@ -120,6 +127,8 @@ const Clients = () => {
     } catch (error) {
       console.error("Error saving client:", error);
       alert("Failed to save client!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,7 +163,13 @@ const Clients = () => {
           {/* Clients Card Layout */}
           
           <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-3 gap-8 px-4 py-6">
-            {clients.length > 0 ? (
+            {loading ? (
+              // Loading state
+              <div className="col-span-full flex flex-col items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">Loading clients...</p>
+              </div>
+            ) : clients.length > 0 ? (
               clients.map((client) => (
                 <div
                   key={client._id}
@@ -219,7 +234,7 @@ const Clients = () => {
               </div>
             )}
 
-            {formData.length > 0 ? (
+            {loading ? null : formData.length > 0 ? (
               formData.map((data, index) => (
                 <div
                   key={index}
