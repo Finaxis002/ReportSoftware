@@ -1893,6 +1893,7 @@ const ConsultantGeneratedPDF = () => {
                         </div>
                       )}
                     </div>
+                    
                     {(userRole === 'admin' || permissions.downloadPDF) && (
                     <button
                       onClick={handleDownloadPDF}
