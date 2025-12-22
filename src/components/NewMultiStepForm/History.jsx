@@ -46,24 +46,6 @@ useEffect(() => {
     }
   }, [userRole]);
 
-  const renderMenuBar = () => {
-    if (!userRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
 // Replace the entire fetchActivityLog useEffect with this:
 useEffect(() => {
