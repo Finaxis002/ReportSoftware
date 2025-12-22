@@ -161,6 +161,7 @@ const EmployeeDetailsList = () => {
         <div className="flex justify-end items-center mb-2 px-2">
           <button
             onClick={handleRefresh}
+             aria-label="Refresh employee list"
             className="flex items-center gap-1 text-sm text-teal-700 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
           >
             <FontAwesomeIcon icon={faSync} className="text-lg" />
