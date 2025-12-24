@@ -1,9 +1,8 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text, } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
-
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 
 const DebtServiceCoverageRatio = ({
   formData,
@@ -14,13 +13,15 @@ const DebtServiceCoverageRatio = ({
   financialYearLabels,
   DSCRSend,
   formatNumber,
+  pdfType,
   receivedtotalRevenueReceipts,
   orientation,
 }) => {
 
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
-    
+
+
     const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
 
 const interestRate = formData?.ProjectReportSetting?.interestOnTL;
@@ -65,6 +66,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
+
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
@@ -89,6 +91,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   const monthsPerYear = calculateMonthsPerYear();
 
 
+
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
@@ -98,7 +101,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
       Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0;
     const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
     const annualInterestAmount = (principal * rate) / 100;
-
 
     const firstRepaymentYearIndex = monthsPerYear.findIndex(
       (months) => months > 0
@@ -112,6 +114,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         return 0;
       }
 
+  
       if (
         yearIndex === firstRepaymentYearIndex &&
         (moratoriumPeriodMonths > 0 || monthsInYear < 12)
@@ -120,7 +123,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         // console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
         return prorated;
       }
-      // Full annual interest for other repayment years
+
       return annualInterestAmount;
     };
   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
@@ -131,6 +134,8 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
     const calculatedInterest = calculateInterestOnWorkingCapital(yearIndex);
     return calculatedInterest === 0;
   });
+
+  const { Expenses = {} } = formData;
 
   // ✅ Compute Total Sum for Each Year
   const totalA = Array.from({
@@ -256,8 +261,79 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           wrap={false}
           break
         >
-         
-        <PDFHeader />
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+                fixed
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
+          {/* businees name and financial year  */}
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Bame"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2025-26"}
+            </Text>
+          </View>
+
+          {/* Amount format */}
+
+          <View
+            style={{
+              display: "flex",
+              alignContent: "flex-end",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+            }}
+          >
+            <Text style={[styles.AmountIn, styles.italicText]}>
+              (Amount In{" "}
+              {
+                formData?.ProjectReportSetting?.AmountIn === "rupees"
+                  ? "Rs." // Show "Rupees" if "rupees" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "crores"
+                  ? "Crores" // Show "Crores" if "crores" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "millions"
+                  ? "Millions" // Show "Millions" if "millions" is selected
+                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+              }
+              )
+            </Text>
+          </View>
           <View style={[styles.table, { borderRightWidth: 0 }]}>
             <View
               style={[
@@ -878,8 +954,26 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               })}
             </View>
           </View>
-         
-         <PDFFooter />
+          {/* businees name and Client Name  */}
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "60px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
+          </View>
         </Page>
       );
     });
@@ -894,8 +988,77 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
       wrap={false}
       break
     >
-    
-     <PDFHeader />
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
+      {/* businees name and financial year  */}
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Bame"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
+        </Text>
+      </View>
+
+      {/* Amount format */}
+
+      <View
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
+      </View>
       <View style={[styles.table, { borderRightWidth: 0 }]}>
         <View
           style={[
@@ -1514,7 +1677,26 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             })}
         </View>
       </View>
-     <PDFFooter />
+      {/* businees name and Client Name  */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "80px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop: "60px",
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+          {formData?.AccountInformation?.businessOwner || "businessOwner"}
+        </Text>
+      </View>
     </Page>
   );
 };

@@ -1,12 +1,9 @@
-
-
-
-import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Page } from "@react-pdf/renderer";
+import{ useState, useEffect } from "react";
+import { View, Text, Image, Page } from "@react-pdf/renderer";
 import { generateChart } from "../charts/chart";
 import { generateBarChart } from "../charts/barChart";
 
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "../Consultant/ConsultantPdfComponents/Styles";
+import { styles, stylesCOP } from "../Consultant/ConsultantPdfComponents/Styles";
 
 const ConsultantPDFWithChart = ({
   totalExpenses,
@@ -17,6 +14,7 @@ const ConsultantPDFWithChart = ({
   const [pieBase64, setPieBase64] = useState(null);
   const [barBase64, setBarBase64] = useState(null);
   
+
   useEffect(() => {
     const generateCharts = async () => {
       if (!formData?.Expenses?.directExpense) return;

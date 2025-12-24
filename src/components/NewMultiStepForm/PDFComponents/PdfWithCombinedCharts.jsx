@@ -2,7 +2,6 @@ import PdfWithCurrentRatioChart from "./PdfWithCurrentRatioChart";
 import PdfWithLineChart from "./PdfWithLineChart";
 import { Page, StyleSheet, View } from "@react-pdf/renderer";
 
-
 const PdfWithCombinedCharts = ({
   labels = [],
   currentRatio = [],

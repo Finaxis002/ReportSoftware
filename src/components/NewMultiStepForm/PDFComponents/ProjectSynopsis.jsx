@@ -4,8 +4,6 @@ import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
 
 const ProjectSynopsis = React.memo(
   ({
@@ -21,8 +19,7 @@ const ProjectSynopsis = React.memo(
     receivedAssetsLiabilities = [],
     pdfType,
     handleContextMenu,
-    renderTotalBankLoanLabel,
-    formatNumber
+    renderTotalBankLoanLabel
   }) => {
      const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
     // Converts 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc.
@@ -137,7 +134,36 @@ const ProjectSynopsis = React.memo(
       },
     ];
 
+    const formatNumber = (value) => {
+      const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
 
+      if (value === undefined || value === null || isNaN(value)) return "0"; // ✅ Handle invalid values with 0
+
+      // ✅ Check if the value has decimal points
+      const hasDecimal = value % 1 !== 0;
+
+      // ✅ Format options based on whether decimals are needed
+      const formatOptions = hasDecimal
+        ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } // Show 2 decimal places
+        : {}; // No decimal places for whole numbers
+
+      switch (formatType) {
+        case "1": // Indian Format (1,23,456.00)
+          return new Intl.NumberFormat("en-IN", formatOptions).format(value);
+
+        case "2": // USD Format (1,123,456.00)
+          return new Intl.NumberFormat("en-US", formatOptions).format(value);
+
+        case "3": // Generic Indian Format (1,23,456.00)
+          return new Intl.NumberFormat("en-IN", formatOptions).format(value);
+
+        default: // Default to Indian Format
+          return new Intl.NumberFormat("en-IN", formatOptions).format(value);
+      }
+    };
+
+  
+    // ✅ Function to get the first non-zero percentage value and its corresponding year
     const getFirstNonZeroPercentageWithYear = (percentageArray) => {
       // Find the index of the first non-zero value
       const firstNonZeroIndex = Array.isArray(percentageArray)
@@ -191,7 +217,40 @@ const ProjectSynopsis = React.memo(
     return (
       <>
         <Page size="A4" style={styles.page} ref={handleContextMenu}>
-        <PDFHeader formData={formData} pdfType={pdfType} />
+          <View>
+            <Text style={styles.businessName}>
+              {formData?.AccountInformation?.businessName || "Business Bame"}
+            </Text>
+            <Text style={styles.FinancialYear}>
+              Financial Year{" "}
+              {formData?.ProjectReportSetting?.FinancialYear
+                ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
+                : "2025-26"}
+            </Text>
+          </View>
+          {/* watermark  */}
+          <View style={{ position: "absolute", left: 70, top: 0, zIndex: -1 }}>
+            {/* ✅ Conditionally Render Watermark */}
+            {pdfType &&
+              pdfType !== "select option" &&
+              (pdfType === "Sharda Associates" ||
+                pdfType === "CA Certified") && (
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "500px", // Adjust size based on PDF layout
+                    height: "700px",
+                    opacity: 0.4, // Light watermark to avoid blocking content
+                  }}
+                />
+              )}
+          </View>
           <View>
             <Text style={styles.title}>Project Synopsis</Text>
 
@@ -1439,7 +1498,26 @@ const ProjectSynopsis = React.memo(
             </View>
           </View>
 
-         <PDFFooter />
+          {/* businees name and Client Name  */}
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "60px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "Client Name"}
+            </Text>
+          </View>
         </Page>
       </>
     );

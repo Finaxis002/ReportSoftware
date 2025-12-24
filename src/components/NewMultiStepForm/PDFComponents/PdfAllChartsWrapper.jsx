@@ -8,7 +8,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
-import { styles} from "./Styles";
+import { styles } from "./Styles";
 
 import ConsultantPDFWithChart from "./ConsultantPDFWithChart";
 
@@ -52,7 +52,7 @@ const PdfAllChartsWrapper = ({
 
     console.log("✅ PdfAllChartsWrapper: totalExpensestosend:", totalExpensestosend);
   
-  // Render the chart components to generate charts
+
   return (
     <>
       {currentRoute === "/consultant-report-pdf" ? (

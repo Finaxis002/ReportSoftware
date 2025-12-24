@@ -1,4 +1,4 @@
-import{
+import React, {
   useState,
   useEffect,
   useMemo,
@@ -19,7 +19,7 @@ import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
 
-// Register chart.js components
+
 import ProjectSynopsis from "./PDFComponents/ProjectSynopsis";
 import MeansOfFinance from "./PDFComponents/MeansOfFinance";
 import CostOfProject from "./PDFComponents/CostOfProject";
@@ -40,7 +40,6 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
-
 
 const GeneratedPDF = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
@@ -162,7 +161,6 @@ const GeneratedPDF = () => {
     }
   }, [location.pathname]);
 
-  // window.addEventListener('keydown', e => console.log(e.key));
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -236,20 +234,7 @@ const GeneratedPDF = () => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-  useEffect(() => {
-    const fetchChart = async () => {
-      try {
-        // console.log("🚀 Generating Chart...");
-        // const base64 = await generateChart();
-        // console.log("✅ Chart Base64:", base64);
-        // setChartBase64(base64);
-      } catch (error) {
-        console.error("❌ Failed to generate chart:", error);
-      }
-    };
-
-    fetchChart(); // ✅ Generate on component mount
-  }, []);
+ 
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -337,7 +322,13 @@ const GeneratedPDF = () => {
     return parseFloat(cleaned) || 0;
   };
 
-
+  // const firstYearGrossFixedAssets = useMemo(() => {
+  //   return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
+  //     if (asset?.isSelected) return sum; // ✅ Skip selected assets
+  //     const netAsset = parseAmount(asset.amount);
+  //     return sum + netAsset;
+  //   }, 0);
+  // }, [formData?.CostOfProject]);
   const firstYearGrossFixedAssets = useMemo(() => {
     return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
       if (asset?.isSelected || asset?.isPreliminary) return sum;
@@ -401,6 +392,10 @@ const GeneratedPDF = () => {
         }).format(value);
     }
   };
+
+  // useEffect(() => {
+  //   console.log("🔄 GeneratedPDF is re-rendering");
+  // });
 
   //saving data to Local Storage
 
@@ -753,7 +748,8 @@ const GeneratedPDF = () => {
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
       >
-
+        {/* basic details table */}
+        {/* <BasicDetails formData={formData} /> */}
         <ProjectSynopsis
           formData={formData}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
@@ -774,10 +770,8 @@ const GeneratedPDF = () => {
             console.log("✅ProjectSynopsis rendered");
             setIsPDFLoading(false);
           }}
-          formatNumber={formatNumber}
         />
 
-       
 
         <PdfAllChartsWrapper
           formData={formData}
@@ -1285,15 +1279,13 @@ const GeneratedPDF = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    {(userRole === 'admin' || permissions.downloadPDF) && (
-                      <button
-                        onClick={handleDownloadPDF}
-                        className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
-                      >
-                        <i className="fas fa-download"></i>
-                        <span>Download PDF</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-button shadow-md"
+                    >
+                      <i className="fas fa-download"></i>
+                      <span>Download PDF</span>
+                    </button>
                   </div>
                 </div>
 
@@ -1395,8 +1387,6 @@ const GeneratedPDF = () => {
                       }
                     }}
                   ></div>
-
-                  
                 </div>
               </div>
             </>

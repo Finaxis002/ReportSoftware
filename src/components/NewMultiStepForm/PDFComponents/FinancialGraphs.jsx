@@ -1,6 +1,6 @@
 import {useState} from "react";
-import { Page} from "@react-pdf/renderer";
-import { styles } from "./Styles";
+import { Page,  } from "@react-pdf/renderer";
+import { styles,} from "./Styles";
 import DirectExpenseBreakUpGraph from "./Graphs/DirectExpenseBreakUp";
 
 const FinancialGraphs = ({

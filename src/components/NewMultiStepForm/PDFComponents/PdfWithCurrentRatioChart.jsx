@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {  Text, View, Document, Image, } from '@react-pdf/renderer';
 import CurrentRatioChart from '../charts/CurrentRatioChart';
-import { styles} from "./Styles";
+import { styles } from "./Styles";
 
 const MyDocument = ({ chartBase64 }) => (
   <Document>

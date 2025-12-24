@@ -1,8 +1,10 @@
-import { Page, Text, View, } from "@react-pdf/renderer";
+
+import { Page, Text, View,  } from "@react-pdf/renderer";
 import { styles, styleExpenses } from "./Styles";
 
 
-const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData}) => {
+
+const GeneratedSections = ({ generatedPDF, startPageNumber = 1 ,formData, pdfType,}) => {
   console.log("📄 GeneratedSections received generatedPDF:", generatedPDF);
   
   if (!generatedPDF || typeof generatedPDF !== "object" || Object.keys(generatedPDF).length === 0) {

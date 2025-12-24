@@ -1,35 +1,58 @@
-import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, styleExpenses } from "./Styles";
+import { Page, View, Text, Image} from "@react-pdf/renderer";
+import { styles, stylesCOP,styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PDFHeader from "./HeaderFooter/PDFHeader";
 
-// ✅ Register Font
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
-
-const PromoterDetails = ({ formData }) => {
+const PromoterDetails = ({ formData, pdfType }) => {
 
   // ✅ Determine pronouns based on gender
 
   return (
-
     <Page size="A4" style={styles.page}>
-    <PDFHeader />
+      {/* ✅ Watermark */}
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 500,
+              height: 700,
+              marginLeft: -250,
+              marginTop: -350,
+              opacity: 0.4,
+              zIndex: -1,
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
 
       <View style={styleExpenses?.paddingx}>
+        {/* ✅ Business name and financial year */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                ).toString()}`
+              : "2025-26"}
+          </Text>
+        </View>
+
         {/* ✅ Table Heading */}
         <View
           style={[
@@ -509,7 +532,6 @@ const PromoterDetails = ({ formData }) => {
         )}
       </View>
     </Page>
-
   );
 };
 
