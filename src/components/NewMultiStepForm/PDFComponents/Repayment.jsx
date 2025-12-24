@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Page, View, Text} from "@react-pdf/renderer";
+import React, { useEffect, useState, useMemo } from "react";
+import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
-import { Font } from "@react-pdf/renderer";
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
+import PDFHeader from "./HeaderFooter/PDFHeader";
+import PDFFooter from "./HeaderFooter/PDFFooter";
+
 
 const Repayment = ({
   formData,
@@ -26,11 +17,6 @@ const Repayment = ({
 
   const interestRate = formData.ProjectReportSetting.interestOnTL / 100;
   const moratoriumPeriod = formData.ProjectReportSetting.MoratoriumPeriod; // Given = 5 months
-  const repaymentMonths = formData.ProjectReportSetting.RepaymentMonths;
-  const [yearlyInterestLiabilities, setYearlyInterestLiabilities] = useState(
-    []
-  );
-  const [yearlyPrincipalRepayment, setYearlyPrincipalRepayment] = useState([]);
 
   const repaymentMethod = formData.ProjectReportSetting.SelectRepaymentMethod; // Get selected repayment method
 
@@ -59,10 +45,10 @@ const Repayment = ({
       : rmRaw.includes("semiannual") ||
         rmRaw.includes("semianual") ||
         rmRaw.includes("semiannually")
-      ? 6
-      : rmRaw.includes("annual") || rmRaw.includes("year")
-      ? 12
-      : 1; 
+        ? 6
+        : rmRaw.includes("annual") || rmRaw.includes("year")
+          ? 12
+          : 1;
 
 
   // Example: start=April (offset 0), Quarterly=3 => offsets 2,5,8,11 => Jun, Sep, Dec, Mar
@@ -87,10 +73,6 @@ const Repayment = ({
 
   // principal per repayment event (last one clears rounding)
   const principalPerEvent = eventsCount > 0 ? TL / eventsCount : 0;
-
-
-  let repaymentPeriod = 1; // Default to monthly
-  let periodsInYear = 12; // Default to monthly (12 months in a year)
 
   // Keep your existing months array (you have April→March). Use whatever you already use.
   const MONTHS = [
@@ -162,13 +144,18 @@ const Repayment = ({
 
 
   // Precompute labels for all events
-  const eventEndOffsets = Array.from(
-    { length: eventsCount },
-    (_, i) => firstRepayOffset + i * cadence
-  );
-  const periodLabels = eventEndOffsets.map((off) =>
-    periodLabelAt(off, cadence, startMonthIndex)
-  );
+  const eventEndOffsets = useMemo(() => {
+    return Array.from(
+      { length: eventsCount },
+      (_, i) => firstRepayOffset + i * cadence
+    );
+  }, [firstRepayOffset, cadence, eventsCount]);
+
+  const periodLabels = useMemo(() => {
+    return eventEndOffsets.map((off) =>
+      periodLabelAt(off, cadence, startMonthIndex)
+    );
+  }, [eventEndOffsets, cadence, startMonthIndex]);
 
   const capitalizeFirstLetter = (str) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -196,165 +183,152 @@ const Repayment = ({
 
   // let data = [];
 
-  // Update the months array to accommodate quarterly, semi-annual, or annual repayment
-  let monthsForRepayment = [];
-  if (repaymentMethod === "Monthly") {
-    monthsForRepayment = months; // Monthly
-  } else if (repaymentMethod === "Quarterly") {
-    monthsForRepayment = months.filter((month, index) => index % 3 === 0); // Every 3 months (quarterly)
-  } else if (repaymentMethod === "Semi-annually") {
-    monthsForRepayment = months.filter((month, index) => index % 6 === 0); // Every 6 months (semi-annually)
-  } else if (repaymentMethod === "Annually") {
-    monthsForRepayment = months.filter((month, index) => index % 12 === 0); // Every 12 months (annually)
-  }
 
-  let data = [];
+  const data = useMemo(() => {
+    const result = [];
+    let monthsLeft = TOTAL_MONTHS; // includes moratorium
+    let remainingBalance = TL;
+    let globalOffset = 0; // 0..TOTAL_MONTHS-1 since start month
+    let repayEventNo = 0;
 
-  let monthsLeft = TOTAL_MONTHS; // includes moratorium
-  let remainingBalance = TL;
-  let globalOffset = 0; // 0..TOTAL_MONTHS-1 since start month
-  let repayEventNo = 0;
+    while (monthsLeft > 0) {
+      const yearData = [];
+      const firstMonth = result.length === 0 ? startMonthIndex : 0;
 
-  while (monthsLeft > 0) {
-    const yearData = [];
-    const firstMonth = data.length === 0 ? startMonthIndex : 0;
+      for (let i = firstMonth; i < 12 && monthsLeft > 0; i++) {
+        const principalOpeningBalance = remainingBalance;
 
-    for (let i = firstMonth; i < 12 && monthsLeft > 0; i++) {
-      const principalOpeningBalance = remainingBalance;
+        // A month is a repayment month if we are past MOR and aligned to cadence/phase
+        const isRepaymentMonth =
+          Number.isFinite(firstRepayOffset) &&
+          globalOffset >= firstRepayOffset &&
+          (globalOffset - firstRepayOffset) % cadence === 0;
 
-      // A month is a repayment month if we are past MOR and aligned to cadence/phase
-      const isRepaymentMonth =
-        Number.isFinite(firstRepayOffset) &&
-        globalOffset >= firstRepayOffset &&
-        (globalOffset - firstRepayOffset) % cadence === 0;
+        // principal only on repayment months
+        let principalRepayment = 0;
+        if (isRepaymentMonth && remainingBalance > 0) {
+          principalRepayment =
+            repayEventNo === eventsCount - 1
+              ? remainingBalance
+              : principalPerEvent;
+          repayEventNo += 1;
+        }
 
-      // principal only on repayment months
-      let principalRepayment = 0;
-      if (isRepaymentMonth && remainingBalance > 0) {
-        principalRepayment =
-          repayEventNo === eventsCount - 1
-            ? remainingBalance
-            : principalPerEvent;
-        repayEventNo += 1;
+        if (debtEquityOption === "Equity") {
+          principalRepayment = 0;
+        }
+
+        const principalClosingBalance = Math.max(
+          0,
+          principalOpeningBalance - principalRepayment
+        );
+
+        const interestRate = formData.ProjectReportSetting.interestOnTL / 100; // Annual rate as a decimal
+        let interestLiability = 0; // Initialize interest liability
+
+        // Adjust the interest calculation based on the selected repayment method
+        if (cadence === 1) {
+          // Monthly Repayment
+          interestLiability = principalOpeningBalance * (interestRate / 12); // Monthly interest rate
+        } else if (cadence === 3) {
+          // Quarterly Repayment
+          interestLiability = principalOpeningBalance * (interestRate / 4); // Quarterly interest rate
+        } else if (cadence === 6) {
+          // Semi-Annually Repayment
+          interestLiability = principalOpeningBalance * (interestRate / 2); // Semi-annual interest rate
+        } else if (cadence === 12) {
+          // Annually Repayment
+          interestLiability = principalOpeningBalance * interestRate; // Annual interest rate
+        }
+
+        const totalRepayment =
+          principalRepayment +
+          (debtEquityOption === "Equity" || principalRepayment > 0
+            ? interestLiability
+            : 0);
+
+        yearData.push({
+          month: months[i],
+          principalOpeningBalance,
+          principalRepayment,
+          principalClosingBalance,
+          interestLiability,
+          totalRepayment,
+          isRepaymentMonth,
+          absOffset: globalOffset, // helpful for FY logic below
+        });
+
+        remainingBalance = principalClosingBalance;
+        monthsLeft -= 1;
+        globalOffset += 1;
       }
 
-      // console.log("debtEquityOption :", debtEquityOption);
-
-      if (debtEquityOption === "Equity") {
-        principalRepayment = 0;
-      }
-
-      const principalClosingBalance = Math.max(
-        0,
-        principalOpeningBalance - principalRepayment
-      );
-
-      const interestRate = formData.ProjectReportSetting.interestOnTL / 100; // Annual rate as a decimal
-      let interestLiability = 0; // Initialize interest liability
-
-      // Adjust the interest calculation based on the selected repayment method
-      if (cadence === 1) {
-        // Monthly Repayment
-        interestLiability = principalOpeningBalance * (interestRate / 12); // Monthly interest rate
-      } else if (cadence === 3) {
-        // Quarterly Repayment
-        interestLiability = principalOpeningBalance * (interestRate / 4); // Quarterly interest rate
-      } else if (cadence === 6) {
-        // Semi-Annually Repayment
-        interestLiability = principalOpeningBalance * (interestRate / 2); // Semi-annual interest rate
-      } else if (cadence === 12) {
-        // Annually Repayment
-        interestLiability = principalOpeningBalance * interestRate; // Annual interest rate
-      }
-
-      const totalRepayment =
-        principalRepayment +
-        (debtEquityOption === "Equity" || principalRepayment > 0
-          ? interestLiability
-          : 0);
-
-      yearData.push({
-        month: months[i],
-        principalOpeningBalance,
-        principalRepayment,
-        principalClosingBalance,
-        interestLiability,
-        totalRepayment,
-        isRepaymentMonth,
-        absOffset: globalOffset, // helpful for FY logic below
-      });
-
-      remainingBalance = principalClosingBalance;
-      monthsLeft -= 1;
-      globalOffset += 1;
+      result.push(yearData);
     }
-
-    data.push(yearData);
-  }
+    return result;
+  }, [TOTAL_MONTHS, TL, startMonthIndex, firstRepayOffset, cadence, eventsCount, principalPerEvent, debtEquityOption, formData.ProjectReportSetting.interestOnTL, months]);
 
   // ✅ Compute Yearly Total Principal Repayment
-  const computedYearlyPrincipalRepayment = data.map((yearData) =>
-    yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
-  );
+  const computedYearlyPrincipalRepayment = useMemo(() => {
+    return data.map((yearData) =>
+      yearData.reduce((sum, entry) => sum + entry.principalRepayment, 0)
+    );
+  }, [data]);
 
   useEffect(() => {
-    setYearlyPrincipalRepayment(computedYearlyPrincipalRepayment);
-
     if (onPrincipalRepaymentCalculated) {
       onPrincipalRepaymentCalculated(computedYearlyPrincipalRepayment);
     }
   }, []);
 
   // ─── USEEFFECT TO SEND & CONSOLE MARCH PRINCIPAL CLOSING BALANCES ──────
-useEffect(() => {
-  if (!Array.isArray(data)) return;
+  useEffect(() => {
+    if (!Array.isArray(data)) return;
 
-  const yearlyInterestLiabilities = [];
+    const yearlyInterestLiabilities = [];
 
-  data.forEach((yearData) => {
-    let totalPrincipalRepayment = 0;
-    let totalInterestLiability = 0;
-    let totalRepayment = 0;
+    data.forEach((yearData) => {
+      let totalPrincipalRepayment = 0;
+      let totalInterestLiability = 0;
+      let totalRepayment = 0;
 
-    yearData.forEach((entry) => {
-      // Skip moratorium months (months within the moratorium period)
-      if (entry.absOffset < moratoriumPeriod) return;
+      yearData.forEach((entry) => {
+        // Skip moratorium months (months within the moratorium period)
+        if (entry.absOffset < moratoriumPeriod) return;
 
-      // Calculate totalPrincipalRepayment
-      totalPrincipalRepayment += entry.principalRepayment;
+        // Calculate totalPrincipalRepayment
+        totalPrincipalRepayment += entry.principalRepayment;
 
-      // Apply the logic for totalInterestLiability calculation
-      totalInterestLiability +=
-        entry.principalRepayment > 0 || debtEquityOption === "Equity"
-          ? entry.interestLiability
-          : 0;
+        // Apply the logic for totalInterestLiability calculation
+        totalInterestLiability +=
+          entry.principalRepayment > 0 || debtEquityOption === "Equity"
+            ? entry.interestLiability
+            : 0;
 
-      // Calculate totalRepayment (principal + interest)
-      totalRepayment +=
-        entry.principalRepayment +
-        (entry.principalRepayment > 0 || debtEquityOption === "Equity"
-          ? entry.interestLiability
-          : 0);
+        // Calculate totalRepayment (principal + interest)
+        totalRepayment +=
+          entry.principalRepayment +
+          (entry.principalRepayment > 0 || debtEquityOption === "Equity"
+            ? entry.interestLiability
+            : 0);
+      });
+
+      // If principal repayment is 0 and debtEquityOption is not "Equity", reset interest liability
+      if (totalPrincipalRepayment === 0 && debtEquityOption !== "Equity") {
+        totalInterestLiability = 0;
+        totalRepayment = 0;
+      }
+
+      // Push the calculated totalInterestLiability for the year
+      yearlyInterestLiabilities.push(totalInterestLiability);
     });
 
-    // If principal repayment is 0 and debtEquityOption is not "Equity", reset interest liability
-    if (totalPrincipalRepayment === 0 && debtEquityOption !== "Equity") {
-      totalInterestLiability = 0;
-      totalRepayment = 0;
+
+    // Call onInterestCalculated if available
+    if (onInterestCalculated) {
+      onInterestCalculated(yearlyInterestLiabilities);
     }
-
-    // Push the calculated totalInterestLiability for the year
-    yearlyInterestLiabilities.push(totalInterestLiability);
-  });
-
-  // Set the calculated yearly interest liabilities
-  setYearlyInterestLiabilities(yearlyInterestLiabilities);
-
-  // Call onInterestCalculated if available
-  if (onInterestCalculated) {
-    onInterestCalculated(yearlyInterestLiabilities);
-  }
-}, [JSON.stringify(data), debtEquityOption, moratoriumPeriod]);
+  }, [JSON.stringify(data), debtEquityOption, moratoriumPeriod]);
 
 
   useEffect(() => {
@@ -371,36 +345,28 @@ useEffect(() => {
   }, [JSON.stringify(data), onMarchClosingBalanceCalculated]);
 
 
-  const formatNumber = (value) => {
+  const formatNumber = useMemo(() => {
     const formatType = formData?.ProjectReportSetting?.Format || "1"; // Default to Indian Format
-    if (value === undefined || value === null || isNaN(value)) return "0.00"; // ✅ Handle invalid values with 2 decimals
 
-    switch (formatType) {
-      case "1": // Indian Format (1,23,456.00)
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      case "2": // USD Format (1,123,456.00)
-        return new Intl.NumberFormat("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      case "3": // Generic Indian Format (1,23,456.00)
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-
-      default: // Default to Indian Format with 2 decimal places
-        return new Intl.NumberFormat("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
+    // Create formatters based on formatType
+    let formatter;
+    if (formatType === "2") { // USD Format
+      formatter = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    } else { // Default to Indian Format (cases 1, 3, or default)
+      formatter = new Intl.NumberFormat("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
     }
-  };
+
+    return (value) => {
+      if (value === undefined || value === null || isNaN(value)) return "0.00";
+      return formatter.format(value);
+    };
+  }, [formData?.ProjectReportSetting?.Format]);
 
 
   let finalRepaymentReached = false;
@@ -411,51 +377,7 @@ useEffect(() => {
     <>
       <Page style={[styles.page, { paddingTop: 40 }]}>
         <View style={styleExpenses.paddingx}>
-          {/* businees name and financial year  */}
-          <View>
-            <Text style={styles.businessName}>
-              {formData?.AccountInformation?.businessName || "Business Bame"}
-            </Text>
-            <Text style={styles.FinancialYear}>
-              Financial Year{" "}
-              {formData?.ProjectReportSetting?.FinancialYear
-                ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                  )
-                    .toString()
-                    .slice(-2)}`
-                : "2025-26"}
-            </Text>
-          </View>
-
-          {/* Amount format */}
-
-          <View
-            style={{
-              display: "flex",
-              alignContent: "flex-end",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs." // Show "Rupees" if "rupees" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands" // Show "Thousands" if "thousand" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores" // Show "Crores" if "crores" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions" // Show "Millions" if "millions" is selected
-                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-              }
-              )
-            </Text>
-          </View>
+          <PDFHeader />
 
           <View>
             {/* Heading */}
@@ -483,12 +405,12 @@ useEffect(() => {
                   {
                     fontWeight: "bold",
                     borderWidth: "0px",
-                    width:"100%",
+                    width: "100%",
                   },
                 ]}
               >
                 {/* Term Loan = {formatNumber(termLoan)} */}
-                {debtEquityOption === "Equity" ? `Equity Capital Infusion = ${formatNumber(termLoan)}` : `Term Loan = ${formatNumber(termLoan)}` } 
+                {debtEquityOption === "Equity" ? `Equity Capital Infusion = ${formatNumber(termLoan)}` : `Term Loan = ${formatNumber(termLoan)}`}
               </Text>
 
               <Text
@@ -501,7 +423,7 @@ useEffect(() => {
                 ]}
               >
                 {/* Interest Rate = {interestRate * 100}% per annum */}
-                {debtEquityOption === "Equity" ? `Return On Equity = ${interestRate * 100}% per annum` : `Interest Rate  = ${interestRate * 100}% per annum` } 
+                {debtEquityOption === "Equity" ? `Return On Equity = ${interestRate * 100}% per annum` : `Interest Rate  = ${interestRate * 100}% per annum`}
               </Text>
 
               <Text
@@ -529,8 +451,7 @@ useEffect(() => {
                 {Math.floor(formData.ProjectReportSetting.RepaymentMonths / 12)}{" "}
                 years
                 {formData.ProjectReportSetting.RepaymentMonths % 12 !== 0 &&
-                  ` ${
-                    formData.ProjectReportSetting.RepaymentMonths % 12
+                  ` ${formData.ProjectReportSetting.RepaymentMonths % 12
                   } months`}
               </Text>
             </View>
@@ -968,26 +889,7 @@ useEffect(() => {
             })}
           </View>
 
-          {/* businees name and Client Name  */}
-          <View
-            style={[
-              {
-                display: "flex",
-                flexDirection: "column",
-                gap: "80px",
-                alignItems: "flex-end",
-                justifyContent: "flex-end",
-                marginTop: "60px",
-              },
-            ]}
-          >
-            <Text style={[styles.businessName, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessName || "Business Name"}
-            </Text>
-            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessOwner || "businessOwner"}
-            </Text>
-          </View>
+          <PDFFooter />
         </View>
       </Page>
     </>

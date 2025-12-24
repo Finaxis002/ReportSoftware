@@ -34,7 +34,6 @@ const BankDetails = lazy(() => import("./components/NewMultiStepForm/BankDetails
 const Clients = lazy(() => import("./components/NewMultiStepForm/Clients/Clients.jsx"));
 const History = lazy(() => import("./components/NewMultiStepForm/History.jsx"));
 const Profile = lazy(() => import("./components/NewMultiStepForm/Profile.jsx"));
-const DemoPDFView = lazy(() => import("./components/NewMultiStepForm/DemoPDFView.jsx"));
 const IntroPage = lazy(() => import("./components/NewMultiStepForm/IntroPage.jsx"));
 const Database = lazy(() => import("./components/NewMultiStepForm/Database.jsx"));
 const SettingsPage = lazy(() => import("./components/NewMultiStepForm/SettingsPage.jsx"));
@@ -128,11 +127,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <Routes>
           {/* Special routes that don't need layout wrapper */}
-          <Route path="/pdf-demo/:reportId" element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <DemoPDFView />
-            </Suspense>
-          } />
+        
           
           <Route path="/fourthstepPRS" element={
             <Suspense fallback={<LoadingSpinner />}>

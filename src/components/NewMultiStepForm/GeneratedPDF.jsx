@@ -753,8 +753,7 @@ const GeneratedPDF = () => {
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
       >
-        {/* basic details table */}
-        {/* <BasicDetails formData={formData} /> */}
+
         <ProjectSynopsis
           formData={formData}
           receivedtotalRevenueReceipts={totalRevenueReceipts}
@@ -775,6 +774,7 @@ const GeneratedPDF = () => {
             console.log("✅ProjectSynopsis rendered");
             setIsPDFLoading(false);
           }}
+          formatNumber={formatNumber}
         />
 
        

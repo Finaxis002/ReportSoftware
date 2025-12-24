@@ -4,6 +4,7 @@ import { generateChart } from "../charts/chart";
 import { generateBarChart } from "../charts/barChart";
 
 import { styles, stylesCOP} from "./Styles";
+import PDFHeader from "./HeaderFooter/PDFHeader";
 
 const PdfWithChart = ({
   totalExpenses,
@@ -89,22 +90,7 @@ const PdfWithChart = ({
   return (
     <>
       <Page size="A4" style={styles.page}  wrap={false}>
-        <View>
-          <Text style={styles.businessName}>
-            {formData?.AccountInformation?.businessName || "Business Name"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear
-              ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                )
-                  .toString()
-                  .slice(-2)}`
-              : "2025-26"}
-          </Text>
-        </View>
-
+      <PDFHeader />
         {/* ✅ Apply conditional styling for consultant route */}
         <View 
           style={[
