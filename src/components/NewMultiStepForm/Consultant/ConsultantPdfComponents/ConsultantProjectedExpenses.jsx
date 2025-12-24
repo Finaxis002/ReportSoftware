@@ -1278,7 +1278,7 @@ const ConsultantProjectedExpenses = ({
                       </View>
                     );
                   })}
-                ;{/* Advance Expenses of type "indirect" */}
+                {/* Advance Expenses of type "indirect" */}
                 {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
                 formData.Expenses.advanceExpenses
                   .filter(
@@ -2428,7 +2428,7 @@ const ConsultantProjectedExpenses = ({
                 </View>
               );
             })}
-          ;{/* Advance Expenses of type "indirect" */}
+          {/* Advance Expenses of type "indirect" */}
           {/* {Array.isArray(formData?.Expenses?.advanceExpenses) &&
             formData.Expenses.advanceExpenses
               .filter(

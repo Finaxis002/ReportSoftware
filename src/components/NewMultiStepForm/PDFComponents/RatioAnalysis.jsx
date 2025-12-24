@@ -1,23 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React, { useEffect} from "react";
+import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
+import PDFHeader from "./HeaderFooter/PDFHeader";
+import PDFFooter from "./HeaderFooter/PDFFooter";
 
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
+
 
 const RatioAnalysis = ({
   formData = {},
@@ -42,9 +29,7 @@ const RatioAnalysis = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  // Destructure termLoanValues from the object.
-  // If it's undefined, default to an empty array.
-  const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
+
   const cumulativeLoanForPreviousYears =
     receivedWorkingCapitalValues?.termLoanValues || [];
 
@@ -513,79 +498,8 @@ const RatioAnalysis = ({
           break
           style={styles.page}
         >
-          {pdfType &&
-            pdfType !== "select option" &&
-            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-              <View
-                style={{
-                  position: "absolute",
-                  left: "50%", // Center horizontally
-                  top: "50%", // Center vertically
-                  width: 500, // Set width to 500px
-                  height: 700, // Set height to 700px
-                  marginLeft: -200, // Move left by half width (500/2)
-                  marginTop: -350, // Move up by half height (700/2)
-                  opacity: 0.4, // Light watermark
-                  zIndex: -1, // Push behind content
-                }}
-                fixed
-              >
-                <Image
-                  src={
-                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                  }
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
-              </View>
-            )}
-          {/* businees name and financial year  */}
-          <View>
-            <Text style={styles.businessName}>
-              {formData?.AccountInformation?.businessName || "Business Bame"}
-            </Text>
-            <Text style={styles.FinancialYear}>
-              Financial Year{" "}
-              {formData?.ProjectReportSetting?.FinancialYear
-                ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                  )
-                    .toString()
-                    .slice(-2)}`
-                : "2025-26"}
-            </Text>
-          </View>
-
-          {/* Amount format */}
-
-          <View
-            style={{
-              display: "flex",
-              alignContent: "flex-end",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs." // Show "Rupees" if "rupees" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands" // Show "Thousands" if "thousand" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores" // Show "Crores" if "crores" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions" // Show "Millions" if "millions" is selected
-                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-              }
-              )
-            </Text>
-          </View>
+          
+         <PDFHeader />
           <View>
             <View
               style={[
@@ -1837,26 +1751,7 @@ const RatioAnalysis = ({
               </View>
             </View>
           </View>
-          {/* businees name and Client Name  */}
-          <View
-            style={[
-              {
-                display: "flex",
-                flexDirection: "column",
-                gap: "80px",
-                alignItems: "flex-end",
-                justifyContent: "flex-end",
-                marginTop: "60px",
-              },
-            ]}
-          >
-            <Text style={[styles.businessName, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessName || "Business Name"}
-            </Text>
-            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessOwner || "businessOwner"}
-            </Text>
-          </View>
+         <PDFFooter />
         </Page>
       );
     });
@@ -1871,77 +1766,8 @@ const RatioAnalysis = ({
       break
       style={styles.page}
     >
-      {pdfType &&
-        pdfType !== "select option" &&
-        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-          <View
-            style={{
-              position: "absolute",
-              left: "50%", // Center horizontally
-              top: "50%", // Center vertically
-              width: 500, // Set width to 500px
-              height: 700, // Set height to 700px
-              marginLeft: -200, // Move left by half width (500/2)
-              marginTop: -350, // Move up by half height (700/2)
-              opacity: 0.4, // Light watermark
-              zIndex: -1, // Push behind content
-            }}
-            fixed
-          >
-            <Image
-              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            />
-          </View>
-        )}
-      {/* businees name and financial year  */}
-      <View>
-        <Text style={styles.businessName}>
-          {formData?.AccountInformation?.businessName || "Business Bame"}
-        </Text>
-        <Text style={styles.FinancialYear}>
-          Financial Year{" "}
-          {formData?.ProjectReportSetting?.FinancialYear
-            ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
-            : "2025-26"}
-        </Text>
-      </View>
-
-      {/* Amount format */}
-
-      <View
-        style={{
-          display: "flex",
-          alignContent: "flex-end",
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-        <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {
-            formData?.ProjectReportSetting?.AmountIn === "rupees"
-              ? "Rs." // Show "Rupees" if "rupees" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "thousand"
-              ? "Thousands" // Show "Thousands" if "thousand" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "crores"
-              ? "Crores" // Show "Crores" if "crores" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "millions"
-              ? "Millions" // Show "Millions" if "millions" is selected
-              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-          }
-          )
-        </Text>
-      </View>
+     
+     <PDFHeader />
       <View>
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -3133,26 +2959,7 @@ const RatioAnalysis = ({
           </View>
         </View>
       </View>
-      {/* businees name and Client Name  */}
-      <View
-        style={[
-          {
-            display: "flex",
-            flexDirection: "column",
-            gap: "80px",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            marginTop: "60px",
-          },
-        ]}
-      >
-        <Text style={[styles.businessName, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.businessName || "Business Name"}
-        </Text>
-        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-          {formData?.AccountInformation?.businessOwner || "businessOwner"}
-        </Text>
-      </View>
+     <PDFFooter />
     </Page>
   );
 };

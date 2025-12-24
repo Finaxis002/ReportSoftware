@@ -1,24 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { Page, View, Text} from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
+import PDFHeader from "./HeaderFooter/PDFHeader";
 
-// ✅ Register Font
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
 
 const Assumptions = ({
   formData = {},
@@ -105,52 +89,10 @@ const Assumptions = ({
           style={styles.page}
           wrap={false}
         >
-          {pdfType &&
-            pdfType !== "select option" &&
-            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-              <View
-                style={{
-                  position: "absolute",
-                  left: "50%", // Center horizontally
-                  top: "50%", // Center vertically
-                  width: 500, // Set width to 500px
-                  height: 700, // Set height to 700px
-                  marginLeft: -200, // Move left by half width (500/2)
-                  marginTop: -350, // Move up by half height (700/2)
-                  opacity: 0.4, // Light watermark
-                  zIndex: -1, // Push behind content
-                }}
-                fixed
-              >
-                <Image
-                  src={
-                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                  }
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
-              </View>
-            )}
+        
 
           <View style={[styleExpenses?.paddingx]}>
-            {/* businees name and financial year  */}
-            <View>
-              <Text style={styles.businessName}>
-                {formData?.AccountInformation?.businessName || "Business Bame"}
-              </Text>
-              <Text style={styles.FinancialYear}>
-                Financial Year{" "}
-                {formData?.ProjectReportSetting?.FinancialYear
-                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                  )
-                    .toString()
-                    .slice(-2)}`
-                  : "2025-26"}
-              </Text>
-            </View>
+          <PDFHeader />
 
             {/* Table Heading */}
             <View
@@ -443,51 +385,10 @@ const Assumptions = ({
       style={styles.page}
       wrap={false}
     >
-      {pdfType &&
-        pdfType !== "select option" &&
-        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-          <View
-            style={{
-              position: "absolute",
-              left: "50%", // Center horizontally
-              top: "50%", // Center vertically
-              width: 500, // Set width to 500px
-              height: 700, // Set height to 700px
-              marginLeft: -200, // Move left by half width (500/2)
-              marginTop: -350, // Move up by half height (700/2)
-              opacity: 0.4, // Light watermark
-              zIndex: -1, // Push behind content
-            }}
-            fixed
-          >
-            <Image
-              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            />
-          </View>
-        )}
+      <PDFHeader />
 
       <View style={[styleExpenses?.paddingx]}>
-        {/* businees name and financial year  */}
-        <View>
-          <Text style={styles.businessName}>
-            {formData?.AccountInformation?.businessName || "Business Bame"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear
-              ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
-              : "2025-26"}
-          </Text>
-        </View>
-
+     
         {/* Table Heading */}
         <View
           style={[
@@ -669,28 +570,7 @@ const Assumptions = ({
         {/* ✅ Show Cost of Project Items */}
         {formData?.CostOfProject &&
           Object.keys(formData.CostOfProject).length > 0 ? (
-          // Object.entries(formData.CostOfProject).map(([key, field], index) => (
-          //   <View key={key} style={styles.tableRow}>
-          //     <Text
-          //       style={[
-          //         stylesCOP.detailsCellDetail,
-          //         styleExpenses.particularWidth,
-          //         styleExpenses.bordernone,
-          //       ]}
-          //     >
-          //       {field?.name || "N/A"}
-          //     </Text>
-          //     <Text
-          //       style={[
-          //         stylesCOP.particularsCellsDetail,
-          //         styleExpenses.fontSmall,
-          //         { textAlign: "right" },
-          //       ]}
-          //     >
-          //       {formatNumber(field?.rate || 0)}%
-          //     </Text>
-          //   </View>
-          // ))
+        
           Object.entries(formData.CostOfProject)
             .filter(([_, field]) => field?.name?.trim()) // ⛔ filters out empty or whitespace-only names
             .map(([key, field]) => (

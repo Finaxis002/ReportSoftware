@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
+import PDFHeader from "./HeaderFooter/PDFHeader";
+import PDFFooter from "./HeaderFooter/PDFFooter";
 
 const ProjectedRevenue = ({
   formData,
@@ -23,7 +25,7 @@ const ProjectedRevenue = ({
   const selectedData = useMemo(() => {
     return (
       formData?.Revenue?.[
-        formType === "Others" ? "formFields" : "formFields2"
+      formType === "Others" ? "formFields" : "formFields2"
       ] || []
     );
   }, [formData?.Revenue, formType]);
@@ -68,16 +70,16 @@ const ProjectedRevenue = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+    // Remove first year if hidden
+    const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 
@@ -101,79 +103,10 @@ const ProjectedRevenue = ({
           break
           style={styles.page}
         >
-          {/* watermark */}
-          {pdfType &&
-            pdfType !== "select option" &&
-            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-              <View
-                style={{
-                  position: "absolute",
-                  left: "50%", // Center horizontally
-                  top: "50%", // Center vertically
-                  width: 500, // Set width to 500px
-                  height: 700, // Set height to 700px
-                  marginLeft: -200, // Move left by half width (500/2)
-                  marginTop: -350, // Move up by half height (700/2)
-                  opacity: 0.4, // Light watermark
-                  zIndex: -1, // Push behind content
-                }}
-              >
-                <Image
-                  src={
-                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                  }
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
-              </View>
-            )}
+          <PDFHeader />
 
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-            {/* businees name and financial year  */}
-            <View>
-              <Text style={styles.businessName}>
-                {formData?.AccountInformation?.businessName || "Business Name"}
-              </Text>
-              <Text style={styles.FinancialYear}>
-                Financial Year{" "}
-                {formData?.ProjectReportSetting?.FinancialYear
-                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                    )
-                      .toString()
-                      .slice(-2)}`
-                  : "2025-26"}
-              </Text>
-            </View>
 
-            <View
-              style={{
-                display: "flex",
-                alignContent: "flex-end",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-              }}
-            >
-              <Text style={[styles.AmountIn, styles.italicText]}>
-                (Amount In{" "}
-                {
-                  formData?.ProjectReportSetting?.AmountIn === "rupees"
-                    ? "Rs." // Show "Rupees" if "rupees" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                    ? "Thousands" // Show "Thousands" if "thousand" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "crores"
-                    ? "Crores" // Show "Crores" if "crores" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "millions"
-                    ? "Millions" // Show "Millions" if "millions" is selected
-                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                }
-                )
-              </Text>
-            </View>
             <View>
               <View style={stylesCOP.heading}>
                 <Text>
@@ -251,12 +184,12 @@ const ProjectedRevenue = ({
                     formData?.Revenue?.formFields?.[index]?.serialNumber;
                   const finalSerialNumber =
                     formType === "Others" &&
-                    serialNumber !== undefined &&
-                    serialNumber !== null
+                      serialNumber !== undefined &&
+                      serialNumber !== null
                       ? serialNumber
                       : formType === "Monthly"
-                      ? serialNumber || index + 1
-                      : "";
+                        ? serialNumber || index + 1
+                        : "";
 
                   const isEmptyRow = updatedYears.every(
                     (year) => year === 0 || year === ""
@@ -419,8 +352,8 @@ const ProjectedRevenue = ({
                               ? ""
                               : typeof yearValue === "string" &&
                                 yearValue.trim().endsWith("%")
-                              ? yearValue
-                              : formatNumber(yearValue)}
+                                ? yearValue
+                                : formatNumber(yearValue)}
                           </Text>
                         );
                       })}
@@ -531,26 +464,7 @@ const ProjectedRevenue = ({
               </View>
             </View>
 
-            {/* businees name and Client Name  */}
-            <View
-              style={[
-                {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "80px",
-                  alignItems: "flex-end",
-                  justifyContent: "flex-end",
-                  marginTop: "60px",
-                },
-              ]}
-            >
-              <Text style={[styles.businessName, { fontSize: "10px" }]}>
-                {formData?.AccountInformation?.businessName || "Business Name"}
-              </Text>
-              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-                {formData?.AccountInformation?.businessOwner || "businessOwner"}
-              </Text>
-            </View>
+            <PDFFooter />
           </View>
         </Page>
       );
@@ -560,83 +474,16 @@ const ProjectedRevenue = ({
   return (
     <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-     size="A4"
+      size="A4"
       orientation={orientation}
       wrap={false}
       break
       style={styles.page}
     >
-      {/* watermark */}
-      {pdfType &&
-        pdfType !== "select option" &&
-        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
-          <View
-            style={{
-              position: "absolute",
-              left: "50%", // Center horizontally
-              top: "50%", // Center vertically
-              width: 500, // Set width to 500px
-              height: 700, // Set height to 700px
-              marginLeft: -200, // Move left by half width (500/2)
-              marginTop: -350, // Move up by half height (700/2)
-              opacity: 0.4, // Light watermark
-              zIndex: -1, // Push behind content
-            }}
-          >
-            <Image
-              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            />
-          </View>
-        )}
 
+      <PDFHeader />
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-        {/* businees name and financial year  */}
-        <View>
-          <Text style={styles.businessName}>
-            {formData?.AccountInformation?.businessName || "Business Name"}
-          </Text>
-          <Text style={styles.FinancialYear}>
-            Financial Year{" "}
-            {formData?.ProjectReportSetting?.FinancialYear
-              ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                )
-                  .toString()
-                  .slice(-2)}`
-              : "2025-26"}
-          </Text>
-        </View>
 
-        <View
-          style={{
-            display: "flex",
-            alignContent: "flex-end",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <Text style={[styles.AmountIn, styles.italicText]}>
-            (Amount In{" "}
-            {
-              formData?.ProjectReportSetting?.AmountIn === "rupees"
-                ? "Rs." // Show "Rupees" if "rupees" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-            }
-            )
-          </Text>
-        </View>
         <View>
           <View style={stylesCOP.heading}>
             <Text>Projected Revenue/ Sales</Text>
@@ -705,12 +552,12 @@ const ProjectedRevenue = ({
                 formData?.Revenue?.formFields?.[index]?.serialNumber;
               const finalSerialNumber =
                 formType === "Others" &&
-                serialNumber !== undefined &&
-                serialNumber !== null
+                  serialNumber !== undefined &&
+                  serialNumber !== null
                   ? serialNumber
                   : formType === "Monthly"
-                  ? serialNumber || index + 1
-                  : "";
+                    ? serialNumber || index + 1
+                    : "";
 
               const isEmptyRow = updatedYears.every(
                 (year) => year === 0 || year === ""
@@ -857,8 +704,8 @@ const ProjectedRevenue = ({
                         ? ""
                         : typeof yearValue === "string" &&
                           yearValue.trim().endsWith("%")
-                        ? yearValue
-                        : formatNumber(yearValue)}
+                          ? yearValue
+                          : formatNumber(yearValue)}
                     </Text>
                   ))}
                 </View>
@@ -947,11 +794,11 @@ const ProjectedRevenue = ({
                   {
                     formType?.trim() === "Monthly"
                       ? formatNumber(
-                          adjustedTotalRevenueReceipts[yearIndex] || 0
-                        ) // Monthly revenue
+                        adjustedTotalRevenueReceipts[yearIndex] || 0
+                      ) // Monthly revenue
                       : formatNumber(
-                          adjustedTotalRevenueForOthers?.[yearIndex] || 0
-                        ) // Others revenue
+                        adjustedTotalRevenueForOthers?.[yearIndex] || 0
+                      ) // Others revenue
                   }
                 </Text>
               ))}
@@ -959,26 +806,7 @@ const ProjectedRevenue = ({
           </View>
         </View>
 
-        {/* businees name and Client Name  */}
-        <View
-          style={[
-            {
-              display: "flex",
-              flexDirection: "column",
-              gap: "80px",
-              alignItems: "flex-end",
-              justifyContent: "flex-end",
-              marginTop: "60px",
-            },
-          ]}
-        >
-          <Text style={[styles.businessName, { fontSize: "10px" }]}>
-            {formData?.AccountInformation?.businessName || "Business Name"}
-          </Text>
-          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-            {formData?.AccountInformation?.businessOwner || "businessOwner"}
-          </Text>
-        </View>
+        <PDFFooter />
       </View>
     </Page>
   );
