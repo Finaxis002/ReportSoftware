@@ -1,9 +1,22 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
-import { styles, stylesCOP, styleExpenses } from "./Styles"; // Import only necessary styles
-import PDFFooter from "./HeaderFooter/PDFFooter";
-import PDFHeader from "./HeaderFooter/PDFHeader";
+import React, { useEffect, useState } from "react";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
+import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
+// ✅ Register a Font That Supports Bold
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      fontWeight: "bold",
+    }, // Bold
+  ],
+});
 
 const calculateMonthsPerYear = (
   moratoriumPeriodMonths,
@@ -150,56 +163,49 @@ const ProjectedDepreciation = ({
   }, [firstYearGrossFixedAssets]);
   // const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
 
-  // ✅ Memoized calculations to optimize performance
-  const depreciationValues = useMemo(() => {
-    return Object.entries(formData.CostOfProject).map(
-      ([key, asset]) => {
-        const { yearlyDepreciation, cumulativeDepreciation } =
-          calculateDepreciationWithMoratorium(
-            asset.amount || 0,
-            asset.rate / 100 || 0,
-            moratoriumMonths,
-            startingMonth,
-            years
-          );
+  // ✅ Step 1: Compute Depreciation Values with Moratorium
+  const depreciationValues = Object.entries(formData.CostOfProject).map(
+    ([key, asset]) => {
+      const { yearlyDepreciation, cumulativeDepreciation } =
+        calculateDepreciationWithMoratorium(
+          asset.amount || 0,
+          asset.rate / 100 || 0,
+          moratoriumMonths,
+          startingMonth,
+          years
+        );
 
-        return { yearlyDepreciation, cumulativeDepreciation };
+      return { yearlyDepreciation, cumulativeDepreciation };
+    }
+  );
+
+  // ✅ Step 2: Compute Net Asset Values using Depreciation from Step 1
+  const netAssetValues = Object.entries(formData.CostOfProject)
+    .filter(([_, asset]) => !asset.isSelected && !asset.isPreliminary) // ✅ Skip both
+    .map(([key, asset], index) => {
+      const assetAmount = asset.amount || 0;
+      const depreciationPerYear =
+        depreciationValues[index]?.yearlyDepreciation || [];
+
+      const assetValues = [];
+      let currentValue = assetAmount;
+
+      for (let yearIndex = 0; yearIndex < years; yearIndex++) {
+        const depreciation = depreciationPerYear[yearIndex] || 0;
+        const net = currentValue - depreciation;
+        assetValues.push(net);
+        currentValue = net;
       }
-    );
-  }, [formData.CostOfProject, moratoriumMonths, startingMonth, years]);
 
-  // ✅ Memoized net asset values calculation
-  const netAssetValues = useMemo(() => {
-    return Object.entries(formData.CostOfProject)
-      .filter(([_, asset]) => !asset.isSelected && !asset.isPreliminary) // ✅ Skip both
-      .map(([key, asset], index) => {
-        const assetAmount = asset.amount || 0;
-        const depreciationPerYear =
-          depreciationValues[index]?.yearlyDepreciation || [];
+      return { assetValues };
+    });
 
-        const assetValues = [];
-        let currentValue = assetAmount;
-
-        for (let yearIndex = 0; yearIndex < years; yearIndex++) {
-          const depreciation = depreciationPerYear[yearIndex] || 0;
-          const net = currentValue - depreciation;
-          assetValues.push(net);
-          currentValue = net;
-        }
-
-        return { assetValues };
-      });
-  }, [formData.CostOfProject, depreciationValues, years]);
-
-  // ✅ Memoized total depreciation per year calculation
-  const totalDepreciationPerYear = useMemo(() => {
-    return calculateTotalDepreciationPerYear(
-      formData,
-      moratoriumMonths,
-      years,
-      startingMonth
-    );
-  }, [formData, moratoriumMonths, years, startingMonth]);
+  const totalDepreciationPerYear = calculateTotalDepreciationPerYear(
+    formData,
+    moratoriumMonths,
+    years,
+    startingMonth
+  );
 
   useEffect(() => {
     if (formData && formData.CostOfProject) {
@@ -246,41 +252,38 @@ const ProjectedDepreciation = ({
     }
   }, [JSON.stringify(totalDepreciationPerYear)]);
 
-  // ✅ Memoized cumulative depreciation totals calculation
-  const cumulativeDepreciationTotals = useMemo(() => {
-    return Array.from({ length: years }).map(
-      (_, yearIndex) => {
-        return Object.entries(formData.CostOfProject).reduce(
-          (sum, [key, asset]) => {
-            const { cumulativeDepreciation } =
-              calculateDepreciationWithMoratorium(
-                asset.amount || 0,
-                asset.rate / 100 || 0,
-                moratoriumMonths,
-                startingMonth,
-                years
-              );
+  const cumulativeDepreciationTotals = Array.from({ length: years }).map(
+    (_, yearIndex) => {
+      return Object.entries(formData.CostOfProject).reduce(
+        (sum, [key, asset]) => {
+          const { cumulativeDepreciation } =
+            calculateDepreciationWithMoratorium(
+              asset.amount || 0,
+              asset.rate / 100 || 0,
+              moratoriumMonths,
+              startingMonth,
+              years
+            );
 
-            return sum + cumulativeDepreciation[yearIndex];
-          },
-          0
-        );
-      }
-    );
-  }, [formData.CostOfProject, moratoriumMonths, startingMonth, years]);
-
-  // ✅ Memoized total net asset values per year calculation
-  const totalNetAssetValuesPerYear = useMemo(() => {
-    const result = [];
-    for (let year = 0; year < years; year++) {
-      let yearTotal = 0;
-      netAssetValues.forEach((assetData) => {
-        yearTotal += assetData.assetValues[year] || 0;
-      });
-      result.push(yearTotal);
+          return sum + cumulativeDepreciation[yearIndex];
+        },
+        0
+      );
     }
-    return result;
-  }, [netAssetValues, years]);
+  );
+
+  // ✅ Total Net Asset Values Per Year (summed across all assets)
+  const totalNetAssetValuesPerYear = [];
+
+  for (let year = 0; year < years; year++) {
+    let yearTotal = 0;
+
+    netAssetValues.forEach((assetData) => {
+      yearTotal += assetData.assetValues[year] || 0;
+    });
+
+    totalNetAssetValuesPerYear.push(yearTotal);
+  }
 
   useEffect(() => {
     if (formData && formData.CostOfProject && depreciationValues.length > 0) {
@@ -374,10 +377,79 @@ if (isAdvancedLandscape) {
           break
           style={styles.page}
         >
-         <PDFHeader />
+          {/* watermark  */}
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
 
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-          
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                }
+                )
+              </Text>
+            </View>
 
             {/* Heading */}
             <View style={stylesCOP.heading}>
@@ -996,8 +1068,27 @@ if (isAdvancedLandscape) {
                 );
               })()}
             </View>
-              
-              <PDFFooter />
+
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "80px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "50px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
           </View>
         </Page>
       );
@@ -1013,9 +1104,77 @@ if (isAdvancedLandscape) {
       break
       style={styles.page}
     >
-     
-     <PDFHeader />
+      {/* watermark  */}
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
+
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
 
         {/* Heading */}
         <View style={stylesCOP.heading}>
@@ -1599,7 +1758,26 @@ if (isAdvancedLandscape) {
           })()}
         </View>
 
-       <PDFFooter />
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "50px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View>
       </View>
     </Page>
   );

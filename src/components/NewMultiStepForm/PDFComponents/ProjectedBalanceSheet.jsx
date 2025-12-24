@@ -1,9 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import React, { useEffect, useState, useRef } from "react";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
+import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
+Font.register({
+  family: "Roboto",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+  ],
+});
 
 const safeNumber = (val) =>
   val === undefined || val === null || val === "" ? 0 : Number(val) || 0;
@@ -32,7 +47,7 @@ const ProjectedBalanceSheet = ({
 
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
 
-
+  
 
   // Update the state when the prop value changes
   useEffect(() => {
@@ -110,6 +125,14 @@ const ProjectedBalanceSheet = ({
   // ✅ Compute Corrected Total Assets for Each Year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
+  // const inventory = Array.from({
+  //   length: formData.MoreDetails.OpeningStock.length,
+  // }).map((_, yearIndex) => {
+  //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+  //   const finalStock = ClosingStock;
+
+  //   return finalStock;
+  // });
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -125,7 +148,25 @@ const ProjectedBalanceSheet = ({
       ? preliminaryExpensesTotal / preliminaryWriteOffYears
       : 0;
 
+  // const writeOffStartIndex = skipfirstyear ? 1 : 0;
+  const writeOffStartIndex = 0;
+  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
 
+  const preliminaryWriteOffPerYear = Array.from({
+    length: projectionYears,
+  }).map((_, index) => {
+    const relativeYear = index - writeOffStartIndex;
+
+    if (
+      index >= writeOffStartIndex &&
+      relativeYear < preliminaryWriteOffSteps
+    ) {
+      // Calculate decreasing value
+      return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
+    }
+
+    return 0;
+  });
 
   const preliminaryExpenseBalanceSheet = [];
   for (let i = 0; i < projectionYears; i++) {
@@ -194,9 +235,60 @@ const ProjectedBalanceSheet = ({
     totalAssetArray.push(totalAssets); // Build the array for your later use
   }
 
+  // Diagnostic: Show table of asset composition year-wise
+
+  // const cumulativeCurrentAssetsArr = [];
+  // let cumulativeCurrentAssetsTemp = 0;
+
+  // for (let index = 0; index < projectionYears; index++) {
+  //   const filteredAssets = formData?.MoreDetails?.currentAssets
+  //     ?.filter(
+  //       (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+  //     ) || [];
+  //   const currentYearAssets = filteredAssets
+  //     .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+  //   cumulativeCurrentAssetsTemp += currentYearAssets;
+  //   cumulativeCurrentAssetsArr.push(cumulativeCurrentAssetsTemp);
+  // }
+
+  //   const totalAssetArray = Array.from({ length: projectionYears }).map(
+  //     (_, index) => {
+  //       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
+  //       const cashEquivalent = closingCashBalanceArray[index] || 0;
+
+  //       const currentYearAssets = formData?.MoreDetails?.currentAssets
+  //         ?.filter(
+  //           (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+  //         )
+  //         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+
+  //       // cumulativeCurrentAssets += currentYearAssets;
+  //     //   const filteredAssets = formData?.MoreDetails?.currentAssets
+  //     //   ?.filter(
+  //     //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
+  //     //   ) || [];
+  //     // const currentYearAssets = filteredAssets
+  //     //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
+
+  //       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
+
+  //       const totalAssets =
+  //         netFixedAssetValue +
+  //         cashEquivalent +
+  //          cumulativeCurrentAssetsArr[index] +
+  //         Number(inventory[index]) +
+  //         preliminaryAsset; // ✅ INCLUDED
+
+  //       return totalAssets;
+  //     }
+  //   );
+
+  // You can see the debug table:
+  // console.table(assetDebugTable);
+  // And use totalAssetArray for your further calculations
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
-
+  
 
   // console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
@@ -243,7 +335,7 @@ const ProjectedBalanceSheet = ({
 
       const reservesAndSurplus = Math.max(
         receivedCummulativeTansferedData?.cumulativeBalanceTransferred?.[
-        index
+          index
         ] || 0,
         0
       );
@@ -414,9 +506,79 @@ const ProjectedBalanceSheet = ({
           break
           style={styles.page}
         >
-
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
           <View style={[styleExpenses.paddingx]}>
-            <PDFHeader />
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Bame"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+
+            {/* Amount format */}
+
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                }
+                )
+              </Text>
+            </View>
 
             <View
               style={[
@@ -606,7 +768,7 @@ const ProjectedBalanceSheet = ({
                       ]}
                     >
                       {renderBankLoanTermLoanLabel()}
-
+                      
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
@@ -701,7 +863,7 @@ const ProjectedBalanceSheet = ({
                     >
                       {/* Bank Loan - Working Capital Loan */}
                       {renderWCLLabel()}
-
+                      
                     </Text>
                     {/* Display the cumulative working capital loan for each visible year */}
                     {labels.map((_, localIdx) => {
@@ -1224,7 +1386,26 @@ const ProjectedBalanceSheet = ({
               </View>
             </View>
 
-
+            {/* businees name and Client Name  */}
+            {/* <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View> */}
 
             <View>
               {formData?.ProjectReportSetting?.CAName?.value ? (
@@ -1314,7 +1495,27 @@ const ProjectedBalanceSheet = ({
                 ) : null}
               </View>
 
-              <PDFFooter />
+              <View
+                style={[
+                  {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "80px",
+                    alignItems: "flex-end",
+                    justifyContent: "flex-end",
+                    marginTop: "60px",
+                  },
+                ]}
+              >
+                <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                  {formData?.AccountInformation?.businessName ||
+                    "Business Name"}
+                </Text>
+                <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                  {formData?.AccountInformation?.businessOwner ||
+                    "businessOwner"}
+                </Text>
+              </View>
             </View>
           </View>
         </Page>
@@ -1333,9 +1534,77 @@ const ProjectedBalanceSheet = ({
       break
       style={styles.page}
     >
-    
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       <View style={[styleExpenses.paddingx]}>
-       <PDFHeader />
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Bame"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
+
+        {/* Amount format */}
+
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
 
         <View
           style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -1498,7 +1767,7 @@ const ProjectedBalanceSheet = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {renderBankLoanTermLoanLabel()}
+                   {renderBankLoanTermLoanLabel()}
                 </Text>
                 {Array.from({ length: projectionYears }).map((_, index) => {
                   const marchBalance =
@@ -2057,9 +2326,28 @@ const ProjectedBalanceSheet = ({
           </View>
         </View>
 
+        {/* businees name and Client Name  */}
+        {/* <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View> */}
 
-
-        <View>
+        <view>
           {formData?.ProjectReportSetting?.CAName?.value ? (
             <Text
               style={[
@@ -2086,7 +2374,7 @@ const ProjectedBalanceSheet = ({
               might be material.
             </Text>
           ) : null}
-        </View>
+        </view>
 
         <View
           style={[
@@ -2146,7 +2434,25 @@ const ProjectedBalanceSheet = ({
             ) : null}
           </View>
 
-          <PDFFooter />
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "60px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
+          </View>
         </View>
       </View>
     </Page>

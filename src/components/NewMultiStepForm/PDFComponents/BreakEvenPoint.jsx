@@ -1,8 +1,25 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
+import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
+
+// ✅ Register a Font That Supports Bold
+Font.register({
+  family: "Roboto",
+  fonts: [
+    {
+      src: require("../Assets/Fonts/times-new-roman.ttf"),
+      fontWeight: "normal",
+    },
+    {
+      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
+      fontWeight: "bold",
+    },
+  ],
+});
 
 const num = (v) => {
   // Handle percentages by dividing by 100
@@ -36,9 +53,25 @@ const BreakEvenPoint = ({
   renderIOTLLabel,
   renderIOWCLabel,
 }) => {
-
+  // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
+  const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
+
+  const months = [
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "January",
+    "February",
+    "March",
+  ];
 
   // ✅ Months Array for Indexing
   const monthMap = {
@@ -112,6 +145,18 @@ const BreakEvenPoint = ({
     return (incrementedExpense / 12) * monthsInYear;
   };
 
+  // ✅ Calculate Interest on Working Capital for each projection year
+  const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map(() => {
+    const workingCapitalLoan =
+      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+    const interestRate =
+      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+
+    // ✅ Annual Interest Calculation
+    return (workingCapitalLoan * interestRate) / 100;
+  });
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -278,6 +323,46 @@ const BreakEvenPoint = ({
     return num(row?.values?.[yearLabelOrIndex]) || 0;
   };
 
+  // const totalVariableExpenses = Array.from({
+  //   length: projectionYears - (hideFirstYear ? 1 : 0),
+  // }).map((_, visibleIndex) => {
+  //   const adjustedYearIndex = hideFirstYear ? visibleIndex + 1 : visibleIndex;
+  //   const yearLabel = financialYearLabels[adjustedYearIndex];
+
+  //   const totalFromExpenses = allExpenses.reduce((total, expense) => {
+  //     const isRawMaterial =
+  //       expense.name.trim() === "Raw Material Expenses / Purchases";
+  //     const isPercentage = String(expense.value).trim().endsWith("%");
+
+  //     let expenseValue = 0;
+  //     if (isRawMaterial && isPercentage) {
+  //       expenseValue = calculateRawMaterialExpense(
+  //         expense,
+  //         receivedtotalRevenueReceipts,
+  //         adjustedYearIndex
+  //       );
+  //     } else {
+  //       expenseValue = calculateExpense(
+  //         Number(expense.total) || 0,
+  //         adjustedYearIndex
+  //       );
+  //     }
+
+  //     return total + expenseValue;
+  //   }, 0);
+
+  //   const totalAdvanceForYear = advanceExpenses.reduce((total, row) => {
+  //     const advValue =
+  //       getAdvanceExpenseValueForYear(row, yearLabel) ||
+  //       getAdvanceExpenseValueForYear(row, adjustedYearIndex);
+  //     return total + advValue;
+  //   }, 0);
+
+  //   const preliminaryExpense =
+  //     preliminaryWriteOffPerYear[adjustedYearIndex] || 0;
+
+  //   return totalFromExpenses + totalAdvanceForYear + preliminaryExpense;
+  // });
 
   const totalVariableExpenses = Array.from({
     length: projectionYears - (hideFirstYear ? 1 : 0),
@@ -321,8 +406,8 @@ const BreakEvenPoint = ({
     const interestOnTermLoan =
       debtEquityOption === "Equity"
         ? parseFloat(
-          (yearlyInterestLiabilities[adjustedYearIndex] || 0).toFixed(2)
-        )
+            (yearlyInterestLiabilities[adjustedYearIndex] || 0).toFixed(2)
+          )
         : 0;
     const interestExpenseOnWorkingCapital =
       debtEquityOption === "Equity"
@@ -349,7 +434,54 @@ const BreakEvenPoint = ({
     return revenueValue - expenseValue;
   });
 
+  // const totalFixedExpenses = Array.from({ length: projectionYears }).map(
+  //   (_, yearIndex) => {
+  //     // ✅ Calculate Salary & Wages using `calculateExpense`
+  //     const salaryAndWages = calculateExpense(
+  //       Number(fringAndAnnualCalculation) || 0,
+  //       yearIndex // Pass the yearIndex to apply any year-specific logic
+  //     );
 
+  //     // ✅ Extract Interest on Term Loan
+  //     const interestOnTermLoan = parseFloat(
+  //       (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
+  //     );
+
+  //     // ✅ Extract Interest on Working Capital
+  //     const interestExpenseOnWorkingCapital =
+  //       calculateInterestOnWorkingCapital(yearIndex);
+
+  //     // ✅ Extract Depreciation
+  //     const depreciationExpense = parseFloat(
+  //       (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
+  //     );
+
+  //     // ✅ Sum Total Fixed Expenses for the Year
+  //     const totalExpense = parseFloat(
+  //       (
+  //         salaryAndWages +
+  //         interestOnTermLoan +
+  //         interestExpenseOnWorkingCapital +
+  //         depreciationExpense
+  //       ).toFixed(2)
+  //     );
+
+  //     // Log the individual values for each year
+  //     // console.log(`Year ${yearIndex + 1}:`);
+  //     // console.log(`Salary & Wages: ${salaryAndWages}`);
+  //     // console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
+  //     // console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
+  //     // console.log(`Depreciation: ${depreciationExpense}`);
+  //     // console.log(`Total Fixed Expenses: ${totalExpense}`);
+  //     // console.log('------------------------');
+
+  //     return totalExpense;
+  //   }
+  // );
+
+  // console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
+
+  // ✅ Compute Break Even Point (in %) for Each Year
 
   const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     (_, yearIndex) => {
@@ -481,7 +613,8 @@ const BreakEvenPoint = ({
       const visibleLocalCols = labels
         .map((_, i) => i)
         .filter((i) => !shouldSkipCol(globalIndex(i)));
-
+      const centerLocalIdx =
+        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       // Helper: build N empty cells matching visible columns on this page
       const renderEmptyCellsForVisibleCols = () =>
@@ -536,10 +669,79 @@ const BreakEvenPoint = ({
           break
           style={styles.page}
         >
-
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+                fixed
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
 
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-            <PDFHeader />
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case
+                }
+                )
+              </Text>
+            </View>
+
             <View
               style={[
                 stylesCOP.heading,
@@ -831,10 +1033,10 @@ const BreakEvenPoint = ({
                           isRawMaterial && isPercentage
                             ? formatNumber(Number(expenseValue).toFixed(2))
                             : formatNumber(
-                              Number(
-                                calculateExpense(expenseValue, gIdx)
-                              ).toFixed(2)
-                            );
+                                Number(
+                                  calculateExpense(expenseValue, gIdx)
+                                ).toFixed(2)
+                              );
 
                         return (
                           <Text
@@ -944,7 +1146,7 @@ const BreakEvenPoint = ({
                         styleExpenses.bordernone,
                       ]}
                     >
-                      {visibleAllExpenses.length + 1}
+                     {visibleAllExpenses.length + 1}
                     </Text>
 
                     <Text
@@ -1410,7 +1612,26 @@ const BreakEvenPoint = ({
               </View>
             </View>
 
-            <PDFFooter />
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "80px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "50px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
           </View>
         </Page>
       );
@@ -1426,10 +1647,77 @@ const BreakEvenPoint = ({
       break
       style={styles.page}
     >
-
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+            fixed
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
 
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-        <PDFHeader />
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
+
         <View
           style={[
             stylesCOP.heading,
@@ -1808,11 +2096,11 @@ const BreakEvenPoint = ({
                         isRawMaterial && isPercentage
                           ? formatNumber(expenseValue.toFixed(2))
                           : formatNumber(
-                            calculateExpense(
-                              expenseValue,
-                              adjustedYearIndex
-                            ).toFixed(2)
-                          );
+                              calculateExpense(
+                                expenseValue,
+                                adjustedYearIndex
+                              ).toFixed(2)
+                            );
 
                       return (
                         <Text
@@ -2301,7 +2589,7 @@ const BreakEvenPoint = ({
                     styleExpenses.bordernone,
                   ]}
                 >
-                  {debtEquityOption === "Equity" ? 2 : isWorkingCapitalInterestZero ? 3 : 4}
+                   {debtEquityOption === "Equity" ? 2 : isWorkingCapitalInterestZero ? 3 : 4}
                 </Text>
                 <Text
                   style={[
@@ -2432,7 +2720,26 @@ const BreakEvenPoint = ({
           </View>
         </View>
 
-        <PDFFooter />
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "50px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View>
       </View>
     </Page>
   );

@@ -1,15 +1,90 @@
-import { Page, View, Text } from "@react-pdf/renderer";
+import React from "react";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
-import { totalCost } from "../Utils/generatedPDFUtils/PDFCaclculationsExportor";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
-const CostOfProject = ({ formData, formatNumber }) => {
+const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   
+  // ✅ Compute Total Cost of Project including Working Capital
+  const parseAmount = (val) => {
+    if (!val) return 0;
+    const cleaned = typeof val === "string" ? val.replace(/,/g, "") : val;
+    return parseFloat(cleaned) || 0;
+  };
+
+  const totalCost =
+    (formData?.CostOfProject
+      ? Object.values(formData.CostOfProject).reduce(
+          (sum, field) => sum + parseAmount(field?.amount),
+          0
+        )
+      : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
 
   return (
     <Page size="A4" style={styles.page}>
-      <PDFHeader />
+      {/* watermark  */}
+      <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
+        {/* ✅ Conditionally Render Watermark */}
+        {pdfType &&
+          pdfType !== "select option" &&
+          (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "500px", // Adjust size based on PDF layout
+                height: "700px",
+                opacity: 0.4, // Light watermark to avoid blocking content
+              }}
+            />
+          )}
+      </View>
+      {/* businees name and financial year  */}
+      <View>
+        <Text style={styles.businessName}>
+          {formData?.AccountInformation?.businessName || "Business Bame"}
+        </Text>
+        <Text style={styles.FinancialYear}>
+          Financial Year{" "}
+          {formData?.ProjectReportSetting?.FinancialYear
+            ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
+            : "2025-26"}
+        </Text>
+      </View>
+
+      {/* Amount format */}
+
+      <View
+        style={{
+          display: "flex",
+          alignContent: "flex-end",
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Text style={[styles.AmountIn, styles.italicText]}>
+          (Amount In{" "}
+          {
+            formData?.ProjectReportSetting?.AmountIn === "rupees"
+              ? "Rs." // Show "Rupees" if "rupees" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "thousand"
+              ? "Thousands" // Show "Thousands" if "thousand" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "crores"
+              ? "Crores" // Show "Crores" if "crores" is selected
+              : formData?.ProjectReportSetting?.AmountIn === "millions"
+              ? "Millions" // Show "Millions" if "millions" is selected
+              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+          }
+          )
+        </Text>
+      </View>
       <View style={stylesCOP.heading}>
         <Text>Cost Of Project</Text>
       </View>
@@ -238,7 +313,26 @@ const CostOfProject = ({ formData, formatNumber }) => {
           </Text>
         </View>
       </View>
-     <PDFFooter />
+      {/* businees name and Client Name  */}
+      <View
+        style={[
+          {
+            display: "flex",
+            flexDirection: "column",
+            gap: "80px",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            marginTop: "30px",
+          },
+        ]}
+      >
+        <Text style={[styles.businessName, { fontSize: "10px" }]}>
+          {formData?.AccountInformation?.businessName || "Business Name"}
+        </Text>
+        <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+          {formData?.AccountInformation?.businessOwner || "businessOwner"}
+        </Text>
+      </View>
     </Page>
   );
 };

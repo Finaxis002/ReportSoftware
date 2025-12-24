@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PdfWithChart from "./PdfWithChart";
 import PdfWithCombinedCharts from "./PdfWithCombinedCharts";
 import {
+  Document,
   Page,
   Text,
   View,
+  StyleSheet,
   Image,
 } from "@react-pdf/renderer";
 
-import { styles} from "./Styles";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
 import ConsultantPDFWithChart from "./ConsultantPDFWithChart";
 
@@ -26,6 +28,13 @@ const PdfAllChartsWrapper = ({
   const [currentRatioChart, setCurrentRatioChart] = useState(null);
 
   const [chartsReady, setChartsReady] = useState(false);
+
+  // ✅ Set `chartsReady` when all charts are available
+  // useEffect(() => {
+  //   if (pieChart && barChart && dscrChart && currentRatioChart) {
+  //     setChartsReady(true);
+  //   }
+  // }, [pieChart, barChart, dscrChart, currentRatioChart]);
 
   useEffect(() => {
     const allChartsAvailable =

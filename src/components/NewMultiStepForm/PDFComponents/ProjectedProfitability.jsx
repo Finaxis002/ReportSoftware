@@ -1,10 +1,23 @@
-import React, { useEffect, useMemo } from "react";
-import { Page, View, Text} from "@react-pdf/renderer";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
+// ✅ Register a Font That Supports Bold
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      fontWeight: "bold",
+    }, // Bold
+  ],
+});
 
 const num = (v) => {
   // Handle percentages by dividing by 100
@@ -20,6 +33,7 @@ const num = (v) => {
 
 const ProjectedProfitability = ({
   formData,
+  localData,
   normalExpense,
   directExpense,
   totalDepreciationPerYear,
@@ -34,10 +48,11 @@ const ProjectedProfitability = ({
   formatNumber,
   receivedtotalRevenueReceipts,
   onComputedDataToProfit,
+  pdfType,
   orientation,
   renderIOTLLabel,
   renderIOWCLabel,
-  renderWithdrawalLabel
+   renderWithdrawalLabel
 }) => {
   // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
   // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
@@ -99,6 +114,18 @@ const ProjectedProfitability = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
+  // ✅ Calculate Interest on Working Capital for each projection year
+  const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map(() => {
+    const workingCapitalLoan =
+      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
+    const interestRate =
+      Number(formData.ProjectReportSetting.interestOnTL) || 0;
+
+    // ✅ Annual Interest Calculation
+    return (workingCapitalLoan * interestRate) / 100;
+  });
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -178,114 +205,115 @@ const ProjectedProfitability = ({
     return calculatedInterest === 0;
   });
 
+  const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod;
+
   // Function to calculate the expense for each year considering the increment rate
-  const calculateExpense = useMemo(() => {
-    return (annualExpense, yearIndex) => {
-      const monthsInYear = monthsPerYear[yearIndex];
-      let incrementedExpense;
-      // Count years with actual repayment for applying increment correctly
-      const repaymentYear = monthsPerYear
-        .slice(0, yearIndex)
-        .filter((months) => months > 0).length;
+  const calculateExpense = (annualExpense, yearIndex) => {
+    const monthsInYear = monthsPerYear[yearIndex];
+    let incrementedExpense;
+    // Count years with actual repayment for applying increment correctly
+    const repaymentYear = monthsPerYear
+      .slice(0, yearIndex)
+      .filter((months) => months > 0).length;
 
-      if (monthsInYear === 0) {
-        incrementedExpense = 0; // No expense during moratorium
-      } else {
-        incrementedExpense =
-          annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
-      }
-      return (incrementedExpense / 12) * monthsInYear;
-    };
-  }, [monthsPerYear, rateOfExpense]);
+    if (monthsInYear === 0) {
+      incrementedExpense = 0; // No expense during moratorium
+    } else {
+      incrementedExpense =
+        annualExpense * Math.pow(1 + rateOfExpense, repaymentYear);
+    }
+    return (incrementedExpense / 12) * monthsInYear;
+  };
 
-  const calculateRawMaterialExpense = useMemo(() => {
-    return (expense, receivedtotalRevenueReceipts, yearIndex) => {
-      const isRawMaterial =
-        expense.name.trim() === "Raw Material Expenses / Purchases";
-      const isPercentage = String(expense.value).trim().endsWith("%");
+  const calculateRawMaterialExpense = (
+    expense,
+    receivedtotalRevenueReceipts,
+    yearIndex
+  ) => {
+    const isRawMaterial =
+      expense.name.trim() === "Raw Material Expenses / Purchases";
+    const isPercentage = String(expense.value).trim().endsWith("%");
 
-      const ClosingStock = Number(
-        formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
+    const ClosingStock = Number(
+      formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
+    );
+    const OpeningStock = Number(
+      formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
+    );
+
+    let expenseValue = 0;
+
+    if (isRawMaterial && isPercentage) {
+      const baseValue =
+        (parseFloat(expense.value) / 100) *
+        (receivedtotalRevenueReceipts?.[yearIndex] || 0);
+      expenseValue = baseValue + ClosingStock - OpeningStock; // Ensure it's a sum of numbers
+    } else {
+      expenseValue = num(expense.total); // Ensure we use num() to prevent string concatenation
+    }
+
+    return expenseValue;
+  };
+  const totalDirectExpensesArray = Array.from({
+    length: projectionYears,
+  }).map((_, yearIndex) => {
+    let directRows = [];
+    // 1. All regular direct expenses, escalated if required
+    const directTotal = directExpense
+      .filter((expense) => expense.type === "direct")
+      .reduce((sum, expense) => {
+        let value;
+        if (
+          expense.name.trim() === "Raw Material Expenses / Purchases" &&
+          String(expense.value).trim().endsWith("%")
+        ) {
+          value = calculateRawMaterialExpense(
+            expense,
+            receivedtotalRevenueReceipts,
+            yearIndex
+          );
+        } else {
+          value = calculateExpense(Number(expense.total) || 0, yearIndex); // PATCHED!
+        }
+        directRows.push({ name: expense.name, value });
+        return sum + value;
+      }, 0);
+
+    // 2. Salary/wages (from normalExpense, always only one row)
+    let salaryTotal = 0;
+    if (Array.isArray(normalExpense) && normalExpense.length > 0) {
+      salaryTotal = calculateExpense(
+        Number(fringAndAnnualCalculation) || 0,
+        yearIndex
       );
-      const OpeningStock = Number(
-        formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0
-      );
+    }
 
-      let expenseValue = 0;
-
-      if (isRawMaterial && isPercentage) {
-        const baseValue =
-          (parseFloat(expense.value) / 100) *
-          (receivedtotalRevenueReceipts?.[yearIndex] || 0);
-        expenseValue = baseValue + ClosingStock - OpeningStock;
-      } else {
-        expenseValue = num(expense.total);
-      }
-
-      return expenseValue;
-    };
-  }, [formData?.MoreDetails?.ClosingStock, formData?.MoreDetails?.OpeningStock]);
-
-  const totalDirectExpensesArray = useMemo(() => {
-    return Array.from({
-      length: projectionYears,
-    }).map((_, yearIndex) => {
-      let directRows = [];
-      // 1. All regular direct expenses, escalated if required
-      const directTotal = directExpense
-        .filter((expense) => expense.type === "direct")
-        .reduce((sum, expense) => {
-          let value;
-          if (
-            expense.name.trim() === "Raw Material Expenses / Purchases" &&
-            String(expense.value).trim().endsWith("%")
-          ) {
-            value = calculateRawMaterialExpense(
-              expense,
-              receivedtotalRevenueReceipts,
-              yearIndex
-            );
-          } else {
-            value = calculateExpense(Number(expense.total) || 0, yearIndex);
-          }
-          directRows.push({ name: expense.name, value });
-          return sum + value;
+    // 3. Advance expenses of type "direct"
+    let advanceDirectTotal = 0;
+    if (
+      Array.isArray(formData?.Expenses?.advanceExpenses) &&
+      formData.Expenses.advanceExpenses.length > 0
+    ) {
+      advanceDirectTotal = formData.Expenses.advanceExpenses
+        .filter((row) => row.type === "direct" && row.name && row.values)
+        .reduce((sum, row) => {
+          const value =
+            row.values?.[financialYearLabels[yearIndex]] ??
+            row.values?.[yearIndex] ??
+            0;
+          directRows.push({
+            name: row.name + " (Advance)",
+            value: Number(value) || 0,
+          });
+          return sum + (Number(value) || 0);
         }, 0);
+    }
 
-      // 2. Salary/wages (from normalExpense, always only one row)
-      let salaryTotal = 0;
-      if (Array.isArray(normalExpense) && normalExpense.length > 0) {
-        salaryTotal = calculateExpense(
-          Number(fringAndAnnualCalculation) || 0,
-          yearIndex
-        );
-      }
+    
 
-      // 3. Advance expenses of type "direct"
-      let advanceDirectTotal = 0;
-      if (
-        Array.isArray(formData?.Expenses?.advanceExpenses) &&
-        formData.Expenses.advanceExpenses.length > 0
-      ) {
-        advanceDirectTotal = formData.Expenses.advanceExpenses
-          .filter((row) => row.type === "direct" && row.name && row.values)
-          .reduce((sum, row) => {
-            const value =
-              row.values?.[financialYearLabels[yearIndex]] ??
-              row.values?.[yearIndex] ??
-              0;
-            directRows.push({
-              name: row.name + " (Advance)",
-              value: Number(value) || 0,
-            });
-            return sum + (Number(value) || 0);
-          }, 0);
-      }
-
-      // FINAL direct expenses for this year
-      return directTotal + salaryTotal + advanceDirectTotal;
-    });
-  }, [directExpense, normalExpense, fringAndAnnualCalculation, formData?.Expenses?.advanceExpenses, financialYearLabels, receivedtotalRevenueReceipts, calculateRawMaterialExpense, calculateExpense]);
+    // FINAL direct expenses for this year
+    return directTotal + salaryTotal + advanceDirectTotal;
+  });
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -301,109 +329,122 @@ const ProjectedProfitability = ({
       ? preliminaryExpensesTotal / preliminaryWriteOffYears
       : 0;
 
+    
+  // Generate the array for yearly values
+  // const preliminaryWriteOffPerYear = Array.from({
+  //   length: projectionYears,
+  // }).map((_, index) => {
+  //   const startIndex = hideFirstYear ? 1 : 0;
+  //   const endIndex = startIndex + preliminaryWriteOffYears;
 
+  //   // 👇 Only insert value if it's within the write-off window
+  //   if (index >= startIndex && index < endIndex) {
+  //     return yearlyWriteOffAmount;
+  //   }
 
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
-  }).map((_, yearIndex) => {
-    // Use the same monthsPerYear array that other expenses use
-    const monthsInYear = monthsPerYear[yearIndex] || 0;
+  //   // 👇 Insert 0 for all other years (including hidden first year)
+  //   return 0;
+  // });
 
-    console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
-
-    // If no months in this year (full moratorium), return 0
-    if (monthsInYear === 0) {
-      return 0;
-    }
-
-    // Find the first year that has actual months (moratorium ends)
-    const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
-    if (firstYearWithMonths === -1) {
-      return 0; // All years in moratorium
-    }
-
-    // Calculate the actual start year for write-off (considering hideFirstYear)
-    const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
-    const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
-
-    console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
-
-    // Check if this year is within the write-off period
-    if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
-      // If it's a partial year, prorate the write-off
-      if (monthsInYear < 12) {
-        const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
-        console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
-        return proratedAmount;
-      }
-      console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
-      return yearlyWriteOffAmount;
-    }
-
-    console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
+ const preliminaryWriteOffPerYear = Array.from({
+  length: projectionYears,
+}).map((_, yearIndex) => {
+  // Use the same monthsPerYear array that other expenses use
+  const monthsInYear = monthsPerYear[yearIndex] || 0;
+  
+  console.log(`Year ${yearIndex + 1}: monthsInYear = ${monthsInYear}`);
+  
+  // If no months in this year (full moratorium), return 0
+  if (monthsInYear === 0) {
     return 0;
-  });
+  }
+  
+  // Find the first year that has actual months (moratorium ends)
+  const firstYearWithMonths = monthsPerYear.findIndex(months => months > 0);
+  if (firstYearWithMonths === -1) {
+    return 0; // All years in moratorium
+  }
+  
+  // Calculate the actual start year for write-off (considering hideFirstYear)
+  const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
+  const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
+  
+  console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
+  
+  // Check if this year is within the write-off period
+  if (yearIndex >= effectiveStartYear && yearIndex < writeOffEndYear) {
+    // If it's a partial year, prorate the write-off
+    if (monthsInYear < 12) {
+      const proratedAmount = (yearlyWriteOffAmount * monthsInYear) / 12;
+      console.log(`Year ${yearIndex + 1}: prorated write-off = ${proratedAmount}`);
+      return proratedAmount;
+    }
+    console.log(`Year ${yearIndex + 1}: full write-off = ${yearlyWriteOffAmount}`);
+    return yearlyWriteOffAmount;
+  }
+  
+  console.log(`Year ${yearIndex + 1}: outside write-off window = 0`);
+  return 0;
+});
 
-  // Debug the final result
-  console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
+// Debug the final result
+console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
 
-
+  
   // ✅ Extract required values from formData
 
-  const totalIndirectExpensesArray = useMemo(() => {
-    return Array.from({
-      length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-    }).map((_, yearIndex) => {
-      let indirectRows = [];
-      // 1. All regular indirect expenses, escalated if required
-      const indirectTotal = indirectExpense
-        .filter((expense) => expense.type === "indirect")
-        .reduce((sum, expense) => {
-          const annual = Number(expense.total) || 0;
-          const escalated = calculateExpense(annual, yearIndex);
-          indirectRows.push({ name: expense.name, value: escalated });
-          return sum + escalated;
+  const totalIndirectExpensesArray = Array.from({
+    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    let indirectRows = [];
+    // 1. All regular indirect expenses, escalated if required
+    const indirectTotal = indirectExpense
+      .filter((expense) => expense.type === "indirect")
+      .reduce((sum, expense) => {
+        const annual = Number(expense.total) || 0;
+        const escalated = calculateExpense(annual, yearIndex);
+        indirectRows.push({ name: expense.name, value: escalated });
+        return sum + escalated;
+      }, 0);
+
+    // 2. Advance expenses of type "indirect"
+    let advanceIndirectTotal = 0;
+    if (
+      Array.isArray(formData?.Expenses?.advanceExpenses) &&
+      formData.Expenses.advanceExpenses.length > 0
+    ) {
+      advanceIndirectTotal = formData.Expenses.advanceExpenses
+        .filter((row) => row.type === "indirect" && row.name && row.values)
+        .reduce((sum, row) => {
+          const value =
+            row.values?.[financialYearLabels[yearIndex]] ??
+            row.values?.[yearIndex] ??
+            0;
+          indirectRows.push({
+            name: row.name + " (Advance)",
+            value: Number(value) || 0,
+          });
+          return sum + (Number(value) || 0);
         }, 0);
+    }
 
-      // 2. Advance expenses of type "indirect"
-      let advanceIndirectTotal = 0;
-      if (
-        Array.isArray(formData?.Expenses?.advanceExpenses) &&
-        formData.Expenses.advanceExpenses.length > 0
-      ) {
-        advanceIndirectTotal = formData.Expenses.advanceExpenses
-          .filter((row) => row.type === "indirect" && row.name && row.values)
-          .reduce((sum, row) => {
-            const value =
-              row.values?.[financialYearLabels[yearIndex]] ??
-              row.values?.[yearIndex] ??
-              0;
-            indirectRows.push({
-              name: row.name + " (Advance)",
-              value: Number(value) || 0,
-            });
-            return sum + (Number(value) || 0);
-          }, 0);
-      }
+    // 3. Interest, Depreciation, Write-off (rest as before)
+    const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
+    const interestExpenseOnWorkingCapital =
+      calculateInterestOnWorkingCapital(yearIndex);
+    const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
+    const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
 
-      // 3. Interest, Depreciation, Write-off (rest as before)
-      const interestOnTermLoan = yearlyInterestLiabilities[yearIndex] || 0;
-      const interestExpenseOnWorkingCapital =
-        calculateInterestOnWorkingCapital(yearIndex);
-      const depreciationExpense = totalDepreciationPerYear[yearIndex] || 0;
-      const preliminaryWriteOff = preliminaryWriteOffPerYear[yearIndex] || 0;
-
-      // FINAL indirect expenses for this year
-      return (
-        indirectTotal +
-        advanceIndirectTotal +
-        interestOnTermLoan +
-        interestExpenseOnWorkingCapital +
-        depreciationExpense +
-        preliminaryWriteOff
-      );
-    });
-  }, [indirectExpense, formData?.Expenses?.advanceExpenses, financialYearLabels, yearlyInterestLiabilities, calculateInterestOnWorkingCapital, totalDepreciationPerYear, preliminaryWriteOffPerYear, calculateExpense]);
+    // FINAL indirect expenses for this year
+    return (
+      indirectTotal +
+      advanceIndirectTotal +
+      interestOnTermLoan +
+      interestExpenseOnWorkingCapital +
+      depreciationExpense +
+      preliminaryWriteOff
+    );
+  });
 
   const workingCapitalLoan = formData?.MeansOfFinance?.workingCapital?.termLoan; // Loan amount
   const interestRate = formData?.ProjectReportSetting?.rateOfInterest / 100; // Convert % to decimal
@@ -435,82 +476,118 @@ const ProjectedProfitability = ({
   }, [workingCapitalLoan, interestRate, projectionYears, repaymentStartMonth]);
 
   // ✅ Compute Adjusted Revenue Values for Each Year Before Rendering
-  const adjustedRevenueValues = useMemo(() => {
-    return Array.from({
-      length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
-    }).map((_, yearIndex) => {
-      const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
-      const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-      const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
+  const adjustedRevenueValues = Array.from({
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+  }).map((_, yearIndex) => {
+    const totalRevenue = totalRevenueReceipts[yearIndex] || 0;
+    const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
+    const OpeningStock = formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
 
-      return totalRevenue + Number(ClosingStock) - Number(OpeningStock);
-    });
-  }, [formData?.ProjectReportSetting?.ProjectionYears, totalRevenueReceipts, formData?.MoreDetails?.ClosingStock, formData?.MoreDetails?.OpeningStock]);
+    return totalRevenue + Number(ClosingStock) - Number(OpeningStock); // ✅ Final computation
+  });
 
   // ✅ Step 2: Compute Gross Profit Values for Each Year After `totalDirectExpenses` is Defined
-  const grossProfitValues = useMemo(() => {
-    return adjustedRevenueValues.map(
-      (adjustedRevenue, yearIndex) => {
-        const totalDirectExpenses = totalDirectExpensesArray[yearIndex] || 0;
-        return adjustedRevenue - totalDirectExpenses;
-      }
-    );
-  }, [adjustedRevenueValues, totalDirectExpensesArray]);
+  const grossProfitValues = adjustedRevenueValues.map(
+    (adjustedRevenue, yearIndex) => {
+      const totalDirectExpenses = totalDirectExpensesArray[yearIndex] || 0; // Ensure the expenses for the specific year are used
+      return adjustedRevenue - totalDirectExpenses; // Subtract expenses from adjusted revenue to get gross profit
+    }
+  );
 
   // ✅ Precompute Net Profit Before Tax (NPBT) for Each Year Before Rendering
-  const netProfitBeforeTax = useMemo(() => {
-    return grossProfitValues.map((grossProfit, yearIndex) => {
-      const totalIndirectExpenses = totalIndirectExpensesArray[yearIndex] || 0;
-      return grossProfit - totalIndirectExpenses;
-    });
-  }, [grossProfitValues, totalIndirectExpensesArray]);
+  const netProfitBeforeTax = grossProfitValues.map((grossProfit, yearIndex) => {
+    // Subtracting totalIndirectExpensesArray and other expenses like interest, depreciation etc.
+    const totalIndirectExpenses = totalIndirectExpensesArray[yearIndex] || 0; // Ensure indirect expenses are considered
+    return grossProfit - totalIndirectExpenses; // Net Profit Before Tax (NPBT)
+  });
 
   // ✅ Precompute Income Tax Calculation for Each Year Before Rendering
-  const incomeTaxCalculation = useMemo(() => {
-    return netProfitBeforeTax.map((npbt, yearIndex) => {
-      return (npbt * formData.ProjectReportSetting.incomeTax) / 100;
-    });
-  }, [netProfitBeforeTax, formData.ProjectReportSetting.incomeTax]);
+  const incomeTaxCalculation = netProfitBeforeTax.map((npbt, yearIndex) => {
+    return (npbt * formData.ProjectReportSetting.incomeTax) / 100;
+  });
 
-  const netProfitAfterTax = useMemo(() => {
-    return netProfitBeforeTax.map((npat, yearIndex) => {
-      const tax = incomeTaxCalculation[yearIndex] || 0;
-      return npat - tax;
-    });
-  }, [netProfitBeforeTax, incomeTaxCalculation]);
+  // ✅ Precompute Net Profit After Tax (NPAT) for Each Year Before Rendering
+  // const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
+  //   return npat - incomeTaxCalculation[yearIndex]; // ✅ Correct subtraction
+  // });
 
-  // Precompute Balance Transferred to Balance Sheet
-  const balanceTransferred = useMemo(() => {
-    return netProfitAfterTax.map(
-      (npbt, yearIndex) => {
-        const withdrawal = formData.MoreDetails.Withdrawals?.[yearIndex] || 0;
-        return npbt - withdrawal;
-      }
-    );
-  }, [netProfitAfterTax, formData.MoreDetails.Withdrawals]);
+  // // Precompute Balance Transferred to Balance Sheet
+  // const balanceTransferred = netProfitAfterTax.map(
+  //   (npbt, yearIndex) =>
+  //     npbt - (formData.MoreDetails.Withdrawals?.[yearIndex] || 0)
+  // );
+
+  const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
+  const tax = incomeTaxCalculation[yearIndex] || 0;
+  const result = npat - tax;
+  return result;
+});
+
+// Precompute Balance Transferred to Balance Sheet
+const balanceTransferred = netProfitAfterTax.map(
+  (npbt, yearIndex) => {
+    const withdrawal = formData.MoreDetails.Withdrawals?.[yearIndex] || 0;
+    const result = npbt - withdrawal;
+    
+    console.log(`BalanceTrf Year ${yearIndex}: NPAT=${npbt}, Withdrawal=${withdrawal}, Result=${result}`);
+    
+    return result;
+  }
+);
+
+  console.log("=== DEBUG CUMULATIVE BALANCE CALCULATION ===");
+console.log("netProfitAfterTax:", netProfitAfterTax);
+console.log("Withdrawals:", formData.MoreDetails.Withdrawals);
+console.log("balanceTransferred:", balanceTransferred);
+console.log("hideFirstYear:", hideFirstYear);
+console.log("projectionYears:", projectionYears);
+// Check if any values are NaN or invalid
+const hasInvalidValues = balanceTransferred.some(val => 
+  isNaN(val) || val === null || val === undefined
+);
+console.log("Has invalid values in balanceTransferred:", hasInvalidValues);
+
+// Log each step of the cumulative calculation
+const debugCumulative = [];
+balanceTransferred.forEach((amount, index) => {
+  if (index === 0) {
+    const year0Amount = Math.max(amount, 0);
+    debugCumulative.push(year0Amount);
+    console.log(`Year ${index}: amount=${amount}, cumulative=${year0Amount}`);
+  } else {
+    const prevCumulative = debugCumulative[index - 1];
+    const newCumulative = Math.max(amount + prevCumulative, 0);
+    debugCumulative.push(newCumulative);
+    console.log(`Year ${index}: amount=${amount}, prevCumulative=${prevCumulative}, cumulative=${newCumulative}`);
+  }
+});
 
   // Precompute Cumulative Balance Transferred to Balance Sheet
-  const cumulativeBalanceTransferred = useMemo(() => {
-    const result = [];
-    balanceTransferred.forEach((amount, index) => {
-      if (index === 0) {
-        result.push(Math.max(amount, 0));
-      } else {
-        result.push(
-          Math.max(amount + result[index - 1], 0)
-        );
-      }
-    });
-    return result;
-  }, [balanceTransferred]);
+  const cumulativeBalanceTransferred = [];
+  balanceTransferred.forEach((amount, index) => {
+    if (index === 0) {
+      cumulativeBalanceTransferred.push(Math.max(amount, 0)); // First year, just the amount itself
+    } else {
+      // For subsequent years, sum of Balance Trf. and previous year's Cumulative Balance
+      cumulativeBalanceTransferred.push(
+        Math.max(amount + cumulativeBalanceTransferred[index - 1], 0)
+      );
+    }
+  });
 
+  console.log("Final cumulativeBalanceTransferred:", cumulativeBalanceTransferred);
+console.log("=== END DEBUG ===");
   // ✅ Compute Cash Profit for Each Year
-  const cashProfitArray = useMemo(() => {
-    return netProfitAfterTax.map((npat, yearIndex) => {
-      const depreciation = totalDepreciationPerYear[yearIndex] || 0;
-      return npat + depreciation;
-    });
-  }, [netProfitAfterTax, totalDepreciationPerYear]);
+  const cashProfitArray = netProfitAfterTax.map((npat, yearIndex) => {
+    const depreciation = totalDepreciationPerYear[yearIndex] || 0;
+
+    // ✅ Correctly Compute Cash Profit
+    const cashProfit = npat + depreciation;
+
+    // ✅ Round values correctly
+    return cashProfit;
+  });
+
   useEffect(() => {
     if (cumulativeBalanceTransferred.length > 0) {
       // Pass the data directly as an object
@@ -587,6 +664,31 @@ const ProjectedProfitability = ({
     }
   }, []);
 
+  // ✅ Determine if first-year should be hidden
+
+  // const orientation = hideFirstYear
+  //   ? formData.ProjectReportSetting.ProjectionYears > 6
+  //     ? "landscape"
+  //     : "portrait"
+  //   : formData.ProjectReportSetting.ProjectionYears > 5
+  //   ? "landscape"
+  //   : "portrait";
+
+  const indirectCount = directExpense.filter((expense) => {
+    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
+      return false;
+    }
+
+    const isAllYearsZero = Array.from({
+      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    }).every((_, yearIndex) => {
+      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const expenseValue = Number(expense.total) || 0;
+      return expenseValue === 0;
+    });
+
+    return expense.type === "indirect" && !isAllYearsZero;
+  }).length;
 
   const isPreliminaryWriteOffAllZero = Array.from({
     length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -618,16 +720,17 @@ const ProjectedProfitability = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-    // Remove first year if hidden
-    const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-    const totalCols = visibleLabels.length;
-    const firstPageCols = Math.ceil(totalCols / 2);
-    const secondPageCols = totalCols - firstPageCols;
-    splitFinancialYearLabels = [
-      visibleLabels.slice(0, firstPageCols),
-      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-    ];
-  }
+  // Remove first year if hidden
+  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const totalCols = visibleLabels.length;
+  const firstPageCols = Math.ceil(totalCols / 2);
+  const secondPageCols = totalCols - firstPageCols;
+  splitFinancialYearLabels = [
+    visibleLabels.slice(0, firstPageCols),
+    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+  ];
+}
+const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || (n+1);
 
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
@@ -651,10 +754,79 @@ const ProjectedProfitability = ({
           wrap={false}
           break
         >
-          <PDFHeader />
+          {/* watermark  */}
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  width: 500,
+                  height: 700,
+                  marginLeft: -200,
+                  marginTop: -350,
+                  opacity: 0.4,
+                  zIndex: -1,
+                }}
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
 
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+            {/* businees name and financial year  */}
+            <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
 
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                }
+                )
+              </Text>
+            </View>
 
             <View>
               <View style={stylesCOP.heading}>
@@ -1107,10 +1279,10 @@ const ProjectedProfitability = ({
                             isRawMaterial && isPercentage
                               ? formatNumber(expenseValue.toFixed(2))
                               : formatNumber(
-                                calculateExpense(expenseValue, gIdx).toFixed(
-                                  2
-                                )
-                              );
+                                  calculateExpense(expenseValue, gIdx).toFixed(
+                                    2
+                                  )
+                                );
 
                           return (
                             <Text
@@ -1522,8 +1694,8 @@ const ProjectedProfitability = ({
                         isInterestOnTermLoanZero && isDepreciationZero
                           ? index + 2
                           : isWorkingCapitalInterestZero
-                            ? index + 3
-                            : index + 4;
+                          ? index + 3
+                          : index + 4;
                       return (
                         <View
                           key={index}
@@ -1573,11 +1745,11 @@ const ProjectedProfitability = ({
                               isRawMaterialInner && isPercentage
                                 ? formatNumber(expenseValue.toFixed(2))
                                 : formatNumber(
-                                  calculateExpense(
-                                    expenseValue,
-                                    gIdx
-                                  ).toFixed(2)
-                                );
+                                    calculateExpense(
+                                      expenseValue,
+                                      gIdx
+                                    ).toFixed(2)
+                                  );
 
                             return (
                               <Text
@@ -1594,7 +1766,7 @@ const ProjectedProfitability = ({
                         </View>
                       );
                     })}
-                  {/* Advance Expenses of type "indirect" */}
+                  ;{/* Advance Expenses of type "indirect" */}
                   {Array.isArray(formData?.Expenses?.advanceExpenses) &&
                     formData.Expenses.advanceExpenses
                       .filter(
@@ -1892,7 +2064,7 @@ const ProjectedProfitability = ({
                       ]}
                     >
                       {/* Withdrawals during the year */}
-                      {renderWithdrawalLabel()} during the year
+                      { renderWithdrawalLabel()} during the year
                     </Text>
 
                     {labels.map((_, localIdx) => {
@@ -2131,7 +2303,28 @@ const ProjectedProfitability = ({
                 ) : null}
               </View>
 
-              <PDFFooter />
+              {/* businees name and Client Name  */}
+              <View
+                style={[
+                  {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "80px",
+                    alignItems: "flex-end",
+                    justifyContent: "flex-end",
+                    marginTop: "30px",
+                  },
+                ]}
+              >
+                <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                  {formData?.AccountInformation?.businessName ||
+                    "Business Name"}
+                </Text>
+                <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                  {formData?.AccountInformation?.businessOwner ||
+                    "businessOwner"}
+                </Text>
+              </View>
             </View>
           </View>
         </Page>
@@ -2148,10 +2341,77 @@ const ProjectedProfitability = ({
       wrap={false}
       break
     >
-      <PDFHeader />
+      {/* watermark  */}
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 500,
+              height: 700,
+              marginLeft: -200,
+              marginTop: -350,
+              opacity: 0.4,
+              zIndex: -1,
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
 
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
 
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
 
         <View>
           <View style={stylesCOP.heading}>
@@ -2608,11 +2868,11 @@ const ProjectedProfitability = ({
                         isRawMaterial && isPercentage
                           ? formatNumber(expenseValue.toFixed(2))
                           : formatNumber(
-                            calculateExpense(
-                              expenseValue,
-                              adjustedYearIndex
-                            ).toFixed(2)
-                          );
+                              calculateExpense(
+                                expenseValue,
+                                adjustedYearIndex
+                              ).toFixed(2)
+                            );
 
                       return (
                         <Text
@@ -3016,8 +3276,8 @@ const ProjectedProfitability = ({
                     isInterestOnTermLoanZero && isDepreciationZero
                       ? index + 2
                       : isWorkingCapitalInterestZero
-                        ? index + 3
-                        : index + 4;
+                      ? index + 3
+                      : index + 4;
                   return (
                     <View
                       key={index}
@@ -3074,11 +3334,11 @@ const ProjectedProfitability = ({
                           isRawMaterial && isPercentage
                             ? formatNumber(expenseValue.toFixed(2))
                             : formatNumber(
-                              calculateExpense(
-                                expenseValue,
-                                adjustedYearIndex
-                              ).toFixed(2)
-                            );
+                                calculateExpense(
+                                  expenseValue,
+                                  adjustedYearIndex
+                                ).toFixed(2)
+                              );
 
                         return (
                           <Text
@@ -3095,7 +3355,7 @@ const ProjectedProfitability = ({
                     </View>
                   );
                 })}
-              {/* Advance Expenses of type "indirect" */}
+              ;{/* Advance Expenses of type "indirect" */}
               {Array.isArray(formData?.Expenses?.advanceExpenses) &&
                 formData.Expenses.advanceExpenses
                   .filter(
@@ -3133,7 +3393,7 @@ const ProjectedProfitability = ({
                         const value =
                           (row.values &&
                             row.values[
-                            financialYearLabels[adjustedYearIndex]
+                              financialYearLabels[adjustedYearIndex]
                             ]) ||
                           (row.values && row.values[adjustedYearIndex]) ||
                           0;
@@ -3387,7 +3647,7 @@ const ProjectedProfitability = ({
                   ]}
                 >
                   {/* Withdrawals during the year */}
-                  {renderWithdrawalLabel()} during the year
+                  { renderWithdrawalLabel()} during the year
                 </Text>
 
                 {Array.from({
@@ -3621,7 +3881,26 @@ const ProjectedProfitability = ({
             ) : null}
           </View>
 
-          <PDFFooter />
+          {/* businees name and Client Name  */}
+          <View
+            style={[
+              {
+                display: "flex",
+                flexDirection: "column",
+                gap: "80px",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                marginTop: "30px",
+              },
+            ]}
+          >
+            <Text style={[styles.businessName, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessName || "Business Name"}
+            </Text>
+            <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+              {formData?.AccountInformation?.businessOwner || "businessOwner"}
+            </Text>
+          </View>
         </View>
       </View>
     </Page>

@@ -1,9 +1,23 @@
-import {useState} from "react";
-import { Page} from "@react-pdf/renderer";
-import { styles } from "./Styles";
+import React , {useState} from "react";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
 import DirectExpenseBreakUpGraph from "./Graphs/DirectExpenseBreakUp";
 
 const FinancialGraphs = ({
+  formData,
+  receivedtotalRevenueReceipts,
+  normalExpense,
+  totalQuantity,
+  totalAnnualWages,
+  fringeCalculation,
+  fringAndAnnualCalculation = [],
+  receivedDscr = [],
+  receivedAverageCurrentRatio = [],
+  receivedBreakEvenPointPercentage = [],
+  receivedAssetsLiabilities = [],
+  pdfType,
 }) => {
 
   const [chartImage, setChartImage] = useState(null);

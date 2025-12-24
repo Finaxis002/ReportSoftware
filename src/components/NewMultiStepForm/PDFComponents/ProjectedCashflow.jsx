@@ -2,11 +2,25 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import PDFHeader from "./HeaderFooter/PDFHeader";
-import PDFFooter from "./HeaderFooter/PDFFooter";
+import { Font } from "@react-pdf/renderer";
+import SAWatermark from "../Assets/SAWatermark";
+import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
+
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
+      fontWeight: "bold",
+    }, // Bold
+  ],
+});
 
 const ProjectedCashflow = ({
   formData = {},
+  calculations = {},
   totalDepreciationPerYear = [],
   netProfitBeforeTax = [],
   yearlyPrincipalRepayment = [],
@@ -20,11 +34,11 @@ const ProjectedCashflow = ({
   pdfType,
   orientation,
   receivedtotalRevenueReceipts,
-  renderIOTLLabel,
-  renderIOWCLabel,
-  renderWCLLabel,
-  renderBankTLLabel,
-  renderWithdrawalLabel
+ renderIOTLLabel,
+ renderIOWCLabel,
+ renderWCLLabel,
+ renderBankTLLabel,
+ renderWithdrawalLabel
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
@@ -76,6 +90,8 @@ const ProjectedCashflow = ({
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
+  const rateOfExpense =
+    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
@@ -100,7 +116,69 @@ const ProjectedCashflow = ({
 
   const monthsPerYear = calculateMonthsPerYear();
 
+  const interestOnWorkingCapital = Array.from({
+    length: parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0,
+  }).map(() => {
+    const workingCapitalLoan =
+      Number(formData?.MeansOfFinance?.workingCapital?.termLoan) || 0;
+    const interestRate =
+      Number(formData?.ProjectReportSetting?.interestOnTL) || 0;
 
+    return (workingCapitalLoan * interestRate) / 100;
+  });
+
+  // Function to calculate interest on working capital considering moratorium period
+  // const calculateInterestOnWorkingCapital = useMemo(() => {
+  //   // ✅ Find the first repayment year index (first with non-zero months)
+  //   const firstRepaymentYearIndex = monthsPerYear.findIndex(
+  //     (months) => months > 0
+  //   );
+
+  //   // ✅ Debug Table
+  //   const interestAmount =
+  //     ((Number(formData.MeansOfFinance?.workingCapital?.termLoan) || 0) *
+  //       (Number(formData.ProjectReportSetting?.interestOnTL) || 0)) /
+  //     100;
+
+  //   // const debugTable = monthsPerYear.map((monthsInYear, yearIndex) => {
+  //   //   let appliedInterest = 0;
+
+  //   //   if (monthsInYear === 0) {
+  //   //     appliedInterest = 0;
+  //   //   } else if (yearIndex === firstRepaymentYearIndex) {
+  //   //     appliedInterest = (interestAmount * monthsInYear) / 12;
+  //   //   } else {
+  //   //     appliedInterest = interestAmount;
+  //   //   }
+
+  //   //   return {
+  //   //     "Year Index": yearIndex + 1,
+  //   //     "Months Effective": monthsInYear,
+  //   //     "Is First Repayment Year?": yearIndex === firstRepaymentYearIndex,
+  //   //     "Interest Amount (Full)": interestAmount.toFixed(2),
+  //   //     "Interest Applied": appliedInterest.toFixed(2),
+  //   //   };
+  //   // });
+
+  //   // console.log("📊 Interest on Working Capital - Moratorium Effect");
+  //   // console.table(debugTable);
+
+  //   // ✅ Actual logic returned by useMemo
+
+  //   return (interestAmount, yearIndex) => {
+  //     const monthsInYear = monthsPerYear[yearIndex];
+
+  //     if (monthsInYear === 0) {
+  //       return 0;
+  //     }
+
+  //     if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+  //       return (interestAmount * monthsInYear) / 12;
+  //     }
+
+  //     return interestAmount;
+  //   };
+  // }, [formData, moratoriumPeriodMonths, monthsPerYear]);
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // console.log("moratorium month", moratoriumPeriodMonths);
@@ -110,9 +188,15 @@ const ProjectedCashflow = ({
     const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
     const annualInterestAmount = (principal * rate) / 100;
 
+    // console.log("principal:", principal);
+    // console.log("rate:", rate);
+    // console.log("annualInterestAmount:", annualInterestAmount);
+
     const firstRepaymentYearIndex = monthsPerYear.findIndex(
       (months) => months > 0
     );
+    // console.log("Months per year:", monthsPerYear);
+    // console.log("First repayment year index:", firstRepaymentYearIndex);
 
     return (yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex] || 0;
@@ -122,14 +206,21 @@ const ProjectedCashflow = ({
         return 0;
       }
 
+      // if (yearIndex === firstRepaymentYearIndex && moratoriumPeriodMonths > 0) {
+      //   // Prorated interest for first repayment year
+      //   return (annualInterestAmount * monthsInYear) / 12;
+      // }
       if (
         yearIndex === firstRepaymentYearIndex &&
         (moratoriumPeriodMonths > 0 || monthsInYear < 12)
       ) {
         const prorated = (annualInterestAmount * monthsInYear) / 12;
+        // console.log(`Year ${yearIndex + 1} prorated interest:`, prorated);
         return prorated;
       }
 
+      // console.log(`Year ${yearIndex + 1} full interest:`, annualInterestAmount);
+      // Full annual interest for other repayment years
       return annualInterestAmount;
     };
   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
@@ -190,7 +281,8 @@ const ProjectedCashflow = ({
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-
+    // Start write-off from year 1 (index 0) normally,
+    // but from year 2 (index 1) if skipfirstyear is true
     const writeOffStartIndex = skipfirstyear ? 1 : 0;
     const writeOffEndIndex = writeOffStartIndex + preliminaryWriteOffYears;
 
@@ -199,6 +291,7 @@ const ProjectedCashflow = ({
       : 0;
   });
 
+  // console.log("curremt Liabilities : ", formData?.MoreDetails?.currentLiabilities)
 
   const totalSourcesArray = Array.from({ length: projectionYears }).map(
     (_, index) => {
@@ -453,17 +546,17 @@ const ProjectedCashflow = ({
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
-  if (isAdvancedLandscape) {
-    // Always use all years, do NOT hide the first year
-    const visibleLabels = financialYearLabels;
-    const totalCols = visibleLabels.length;
-    const firstPageCols = Math.ceil(totalCols / 2);
-    const secondPageCols = totalCols - firstPageCols;
-    splitFinancialYearLabels = [
-      visibleLabels.slice(0, firstPageCols),
-      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-    ];
-  }
+if (isAdvancedLandscape) {
+  // Always use all years, do NOT hide the first year
+  const visibleLabels = financialYearLabels;
+  const totalCols = visibleLabels.length;
+  const firstPageCols = Math.ceil(totalCols / 2);
+  const secondPageCols = totalCols - firstPageCols;
+  splitFinancialYearLabels = [
+    visibleLabels.slice(0, firstPageCols),
+    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+  ];
+}
 
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
@@ -479,16 +572,88 @@ const ProjectedCashflow = ({
 
       return (
         <Page
-          // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
+          // size={
+          //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
+          // }
           size="A4"
           orientation="landscape"
-          style={styles.page}
-          wrap
+          wrap={false}
           break
+          style={styles.page}
         >
+          {pdfType &&
+            pdfType !== "select option" &&
+            (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%", // Center horizontally
+                  top: "50%", // Center vertically
+                  width: 500, // Set width to 500px
+                  height: 700, // Set height to 700px
+                  marginLeft: -200, // Move left by half width (500/2)
+                  marginTop: -350, // Move up by half height (700/2)
+                  opacity: 0.4, // Light watermark
+                  zIndex: -1, // Push behind content
+                }}
+              >
+                <Image
+                  src={
+                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
+                  }
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            )}
           <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-            <PDFHeader />
+            {/* businees name and financial year  */}
             <View>
+              <Text style={styles.businessName}>
+                {formData?.AccountInformation?.businessName || "Business Bame"}
+              </Text>
+              <Text style={styles.FinancialYear}>
+                Financial Year{" "}
+                {formData?.ProjectReportSetting?.FinancialYear
+                  ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                    )
+                      .toString()
+                      .slice(-2)}`
+                  : "2025-26"}
+              </Text>
+            </View>
+
+            {/* Amount format */}
+            <View
+              style={{
+                display: "flex",
+                alignContent: "flex-end",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+              }}
+            >
+              <Text style={[styles.AmountIn, styles.italicText]}>
+                (Amount In{" "}
+                {
+                  formData?.ProjectReportSetting?.AmountIn === "rupees"
+                    ? "Rs." // Show "Rupees" if "rupees" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                    ? "Thousands" // Show "Thousands" if "thousand" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                    ? "Crores" // Show "Crores" if "crores" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "millions"
+                    ? "Millions" // Show "Millions" if "millions" is selected
+                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                }
+                )
+              </Text>
+            </View>
+            <View style={[styleExpenses.paddingx]}>
               <View
                 style={[
                   stylesCOP.heading,
@@ -529,7 +694,7 @@ const ProjectedCashflow = ({
                   {/* Generate Dynamic Year Headers using current page labels */}
                   {labels.map((yearLabel, localIdx) => {
                     const gIdx = globalIndex(localIdx);
-
+                   
                     return (
                       <Text
                         key={gIdx}
@@ -573,7 +738,7 @@ const ProjectedCashflow = ({
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       return (
                         <Text
                           key={gIdx}
@@ -606,7 +771,7 @@ const ProjectedCashflow = ({
                     {/* Sync Net Profit Before Interest & Taxes */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const value = netProfitBeforeInterestAndTaxes[gIdx] || 0;
                       return (
                         <Text
@@ -640,7 +805,7 @@ const ProjectedCashflow = ({
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       return (
                         <Text
                           key={gIdx}
@@ -681,7 +846,7 @@ const ProjectedCashflow = ({
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -693,7 +858,7 @@ const ProjectedCashflow = ({
                             {formatNumber(
                               gIdx === 0
                                 ? formData?.MeansOfFinance?.termLoan
-                                  ?.termLoan || "-"
+                                    ?.termLoan || "-"
                                 : "0"
                             )}
                           </Text>
@@ -727,7 +892,7 @@ const ProjectedCashflow = ({
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -739,7 +904,7 @@ const ProjectedCashflow = ({
                             {formatNumber(
                               gIdx === 0
                                 ? formData.MeansOfFinance?.workingCapital
-                                  ?.termLoan || "-"
+                                    ?.termLoan || "-"
                                 : "0"
                             )}
                           </Text>
@@ -771,7 +936,7 @@ const ProjectedCashflow = ({
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -824,7 +989,7 @@ const ProjectedCashflow = ({
                           {/* ✅ Loop through visible labels */}
                           {labels.map((_, localIdx) => {
                             const gIdx = globalIndex(localIdx);
-
+                           
                             return (
                               <Text
                                 key={gIdx}
@@ -860,7 +1025,7 @@ const ProjectedCashflow = ({
 
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -905,7 +1070,7 @@ const ProjectedCashflow = ({
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const total = totalSourcesArray[gIdx] || 0;
                       return (
                         <Text
@@ -962,7 +1127,7 @@ const ProjectedCashflow = ({
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       return (
                         <Text
                           key={gIdx}
@@ -998,7 +1163,7 @@ const ProjectedCashflow = ({
 
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -1044,7 +1209,7 @@ const ProjectedCashflow = ({
                       {/* ✅ Display Principal Repayment Only for visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -1088,7 +1253,7 @@ const ProjectedCashflow = ({
                       {/* Get visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -1134,7 +1299,7 @@ const ProjectedCashflow = ({
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` with global index */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
 
                         const calculatedInterest =
                           calculateInterestOnWorkingCapital(gIdx);
@@ -1182,7 +1347,7 @@ const ProjectedCashflow = ({
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         return (
                           <Text
                             key={gIdx}
@@ -1225,38 +1390,38 @@ const ProjectedCashflow = ({
                     {/* Render the incomeTaxCalculation values */}
                     {incomeTaxCalculation2 && incomeTaxCalculation2.length > 0
                       ? labels.map((_, localIdx) => {
-                        const gIdx = globalIndex(localIdx);
-
-                        const tax = incomeTaxCalculation2[gIdx];
-                        return (
-                          <Text
-                            key={gIdx}
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                            ]}
-                          >
-                            {tax !== undefined && tax !== null
-                              ? formatNumber(tax)
-                              : "N/A"}
-                          </Text>
-                        );
-                      })
+                          const gIdx = globalIndex(localIdx);
+                         
+                          const tax = incomeTaxCalculation2[gIdx];
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              {tax !== undefined && tax !== null
+                                ? formatNumber(tax)
+                                : "N/A"}
+                            </Text>
+                          );
+                        })
                       : labels.map((_, localIdx) => {
-                        const gIdx = globalIndex(localIdx);
-
-                        return (
-                          <Text
-                            key={gIdx}
-                            style={[
-                              stylesCOP.particularsCellsDetail,
-                              styleExpenses.fontSmall,
-                            ]}
-                          >
-                            N/A
-                          </Text>
-                        );
-                      })}
+                          const gIdx = globalIndex(localIdx);
+                         
+                          return (
+                            <Text
+                              key={gIdx}
+                              style={[
+                                stylesCOP.particularsCellsDetail,
+                                styleExpenses.fontSmall,
+                              ]}
+                            >
+                              N/A
+                            </Text>
+                          );
+                        })}
                   </View>
 
                   {/* inventory  */}
@@ -1285,7 +1450,7 @@ const ProjectedCashflow = ({
                       {/* Render inventory values for visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-
+                       
                         const inventorymap = inventory[gIdx] || 0;
 
                         return (
@@ -1338,7 +1503,7 @@ const ProjectedCashflow = ({
                           {/* ✅ Ensure visible years match */}
                           {labels.map((_, localIdx) => {
                             const gIdx = globalIndex(localIdx);
-
+                           
                             return (
                               <Text
                                 key={gIdx}
@@ -1358,48 +1523,48 @@ const ProjectedCashflow = ({
                   {/* Preliminary Expenses in Uses (year 1 only) */}
                   {Number(formData?.CostOfProject?.preliminaryExpensesTotal) >
                     0 && (
-                      <View style={styles.tableRow}>
-                        <Text
-                          style={[
-                            stylesCOP.serialNoCellDetail,
-                            styleExpenses.sno,
-                          ]}
-                        >
-                          {getNextUsesSerial()}
-                        </Text>
-                        <Text
-                          style={[
-                            stylesCOP.detailsCellDetail,
-                            styleExpenses.particularWidth,
-                            styleExpenses.bordernone,
-                          ]}
-                        >
-                          Preliminary Expenses
-                        </Text>
-                        {labels.map((_, localIdx) => {
-                          const gIdx = globalIndex(localIdx);
-
-                          return (
-                            <Text
-                              key={gIdx}
-                              style={[
-                                stylesCOP.particularsCellsDetail,
-                                styleExpenses.fontSmall,
-                              ]}
-                            >
-                              {formatNumber(
-                                gIdx === 0
-                                  ? Number(
+                    <View style={styles.tableRow}>
+                      <Text
+                        style={[
+                          stylesCOP.serialNoCellDetail,
+                          styleExpenses.sno,
+                        ]}
+                      >
+                        {getNextUsesSerial()}
+                      </Text>
+                      <Text
+                        style={[
+                          stylesCOP.detailsCellDetail,
+                          styleExpenses.particularWidth,
+                          styleExpenses.bordernone,
+                        ]}
+                      >
+                        Preliminary Expenses
+                      </Text>
+                      {labels.map((_, localIdx) => {
+                        const gIdx = globalIndex(localIdx);
+                       
+                        return (
+                          <Text
+                            key={gIdx}
+                            style={[
+                              stylesCOP.particularsCellsDetail,
+                              styleExpenses.fontSmall,
+                            ]}
+                          >
+                            {formatNumber(
+                              gIdx === 0
+                                ? Number(
                                     formData?.CostOfProject
                                       ?.preliminaryExpensesTotal
                                   ) || 0
-                                  : 0
-                              )}
-                            </Text>
-                          );
-                        })}
-                      </View>
-                    )}
+                                : 0
+                            )}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  )}
 
                   {/* Total Uses Calculation */}
                   <View
@@ -1428,7 +1593,7 @@ const ProjectedCashflow = ({
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const total = totalUsesArray[gIdx] || 0;
                       return (
                         <Text
@@ -1477,7 +1642,7 @@ const ProjectedCashflow = ({
                     {/* ✅ Display Updated Opening Cash Balance for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const cb = cashBalances[gIdx] || { opening: 0 };
                       return (
                         <Text
@@ -1517,7 +1682,7 @@ const ProjectedCashflow = ({
                     {/* ✅ Display Surplus for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const cb = cashBalances[gIdx] || { surplus: 0 };
                       return (
                         <Text
@@ -1557,7 +1722,7 @@ const ProjectedCashflow = ({
                     {/* ✅ Display Closing Cash Balance for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-
+                     
                       const cb = cashBalances[gIdx] || { closing: 0 };
                       return (
                         <Text
@@ -1575,7 +1740,26 @@ const ProjectedCashflow = ({
                 </View>
               </View>
             </View>
-            <PDFFooter />
+            {/* businees name and Client Name  */}
+            <View
+              style={[
+                {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "80px",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginTop: "60px",
+                },
+              ]}
+            >
+              <Text style={[styles.businessName, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessName || "Business Name"}
+              </Text>
+              <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+                {formData?.AccountInformation?.businessOwner || "businessOwner"}
+              </Text>
+            </View>
           </View>
         </Page>
       );
@@ -1591,10 +1775,78 @@ const ProjectedCashflow = ({
       break
       style={styles.page}
     >
-
+      {pdfType &&
+        pdfType !== "select option" &&
+        (pdfType === "Sharda Associates" || pdfType === "CA Certified") && (
+          <View
+            style={{
+              position: "absolute",
+              left: "50%", // Center horizontally
+              top: "50%", // Center vertically
+              width: 500, // Set width to 500px
+              height: 700, // Set height to 700px
+              marginLeft: -200, // Move left by half width (500/2)
+              marginTop: -350, // Move up by half height (700/2)
+              opacity: 0.4, // Light watermark
+              zIndex: -1, // Push behind content
+            }}
+          >
+            <Image
+              src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </View>
+        )}
       <View style={[styleExpenses.paddingx, { paddingBottom: "30px" }]}>
-        <PDFHeader />
-        <View >
+        {/* businees name and financial year  */}
+        <View>
+          <Text style={styles.businessName}>
+            {formData?.AccountInformation?.businessName || "Business Bame"}
+          </Text>
+          <Text style={styles.FinancialYear}>
+            Financial Year{" "}
+            {formData?.ProjectReportSetting?.FinancialYear
+              ? `${formData.ProjectReportSetting.FinancialYear}-${(
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
+              : "2025-26"}
+          </Text>
+        </View>
+
+        {/* Amount format */}
+
+        <View
+          style={{
+            display: "flex",
+            alignContent: "flex-end",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Text style={[styles.AmountIn, styles.italicText]}>
+            (Amount In{" "}
+            {
+              formData?.ProjectReportSetting?.AmountIn === "rupees"
+                ? "Rs." // Show "Rupees" if "rupees" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "thousand"
+                ? "Thousands" // Show "Thousands" if "thousand" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "crores"
+                ? "Crores" // Show "Crores" if "crores" is selected
+                : formData?.ProjectReportSetting?.AmountIn === "millions"
+                ? "Millions" // Show "Millions" if "millions" is selected
+                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+            }
+            )
+          </Text>
+        </View>
+        <View style={[styleExpenses.paddingx]}>
           <View
             style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
           >
@@ -1808,7 +2060,7 @@ const ProjectedCashflow = ({
                       {formatNumber(
                         index === 0
                           ? formData.MeansOfFinance?.workingCapital?.termLoan ||
-                          "-"
+                              "-"
                           : "0"
                       )}
                     </Text>
@@ -2375,40 +2627,40 @@ const ProjectedCashflow = ({
               {/* Preliminary Expenses in Uses (year 1 only) */}
               {Number(formData?.CostOfProject?.preliminaryExpensesTotal) >
                 0 && (
-                  <View style={styles.tableRow}>
+                <View style={styles.tableRow}>
+                  <Text
+                    style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
+                  >
+                    {getNextUsesSerial()}
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Preliminary Expenses
+                  </Text>
+                  {Array.from({ length: projectionYears }).map((_, index) => (
                     <Text
-                      style={[stylesCOP.serialNoCellDetail, styleExpenses.sno]}
-                    >
-                      {getNextUsesSerial()}
-                    </Text>
-                    <Text
+                      key={index}
                       style={[
-                        stylesCOP.detailsCellDetail,
-                        styleExpenses.particularWidth,
-                        styleExpenses.bordernone,
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
                       ]}
                     >
-                      Preliminary Expenses
-                    </Text>
-                    {Array.from({ length: projectionYears }).map((_, index) => (
-                      <Text
-                        key={index}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                        ]}
-                      >
-                        {formatNumber(
-                          index === 0
-                            ? Number(
+                      {formatNumber(
+                        index === 0
+                          ? Number(
                               formData?.CostOfProject?.preliminaryExpensesTotal
                             ) || 0
-                            : 0
-                        )}
-                      </Text>
-                    ))}
-                  </View>
-                )}
+                          : 0
+                      )}
+                    </Text>
+                  ))}
+                </View>
+              )}
 
               {/* Total Uses Calculation */}
               <View
@@ -2560,7 +2812,26 @@ const ProjectedCashflow = ({
             </View>
           </View>
         </View>
-        <PDFFooter />
+        {/* businees name and Client Name  */}
+        <View
+          style={[
+            {
+              display: "flex",
+              flexDirection: "column",
+              gap: "80px",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: "60px",
+            },
+          ]}
+        >
+          <Text style={[styles.businessName, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessName || "Business Name"}
+          </Text>
+          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
+            {formData?.AccountInformation?.businessOwner || "businessOwner"}
+          </Text>
+        </View>
       </View>
     </Page>
   );
