@@ -96,6 +96,11 @@ const Repayment = ({
   // 3-letter lowercase like "jan", "apr"
   const m3 = (name) => name.slice(0, 3).toLowerCase();
 
+  let repaymentPeriod = 1; // Default to monthly
+  let periodsInYear = 12; // Default to monthly (12 months in a year)
+
+
+
   if (repaymentMethod === "Quarterly") {
     repaymentPeriod = 3; // Every 3 months
     periodsInYear = 4; // 4 periods in a year (quarterly)
