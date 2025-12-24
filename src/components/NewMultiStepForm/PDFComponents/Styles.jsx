@@ -1,7 +1,6 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
 import { Font } from "@react-pdf/renderer";
-import { checkAndRegisterFont } from "../checkAndRegisterFont";
 
 // ✅ Register a Font That Supports Bold
 Font.register({

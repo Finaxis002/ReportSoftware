@@ -1,24 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState} from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
+
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
-
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
 
 const safeNumber = (val) =>
   val === undefined || val === null || val === "" ? 0 : Number(val) || 0;
@@ -125,14 +110,7 @@ const ProjectedBalanceSheet = ({
   // ✅ Compute Corrected Total Assets for Each Year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
-  // const inventory = Array.from({
-  //   length: formData.MoreDetails.OpeningStock.length,
-  // }).map((_, yearIndex) => {
-  //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-  //   const finalStock = ClosingStock;
 
-  //   return finalStock;
-  // });
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -148,25 +126,6 @@ const ProjectedBalanceSheet = ({
       ? preliminaryExpensesTotal / preliminaryWriteOffYears
       : 0;
 
-  // const writeOffStartIndex = skipfirstyear ? 1 : 0;
-  const writeOffStartIndex = 0;
-  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
-
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
-  }).map((_, index) => {
-    const relativeYear = index - writeOffStartIndex;
-
-    if (
-      index >= writeOffStartIndex &&
-      relativeYear < preliminaryWriteOffSteps
-    ) {
-      // Calculate decreasing value
-      return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
-    }
-
-    return 0;
-  });
 
   const preliminaryExpenseBalanceSheet = [];
   for (let i = 0; i < projectionYears; i++) {
@@ -235,57 +194,7 @@ const ProjectedBalanceSheet = ({
     totalAssetArray.push(totalAssets); // Build the array for your later use
   }
 
-  // Diagnostic: Show table of asset composition year-wise
-
-  // const cumulativeCurrentAssetsArr = [];
-  // let cumulativeCurrentAssetsTemp = 0;
-
-  // for (let index = 0; index < projectionYears; index++) {
-  //   const filteredAssets = formData?.MoreDetails?.currentAssets
-  //     ?.filter(
-  //       (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-  //     ) || [];
-  //   const currentYearAssets = filteredAssets
-  //     .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-  //   cumulativeCurrentAssetsTemp += currentYearAssets;
-  //   cumulativeCurrentAssetsArr.push(cumulativeCurrentAssetsTemp);
-  // }
-
-  //   const totalAssetArray = Array.from({ length: projectionYears }).map(
-  //     (_, index) => {
-  //       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-  //       const cashEquivalent = closingCashBalanceArray[index] || 0;
-
-  //       const currentYearAssets = formData?.MoreDetails?.currentAssets
-  //         ?.filter(
-  //           (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-  //         )
-  //         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-  //       // cumulativeCurrentAssets += currentYearAssets;
-  //     //   const filteredAssets = formData?.MoreDetails?.currentAssets
-  //     //   ?.filter(
-  //     //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-  //     //   ) || [];
-  //     // const currentYearAssets = filteredAssets
-  //     //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-  //       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
-
-  //       const totalAssets =
-  //         netFixedAssetValue +
-  //         cashEquivalent +
-  //          cumulativeCurrentAssetsArr[index] +
-  //         Number(inventory[index]) +
-  //         preliminaryAsset; // ✅ INCLUDED
-
-  //       return totalAssets;
-  //     }
-  //   );
-
-  // You can see the debug table:
-  // console.table(assetDebugTable);
-  // And use totalAssetArray for your further calculations
+  
 
   const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
   
@@ -391,8 +300,6 @@ const ProjectedBalanceSheet = ({
     }
   );
 
-  // ✅ Log final yearly total liabilities array
-  // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);
 
   // ✅ Send Total Liabilities Data to Parent Component Only When Final
   useEffect(() => {
@@ -414,21 +321,11 @@ const ProjectedBalanceSheet = ({
     JSON.stringify(repaymentValueswithin12months),
   ]);
 
-  // const isPreliminaryWriteOffAllZero = Array.from({
-  //   length: projectionYears,
-  // }).every((_, yearIndex) => {
-  //   const adjustedYearIndex = yearIndex; // ✅ Fix index offset
-  //   return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  // });
+
   const isPreliminaryWriteOffAllZero = Array.from({
     length: projectionYears,
   }).every((_, yearIndex) => preliminaryExpenseBalanceSheet[yearIndex] === 0);
 
-  const visibleLiabilitiesCount =
-    formData?.MoreDetails?.currentAssets?.filter(
-      (liability) => !liability.years.every((value) => Number(value) === 0)
-    )?.length || 0;
-  const preliminarySerialNo = 6 + visibleLiabilitiesCount;
 
   const isInventoryZero = inventory.every((value) => value === 0);
 
@@ -471,7 +368,6 @@ const ProjectedBalanceSheet = ({
     assetsSerial = 0;
   };
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];

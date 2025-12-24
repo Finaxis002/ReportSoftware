@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register Font
 Font.register({
@@ -98,13 +97,7 @@ if (isAdvancedLandscape) {
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
-      // For centering (kept for parity with other pages; not used here)
-      const visibleLocalCols = labels
-        .map((_, i) => i)
-        .filter((i) => !shouldSkipCol(globalIndex(i)));
-      const centerLocalIdx =
-        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
-
+ 
       return (
         <Page
           // size={projectionYears > 12 ? "A3" : "A4"}

@@ -1,10 +1,9 @@
 import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 const ProjectSynopsis = React.memo(
   ({
@@ -16,7 +15,6 @@ const ProjectSynopsis = React.memo(
     fringeCalculation,
     fringAndAnnualCalculation = [],
     receivedDscr = [],
-    receivedAverageCurrentRatio = [],
     receivedBreakEvenPointPercentage = [],
     receivedAssetsLiabilities = [],
     pdfType,
@@ -164,14 +162,7 @@ const ProjectSynopsis = React.memo(
       }
     };
 
-    // ✅ Function to get the first non-zero revenue value
-    // const getFirstNonZeroRevenue = (revenueArray) => {
-    //   const firstValidValue = revenueArray.find((value) => value !== 0);
-    //   return firstValidValue !== undefined
-    //     ? `Rs. ${formatNumber(Math.round(firstValidValue))} /-`
-    //     : " ";
-    // };
-
+  
     // ✅ Function to get the first non-zero percentage value and its corresponding year
     const getFirstNonZeroPercentageWithYear = (percentageArray) => {
       // Find the index of the first non-zero value

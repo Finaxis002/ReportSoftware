@@ -1,9 +1,8 @@
 import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles, stylesMOF } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 const MeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFBLabel , renderWCLFBLabel , renderTotalBankLoanLabel}) => {
   // console.log("form data", formData);

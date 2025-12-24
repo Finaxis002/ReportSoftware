@@ -1,9 +1,8 @@
-import React from "react";
+
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   

@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -53,25 +52,9 @@ const BreakEvenPoint = ({
   renderIOTLLabel,
   renderIOWCLabel,
 }) => {
-  // console.log("received total revenue receipt", receivedtotalRevenueReceipts)
-  const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
+
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
 
   // ✅ Months Array for Indexing
   const monthMap = {
@@ -145,18 +128,6 @@ const BreakEvenPoint = ({
     return (incrementedExpense / 12) * monthsInYear;
   };
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
 
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
@@ -323,46 +294,7 @@ const BreakEvenPoint = ({
     return num(row?.values?.[yearLabelOrIndex]) || 0;
   };
 
-  // const totalVariableExpenses = Array.from({
-  //   length: projectionYears - (hideFirstYear ? 1 : 0),
-  // }).map((_, visibleIndex) => {
-  //   const adjustedYearIndex = hideFirstYear ? visibleIndex + 1 : visibleIndex;
-  //   const yearLabel = financialYearLabels[adjustedYearIndex];
-
-  //   const totalFromExpenses = allExpenses.reduce((total, expense) => {
-  //     const isRawMaterial =
-  //       expense.name.trim() === "Raw Material Expenses / Purchases";
-  //     const isPercentage = String(expense.value).trim().endsWith("%");
-
-  //     let expenseValue = 0;
-  //     if (isRawMaterial && isPercentage) {
-  //       expenseValue = calculateRawMaterialExpense(
-  //         expense,
-  //         receivedtotalRevenueReceipts,
-  //         adjustedYearIndex
-  //       );
-  //     } else {
-  //       expenseValue = calculateExpense(
-  //         Number(expense.total) || 0,
-  //         adjustedYearIndex
-  //       );
-  //     }
-
-  //     return total + expenseValue;
-  //   }, 0);
-
-  //   const totalAdvanceForYear = advanceExpenses.reduce((total, row) => {
-  //     const advValue =
-  //       getAdvanceExpenseValueForYear(row, yearLabel) ||
-  //       getAdvanceExpenseValueForYear(row, adjustedYearIndex);
-  //     return total + advValue;
-  //   }, 0);
-
-  //   const preliminaryExpense =
-  //     preliminaryWriteOffPerYear[adjustedYearIndex] || 0;
-
-  //   return totalFromExpenses + totalAdvanceForYear + preliminaryExpense;
-  // });
+  
 
   const totalVariableExpenses = Array.from({
     length: projectionYears - (hideFirstYear ? 1 : 0),
@@ -434,54 +366,7 @@ const BreakEvenPoint = ({
     return revenueValue - expenseValue;
   });
 
-  // const totalFixedExpenses = Array.from({ length: projectionYears }).map(
-  //   (_, yearIndex) => {
-  //     // ✅ Calculate Salary & Wages using `calculateExpense`
-  //     const salaryAndWages = calculateExpense(
-  //       Number(fringAndAnnualCalculation) || 0,
-  //       yearIndex // Pass the yearIndex to apply any year-specific logic
-  //     );
-
-  //     // ✅ Extract Interest on Term Loan
-  //     const interestOnTermLoan = parseFloat(
-  //       (yearlyInterestLiabilities[yearIndex] || 0).toFixed(2)
-  //     );
-
-  //     // ✅ Extract Interest on Working Capital
-  //     const interestExpenseOnWorkingCapital =
-  //       calculateInterestOnWorkingCapital(yearIndex);
-
-  //     // ✅ Extract Depreciation
-  //     const depreciationExpense = parseFloat(
-  //       (totalDepreciationPerYear[yearIndex] || 0).toFixed(2)
-  //     );
-
-  //     // ✅ Sum Total Fixed Expenses for the Year
-  //     const totalExpense = parseFloat(
-  //       (
-  //         salaryAndWages +
-  //         interestOnTermLoan +
-  //         interestExpenseOnWorkingCapital +
-  //         depreciationExpense
-  //       ).toFixed(2)
-  //     );
-
-  //     // Log the individual values for each year
-  //     // console.log(`Year ${yearIndex + 1}:`);
-  //     // console.log(`Salary & Wages: ${salaryAndWages}`);
-  //     // console.log(`Interest on Term Loan: ${interestOnTermLoan}`);
-  //     // console.log(`Interest on Working Capital: ${interestExpenseOnWorkingCapital}`);
-  //     // console.log(`Depreciation: ${depreciationExpense}`);
-  //     // console.log(`Total Fixed Expenses: ${totalExpense}`);
-  //     // console.log('------------------------');
-
-  //     return totalExpense;
-  //   }
-  // );
-
-  // console.log("Total Fixed Expenses for Each Year:", totalFixedExpenses);
-
-  // ✅ Compute Break Even Point (in %) for Each Year
+  
 
   const totalFixedExpenses = Array.from({ length: projectionYears }).map(
     (_, yearIndex) => {

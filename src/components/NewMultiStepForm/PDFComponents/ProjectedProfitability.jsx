@@ -1,23 +1,9 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PageWithFooter from "../Helpers/PageWithFooter";
-
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
 
 const num = (v) => {
   // Handle percentages by dividing by 100
@@ -33,7 +19,6 @@ const num = (v) => {
 
 const ProjectedProfitability = ({
   formData,
-  localData,
   normalExpense,
   directExpense,
   totalDepreciationPerYear,
@@ -54,8 +39,7 @@ const ProjectedProfitability = ({
   renderIOWCLabel,
    renderWithdrawalLabel
 }) => {
-  // console.log(totalRevenueReceipts, "totalRevenueReceipts in pp");
-  // console.log(' yearlyInterestLiabilities',  yearlyInterestLiabilities)
+ 
   useEffect(() => {
     if (yearlyInterestLiabilities.length > 0) {
       //  console.log("✅ Updated Yearly Interest Liabilities in State:", yearlyInterestLiabilities);
@@ -114,18 +98,7 @@ const ProjectedProfitability = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
 
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -205,7 +178,6 @@ const ProjectedProfitability = ({
     return calculatedInterest === 0;
   });
 
-  const moratoriumPeriod = formData?.ProjectReportSetting?.MoratoriumPeriod;
 
   // Function to calculate the expense for each year considering the increment rate
   const calculateExpense = (annualExpense, yearIndex) => {
@@ -330,21 +302,6 @@ const ProjectedProfitability = ({
       : 0;
 
     
-  // Generate the array for yearly values
-  // const preliminaryWriteOffPerYear = Array.from({
-  //   length: projectionYears,
-  // }).map((_, index) => {
-  //   const startIndex = hideFirstYear ? 1 : 0;
-  //   const endIndex = startIndex + preliminaryWriteOffYears;
-
-  //   // 👇 Only insert value if it's within the write-off window
-  //   if (index >= startIndex && index < endIndex) {
-  //     return yearlyWriteOffAmount;
-  //   }
-
-  //   // 👇 Insert 0 for all other years (including hidden first year)
-  //   return 0;
-  // });
 
  const preliminaryWriteOffPerYear = Array.from({
   length: projectionYears,
@@ -506,16 +463,7 @@ console.log("preliminaryWriteOffPerYear:", preliminaryWriteOffPerYear);
     return (npbt * formData.ProjectReportSetting.incomeTax) / 100;
   });
 
-  // ✅ Precompute Net Profit After Tax (NPAT) for Each Year Before Rendering
-  // const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
-  //   return npat - incomeTaxCalculation[yearIndex]; // ✅ Correct subtraction
-  // });
-
-  // // Precompute Balance Transferred to Balance Sheet
-  // const balanceTransferred = netProfitAfterTax.map(
-  //   (npbt, yearIndex) =>
-  //     npbt - (formData.MoreDetails.Withdrawals?.[yearIndex] || 0)
-  // );
+ 
 
   const netProfitAfterTax = netProfitBeforeTax.map((npat, yearIndex) => {
   const tax = incomeTaxCalculation[yearIndex] || 0;
@@ -656,39 +604,6 @@ console.log("=== END DEBUG ===");
     );
   }, [totalDirectExpensesArray, totalIndirectExpensesArray, calculateExpense]); // Runs when these values change
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("storedProfitabilityData");
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      // console.log("Retrieved Data:", parsedData);
-    }
-  }, []);
-
-  // ✅ Determine if first-year should be hidden
-
-  // const orientation = hideFirstYear
-  //   ? formData.ProjectReportSetting.ProjectionYears > 6
-  //     ? "landscape"
-  //     : "portrait"
-  //   : formData.ProjectReportSetting.ProjectionYears > 5
-  //   ? "landscape"
-  //   : "portrait";
-
-  const indirectCount = directExpense.filter((expense) => {
-    if (expense.name.trim() === "Raw Material Expenses / Purchases") {
-      return false;
-    }
-
-    const isAllYearsZero = Array.from({
-      length: hideFirstYear ? projectionYears - 1 : projectionYears,
-    }).every((_, yearIndex) => {
-      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-      const expenseValue = Number(expense.total) || 0;
-      return expenseValue === 0;
-    });
-
-    return expense.type === "indirect" && !isAllYearsZero;
-  }).length;
 
   const isPreliminaryWriteOffAllZero = Array.from({
     length: hideFirstYear ? projectionYears - 1 : projectionYears,
@@ -730,7 +645,6 @@ console.log("=== END DEBUG ===");
     visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
   ];
 }
-const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || (n+1);
 
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
