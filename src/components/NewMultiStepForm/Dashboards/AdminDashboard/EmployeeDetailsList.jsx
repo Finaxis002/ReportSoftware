@@ -154,6 +154,12 @@ const EmployeeDetailsList = () => {
     fetchEmployees();
   };
 
+  const handleEmployeeAdded = (newEmployee) => {
+  // Add the new employee to the list
+  setEmployees(prev => [...prev, newEmployee]);
+  setShowForm(false); // Close the modal
+};
+
   return (
     <div className="flex flex-col h-[100vh]">
       {/* ✅ Header */}
@@ -177,11 +183,14 @@ const EmployeeDetailsList = () => {
       </div>
 
       {/* ✅ Employee Registration */}
-      {showForm && <EmployeeRegistration setShowForm={setShowForm} />}
+      {showForm && <EmployeeRegistration setShowForm={setShowForm} onEmployeeAdded={handleEmployeeAdded}/>}
 
       {/* ✅ Employee Card Layout */}
       <div className=" h-[70vh] flex align-middle justify-center">
         {isLoading ? (
+
+
+
           <div className="px-6 py-4 text-center">
             <LoadingSpinner />
           </div>

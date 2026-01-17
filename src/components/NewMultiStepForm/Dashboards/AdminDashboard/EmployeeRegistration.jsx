@@ -57,6 +57,9 @@ const EmployeeRegistrationModal = ({ setShowForm, onEmployeeAdded }) => {
 
       console.log(response.data);
       setMessage("Employee added successfully");
+       if (onEmployeeAdded) {
+      onEmployeeAdded(response.data);
+    }
       setShowForm(false);
       setFormData({
         employeeId: "",
