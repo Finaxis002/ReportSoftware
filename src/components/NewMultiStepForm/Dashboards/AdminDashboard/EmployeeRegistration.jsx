@@ -27,6 +27,7 @@ const EmployeeRegistrationModal = ({ setShowForm, onEmployeeAdded }) => {
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   // Handle input changes
@@ -47,43 +48,50 @@ const EmployeeRegistrationModal = ({ setShowForm, onEmployeeAdded }) => {
 
   // Handle form submission: send the formData to the API
   const handleSubmit = async (e) => {
-    e.preventDefault();
+   e.preventDefault();
 
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/api/employees/register`,
-        formData
-      );
+   try {
+     const response = await axios.post(
+       `${BASE_URL}/api/employees/register`,
+       formData
+     );
 
-      console.log(response.data);
-      setMessage("Employee added successfully");
-       if (onEmployeeAdded) {
-      onEmployeeAdded(response.data);
-    }
-      setShowForm(false);
-      setFormData({
-        employeeId: "",
-        name: "",
-        email: "",
-        designation: "",
-        password: "",
-        permissions: {
-          generateReport: false,
-          updateReport: false,
-          createNewWithExisting: false,
-          downloadPDF: false,
-          exportData: false,
-          generateWord: false,
-          advanceReport: false,
-          generateGraph: false,
-          cmaData: false,
-          consultantReport: false,
-        },
-      });
-    } catch (error) {
-      setError("Failed to add employee");
-    }
-  };
+     console.log(response.data);
+     setMessage("Employee added successfully");
+      if (onEmployeeAdded) {
+     onEmployeeAdded(response.data);
+   }
+     setShowForm(false);
+     setFormData({
+       employeeId: "",
+       name: "",
+       email: "",
+       designation: "",
+       password: "",
+       permissions: {
+         generateReport: false,
+         updateReport: false,
+         createNewWithExisting: false,
+         downloadPDF: false,
+         exportData: false,
+         generateWord: false,
+         advanceReport: false,
+         generateGraph: false,
+         cmaData: false,
+         consultantReport: false,
+       },
+     });
+   } catch (error) {
+     if (error.response && error.response.data && error.response.data.error) {
+       if (error.response.data.error.includes("Email")) {
+         setEmailError(error.response.data.error);
+       }
+       setError(error.response.data.error);
+     } else {
+       setError("Failed to add employee");
+     }
+   }
+ };
 
   return (
     // <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
@@ -363,6 +371,7 @@ const EmployeeRegistrationModal = ({ setShowForm, onEmployeeAdded }) => {
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-indigo-100 outline-none transition"
                 required
               />
+             
             </div>
 
             <div className="flex-1">
