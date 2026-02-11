@@ -114,6 +114,9 @@ const CreateConsultantReport = ({ userRole }) => {
   useEffect(() => {
     const fetchSelectedConsultant = async () => {
       if (location.state?.selectedConsultantId) {
+        // Store consultantId in localStorage for persistence
+        localStorage.setItem("consultantId", location.state.selectedConsultantId);
+        
         try {
           const [consultantRes, reportsRes] = await Promise.all([
             fetch(`${BASE_URL}/api/consultants/${location.state.selectedConsultantId}`),
@@ -149,10 +152,17 @@ const CreateConsultantReport = ({ userRole }) => {
   // ✅ Handle Create Report click
   const handleCreateReportClick = () => {
     localStorage.removeItem("FirstStepBasicDetails");
+    
+    // Store consultantId in localStorage
+    const consultantId = location.state?.selectedConsultantId || localStorage.getItem("consultantId");
+    if (consultantId) {
+      localStorage.setItem("consultantId", consultantId);
+    }
+    
     navigate('/create-consultant-report-form', {
       state: {
         isCreateReportClicked: true,
-        consultantId: location.state?.selectedConsultantId
+        consultantId: consultantId
       }
     });
   };
