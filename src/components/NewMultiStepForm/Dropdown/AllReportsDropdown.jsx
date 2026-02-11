@@ -29,11 +29,16 @@ const AllReportsDropdown = ({ onBusinessSelect, showAll = false, consultantId })
     const fetchReports = async () => {
       try {
         let url = `${BASE_URL}/api/consultant-reports/get-all-reports`;
+        
+        // Check for consultantId - from props first, then localStorage
+        const consultantIdToUse = consultantId || localStorage.getItem("consultantId");
+        
         if (showAll) {
           url += '?all=true';
-        } else if (consultantId) {
-          url += `?consultantId=${consultantId}`;
+        } else if (consultantIdToUse) {
+          url += `?consultantId=${consultantIdToUse}`;
         }
+        
         const response = await axios.get(url);
 
         if (response.data && response.data.success && Array.isArray(response.data.data)) {

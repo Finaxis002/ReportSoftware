@@ -872,7 +872,11 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
               onClientSelect={() => { }}
               onBusinessSelect={handleBusinessSelect}
             /> */}
-            <AllReportsDropdown onBusinessSelect={handleBusinessSelect} />
+            <AllReportsDropdown 
+              onBusinessSelect={handleBusinessSelect} 
+              consultantId={isCreateReportWithExistingClicked ? null : (consultantId || localStorage.getItem("consultantId"))}
+              showAll={isCreateReportWithExistingClicked}
+            />
           </div>
         )}
         <div>{stepContent}</div>
