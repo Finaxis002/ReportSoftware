@@ -60,7 +60,7 @@ const PageWithFooter = ({
         {children}
       </View>
       
-      <View style={pageStyles.footer} fixed>
+      {/* <View style={pageStyles.footer} fixed>
         <Text 
           render={({ pageNumber, totalPages }) => (
             <Text style={pageStyles.pageNumber}>
@@ -68,7 +68,7 @@ const PageWithFooter = ({
             </Text>
           )} 
         />
-      </View>
+      </View> */}
     </Page>
   );
 };
