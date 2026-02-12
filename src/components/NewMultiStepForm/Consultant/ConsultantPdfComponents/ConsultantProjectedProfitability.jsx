@@ -1881,7 +1881,7 @@ const ConsultantProjectedProfitability = ({
                                             stylesCOP.detailsCellDetail,
                                             styleExpenses.particularWidth,
                                             styleExpenses.bordernone,
-                                            // { },
+                                            {fontWeight: "bold",}
                                         ]}
                                     >
                                         Net Profit Before Tax
@@ -3485,7 +3485,7 @@ const ConsultantProjectedProfitability = ({
                                     stylesCOP.detailsCellDetail,
                                     styleExpenses.particularWidth,
                                     styleExpenses.bordernone,
-                                    // { },
+                                    {fontWeight: "bold",}
                                 ]}
                             >
                                 Net Profit Before Tax

@@ -1005,7 +1005,7 @@ const ConsultantCashflow = ({
                                                             fontSize: "9px",
                                                             borderTopWidth: "1px",
                                                             borderBottomWidth: "1px",
-
+                                                            fontWeight: "bold",
                                                             paddingVertical: "8px",
                                                         },
                                                     ]}
@@ -1528,7 +1528,7 @@ const ConsultantCashflow = ({
                                                             fontSize: "9px",
                                                             borderTopWidth: "1px",
                                                             borderBottomWidth: "1px",
-
+                                                            fontWeight: "bold",
                                                             paddingVertical: "8px",
                                                         },
                                                     ]}
@@ -2141,7 +2141,7 @@ const ConsultantCashflow = ({
                                                 fontSize: "9px",
                                                 borderTopWidth: "1px",
                                                 borderBottomWidth: "1px",
-
+                                                fontWeight: "bold",
                                                 paddingVertical: "8px",
                                             },
                                         ]}
@@ -2620,7 +2620,7 @@ const ConsultantCashflow = ({
                                                 fontSize: "9px",
                                                 borderTopWidth: "1px",
                                                 borderBottomWidth: "1px",
-
+                                                fontWeight: "bold",
                                                 paddingVertical: "8px",
                                             },
                                         ]}
