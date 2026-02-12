@@ -1413,6 +1413,7 @@ const ConsultantProjectedProfitability = ({
                                             stylesCOP.serialNoCellDetail,
                                             styleExpenses.sno,
                                             styleExpenses.bordernone,
+                                            stylesCOP.boldText,
                                             {},
                                         ]}
                                     >
@@ -1423,6 +1424,7 @@ const ConsultantProjectedProfitability = ({
                                             stylesCOP.detailsCellDetail,
                                             styleExpenses.particularWidth,
                                             styleExpenses.bordernone,
+                                            stylesCOP.boldText,
                                             {},
                                         ]}
                                     >
@@ -1917,10 +1919,7 @@ const ConsultantProjectedProfitability = ({
                                     <Text
                                         style={[
                                             stylesCOP.serialNoCellDetail,
-                                            {
-                                                // ✅ Ensure using the registered font
-                                                fontWeight: "bold", // ✅ Apply bold
-                                            },
+                                           
                                         ]}
                                     >
                                         Less
@@ -1962,8 +1961,7 @@ const ConsultantProjectedProfitability = ({
                                         style={[
                                             stylesCOP.serialNoCellDetail,
                                             {
-                                                // ✅ Ensure using the registered font
-                                                // ✅ Apply bold
+                                                fontWeight: "bold",
                                             },
                                         ]}
                                     >
@@ -3019,6 +3017,7 @@ const ConsultantProjectedProfitability = ({
                                     stylesCOP.serialNoCellDetail,
                                     styleExpenses.sno,
                                     styleExpenses.bordernone,
+                                    stylesCOP.boldText,
                                     {},
                                 ]}
                             >
@@ -3029,6 +3028,7 @@ const ConsultantProjectedProfitability = ({
                                     stylesCOP.detailsCellDetail,
                                     styleExpenses.particularWidth,
                                     styleExpenses.bordernone,
+                                    stylesCOP.boldText,
                                     {},
                                 ]}
                             >
@@ -3521,10 +3521,7 @@ const ConsultantProjectedProfitability = ({
                             <Text
                                 style={[
                                     stylesCOP.serialNoCellDetail,
-                                    {
-                                        // ✅ Ensure using the registered font
-                                        fontWeight: "bold", // ✅ Apply bold
-                                    },
+                                    
                                 ]}
                             >
                                 Less
@@ -3564,8 +3561,7 @@ const ConsultantProjectedProfitability = ({
                                 style={[
                                     stylesCOP.serialNoCellDetail,
                                     {
-                                        // ✅ Ensure using the registered font
-                                        // ✅ Apply bold
+                                        fontWeight: "bold",
                                     },
                                 ]}
                             >

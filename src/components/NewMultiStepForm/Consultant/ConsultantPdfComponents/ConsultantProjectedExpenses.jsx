@@ -966,7 +966,7 @@ const ConsultantProjectedExpenses = ({
                       stylesCOP.detailsCellDetail,
                       styleExpenses.particularWidth,
                       styleExpenses.bordernone,
-                      {},
+                      {fontWeight: "bold",},
                     ]}
                   >
                     Total
@@ -2110,7 +2110,7 @@ const ConsultantProjectedExpenses = ({
                 stylesCOP.detailsCellDetail,
                 styleExpenses.particularWidth,
                 styleExpenses.bordernone,
-                {},
+                {fontWeight: "bold",},
               ]}
             >
               Total

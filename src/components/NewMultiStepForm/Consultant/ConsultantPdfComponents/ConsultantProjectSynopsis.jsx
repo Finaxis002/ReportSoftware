@@ -22,7 +22,7 @@ const ConsultantProjectSynopsis = React.memo(
     renderTotalBankLoanLabel
   }) => {
      const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
-    
+     
 
     const getOrdinalYear = (n) => {
       if (n === 1) return "1st";
@@ -210,7 +210,8 @@ const ConsultantProjectSynopsis = React.memo(
 
     const subsidyName = formData?.ProjectReportSetting?.subsidyName;
 
-    let serialCounter = 13; // Start from 14 since previous ended at 13
+    // Initialize serial counter starting from 0 for auto-increment from 1
+    let serialCounter = 0;
     const getNextSerial = () => {
       serialCounter++;
       return serialCounter;
@@ -293,90 +294,84 @@ const ConsultantProjectSynopsis = React.memo(
                 </Text>
               </View>
 
-              {/* ✅ Map Only Required Fields */}
-              {(() => {
-                let visibleIndex = 0; // Counter for visible rows only
+              {/* ✅ Map Only Required Fields - Using getNextSerial() for auto-serial from 1 */}
+              {requiredFields.map((field, index) => {
+                let value = " ";
 
-                return requiredFields.map((field, index) => {
-                  let value = " ";
-
-                  // ✅ Dynamically fetching data from AccountInformation or ProjectReportSetting
-                  if (field.source === "AccountInformation") {
-                    if (field.key === "aadhaarOrPAN") {
-                      const aadhaar =
-                        formData?.AccountInformation?.adhaarNumber;
-                      const pan = formData?.AccountInformation?.PANNumber;
-                      value = aadhaar || pan || "";
-                    } else if (field.key === "receiptsRevenue") {
-                      value = getFirstNonZeroRevenue(
-                        receivedtotalRevenueReceipts
-                      );
-                    } else {
-                      value = formData?.AccountInformation?.[field.key] || " ";
-                    }
-                  } else if (field.source === "ProjectReportSetting") {
-                    value = formData?.ProjectReportSetting?.[field.key] || " ";
+                // ✅ Dynamically fetching data from AccountInformation or ProjectReportSetting
+                if (field.source === "AccountInformation") {
+                  if (field.key === "aadhaarOrPAN") {
+                    const aadhaar =
+                      formData?.AccountInformation?.adhaarNumber;
+                    const pan = formData?.AccountInformation?.PANNumber;
+                    value = aadhaar || pan || "";
+                  } else if (field.key === "receiptsRevenue") {
+                    value = getFirstNonZeroRevenue(
+                      receivedtotalRevenueReceipts
+                    );
+                  } else {
+                    value = formData?.AccountInformation?.[field.key] || " ";
                   }
+                } else if (field.source === "ProjectReportSetting") {
+                  value = formData?.ProjectReportSetting?.[field.key] || " ";
+                }
 
-                  // ✅ Special formatting
-                  if (field.key === "RepaymentMonths" && value !== " ") {
-                    const months = parseInt(value);
-                    if (!isNaN(months)) {
-                      value = convertMonthsToYearsAndMonths(months);
-                    }
+                // ✅ Special formatting
+                if (field.key === "RepaymentMonths" && value !== " ") {
+                  const months = parseInt(value);
+                  if (!isNaN(months)) {
+                    value = convertMonthsToYearsAndMonths(months);
                   }
+                }
 
-                  if (field.key === "MoratoriumPeriod" && value !== " ") {
-                    value = `${value} Months`;
-                  }
+                if (field.key === "MoratoriumPeriod" && value !== " ") {
+                  value = `${value} Months`;
+                }
 
-                  if (field.key === "FinancialYear" && value !== " ") {
-                    value = `${value}-${parseInt(value) + 1}`;
-                  }
+                if (field.key === "FinancialYear" && value !== " ") {
+                  value = `${value}-${parseInt(value) + 1}`;
+                }
 
-                  // ✅ Skip row if value is empty or whitespace only
-                  if (!value || value.trim() === "") return null;
+                // ✅ Skip row if value is empty or whitespace only
+                if (!value || value.trim() === "") return null;
 
-                  visibleIndex++; // ✅ Increment visible index
-
-                  return (
-                    <View style={[styles.tableRow]} key={index}>
-                      <Text
-                        style={[
-                          styles.serialNoCellDetail,
-                          { padding: "8px", width: "10%" },
-                        ]}
-                      >
-                        {visibleIndex}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.particularsCellsDetail,
-                          { padding: "8px", width: "45%", textAlign: "left" },
-                        ]}
-                      >
-                        {field.label}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.separatorCellDetail,
-                          { padding: "8px", textAlign: "center", width: "5%" },
-                        ]}
-                      >
-                        :
-                      </Text>
-                      <Text
-                        style={[
-                          styles.detailsCellDetail,
-                          { padding: "8px", width: "55%" },
-                        ]}
-                      >
-                        {value}
-                      </Text>
-                    </View>
-                  );
-                });
-              })()}
+                return (
+                  <View style={[styles.tableRow]} key={index}>
+                    <Text
+                      style={[
+                        styles.serialNoCellDetail,
+                        { padding: "8px", width: "10%" },
+                      ]}
+                    >
+                      {getNextSerial()}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.particularsCellsDetail,
+                        { padding: "8px", width: "45%", textAlign: "left" },
+                      ]}
+                    >
+                      {field.label}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.separatorCellDetail,
+                        { padding: "8px", textAlign: "center", width: "5%" },
+                      ]}
+                    >
+                      :
+                    </Text>
+                    <Text
+                      style={[
+                        styles.detailsCellDetail,
+                        { padding: "8px", width: "55%" },
+                      ]}
+                    >
+                      {value}
+                    </Text>
+                  </View>
+                );
+              })}
 
               {/* Manpower Requirement  */}
               <View>
@@ -385,11 +380,10 @@ const ConsultantProjectSynopsis = React.memo(
                     style={[
                       styles.serialNoCell,
                       styleExpenses.fontBold,
-                      styleExpenses.fontBold,
                       { padding: "8px", width: "10%" },
                     ]}
                   >
-                    13
+                    {getNextSerial()}
                   </Text>
                   <Text
                     style={[
@@ -1516,8 +1510,8 @@ const ConsultantProjectSynopsis = React.memo(
               {formData?.AccountInformation?.businessOwner || "Client Name"}
             </Text>
           </View>
-     </PageWithFooter>
-      </>
+       </PageWithFooter>
+       </>
     );
   }
 );

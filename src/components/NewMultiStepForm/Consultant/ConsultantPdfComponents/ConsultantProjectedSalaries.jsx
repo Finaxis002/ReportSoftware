@@ -60,7 +60,7 @@ const ConsultantProjectedSalaries = ({
           alignItems: "flex-end",
         }}
       >
-        <Text style={[styles.AmountIn, styles.italicText]}>
+        {/* <Text style={[styles.AmountIn, styles.italicText]}>
                   (Amount In{" "}
                   {
                     formData?.ProjectReportSetting?.AmountIn === "rupees"
@@ -76,7 +76,7 @@ const ConsultantProjectedSalaries = ({
                       : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
                   }
                   )
-                </Text>
+                </Text> */}
       </View>
       <View style={stylesCOP.heading}>
         <Text>Projected Salaries & Wages</Text>
