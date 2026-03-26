@@ -5,6 +5,7 @@ import Select from "react-select";
 import "../../../css/reportForm.css";
 
 const ReportDropdown = ({ onBusinessSelect }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [businessOptions, setBusinessOptions] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
 
@@ -29,7 +30,7 @@ const ReportDropdown = ({ onBusinessSelect }) => {
     const fetchBusinesses = async () => {
       try {
         const response = await axios.get(
-          "https://reportsbe.sharda.co.in/api/businesses"
+          `${BASE_URL}/api/businesses`
         );
 
         if (response.data && Array.isArray(response.data.businesses)) {

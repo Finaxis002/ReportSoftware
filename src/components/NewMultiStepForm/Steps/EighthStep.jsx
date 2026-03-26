@@ -246,11 +246,12 @@ const EighthStep = ({ formData, onFormDataChange, years, MoreDetailsData }) => {
 
 
   return (
-    <div className="my-6 px-4">
-
-
-      <div className="">
-        <div className="mt-4 max-h-96 overflow-y-auto">
+    <div className="overflow-x-hidden">
+      <form>
+        <div
+          // className="form-scroll"
+          className="form-scroll"
+        >
           <div className="">
             <label
               htmlFor="business-description"
@@ -321,10 +322,8 @@ const EighthStep = ({ formData, onFormDataChange, years, MoreDetailsData }) => {
               </div>
             </div>
           ))}
-        </div>
-
-
-      </div>
+         </div>
+      </form>
     </div>
   );
 };

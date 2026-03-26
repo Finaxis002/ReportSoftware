@@ -1,9 +1,9 @@
 // PdfWith3DChart.jsx
-import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Page } from "@react-pdf/renderer";
+import { useState, useEffect } from "react";
+import { View, Text, Image, Page } from "@react-pdf/renderer";
 import { generateBarChart } from "../charts/barChart";
 import { generate3DPieChart } from "../charts/newgenerate3DPieChart"; // NEW: 3D chart generator
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles, stylesCOP} from "./Styles";
 
 const PdfWith3DChart = ({
   formData,

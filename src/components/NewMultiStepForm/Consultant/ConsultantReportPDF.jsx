@@ -17,7 +17,7 @@ import {
 } from "@react-pdf/renderer";
 import useStore from "../useStore";
 import axios from "axios";
-import { saveAs } from "file-saver"; // install this via `npm i file-saver`
+import { saveAs } from "file-saver"; 
 
 import ConsultantVariableIndex from "./ConsultantPdfComponents/ConsultantVariableIndex";
 import ConsultantProjectedProfitability from "./ConsultantPdfComponents/ConsultantProjectedProfitability";
@@ -132,11 +132,10 @@ const ConsultantGeneratedPDF = () => {
   const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [numPages, setNumPages] = useState(null);
 
   //share demo pdf
 
-  const [shareLink, setShareLink] = useState("");
+
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
 
 
@@ -336,7 +335,6 @@ const ConsultantGeneratedPDF = () => {
 
   const formData = pdfData || formData1;
 
-  const consultantComputedData = formData?.computedData || {};
 
 
   const storedVersion = localStorage.getItem("selectedConsultantReportVersion");
@@ -344,7 +342,7 @@ const ConsultantGeneratedPDF = () => {
 
   console.log("Stored Version :: ", storedVersion)
   const [orientation, setOrientation] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem("formData"));
+  
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
     return years > 6 ? "landscape" : "portrait";
   });
@@ -406,13 +404,7 @@ const ConsultantGeneratedPDF = () => {
     return parseFloat(cleaned) || 0;
   };
 
-  // const firstYearGrossFixedAssets = useMemo(() => {
-  //   return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
-  //     if (asset?.isSelected) return sum; // ✅ Skip selected assets
-  //     const netAsset = parseAmount(asset.amount);
-  //     return sum + netAsset;
-  //   }, 0);
-  // }, [formData?.CostOfProject]);
+
   const firstYearGrossFixedAssets = useMemo(() => {
     return Object.values(formData?.CostOfProject || {}).reduce((sum, asset) => {
       if (asset?.isSelected || asset?.isPreliminary) return sum;
@@ -554,70 +546,7 @@ const ConsultantGeneratedPDF = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("🔄 GeneratedPDF is re-rendering");
-  // });
 
-  //saving data to Local Storage
-
-  useEffect(() => {
-    const saveData = {
-      normalExpense,
-      totalAnnualWages,
-      directExpenses,
-      totalDirectExpensesArray,
-      computedData,
-      computedData1,
-      totalDepreciation,
-      yearlyInterestLiabilities,
-      yearlyPrincipalRepayment,
-      interestOnWorkingCapital,
-      receivedData,
-      marchClosingBalances,
-      workingCapitalvalues,
-      grossFixedAssetsPerYear,
-      incomeTaxCalculation,
-      closingCashBalanceArray,
-      totalLiabilities,
-      assetsliabilities,
-      dscr,
-      averageCurrentRatio,
-      breakEvenPointPercentage,
-      totalExpense,
-      userRole,
-      years,
-      totalRevenueReceipts,
-      surplusDuringYear,
-    };
-
-  }, [
-    normalExpense,
-    totalAnnualWages,
-    directExpenses,
-    totalDirectExpensesArray,
-    computedData,
-    computedData1,
-    totalDepreciation,
-    yearlyInterestLiabilities,
-    yearlyPrincipalRepayment,
-    interestOnWorkingCapital,
-    receivedData,
-    marchClosingBalances,
-    workingCapitalvalues,
-    grossFixedAssetsPerYear,
-    incomeTaxCalculation,
-    closingCashBalanceArray,
-    totalLiabilities,
-    assetsliabilities,
-    dscr,
-    averageCurrentRatio,
-    breakEvenPointPercentage,
-    totalExpense,
-    userRole,
-    years,
-    totalRevenueReceipts,
-    surplusDuringYear,
-  ]);
 
   const setComputedDataToProfit = useStore(
     (state) => state.setComputedDataToProfit
@@ -766,45 +695,24 @@ const ConsultantGeneratedPDF = () => {
   }, []);
 
 
-const handlePDFRender = async () => {
-  console.log("🔄 PDF rendering started for consultant report");
-  
-  // ✅ Save computed data
-  await saveConsultantComputedData();
-  
-  // ✅ Log activity
-  try {
-    await axios.post(`${BASE_URL}/api/activity/log`, {
-      action: "consultant_generated_pdf",
-      reportId: formData?._id,
-      reportTitle: formData?.AccountInformation?.businessName,
-      reportOwner: formData?.AccountInformation?.clientName,
-      performedBy: {
-        name: userName,
-        role: userRole,
-        userId: formData?.consultantId,
-      },
-    });
-    console.log("✅ PDF render activity logged");
-  } catch (error) {
-    console.warn("⚠️ Failed to log render activity:", error);
-  }
-};
-
-
+  const handlePDFRender = async () => {
+    console.log("🔄 PDF rendering started for consultant report");
+    
     // ✅ Save computed data
     await saveConsultantComputedData();
-
+    
     // ✅ Log activity
     try {
       await axios.post(`${BASE_URL}/api/activity/log`, {
-        action: "pdf_render",
+        action: "consultant_generated_pdf",
         reportId: formData?._id,
         reportTitle: formData?.AccountInformation?.businessName,
-        version: storedVersion,
-        performedBy: userName,
-        role: userRole,
-        timestamp: new Date().toISOString()
+        reportOwner: formData?.AccountInformation?.clientName,
+        performedBy: {
+          name: userName,
+          role: userRole,
+          userId: formData?.consultantId,
+        },
       });
       console.log("✅ PDF render activity logged");
     } catch (error) {
@@ -829,7 +737,10 @@ const handlePDFRender = async () => {
       }
     };
 
-    saveDataBeforeRender();
+    // Handle the async function properly in useEffect
+    saveDataBeforeRender().catch(error => {
+      console.error("Error in saveDataBeforeRender:", error);
+    });
   }, [formData, totalRevenueReceipts, hasPreSavedData]);
 
 
@@ -1340,7 +1251,6 @@ const handlePDFRender = async () => {
 
 
 
-
   const memoizedPDF = useMemo(() => {
     return (
       <Document
@@ -1348,12 +1258,6 @@ const handlePDFRender = async () => {
           console.log("✅ PDF fully rendered");
           setIsPDFLoading(false);
           handlePDFRender(); // Save data after the PDF has been rendered
-          if (!hasPreSavedData) {
-            handlePDFRender();
-          } else {
-            console.log("✅ Data was already saved before render");
-          }
-
         }}
         onContextMenu={(e) => e.preventDefault()}
         className="pdf-container"
@@ -1989,6 +1893,8 @@ const handlePDFRender = async () => {
                         </div>
                       )}
                     </div>
+
+                    {(userRole === 'admin' || permissions.downloadPDF) && (
                     <button
                       onClick={handleDownloadPDF}
                       className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
@@ -1996,6 +1902,7 @@ const handlePDFRender = async () => {
                       <i className="fas fa-download"></i>
                       <span>Download PDF</span>
                     </button>
+                    )}
                   </div>
                 </div>
 
@@ -2158,7 +2065,7 @@ const handlePDFRender = async () => {
                     }}
                   ></div>
 
-                 
+                  
                 </div>
               </div>
             </>

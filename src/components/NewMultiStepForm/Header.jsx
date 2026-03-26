@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toggleTheme } from "./Utils/themeToggle";
 
 const Header = ({ dashboardType }) => {
-  const [darkMode, setDarkMode] = React.useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
+ 
   const [showReminderPopup, setShowReminderPopup] = useState(false);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
 
@@ -19,7 +18,7 @@ const Header = ({ dashboardType }) => {
     if (employeeId) {
       try {
         await fetch(
-          "https://reportsbe.sharda.co.in/api/employees/logout",
+          `${BASE_URL}/api/employees/logout`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -50,7 +49,7 @@ const Header = ({ dashboardType }) => {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(
-        `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employeeId}`,
+        `${BASE_URL}/api/tasks?employeeId=${employeeId}`,
         { signal: controller.signal }
       );
 

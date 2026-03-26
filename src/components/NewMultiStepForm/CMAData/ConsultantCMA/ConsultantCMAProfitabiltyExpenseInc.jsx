@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
@@ -11,7 +11,6 @@ import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 import PageWithFooter from "../../Helpers/PageWithFooter"
 
@@ -19,7 +18,6 @@ import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const ConsultantCMAProfitabiltyExpenseInc = ({
   formData,
-  directExpense,
   formatNumber,
   receivedtotalRevenueReceipts,
   pdfType,
@@ -64,29 +62,7 @@ const ConsultantCMAProfitabiltyExpenseInc = ({
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
 
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
-
-  const moratoriumPeriodMonths =
-    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-
+ 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
 
@@ -127,20 +103,14 @@ const ConsultantCMAProfitabiltyExpenseInc = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
   const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
   const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
   console.log("totalRevenueForOthers", totalRevenueForOthers);
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
+
   const ClosingStock = PPExtractor.ClosingStock() || [];
   const OpeningStock = PPExtractor.OpeningStock() || [];
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
-  // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
   const depreciation = PPExtractor.depreciation() || [];
@@ -214,13 +184,9 @@ const ConsultantCMAProfitabiltyExpenseInc = ({
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
+
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
+
 
   //expense increased by 10 %- new data
   const totalExpenseWithoutRM = Array.from({ length: projectionYears }).map(
@@ -285,7 +251,6 @@ const ConsultantCMAProfitabiltyExpenseInc = ({
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

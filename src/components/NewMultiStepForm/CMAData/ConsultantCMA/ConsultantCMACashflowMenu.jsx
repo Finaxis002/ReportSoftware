@@ -1,22 +1,19 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
   stylesMOF,
   styleExpenses,
 } from "../../Consultant/ConsultantPdfComponents/Styles";
-import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 import PageWithFooter from "../../Helpers/PageWithFooter"
-
 
 
 const ConsultantCMACashflowMenu = ({
@@ -62,30 +59,9 @@ const ConsultantCMACashflowMenu = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
-
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -127,12 +103,10 @@ const ConsultantCMACashflowMenu = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
+
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
 
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
@@ -144,8 +118,7 @@ const ConsultantCMACashflowMenu = ({
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
 
-  console.log("interestOnTermLoan", interestOnTermLoan);
-  console.log("interestOnWCArray", interestOnWCArray);
+
   const OnlyfilteredDirectExpenses =
     filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
 
@@ -154,8 +127,6 @@ const ConsultantCMACashflowMenu = ({
     [];
 
   console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -209,10 +180,8 @@ const ConsultantCMACashflowMenu = ({
   );
 
   const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
+
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
@@ -222,14 +191,6 @@ const ConsultantCMACashflowMenu = ({
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
 
-  const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
-  const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
-    (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
-  );
 
   const balanceTransferred = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPBT[i]) - Number(Withdrawals[i])
@@ -249,56 +210,12 @@ const ConsultantCMACashflowMenu = ({
 
   //new data
   const BSextractors = CMAExtractorBS(formData);
-  const reverseAndSurplus = BSextractors.reservesAndSurplusArr() || [];
-  const bankTermLoanArr = BSextractors.bankTermLoanArr() || [];
-  const bankLoan12month =
-    formData?.computedData?.totalLiabilities?.repaymentValueswithin12months ||
-    [];
 
-  const bankLoanPayablewithin12months = Array.from({
-    length: projectionYears,
-  }).map((_, i) => Number(bankLoan12month[i] || 0));
-
-  const workingCapitalLoanArr = BSextractors.workingCapitalLoanArr() || [];
   const currentLiabilities = formData?.MoreDetails?.currentLiabilities || [];
-
-  const totalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const capital = Number(formData?.MeansOfFinance?.totalPC || 0);
-
-      const reservesAndSurplus = Number(reverseAndSurplus[index] || 0);
-      const bankTermLoan = Number(bankTermLoanArr?.[index] || 0);
-      const repaymentWithin12 = Number(
-        bankLoanPayablewithin12months[index] || 0
-      ); // Shift by 1
-      const workingCapital = Number(workingCapitalLoanArr[index] || 0);
-
-      let cumulativeAdditionalLiabilities = 0;
-      const currentYearLiabilities = (
-        formData?.MoreDetails?.currentLiabilities ?? []
-      ).reduce(
-        (total, liabilities) => total + Number(liabilities.years?.[index] || 0),
-        0
-      );
-
-      cumulativeAdditionalLiabilities += currentYearLiabilities;
-
-      const totalForYear =
-        capital +
-        reservesAndSurplus +
-        bankTermLoan +
-        repaymentWithin12 +
-        workingCapital +
-        cumulativeAdditionalLiabilities;
-
-      return totalForYear;
-    }
-  );
 
   const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
   const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const netBlock = BSextractors.netBlock() || [];
-  const closingCashBalanceArray = BSextractors.closingCashBalanceArray() || [];
+
   const safeNumber = (val) =>
     val === undefined || val === null || val === "" ? 0 : Number(val) || 0;
   const inventory = Array.from({
@@ -324,32 +241,6 @@ const ConsultantCMACashflowMenu = ({
     }
   }
 
-  const totalAssetsArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      const netFixed = Number(netBlock[index] || 0);
-
-      const cashEquivalent = Number(closingCashBalanceArray[index] || 0);
-
-      const preliminaryExp = Number(preliminaryExpenseBalanceSheet[index] || 0);
-
-      let cumulativeAdditionalAssets = 0;
-      const currentYearAssets = (
-        formData?.MoreDetails?.currentAssets ?? []
-      ).reduce(
-        (total, assets) => total + Number(assets.years?.[index] || 0),
-        0
-      );
-
-      cumulativeAdditionalAssets += currentYearAssets;
-
-      const totalForYear =
-        netFixed + cashEquivalent + preliminaryExp + cumulativeAdditionalAssets;
-
-      return totalForYear;
-    }
-  );
-
-  //new data
 
   const netProfitBeforeInterestAndTaxes = Array.from({
     length: projectionYears,
@@ -577,27 +468,6 @@ if (isAdvancedLandscape) {
                 : "2024-25"}
             </Text>
           </View>
-
-          {/* <View style={{ display: "flex", alignContent: "flex-end", justifyContent: "flex-end", alignItems: "flex-end" }}>
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs."
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands"
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs"
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores"
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions"
-                  : ""
-              }
-              )
-            </Text>
-          </View> */}
-
           <View>
             <View style={stylesCOP.heading}>
               <Text>Projected Cashflow
@@ -1138,33 +1008,7 @@ if (isAdvancedLandscape) {
           </Text>
         </View>
 
-        {/* <View
-          style={{
-            display: "flex",
-            alignContent: "flex-end",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <Text style={[styles.AmountIn, styles.italicText]}>
-            (Amount In{" "}
-            {
-              formData?.ProjectReportSetting?.AmountIn === "rupees"
-                ? "Rs." // Show "Rupees" if "rupees" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-            }
-            )
-          </Text>
-        </View> */}
-
+      
         <View>
           <View style={stylesCOP.heading}>
             <Text>Projected Cashflow</Text>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 const MenuBar = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const nav = useNavigate();
   const location = useLocation();
   const [adminName, setAdminName] = useState("");
@@ -30,7 +31,7 @@ const MenuBar = ({ userRole }) => {
 
       try {
         const res = await fetch(
-          `https://reportsbe.sharda.co.in/api/notifications/unseen?employeeId=${employeeId}`
+          `${BASE_URL}/api/notifications/unseen?employeeId=${employeeId}`
         );
         const data = await res.json();
         setUnseenCount(data.length);
@@ -44,7 +45,7 @@ const MenuBar = ({ userRole }) => {
     if (userRole === 'employee') {
       const fetchPermissions = async () => {
         try {
-          const res = await fetch(`https://reportsbe.sharda.co.in/api/employees/${employeeId}`);
+          const res = await fetch(`${BASE_URL}/api/employees/${employeeId}`);
           const data = await res.json();
           setPermissions(data.permissions || {});
         } catch (err) {
@@ -435,15 +436,12 @@ const MenuBar = ({ userRole }) => {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.clear();
-    nav("/login");
-  };
 
   // Filter menu items based on the user's role and permissions
   const visibleMenuItems = menuItems.filter((item) => {
     if (!item.roles.includes(userRole)) return false;
     if (item.path === '/consultant-report' && userRole === 'employee' && !permissions.consultantReport) return false;
+    if (item.path === '/cma-report' && userRole === 'employee' && !permissions.cmaData) return false;
     return true;
   });
 

@@ -14,17 +14,12 @@ import {
   Document,
   PDFViewer,
   BlobProvider,
-  Text,
-  pdf,
 } from "@react-pdf/renderer";
 import useStore from "./useStore";
 import axios from "axios";
 import { saveAs } from "file-saver"; // install this via `npm i file-saver`
-import { FiDownload, FiShare2 } from "react-icons/fi"; // npm i react-icons
 
 
-// Register chart.js components
-import BasicDetails from "./PDFComponents/BasicDetails";
 import ProjectSynopsis from "./PDFComponents/ProjectSynopsis";
 import MeansOfFinance from "./PDFComponents/MeansOfFinance";
 import CostOfProject from "./PDFComponents/CostOfProject";
@@ -45,9 +40,6 @@ import Assumptions from "./PDFComponents/Assumptions";
 import PromoterDetails from "./PDFComponents/PromoterDetails";
 
 import PdfAllChartsWrapper from "./PDFComponents/PdfAllChartsWrapper";
-// import GeneratedSections from "./PDFComponents/GeneratedSections";
-// import WordIntro from "./PDFComponents/WordIntroduction";
-
 
 const GeneratedPDF = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
@@ -130,11 +122,9 @@ const GeneratedPDF = () => {
   const [isPdfReadyToDownload, setIsPdfReadyToDownload] = useState(false);
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [numPages, setNumPages] = useState(null);
 
-  //share demo pdf
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [shareLink, setShareLink] = useState("");
+
+
   const [surplusDuringYear, setSurplusDuringYear] = useState("");
   //for otp
 
@@ -193,7 +183,6 @@ const GeneratedPDF = () => {
     fetchDataFromSession();
   }, []);
 
-  // window.addEventListener('keydown', e => console.log(e.key));
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -267,20 +256,7 @@ const GeneratedPDF = () => {
   const localDataRef = useRef(getStoredData());
   const localData = localDataRef.current;
 
-  useEffect(() => {
-    const fetchChart = async () => {
-      try {
-        // console.log("🚀 Generating Chart...");
-        // const base64 = await generateChart();
-        // console.log("✅ Chart Base64:", base64);
-        // setChartBase64(base64);
-      } catch (error) {
-        console.error("❌ Failed to generate chart:", error);
-      }
-    };
-
-    fetchChart(); // ✅ Generate on component mount
-  }, []);
+ 
 
   useEffect(() => {
     if (years >= 10) return; // ✅ Stop execution when years reach 10
@@ -303,7 +279,6 @@ const GeneratedPDF = () => {
   const formData = pdfData || formData1;
 
   const [orientation, setOrientation] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem("formData"));
     const years = formData?.ProjectReportSetting?.ProjectionYears || 5;
     return years > 6 ? "landscape" : "portrait";
   });
@@ -815,29 +790,6 @@ const GeneratedPDF = () => {
           }}
         />
 
-        {/* <WordIntro
-          generatedPDF={formData.generatedPDF}
-          startPageNumber={1}
-          formData={formData}
-          receivedtotalRevenueReceipts={totalRevenueReceipts}
-          localData={localData}
-          normalExpense={normalExpense}
-          totalAnnualWages={totalAnnualWages}
-          totalQuantity={totalQuantity}
-          fringAndAnnualCalculation={fringAndAnnualCalculation}
-          fringeCalculation={fringeCalculation}
-          receivedDscr={dscr}
-          receivedAverageCurrentRatio={averageCurrentRatio}
-          receivedBreakEvenPointPercentage={breakEvenPointPercentage}
-          receivedAssetsLiabilities={assetsliabilities}
-          pdfType={pdfType}
-          pageNumber={pageNumber}
-          renderTotalBankLoanLabel={renderTotalBankLoanLabel}
-          onRender={() => {
-            console.log("✅ProjectSynopsis rendered");
-            setIsPDFLoading(false);
-          }}
-        /> */}
 
         <PdfAllChartsWrapper
           formData={formData}
@@ -1453,37 +1405,6 @@ const GeneratedPDF = () => {
                       }
                     }}
                   ></div>
-
-                  {/* <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "98%",
-                      height: "100%",
-                      zIndex: 10,
-                      backgroundColor: "transparent",
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      Swal.fire({
-                        icon: "error",
-                        title: "Right-click Disabled",
-                        text: "Right-click is disabled on this PDF for security reasons.",
-                        confirmButtonColor: "#6366f1", // Indigo-500, optional
-                        background: "#fff", // optional, matches most UIs
-                        timer: 1600,
-                        showConfirmButton: false,
-                      });
-                    }}
-                    onWheel={(e) => {
-                      const pdfIframe = document.querySelector("iframe");
-                      if (pdfIframe) {
-                        pdfIframe.contentWindow.scrollBy(0, e.deltaY);
-                      }
-                    }}
-                  /> */}
                 </div>
               </div>
             </>

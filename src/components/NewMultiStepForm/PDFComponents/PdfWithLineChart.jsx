@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Image, StyleSheet } from '@react-pdf/renderer';
+import { useState, useEffect } from 'react';
+import { Text, View, Image } from '@react-pdf/renderer';
 import LineChart from '../charts/LineChart';
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { styles } from "./Styles";
 
 const MyDocument = ({ chartBase64 }) => (
   <View>

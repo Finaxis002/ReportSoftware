@@ -2,54 +2,65 @@
 import React, { useState, useEffect } from "react";
 
 const EmployeeTasks = ({ employeeId }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true);
-      setError("");
-  
-      // Retrieve employeeId from localStorage
-      const employeeId = localStorage.getItem("employeeId");
-  
-      if (!employeeId) {
-        console.log("⚠️ No employeeId found in localStorage, skipping task fetch.");
-        setError("No employee ID found.");
-        setLoading(false);
-        return;
-      }
-  
-      try {
-        console.log(`🚀 Fetching tasks for employeeId: ${employeeId}`);  // Log employeeId
-  
-        const response = await fetch(
-          `https://reportsbe.sharda.co.in/api/tasks?employeeId=${employeeId}`
-        );
-  
-        console.log("🛡️ Response status:", response.status);  // Log the response status
-  
-        if (!response.ok) {
-          throw new Error("Failed to fetch tasks");
-        }
-  
-        const data = await response.json();
-        console.log("✅ Fetched Tasks Data:", data);  // Log the fetched tasks data
-  
-        setTasks(data);
-      } catch (err) {
-        console.error("🔥 Error fetching tasks:", err.message);  // Log errors
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchTasks();
-  }, []);  // Empty dependency array to run only once on mount
-  
+useEffect(() => {
+  const fetchTasks = async () => {
+    setLoading(true);
+    setError("");
 
+    const employeeId = localStorage.getItem("employeeId");
+
+    if (!employeeId) {
+      console.log("⚠️ No employeeId found in localStorage, skipping task fetch.");
+      setError("No employee ID found.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log(`🚀 Fetching tasks for employeeId: ${employeeId}`);
+
+      const response = await fetch(
+        `${BASE_URL}/api/tasks?employeeId=${employeeId}`
+      );
+
+      console.log("🛡️ Response status:", response.status);
+
+      // ✅ Handle 404 differently - it means "no tasks", not "API doesn't exist"
+      if (response.status === 404) {
+        console.log("✅ No tasks found for this employee (404 response)");
+        setTasks([]); // Empty tasks array
+        return; // Don't throw error
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch tasks");
+      }
+
+      const data = await response.json();
+      console.log("✅ Fetched Tasks Data:", data);
+
+      setTasks(data || []);
+    } catch (err) {
+      console.error("🔥 Error fetching tasks:", err.message);
+      
+      // ✅ Better error message
+      if (err.message.includes("Failed to fetch")) {
+        setError("Unable to connect to server. Please check your connection.");
+      } else {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTasks();
+}, []);
 
   
   const handleStatusChange = async (taskId, newStatus) => {
@@ -57,7 +68,7 @@ const EmployeeTasks = ({ employeeId }) => {
       const employeeId = localStorage.getItem("employeeId");
       const employeeName = localStorage.getItem("employeeName");
   
-      const response = await fetch(`https://reportsbe.sharda.co.in/api/tasks/${taskId}`, {
+      const response = await fetch(`${BASE_URL}/api/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -90,7 +101,7 @@ const EmployeeTasks = ({ employeeId }) => {
   
 
   return (
-    <div className="mt-8 w-[80%] mx-auto max-h-[500px] overflow-auto">
+    <div className="mt-8 w-full mx-auto max-h-[500px] overflow-auto">
       <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Assigned Reports</h3>
       {loading ? (
         <p className="text-center text-gray-600 dark:text-white">Loading tasks...</p>

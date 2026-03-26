@@ -16,6 +16,7 @@ import EmployeeRegistration from "./EmployeeRegistration";
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 
 const EmployeeDetailsList = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [employees, setEmployees] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -30,7 +31,7 @@ const EmployeeDetailsList = () => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/api/employees"
+          `${BASE_URL}/api/employees`
         );
 
         if (!response.ok) {
@@ -76,7 +77,7 @@ const EmployeeDetailsList = () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const response = await fetch(
-          `https://reportsbe.sharda.co.in/api/employees/${employeeId}`,
+          `${BASE_URL}/api/employees/${employeeId}`,
           { method: "DELETE" }
         );
         if (response.ok) {
@@ -127,7 +128,7 @@ const EmployeeDetailsList = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://reportsbe.sharda.co.in/api/employees"
+        `${BASE_URL}/api/employees`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
@@ -153,6 +154,12 @@ const EmployeeDetailsList = () => {
     fetchEmployees();
   };
 
+  const handleEmployeeAdded = (newEmployee) => {
+  // Add the new employee to the list
+  setEmployees(prev => [...prev, newEmployee]);
+  setShowForm(false); // Close the modal
+};
+
   return (
     <div className="flex flex-col h-[100vh]">
       {/* ✅ Header */}
@@ -160,6 +167,7 @@ const EmployeeDetailsList = () => {
         <div className="flex justify-end items-center mb-2 px-2">
           <button
             onClick={handleRefresh}
+             aria-label="Refresh employee list"
             className="flex items-center gap-1 text-sm text-teal-700 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
           >
             <FontAwesomeIcon icon={faSync} className="text-lg" />
@@ -175,11 +183,14 @@ const EmployeeDetailsList = () => {
       </div>
 
       {/* ✅ Employee Registration */}
-      {showForm && <EmployeeRegistration setShowForm={setShowForm} />}
+      {showForm && <EmployeeRegistration setShowForm={setShowForm} onEmployeeAdded={handleEmployeeAdded}/>}
 
       {/* ✅ Employee Card Layout */}
       <div className=" h-[70vh] flex align-middle justify-center">
         {isLoading ? (
+
+
+
           <div className="px-6 py-4 text-center">
             <LoadingSpinner />
           </div>

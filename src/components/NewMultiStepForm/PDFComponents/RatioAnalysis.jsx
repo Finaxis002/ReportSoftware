@@ -1,28 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
 
 const RatioAnalysis = ({
   formData = {},
-  yearlyPrincipalRepayment = [],
   financialYearLabels,
   receivedCummulativeTansferedData,
   receivedMarchClosingBalances,
@@ -43,9 +27,7 @@ const RatioAnalysis = ({
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
 
-  // Destructure termLoanValues from the object.
-  // If it's undefined, default to an empty array.
-  const { termLoanValues = [] } = receivedWorkingCapitalValues || {};
+
   const cumulativeLoanForPreviousYears =
     receivedWorkingCapitalValues?.termLoanValues || [];
 
@@ -291,31 +273,6 @@ const RatioAnalysis = ({
       : (netWorth / totalLiabilities).toFixed(2);
   });
 
-  // Exclude "Quasi Equity" from Current Liabilities when calculating Total Liabilities
-  const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      // Get term loan, bank loan, etc., as per your structure:
-      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
-      const bankLoan =
-        Number(
-          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
-        ) || 0;
-      const workingCapitalLoan = workingCapitalArray[index] || 0;
-
-      // Exclude "Quasi Equity" from current liabilities sum:
-      const currentYearLiabilities = (
-        formData?.MoreDetails?.currentLiabilities ?? []
-      )
-        .filter((liability) => liability.particular !== "Quasi Equity")
-        .reduce(
-          (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
-          0
-        );
-
-      // Compose the total liabilities for the year:
-      return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
-    }
-  );
 
   const yearlycurrentLiabilities =
     receivedTotalLiabilities?.yearlyTotalLiabilities;
@@ -506,7 +463,7 @@ const RatioAnalysis = ({
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1858,13 +1815,13 @@ const RatioAnalysis = ({
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3154,7 +3111,7 @@ const RatioAnalysis = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

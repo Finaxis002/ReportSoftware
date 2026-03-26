@@ -1,11 +1,10 @@
-import React from "react";
+
 import { useState, useCallback, useEffect } from "react";
-import { Document, Page } from "@react-pdf/renderer";
+import { Document} from "@react-pdf/renderer";
 import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
 import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
 import CMAFundFlow from "./CMAFundFlow";
 import CMAFinancialPosition from "./CMAFinancialPosition";
-import ProjectedProfitability from "../PDFComponents/ProjectedProfitability";
 import CMAProfitability10perreduce from "./CMAProfitability10perreduce";
 import CMAProfitabiltyExpenseInc from "./CMAProfitabiltyExpenseInc";
 import CMASARevenue from "./CMASARevenue";
@@ -25,41 +24,7 @@ const CMAMultiPagePDF = ({
   source,
   onLoadingComplete
 }) => {
-  //     const formData = JSON.parse(localStorage.getItem("cmaAdvanceFormData")) || {};
-  //   const isEmpty =
-  //     !formData ||
-  //     !formData.ProjectReportSetting ||
-  //     !formData.AccountInformation ||
-  //     !formData.ProjectReportSetting.ProjectionYears;
-
-  //   if (isEmpty) {
-  //     return (
-  //       <div
-  //         style={{
-  //           width: "100%",
-  //           maxWidth: 900,
-  //           margin: "40px auto",
-  //           padding: 40,
-  //           textAlign: "center",
-  //         }}
-  //       >
-  //         <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 24 }}>
-  //           CMA Advance Report Preview
-  //         </h2>
-  //         <div
-  //           style={{
-  //             color: "tomato",
-  //             fontWeight: 600,
-  //             fontSize: 20,
-  //             marginTop: 50,
-  //           }}
-  //         >
-  //           ⚠️ No CMA data found. <br />
-  //           Please complete the form and generate the report again.
-  //         </div>
-  //       </div>
-  //     );
-  //   }
+  
 
   const isMenuBar = source === "menu-bar";
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);

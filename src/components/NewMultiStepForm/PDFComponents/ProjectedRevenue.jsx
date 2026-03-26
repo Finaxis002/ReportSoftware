@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 const ProjectedRevenue = ({
   formData,
@@ -92,7 +91,7 @@ const ProjectedRevenue = ({
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <PageWithFooter
+        <Page
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -553,13 +552,13 @@ const ProjectedRevenue = ({
               </Text>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
      size="A4"
       orientation={orientation}
@@ -981,7 +980,7 @@ const ProjectedRevenue = ({
           </Text>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

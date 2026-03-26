@@ -4,7 +4,6 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register Font
 Font.register({
@@ -98,15 +97,9 @@ if (isAdvancedLandscape) {
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
-      // For centering (kept for parity with other pages; not used here)
-      const visibleLocalCols = labels
-        .map((_, i) => i)
-        .filter((i) => !shouldSkipCol(globalIndex(i)));
-      const centerLocalIdx =
-        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
-
+ 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -198,7 +191,7 @@ if (isAdvancedLandscape) {
                   Particulars
                 </Text>
 
-                {/* ✅ PageWithFooter-scoped dynamic year headers */}
+                {/* ✅ Page-scoped dynamic year headers */}
                 {labels.map((yearLabel, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -227,7 +220,7 @@ if (isAdvancedLandscape) {
                   Sales
                 </Text>
 
-                {/* ✅ PageWithFooter-scoped values for Sales */}
+                {/* ✅ Page-scoped values for Sales */}
                 {labels.map((_, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -268,7 +261,7 @@ if (isAdvancedLandscape) {
                   Particulars
                 </Text>
 
-                {/* ✅ PageWithFooter-scoped dynamic year headers */}
+                {/* ✅ Page-scoped dynamic year headers */}
                 {labels.map((yearLabel, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -297,7 +290,7 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {isDataReady ? (
-                  // ✅ PageWithFooter-scoped values for Total Expenses
+                  // ✅ Page-scoped values for Total Expenses
                   labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
@@ -438,13 +431,13 @@ if (isAdvancedLandscape) {
               of the authorized signatories.
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -773,7 +766,7 @@ if (isAdvancedLandscape) {
           the authorized signatories.
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

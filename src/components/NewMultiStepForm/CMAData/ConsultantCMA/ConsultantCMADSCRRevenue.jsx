@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React, { useMemo} from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
@@ -10,14 +10,11 @@ import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const ConsultantCMADSCRRevenue = ({
   formData,
-  directExpense,
   formatNumber,
   receivedtotalRevenueReceipts,
   pdfType,
@@ -58,83 +55,13 @@ const ConsultantCMADSCRRevenue = ({
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
-
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  const indirectExpense = (directExpense || []).filter(
-    (expense) => expense.type === "indirect"
-  );
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
-
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
-
-  const moratoriumPeriodMonths =
-    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-
-  const rateOfExpense =
-    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
-  const calculateMonthsPerYear = () => {
-    let monthsArray = [];
-    let remainingMoratorium = moratoriumPeriodMonths;
-    for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
-      }
 
-      if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
-        remainingMoratorium -= monthsInYear;
-      } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
-        remainingMoratorium = 0;
-      }
-    }
-    return monthsArray;
-  };
-  const monthsPerYear = calculateMonthsPerYear();
-
-  const isZeroValue = (val) => {
-    const num = Number(val);
-    return !num || num === 0; // covers 0, null, undefined, NaN, ""
-  };
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -166,27 +93,8 @@ const ConsultantCMADSCRRevenue = ({
     return 0;
   });
 
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
 
- 
-
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
   const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
-  const adjustedRevenueValues = PPExtractor.adjustedRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
-  // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
   const depreciation = PPExtractor.depreciation() || [];
@@ -196,17 +104,12 @@ const ConsultantCMADSCRRevenue = ({
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
-
   const OnlyfilteredDirectExpenses =
     filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
 
   const OnlyIndirectExpenses =
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
-
- 
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -254,11 +157,7 @@ const ConsultantCMADSCRRevenue = ({
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(newRevenueReceipt[i]) - Number(totalDirectExpenses[i])
@@ -353,7 +252,6 @@ const ConsultantCMADSCRRevenue = ({
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

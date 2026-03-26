@@ -10,7 +10,6 @@ import {
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register Font
 Font.register({
@@ -64,9 +63,7 @@ const CMAAssumptions = ({
   const [isDataReady, setIsDataReady] = useState(false);
   // Depreciation Data
 
-  const expenseArray = Array.isArray(receiveTotalExpense)
-    ? receiveTotalExpense
-    : [];
+
   useEffect(() => {
     if (receiveTotalExpense && receiveTotalExpense.length > 0) {
       // console.log("Expense data ready for rendering");
@@ -108,7 +105,7 @@ if (isAdvancedLandscape) {
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -440,13 +437,13 @@ if (isAdvancedLandscape) {
               of the authorized signatories.
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -775,7 +772,7 @@ if (isAdvancedLandscape) {
           the authorized signatories.
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

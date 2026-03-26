@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import {View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -127,14 +127,6 @@ const ConsultantBalanceSheet = ({
     // ✅ Compute Corrected Total Assets for Each Year
     let cumulativeCurrentAssets = 0; // Initialize cumulative sum for current assets
 
-    // const inventory = Array.from({
-    //   length: formData?.MoreDetails?.OpeningStock.length,
-    // }).map((_, yearIndex) => {
-    //   const ClosingStock = formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-    //   const finalStock = ClosingStock;
-
-    //   return finalStock;
-    // });
 
     const preliminaryExpensesTotal = Number(
         formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -237,62 +229,10 @@ const ConsultantBalanceSheet = ({
         totalAssetArray.push(totalAssets); // Build the array for your later use
     }
 
-    // Diagnostic: Show table of asset composition year-wise
-
-    // const cumulativeCurrentAssetsArr = [];
-    // let cumulativeCurrentAssetsTemp = 0;
-
-    // for (let index = 0; index < projectionYears; index++) {
-    //   const filteredAssets = formData?.MoreDetails?.currentAssets
-    //     ?.filter(
-    //       (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-    //     ) || [];
-    //   const currentYearAssets = filteredAssets
-    //     .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-    //   cumulativeCurrentAssetsTemp += currentYearAssets;
-    //   cumulativeCurrentAssetsArr.push(cumulativeCurrentAssetsTemp);
-    // }
-
-    //   const totalAssetArray = Array.from({ length: projectionYears }).map(
-    //     (_, index) => {
-    //       const netFixedAssetValue = computedNetFixedAssets[index] || 0;
-    //       const cashEquivalent = closingCashBalanceArray[index] || 0;
-
-    //       const currentYearAssets = formData?.MoreDetails?.currentAssets
-    //         ?.filter(
-    //           (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-    //         )
-    //         .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-    //       // cumulativeCurrentAssets += currentYearAssets;
-    //     //   const filteredAssets = formData?.MoreDetails?.currentAssets
-    //     //   ?.filter(
-    //     //     (assets) => assets.particular !== "Inventory" && !assets.dontSendToBS
-    //     //   ) || [];
-    //     // const currentYearAssets = filteredAssets
-    //     //   .reduce((total, assets) => total + Number(assets.years[index] || 0), 0);
-
-    //       const preliminaryAsset = preliminaryExpenseBalanceSheet[index] || 0; // ✅ NEW
-
-    //       const totalAssets =
-    //         netFixedAssetValue +
-    //         cashEquivalent +
-    //          cumulativeCurrentAssetsArr[index] +
-    //         Number(inventory[index]) +
-    //         preliminaryAsset; // ✅ INCLUDED
-
-    //       return totalAssets;
-    //     }
-    //   );
-
-    // You can see the debug table:
-    // console.table(assetDebugTable);
-    // And use totalAssetArray for your further calculations
+   
 
     const repaymentValueswithin12months = yearlyPrincipalRepayment.slice(1);
 
-
-    // console.log("repaymentValueswithin12months" , repaymentValueswithin12months)
 
     // ✅ Initialize cumulative liabilities
     let cumulativeCurrentLiabilities = 0;
@@ -393,8 +333,6 @@ const ConsultantBalanceSheet = ({
         }
     );
 
-    // ✅ Log final yearly total liabilities array
-    // console.log("Year-wise Total Liabilities:", yearlyTotalLiabilities);
 
     // ✅ Send Total Liabilities Data to Parent Component Only When Final
     useEffect(() => {
@@ -416,12 +354,7 @@ const ConsultantBalanceSheet = ({
         JSON.stringify(repaymentValueswithin12months),
     ]);
 
-    // const isPreliminaryWriteOffAllZero = Array.from({
-    //   length: projectionYears,
-    // }).every((_, yearIndex) => {
-    //   const adjustedYearIndex = yearIndex; // ✅ Fix index offset
-    //   return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-    // });
+
     const isPreliminaryWriteOffAllZero = Array.from({
         length: projectionYears,
     }).every((_, yearIndex) => preliminaryExpenseBalanceSheet[yearIndex] === 0);
@@ -554,34 +487,7 @@ const ConsultantBalanceSheet = ({
                             </Text>
                         </View>
 
-                        {/* Amount format */}
-
-                        {/* <View
-                            style={{
-                                display: "flex",
-                                alignContent: "flex-end",
-                                justifyContent: "flex-end",
-                                alignItems: "flex-end",
-                            }}
-                        >
-                            <Text style={[styles.AmountIn, styles.italicText]}>
-                                (Amount In{" "}
-                                {
-                                    formData?.ProjectReportSetting?.AmountIn === "rupees"
-                                        ? "Rs." // Show "Rupees" if "rupees" is selected
-                                        : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                                            ? "Thousands" // Show "Thousands" if "thousand" is selected
-                                            : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                                                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                                                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                                                    ? "Crores" // Show "Crores" if "crores" is selected
-                                                    : formData?.ProjectReportSetting?.AmountIn === "millions"
-                                                        ? "Millions" // Show "Millions" if "millions" is selected
-                                                        : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                                }
-                                )
-                            </Text>
-                        </View> */}
+                       
 
                         <View
                             style={[
@@ -1587,34 +1493,7 @@ const ConsultantBalanceSheet = ({
                     </Text>
                 </View>
 
-                {/* Amount format */}
-
-                {/* <View
-                    style={{
-                        display: "flex",
-                        alignContent: "flex-end",
-                        justifyContent: "flex-end",
-                        alignItems: "flex-end",
-                    }}
-                >
-                    <Text style={[styles.AmountIn, styles.italicText]}>
-                        (Amount In{" "}
-                        {
-                            formData?.ProjectReportSetting?.AmountIn === "rupees"
-                                ? "Rs." // Show "Rupees" if "rupees" is selected
-                                : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                                    ? "Thousands" // Show "Thousands" if "thousand" is selected
-                                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                                        ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                                        : formData?.ProjectReportSetting?.AmountIn === "crores"
-                                            ? "Crores" // Show "Crores" if "crores" is selected
-                                            : formData?.ProjectReportSetting?.AmountIn === "millions"
-                                                ? "Millions" // Show "Millions" if "millions" is selected
-                                                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                        }
-                        )
-                    </Text>
-                </View> */}
+               
 
                 <View
                     style={[stylesCOP.heading, { fontWeight: "bold", paddingLeft: 10 }]}
@@ -2346,26 +2225,6 @@ const ConsultantBalanceSheet = ({
                     </View>
                 </View>
 
-                {/* businees name and Client Name  */}
-                {/* <View
-          style={[
-            {
-              display: "flex",
-              flexDirection: "column",
-              gap: "80px",
-              alignItems: "flex-end",
-              justifyContent: "flex-end",
-              marginTop: "60px",
-            },
-          ]}
-        >
-          <Text style={[styles.businessName, { fontSize: "10px" }]}>
-            {formData?.AccountInformation?.businessName || "Business Name"}
-          </Text>
-          <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-            {formData?.AccountInformation?.businessOwner || "businessOwner"}
-          </Text>
-        </View> */}
 
                 <view>
                     {formData?.ProjectReportSetting?.CAName?.value ? (

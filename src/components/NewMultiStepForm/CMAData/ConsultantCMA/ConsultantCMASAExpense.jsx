@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
@@ -8,18 +8,13 @@ import {
 } from "../../Consultant/ConsultantPdfComponents/Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
-import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const ConsultantCMASAExpense = ({
   formData,
-  directExpense,
   formatNumber,
-  receivedtotalRevenueReceipts,
   pdfType,
   orientation,
 }) => {
@@ -60,74 +55,10 @@ const ConsultantCMASAExpense = ({
 
   
 
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  const indirectExpense = (directExpense || []).filter(
-    (expense) => expense.type === "indirect"
-  );
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
-
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
-
-  const moratoriumPeriodMonths =
-    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
-  // Function to handle moratorium period spillover across financial years
-  const calculateMonthsPerYear = () => {
-    let monthsArray = [];
-    let remainingMoratorium = moratoriumPeriodMonths;
-    for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
-      }
-
-      if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
-        remainingMoratorium -= monthsInYear;
-      } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
-        remainingMoratorium = 0;
-      }
-    }
-    return monthsArray;
-  };
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -159,24 +90,9 @@ const ConsultantCMASAExpense = ({
     return 0;
   });
 
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
+
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
@@ -196,9 +112,6 @@ const ConsultantCMASAExpense = ({
     [];
 
   console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
-
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
       let totalSalary = Number(salaryandwages[idx] || 0);
@@ -240,13 +153,8 @@ const ConsultantCMASAExpense = ({
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
+
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
 
   //expense increased by 10 %- new data
   const totalExpenseWithoutRM = Array.from({ length: projectionYears }).map(
@@ -281,10 +189,6 @@ const ConsultantCMASAExpense = ({
   const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
   const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
     (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
   );
 
   const balanceTransferred = Array.from({ length: projectionYears }).map(

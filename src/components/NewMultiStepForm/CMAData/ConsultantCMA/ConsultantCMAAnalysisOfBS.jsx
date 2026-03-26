@@ -1,18 +1,12 @@
-import React from "react";
+
 import {
-  Document,
-  Page,
   View,
   Text,
-  StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../../Utils/CMA/financialCalcs";
 
 import {
@@ -23,8 +17,6 @@ import {
 } from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Header } from "../Header";
 import PageWithFooter from "../../Helpers/PageWithFooter"
-
-const format = (n) => (n == null ? "" : Number(n).toLocaleString("en-IN"));
 
 // Main component
 const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
@@ -123,12 +115,8 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
   const consumableSpares = BSextractors.consumableSpares() || [];
   const advancesToSuppliers = BSextractors.advancesToSuppliers() || [];
   const paymentOfTaxes = BSextractors.paymentOfTaxes() || [];
-  const otherCurrentAssetsTotal = BSextractors.otherCurrentAssetsTotal() || [];
   const totalCurrentAssets = BSextractors.totalCurrentAssets() || [];
   const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
-  const isFixedAssetsZero = grossFixedAssetsPerYear.every(
-    (value) => value === 0
-  );
   const totalDepreciation = BSextractors.totalDepreciation() || [];
   const netBlock = BSextractors.netBlock() || [];
   const invBookDebt = BSextractors.invBookDebt() || [];
@@ -143,16 +131,9 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
   const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray
   const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities
 
-
-  // const currentRatio = Array.from({ length: years }).map(
-  //   (_, i) => Number(totalCurrentAssets[i] || 0) / Number(totalAandB[i] || 0)
-  // );
- 
   const currentRatio = Array.from({ length: years }).map((_, i) => {
   const cash = currentAssets?.[i];
   const liabilities = currentLiabilities?.[i];
-  
-  
   
   const numerator = Number(cash || 0);
   const denominator = Number(liabilities || 1); // Avoid division by zero
@@ -176,7 +157,6 @@ const ConsultantCMAAnalysisOfBS = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 

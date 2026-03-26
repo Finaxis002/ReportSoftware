@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import MenuBar from '../MenuBar';
 import AddConsultantForm from '../Consultant/AddConsultantForm';
-import Header from '../Header';
 import { useNavigate } from "react-router-dom";
 import { capitalizeWords } from '../../../utils';
 
@@ -155,31 +153,11 @@ const ConsultantReport = ({ userRole }) => {
   );
 
   // ✅ Render the menu bar based on user role
-  const renderMenuBar = () => {
-    if (!userRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   return (
   <div className="flex h-[100vh]">
-  {renderMenuBar()}
   <div className="app-content">
-    <Header dashboardType={userRole === "admin" ? "Admin Dashboard" : "User Dashboard"} />
-    {/* Error Message */}
+
     {error && (
       <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
         <div className="flex items-center">
@@ -191,11 +169,8 @@ const ConsultantReport = ({ userRole }) => {
       </div>
     )}
 
-    <main className="flex-2 flex flex-col px-8 py-10 max-h-[100vh] overflow-y-auto">
-      <div className="mb-8">
-        <h2 className="text-3xl font-extrabold tracking-tight text-neutral-800 dark:text-white mb-2">Consultant Management</h2>
-        <p className="text-gray-500 dark:text-gray-300 text-base">Manage your consulting team members and their information</p>
-      </div>
+    <main className="flex-2 flex flex-col px-8  max-h-[80vh] overflow-y-auto">
+      
 
       {/* Action Bar */}
       <div className="mb-6 flex items-center justify-between">

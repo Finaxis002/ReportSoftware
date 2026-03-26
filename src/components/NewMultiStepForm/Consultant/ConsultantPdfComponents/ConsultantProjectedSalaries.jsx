@@ -1,13 +1,12 @@
 import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { View, Text, Image} from "@react-pdf/renderer";
+import { styles, stylesCOP} from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
 
 const ConsultantProjectedSalaries = ({
   formData,
-  localData,
   normalExpense,
   totalQuantity,
   totalAnnualWages,
@@ -61,7 +60,7 @@ const ConsultantProjectedSalaries = ({
           alignItems: "flex-end",
         }}
       >
-        <Text style={[styles.AmountIn, styles.italicText]}>
+        {/* <Text style={[styles.AmountIn, styles.italicText]}>
                   (Amount In{" "}
                   {
                     formData?.ProjectReportSetting?.AmountIn === "rupees"
@@ -77,7 +76,7 @@ const ConsultantProjectedSalaries = ({
                       : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
                   }
                   )
-                </Text>
+                </Text> */}
       </View>
       <View style={stylesCOP.heading}>
         <Text>Projected Salaries & Wages</Text>

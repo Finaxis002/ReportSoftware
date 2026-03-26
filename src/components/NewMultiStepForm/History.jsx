@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import MenuBar from "./MenuBar";
-import Header from "./Header";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const History = ({ userRole }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
@@ -16,13 +15,25 @@ const History = ({ userRole }) => {
   const [totalActivities, setTotalActivities] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ ADD this right after your useState declarations (around line 20):
+const [debouncedSearch, setDebouncedSearch] = useState("");
+
+// ✅ ADD this useEffect for debouncing (after the useState, before other useEffects):
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(searchQuery);
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [searchQuery]);
+
 
   // Fetch total count of activities on component mount
   useEffect(() => {
     const fetchTotalCount = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/activity/total-count"
+          `${BASE_URL}/api/activity/total-count`
         );
         setTotalActivities(res.data.total);
       } catch (err) {
@@ -35,115 +46,97 @@ const History = ({ userRole }) => {
     }
   }, [userRole]);
 
-  const renderMenuBar = () => {
-    if (!userRole) {
-      navigate("/login");
-      return null;
+
+// Replace the entire fetchActivityLog useEffect with this:
+useEffect(() => {
+  const fetchActivityLog = async () => {
+    if (!startDate || !endDate) {
+      setActivities([]);
+      return;
     }
 
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
+    setIsLoading(true);
+    try {
+      // Create Date objects for the selected dates
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      // Set start date to beginning of the day (00:00:00)
+      start.setHours(0, 0, 0, 0);
+      
+      // Set end date to end of the day (23:59:59.999)
+      end.setHours(23, 59, 59, 999);
 
-  // Fetch activities only when both dates are selected
-  useEffect(() => {
-    const fetchActivityLog = async () => {
-      if (!startDate || !endDate) {
-        setActivities([]);
-        return;
-      }
+      const params = {
+        startDate: start.toISOString(), // Convert to ISO string with time
+        endDate: end.toISOString()     // Convert to ISO string with time
+      };
 
-      setIsLoading(true);
-      try {
-        const params = {};
-        if (startDate) params.startDate = startDate;
-        if (endDate) params.endDate = endDate;
+      console.log("📅 Dates to API:", params);
 
-        const res = await axios.get(
-          "http://localhost:5000/api/activity/history",
-          { params }
-        );
-          console.log("📊 Activities received from API:", res.data.map(a => ({
+      const res = await axios.get(
+        `${BASE_URL}/api/activity/history`,
+        { params }
+      );
+      
+      console.log("📊 Activities received from API:", res.data.map(a => ({
         action: a.action,
         title: a.reportTitle,
         owner: a.reportOwner,
         timestamp: a.timestamp,
         isConsultantAction: a.action.startsWith("consultant_")
       })));
-        setActivities(res.data);
-      } catch (error) {
-        console.error("Failed to fetch history:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userRole === "admin") {
-      fetchActivityLog();
+      
+      setActivities(res.data);
+    } catch (error) {
+      console.error("Failed to fetch history:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [userRole, startDate, endDate]);
+  };
 
-  // Filter activities based on search query
-  useEffect(() => {
-    if (!searchQuery) {
-      setFilteredActivities(activities);
-      setMatches([]);
-      setCurrentMatchIndex(-1);
-      return;
-    }
+  if (userRole === "admin") {
+    fetchActivityLog();
+  }
+}, [userRole, startDate, endDate]);
+  
+// ✅ ADD THIS NEW useEffect BLOCK:
+useEffect(() => {
+    if (!debouncedSearch) {
+    setFilteredActivities(activities);
+    setMatches([]);
+    setCurrentMatchIndex(-1);
+    return;
+  }
 
-    const filtered = activities.filter((act) => {
-      const q = searchQuery.toLowerCase();
-      return (
-        act?.performedBy?.name?.toLowerCase().includes(q) ||
-        act?.reportTitle?.toLowerCase().includes(q) ||
-        act?.reportOwner?.toLowerCase().includes(q)
-      );
-    });
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
 
-    setFilteredActivities(filtered);
-    setCurrentMatchIndex(filtered.length > 0 ? 0 : -1);
-  }, [activities, searchQuery]);
+  const filtered = activities.filter((act) => {
+    const searchText = `
+      ${act?.performedBy?.name || ''}
+      ${act?.reportTitle || ''}
+      ${act?.reportOwner || ''}
+      ${act?.action || ''}
+    `.toLowerCase();
+    
+    return queryWords.every(word => searchText.includes(word));
+  });
 
-  // Find all activity IDs that match the search query
-  useEffect(() => {
-    if (!searchQuery) {
-      setMatches([]);
-      return;
-    }
+  setFilteredActivities(filtered);
+  const matchingIds = filtered.map(act => act._id);
+  setMatches(matchingIds);
+  setCurrentMatchIndex(matchingIds.length > 0 ? 0 : -1);
+}, [activities, searchQuery]);
 
-    const matchingIds = activities
-      .filter((act) => {
-        const q = searchQuery.toLowerCase();
-        return (
-          act?.performedBy?.name?.toLowerCase().includes(q) ||
-          act?.reportTitle?.toLowerCase().includes(q) ||
-          act?.reportOwner?.toLowerCase().includes(q)
-        );
-      })
-      .map((act) => act._id);
-
-    setMatches(matchingIds);
-  }, [activities, searchQuery]);
-
-  // Scroll to current match
-  // Scroll to current match
   useEffect(() => {
     if (currentMatchIndex >= 0 && matches.length > 0) {
       const element = document.getElementById(
         `activity-${matches[currentMatchIndex]}`
       );
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
         element.classList.add("ring-2", "ring-orange-500");
         setTimeout(() => {
           element.classList.remove("ring-2", "ring-orange-500");
@@ -152,68 +145,55 @@ const History = ({ userRole }) => {
     }
   }, [currentMatchIndex, matches]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && matches.length > 0) {
-      e.preventDefault();
+// ✅ REPLACE the existing handleKeyDown function with this:
+const handleKeyDown = (e) => {
+  if (e.key === "Enter" && matches.length > 0) {
+    e.preventDefault();
+    if (currentMatchIndex >= 0) {
       const nextIndex = (currentMatchIndex + 1) % matches.length;
       setCurrentMatchIndex(nextIndex);
+    } else {
+      setCurrentMatchIndex(0);
     }
-  };
+  }
+};
 
-  const formatActivityMessage = ({
-    _id,
-    action,
-    performedBy,
-    reportTitle,
-    reportOwner,
-    timestamp,
-    reportType
-  }) => {
-      console.log("📝 formatActivityMessage called with:", {
-    action,
-    reportTitle,
-    reportOwner,
-    isConsultant: action.startsWith("consultant_")
+ // ✅ REPLACE the entire formatActivityMessage function with this:
+const formatActivityMessage = ({
+  _id,
+  action,
+  performedBy,
+  reportTitle,
+  reportOwner,
+  timestamp,
+  reportType
+}) => {
+  const name = performedBy?.name || "Unknown";
+  const role = performedBy?.role === "admin" ? "Admin" : "User";
+
+ const formattedAction = {
+  create: "created",
+  update: "updated",
+  download: "downloaded",
+  check_profit: "checked profit for",
+  generated_pdf: "generated PDF for",
+  consultant_create: "created", // ✅ REMOVE "consultant report" from here
+  consultant_update: "updated", // ✅ REMOVE "consultant report" from here
+  consultant_download: "downloaded", // ✅ REMOVE "consultant report" from here
+  consultant_generated_pdf: "generated PDF for", // ✅ REMOVE "consultant report" from here
+}[action] || "performed an action on";
+  const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
   });
-    const name = performedBy?.name || "Unknown";
-    const role = performedBy?.role === "admin" ? "Admin" : "User";
 
-    const formattedAction =
-      {
-        create: "created",
-        update: "updated",
-        download: "downloaded",
-        check_profit: "checked profit for",
-        generated_pdf: "generated PDF for",
-        consultant_create: "created consultant report",
-        consultant_update: "updated consultant report",
-        consultant_download: "downloaded consultant report",
-        consultant_generated_pdf: "generated PDF for",
-      }[action] || "performed an action on";
- console.log("🔍 Action mapping:", { 
-    action, 
-    formattedAction,
-    "consultant_generated_pdf": formattedAction === "generated PDF for" 
-  });
-    const formattedDate = new Date(timestamp).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+  const cleanTitle = reportTitle?.trim() || "Untitled";
+  const cleanOwner = reportOwner?.trim();
+  const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
 
-    const cleanTitle = reportTitle?.trim() || "Untitled";
-    const cleanOwner = reportOwner?.trim();
-    const fullTitle = cleanOwner ? `${cleanTitle} (${cleanOwner})` : cleanTitle;
-
-    // let message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
-
-    // if (action === "consultant_generated_pdf") {
-    //   message += " - consultant Report";
-    // }
-
-      //  const isConsultant = action.startsWith("consultant_");
-       const isConsultant = reportType === "consultant" || action.startsWith("consultant_");
-   
-    let message;
+  const isConsultant = reportType === "consultant" || action.startsWith("consultant_");
+  
+  let message;
   if (isConsultant && (action === "consultant_generated_pdf" || action === "generated_pdf")) {
     message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate} - consultant report`;
   } else if (isConsultant) {
@@ -222,41 +202,99 @@ const History = ({ userRole }) => {
     message = `${name} (${role}) ${formattedAction} the report "${fullTitle}" on ${formattedDate}`;
   }
 
-  console.log("✅ Final message:", message);
-    if (!searchQuery) return message;
+  // If no search query, return plain message
+  if (!searchQuery) return message;
 
-    const regex = new RegExp(
-      `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-      "gi"
-    );
-    const parts = message.split(regex);
-
-    return parts.map((part, index) =>
-  regex.test(part) ? (
-    <mark
-      key={index}
-      className={`${
-        matches[currentMatchIndex] === _id
-          ? "bg-orange-300 dark:bg-orange-600"
-          : "bg-yellow-200 dark:bg-yellow-600"
-      }`}
-    >
-      {part}
-    </mark>
-  ) : (
-    part
-  )
-);
+  // Highlight logic
+  const highlightText = (text, searchTerm) => {
+    if (!searchTerm) return text;
+    
+    const normalizedSearch = searchTerm.toLowerCase();
+    const parts = [];
+    let lastIndex = 0;
+    let textLower = text.toLowerCase();
+    
+    let matchIndex = textLower.indexOf(normalizedSearch, lastIndex);
+    
+    while (matchIndex !== -1) {
+      if (matchIndex > lastIndex) {
+        parts.push(text.substring(lastIndex, matchIndex));
+      }
+      
+      const isCurrentMatch = matches[currentMatchIndex] === _id && 
+                           matchIndex <= searchTerm.length;
+      
+      parts.push(
+        <mark
+          key={`${_id}-${matchIndex}`}
+          className={`${
+            isCurrentMatch 
+              ? "bg-orange-300 dark:bg-orange-600 font-semibold" 
+              : "bg-yellow-200 dark:bg-yellow-600"
+          }`}
+        >
+          {text.substring(matchIndex, matchIndex + searchTerm.length)}
+        </mark>
+      );
+      
+      lastIndex = matchIndex + searchTerm.length;
+      matchIndex = textLower.indexOf(normalizedSearch, lastIndex);
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
   };
+
+  return highlightText(message, searchQuery);
+};
 
   const hasDateFilter = startDate || endDate;
 
-  return (
-    <div className="flex h-[100vh]">
-      {renderMenuBar()}
-      <div className="app-content w-full p-6">
-        <Header dashboardType="Admin Dashboard" />
 
+  // Add this helper function near the top of your History component
+const formatDateForAPI = (dateString, isEndDate = false) => {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  
+  if (isEndDate) {
+    // For end date, set to end of day
+    date.setHours(23, 59, 59, 999);
+  } else {
+    // For start date, set to beginning of day
+    date.setHours(0, 0, 0, 0);
+  }
+  
+  return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+};
+
+// Then update your date change handlers:
+const handleStartDateChange = (e) => {
+  const date = e.target.value;
+  setStartDate(date);
+  
+  // Optional: If you want to send formatted dates to API
+  const formattedStart = formatDateForAPI(date, false);
+  const formattedEnd = formatDateForAPI(endDate, true);
+  console.log("📅 Dates to API:", { start: formattedStart, end: formattedEnd });
+};
+
+const handleEndDateChange = (e) => {
+  const date = e.target.value;
+  setEndDate(date);
+  
+  // Optional: If you want to send formatted dates to API
+  const formattedStart = formatDateForAPI(startDate, false);
+  const formattedEnd = formatDateForAPI(date, true);
+  console.log("📅 Dates to API:", { start: formattedStart, end: formattedEnd });
+};
+
+  return (
+    <div className="flex h-[95vh]">
+      <div className="app-content w-full p-6">
         {/* Always show total count and date filter section */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/50 shadow-sm p-2 my-2">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -340,7 +378,7 @@ const History = ({ userRole }) => {
                       <input
                         type="date"
                         value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                       onChange={handleStartDateChange}
                         className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
                       />
                     </div>
@@ -369,7 +407,7 @@ const History = ({ userRole }) => {
                       <input
                         type="date"
                         value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        onChange={handleEndDateChange} 
                         className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
                       />
                     </div>
@@ -457,7 +495,7 @@ const History = ({ userRole }) => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
+              <div className="space-y-3 overflow-y-auto max-h-[58vh] pr-1">
                 {filteredActivities.length > 0 ? (
                   filteredActivities.map((act) => (
                     <div

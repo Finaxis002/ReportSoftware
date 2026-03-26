@@ -114,8 +114,6 @@ const CheckDSCR = ({
       }
     };
   }, [moratoriumPeriodMonths, monthsPerYear, rateOfExpense]);
-  const { Expenses = {} } = formData;
-  const { normalExpense = [], directExpense = [] } = Expenses;
 
   // ✅ Compute Total Sum for Each Year
   const totalA = Array.from({
@@ -156,7 +154,6 @@ const CheckDSCR = ({
     return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
   });
 
-  const totalDSCR = DSCR.reduce((sum, value) => sum + value, 0);
   // ✅ Filter out zero values from the beginning
   const validDSCRValues = DSCR.filter(
     (value, index) => !(index === 0 && value === 0)

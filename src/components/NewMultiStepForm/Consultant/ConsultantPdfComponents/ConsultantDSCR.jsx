@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -31,19 +31,16 @@ const ConsultantDSCR = ({
   DSCRSend,
   formatNumber,
   pdfType,
-  receivedtotalRevenueReceipts,
   orientation,
 }) => {
-  // console.log("Yearly Principal Repayment:", yearlyPrincipalRepayment); // ✅ Debugging check
 
-  const years = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 years if not provided
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
 
 
-    const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+  const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption;
 
-const interestRate = formData?.ProjectReportSetting?.interestOnTL;
+  const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
   const renderIOTLLabel = () => {
     if (debtEquityOption === "Equity") {
@@ -54,10 +51,10 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   };
 
   const renderIOWCLabel = () => {
-    if (debtEquityOption === "Equity"){
+    if (debtEquityOption === "Equity") {
       return "Return On Operational Equity";
     }
-    else{
+    else {
       return "Interest On Working Capital"
     }
   }
@@ -85,9 +82,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   const moratoriumPeriodMonths =
     parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
 
-  const rateOfExpense =
-    (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
-
   // Function to handle moratorium period spillover across financial years
   const calculateMonthsPerYear = () => {
     let monthsArray = [];
@@ -111,18 +105,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
   const monthsPerYear = calculateMonthsPerYear();
 
-  // ✅ Calculate Interest on Working Capital for each projection year
-  const interestOnWorkingCapital = Array.from({
-    length: parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-  }).map(() => {
-    const workingCapitalLoan =
-      Number(formData.MeansOfFinance.workingCapital.termLoan) || 0;
-    const interestRate =
-      Number(formData.ProjectReportSetting.interestOnTL) || 0;
-
-    // ✅ Annual Interest Calculation
-    return (workingCapitalLoan * interestRate) / 100;
-  });
 
   const hideFirstYear = formData?.computedData?.totalRevenueReceipts?.[0] <= 0;
 
@@ -178,8 +160,6 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
     return calculatedInterest === 0;
   });
 
-  const { Expenses = {} } = formData;
-  const { normalExpense = [], directExpense = [] } = Expenses;
 
   // ✅ Compute Total Sum for Each Year
   const totalA = Array.from({
@@ -246,17 +226,13 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
     // console.log("DSCR:", DSCR);
   }, [averageDSCR, DSCR, numOfYearsUsedForAvg]); // ✅ Correct dependency tracking
 
-  // Check if all Depreciation values are zero
-  const isDepreciationAllZero = totalDepreciationPerYear.every(
-    (val) => val === 0
-  );
 
   // Check if all Interest on Term Loan values are zero
   const isInterestOnTermLoanAllZero = yearlyInterestLiabilities.every(
     (val) => val === 0
   );
 
-// console.log("yearlyInterestLiabilities :", yearlyInterestLiabilities);
+  // console.log("yearlyInterestLiabilities :", yearlyInterestLiabilities);
 
   // Check if all Repayment of Term Loan values are zero
   const isRepaymentTermLoanAllZero = yearlyPrincipalRepayment.every(
@@ -342,10 +318,10 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               Financial Year{" "}
               {formData?.ProjectReportSetting?.FinancialYear
                 ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                  )
-                    .toString()
-                    .slice(-2)}`
+                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                )
+                  .toString()
+                  .slice(-2)}`
                 : "2025-26"}
             </Text>
           </View>
@@ -378,25 +354,25 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               )
             </Text>
           </View> */}
-         
-            <View
-              style={[
-                stylesCOP.heading,
-                {
-                  fontWeight: "bold",
-                  paddingLeft: 10,
-                },
-              ]}
-            >
-              <Text>
-                
-                {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
-                {splitFinancialYearLabels.length > 1
-                  ? ` (${toRoman(pageIdx)})`
-                  : ""}
-              </Text>
-            </View>
-            <View style={[styles.table]}>
+
+          <View
+            style={[
+              stylesCOP.heading,
+              {
+                fontWeight: "bold",
+                paddingLeft: 10,
+              },
+            ]}
+          >
+            <Text>
+
+              {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
+              {splitFinancialYearLabels.length > 1
+                ? ` (${toRoman(pageIdx)})`
+                : ""}
+            </Text>
+          </View>
+          <View style={[styles.table]}>
             {/* Table Header */}
             <View style={styles.tableHeader}>
               <Text
@@ -482,54 +458,54 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               </View>
 
               {/* ✅ Render Depreciation Row - Use computed data if available */}
-{(formData?.computedData?.totalDepreciation?.some(val => val > 0) || totalDepreciationPerYear.some(val => val > 0)) && (
-    <View
-        style={[
-            stylesMOF.row,
-            styles.tableRow,
-            { borderWidth: "0px" },
-        ]}
-    >
-        <Text
-            style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-            ]}
-        >
-            2
-        </Text>
-        <Text
-            style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-            ]}
-        >
-            Depreciation
-        </Text>
-
-        {/* ✅ Display Depreciation Values for Each Visible Year */}
-        {labels.map((_, localIdx) => {
-            const gIdx = globalIndex(localIdx);
-            if (shouldSkipCol(gIdx)) return null;
-            
-            // Use computed data if available, otherwise fall back to totalDepreciationPerYear
-            const val = formData?.computedData?.totalDepreciation?.[gIdx] ?? totalDepreciationPerYear[gIdx] ?? 0;
-            return (
-                <Text
-                    key={`dep-${gIdx}`}
-                    style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                    ]}
+              {(formData?.computedData?.totalDepreciation?.some(val => val > 0) || totalDepreciationPerYear.some(val => val > 0)) && (
+                <View
+                  style={[
+                    stylesMOF.row,
+                    styles.tableRow,
+                    { borderWidth: "0px" },
+                  ]}
                 >
-                    {formatNumber(val)}
-                </Text>
-            );
-        })}
-    </View>
-)}
+                  <Text
+                    style={[
+                      stylesCOP.serialNoCellDetail,
+                      styleExpenses.sno,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    2
+                  </Text>
+                  <Text
+                    style={[
+                      stylesCOP.detailsCellDetail,
+                      styleExpenses.particularWidth,
+                      styleExpenses.bordernone,
+                    ]}
+                  >
+                    Depreciation
+                  </Text>
+
+                  {/* ✅ Display Depreciation Values for Each Visible Year */}
+                  {labels.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
+                    if (shouldSkipCol(gIdx)) return null;
+
+                    // Use computed data if available, otherwise fall back to totalDepreciationPerYear
+                    const val = formData?.computedData?.totalDepreciation?.[gIdx] ?? totalDepreciationPerYear[gIdx] ?? 0;
+                    return (
+                      <Text
+                        key={`dep-${gIdx}`}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styleExpenses.fontSmall,
+                        ]}
+                      >
+                        {formatNumber(val)}
+                      </Text>
+                    );
+                  })}
+                </View>
+              )}
 
               {/* Interest On Term Loan */}
               {!isInterestOnTermLoanAllZero && (
@@ -1070,10 +1046,10 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           Financial Year{" "}
           {formData?.ProjectReportSetting?.FinancialYear
             ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-              )
-                .toString()
-                .slice(-2)}`
+              parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+            )
+              .toString()
+              .slice(-2)}`
             : "2025-26"}
         </Text>
       </View>
@@ -1107,20 +1083,20 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         </Text>
       </View> */}
 
-        <View
-          style={[
-            stylesCOP.heading,
-            {
-              fontWeight: "bold",
-              paddingLeft: 10,
-            },
-          ]}
-        >
-          <Text>
-            {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
-          </Text>
-        </View>
-        <View style={[styles.table]}>
+      <View
+        style={[
+          stylesCOP.heading,
+          {
+            fontWeight: "bold",
+            paddingLeft: 10,
+          },
+        ]}
+      >
+        <Text>
+          {debtEquityOption === "Equity" ? "Equity-Service" : "Debt-Service"} Coverage Ratio
+        </Text>
+      </View>
+      <View style={[styles.table]}>
         {/* Table Header */}
         <View style={styles.tableHeader}>
           <Text
@@ -1197,50 +1173,50 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             )}
           </View>
 
-        {/* ✅ Render Depreciation Row - Use computed data if available */}
-{(formData?.computedData?.totalDepreciation?.some(val => val > 0) || totalDepreciationPerYear.some(val => val > 0)) && (
-    <View
-        style={[stylesMOF.row, styles.tableRow, { borderWidth: "0px" }]}
-    >
-        <Text
-            style={[
-                stylesCOP.serialNoCellDetail,
-                styleExpenses.sno,
-                styleExpenses.bordernone,
-            ]}
-        >
-            2
-        </Text>
-        <Text
-            style={[
-                stylesCOP.detailsCellDetail,
-                styleExpenses.particularWidth,
-                styleExpenses.bordernone,
-            ]}
-        >
-            Depreciation
-        </Text>
+          {/* ✅ Render Depreciation Row - Use computed data if available */}
+          {(formData?.computedData?.totalDepreciation?.some(val => val > 0) || totalDepreciationPerYear.some(val => val > 0)) && (
+            <View
+              style={[stylesMOF.row, styles.tableRow, { borderWidth: "0px" }]}
+            >
+              <Text
+                style={[
+                  stylesCOP.serialNoCellDetail,
+                  styleExpenses.sno,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                2
+              </Text>
+              <Text
+                style={[
+                  stylesCOP.detailsCellDetail,
+                  styleExpenses.particularWidth,
+                  styleExpenses.bordernone,
+                ]}
+              >
+                Depreciation
+              </Text>
 
-        {/* ✅ Display Depreciation Values for Each Year */}
-        {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-            if (hideFirstYear && yearIndex === 0) return null;
-            
-            // Use computed data if available, otherwise fall back to totalDepreciationPerYear
-            const depreciationValue = formData?.computedData?.totalDepreciation?.[yearIndex] ?? totalDepreciationPerYear[yearIndex] ?? 0;
-            return (
-                <Text
+              {/* ✅ Display Depreciation Values for Each Year */}
+              {Array.from({ length: projectionYears }).map((_, yearIndex) => {
+                if (hideFirstYear && yearIndex === 0) return null;
+
+                // Use computed data if available, otherwise fall back to totalDepreciationPerYear
+                const depreciationValue = formData?.computedData?.totalDepreciation?.[yearIndex] ?? totalDepreciationPerYear[yearIndex] ?? 0;
+                return (
+                  <Text
                     key={yearIndex}
                     style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
                     ]}
-                >
+                  >
                     {formatNumber(depreciationValue)}
-                </Text>
-            );
-        })}
-    </View>
-)}
+                  </Text>
+                );
+              })}
+            </View>
+          )}
           {/* Interest On Term Loan */}
           {!isInterestOnTermLoanAllZero && (
             <View style={[styles.tableRow, styles.totalRow]}>
@@ -1503,7 +1479,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
               {/* ✅ Ensure First-Year Repayment is Included */}
               {yearlyPrincipalRepayment &&
-              yearlyPrincipalRepayment.length > 0 ? (
+                yearlyPrincipalRepayment.length > 0 ? (
                 Array.from({ length: projectionYears }).map(
                   (_, index) =>
                     (!hideFirstYear || index !== 0) && (

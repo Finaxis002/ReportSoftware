@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
-import MenuBar from "./MenuBar";
+import { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
-import Header from "../NewMultiStepForm/Header";
 
 import { useNavigate } from "react-router-dom";
 import Skeleton from "../common/Skeleton";
 import * as XLSX from "xlsx";
+import { BASE_URL } from "./Utils/baseurl";
 
 const BankDetails = () => {
   const [bankDetails, setBankDetails] = useState([]);
@@ -48,8 +47,8 @@ const BankDetails = () => {
 
         // ✅ Fetch from both APIs concurrently
         const [response1, response2] = await Promise.all([
-          fetch("https://reportsbe.sharda.co.in/api/get-bank-details"),
-          fetch("https://reportsbe.sharda.co.in/api/bank-details"),
+          fetch(`${BASE_URL}/api/get-bank-details`),
+          fetch(`${BASE_URL}/api/bank-details`),
         ]);
 
         if (!response1.ok || !response2.ok) {
@@ -62,68 +61,7 @@ const BankDetails = () => {
         console.log("✅ Fetched data1:", data1);
         console.log("✅ Fetched data2:", data2);
 
-        // ✅ Combine data without removing duplicates
-        // const combinedData = [
-        //   ...(data1?.data || []).map((item) => ({
-        //     clientName: item?.clientName || "N/A",
-        //     businessName: item?.businessName || "N/A",
-        //     bankDetails: {
-        //       Bank: item?.bankName || "N/A",
-        //       BankManagerName: item?.managerName || "N/A",
-        //       Post: item?.post || "N/A",
-        //       ContactNo: item?.contactNo || "N/A",
-        //       EmailId: item?.emailId || "N/A",
-        //       IFSCCode: item?.ifscCode || "N/A",
-        //       City: item?.city || "N/A",
-        //     },
-        //   })),
-        //   ...(data2 || []).map((item) => ({
-        //     clientName: item?.clientName || "N/A",
-        //     businessName: item?.businessName || "N/A",
-        //     bankDetails: {
-        //       Bank: item?.bankDetails?.Bank || "N/A",
-        //       BankManagerName: item?.bankDetails?.BankManagerName || "N/A",
-        //       Post: item?.bankDetails?.Post || "N/A",
-        //       ContactNo: item?.bankDetails?.ContactNo || "N/A",
-        //       EmailId: item?.bankDetails?.EmailId || "N/A",
-        //       IFSCCode: item?.bankDetails?.IFSCCode || "N/A",
-        //       City: item?.bankDetails?.City || "N/A",
-        //     },
-        //   })),
-        // ];
 
-        // const combinedData = [
-        //   ...(data1?.data || []).map((item) => ({
-        //     _id: item?._id, // Preserve the ID from API 1
-        //     clientName: item?.clientName || "N/A",
-        //     businessName: item?.businessName || "N/A",
-        //     bankDetails: {
-        //       _id: item?._id, // Also include ID in bankDetails for consistency
-        //       Bank: item?.bankName || "N/A",
-        //       BankManagerName: item?.managerName || "N/A",
-        //       Post: item?.post || "N/A",
-        //       ContactNo: item?.contactNo || "N/A",
-        //       EmailId: item?.emailId || "N/A",
-        //       IFSCCode: item?.ifscCode || "N/A",
-        //       City: item?.city || "N/A",
-        //     },
-        //   })),
-        //   ...(data2 || []).map((item) => ({
-        //     _id: item?._id, // Preserve the ID from API 2
-        //     clientName: item?.clientName || "N/A",
-        //     businessName: item?.businessName || "N/A",
-        //     bankDetails: {
-        //       _id: item?.bankDetails?._id, // Preserve nested ID if it exists
-        //       Bank: item?.bankDetails?.Bank || "N/A",
-        //       BankManagerName: item?.bankDetails?.BankManagerName || "N/A",
-        //       Post: item?.bankDetails?.Post || "N/A",
-        //       ContactNo: item?.bankDetails?.ContactNo || "N/A",
-        //       EmailId: item?.bankDetails?.EmailId || "N/A",
-        //       IFSCCode: item?.bankDetails?.IFSCCode || "N/A",
-        //       City: item?.bankDetails?.City || "N/A",
-        //     },
-        //   })),
-        // ];
         const combinedData = [
           ...(data1?.data || []).map((item) => ({
             _id: item?._id, // Preserve ID from first API
@@ -213,7 +151,7 @@ const BankDetails = () => {
     const fetchFilters = async () => {
       try {
         const response = await fetch(
-          "https://reportsbe.sharda.co.in/api/bank-filters"
+          `${BASE_URL}/api/bank-filters`
         );
         if (!response.ok) throw new Error("Failed to fetch filter options");
 
@@ -281,25 +219,6 @@ const BankDetails = () => {
 
   const navigate = useNavigate();
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -311,21 +230,21 @@ const BankDetails = () => {
 
   const handleAddBank = async () => {
     const { city, contactNo, bankName, managerName } = newBankDetails;
-  setFormErrors({});
-  const requiredFields = ["bankName", "managerName", "contactNo", "city"];
-  const errors = {};
-  requiredFields.forEach((field) => {
-    if (!newBankDetails[field] || newBankDetails[field].trim() === "") {
-      errors[field] = `${field
-        .replace(/([A-Z])/g, " $1") // Add spaces before capital letters
-        .replace(/^./, (str) => str.toUpperCase())} is required`;
-    }
-  });
+    setFormErrors({});
+    const requiredFields = ["bankName", "managerName", "contactNo", "city"];
+    const errors = {};
+    requiredFields.forEach((field) => {
+      if (!newBankDetails[field] || newBankDetails[field].trim() === "") {
+        errors[field] = `${field
+          .replace(/([A-Z])/g, " $1") // Add spaces before capital letters
+          .replace(/^./, (str) => str.toUpperCase())} is required`;
+      }
+    });
 
-  if (Object.keys(errors).length > 0) {
-    setFormErrors(errors);
-    return; // Stop submission if errors
-  }
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return; // Stop submission if errors
+    }
     // ✅ Validate only the 4 required fields
     if (!city || !contactNo || !bankName || !managerName) {
       alert(
@@ -354,7 +273,7 @@ const BankDetails = () => {
       console.log("📤 Sending Payload:", payload); // ✅ Debugging
 
       const response = await fetch(
-        "https://reportsbe.sharda.co.in/api/add-bank-details",
+        `${BASE_URL}/api/add-bank-details`,
         {
           method: "POST",
           headers: {
@@ -458,67 +377,7 @@ const BankDetails = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  //   const handleExcelImport = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
 
-  //   const reader = new FileReader();
-
-  //   reader.onload = async (event) => {
-  //     const data = new Uint8Array(event.target.result);
-  //     const workbook = XLSX.read(data, { type: "array" });
-
-  //     const sheetName = workbook.SheetNames[0];
-  //     const worksheet = workbook.Sheets[sheetName];
-
-  //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-  //     console.log("📥 Parsed Excel Data:", jsonData);
-
-  //     const mappedData = jsonData.map((row) => ({
-  //       clientName: row["Client Name"] || "",
-  //       businessName: row["Business Name"] || "",
-  //       bankDetails: {
-  //         Bank: row["Bank Name"] || "",
-  //         BankManagerName: row["Manager Name"] || "",
-  //         Post: row["Post"] || "",
-  //         ContactNo: row["Contact No"] || "",
-  //         EmailId: row["Email"] || "",
-  //         IFSCCode: row["IFSC Code"] || "",
-  //         City: row["City"] || "",
-  //       },
-  //     }));
-
-  //     setBankDetails((prev) => [...prev, ...mappedData]);
-
-  //     // Optional: Upload to backend
-  //     for (const entry of mappedData) {
-  //       try {
-  //         const res = await fetch(
-  //           "https://reportsbe.sharda.co.in/api/add-bank-details",
-  //           {
-  //             method: "POST",
-  //             headers: { "Content-Type": "application/json" },
-  //             body: JSON.stringify({ bankDetails: entry.bankDetails, clientName: entry.clientName, businessName: entry.businessName }),
-  //           }
-  //         );
-
-  //         if (!res.ok) {
-  //           const err = await res.json();
-  //           console.error("❌ Upload failed:", err.message);
-  //         } else {
-  //           console.log("✅ Uploaded entry:", await res.json());
-  //         }
-  //       } catch (error) {
-  //         console.error("🔥 Upload error:", error.message);
-  //       }
-  //     }
-
-  //     alert("Excel data imported successfully!");
-  //   };
-
-  //   reader.readAsArrayBuffer(file);
-  // };
   const handleExcelImport = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -556,7 +415,7 @@ const BankDetails = () => {
       for (const entry of mappedData) {
         try {
           const response = await fetch(
-            "https://reportsbe.sharda.co.in/api/add-bank-details",
+            `${BASE_URL}/api/add-bank-details`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -571,7 +430,7 @@ const BankDetails = () => {
                   emailId: entry.bankDetails.EmailId,
                   ifscCode: entry.bankDetails.IFSCCode,
                   city: entry.bankDetails.City,
-                  branchAddress: entry.bankDetails.branchAddress, 
+                  branchAddress: entry.bankDetails.branchAddress,
                 },
               }),
             }
@@ -649,7 +508,7 @@ const BankDetails = () => {
       const idToDelete = detail._id || detail.bankDetails?._id;
 
       const response = await fetch(
-        `https://reportsbe.sharda.co.in/api/delete-bank-details/${idToDelete}`,
+        `${BASE_URL}/api/delete-bank-details/${idToDelete}`,
         {
           method: "DELETE",
         }
@@ -695,7 +554,7 @@ const BankDetails = () => {
       };
 
       const response = await fetch(
-        `https://reportsbe.sharda.co.in/api/update-bank-details/${id}`,
+        `${BASE_URL}/api/update-bank-details/${id}`,
         {
           method: "PUT",
           headers: {
@@ -713,9 +572,9 @@ const BankDetails = () => {
           prev.map((item) =>
             item._id === id || item.bankDetails?._id === id
               ? {
-                  ...item,
-                  ...updatedBank.data,
-                }
+                ...item,
+                ...updatedBank.data,
+              }
               : item
           )
         );
@@ -773,48 +632,7 @@ const BankDetails = () => {
     XLSX.writeFile(workbook, "BankDetails_Template.xlsx");
   };
 
-  // const handleOTPVerifyAndExport = async () => {
-  //   try {
-  //     // ✅ Step 1: Request OTP to be sent
-  //     const sendRes = await fetch("https://reportsbe.sharda.co.in/api/otpRouteForExport/send-otp", {
-  //       method: "POST",
-  //     });
 
-  //     if (!sendRes.ok) {
-  //       alert("Failed to send OTP. Please try again.");
-  //       return;
-  //     }
-
-  //     // ✅ Step 2: Ask user for OTP input
-  //     const otp = prompt("Enter the OTP sent to your email:");
-
-  //     if (!otp) {
-  //       alert("OTP is required to proceed.");
-  //       return;
-  //     }
-
-  //     // ✅ Step 3: Verify OTP
-  //     const verifyRes = await fetch("https://reportsbe.sharda.co.in/api/otpRouteForExport/verify-otp", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ otp }),
-  //     });
-
-  //     const verifyData = await verifyRes.json();
-
-  //     if (verifyRes.ok && verifyData.success) {
-  //       // ✅ Step 4: OTP verified — proceed to export
-  //       exportBankDataToCSV();
-  //     } else {
-  //       alert("Invalid OTP. Export cancelled.");
-  //     }
-  //   } catch (err) {
-  //     console.error("❌ OTP export error:", err);
-  //     alert("An error occurred. Please try again.");
-  //   }
-  // };
   const handleOTPVerifyAndExport = async () => {
     try {
       if (!otpInput) {
@@ -823,7 +641,7 @@ const BankDetails = () => {
       }
 
       const verifyRes = await fetch(
-        "https://reportsbe.sharda.co.in/api/otpRouteForExport/verify-otp",
+        `${BASE_URL}/api/otpRouteForExport/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -848,61 +666,62 @@ const BankDetails = () => {
 
   return (
     <div className="flex h-[100vh]">
-      {renderMenuBar()}
       <div className="app-content">
-        <Header dashboardType="Admin Dashboard" />
 
-        <div className="max-w-7xl w-full pt-4 h-full">
-          <h2 className="text-2xl font-extrabold text-gray-500 dark:text-white text-center tracking-wide">
-            Bank Details
-          </h2>
+        <div className="max-w-8xl w-full h-full">
 
           <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md shadow-md space-y-4">
             {/* ✅ First Line: Buttons */}
-            <div className="flex flex-wrap justify-between items-center gap-4">
-              <div className="flex gap-4">
-                <button
-                  className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-blue-700 active:scale-95"
-                  onClick={() => setShowAddModal(true)}
-                >
-                  + Add New
-                </button>
-                {/* <button
-                  onClick={handleOTPVerifyAndExport}
-                  className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-green-700 active:scale-95"
-                >
-                  Export Data
-                </button> */}
-                <button
-                  onClick={() => {
-                    fetch(
-                      "https://reportsbe.sharda.co.in/api/otpRouteForExport/send-otp",
-                      {
-                        method: "POST",
-                      }
-                    )
-                      .then((res) => {
-                        if (!res.ok) throw new Error("Failed to send OTP");
-                        alert("OTP sent to your email.");
-                        setOtpModalOpen(true); // ✅ Show the OTP modal
-                      })
-                      .catch((err) => {
-                        console.error("❌ OTP send error:", err);
-                        alert("Failed to send OTP.");
-                      });
-                  }}
-                  className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-green-700 active:scale-95"
-                >
-                  Export Data
-                </button>
 
-                <button
-                  onClick={handleDownloadTemplate}
-                  className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-yellow-600 active:scale-95"
-                >
-                  Download Template
-                </button>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Add New Button */}
+              <button
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-blue-700"
+                onClick={() => setShowAddModal(true)}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add New
+              </button>
 
+              {/* Export Data Button */}
+              <button
+                onClick={() => {
+                  fetch(`${BASE_URL}/api/otpRouteForExport/send-otp`, {
+                    method: "POST",
+                  })
+                    .then((res) => {
+                      if (!res.ok) throw new Error("Failed to send OTP");
+                      alert("OTP sent to your email.");
+                      setOtpModalOpen(true);
+                    })
+                    .catch((err) => {
+                      console.error("❌ OTP send error:", err);
+                      alert("Failed to send OTP.");
+                    });
+                }}
+                className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-green-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Export Data
+              </button>
+
+              {/* Download Template Button */}
+              <button
+                onClick={handleDownloadTemplate}
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-amber-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Template
+              </button>
+
+              {/* Import Excel Button */}
+              <div className="relative">
                 <input
                   type="file"
                   accept=".xlsx, .xls"
@@ -912,12 +731,16 @@ const BankDetails = () => {
                 />
                 <label
                   htmlFor="upload-excel"
-                  className="px-6 py-2 bg-purple-600 text-white font-semibold rounded-md shadow-md transition-all duration-300 hover:bg-purple-700 active:scale-95 cursor-pointer"
+                  className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-violet-500 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-purple-700 cursor-pointer"
                 >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
                   Import Excel
                 </label>
               </div>
             </div>
+
 
             {/* ✅ Second Line: Filters */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -987,117 +810,10 @@ const BankDetails = () => {
             <p className="text-center text-lg text-red-400">{error}</p>
           ) : filteredData.length > 0 ? (
             <div className="relative w-full max-w-full ">
-              <div className="w-[175vh] h-[55vh] overflow-x-auto border rounded-md">
+              <div className="w-[180vh] h-[55vh] overflow-x-auto border rounded-md">
                 <div className="min-w-full">
                   <table className="table-fixed min-w-full text-sm text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow-md rounded-lg overflow-hidden">
-                    {/* <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[13px] font-semibold uppercase tracking-wider shadow-sm rounded-t-md">
-                      <tr>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-user mr-1"></i> Client Name
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-building mr-1"></i> Business
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-university mr-1"></i> Bank
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-user-tie mr-1"></i> Manager
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-briefcase mr-1"></i> Post
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-phone-alt mr-1"></i> Contact
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-envelope mr-1"></i> Email
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap border-r border-blue-500">
-                          <i className="fas fa-code mr-1"></i> IFSC
-                        </th>
-                        <th className="px-6 py-3 text-left whitespace-nowrap">
-                          <i className="fas fa-city mr-1"></i> City
-                        </th>
-                      </tr>
-                    </thead>
 
-                    <tbody className=" dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm">
-                      {filteredData.map((detail, index) => (
-                        <tr
-                          key={index}
-                          className={`transition duration-200 ${
-                            index % 2 === 0
-                              ? " dark:bg-gray-900"
-                              : "bg-gray-50 dark:bg-gray-800"
-                          } hover:bg-blue-50 dark:hover:bg-gray-700`}
-                        >
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.clientName}
-                          >
-                            <i className="fas fa-user mr-2 text-blue-500" />{" "}
-                            {detail.clientName || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.businessName}
-                          >
-                            <i className="fas fa-briefcase mr-2 text-indigo-500" />{" "}
-                            {detail.businessName || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.Bank}
-                          >
-                            <i className="fas fa-university mr-2 text-green-600" />{" "}
-                            {detail.bankDetails?.Bank || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.BankManagerName}
-                          >
-                            <i className="fas fa-user-tie mr-2 text-yellow-500" />{" "}
-                            {detail.bankDetails?.BankManagerName || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.Post}
-                          >
-                            <i className="fas fa-id-badge mr-2 text-cyan-500" />{" "}
-                            {detail.bankDetails?.Post || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.ContactNo}
-                          >
-                            <i className="fas fa-phone-alt mr-2 text-red-500" />{" "}
-                            {detail.bankDetails?.ContactNo || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.EmailId}
-                          >
-                            <i className="fas fa-envelope mr-2 text-orange-500" />{" "}
-                            {detail.bankDetails?.EmailId || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.IFSCCode}
-                          >
-                            <i className="fas fa-barcode mr-2 text-gray-600" />{" "}
-                            {detail.bankDetails?.IFSCCode || "N/A"}
-                          </td>
-                          <td
-                            className="px-6 py-3 whitespace-nowrap truncate"
-                            title={detail.bankDetails?.City}
-                          >
-                            <i className="fas fa-city mr-2 text-purple-500" />{" "}
-                            {detail.bankDetails?.City || "N/A"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody> */}
                     <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[13px] font-semibold uppercase tracking-wider shadow-sm rounded-t-md">
                       <tr>
                         <th className="px-6 py-3 text-left border-r border-blue-500">
@@ -1124,7 +840,7 @@ const BankDetails = () => {
                         <th className="px-6 py-3 text-left border-r border-blue-500">
                           Business
                         </th>
-                        <th className="px-6 py-3 text-left border-r border-blue-500">
+                        <th className="px-6 py-3 text-left border-r border-blue-500 ">
                           Branch Address
                         </th>
                         <th className="px-6 py-3 text-left">Actions</th>
@@ -1139,11 +855,10 @@ const BankDetails = () => {
                         return (
                           <tr
                             key={index}
-                            className={`transition duration-200 ${
-                              index % 2 === 0
-                                ? "dark:bg-gray-900"
-                                : "bg-gray-50 dark:bg-gray-800"
-                            } hover:bg-blue-50 dark:hover:bg-gray-700`}
+                            className={`transition duration-200 ${index % 2 === 0
+                              ? "dark:bg-gray-900"
+                              : "bg-gray-50 dark:bg-gray-800"
+                              } hover:bg-blue-50 dark:hover:bg-gray-700`}
                           >
                             <td className="px-6 py-3 truncate">
                               {detail.bankDetails?.City || "N/A"}
@@ -1222,71 +937,22 @@ const BankDetails = () => {
 
                 {/* Form Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* {[
-                    {
-                      label: "Business Name",
-                      name: "businessName",
-                      type: "text",
-                      placeholder: "Enter Business Name",
-                    },
-                    {
-                      label: "Client Name",
-                      name: "clientName",
-                      type: "text",
-                      placeholder: "Enter Client Name",
-                    },
-                    {
-                      label: "Bank Name",
-                      name: "bankName",
-                      type: "text",
-                      placeholder: "Enter Bank Name",
-                    },
-                    {
-                      label: "Manager Name",
-                      name: "managerName",
-                      type: "text",
-                      placeholder: "Enter Manager Name",
-                    },
-                    {
-                      label: "Post",
-                      name: "post",
-                      type: "text",
-                      placeholder: "Enter Post",
-                    },
-                    {
-                      label: "Contact Number",
-                      name: "contactNo",
-                      type: "text",
-                      placeholder: "Enter Contact No",
-                    },
-                    {
-                      label: "Email",
-                      name: "emailId",
-                      type: "email",
-                      placeholder: "Enter Email",
-                    },
-                    {
-                      label: "IFSC Code",
-                      name: "ifscCode",
-                      type: "text",
-                      placeholder: "Enter IFSC Code",
-                    },
-                    {
-                      label: "City",
-                      name: "city",
-                      type: "text",
-                      placeholder: "Enter City",
-                    },
-                    {
-                      label: "Branch Address",
-                      name: "branchAddress",
-                      type: "text",
-                      placeholder: "Enter Branch Address",
-                    },
+
+                  {[
+                    { label: "Business Name", name: "businessName", type: "text", placeholder: "Enter Business Name" },
+                    { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter Client Name" },
+                    { label: "Bank Name", name: "bankName", type: "text", placeholder: "Enter Bank Name", required: true },
+                    { label: "Manager Name", name: "managerName", type: "text", placeholder: "Enter Manager Name", required: true },
+                    { label: "Post", name: "post", type: "text", placeholder: "Enter Post" },
+                    { label: "Contact Number", name: "contactNo", type: "text", placeholder: "Enter Contact No", required: true },
+                    { label: "Email", name: "emailId", type: "email", placeholder: "Enter Email" },
+                    { label: "IFSC Code", name: "ifscCode", type: "text", placeholder: "Enter IFSC Code" },
+                    { label: "City", name: "city", type: "text", placeholder: "Enter City", required: true },
+                    { label: "Branch Address", name: "branchAddress", type: "text", placeholder: "Enter Branch Address" },
                   ].map((field, i) => (
                     <div key={i}>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        {field.label}
+                        {field.label} {field.required && <span className="text-red-600">*</span>}
                       </label>
                       <input
                         type={field.type}
@@ -1294,40 +960,14 @@ const BankDetails = () => {
                         value={newBankDetails[field.name]}
                         onChange={handleInputChange}
                         placeholder={field.placeholder}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
-                      />
-                    </div>
-                  ))} */}
-                  {[
-  { label: "Business Name", name: "businessName", type: "text", placeholder: "Enter Business Name" },
-  { label: "Client Name", name: "clientName", type: "text", placeholder: "Enter Client Name" },
-  { label: "Bank Name", name: "bankName", type: "text", placeholder: "Enter Bank Name", required: true },
-  { label: "Manager Name", name: "managerName", type: "text", placeholder: "Enter Manager Name", required: true },
-  { label: "Post", name: "post", type: "text", placeholder: "Enter Post" },
-  { label: "Contact Number", name: "contactNo", type: "text", placeholder: "Enter Contact No", required: true },
-  { label: "Email", name: "emailId", type: "email", placeholder: "Enter Email" },
-  { label: "IFSC Code", name: "ifscCode", type: "text", placeholder: "Enter IFSC Code" },
-  { label: "City", name: "city", type: "text", placeholder: "Enter City", required: true },
-  { label: "Branch Address", name: "branchAddress", type: "text", placeholder: "Enter Branch Address" },
-].map((field, i) => (
-  <div key={i}>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-      {field.label} {field.required && <span className="text-red-600">*</span>}
-    </label>
-    <input
-      type={field.type}
-      name={field.name}
-      value={newBankDetails[field.name]}
-      onChange={handleInputChange}
-      placeholder={field.placeholder}
-      className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition
+                        className={`w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none transition
         ${formErrors[field.name] ? "border-red-500" : "border-gray-300 dark:border-gray-700"}`}
-    />
-    {formErrors[field.name] && (
-      <p className="text-red-600 text-sm mt-1">{formErrors[field.name]}</p>
-    )}
-  </div>
-))}
+                      />
+                      {formErrors[field.name] && (
+                        <p className="text-red-600 text-sm mt-1">{formErrors[field.name]}</p>
+                      )}
+                    </div>
+                  ))}
 
                 </div>
 

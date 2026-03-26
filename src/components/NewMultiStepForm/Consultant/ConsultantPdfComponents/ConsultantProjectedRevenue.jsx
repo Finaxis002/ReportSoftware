@@ -1,5 +1,5 @@
 import React , {useMemo , useEffect} from "react";
-import { View, Text, Image, Font } from "@react-pdf/renderer";
+import { View, Text, Image} from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
@@ -14,7 +14,7 @@ const ConsultantProjectedRevenue = ({
   pdfType,
   orientation,
 }) => {
-  // console.log("revenue", formData.Revenue);
+
   // ✅ Extract projection years and formType safely
   const projectionYears =
     parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
@@ -149,32 +149,7 @@ const ConsultantProjectedRevenue = ({
               </Text>
             </View>
 
-            {/* <View
-              style={{
-                display: "flex",
-                alignContent: "flex-end",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-              }}
-            >
-              <Text style={[styles.AmountIn, styles.italicText]}>
-                (Amount In{" "}
-                {
-                  formData?.ProjectReportSetting?.AmountIn === "rupees"
-                    ? "Rs." // Show "Rupees" if "rupees" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                    ? "Thousands" // Show "Thousands" if "thousand" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "crores"
-                    ? "Crores" // Show "Crores" if "crores" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "millions"
-                    ? "Millions" // Show "Millions" if "millions" is selected
-                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-                }
-                )
-              </Text>
-            </View> */}
+           
             <View>
               <View style={stylesCOP.heading}>
                 <Text>
@@ -239,8 +214,6 @@ const ConsultantProjectedRevenue = ({
                     updatedYears.shift();
                   }
 
-                  // Set all row type flags
-                  const isNormal = item.rowType === "0";
                   const isHeading = item.rowType === "1";
                   const isBold = item.rowType === "2";
                   const isBoldUnderline = item.rowType === "3";
@@ -612,32 +585,7 @@ const ConsultantProjectedRevenue = ({
           </Text>
         </View>
 
-        {/* <View
-          style={{
-            display: "flex",
-            alignContent: "flex-end",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <Text style={[styles.AmountIn, styles.italicText]}>
-            (Amount In{" "}
-            {
-              formData?.ProjectReportSetting?.AmountIn === "rupees"
-                ? "Rs." // Show "Rupees" if "rupees" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-            }
-            )
-          </Text>
-        </View> */}
+       
         <View>
           <View style={stylesCOP.heading}>
             <Text>Projected Revenue/ Sales</Text>
@@ -761,7 +709,7 @@ const ConsultantProjectedRevenue = ({
                     ></Text>
 
                     {/* Year Values */}
-                    {updatedYears.map((yearValue, yearIndex) => (
+                    {updatedYears.map((yearIndex) => (
                       <Text
                         key={yearIndex}
                         style={[

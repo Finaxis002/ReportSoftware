@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import deleteImg from "../delete.png";
-import checkImg from "../check.png";
 
 const ThirdStepCOP = ({ formData, onFormDataChange, setError, error }) => {
   const prevDataRef = useRef(null);
-  const prevPrelimDataRef = useRef(null);
-  const prevWriteOffRef = useRef(null);
+
 
   const defaultData = {
     Land: {

@@ -1,13 +1,9 @@
-import React from "react";
+
 import {
-  Document,
-  Page,
   View,
   Text,
-  StyleSheet,
   Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
@@ -15,7 +11,6 @@ import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorWorkingCap } from "../../Utils/CMA/CMAExtractorWorkingCap";
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../../Utils/CMA/financialCalcs";
 
 import {
@@ -70,26 +65,7 @@ const pageStyles = {
   const yearLabels = extractors.yearLabels();
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
-  const netProfitBeforeTax = FundFlowExtractor.netProfitBeforeTax() || [];
-  const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const preliminaryWriteOffPerYear =
-    extractors.preliminaryWriteOffPerYear() || [];
-  const grossFundsGenerated = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(netProfitBeforeTax[idx] || 0) +
-      Number(totalDepreciation[idx] || 0) +
-      Number(preliminaryWriteOffPerYear[idx] || 0)
-  );
-  const incomeTaxCal = extractors.incomeTaxCal() || [];
 
-  const netFundsGenerated = Array.from({ length: years }).map(
-    (_, idx) =>
-      Number(grossFundsGenerated[idx] || 0) - Number(incomeTaxCal[idx] || 0)
-  );
-
-  //new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
- 
   const closingCashBalanceArray = FundFlowExtractor.closingCashBalanceArray ? 
     FundFlowExtractor.closingCashBalanceArray() : 
     Array(years).fill(0);
@@ -152,7 +128,6 @@ const pageStyles = {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

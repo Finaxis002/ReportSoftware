@@ -1,15 +1,11 @@
-import React from "react";
-import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
+import { Page, Text, View, Image, } from "@react-pdf/renderer";
 import { capitalizeWords } from "../../../utils";
 import { coverPageStyle } from "../Consultant/ConsultantPdfComponents/Styles";
-import MailIcon from "../Assets/mailIcon.png";
 
 
 // --------------- IMPORT BACKGROUND + LOGO ----------------
 import CoverBackground from "../Assets/Project_Cover.png";
-// import FinaxisLogo from "../assets/finaxis_logo.png";
 
-// -------------------- STYLES ----------------------------
 
 // -------------------- COMPONENT -------------------------
 const ProjectCoverPage = ({ formData }) => {

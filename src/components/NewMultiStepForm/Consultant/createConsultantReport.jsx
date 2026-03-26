@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import MenuBar from "../MenuBar";
-import Header from "../Header";
 import { capitalizeWords } from "../../../utils";
 
 
@@ -116,6 +114,9 @@ const CreateConsultantReport = ({ userRole }) => {
   useEffect(() => {
     const fetchSelectedConsultant = async () => {
       if (location.state?.selectedConsultantId) {
+        // Store consultantId in localStorage for persistence
+        localStorage.setItem("consultantId", location.state.selectedConsultantId);
+        
         try {
           const [consultantRes, reportsRes] = await Promise.all([
             fetch(`${BASE_URL}/api/consultants/${location.state.selectedConsultantId}`),
@@ -146,33 +147,22 @@ const CreateConsultantReport = ({ userRole }) => {
   }, [location.state, BASE_URL]);
 
 
-  // ✅ Render the menu bar based on user role
-  const renderMenuBar = () => {
-    if (!userRole) {
-      navigate("/login");
-      return null;
-    }
 
-    switch (userRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   // ✅ Handle Create Report click
   const handleCreateReportClick = () => {
     localStorage.removeItem("FirstStepBasicDetails");
+    
+    // Store consultantId in localStorage
+    const consultantId = location.state?.selectedConsultantId || localStorage.getItem("consultantId");
+    if (consultantId) {
+      localStorage.setItem("consultantId", consultantId);
+    }
+    
     navigate('/create-consultant-report-form', {
       state: {
         isCreateReportClicked: true,
-        consultantId: location.state?.selectedConsultantId
+        consultantId: consultantId
       }
     });
   };
@@ -180,9 +170,7 @@ const CreateConsultantReport = ({ userRole }) => {
 
   return (
     <div className="flex h-[100vh]">
-      {renderMenuBar()}
       <div className="app-content">
-      <Header dashboardType ={userRole === "admin" ?  "Admin Dashboard" : "User Dashboard"} />
 
         {/* Selected Consultant Display */}
         {selectedConsultant && (

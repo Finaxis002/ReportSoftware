@@ -1,20 +1,13 @@
-import React from "react";
 import {
-  Document,
-  Page,
   View,
   Text,
-  StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
-import { getCMASchema } from "../../Utils/CMA/cmaSchema";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 
 import {
   formatNumber,
-  filterActiveDirectExpenses,
 } from "../../Utils/CMA/financialCalcs";
 
 import {
@@ -63,42 +56,6 @@ const ConsultantCMAFundFlow = ({ formData, orientation }) => {
   const extractors = makeCMAExtractors(formData);
   const yearLabels = extractors.yearLabels();
   const grossSales = extractors.grossSales();
-  const dutiesTaxes = extractors.dutiesTaxes();
-  const netSales = extractors.netSales();
-  const depreciation = extractors.depreciation();
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
-  const directExpensesArray = extractors.directExpenses?.() || [];
-  const StockAdjustment = extractors.StockAdjustment();
-  const OpeningStockinProcess = extractors.OpeningStockinProcess();
-  const SubTotalCostofSales = extractors.SubTotalCostofSales();
-  const OpeningStock = extractors.openingStocks() || [];
-  const closingStocks = extractors.closingStocks() || [];
-  const TotalCostofSales = extractors.TotalCostofSales() || [];
-  const GrossProfit = extractors.GrossProfit() || [];
-  const interestOnTermLoan = extractors.yearlyInterestLiabilities() || [];
-  const interestOnWCArray = extractors.interestOnWCArray() || [];
-  const administrativeExpenseRows =
-    extractors.administrativeExpenseRows() || [];
-  const adminValues = administrativeExpenseRows[0]?.values || [];
-
-  const OperatingProfit = extractors.OperatingProfit() || [];
-  const ProfitbeforeTax = extractors.ProfitbeforeTax() || [];
-  const ProvisionforInvestmentAllowance =
-    extractors.ProvisionforInvestmentAllowance() || [];
-
-  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
-
-  console.log("form Data : ", formData);
-
-  console.log("net Profit After Tax :", netProfitAfterTax);
-
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
-  );
-
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
@@ -179,7 +136,7 @@ const ConsultantCMAFundFlow = ({ formData, orientation }) => {
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
+
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;

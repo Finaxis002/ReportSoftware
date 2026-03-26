@@ -1,6 +1,6 @@
 import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { View, Text, Image } from "@react-pdf/renderer";
+import { styles, stylesMOF } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
@@ -56,35 +56,7 @@ const ConsultantMeansOfFinance = ({ formData, pdfType, formatNumber , renderTLFB
         </Text>
       </View>
 
-      {/* Amount format */}
-{/* 
-      <View
-        style={{
-          display: "flex",
-          alignContent: "flex-end",
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-       
-        <Text style={[styles.AmountIn, styles.italicText]}>
-          (Amount In{" "}
-          {
-            formData?.ProjectReportSetting?.AmountIn === "rupees"
-              ? "Rs." // Show "Rupees" if "rupees" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "thousand"
-              ? "Thousands" // Show "Thousands" if "thousand" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-              ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "crores"
-              ? "Crores" // Show "Crores" if "crores" is selected
-              : formData?.ProjectReportSetting?.AmountIn === "millions"
-              ? "Millions" // Show "Millions" if "millions" is selected
-              : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-          }
-          )
-        </Text>
-      </View> */}
+     
 
       <Text style={styles.title}>Means of Finance</Text>
 

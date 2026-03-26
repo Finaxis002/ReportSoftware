@@ -1,8 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
-import MenuBar from "./MenuBar";
-import Select from "react-select";
-import Header from "./Header";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ChangePasswordModal from "./ChangePasswordModal";
 
 const Profile = () => {
@@ -12,27 +8,7 @@ const Profile = () => {
     password: "admin123",
   });
 
-  const navigate = useNavigate();
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   const onPasswordChanged = () => {
     alert("Password changed successfully!");
@@ -56,10 +32,7 @@ const Profile = () => {
 
   return (
     <div className="flex h-[100vh] bg-gray-100">
-      {renderMenuBar()}
       <div className="flex-1 p-8 overflow-auto">
-        <Header dashboardType="Admin Dashboard" />
-
         <div className="max-w-3xl mx-auto my-12">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl p-2 shadow-lg">
             <div className="flex flex-col justify-center sm:flex-row items-center gap-6">

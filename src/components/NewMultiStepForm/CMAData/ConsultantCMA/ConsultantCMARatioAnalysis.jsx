@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import React from "react";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../Consultant/ConsultantPdfComponents/Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
@@ -23,10 +23,6 @@ Font.register({
 const ConsultantCMARatioAnalysis = ({
   formData = {},
   financialYearLabels = [],
-  // receivedCummulativeTansferedData,
-  // receivedMarchClosingBalances,
-  // receivedWorkingCapitalValues,
-  // receivedTotalLiabilities,
   formatNumber,
   pdfType,
   orientation,
@@ -62,8 +58,6 @@ const ConsultantCMARatioAnalysis = ({
 
   const receivedWorkingCapitalValues = formData?.computedData?.workingCapitalvalues || [];
 
-  // Destructure termLoanValues from the object.
-  // If it's undefined, default to an empty array.
   const cumulativeLoanForPreviousYears =
     receivedWorkingCapitalValues?.termLoanValues || [];
 
@@ -157,7 +151,6 @@ const ConsultantCMARatioAnalysis = ({
     return totalDebt; // Store calculated total debt
   });
 
-  // console.log("received DSCR", receivedDscr);
 
   // ✅ Initialize an array to store total current assets for each projection year
   let cumulativeCurrentAssets = 0; // Initialize cumulative sum
@@ -198,9 +191,6 @@ const ConsultantCMARatioAnalysis = ({
     }
   );
 
-  // ✅ Initialize an array to store total liabilities for each projection year
-
-  // console.log("Final Current Liabilities Array:", currentLiabilities);
 
   // ✅ Calculate Gross Profit / Sales Ratio and store in a variable
   const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
@@ -281,7 +271,6 @@ const ConsultantCMARatioAnalysis = ({
   );
 
   // ✅ Total Outside Liabilities / Total Net Worth Ratio
-  // Step 3: Calculate Total Outside Liabilities to Net Worth Ratio
   const totalOutsideLiabilitiesNetWorthRatio = totalOutsideLiabilitiesArray.map(
     (liability, index) => {
       const worth = netWorth[index] || 1; // Prevent division by zero
@@ -309,34 +298,7 @@ const ConsultantCMARatioAnalysis = ({
       : (netWorth / totalLiabilities).toFixed(2);
   });
 
-  // Exclude "Quasi Equity" from Current Liabilities when calculating Total Liabilities
-  const newTotalLiabilitiesArray = Array.from({ length: projectionYears }).map(
-    (_, index) => {
-      // Get term loan, bank loan, etc., as per your structure:
-      const termLoan = Number(receivedMarchClosingBalances?.[index + 1]) || 0;
-      const bankLoan =
-        Number(
-          receivedTotalLiabilities?.repaymentValueswithin12months?.[index]
-        ) || 0;
-      const workingCapitalLoan = workingCapitalArray[index] || 0;
 
-      // Exclude "Quasi Equity" from current liabilities sum:
-      const currentYearLiabilities = (
-        formData?.MoreDetails?.currentLiabilities ?? []
-      )
-        .filter((liability) => liability.particular !== "Quasi Equity")
-        .reduce(
-          (sum, liability) => sum + (Number(liability.years?.[index]) || 0),
-          0
-        );
-
-      // Compose the total liabilities for the year:
-      return termLoan + bankLoan + workingCapitalLoan + currentYearLiabilities;
-    }
-  );
-
-  const yearlycurrentLiabilities =
-    receivedTotalLiabilities?.yearlyTotalLiabilities;
 
   // ✅ Calculate Current Ratio for each year
   const currentRatio = CurrentAssetsArray.map((assets, index) => {
@@ -348,7 +310,6 @@ const ConsultantCMARatioAnalysis = ({
       : "-"; // ✅ Display "-" if liabilities are 0
   });
 
-  // console.log("Current Ratio per Year:", currentRatio);
 
   // ✅ Return on Investment (ROI)
   const returnOnInvestment = Array.from({ length: projectionYears }).map(
@@ -451,7 +412,6 @@ const ConsultantCMARatioAnalysis = ({
     return average;
   })();
 
-  const numOfYearsUsedForAvg = validRatios.length;
 
   const filteredROI = returnOnInvestment
     .map((r) => (r !== "-" ? parseFloat(r) : null)) // Convert valid values to numbers
@@ -465,15 +425,7 @@ const ConsultantCMARatioAnalysis = ({
       ).toFixed(2)
       : "0.00"; // ✅ Ensures two decimal places
 
-  // console.log("Filtered ROI Values:", filteredROI);
-  // console.log("Average ROI:", averageReturnOnInvestment);
-
-  // ✅ Calculate Cumulative Cash Profit for each year
-  const cumulativeCashProfit = cashProfitArray.reduce((acc, value, index) => {
-    const previousTotal = index > 0 ? acc[index - 1] : 0;
-    acc.push(previousTotal + (Number(value) || 0));
-    return acc;
-  }, []);
+ 
 
   // ✅ Calculate Total Cash Profit
   const totalCashProfitValue = cashProfitArray.reduce((sum, value) => sum + (Number(value) || 0), 0);
@@ -504,13 +456,6 @@ const ConsultantCMARatioAnalysis = ({
 
       const globalIndex = (localIdx) => pageStart + localIdx;
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
-
-      // For centering the "Average Current Ratio" on the visible columns of this page
-      const visibleLocalCols = labels
-        .map((_, i) => i)
-        .filter((i) => !shouldSkipCol(globalIndex(i)));
-      const centerLocalIdx =
-        visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
         <PageWithFooter
@@ -566,34 +511,7 @@ const ConsultantCMARatioAnalysis = ({
             </Text>
           </View>
 
-          {/* Amount format */}
-
-          {/* <View
-            style={{
-              display: "flex",
-              alignContent: "flex-end",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Text style={[styles.AmountIn, styles.italicText]}>
-              (Amount In{" "}
-              {
-                formData?.ProjectReportSetting?.AmountIn === "rupees"
-                  ? "Rs." // Show "Rupees" if "rupees" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                  ? "Thousands" // Show "Thousands" if "thousand" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                  ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "crores"
-                  ? "Crores" // Show "Crores" if "crores" is selected
-                  : formData?.ProjectReportSetting?.AmountIn === "millions"
-                  ? "Millions" // Show "Millions" if "millions" is selected
-                  : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
-              }
-              )
-            </Text>
-          </View> */}
+          
           <View>
             <View
               style={[

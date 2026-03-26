@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const EmployeeDetailModal = ({ employee, onClose }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [errorTasks, setErrorTasks] = useState("");
@@ -13,7 +14,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
         // Ensure your backend accepts query parameters:
         // GET /api/tasks?employeeId=XYZ
         const response = await fetch(
-          `http://localhost:5000/api/tasks?employeeId=${employee.employeeId}`
+          `${BASE_URL}/api/tasks?employeeId=${employee.employeeId}`
         );
         if (!response.ok) {
           throw new Error("No Task Assigned Yet");
@@ -32,7 +33,7 @@ const EmployeeDetailModal = ({ employee, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 overflow-auto">
-      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg shadow-xl max-w-5xl w-full border dark:border-gray-700">
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg shadow-xl max-w-5xl h-[90vh] overflow-y-auto w-full border dark:border-gray-700">
         {/* Header */}
         <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 px-6 py-4 border-b dark:border-gray-700 sticky top-0">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">

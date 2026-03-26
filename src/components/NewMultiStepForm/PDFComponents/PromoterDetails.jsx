@@ -1,32 +1,14 @@
-import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+import { Page, View, Text, Image} from "@react-pdf/renderer";
+import { styles, stylesCOP,styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
-// ✅ Register Font
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
-
-const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
-  const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
+const PromoterDetails = ({ formData, pdfType }) => {
 
   // ✅ Determine pronouns based on gender
 
   return (
-    <PageWithFooter size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page}>
       {/* ✅ Watermark */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -549,7 +531,7 @@ const PromoterDetails = ({ formData, pdfType, formatNumber }) => {
           </View>
         )}
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

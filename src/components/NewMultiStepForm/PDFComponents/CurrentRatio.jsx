@@ -1,25 +1,9 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
-import { Font } from "@react-pdf/renderer";
+
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
-
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    {
-      src: require("../Assets/Fonts/times-new-roman.ttf"),
-      fontWeight: "normal",
-    },
-    {
-      src: require("../Assets/Fonts/times-new-roman-bold.ttf"),
-      fontWeight: "bold",
-    },
-  ],
-});
 
 const CurrentRatio = ({
   formData = {},
@@ -32,9 +16,7 @@ const CurrentRatio = ({
   sendCurrentRatio,
   orientation,
 }) => {
-  //   console.log("received values", receivedAssetsLiabilities);
-  // ✅ Safely handle undefined formData and provide fallback
-  const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
+
   const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
 
 
@@ -127,7 +109,7 @@ const CurrentRatio = ({
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <PageWithFooter
+        <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -447,13 +429,13 @@ const CurrentRatio = ({
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -766,7 +748,7 @@ const CurrentRatio = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

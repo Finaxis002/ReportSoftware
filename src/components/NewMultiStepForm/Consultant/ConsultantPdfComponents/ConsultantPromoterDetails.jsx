@@ -1,6 +1,6 @@
-import React from "react";
-import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
+
+import {View, Text, Image, Font } from "@react-pdf/renderer";
+import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
@@ -20,8 +20,7 @@ Font.register({
   ],
 });
 
-const ConsultantPromoterDetails = ({ formData, pdfType, formatNumber }) => {
-  const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5;
+const ConsultantPromoterDetails = ({ formData, pdfType }) => {
 
   // ✅ Determine pronouns based on gender
 
@@ -551,14 +550,6 @@ const ConsultantPromoterDetails = ({ formData, pdfType, formatNumber }) => {
       </View>
     </PageWithFooter>
   );
-};
-
-// ✅ Utility function to format numbers (if not defined elsewhere)
-const formatNumber = (num) => {
-  return new Intl.NumberFormat("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(num);
 };
 
 export default ConsultantPromoterDetails;

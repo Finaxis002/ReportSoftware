@@ -1,22 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
-import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
-import { Font } from "@react-pdf/renderer";
+import { styles, stylesCOP, styleExpenses } from "./Styles"; // Import only necessary styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-import PageWithFooter from "../Helpers/PageWithFooter";
 
-// ✅ Register a Font That Supports Bold
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5Q.ttf" }, // Regular
-    {
-      src: "https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-      fontWeight: "bold",
-    }, // Bold
-  ],
-});
 
 const calculateMonthsPerYear = (
   moratoriumPeriodMonths,
@@ -367,7 +354,7 @@ if (isAdvancedLandscape) {
       const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
       return (
-        <PageWithFooter
+        <Page
           // size={
           //   formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"
           // }
@@ -1090,13 +1077,13 @@ if (isAdvancedLandscape) {
               </Text>
             </View>
           </View>
-        </PageWithFooter>
+        </Page>
       );
     });
   }
 
   return (
-    <PageWithFooter
+    <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation} // ✅ Now using prop
@@ -1779,7 +1766,7 @@ if (isAdvancedLandscape) {
           </Text>
         </View>
       </View>
-    </PageWithFooter>
+    </Page>
   );
 };
 

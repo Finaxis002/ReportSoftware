@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import Header from "./Header";
 import "../../css/reportForm.css";
 import Stepper from "./Stepper";
 import StepperControl from "./StepperControl";
@@ -18,7 +17,6 @@ import FifthStepExpenses from "./Steps/FifthStepExpenses";
 import SixthRevenue from "./Steps/SixthRevenue";
 import SeventhStepMD from "./Steps/SeventhStepMD";
 import EighthStep from "./Steps/EighthStep"
-import MenuBar from "./MenuBar";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
@@ -26,6 +24,7 @@ import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
 
 const MultiStepForm = ({ userRole, userName }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
   const isUpdateMode = location.state?.isUpdateMode || false;
@@ -84,13 +83,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     generatedPDF: {},
   });
 
-  // useEffect(() => {
-  //   if (isCreateReportWithExistingClicked && reportData) {
-  //     // Pre-fill the form data when creating new from existing report
-  //     const preFilledData = { ...reportData }; // Clone the report data
-  //     setFormData(preFilledData);
-  //   }
-  // }, [isCreateReportWithExistingClicked, reportData]);
 
   // Store data in localStorage whenever formData changes
   useEffect(() => {
@@ -180,7 +172,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       try {
         console.log(`🔍 Attempt ${attempt} to fetch reportId...`);
         const res = await axios.get(
-          `https://reportsbe.sharda.co.in/api/activity/get-report-id?sessionId=${sessionId}`
+          `${BASE_URL}/api/activity/get-report-id?sessionId=${sessionId}`
         );
         
         console.log("📡 Response from get-report-id:", res.data);
@@ -235,7 +227,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
   
-      let apiUrl = "https://reportsbe.sharda.co.in/save-step";
+      let apiUrl = `${BASE_URL}/save-step`;
       const isNew = !sessionId || isCreateReportWithExistingClicked;
   
       if (!isNew) {
@@ -315,7 +307,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       // Step 2: Create report
       const createResponse = await axios.post(
-        "https://reportsbe.sharda.co.in/create-new-from-existing",
+        `${BASE_URL}/create-new-from-existing`,
         requestData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -360,7 +352,7 @@ const MultiStepForm = ({ userRole, userName }) => {
       };
 
       const response = await axios.post(
-        "https://reportsbe.sharda.co.in/update-step",
+        `${BASE_URL}/update-step`,
         {
           sessionId,
           data: updatedData,
@@ -550,26 +542,6 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
   };
 
-  const renderMenuBar = () => {
-    const authRole = localStorage.getItem("userRole");
-    // console.log(authRole);
-    if (!authRole) {
-      navigate("/login");
-      return null;
-    }
-
-    switch (authRole) {
-      case "admin":
-        return <MenuBar userRole="admin" />;
-      case "employee":
-        return <MenuBar userRole="employee" />;
-      case "client":
-        return <MenuBar userRole="client" />;
-      default:
-        navigate("/login");
-        return null;
-    }
-  };
 
   const handleNextStep = async (newStepData = {}, event) => {
     try {
@@ -619,14 +591,27 @@ const MultiStepForm = ({ userRole, userName }) => {
       formDataPayload.append("data", JSON.stringify(requestData));
 
       const response = await axios.post(
-        "https://reportsbe.sharda.co.in/create-new-from-existing",
+        `${BASE_URL}/create-new-from-existing`,
         formDataPayload
       );
 
       if (response.status === 201 && !sessionId) {
         // Only store sessionId if it's Step 1
-        setSessionId(response.data.sessionId);
-        localStorage.setItem("sessionId", response.data.sessionId);
+        const newSessionId = response.data.sessionId;
+        setSessionId(newSessionId);
+        localStorage.setItem("sessionId", newSessionId);
+        
+        // ✅ CREATE ACTIVITY LOG ONLY ON FIRST STEP WHEN CREATING FROM EXISTING
+        if (currentStep === 1 && isCreateReportWithExistingClicked) {
+          const reportTitle = requestData?.AccountInformation?.businessName || "Untitled";
+          try {
+            const reportId = await waitForReportId(newSessionId);
+            await logActivity("create", reportTitle, reportId || "");
+            console.log("✅ Activity logged for first step 'Save & Next' from existing report");
+          } catch (err) {
+            console.warn("⚠️ Activity logging failed on first step:", err.message);
+          }
+        }
       }
 
       console.log("✅ Step Saved:", response.data);
@@ -672,7 +657,7 @@ const MultiStepForm = ({ userRole, userName }) => {
         role: currentUserRole
       });
   
-      const response = await axios.post("https://reportsbe.sharda.co.in/api/activity/log", {
+      const response = await axios.post(`${BASE_URL}/api/activity/log`, {
         action,
         reportTitle,
         reportId,
@@ -700,13 +685,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   return (
     <div className="flex h-[100vh]">
-      {renderMenuBar()}
       <div className="App w-full shadow-xl rounded-2xl pb-2">
-        <Header
-          dashboardType={
-            userRole === "admin" ? "Admin Dashboard" : "Employee Dashboard"
-          }
-        />
 
         {/* Stepper Component */}
         <div className="container horizontal mb-[3.5rem]">
@@ -754,4 +733,3 @@ const MultiStepForm = ({ userRole, userName }) => {
 
 export default MultiStepForm;
 
-////////////////////////////////////////////////////////////////

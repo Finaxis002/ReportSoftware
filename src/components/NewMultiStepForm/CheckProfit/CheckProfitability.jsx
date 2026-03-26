@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo} from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";

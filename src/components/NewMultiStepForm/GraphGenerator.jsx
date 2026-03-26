@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { generateAllCharts } from "./charts/generateAllCharts";
 import { generateGraphsPdf } from "./Utils/generateGraphsPdf";
 
@@ -35,12 +35,7 @@ const GraphGenerator = ({ formData, selectedFont , permissions}) => {
   };
 
   return (
-    // <button
-    //   onClick={handleClick}
-    //   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-    // >
-    //   {loading ? "Generating Graph PDF..." : "Generate Graph PDF"}
-    // </button>
+
  
  <button
       onClick={handleClick}

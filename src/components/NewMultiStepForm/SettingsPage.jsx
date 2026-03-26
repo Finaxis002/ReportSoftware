@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import MenuBar from "./MenuBar"; // If you want sidebar here
 
 const settingsOptions = [
   {
@@ -31,10 +30,8 @@ const SettingsPage = ({ userRole }) => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 dark:from-[#181c21] dark:to-[#22232a]">
-      <MenuBar userRole={userRole} />
       <main className="flex-1 flex flex-col px-8 py-10">
         <div className="mb-8">
-          <h2 className="text-3xl font-extrabold tracking-tight text-neutral-800 dark:text-white mb-2">Settings</h2>
           <p className="text-gray-500 dark:text-gray-300 text-base">Manage user and admin configurations from here.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">

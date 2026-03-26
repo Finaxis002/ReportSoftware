@@ -1,5 +1,5 @@
 import React from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import {
   styles,
   stylesCOP,
@@ -10,8 +10,6 @@ import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
-import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
-import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
 import { CMAExtractorBS } from "../../Utils/CMA/CMAExtractorBS";
 import PageWithFooter from "../../Helpers/PageWithFooter"
@@ -60,30 +58,9 @@ const ConsultantCMABalanceSheetMenu = ({
   formData = formData || {};
 
   
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
-
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
-
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
   // Function to handle moratorium period spillover across financial years
@@ -125,13 +102,8 @@ const ConsultantCMABalanceSheetMenu = ({
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
 
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
-  // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
   const depreciation = PPExtractor.depreciation() || [];
@@ -149,9 +121,6 @@ const ConsultantCMABalanceSheetMenu = ({
     filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
     [];
 
-  console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
 
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
@@ -203,12 +172,7 @@ const ConsultantCMABalanceSheetMenu = ({
       );
     }
   );
-
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
   const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
@@ -218,15 +182,7 @@ const ConsultantCMABalanceSheetMenu = ({
     (_, i) => Number(grossProfit[i]) - Number(totalIndirectExpenses[i])
   );
 
-  const incomeTax = formData?.ProjectReportSetting?.incomeTax || 0;
-  const incomeTaxCalculation = Array.from({ length: projectionYears }).map(
-    (_, i) => Number((Number(NPBT[i] || 0) * incomeTax) / 100)
-  );
-
-  const NPAT = Array.from({ length: projectionYears }).map(
-    (_, i) => Number(NPBT[i]) - Number(incomeTaxCalculation[i])
-  );
-
+ 
   const balanceTransferred = Array.from({ length: projectionYears }).map(
     (_, i) => Number(NPBT[i]) - Number(Withdrawals[i])
   );
@@ -274,24 +230,6 @@ const ConsultantCMABalanceSheetMenu = ({
   });
   const isInventoryZero = inventory.every((value) => value === 0);
 
-  const writeOffStartIndex = 0;
-  const preliminaryWriteOffSteps = preliminaryWriteOffYears;
-
-  //   const preliminaryWriteOffPerYear = Array.from({
-  //     length: projectionYears,
-  //   }).map((_, index) => {
-  //     const relativeYear = index - writeOffStartIndex;
-
-  //     if (
-  //       index >= writeOffStartIndex &&
-  //       relativeYear < preliminaryWriteOffSteps
-  //     ) {
-  //       // Calculate decreasing value
-  //       return yearlyWriteOffAmount * (preliminaryWriteOffSteps - relativeYear);
-  //     }
-
-  //     return 0;
-  //   });
 
   const preliminaryExpenseBalanceSheet = [];
   for (let i = 0; i < projectionYears; i++) {

@@ -6,6 +6,7 @@ import Select from "react-select";
 import ReportDropdown from "./ReportDropdown";
 
 const ClientNameDropdown = ({ onClientSelect, onBusinessSelect }) => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const [clientOptions, setClientOptions] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [resetKey, setResetKey] = useState(0);
@@ -13,7 +14,7 @@ const ClientNameDropdown = ({ onClientSelect, onBusinessSelect }) => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await axios.get("https://reportsbe.sharda.co.in/api/clients");
+        const response = await axios.get(`${BASE_URL}/api/clients`);
 
         if (response.data && Array.isArray(response.data.clientNames)) {
           const options = response.data.clientNames.map((name) => ({
