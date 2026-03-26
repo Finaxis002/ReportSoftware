@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
 import shouldHideFirstYear from "./HideFirstYear";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 const ProjectSynopsis = React.memo(
   ({
@@ -224,7 +225,7 @@ const ProjectSynopsis = React.memo(
 
     return (
       <>
-        <Page size="A4" style={styles.page} ref={handleContextMenu}>
+        <PageWithFooter size="A4" style={styles.page} ref={handleContextMenu}>
           <View>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Bame"}
@@ -1526,7 +1527,7 @@ const ProjectSynopsis = React.memo(
               {formData?.AccountInformation?.businessOwner || "Client Name"}
             </Text>
           </View>
-        </Page>
+        </PageWithFooter>
       </>
     );
   }

@@ -55,11 +55,33 @@ const App = () => {
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState("");
   const [generatePDfData, setGeneratedPDFData] = useState({});
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   const [pdfData, setPdfData] = useState();
   console.log("pdfData", pdfData);
 
   const location = useLocation(); // ✅ This is now inside the component
+
+  // Initialize authentication state on mount and page refresh
+  useEffect(() => {
+    const initializeAuth = () => {
+      const isLoggedIn = localStorage.getItem("isLoggedIn");
+      const role = localStorage.getItem("userRole");
+      const storedEmployeeName = localStorage.getItem("employeeName");
+
+      if (isLoggedIn === "true" && role) {
+        setIsAuthenticated(true);
+        setUserRole(role);
+
+        if (role === "employee" && storedEmployeeName) {
+          setUserName(storedEmployeeName);
+        }
+      }
+      setIsLoading(false); // Set loading to false after checking auth
+    };
+
+    initializeAuth();
+  }, []);
 
   useEffect(() => {
     const navigationType = performance.getEntriesByType("navigation")[0]?.type;
@@ -70,44 +92,19 @@ const App = () => {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const role = localStorage.getItem("userRole");
-    const storedEmployeeName = localStorage.getItem("employeeName");
-
-    if (isLoggedIn && role) {
-      setIsAuthenticated(true);
-      setUserRole(role);
-
-      if (role === "employee" && storedEmployeeName) {
-        setUserName(storedEmployeeName); // ✅ Restore employee name
-      }
-    }
-  }, []);
-
   const handleLogin = (status, role, userData) => {
     setIsAuthenticated(status);
     setUserRole(role);
 
     if (role === "employee" && userData?.employeeName) {
-      setUserName(userData.employeeName); // ✅ Store employee name for employee role
-      localStorage.setItem("employeeName", userData.employeeName); // ✅ Store employee name in localStorage
+      setUserName(userData.employeeName);
+      localStorage.setItem("employeeName", userData.employeeName);
     }
   };
 
   useEffect(() => {
-    const theme = localStorage.getItem("theme") || "light"; // fallback to light
+    const theme = localStorage.getItem("theme") || "light";
     document.documentElement.classList.toggle("dark", theme === "dark");
-  }, []);
-
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const role = localStorage.getItem("userRole");
-
-    if (isLoggedIn && role) {
-      setIsAuthenticated(true);
-      setUserRole(role);
-    }
   }, []);
 
   // useEffect(() => {
@@ -125,6 +122,11 @@ const App = () => {
   //     window.removeEventListener("unload", handleUnload);
   //   };
   // }, []);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -155,6 +157,8 @@ const App = () => {
               element={
                 isAuthenticated ? (
                   <Navigate to="/" replace />
+                ) : isLoading ? (
+                  <div>Loading...</div>
                 ) : (
                   <MainLogin onLogin={handleLogin} />
                 )
@@ -236,7 +240,9 @@ const App = () => {
               path="/login"
               element={
                 isAuthenticated ? (
-                  <Navigate to="/login" replace />
+                  <Navigate to="/" replace />
+                ) : isLoading ? (
+                  <div>Loading...</div>
                 ) : (
                   <MainLogin onLogin={handleLogin} />
                 )

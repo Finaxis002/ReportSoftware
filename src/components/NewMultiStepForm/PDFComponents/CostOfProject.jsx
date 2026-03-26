@@ -3,6 +3,7 @@ import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP } from "./Styles"; // Import necessary styles
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 const CostOfProject = ({ formData, pdfType, formatNumber }) => {
   
@@ -22,7 +23,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
       : 0) + parseAmount(formData?.MeansOfFinance?.totalWorkingCapital);
 
   return (
-    <Page size="A4" style={styles.page}>
+    <PageWithFooter size="A4" style={styles.page}>
       {/* watermark  */}
       <View style={{ position: "absolute", left: 50, top: 0, zIndex: -1 }}>
         {/* ✅ Conditionally Render Watermark */}
@@ -332,7 +333,7 @@ const CostOfProject = ({ formData, pdfType, formatNumber }) => {
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

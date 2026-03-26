@@ -13,6 +13,7 @@ import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 const ConsultantCMASAExpense = ({
   formData,
@@ -327,7 +328,7 @@ const ConsultantCMASAExpense = ({
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page
+      <PageWithFooter
         size="A4"
         orientation="landscape"
         style={pageStyles.page}
@@ -780,14 +781,14 @@ const ConsultantCMASAExpense = ({
           </View>
         </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
 
 
   return (
-    <Page
+    <PageWithFooter
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1259,7 +1260,7 @@ const ConsultantCMASAExpense = ({
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

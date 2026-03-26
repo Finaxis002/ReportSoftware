@@ -1,9 +1,10 @@
 import React , {useMemo} from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 const ConsultantProjectSynopsis = React.memo(
   ({
@@ -222,9 +223,24 @@ const ConsultantProjectSynopsis = React.memo(
       return serialCounter;
     };
 
+    const watermark = pdfType &&
+      pdfType !== "select option" &&
+      (pdfType === "Sharda Associates" || pdfType === "CA Certified") ? (
+        <View style={{ position: "absolute", left: 70, top: 0, zIndex: -1 }}>
+          <Image
+            src={pdfType === "Sharda Associates" ? SAWatermark : CAWatermark}
+            style={{
+              width: "500px",
+              height: "700px",
+              opacity: 0.4,
+            }}
+          />
+        </View>
+      ) : null;
+  
     return (
       <>
-        <Page size="A4" style={styles.page} ref={handleContextMenu}>
+        <PageWithFooter size="A4" watermark={watermark}>
           <View>
             <Text style={styles.businessName}>
               {formData?.AccountInformation?.businessName || "Business Bame"}
@@ -239,25 +255,6 @@ const ConsultantProjectSynopsis = React.memo(
                     .slice(-2)}`
                 : "2025-26"}
             </Text>
-          </View>
-          {/* watermark  */}
-          <View style={{ position: "absolute", left: 70, top: 0, zIndex: -1 }}>
-            {/* ✅ Conditionally Render Watermark */}
-            {pdfType &&
-              pdfType !== "select option" &&
-              (pdfType === "Sharda Associates" ||
-                pdfType === "CA Certified") && (
-                <Image
-                  src={
-                    pdfType === "Sharda Associates" ? SAWatermark : CAWatermark
-                  }
-                  style={{
-                    width: "500px", // Adjust size based on PDF layout
-                    height: "700px",
-                    opacity: 0.4, // Light watermark to avoid blocking content
-                  }}
-                />
-              )}
           </View>
           <View>
             <Text style={styles.title}>Project Synopsis</Text>
@@ -1526,7 +1523,7 @@ const ConsultantProjectSynopsis = React.memo(
               {formData?.AccountInformation?.businessOwner || "Client Name"}
             </Text>
           </View>
-        </Page>
+     </PageWithFooter>
       </>
     );
   }

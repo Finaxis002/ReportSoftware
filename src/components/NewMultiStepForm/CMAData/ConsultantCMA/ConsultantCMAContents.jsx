@@ -15,7 +15,7 @@ import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
-
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 
 
@@ -122,7 +122,7 @@ const ConsultantCMAContents = ({
   );
 
   return (
-    <Page size="A4" orientation="portrait" style={pageStyles.page}>
+    <PageWithFooter size="A4" orientation="portrait" style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -1334,7 +1334,7 @@ const ConsultantCMAContents = ({
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

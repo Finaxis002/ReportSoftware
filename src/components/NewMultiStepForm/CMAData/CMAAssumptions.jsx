@@ -10,6 +10,7 @@ import {
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 // ✅ Register Font
 Font.register({
@@ -107,7 +108,7 @@ if (isAdvancedLandscape) {
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <Page
+        <PageWithFooter
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -199,7 +200,7 @@ if (isAdvancedLandscape) {
                   Particulars
                 </Text>
 
-                {/* ✅ Page-scoped dynamic year headers */}
+                {/* ✅ PageWithFooter-scoped dynamic year headers */}
                 {labels.map((yearLabel, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -228,7 +229,7 @@ if (isAdvancedLandscape) {
                   Sales
                 </Text>
 
-                {/* ✅ Page-scoped values for Sales */}
+                {/* ✅ PageWithFooter-scoped values for Sales */}
                 {labels.map((_, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -269,7 +270,7 @@ if (isAdvancedLandscape) {
                   Particulars
                 </Text>
 
-                {/* ✅ Page-scoped dynamic year headers */}
+                {/* ✅ PageWithFooter-scoped dynamic year headers */}
                 {labels.map((yearLabel, localIdx) => {
                   const gIdx = globalIndex(localIdx);
                   if (shouldSkipCol(gIdx)) return null;
@@ -298,7 +299,7 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {isDataReady ? (
-                  // ✅ Page-scoped values for Total Expenses
+                  // ✅ PageWithFooter-scoped values for Total Expenses
                   labels.map((_, localIdx) => {
                     const gIdx = globalIndex(localIdx);
                     if (shouldSkipCol(gIdx)) return null;
@@ -439,13 +440,13 @@ if (isAdvancedLandscape) {
               of the authorized signatories.
             </Text>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -774,7 +775,7 @@ if (isAdvancedLandscape) {
           the authorized signatories.
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

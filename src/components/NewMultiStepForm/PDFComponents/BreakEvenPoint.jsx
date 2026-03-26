@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -660,7 +661,7 @@ const BreakEvenPoint = ({
       });
 
       return (
-        <Page
+        <PageWithFooter
           // size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1632,13 +1633,13 @@ const BreakEvenPoint = ({
               </Text>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting?.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -2740,7 +2741,7 @@ const BreakEvenPoint = ({
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

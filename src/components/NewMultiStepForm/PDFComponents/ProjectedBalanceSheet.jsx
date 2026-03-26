@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 Font.register({
   family: "Roboto",
@@ -497,7 +498,7 @@ const ProjectedBalanceSheet = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <Page
+        <PageWithFooter
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1517,7 +1518,7 @@ const ProjectedBalanceSheet = ({
               </View>
             </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
@@ -1525,7 +1526,7 @@ const ProjectedBalanceSheet = ({
   // console.log("receivedMarchClosingBalances :", receivedMarchClosingBalances);
 
   return (
-    <Page
+    <PageWithFooter
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -2454,7 +2455,7 @@ const ProjectedBalanceSheet = ({
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

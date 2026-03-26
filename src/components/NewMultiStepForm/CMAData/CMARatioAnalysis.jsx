@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "../PDFComponents/St
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 Font.register({
   family: "Roboto",
@@ -516,7 +517,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <Page
+        <PageWithFooter
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1868,13 +1869,13 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3164,7 +3165,7 @@ const grossProfitSalesRatios = Array.from({ length: projectionYears }).map(
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

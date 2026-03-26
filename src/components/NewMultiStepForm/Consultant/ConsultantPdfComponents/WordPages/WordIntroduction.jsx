@@ -1,6 +1,7 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
 import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
+import PageWithFooter from "../../../Helpers/PageWithFooter";
 
 const WordIntroduction = ({ formData, pageNumber }) => {
   // Get introduction content directly from formData
@@ -20,7 +21,7 @@ const WordIntroduction = ({ formData, pageNumber }) => {
   }
 
   return (
-    <Page size="A4" style={styles.page}>
+    <PageWithFooter size="A4" orientation="portrait" >
       <View style={styleExpenses?.paddingx}>
         {/* Header */}
         <View>
@@ -45,7 +46,7 @@ const WordIntroduction = ({ formData, pageNumber }) => {
         
        
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

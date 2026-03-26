@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "../../Consultant/Co
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 Font.register({
   family: "Roboto",
@@ -512,7 +513,7 @@ const ConsultantCMARatioAnalysis = ({
         visibleLocalCols[Math.floor(visibleLocalCols.length / 2)];
 
       return (
-        <Page
+        <PageWithFooter
           // size={projectionYears > 12 ? "A3" : "A4"}
           size="A4"
           orientation="landscape"
@@ -1848,13 +1849,13 @@ const ConsultantCMARatioAnalysis = ({
               {formData?.AccountInformation?.businessOwner || "businessOwner"}
             </Text>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
-    <Page
+    <PageWithFooter
       // size={projectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -3124,7 +3125,7 @@ const ConsultantCMARatioAnalysis = ({
           {formData?.AccountInformation?.businessOwner || "businessOwner"}
         </Text>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

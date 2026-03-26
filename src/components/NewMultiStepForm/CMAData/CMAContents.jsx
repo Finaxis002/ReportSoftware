@@ -13,11 +13,11 @@ import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
 
 const CMAContents = ({
   formData,
-  receivedtotalRevenueReceipts,
   pdfType,
 }) => {
   const pageStyles = {
@@ -48,43 +48,13 @@ const CMAContents = ({
     },
   };
   const PPExtractor = CMAExtractorProfitability(formData);
-  const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
 
   // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  // Month Mapping
-  const monthMap = {
-    April: 1,
-    May: 2,
-    June: 3,
-    July: 4,
-    August: 5,
-    September: 6,
-    October: 7,
-    November: 8,
-    December: 9,
-    January: 10,
-    February: 11,
-    March: 12,
-  };
 
-  const selectedMonth =
-    formData?.ProjectReportSetting?.SelectStartingMonth || "April";
-  const x = monthMap[selectedMonth]; // Starting month mapped to FY index
 
-  const moratoriumPeriodMonths =
-    parseInt(formData?.ProjectReportSetting?.MoratoriumPeriod) || 0;
-
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
-
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const revenueReducePercentage = PPExtractor.revenueReducePercentage() || 10;
   const expenseIncreasePercentage = localStorage.getItem(
     "expenseIncreasePercentage"
@@ -92,27 +62,9 @@ const CMAContents = ({
     ? parseFloat(localStorage.getItem("expenseIncreasePercentage"))
     : 10;
 
-  const generateFinancialYearLabels = useMemo(
-    () => (startingFY, totalYears) => {
-      const yearLabels = [];
-      for (let i = 0; i < totalYears; i++) {
-        const fromYear = startingFY + i;
-        const toYear = (fromYear + 1) % 100; // Only last two digits for the second year
-        yearLabels.push(`${fromYear}-${toYear < 10 ? "0" + toYear : toYear}`);
-      }
-      return yearLabels;
-    },
-    []
-  );
-  const financialYear =
-    parseInt(formData.ProjectReportSetting.FinancialYear) || 2025; // Use the provided year
-  const financialYearLabels = generateFinancialYearLabels(
-    financialYear,
-    projectionYears
-  );
 
   return (
-    <Page size="A4" orientation="portrait" style={pageStyles.page}>
+    <PageWithFooter size="A4" orientation="portrait" style={pageStyles.page}>
       {/* watermark  */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -995,7 +947,7 @@ const CMAContents = ({
           </View>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

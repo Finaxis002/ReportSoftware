@@ -2,9 +2,7 @@ import React from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
-import SAWatermark from "../Assets/SAWatermark";
-import CAWatermark from "../Assets/CAWatermark";
-
+import PageWithFooter from "../Helpers/PageWithFooter";
 Font.register({
   family: "Roboto",
   fonts: [
@@ -73,7 +71,7 @@ const IncomeTaxCalculation = ({
     const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
     return (
-      <Page
+      <PageWithFooter
         // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
         size="A4"
         orientation="landscape"
@@ -563,14 +561,14 @@ const IncomeTaxCalculation = ({
             </Text>
           </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
 
 
   return (
-    <Page
+    <PageWithFooter
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
       size="A4"
       orientation={orientation}
@@ -988,7 +986,7 @@ const IncomeTaxCalculation = ({
           </Text>
         </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

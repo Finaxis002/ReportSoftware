@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Import only necessary styles
 import { Font } from "@react-pdf/renderer";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -437,7 +438,7 @@ useEffect(() => {
 
   return (
     <>
-      <Page style={[styles.page, { paddingTop: 40 }]}>
+      <PageWithFooter style={[styles.page, { paddingTop: 40 }]}>
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}
           <View>
@@ -1018,7 +1019,7 @@ useEffect(() => {
             </Text>
           </View>
         </View>
-      </Page>
+      </PageWithFooter>
     </>
   );
 };

@@ -3,6 +3,7 @@ import { Page, View, Text, Image, Font } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
+import PageWithFooter from "../../Helpers/PageWithFooter";
 
 // ✅ Register Font
 Font.register({
@@ -25,7 +26,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType, formatNumber }) => {
   // ✅ Determine pronouns based on gender
 
   return (
-    <Page size="A4" style={styles.page}>
+    <PageWithFooter size="A4" orientation="portrait">
       {/* ✅ Watermark */}
       {pdfType &&
         pdfType !== "select option" &&
@@ -548,7 +549,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType, formatNumber }) => {
           </View>
         )}
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

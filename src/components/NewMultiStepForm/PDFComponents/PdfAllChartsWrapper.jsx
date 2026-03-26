@@ -12,6 +12,7 @@ import {
 
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
+import ConsultantPDFWithChart from "./ConsultantPDFWithChart";
 
 
 const PdfAllChartsWrapper = ({
@@ -63,12 +64,21 @@ const PdfAllChartsWrapper = ({
   // Render the chart components to generate charts
   return (
     <>
-      <PdfWithChart
-        formData={formData}
-        totalExpenses={totalExpensestosend}
-        onPieChartReady={setPieChart}
-        onBarChartReady={setBarChart}
-      />
+      {currentRoute === "/consultant-report-pdf" ? (
+        <ConsultantPDFWithChart
+          formData={formData}
+          totalExpenses={totalExpensestosend}
+          onPieChartReady={setPieChart}
+          onBarChartReady={setBarChart}
+        />
+      ) : (
+        <PdfWithChart
+          formData={formData}
+          totalExpenses={totalExpensestosend}
+          onPieChartReady={setPieChart}
+          onBarChartReady={setBarChart}
+        />
+      )}
 
       <PdfWithCombinedCharts
         labels={labels}

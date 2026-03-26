@@ -14,8 +14,9 @@ import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../Helpers/PageWithFooter"
 
-import { ppid } from "process";
+
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -29,17 +30,6 @@ Font.register({
   ],
 });
 
-const num = (v) => {
-  // Handle percentages by dividing by 100
-  if (typeof v === "string") {
-    if (v.trim().endsWith("%")) {
-      return parseFloat(v.replace("%", "").replace(/,/g, "").trim()) / 100 || 0;
-    }
-    // Handle commas (thousands) and convert to number
-    return parseFloat(v.replace(/,/g, "").trim()) || 0;
-  }
-  return Number(v) || 0;
-};
 
 const CMADSCR = ({
   formData,
@@ -85,29 +75,10 @@ const CMADSCR = ({
   formData = formData || {};
 
  
-  const activeRowIndex = 0; // Define it or fetch dynamically if needed
 
   const projectionYears =
     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
 
-  const indirectExpense = (directExpense || []).filter(
-    (expense) => expense.type === "indirect"
-  );
-
-  const months = [
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-  ];
 
   // Month Mapping
   const monthMap = {
@@ -135,27 +106,7 @@ const CMADSCR = ({
  
 
   const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
-  // Function to handle moratorium period spillover across financial years
-  const calculateMonthsPerYear = () => {
-    let monthsArray = [];
-    let remainingMoratorium = moratoriumPeriodMonths;
-    for (let year = 1; year <= projectionYears; year++) {
-      let monthsInYear = 12;
-      if (year === 1) {
-        monthsInYear = 12 - x + 1; // Months left in the starting year
-      }
 
-      if (remainingMoratorium >= monthsInYear) {
-        monthsArray.push(0); // Entire year under moratorium
-        remainingMoratorium -= monthsInYear;
-      } else {
-        monthsArray.push(monthsInYear - remainingMoratorium); // Partial moratorium impact
-        remainingMoratorium = 0;
-      }
-    }
-    return monthsArray;
-  };
-  
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
   );
@@ -186,25 +137,10 @@ const CMADSCR = ({
     return 0;
   });
 
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
 
 
-  //////////////////////////////   new data
-  const FinPosextractors = CMAExtractorFinPos(formData);
-  const FundFlowExtractor = CMAExtractorFundFlow(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
+
   const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const { totalSalaryAndWages } = CMAExtractorProfitability(formData);
   // const grossProfit = PPExtractor.grossProfit() || [];
   const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
   const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
@@ -225,7 +161,6 @@ const CMADSCR = ({
 
 
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
-  const directExpenseStartSerial = hasRawMaterial ? 3 : 2;
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
 const adminValues = administrativeExpenseRows[0]?.values || [];
@@ -272,39 +207,11 @@ const adminValues = administrativeExpenseRows[0]?.values || [];
     }
   );
 
-  const netProfitBeforeTax = PPExtractor.netProfitBeforeTax() || [];
-  // const incomeTaxCalculation =  PPExtractor.incomeTaxCalculation() || [];
-  const netProfitAfterTax = PPExtractor.netProfitAfterTax() || [];
-  const Withdrawals = PPExtractor.Withdrawals() || [];
-  const balanceTrfBalncSheet = PPExtractor.balanceTrfBalncSheet() || [];
-  // const cumulativeBalanceTransferred = PPExtractor.cumulativeBalanceTransferred() || [];
-  // const cashProfit = PPExtractor.cashProfit() || [];
-  
+
 
   
-//expense increased by 10 %- new data
-   const totalExpenseWithoutRM = Array.from({length:projectionYears}).map((_,i)=>
-           Number(totalDirectExpenses[i] || 0) - 
-           Number(rawmaterial[i] || 0)
-    )
 
-    // const expenseIncreasePercentage = localStorage.getItem('expenseIncreasePercentage') 
-    // ? parseFloat(localStorage.getItem('expenseIncreasePercentage')) 
-    // : 10;
-   
-  //expense increase by 10%
-//   const increaseValueExpense = Array.from({length:projectionYears}).map((_, i)=>
-//    Number(totalExpenseWithoutRM[i] *(expenseIncreasePercentage/100))
-// )
 
-// const increasedExpenseTotal = Array.from({length:projectionYears}).map((_, i)=>
-//  Number(totalDirectExpenses[i] || 0) +
-//  Number(increaseValueExpense[i] || 0) 
-// )
-
-// const grossProfit = Array.from({ length: projectionYears }).map(
-//     (_, i) => Number(OriginalRevenueValues[i]) - Number(increasedExpenseTotal[i])
-//   );
 // Calculate gross profit directly using totalDirectExpenses (base value):
 const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(OriginalRevenueValues[i]) - Number(totalDirectExpenses[i])
@@ -398,7 +305,7 @@ const grossProfit = Array.from({ length: projectionYears }).map(
 
       const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
-  let splitFinancialYearLabels = [yearLabels];
+
   if (isAdvancedLandscape) {
     const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
     const totalCols = visibleLabels.length;
@@ -418,7 +325,7 @@ if (isAdvancedLandscape) {
     const globalIndex = (localIdx) => pageStart + localIdx;
 
     return (
-      <Page key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
+      <PageWithFooter key={`adv-dscr-expinc-${pageIdx}`} size="A4" orientation="landscape" style={pageStyles.page}>
         {/* watermark  */}
         {pdfType &&
           pdfType !== "select option" &&
@@ -994,7 +901,7 @@ if (isAdvancedLandscape) {
           </View>
         </View>
         </View>
-      </Page>
+      </PageWithFooter>
     );
   });
 }
@@ -1002,7 +909,7 @@ if (isAdvancedLandscape) {
   
 
   return (
-    <Page
+    <PageWithFooter
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -1781,7 +1688,7 @@ if (isAdvancedLandscape) {
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

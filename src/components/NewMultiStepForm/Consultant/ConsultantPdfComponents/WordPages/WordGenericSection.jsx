@@ -1,6 +1,7 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
 import { styles, styleExpenses } from "../../ConsultantPdfComponents/Styles";
+import PageWithFooter from "../../../Helpers/PageWithFooter";
 
 const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
   // Get content directly from formData using the sectionKey
@@ -21,7 +22,7 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
   const displayTitle = title || sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1).replace(/_/g, " ");
 
   return (
-    <Page size="A4" style={styles.page}>
+   <PageWithFooter size="A4" orientation="portrait">
       <View style={styleExpenses?.paddingx}>
         {/* Header */}
         <View>
@@ -46,7 +47,7 @@ const WordGenericSection = ({ formData, pageNumber, sectionKey, title }) => {
         
        
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 

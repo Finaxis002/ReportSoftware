@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles"; // Impor
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import PageWithFooter from "../Helpers/PageWithFooter";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -439,7 +440,7 @@ useEffect(() => {
 
   return (
     <>
-      <Page style={[styles.page, { paddingTop: 40 }]}>
+      <PageWithFooter style={[styles.page, { paddingTop: 40 }]}>
         <View style={styleExpenses.paddingx}>
           {/* businees name and financial year  */}
           <View>
@@ -1019,7 +1020,7 @@ useEffect(() => {
             </Text>
           </View>
         </View>
-      </Page>
+      </PageWithFooter>
     </>
   );
 };

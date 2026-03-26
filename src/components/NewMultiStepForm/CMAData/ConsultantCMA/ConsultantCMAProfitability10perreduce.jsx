@@ -13,6 +13,7 @@ import { makeCMAExtractors } from "../../Utils/CMA/cmaExtractors";
 import { CMAExtractorFinPos } from "../../Utils/CMA/CMAExtractorFInPos";
 import { CMAExtractorFundFlow } from "../../Utils/CMA/CMAExtractorFundFlow";
 import { CMAExtractorProfitability } from "../../Utils/CMA/CMAExtractorProfitability";
+import PageWithFooter from "../../Helpers/PageWithFooter"
 
 
 const ConsultantCMAProjectedProfitability = ({
@@ -359,7 +360,7 @@ const ConsultantCMAProjectedProfitability = ({
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
-        <Page size="A4" style={styles.page} orientation="landscape">
+        <PageWithFooter size="A4" style={styles.page} orientation="landscape">
           {/* watermark  */}
           {pdfType &&
             pdfType !== "select option" &&
@@ -1650,14 +1651,14 @@ const ConsultantCMAProjectedProfitability = ({
             </View>
           </View>
           </View>
-        </Page>
+        </PageWithFooter>
       );
     });
   }
 
   return (
 
-    <Page
+    <PageWithFooter
       size="A4"
       orientation={orientation}
       style={pageStyles.page}
@@ -3140,7 +3141,7 @@ const ConsultantCMAProjectedProfitability = ({
         </View>
       </View>
       </View>
-    </Page>
+    </PageWithFooter>
   );
 };
 
