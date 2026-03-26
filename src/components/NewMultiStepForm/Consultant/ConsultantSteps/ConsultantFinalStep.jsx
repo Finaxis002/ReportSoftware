@@ -535,7 +535,9 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
     }
 
     if (iframeRef.current) {
-      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+      // ✅ Add sessionId to bust browser cache
+      const sessionId = localStorage.getItem("activeSessionId") || "";
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}&session=${sessionId}`;
 
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {

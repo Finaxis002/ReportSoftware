@@ -98,7 +98,10 @@ const Reports = ({ sendPdfData }) => {
       console.log("📤 Sent PDF Data to Parent:", reportData);
 
       // ✅ Pass data directly in state when navigating
-      navigate("/generated-pdf", { state: { reportData } });
+      // const sessionId = localStorage.getItem("activeSessionId") || "";
+      // navigate(`/generated-pdf?t=${Date.now()}&session=${sessionId}`, { state: { reportData } });
+      const activeSessionId = localStorage.getItem("activeSessionId") || sessionId || "";
+      navigate(`/generated-pdf?t=${Date.now()}&session=${activeSessionId}`, { state: { reportData } });
     } catch (error) {
       console.error("❌ Error downloading PDF:", error);
       alert(`Error fetching report data: ${error.message}`);

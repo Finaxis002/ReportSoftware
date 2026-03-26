@@ -151,25 +151,47 @@ const GeneratedPDF = () => {
     setTotalExpense(expenses); // ✅ Update state
   };
 
-  // Fetch consultant data if on consultant PDF route
+  const [formData1, setFormData] = useState(() => {
+    return JSON.parse(localStorage.getItem("formData")) || {};
+  });
+
+  // Fetch fresh form data when session ID is provided in URL (bust browser cache)
   useEffect(() => {
-    if (location.pathname === "/consultant-report-pdf") {
-      const fetchConsultantData = async () => {
+    const fetchDataFromSession = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const sessionIdFromUrl = params.get("session");
+      const isConsultantRoute = window.location.pathname === "/consultant-report-pdf";
+      
+      if (sessionIdFromUrl) {
         try {
-          const sessionId = localStorage.getItem("activeSessionId");
-          if (sessionId) {
-            const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
-            if (response.data.success && response.data.data) {
-              setFormData(response.data.data);
-            }
+          let apiUrl;
+          if (isConsultantRoute) {
+            apiUrl = `${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionIdFromUrl}`;
+          } else {
+            apiUrl = `${BASE_URL}/api/formdata/get-form-data?sessionId=${sessionIdFromUrl}`;
+          }
+          
+          // ✅ Fetch fresh data from API using sessionId to bust cache
+          const response = await axios.get(apiUrl, {
+            headers: { "Cache-Control": "no-cache" },
+            params: { t: Date.now() } // Additional cache buster
+          });
+          
+          const data = isConsultantRoute ? response.data?.data : response.data;
+          
+          if (data) {
+            setFormData(data);
+            localStorage.setItem("formData", JSON.stringify(data));
+            console.log("✅ Fetched fresh formData from API:", data);
           }
         } catch (error) {
-          console.error("Error fetching consultant data:", error);
+          console.error("Error fetching fresh form data:", error);
         }
-      };
-      fetchConsultantData();
-    }
-  }, [location.pathname]);
+      }
+    };
+    
+    fetchDataFromSession();
+  }, []);
 
   // window.addEventListener('keydown', e => console.log(e.key));
 
@@ -275,10 +297,6 @@ const GeneratedPDF = () => {
 
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
-
-  const [formData1, setFormData] = useState(() => {
-    return JSON.parse(localStorage.getItem("formData")) || {};
-  });
 
   // console.log("formData1", formData1);
 
