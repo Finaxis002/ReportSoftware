@@ -665,6 +665,9 @@ useEffect(() => {
 
               globalMonthCounter += filteredYearData.length;
 
+              // Skip rendering completely to avoid drawing empty borders for hidden years
+              if (isFullYearInMoratorium) return null;
+
               // Initialize total repayment for only visible months
               // Render Only Valid Months
               const visibleMonths = filteredYearData.filter(

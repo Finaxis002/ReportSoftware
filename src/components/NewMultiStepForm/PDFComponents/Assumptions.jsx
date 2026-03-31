@@ -4,6 +4,7 @@ import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
+import shouldHideFirstYear from "./HideFirstYear";
 
 // ✅ Register Font
 Font.register({
@@ -71,33 +72,66 @@ const Assumptions = ({
     }
 }, [formData?.computedData?.totalExpense, receiveTotalExpense]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts ??
+    receivedtotalRevenueReceipts ??
+    totalRevenueReceipts ??
+    [];
+  const expenseArray =
+    formData?.computedData?.totalExpense ?? receiveTotalExpense ?? [];
+
+  // How many leading years should be hidden (zeros) if present
+  const hideFirstYear = shouldHideFirstYear(revenueArray) || 0;
+
+  const baseFinancialYearLabels =
+    hideFirstYear > 0
+      ? financialYearLabels.slice(hideFirstYear)
+      : financialYearLabels;
+  const baseRevenueReceipts =
+    hideFirstYear > 0 ? revenueArray.slice(hideFirstYear) : revenueArray;
+  const baseExpenses =
+    hideFirstYear > 0 ? expenseArray.slice(hideFirstYear) : expenseArray;
+
+  // Align headers with available data length (like Projected Revenue/Expenses)
+  const activeLength = Math.max(
+    baseRevenueReceipts?.length || 0,
+    baseExpenses?.length || 0
+  );
+  const sliceOffset =
+    activeLength > 0 && baseFinancialYearLabels.length > activeLength
+      ? baseFinancialYearLabels.length - activeLength
+      : 0;
+
+  const alignedFinancialYearLabels =
+    sliceOffset > 0
+      ? baseFinancialYearLabels.slice(sliceOffset)
+      : baseFinancialYearLabels;
+  const alignedRevenueReceipts =
+    sliceOffset > 0 ? baseRevenueReceipts.slice(-activeLength) : baseRevenueReceipts;
+  const alignedExpenses =
+    sliceOffset > 0 ? baseExpenses.slice(-activeLength) : baseExpenses;
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
-  let splitFinancialYearLabels = [financialYearLabels];
-if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+  let splitFinancialYearLabels = [alignedFinancialYearLabels];
+  if (isAdvancedLandscape) {
+    const totalCols = alignedFinancialYearLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      alignedFinancialYearLabels.slice(0, firstPageCols),
+      alignedFinancialYearLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
-      // labels is the page's array of financial year labels (subset of financialYearLabels)
-      const pageStart =
-        Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
+      // labels is the page's array of financial year labels (subset of visibleFinancialYearLabels)
+      const pageStart = splitFinancialYearLabels
+        .slice(0, pageIdx)
+        .reduce((sum, chunk) => sum + chunk.length, 0);
 
-      const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
 
- 
       return (
         <Page
           // size={projectionYears > 12 ? "A3" : "A4"}
@@ -192,18 +226,14 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Page-scoped dynamic year headers */}
-                {labels.map((yearLabel, localIdx) => {
-                  const gIdx = globalIndex(localIdx);
-                  if (shouldSkipCol(gIdx)) return null;
-                  return (
-                    <Text
-                      key={`hdr-sales-${gIdx}`}
-                      style={[styles.particularsCell, stylesCOP.boldText]}
-                    >
-                      {yearLabel}
-                    </Text>
-                  );
-                })}
+                {labels.map((yearLabel, localIdx) => (
+                  <Text
+                    key={`hdr-sales-${pageStart + localIdx}`}
+                    style={[styles.particularsCell, stylesCOP.boldText]}
+                  >
+                    {yearLabel}
+                  </Text>
+                ))}
               </View>
 
               <View
@@ -221,23 +251,18 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Page-scoped values for Sales */}
-                {labels.map((_, localIdx) => {
-                  const gIdx = globalIndex(localIdx);
-                  if (shouldSkipCol(gIdx)) return null;
-
-                  return (
-                    <Text
-                      key={`sales-${gIdx}`}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        { padding: "2px" },
-                      ]}
-                    >
-                      {formatNumber(formData?.computedData?.totalRevenueReceipts[gIdx] || 0)}
-                    </Text>
-                  );
-                })}
+                {labels.map((_, localIdx) => (
+                  <Text
+                    key={`sales-${pageStart + localIdx}`}
+                    style={[
+                      stylesCOP.particularsCellsDetail,
+                      styleExpenses.fontSmall,
+                      { padding: "2px" },
+                    ]}
+                  >
+                    {formatNumber(alignedRevenueReceipts?.[pageStart + localIdx] || 0)}
+                  </Text>
+                ))}
               </View>
             </View>
           </View>
@@ -262,18 +287,14 @@ if (isAdvancedLandscape) {
                 </Text>
 
                 {/* ✅ Page-scoped dynamic year headers */}
-                {labels.map((yearLabel, localIdx) => {
-                  const gIdx = globalIndex(localIdx);
-                  if (shouldSkipCol(gIdx)) return null;
-                  return (
-                    <Text
-                      key={`hdr-exp-${gIdx}`}
-                      style={[styles.particularsCell, stylesCOP.boldText]}
-                    >
-                      {yearLabel}
-                    </Text>
-                  );
-                })}
+                {labels.map((yearLabel, localIdx) => (
+                  <Text
+                    key={`hdr-exp-${pageStart + localIdx}`}
+                    style={[styles.particularsCell, stylesCOP.boldText]}
+                  >
+                    {yearLabel}
+                  </Text>
+                ))}
               </View>
 
               <View
@@ -291,23 +312,18 @@ if (isAdvancedLandscape) {
 
                 {isDataReady ? (
                   // ✅ Page-scoped values for Total Expenses
-                  labels.map((_, localIdx) => {
-                    const gIdx = globalIndex(localIdx);
-                    if (shouldSkipCol(gIdx)) return null;
-
-                    return (
-                      <Text
-                        key={`exp-${gIdx}`}
-                        style={[
-                          stylesCOP.particularsCellsDetail,
-                          styleExpenses.fontSmall,
-                          { padding: "2px" },
-                        ]}
-                      >
-                        {formatNumber(formData?.computedData?.totalExpense[gIdx] || 0)}
-                      </Text>
-                    );
-                  })
+                  labels.map((_, localIdx) => (
+                    <Text
+                      key={`exp-${pageStart + localIdx}`}
+                      style={[
+                        stylesCOP.particularsCellsDetail,
+                        styleExpenses.fontSmall,
+                        { padding: "2px" },
+                      ]}
+                    >
+                      {formatNumber(alignedExpenses?.[pageStart + localIdx] || 0)}
+                    </Text>
+                  ))
                 ) : (
                   <Text>Loading Total Expenses...</Text>
                 )}
@@ -522,16 +538,14 @@ if (isAdvancedLandscape) {
             </Text>
 
             {/* ✅ Dynamically generate years with fallback */}
-            {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-              .map((yearLabel, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {yearLabel}
-                </Text>
-              ))}
+            {alignedFinancialYearLabels.map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
           </View>
           <View
             style={[stylesMOF.row, styles.tableRow, { borderWidth: "1px" }]}
@@ -546,21 +560,18 @@ if (isAdvancedLandscape) {
             >
               Sales
             </Text>
-            {Array.from({ length: projectionYears }).map(
-              (_, index) =>
-                (!hideFirstYear || index !== 0) && (
-                  <Text
-                    key={index}
-                    style={[
-                      stylesCOP.particularsCellsDetail,
-                      styleExpenses.fontSmall,
-                      { padding: "2px" },
-                    ]}
-                  >
-                    {formatNumber(formData?.computedData?.totalRevenueReceipts[index] || 0)}
-                  </Text>
-                )
-            )}
+            {alignedFinancialYearLabels.map((_, index) => (
+              <Text
+                key={index}
+                style={[
+                  stylesCOP.particularsCellsDetail,
+                  styleExpenses.fontSmall,
+                  { padding: "2px" },
+                ]}
+              >
+                {formatNumber(alignedRevenueReceipts?.[index] || 0)}
+              </Text>
+            ))}
           </View>
         </View>
       </View>
@@ -584,16 +595,14 @@ if (isAdvancedLandscape) {
             </Text>
 
             {/* ✅ Dynamically generate years with fallback */}
-            {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
-              .map((yearLabel, yearIndex) => (
-                <Text
-                  key={yearIndex}
-                  style={[styles.particularsCell, stylesCOP.boldText]}
-                >
-                  {yearLabel}
-                </Text>
-              ))}
+            {alignedFinancialYearLabels.map((yearLabel, yearIndex) => (
+              <Text
+                key={yearIndex}
+                style={[styles.particularsCell, stylesCOP.boldText]}
+              >
+                {yearLabel}
+              </Text>
+            ))}
           </View>
           <View
             style={[stylesMOF.row, styles.tableRow, { borderWidth: "1px" }]}
@@ -609,21 +618,18 @@ if (isAdvancedLandscape) {
             </Text>
 
             {isDataReady ? (
-              Array.from({ length: projectionYears }).map(
-                (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
-                    <Text
-                      key={index}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                        { padding: "2px" },
-                      ]}
-                    >
-                      {formatNumber(formData?.computedData?.totalExpense[index] || 0)}
-                    </Text>
-                  )
-              )
+              alignedFinancialYearLabels.map((_, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    stylesCOP.particularsCellsDetail,
+                    styleExpenses.fontSmall,
+                    { padding: "2px" },
+                  ]}
+                >
+                  {formatNumber(alignedExpenses?.[index] || 0)}
+                </Text>
+              ))
             ) : (
               <Text>Loading Total Expenses...</Text>
             )}

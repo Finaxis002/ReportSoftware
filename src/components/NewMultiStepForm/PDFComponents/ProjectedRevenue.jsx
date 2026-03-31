@@ -23,7 +23,7 @@ const ProjectedRevenue = ({
   const selectedData = useMemo(() => {
     return (
       formData?.Revenue?.[
-        formType === "Others" ? "formFields" : "formFields2"
+      formType === "Others" ? "formFields" : "formFields2"
       ] || []
     );
   }, [formData?.Revenue, formType]);
@@ -46,38 +46,42 @@ const ProjectedRevenue = ({
     // console.log("sending revenue receipt", totalRevenueReceipts)
   }, [totalRevenueReceipts, onTotalRevenueUpdate]);
 
+
   {
-    /* ✅ Determine if first year column should be hidden */
+    /* ✅ Determine how many initial years to hide (consecutive zeros from start) */
   }
-  const hideFirstYear = shouldHideFirstYear(totalRevenueReceipts);
+  const hideFirstYear = shouldHideFirstYear(totalRevenueReceipts); // Now returns number, not boolean
 
-  // ✅ Remove first year from financialYearLabels if hiding is required
-  const adjustedFinancialYearLabels = hideFirstYear
-    ? financialYearLabels.slice(1)
+  // ✅ Remove hidden years from financialYearLabels
+  const adjustedFinancialYearLabels = hideFirstYear > 0
+    ? financialYearLabels.slice(hideFirstYear)
     : financialYearLabels;
-  // ✅ Remove first-year revenue if hiding is required
+  // ✅ Remove hidden years from revenue arrays
 
-  const adjustedTotalRevenueForOthers = hideFirstYear
-    ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
+  const adjustedTotalRevenueForOthers = hideFirstYear > 0
+    ? formData?.Revenue?.totalRevenueForOthers?.slice(hideFirstYear)
     : formData?.Revenue?.totalRevenueForOthers;
 
-  const adjustedTotalRevenueReceipts = hideFirstYear
-    ? totalRevenueReceipts.slice(1)
+  const adjustedTotalRevenueReceipts = hideFirstYear > 0
+    ? totalRevenueReceipts.slice(hideFirstYear)
     : totalRevenueReceipts;
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+    // Remove hidden years
+    const visibleLabels = hideFirstYear > 0 ? financialYearLabels.slice(hideFirstYear) : financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
+
+
+
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
 
@@ -88,7 +92,7 @@ const ProjectedRevenue = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       return (
         <Page
@@ -140,10 +144,10 @@ const ProjectedRevenue = ({
                 Financial Year{" "}
                 {formData?.ProjectReportSetting?.FinancialYear
                   ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                      parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                    )
-                      .toString()
-                      .slice(-2)}`
+                    parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+                  )
+                    .toString()
+                    .slice(-2)}`
                   : "2025-26"}
               </Text>
             </View>
@@ -162,14 +166,14 @@ const ProjectedRevenue = ({
                   formData?.ProjectReportSetting?.AmountIn === "rupees"
                     ? "Rs." // Show "Rupees" if "rupees" is selected
                     : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                    ? "Thousands" // Show "Thousands" if "thousand" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "crores"
-                    ? "Crores" // Show "Crores" if "crores" is selected
-                    : formData?.ProjectReportSetting?.AmountIn === "millions"
-                    ? "Millions" // Show "Millions" if "millions" is selected
-                    : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                      ? "Thousands" // Show "Thousands" if "thousand" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                        ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                        : formData?.ProjectReportSetting?.AmountIn === "crores"
+                          ? "Crores" // Show "Crores" if "crores" is selected
+                          : formData?.ProjectReportSetting?.AmountIn === "millions"
+                            ? "Millions" // Show "Millions" if "millions" is selected
+                            : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
                 }
                 )
               </Text>
@@ -234,8 +238,8 @@ const ProjectedRevenue = ({
                   }
 
                   // ✅ Remove first-year column if required
-                  if (hideFirstYear) {
-                    updatedYears.shift();
+                  if (hideFirstYear > 0) {
+                    updatedYears = updatedYears.slice(hideFirstYear);
                   }
 
                   // Set all row type flags
@@ -251,12 +255,12 @@ const ProjectedRevenue = ({
                     formData?.Revenue?.formFields?.[index]?.serialNumber;
                   const finalSerialNumber =
                     formType === "Others" &&
-                    serialNumber !== undefined &&
-                    serialNumber !== null
+                      serialNumber !== undefined &&
+                      serialNumber !== null
                       ? serialNumber
                       : formType === "Monthly"
-                      ? serialNumber || index + 1
-                      : "";
+                        ? serialNumber || index + 1
+                        : "";
 
                   const isEmptyRow = updatedYears.every(
                     (year) => year === 0 || year === ""
@@ -419,8 +423,8 @@ const ProjectedRevenue = ({
                               ? ""
                               : typeof yearValue === "string" &&
                                 yearValue.trim().endsWith("%")
-                              ? yearValue
-                              : formatNumber(yearValue)}
+                                ? yearValue
+                                : formatNumber(yearValue)}
                           </Text>
                         );
                       })}
@@ -560,7 +564,7 @@ const ProjectedRevenue = ({
   return (
     <Page
       // size={formData.ProjectReportSetting.ProjectionYears > 12 ? "A3" : "A4"}
-     size="A4"
+      size="A4"
       orientation={orientation}
       wrap={false}
       break
@@ -603,10 +607,10 @@ const ProjectedRevenue = ({
             Financial Year{" "}
             {formData?.ProjectReportSetting?.FinancialYear
               ? `${formData.ProjectReportSetting.FinancialYear}-${(
-                  parseInt(formData.ProjectReportSetting.FinancialYear) + 1
-                )
-                  .toString()
-                  .slice(-2)}`
+                parseInt(formData.ProjectReportSetting.FinancialYear) + 1
+              )
+                .toString()
+                .slice(-2)}`
               : "2025-26"}
           </Text>
         </View>
@@ -625,14 +629,14 @@ const ProjectedRevenue = ({
               formData?.ProjectReportSetting?.AmountIn === "rupees"
                 ? "Rs." // Show "Rupees" if "rupees" is selected
                 : formData?.ProjectReportSetting?.AmountIn === "thousand"
-                ? "Thousands" // Show "Thousands" if "thousand" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "lakhs"
-                ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "crores"
-                ? "Crores" // Show "Crores" if "crores" is selected
-                : formData?.ProjectReportSetting?.AmountIn === "millions"
-                ? "Millions" // Show "Millions" if "millions" is selected
-                : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
+                  ? "Thousands" // Show "Thousands" if "thousand" is selected
+                  : formData?.ProjectReportSetting?.AmountIn === "lakhs"
+                    ? "Lakhs" // Show "Lakhs" if "lakhs" is selected
+                    : formData?.ProjectReportSetting?.AmountIn === "crores"
+                      ? "Crores" // Show "Crores" if "crores" is selected
+                      : formData?.ProjectReportSetting?.AmountIn === "millions"
+                        ? "Millions" // Show "Millions" if "millions" is selected
+                        : "" // Default case, in case the value is not found (you can add a fallback text here if needed)
             }
             )
           </Text>
@@ -688,8 +692,8 @@ const ProjectedRevenue = ({
               }
 
               // ✅ Remove first-year column if required
-              if (hideFirstYear) {
-                updatedYears.shift();
+              if (hideFirstYear > 0) {
+                updatedYears = updatedYears.slice(hideFirstYear);
               }
 
               // Set all row type flags
@@ -705,12 +709,12 @@ const ProjectedRevenue = ({
                 formData?.Revenue?.formFields?.[index]?.serialNumber;
               const finalSerialNumber =
                 formType === "Others" &&
-                serialNumber !== undefined &&
-                serialNumber !== null
+                  serialNumber !== undefined &&
+                  serialNumber !== null
                   ? serialNumber
                   : formType === "Monthly"
-                  ? serialNumber || index + 1
-                  : "";
+                    ? serialNumber || index + 1
+                    : "";
 
               const isEmptyRow = updatedYears.every(
                 (year) => year === 0 || year === ""
@@ -857,8 +861,8 @@ const ProjectedRevenue = ({
                         ? ""
                         : typeof yearValue === "string" &&
                           yearValue.trim().endsWith("%")
-                        ? yearValue
-                        : formatNumber(yearValue)}
+                          ? yearValue
+                          : formatNumber(yearValue)}
                     </Text>
                   ))}
                 </View>
@@ -889,7 +893,7 @@ const ProjectedRevenue = ({
                   </Text>
 
                   {formData.Revenue.noOfMonths
-                    .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
+                    .slice(hideFirstYear) // ✅ Skip all hidden years
                     .map((monthValue, yearIndex) => (
                       <Text
                         key={yearIndex}
@@ -947,11 +951,11 @@ const ProjectedRevenue = ({
                   {
                     formType?.trim() === "Monthly"
                       ? formatNumber(
-                          adjustedTotalRevenueReceipts[yearIndex] || 0
-                        ) // Monthly revenue
+                        adjustedTotalRevenueReceipts[yearIndex] || 0
+                      ) // Monthly revenue
                       : formatNumber(
-                          adjustedTotalRevenueForOthers?.[yearIndex] || 0
-                        ) // Others revenue
+                        adjustedTotalRevenueForOthers?.[yearIndex] || 0
+                      ) // Others revenue
                   }
                 </Text>
               ))}

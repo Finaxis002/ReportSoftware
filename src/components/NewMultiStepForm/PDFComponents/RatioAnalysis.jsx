@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
@@ -355,13 +356,14 @@ const RatioAnalysis = ({
     ) || []
   );
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
     .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
     .filter(({ value, index }) => {
-      // Skip the first year if hidden
-      if (hideFirstYear && index === 0) return false;
+      // Skip leading hidden years
+      if (index < hideFirstYear) return false;
       // Filter out invalid, non-numeric, or < 1 values
       return !isNaN(value) && value >= 1;
     })
@@ -373,9 +375,9 @@ const RatioAnalysis = ({
       .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
       .map((r) => parseFloat(r));
 
-    // Step 2: Remove first year's ratio if it's hidden
+    // Step 2: Remove leading hidden years
     if (hideFirstYear) {
-      validRatios = validRatios.slice(1); // Remove first index
+      validRatios = validRatios.slice(hideFirstYear);
     }
 
     // Step 3: If no valid ratios left, return "-"
@@ -432,9 +434,7 @@ const RatioAnalysis = ({
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
     // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -453,7 +453,7 @@ const RatioAnalysis = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // For centering the "Average Current Ratio" on the visible columns of this page
       const visibleLocalCols = labels
@@ -1932,7 +1932,7 @@ const RatioAnalysis = ({
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -1972,7 +1972,7 @@ const RatioAnalysis = ({
 
               {Array.from({ length: projectionYears }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2020,7 +2020,7 @@ const RatioAnalysis = ({
               </Text>
               {grossProfitValues.map(
                 (profit, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`grossProfit-${yearIndex}`}
                       style={[
@@ -2064,7 +2064,7 @@ const RatioAnalysis = ({
               {/* ✅ Dynamically generate years based on projectionYears */}
               {netProfitBeforeTax.map(
                 (npbt, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`npbt-${yearIndex}`}
                       style={[
@@ -2108,7 +2108,7 @@ const RatioAnalysis = ({
 
               {netProfitAfterTax.map(
                 (npat, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`npat-${yearIndex}`}
                       style={[
@@ -2153,7 +2153,7 @@ const RatioAnalysis = ({
               {/* ✅ Display Net Worth from the Stored Variable */}
               {netWorth.map(
                 (totalValue, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`net-worth-${index}`}
                       style={[
@@ -2198,7 +2198,7 @@ const RatioAnalysis = ({
               {/* ✅ Display Total Debt from Stored Variable */}
               {totalDebtArray.map(
                 (totalDebt, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`total-debt-${index}`}
                       style={[
@@ -2243,7 +2243,7 @@ const RatioAnalysis = ({
               {/* ✅ Display Total Debt from Stored Variable */}
               {totalOutsideLiabilitiesArray.map(
                 (totalDebt, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`total-debt-${index}`}
                       style={[
@@ -2289,7 +2289,7 @@ const RatioAnalysis = ({
               {Array.isArray(receivedTotalLiabilities.totalLiabilitiesArray) &&
                 receivedTotalLiabilities.totalLiabilitiesArray.map(
                   (total, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2334,7 +2334,7 @@ const RatioAnalysis = ({
               {/* ✅ Display total Current Assets for each projection year */}
               {CurrentAssetsArray.map(
                 (total, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2379,7 +2379,7 @@ const RatioAnalysis = ({
               {/* ✅ Display Updated Current Liabilities */}
               {(receivedTotalLiabilities?.yearlyTotalLiabilities ?? []).map(
                 (total, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2425,7 +2425,7 @@ const RatioAnalysis = ({
               {Array.isArray(cashProfitArray) &&
                 cashProfitArray.map(
                   (total, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2464,10 +2464,10 @@ const RatioAnalysis = ({
               </Text>
 
               {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0)
+                .slice(hideFirstYear)
                 .map((yearLabel, yearIndex) => {
                   const visibleLabels = financialYearLabels.slice(
-                    hideFirstYear ? 1 : 0
+                    hideFirstYear
                   );
                   const centerIndex = Math.floor(visibleLabels.length / 2);
 
@@ -2553,7 +2553,7 @@ const RatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {grossProfitSalesRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`gp-sales-ratio-${index}`}
                         style={[
@@ -2608,7 +2608,7 @@ const RatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {operatingProfitSalesRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`op-sales-ratio-${index}`}
                         style={[
@@ -2658,7 +2658,7 @@ const RatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {ProfitBeforeTaxRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`op-pbt-ratio-${index}`}
                         style={[
@@ -2709,7 +2709,7 @@ const RatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {netProfitSalesRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`np-pbt-ratio-${index}`}
                         style={[
@@ -2759,7 +2759,7 @@ const RatioAnalysis = ({
 
                 {netProfitNetWorthRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`np-nw-ratio-${index}`}
                         style={[
@@ -2809,7 +2809,7 @@ const RatioAnalysis = ({
 
                 {deptEqualityRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`dept-equality-ratio-${index}`}
                         style={[
@@ -2859,7 +2859,7 @@ const RatioAnalysis = ({
 
                 {totalOutsideLiabilitiesNetWorthRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2909,7 +2909,7 @@ const RatioAnalysis = ({
 
                 {netWorthTotalLiabilitiesRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2959,7 +2959,7 @@ const RatioAnalysis = ({
                 </Text>
 
                 {Array.from({ length: projectionYears }).map((_, index) => {
-                  if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is
+                  if (index < hideFirstYear) return null; // Skip first year if hideFirstYear is
                   // Retrieve DSCR value or default to 0 if not available
                   const ratio = receivedDscr?.DSCR?.[index] ?? 0;
 
@@ -3014,7 +3014,7 @@ const RatioAnalysis = ({
 
                 {currentRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -3062,7 +3062,7 @@ const RatioAnalysis = ({
 
                 {returnOnInvestment.map(
                   (roi, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -3116,3 +3116,4 @@ const RatioAnalysis = ({
 };
 
 export default React.memo(RatioAnalysis);
+

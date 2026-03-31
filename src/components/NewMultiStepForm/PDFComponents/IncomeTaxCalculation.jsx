@@ -1,4 +1,5 @@
 import React from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 
@@ -27,12 +28,13 @@ const IncomeTaxCalculation = ({
         )
       : [];
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
   // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -51,7 +53,7 @@ const IncomeTaxCalculation = ({
       Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
     const globalIndex = (localIdx) => pageStart + localIdx;
-    const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+    const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
     return (
       <Page
@@ -456,7 +458,7 @@ const IncomeTaxCalculation = ({
               incomeTax.map(
                 (tax, index) =>
 
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -635,7 +637,7 @@ const IncomeTaxCalculation = ({
 
               {/* Generate Dynamic Year Headers using financialYearLabels */}
               {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+                .slice(hideFirstYear) // Skip leading zero years
                 .map((yearLabel, yearIndex) => (
                   <Text
                     key={yearIndex}
@@ -661,7 +663,7 @@ const IncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -698,7 +700,7 @@ const IncomeTaxCalculation = ({
               {totalDepreciationPerYear.length > 0 ? (
                 totalDepreciationPerYear.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -734,7 +736,7 @@ const IncomeTaxCalculation = ({
               totalDepreciationPerYear.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -773,7 +775,7 @@ const IncomeTaxCalculation = ({
               {totalDepreciationPerYear.length > 0 ? (
                 totalDepreciationPerYear.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -811,7 +813,7 @@ const IncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -852,7 +854,7 @@ const IncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -891,7 +893,7 @@ const IncomeTaxCalculation = ({
               incomeTax.map(
                 (tax, index) =>
 
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -919,7 +921,7 @@ const IncomeTaxCalculation = ({
                   const taxAmount = npbt < 0 ? 0 : tax; // Set tax to 0 if NPBT is negative
 
                   return (
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -974,3 +976,4 @@ const IncomeTaxCalculation = ({
 };
 
 export default React.memo(IncomeTaxCalculation);
+

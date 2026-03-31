@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 
@@ -17,7 +18,8 @@ const CurrentRatio = ({
   orientation,
 }) => {
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
 
   const currentRatio = Array.from({
@@ -41,9 +43,9 @@ const CurrentRatio = ({
       .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
       .map((r) => parseFloat(r));
 
-    // ✅ Remove the first year's value if it's hidden
+    // ✅ Remove leading hidden years
     if (hideFirstYear) {
-      validRatios = validRatios.slice(1); // Remove first index
+      validRatios = validRatios.slice(hideFirstYear);
     }
 
     // ✅ If there are no valid ratios left, return "-"
@@ -80,7 +82,7 @@ const CurrentRatio = ({
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
   // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -99,7 +101,7 @@ const CurrentRatio = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // For centering the "Average Current Ratio" on the visible columns of this page
       const visibleLocalCols = labels
@@ -551,7 +553,7 @@ const CurrentRatio = ({
 
           {/* ✅ Dynamically generate years with fallback */}
           {financialYearLabels
-            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
             .map((yearLabel, yearIndex) => (
               <Text
                 key={yearIndex}
@@ -580,7 +582,7 @@ const CurrentRatio = ({
             {Array.isArray(receivedAssetsLiabilities?.CurrentAssetsArray) &&
               receivedAssetsLiabilities.CurrentAssetsArray.map(
                 (tax, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`receivedAssetsLiabilities-CurrentAssetsArray-${yearIndex}`}
                       style={[
@@ -620,7 +622,7 @@ const CurrentRatio = ({
             ) &&
               receivedAssetsLiabilities.yearlycurrentLiabilities.map(
                 (tax, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`receivedAssetsLiabilities-yearlycurrentLiabilities-${yearIndex}`}
                       style={[
@@ -656,7 +658,7 @@ const CurrentRatio = ({
             {/* ✅ Display Computed Total for Each Year */}
             {currentRatio.map(
               (ratio, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={`current-ratio-${yearIndex}`}
                     style={[
@@ -694,10 +696,10 @@ const CurrentRatio = ({
             </Text>
 
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex, arr) => {
                 const visibleLabels = financialYearLabels.slice(
-                  hideFirstYear ? 1 : 0
+                  hideFirstYear
                 );
                 const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
                 const isLast = yearIndex === arr.length - 1;
@@ -753,3 +755,4 @@ const CurrentRatio = ({
 };
 
 export default React.memo(CurrentRatio);
+
