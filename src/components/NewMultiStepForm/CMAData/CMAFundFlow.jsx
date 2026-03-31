@@ -18,77 +18,136 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
+import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 
-  const pageStyles = {
-    page: {
-      padding: 40,
-      paddingTop: 50, // Extra top margin for print safety
-      paddingBottom: 80, // Extra bottom margin for print safety
-      paddingLeft: 40,
-      paddingRight: 40,
-      fontFamily: "Helvetica",
-      position: "relative",
-    },
-    contentWrapper: {
-      flex: 1,
-      marginBottom: 30, // Space before footer
-    },
-    // Safe area to avoid content being cut off
-    safeArea: {
-      marginTop: 20, // Top margin for content
-      marginBottom: 40, // Bottom margin for content
-    },
-    footer: {
-      position: "absolute",
-      bottom: 30,
-      left: 40,
-      right: 40,
-      height: 50, // Fixed footer height
-    },
-  };
+const pageStyles = {
+  page: {
+    padding: 40,
+    paddingTop: 50, // Extra top margin for print safety
+    paddingBottom: 80, // Extra bottom margin for print safety
+    paddingLeft: 40,
+    paddingRight: 40,
+    fontFamily: "Helvetica",
+    position: "relative",
+  },
+  contentWrapper: {
+    flex: 1,
+    marginBottom: 30, // Space before footer
+  },
+  // Safe area to avoid content being cut off
+  safeArea: {
+    marginTop: 20, // Top margin for content
+    marginBottom: 40, // Bottom margin for content
+  },
+  footer: {
+    position: "absolute",
+    bottom: 30,
+    left: 40,
+    right: 40,
+    height: 50, // Fixed footer height
+  },
+};
 
 // Main component
 const CMAFundFlow = ({ formData, orientation }) => {
 
 
 
-  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
-  const grossSales = extractors.grossSales();
-
-    const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-  // You can import these:
-
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
-  const netProfitBeforeTax = FundFlowExtractor.netProfitBeforeTax() || [];
-  const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const preliminaryWriteOffPerYear =
+
+  const grossSalesRaw = extractors.grossSales ? extractors.grossSales() : [];
+  const allYearLabels = extractors.yearLabels();
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || grossSalesRaw || [];
+  const projectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) || 0;
+
+  const netProfitBeforeTaxRaw = FundFlowExtractor.netProfitBeforeTax() || [];
+  const totalDepreciationRaw = BSextractors.totalDepreciation() || [];
+  const preliminaryWriteOffPerYearRaw =
     extractors.preliminaryWriteOffPerYear() || [];
+  const incomeTaxCalRaw = extractors.incomeTaxCal() || [];
+  const dividendsPaidRaw = FundFlowExtractor.dividendsPaid() || [];
+
+  const promotersCapitalRaw = FundFlowExtractor.promotersCapital() || [];
+  const bankTermLoanRaw = FundFlowExtractor.bankTermLoan() || [];
+  const fillZeroRaw = FundFlowExtractor.fillZero() || [];
+  const subtotalBRaw = FundFlowExtractor.subtotalB() || [];
+  const workingCapitalLoanRaw = FundFlowExtractor.workingCapitalLoan() || [];
+  const sundryCreditorsArrRaw = BSextractors.sundryCreditorsArr() || [];
+  const totalCurrentLiabilitiesRaw =
+    FundFlowExtractor.totalCurrentLiabilities() || [];
+
+  const firstYearGrossFixedAssetsRaw =
+    FundFlowExtractor.firstYearGrossFixedAssets() || [];
+  const repaymentOfTermLoanRaw = FundFlowExtractor.repaymentOfTermLoan() || [];
+  const subTotalDRaw = FundFlowExtractor.subTotalD() || [];
+  const inventoryRaw = FundFlowExtractor.inventory() || [];
+  const sundryDebitorsArrRaw = FundFlowExtractor.sundryDebitorsArr() || [];
+  const totalCurrentAssetsRaw = FundFlowExtractor.totalCurrentAssets() || [];
+  const SubTotalERaw = FundFlowExtractor.SubTotalE() || [];
+  const withdrawalsRaw = FundFlowExtractor.withdrawals() || [];
+
+  const otherTermLiabilitiesRaw = (BSextractors.otherTermLiabilities() || []).slice(
+    0,
+    projectionYears
+  );
+  const investmentsRaw = BSextractors.investments() || [];
+
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const years = yearLabels.length;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
+  // Default index mapper for portrait mode; landscape overrides this per page.
+  const globalIndex = (idx) => idx;
+
+  const grossSales = trimVisible(grossSalesRaw);
+  const netProfitBeforeTax = trimVisible(netProfitBeforeTaxRaw);
+  const totalDepreciation = trimVisible(totalDepreciationRaw);
+  const preliminaryWriteOffPerYear = trimVisible(preliminaryWriteOffPerYearRaw);
+  const incomeTaxCal = trimVisible(incomeTaxCalRaw);
+  const dividendsPaid = trimVisible(dividendsPaidRaw);
+
+  const promotersCapital = trimVisible(promotersCapitalRaw);
+  const bankTermLoan = trimVisible(bankTermLoanRaw);
+  const fillZero = trimVisible(fillZeroRaw);
+  const subtotalB = trimVisible(subtotalBRaw);
+  const workingCapitalLoan = trimVisible(workingCapitalLoanRaw);
+  const sundryCreditorsArr = trimVisible(sundryCreditorsArrRaw);
+  const totalCurrentLiabilities = trimVisible(totalCurrentLiabilitiesRaw);
+
+  const firstYearGrossFixedAssets = trimVisible(firstYearGrossFixedAssetsRaw);
+  const repaymentOfTermLoan = trimVisible(repaymentOfTermLoanRaw);
+  const subTotalD = trimVisible(subTotalDRaw);
+  const inventory = trimVisible(inventoryRaw);
+  const sundryDebitorsArr = trimVisible(sundryDebitorsArrRaw);
+  const totalCurrentAssets = trimVisible(totalCurrentAssetsRaw);
+  const SubTotalE = trimVisible(SubTotalERaw);
+  const withdrawals = trimVisible(withdrawalsRaw);
+
+  const otherTermLiabilities = trimVisible(otherTermLiabilitiesRaw);
+  const investments = trimVisible(investmentsRaw);
+
   const grossFundsGenerated = Array.from({ length: years }).map(
     (_, idx) =>
       Number(netProfitBeforeTax[idx] || 0) +
       Number(totalDepreciation[idx] || 0) +
       Number(preliminaryWriteOffPerYear[idx] || 0)
   );
-  const incomeTaxCal = extractors.incomeTaxCal() || [];
-  const dividendsPaid = FundFlowExtractor.dividendsPaid() || [];
 
   const netFundsGenerated = Array.from({ length: years }).map(
     (_, idx) =>
       Number(grossFundsGenerated[idx] || 0) - Number(incomeTaxCal[idx] || 0)
   );
 
-  const promotersCapital = FundFlowExtractor.promotersCapital() || [];
-  const bankTermLoan = FundFlowExtractor.bankTermLoan() || [];
-  const fillZero = FundFlowExtractor.fillZero() || [];
-  const subtotalB = FundFlowExtractor.subtotalB() || [];
-  const workingCapitalLoan = FundFlowExtractor.workingCapitalLoan() || [];
-  const sundryCreditorsArr = BSextractors.sundryCreditorsArr() || [];
-  const totalCurrentLiabilities =
-    FundFlowExtractor.totalCurrentLiabilities() || [];
   const subTotalC = Array.from({ length: years }).map(
     (_, i) =>
       Number(workingCapitalLoan[i] || 0) + Number(sundryCreditorsArr[i] || 0)
@@ -100,19 +159,6 @@ const CMAFundFlow = ({ formData, orientation }) => {
       Number(subtotalB[idx] || 0) +
       Number(subTotalC[idx] || 0)
   );
-
-  const firstYearGrossFixedAssets =
-    FundFlowExtractor.firstYearGrossFixedAssets() || [];
-  const repaymentOfTermLoan = FundFlowExtractor.repaymentOfTermLoan() || [];
-  const subTotalD = FundFlowExtractor.subTotalD() || [];
-  const inventory = FundFlowExtractor.inventory() || [];
-  const sundryDebitorsArr = FundFlowExtractor.sundryDebitorsArr() || [];
-  const totalCurrentAssets = FundFlowExtractor.totalCurrentAssets() || [];
-  const SubTotalE = FundFlowExtractor.SubTotalE() || [];
-  const withdrawals = FundFlowExtractor.withdrawals() || [];
-
-  const otherTermLiabilities = (BSextractors.otherTermLiabilities() || []).slice(0, projectionYears);
-  const investments = BSextractors.investments() || [];
 
   const TOTALFUNDSUSED = Array.from({ length: years }).map(
     (_, idx) =>
@@ -141,7 +187,7 @@ const CMAFundFlow = ({ formData, orientation }) => {
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
-    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const visibleLabels = yearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -152,6 +198,8 @@ const CMAFundFlow = ({ formData, orientation }) => {
   }
   const toRoman = (n) =>
     ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"][n] || n + 1;
+
+  
 
   if (isAdvancedLandscape) {
     return splitYearLabels.map((labels, pageIdx) => {
@@ -2765,16 +2813,20 @@ const CMAFundFlow = ({ formData, orientation }) => {
                     Increase in unsecured loans
                   </Text>
 
-                  {otherTermLiabilities.map((val, idx) => {
+                  {bankTermLoan.map((_, localIdx) => {
+                    const gIdx = globalIndex(localIdx);
                     return (
                       <Text
-                        key={idx}
+                       key={localIdx}
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, val)}
+                        {formatNumber(
+                          formData,
+                          Number(otherTermLiabilities?.[gIdx]) || 0
+                        )}
                       </Text>
                     );
                   })}

@@ -34,6 +34,7 @@ const CMADSCRRevenue = ({
   orientation,
 }) => {
 
+  formData = formData || {};
   const pageStyles = {
     page: {
       padding: 40,
@@ -63,17 +64,22 @@ const CMADSCRRevenue = ({
   };
   const PPExtractor = CMAExtractorProfitability(formData);
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
-
-  // Defensive defaults for props that may be undefined
-  formData = formData || {};
-
-  const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-
-
-
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+  const allYearLabels = extractors.yearLabels();
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || totalRevenueReceiptRaw || [];
+ const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const projectionYears = yearLabels.length;
+  const fullProjectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) ||
+    allYearLabels.length ||
+    0;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -90,8 +96,8 @@ const CMADSCRRevenue = ({
       : 0;
 
   // Generate the array for yearly values
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
+  const preliminaryWriteOffPerYearRaw = Array.from({
+    length: fullProjectionYears,
   }).map((_, index) => {
     const startIndex = 0;
     const endIndex = startIndex + preliminaryWriteOffYears;
@@ -104,31 +110,39 @@ const CMADSCRRevenue = ({
     // 👇 Insert 0 for all other years (including hidden first year)
     return 0;
   });
+  const preliminaryWriteOffPerYear = trimVisible(preliminaryWriteOffPerYearRaw);
 
 
 
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
-  const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
-  const depreciation = PPExtractor.depreciation() || [];
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
+  const newRevenueReceipt = trimVisible(PPExtractor.newRevenueReceipt() || []);
+  const interestOnTermLoan = trimVisible(PPExtractor.interestOnTermLoan() || []);
+  const interestOnWCArray = trimVisible(PPExtractor.interestOnWCArray() || []);
+  const depreciation = trimVisible(PPExtractor.depreciation() || []);
+  const salaryandwages = trimVisible(extractors.salary() || []);
+  const rawmaterial = trimVisible(extractors.rawMaterial() || []);
   const directExpensesArray = extractors.directExpenses?.() || [];
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
 
   const OnlyfilteredDirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "direct") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
   const OnlyIndirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
-    [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
  
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
-  const adminValues = administrativeExpenseRows[0]?.values || [];
+  const adminValues = trimVisible(administrativeExpenseRows[0]?.values || []);
 
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
@@ -173,7 +187,7 @@ const CMADSCRRevenue = ({
   );
 
 
-  const Withdrawals = PPExtractor.Withdrawals() || [];
+  const Withdrawals = trimVisible(PPExtractor.Withdrawals() || []);
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(newRevenueReceipt[i]) - Number(totalDirectExpenses[i])
@@ -217,7 +231,9 @@ const CMADSCRRevenue = ({
       Number(interestOnWCArray[i] || 0)
   );
 
-  const repaymentOfTL = formData?.computedData?.yearlyPrincipalRepayment || [];
+  const repaymentOfTL = trimVisible(
+    formData?.computedData?.yearlyPrincipalRepayment || []
+  );
 
   const totalB = Array.from({ length: projectionYears }).map(
     (_, i) =>
@@ -269,7 +285,7 @@ const CMADSCRRevenue = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
-    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const visibleLabels = yearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;

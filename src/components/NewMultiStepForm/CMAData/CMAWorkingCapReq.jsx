@@ -20,6 +20,7 @@ import {
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
 import { getCurrentAssetsArray } from '../Utils/CMA/CmaReport/calculateCurrentAssets';
+import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 // Font registration (optional)
 Font.register({
   family: "Roboto",
@@ -58,9 +59,20 @@ const CMAWorkingCapReq = ({ formData, orientation }) => {
       height: 50, // Fixed footer height
     },
   };
-  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
+  const allYearLabels = extractors.yearLabels();
+  const grossSales = extractors.grossSales ? extractors.grossSales() : [];
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || grossSales || [];
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const years = yearLabels.length;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
 
@@ -104,26 +116,34 @@ const CMAWorkingCapReq = ({ formData, orientation }) => {
 
 
   // // Use the correct current assets instead of the potentially wrong ones
-  const currentAssets = correctCurrentAssets || WorkingReqExtractor.currentAssets() || [];
+  const currentAssetsRaw = correctCurrentAssets || WorkingReqExtractor.currentAssets() || [];
 
-  const otherCurrLiabilities = WorkingReqExtractor.otherCurrLiabilities() || [];
-  const workingCapGap = WorkingReqExtractor.workingCapGap() || [];
-  const workingCapitalLoanArr =
+  const otherCurrLiabilitiesRaw = WorkingReqExtractor.otherCurrLiabilities() || [];
+  const workingCapGapRaw = WorkingReqExtractor.workingCapGap() || [];
+  const workingCapitalLoanArrRaw =
     WorkingReqExtractor.workingCapitalLoanArr() || [];
-  const totalCurrLiabilities = WorkingReqExtractor.totalCurrLiabilities() || [];
-  const NetWorkCap = WorkingReqExtractor.NetWorkCap() || [];
-  const MinStipulatedMarginMoney =
+  const totalCurrLiabilitiesRaw = WorkingReqExtractor.totalCurrLiabilities() || [];
+  const NetWorkCapRaw = WorkingReqExtractor.NetWorkCap() || [];
+  const MinStipulatedMarginMoneyRaw =
     WorkingReqExtractor.MinStipulatedMarginMoney() || [];
-  const MPBF = WorkingReqExtractor.MPBF() || [];
-  const MPBF3minus6 = WorkingReqExtractor.MPBF3minus6() || [];
-  const maxPermissible = WorkingReqExtractor.maxPermissible() || [];
-  const netSales = extractors.netSales() || [];
-  const turnOver5per = Array.from({ length: years }).map((_, i) =>
-    Number(Number(netSales[i] || 0) * 0.05)
-  );
-  const turnOver20per = Array.from({ length: years }).map((_, i) =>
-    Number(Number(netSales[i] || 0) * 0.2)
-  );
+  const MPBFRaw = WorkingReqExtractor.MPBF() || [];
+  const MPBF3minus6Raw = WorkingReqExtractor.MPBF3minus6() || [];
+  const maxPermissibleRaw = WorkingReqExtractor.maxPermissible() || [];
+  const netSalesRaw = extractors.netSales() || [];
+
+  const currentAssets = trimVisible(currentAssetsRaw);
+  const otherCurrLiabilities = trimVisible(otherCurrLiabilitiesRaw);
+  const workingCapGap = trimVisible(workingCapGapRaw);
+  const workingCapitalLoanArr = trimVisible(workingCapitalLoanArrRaw);
+  const totalCurrLiabilities = trimVisible(totalCurrLiabilitiesRaw);
+  const NetWorkCap = trimVisible(NetWorkCapRaw);
+  const MinStipulatedMarginMoney = trimVisible(MinStipulatedMarginMoneyRaw);
+  const MPBF = trimVisible(MPBFRaw);
+  const MPBF3minus6 = trimVisible(MPBF3minus6Raw);
+  const maxPermissible = trimVisible(maxPermissibleRaw);
+  const netSales = trimVisible(netSalesRaw);
+  const turnOver5per = netSales.map((val) => Number(Number(val || 0) * 0.05));
+  const turnOver20per = netSales.map((val) => Number(Number(val || 0) * 0.2));
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];

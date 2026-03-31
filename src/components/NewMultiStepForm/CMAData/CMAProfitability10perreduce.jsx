@@ -61,18 +61,26 @@ const CMAProjectedProfitability = ({
       height: 50, // Fixed footer height
     },
   };
-  const PPExtractor = CMAExtractorProfitability(formData);
-  const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
-
-  // Defensive defaults for props that may be undefined
   formData = formData || {};
 
-  const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-
-
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+  const PPExtractor = CMAExtractorProfitability(formData);
+  const extractors = makeCMAExtractors(formData);
+  const allYearLabels = extractors.yearLabels();
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || totalRevenueReceiptRaw || [];
+ const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const projectionYears = yearLabels.length;
+  const fullProjectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) ||
+    allYearLabels.length ||
+    0;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
 
   const preliminaryExpensesTotal = Number(
     formData?.CostOfProject?.preliminaryExpensesTotal || 0
@@ -89,8 +97,8 @@ const CMAProjectedProfitability = ({
       : 0;
 
 
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
+  const preliminaryWriteOffPerYearRaw = Array.from({
+    length: fullProjectionYears,
   }).map((_, index) => {
     const startIndex = 0;
     const endIndex = startIndex + preliminaryWriteOffYears;
@@ -103,42 +111,53 @@ const CMAProjectedProfitability = ({
 
     return 0;
   });
+  const preliminaryWriteOffPerYear = trimVisible(preliminaryWriteOffPerYearRaw);
 
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
+  const isPreliminaryWriteOffAllZero = preliminaryWriteOffPerYear.every(
+    (val) => Number(val || 0) === 0
+  );
 
 
 
 
   const FinPosextractors = CMAExtractorFinPos(formData);
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
+  const totalRevenueReceipt = trimVisible(
+    FinPosextractors.totalRevenueReceipt() || []
+  );
+  const totalRevenueForOthers = trimVisible(
+    FinPosextractors.totalRevenueForOthers() || []
+  );
   const value10reduceRevenueReceipt =
-    PPExtractor.value10reduceRevenueReceipt() || [];
-  const newRevenueReceipt = PPExtractor.newRevenueReceipt() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
-  const adjustedRevenueValues = PPExtractor.adjustedRevenueValues() || [];
-  const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
-  const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
-  const depreciation = PPExtractor.depreciation() || [];
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
+    trimVisible(PPExtractor.value10reduceRevenueReceipt() || []);
+  const newRevenueReceipt = trimVisible(PPExtractor.newRevenueReceipt() || []);
+  const ClosingStock = trimVisible(PPExtractor.ClosingStock() || []);
+  const OpeningStock = trimVisible(PPExtractor.OpeningStock() || []);
+  const adjustedRevenueValues = trimVisible(
+    PPExtractor.adjustedRevenueValues() || []
+  );
+  const interestOnTermLoan = trimVisible(PPExtractor.interestOnTermLoan() || []);
+  const interestOnWCArray = trimVisible(PPExtractor.interestOnWCArray() || []);
+  const depreciation = trimVisible(PPExtractor.depreciation() || []);
+  const salaryandwages = trimVisible(extractors.salary() || []);
+  const rawmaterial = trimVisible(extractors.rawMaterial() || []);
   const directExpensesArray = extractors.directExpenses?.() || [];
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
 
   const OnlyfilteredDirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "direct") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
   const OnlyIndirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
-    [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
 
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
@@ -147,7 +166,7 @@ const CMAProjectedProfitability = ({
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
 
-  const adminValues = administrativeExpenseRows[0]?.values || [];
+  const adminValues = trimVisible(administrativeExpenseRows[0]?.values || []);
 
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
@@ -197,7 +216,7 @@ const CMAProjectedProfitability = ({
   );
 
 
-  const Withdrawals = PPExtractor.Withdrawals() || [];
+  const Withdrawals = trimVisible(PPExtractor.Withdrawals() || []);
 
   const grossProfit = Array.from({ length: projectionYears }).map(
     (_, i) => Number(newRevenueReceipt[i]) - Number(totalDirectExpenses[i])
@@ -244,7 +263,7 @@ const CMAProjectedProfitability = ({
   let splitYearLabels = [yearLabels];
   
   if (isAdvancedLandscape) {
-    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const visibleLabels = yearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;

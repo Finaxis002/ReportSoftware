@@ -19,6 +19,7 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
+import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 
 // Font registration (optional)
 Font.register({
@@ -59,37 +60,55 @@ const CMAFinancialPosition = ({ formData, orientation }) => {
   };
   // You can import these:
   const FinPosextractors = CMAExtractorFinPos(formData);
-  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
+  const grossSales = extractors.grossSales ? extractors.grossSales() : [];
+  const allYearLabels = extractors.yearLabels();
+  const totalRevenueReceiptRaw =
+    FinPosextractors.totalRevenueReceipt() || grossSales || [];
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || totalRevenueReceiptRaw || [];
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const years = yearLabels.length;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
+  const globalIndex = (idx) => idx;
 
-  const depreciation = extractors.depreciation();
+  const depreciation = trimVisible(extractors.depreciation() || []);
 
-  const interestOnTermLoan = FinPosextractors.interestOnTermLoan() || [];
-  const interestOnWCArray = extractors.interestOnWCArray() || [];
+  const interestOnTermLoan = trimVisible(
+    FinPosextractors.interestOnTermLoan() || []
+  );
+  const interestOnWCArray = trimVisible(extractors.interestOnWCArray() || []);
 
   console.log("interestOnTermLoan", interestOnTermLoan);
 
-  const netProfitAfterTax = extractors.netProfitAfterTax() || [];
+  const netProfitAfterTax = trimVisible(extractors.netProfitAfterTax() || []);
 
 
   const FundFlowExtractor = CMAExtractorFundFlow(formData);
   const BSextractors = CMAExtractorBS(formData);
 
-  const incomeTaxCal = extractors.incomeTaxCal() || [];
+  const incomeTaxCal = trimVisible(extractors.incomeTaxCal() || []);
 
 
-  const fillZero = FundFlowExtractor.fillZero() || [];
+  const fillZero = trimVisible(FundFlowExtractor.fillZero() || []);
 
-  const withdrawals = FundFlowExtractor.withdrawals() || [];
+  const withdrawals = trimVisible(FundFlowExtractor.withdrawals() || []);
 
 
   //new data
 
-  const shareCapital = BSextractors.shareCapital() || [];
-  const netWorth = BSextractors.netWorth() || [];
-  const netWorkingCapital = FinPosextractors.netWorkingCapital() || [];
-  const grossProfit = FinPosextractors.grossProfit() || [];
+  const shareCapital = trimVisible(BSextractors.shareCapital() || []);
+  const netWorth = trimVisible(BSextractors.netWorth() || []);
+  const netWorkingCapital = trimVisible(
+    FinPosextractors.netWorkingCapital() || []
+  );
+  const grossProfit = trimVisible(FinPosextractors.grossProfit() || []);
   const withdrawalsToNPATPercentage = Array.from({ length: years }).map(
     (_, idx) => {
       const wdraw = Number(withdrawals[idx] || 0);
@@ -98,15 +117,18 @@ const CMAFinancialPosition = ({ formData, orientation }) => {
       return (wdraw / npat) * 100;
     }
   );
-  const currentRatioArr = FinPosextractors.currentRatioArr() || [];
-  const totalRevenueReceipt = FinPosextractors.totalRevenueReceipt() || [];
-  const debtEquityArr = FinPosextractors.debtEquityArr() || [];
-  const totalOutsideLiabilitiesNetWorthRatio =
-    FinPosextractors.totalOutsideLiabilitiesNetWorthRatio() || [];
-  const grossProfitDivNetWorthRatio =
-    FinPosextractors.grossProfitDivNetWorthRatio() || [];
-  const netProfitDivNetWorthRatioArr =
-    FinPosextractors.netProfitDivNetWorthRatioArr() || [];
+  const currentRatioArr = trimVisible(FinPosextractors.currentRatioArr() || []);
+  const totalRevenueReceipt = trimVisible(totalRevenueReceiptRaw);
+  const debtEquityArr = trimVisible(FinPosextractors.debtEquityArr() || []);
+  const totalOutsideLiabilitiesNetWorthRatio = trimVisible(
+    FinPosextractors.totalOutsideLiabilitiesNetWorthRatio() || []
+  );
+  const grossProfitDivNetWorthRatio = trimVisible(
+    FinPosextractors.grossProfitDivNetWorthRatio() || []
+  );
+  const netProfitDivNetWorthRatioArr = trimVisible(
+    FinPosextractors.netProfitDivNetWorthRatioArr() || []
+  );
 
   const termLaonplusWorkingCap = Array.from({ length: years }).map(
     (_, idx) =>
@@ -117,14 +139,17 @@ const CMAFinancialPosition = ({ formData, orientation }) => {
       Number(totalRevenueReceipt[idx] || 0) - Number(grossProfit[idx] || 0)
   );
 
-  const interestDivCOP = Array.from({ length: years }).map(
-    (_, idx) =>
-      (Number(termLaonplusWorkingCap[idx] || 0) /
-        Number(grossReceiptMinusProfit[idx] || 0)) *
-      100
-  );
+  const interestDivCOP = Array.from({ length: years }).map((_, idx) => {
+    const denom = Number(grossReceiptMinusProfit[idx] || 0);
+    if (denom === 0) return 0;
+    return (Number(termLaonplusWorkingCap[idx] || 0) / denom) * 100;
+  });
 
-  const dscr = formData?.computedData?.dscr?.DSCR || 0;
+  const dscrRaw = formData?.computedData?.dscr?.DSCR || [];
+  const dscrArrayRaw = Array.isArray(dscrRaw)
+    ? dscrRaw
+    : Array(allYearLabels.length).fill(Number(dscrRaw) || 0);
+  const dscr = trimVisible(dscrArrayRaw);
 
 
   const isAdvancedLandscape = orientation === "advanced-landscape";

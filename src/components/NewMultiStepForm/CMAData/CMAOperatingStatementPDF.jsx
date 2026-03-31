@@ -5,6 +5,7 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { makeCMAExtractors } from "../Utils/CMA/cmaExtractors";
+import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 
 import {
   formatNumber,
@@ -64,6 +65,9 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
   const salaryandwages = extractors.salary();
   const rawmaterial = extractors.rawMaterial();
   const directExpensesArray = extractors.directExpenses?.() || [];
+  const filteredDirectExpenses = directExpensesArray.filter(
+    (exp) => exp.name !== "Raw Material Expenses / Purchases"
+  );
   const StockAdjustment = extractors.StockAdjustment();
   const OpeningStockinProcess = extractors.OpeningStockinProcess();
   const SubTotalCostofSales = extractors.SubTotalCostofSales();
@@ -85,19 +89,60 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
   const incomeTaxCal = extractors.incomeTaxCal() || [];
   const netProfitAfterTax = extractors.netProfitAfterTax() || [];
   const advanceDirectRows = extractors.advanceDirectRows() || [];
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || grossSales || [];
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
 
+  const visibleYearLabels =
+    hideFirstYear > 0 ? yearLabels.slice(hideFirstYear) : yearLabels;
 
-  const filteredDirectExpenses = directExpensesArray.filter(
-    (exp) => exp.name !== "Raw Material Expenses / Purchases"
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
+
+  const vGrossSales = trimVisible(grossSales);
+  const vDutiesTaxes = trimVisible(dutiesTaxes);
+  const vNetSales = trimVisible(netSales);
+  const vDepreciation = trimVisible(depreciation);
+  const vSalaryandwages = trimVisible(salaryandwages);
+  const vRawmaterial = trimVisible(rawmaterial);
+  const vStockAdjustment = trimVisible(StockAdjustment);
+  const vOpeningStockinProcess = trimVisible(OpeningStockinProcess);
+  const vSubTotalCostofSales = trimVisible(SubTotalCostofSales);
+  const vOpeningStock = trimVisible(OpeningStock);
+  const vClosingStocks = trimVisible(closingStocks);
+  const vTotalCostofSales = trimVisible(TotalCostofSales);
+  const vGrossProfit = trimVisible(GrossProfit);
+  const vInterestOnTermLoan = trimVisible(interestOnTermLoan);
+  const vInterestOnWCArray = trimVisible(interestOnWCArray);
+  const vAdminValues = trimVisible(adminValues);
+  const vPreliminaryWriteOffPerYear = trimVisible(preliminaryWriteOffPerYear);
+  const vOperatingProfit = trimVisible(OperatingProfit);
+  const vProfitbeforeTax = trimVisible(ProfitbeforeTax);
+  const vProvisionforInvestmentAllowance = trimVisible(
+    ProvisionforInvestmentAllowance
   );
+  const vIncomeTaxCal = trimVisible(incomeTaxCal);
+  const vNetProfitAfterTax = trimVisible(netProfitAfterTax);
+  const vAdvanceDirectRows = advanceDirectRows.map((row) => ({
+    ...row,
+    values: trimVisible(row.values || []),
+  }));
+  const trimmedDirectExpenses = filteredDirectExpenses.map((exp) => ({
+    ...exp,
+    values: trimVisible(exp.values || []),
+  }));
 
-  const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
+
+  const hasRawMaterial = vRawmaterial.some((val) => Number(val) !== 0);
   const directExpenseStartSerial = hasRawMaterial ? "d" : "c";
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
-  let splitYearLabels = [yearLabels];
+  let splitYearLabels = [visibleYearLabels];
   if (isAdvancedLandscape) {
-    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const visibleLabels = visibleYearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -111,7 +156,9 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
 
   if (isAdvancedLandscape) {
     return splitYearLabels.map((labels, pageIdx) => {
-      const pageStart = yearLabels.indexOf(labels[0]);
+      const pageStart = splitYearLabels
+        .slice(0, pageIdx)
+        .reduce((sum, chunk) => sum + chunk.length, 0);
       const globalIndex = (localIdx) => pageStart + localIdx;
 
       return (
@@ -244,7 +291,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(grossSales?.[globalIndex(localIdx)]) || 0
+                            Number(vGrossSales?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -273,7 +320,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(dutiesTaxes?.[globalIndex(localIdx)]) || 0
+                            Number(vDutiesTaxes?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -308,7 +355,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
 
                       {labels.map((_, localIdx) => (
                         <Text
-                          key={`netsales-${localIdx}`}
+                          key={`vNetSales-${localIdx}`}
                           style={[
                             stylesCOP.particularsCellsDetail,
                             stylesCOP.boldText,
@@ -318,7 +365,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(netSales?.[globalIndex(localIdx)]) || 0
+                            Number(vNetSales?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -359,7 +406,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         ))}
                       </View>
 
-                      {/* a depreciation */}
+                      {/* a vDepreciation */}
                       <View style={[styles.tableRow, styles.totalRow]}>
                         <Text style={stylesCOP.serialNoCellDetail}>a</Text>
                         <Text
@@ -369,7 +416,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                             styleExpenses.bordernone,
                           ]}
                         >
-                          Depreciation
+                          vDepreciation
                         </Text>
 
                         {labels.map((_, localIdx) => (
@@ -382,7 +429,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           >
                             {formatNumber(
                               formData,
-                              Number(depreciation?.[globalIndex(localIdx)]) || 0
+                              Number(vDepreciation?.[globalIndex(localIdx)]) || 0
                             )}
                           </Text>
                         ))}
@@ -411,7 +458,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           >
                             {formatNumber(
                               formData,
-                              Number(salaryandwages?.[globalIndex(localIdx)]) ||
+                              Number(vSalaryandwages?.[globalIndex(localIdx)]) ||
                                 0
                             )}
                           </Text>
@@ -419,7 +466,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       </View>
 
                       {/* c raw material */}
-                      {rawmaterial.some((val) => Number(val) !== 0) && (
+                      {vRawmaterial.some((val) => Number(val) !== 0) && (
                         <View style={[styles.tableRow, styles.totalRow]}>
                           <Text style={stylesCOP.serialNoCellDetail}>c</Text>
                           <Text
@@ -442,7 +489,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                             >
                               {formatNumber(
                                 formData,
-                                Number(rawmaterial?.[globalIndex(localIdx)]) ||
+                                Number(vRawmaterial?.[globalIndex(localIdx)]) ||
                                   0
                               )}
                             </Text>
@@ -451,7 +498,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       )}
 
                       {/* map direct expenses type=direct */}
-                      {filteredDirectExpenses.map((expense, idx) => (
+                      {trimmedDirectExpenses.map((expense, idx) => (
                         <View
                           key={expense.key || expense.name || idx}
                           style={[styles.tableRow, styles.totalRow]}
@@ -493,11 +540,11 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       ))}
 
                       {/* Map advance direct expenses */}
-                      {advanceDirectRows.map((expense, idx) => {
+                      {vAdvanceDirectRows.map((expense, idx) => {
                         // Calculate the serial number (continue from direct expenses)
                         const advanceSerialNumber = String.fromCharCode(
                           directExpenseStartSerial.charCodeAt(0) +
-                            filteredDirectExpenses.length +
+                            trimmedDirectExpenses.length +
                             idx
                         );
 
@@ -519,7 +566,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                               {expense.name}
                             </Text>
 
-                            {yearLabels.map((label, yidx) => (
+                            {visibleYearLabels.map((label, yidx) => (
                               <Text
                                 key={yidx}
                                 style={[
@@ -578,7 +625,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                             {formatNumber(
                               formData,
                               Number(
-                                SubTotalCostofSales?.[globalIndex(localIdx)]
+                                vSubTotalCostofSales?.[globalIndex(localIdx)]
                               ) || 0
                             )}
                           </Text>
@@ -610,7 +657,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              OpeningStockinProcess?.[globalIndex(localIdx)]
+                              vOpeningStockinProcess?.[globalIndex(localIdx)]
                             ) || 0
                           )}
                         </Text>
@@ -640,7 +687,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(StockAdjustment?.[globalIndex(localIdx)]) ||
+                            Number(vStockAdjustment?.[globalIndex(localIdx)]) ||
                               0
                           )}
                         </Text>
@@ -688,7 +735,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              SubTotalCostofSales?.[globalIndex(localIdx)]
+                              vSubTotalCostofSales?.[globalIndex(localIdx)]
                             ) || 0
                           )}
                         </Text>
@@ -718,7 +765,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(OpeningStock?.[globalIndex(localIdx)]) || 0
+                            Number(vOpeningStock?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -747,7 +794,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(closingStocks?.[globalIndex(localIdx)]) || 0
+                            Number(vClosingStocks?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -794,7 +841,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(TotalCostofSales?.[globalIndex(localIdx)]) ||
+                            Number(vTotalCostofSales?.[globalIndex(localIdx)]) ||
                               0
                           )}
                         </Text>
@@ -888,7 +935,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(GrossProfit?.[globalIndex(localIdx)]) || 0
+                            Number(vGrossProfit?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -918,7 +965,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              interestOnTermLoan?.[globalIndex(localIdx)]
+                              vInterestOnTermLoan?.[globalIndex(localIdx)]
                             ) || 0
                           )}
                         </Text>
@@ -949,7 +996,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              interestOnWCArray?.[globalIndex(localIdx)]
+                              vInterestOnWCArray?.[globalIndex(localIdx)]
                             ) || 0
                           )}
                         </Text>
@@ -979,7 +1026,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(adminValues?.[globalIndex(localIdx)]) || 0
+                            Number(vAdminValues?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -1051,7 +1098,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(OperatingProfit?.[globalIndex(localIdx)]) ||
+                            Number(vOperatingProfit?.[globalIndex(localIdx)]) ||
                               0
                           )}
                         </Text>
@@ -1135,7 +1182,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(ProfitbeforeTax?.[globalIndex(localIdx)]) ||
+                            Number(vProfitbeforeTax?.[globalIndex(localIdx)]) ||
                               0
                           )}
                         </Text>
@@ -1166,7 +1213,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              ProvisionforInvestmentAllowance?.[
+                              vProvisionforInvestmentAllowance?.[
                                 globalIndex(localIdx)
                               ]
                             ) || 0
@@ -1198,7 +1245,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(incomeTaxCal?.[globalIndex(localIdx)]) || 0
+                            Number(vIncomeTaxCal?.[globalIndex(localIdx)]) || 0
                           )}
                         </Text>
                       ))}
@@ -1248,7 +1295,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {formatNumber(
                             formData,
                             Number(
-                              netProfitAfterTax?.[globalIndex(localIdx)]
+                              vNetProfitAfterTax?.[globalIndex(localIdx)]
                             ) || 0
                           )}
                         </Text>
@@ -1389,7 +1436,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
               </Text>
 
               {/* Generate Dynamic Year Headers using financialYearLabels */}
-              {yearLabels.map((label, idx) => (
+              {visibleYearLabels.map((label, idx) => (
                 <Text
                   key={label || idx} // <-- Add key here
                   style={[styles.particularsCell, stylesCOP.boldText]}
@@ -1431,7 +1478,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     ]}
                   ></Text>
 
-                  {yearLabels.map((label, idx) => (
+                  {visibleYearLabels.map((label, idx) => (
                     <Text
                       key={label || idx}
                       style={[
@@ -1455,7 +1502,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Gross Sales
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1464,7 +1511,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, Number(grossSales[idx]) || 0)}
+                        {formatNumber(formData, Number(vGrossSales[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1483,7 +1530,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Less: Duties & Taxes
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1492,7 +1539,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, Number(dutiesTaxes[idx]) || 0)}
+                        {formatNumber(formData, Number(vDutiesTaxes[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1526,7 +1573,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Net Sales
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1539,7 +1586,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           },
                         ]}
                       >
-                        {formatNumber(formData, Number(netSales[idx]) || 0)}
+                        {formatNumber(formData, Number(vNetSales[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1569,7 +1616,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     >
                       Cost of Sales
                     </Text>
-                    {yearLabels.map((label, idx) => {
+                    {visibleYearLabels.map((label, idx) => {
                       return (
                         <Text
                           key={idx}
@@ -1582,7 +1629,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     })}
                   </View>
 
-                  {/* a depreciation  */}
+                  {/* a vDepreciation  */}
                   <View style={[styles.tableRow, styles.totalRow]}>
                     <Text style={stylesCOP.serialNoCellDetail}>a</Text>
                     <Text
@@ -1592,10 +1639,10 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         styleExpenses.bordernone,
                       ]}
                     >
-                      Depreciation
+                      vDepreciation
                     </Text>
 
-                    {yearLabels.map((label, idx) => {
+                    {visibleYearLabels.map((label, idx) => {
                       return (
                         <Text
                           key={idx}
@@ -1606,7 +1653,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(depreciation[idx]) || 0
+                            Number(vDepreciation[idx]) || 0
                           )}
                         </Text>
                       );
@@ -1625,7 +1672,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       Salaries & Wages
                     </Text>
 
-                    {yearLabels.map((label, idx) => {
+                    {visibleYearLabels.map((label, idx) => {
                       return (
                         <Text
                           key={idx}
@@ -1636,14 +1683,14 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(salaryandwages[idx]) || 0
+                            Number(vSalaryandwages[idx]) || 0
                           )}
                         </Text>
                       );
                     })}
                   </View>
                   {/* c raw material  */}
-                  {rawmaterial.some((val) => Number(val) !== 0) && (
+                  {vRawmaterial.some((val) => Number(val) !== 0) && (
                     <View style={[styles.tableRow, styles.totalRow]}>
                       <Text style={stylesCOP.serialNoCellDetail}>c</Text>
                       <Text
@@ -1656,7 +1703,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         Raw Material Expenses
                       </Text>
 
-                      {yearLabels.map((label, idx) => {
+                      {visibleYearLabels.map((label, idx) => {
                         return (
                           <Text
                             key={idx}
@@ -1667,7 +1714,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           >
                             {formatNumber(
                               formData,
-                              Number(rawmaterial[idx]) || 0
+                              Number(vRawmaterial[idx]) || 0
                             )}
                           </Text>
                         );
@@ -1676,7 +1723,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                   )}
 
                   {/* map direct expenses type=direct  */}
-                  {filteredDirectExpenses.map((expense, idx) => (
+                  {trimmedDirectExpenses.map((expense, idx) => (
                     <View
                       key={expense.key || expense.name || idx}
                       style={[styles.tableRow, styles.totalRow]}
@@ -1696,7 +1743,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {expense.name}
                       </Text>
-                      {yearLabels.map((label, yidx) => (
+                      {visibleYearLabels.map((label, yidx) => (
                         <Text
                           key={yidx}
                           style={[
@@ -1716,11 +1763,11 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                   ))}
 
                   {/* Map advance direct expenses */}
-                  {advanceDirectRows.map((expense, idx) => {
+                  {vAdvanceDirectRows.map((expense, idx) => {
                     // Calculate the serial number (continue from direct expenses)
                     const advanceSerialNumber = String.fromCharCode(
                       directExpenseStartSerial.charCodeAt(0) +
-                        filteredDirectExpenses.length +
+                        trimmedDirectExpenses.length +
                         idx
                     );
 
@@ -1742,7 +1789,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           {expense.name}
                         </Text>
 
-                        {yearLabels.map((label, yidx) => (
+                        {visibleYearLabels.map((label, yidx) => (
                           <Text
                             key={yidx}
                             style={[
@@ -1787,7 +1834,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       Sub-Total
                     </Text>
 
-                    {yearLabels.map((label, idx) => {
+                    {visibleYearLabels.map((label, idx) => {
                       return (
                         <Text
                           key={idx}
@@ -1802,7 +1849,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                         >
                           {formatNumber(
                             formData,
-                            Number(SubTotalCostofSales[idx]) || 0
+                            Number(vSubTotalCostofSales[idx]) || 0
                           )}
                         </Text>
                       );
@@ -1823,7 +1870,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Add: Opening Stock in Process
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1834,7 +1881,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(OpeningStockinProcess[idx]) || 0
+                          Number(vOpeningStockinProcess[idx]) || 0
                         )}
                       </Text>
                     );
@@ -1854,7 +1901,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Less: Stock Adjustment
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1865,7 +1912,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(StockAdjustment[idx]) || 0
+                          Number(vStockAdjustment[idx]) || 0
                         )}
                       </Text>
                     );
@@ -1898,7 +1945,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Cost of Production
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1914,7 +1961,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(SubTotalCostofSales[idx]) || 0
+                          Number(vSubTotalCostofSales[idx]) || 0
                         )}
                       </Text>
                     );
@@ -1934,7 +1981,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Add: Opening Stock
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1943,7 +1990,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, Number(OpeningStock[idx]) || 0)}
+                        {formatNumber(formData, Number(vOpeningStock[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -1962,7 +2009,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Less: Closing Stock
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -1973,7 +2020,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(closingStocks[idx]) || 0
+                          Number(vClosingStocks[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2006,7 +2053,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Total Cost of Sales
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2022,7 +2069,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(TotalCostofSales[idx]) || 0
+                          Number(vTotalCostofSales[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2061,7 +2108,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     ]}
                   ></Text>
 
-                  {yearLabels.map((label, idx) => (
+                  {visibleYearLabels.map((label, idx) => (
                     <Text
                       key={label || idx}
                       style={[
@@ -2104,7 +2151,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Gross Profit
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2119,7 +2166,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           },
                         ]}
                       >
-                        {formatNumber(formData, Number(GrossProfit[idx]) || 0)}
+                        {formatNumber(formData, Number(vGrossProfit[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -2138,7 +2185,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Interest on Term Loan
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2149,7 +2196,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(interestOnTermLoan[idx]) || 0
+                          Number(vInterestOnTermLoan[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2169,7 +2216,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Interest on Working Capital
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2180,7 +2227,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(interestOnWCArray[idx]) || 0
+                          Number(vInterestOnWCArray[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2200,7 +2247,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Administrative Expenses
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2209,7 +2256,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, Number(adminValues[idx]) || 0)}
+                        {formatNumber(formData, Number(vAdminValues[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -2228,7 +2275,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Preliminary Expenses Written Off
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2267,7 +2314,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Operating Profit
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2283,7 +2330,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(OperatingProfit[idx]) || 0
+                          Number(vOperatingProfit[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2310,7 +2357,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Other income / expenses
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2356,7 +2403,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Profit before Tax
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2372,7 +2419,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(ProfitbeforeTax[idx]) || 0
+                          Number(vProfitbeforeTax[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2392,7 +2439,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Less: Provision for Investment Allowance
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2403,7 +2450,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(ProvisionforInvestmentAllowance[idx]) || 0
+                          Number(vProvisionforInvestmentAllowance[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2423,7 +2470,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Less: Provision for tax
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2432,7 +2479,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(formData, Number(incomeTaxCal[idx]) || 0)}
+                        {formatNumber(formData, Number(vIncomeTaxCal[idx]) || 0)}
                       </Text>
                     );
                   })}
@@ -2469,7 +2516,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                     Net Profit After Tax
                   </Text>
 
-                  {yearLabels.map((label, idx) => {
+                  {visibleYearLabels.map((label, idx) => {
                     return (
                       <Text
                         key={idx}
@@ -2485,7 +2532,7 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
                       >
                         {formatNumber(
                           formData,
-                          Number(netProfitAfterTax[idx]) || 0
+                          Number(vNetProfitAfterTax[idx]) || 0
                         )}
                       </Text>
                     );
@@ -2577,3 +2624,10 @@ const CMAOperatingStatementPDF = ({ formData, orientation }) => {
 };
 
 export default CMAOperatingStatementPDF;
+
+
+
+
+
+
+
