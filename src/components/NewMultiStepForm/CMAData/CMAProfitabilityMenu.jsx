@@ -34,6 +34,7 @@ const CMAProfitabilityMenu = ({
   orientation,
 }) => {
 
+  formData = formData || {};
   const pageStyles = {
     page: {
       padding: 40,
@@ -53,7 +54,7 @@ const CMAProfitabilityMenu = ({
       marginTop: 20, // Top margin for content
       marginBottom: 40, // Bottom margin for content
     },
-    footer: {
+      footer: {
       position: "absolute",
       bottom: 30,
       left: 40,
@@ -63,16 +64,27 @@ const CMAProfitabilityMenu = ({
   };
   const PPExtractor = CMAExtractorProfitability(formData);
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
+  const allYearLabels = extractors.yearLabels();
+  const revenueArray = Array.isArray(receivedtotalRevenueReceipts)
+    ? receivedtotalRevenueReceipts
+    : (PPExtractor.OriginalRevenueValues &&
+        PPExtractor.OriginalRevenueValues()) ||
+      [];
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((v) => Number(v || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
 
-  formData = formData || {};
+  const projectionYears = yearLabels.length;
+  const fullProjectionYears =
+    parseInt(formData?.ProjectReportSetting?.ProjectionYears) ||
+    allYearLabels.length ||
+    0;
 
-
-  const projectionYears =
-    parseInt(formData.ProjectReportSetting.ProjectionYears) || 0;
-
-
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
 
 
   const preliminaryExpensesTotal = Number(
@@ -90,8 +102,8 @@ const CMAProfitabilityMenu = ({
       : 0;
 
   // Generate the array for yearly values
-  const preliminaryWriteOffPerYear = Array.from({
-    length: projectionYears,
+  const preliminaryWriteOffPerYearRaw = Array.from({
+    length: fullProjectionYears,
   }).map((_, index) => {
     const startIndex = 0;
     const endIndex = startIndex + preliminaryWriteOffYears;
@@ -105,35 +117,46 @@ const CMAProfitabilityMenu = ({
     return 0;
   });
 
-  const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
-  }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
-    return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
-  });
+  const preliminaryWriteOffPerYear = trimVisible(preliminaryWriteOffPerYearRaw);
+
+  const isPreliminaryWriteOffAllZero = preliminaryWriteOffPerYear.every(
+    (val) => Number(val || 0) === 0
+  );
 
 
   const FinPosextractors = CMAExtractorFinPos(formData);
-  const totalRevenueForOthers = FinPosextractors.totalRevenueForOthers() || [];
-  const ClosingStock = PPExtractor.ClosingStock() || [];
-  const OpeningStock = PPExtractor.OpeningStock() || [];
-  const OriginalRevenueValues = PPExtractor.OriginalRevenueValues() || [];
-  const interestOnTermLoan = PPExtractor.interestOnTermLoan() || [];
-  const interestOnWCArray = PPExtractor.interestOnWCArray() || [];
-  const depreciation = PPExtractor.depreciation() || [];
-  const salaryandwages = extractors.salary();
-  const rawmaterial = extractors.rawMaterial();
+  const totalRevenueForOthers = trimVisible(
+    FinPosextractors.totalRevenueForOthers() || []
+  );
+  const ClosingStock = trimVisible(PPExtractor.ClosingStock() || []);
+  const OpeningStock = trimVisible(PPExtractor.OpeningStock() || []);
+  const OriginalRevenueValues = trimVisible(
+    (PPExtractor.OriginalRevenueValues && PPExtractor.OriginalRevenueValues()) ||
+      []
+  );
+  const interestOnTermLoan = trimVisible(PPExtractor.interestOnTermLoan() || []);
+  const interestOnWCArray = trimVisible(PPExtractor.interestOnWCArray() || []);
+  const depreciation = trimVisible(PPExtractor.depreciation() || []);
+  const salaryandwages = trimVisible(extractors.salary() || []);
+  const rawmaterial = trimVisible(extractors.rawMaterial() || []);
   const directExpensesArray = extractors.directExpenses?.() || [];
   const filteredDirectExpenses = directExpensesArray.filter(
     (exp) => exp.name !== "Raw Material Expenses / Purchases"
   );
 
   const OnlyfilteredDirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "direct") || [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "direct") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
   const OnlyIndirectExpenses =
-    filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
-    [];
+    (filteredDirectExpenses.filter((expense) => expense.type === "indirect") ||
+      []).map((expense) => ({
+        ...expense,
+        values: trimVisible(expense.values || []),
+      }));
 
   console.log("OnlyfilteredDirectExpenses", OnlyfilteredDirectExpenses);
   const hasRawMaterial = rawmaterial.some((val) => Number(val) !== 0);
@@ -142,7 +165,7 @@ const CMAProfitabilityMenu = ({
   const administrativeExpenseRows =
     extractors.administrativeExpenseRows() || [];
 
-  const adminValues = administrativeExpenseRows[0]?.values || [];
+  const adminValues = trimVisible(administrativeExpenseRows[0]?.values || []);
 
   const totalDirectExpenses = Array.from({ length: projectionYears }).map(
     (_, idx) => {
@@ -190,7 +213,7 @@ const CMAProfitabilityMenu = ({
     }
   );
 
-  const Withdrawals = PPExtractor.Withdrawals() || [];
+  const Withdrawals = trimVisible(PPExtractor.Withdrawals() || []);
 
 
 
@@ -235,7 +258,7 @@ const CMAProfitabilityMenu = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
   if (isAdvancedLandscape) {
-    const visibleLabels = yearLabels; // (no hideFirstYear logic here, but add if needed)
+    const visibleLabels = yearLabels;
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -479,15 +502,15 @@ const CMAProfitabilityMenu = ({
                       Add: Closing Stock / Inventory
                     </Text>
 
-                    {Array.from({ length: projectionYears }).map((_, idx) => (
+                    {labels.map((_, localIdx) => (
                       <Text
-                        key={`cls-${idx}`}
+                        key={`cls-${pageIdx}-${localIdx}`}
                         style={[
                           stylesCOP.particularsCellsDetail,
                           styleExpenses.fontSmall,
                         ]}
                       >
-                        {formatNumber(ClosingStock?.[globalIndex(idx)] ?? 0)}
+                        {formatNumber(ClosingStock?.[globalIndex(localIdx)] ?? 0)}
                       </Text>
                     ))}
                   </View>
@@ -1756,7 +1779,7 @@ const CMAProfitabilityMenu = ({
                   Add: Closing Stock / Inventory
                 </Text>
 
-                {ClosingStock.slice(0, projectionYears).map((val, idx) => (
+                {yearLabels.map((_, idx) => (
                   <Text
                     key={idx}
                     style={[
@@ -1764,7 +1787,7 @@ const CMAProfitabilityMenu = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(val)}
+                    {formatNumber(ClosingStock?.[idx] ?? 0)}
                   </Text>
                 ))}
               </View>
@@ -1788,26 +1811,7 @@ const CMAProfitabilityMenu = ({
                   Less: Opening Stock / Inventory
                 </Text>
 
-                {/* {Array.from({
-                length:
-                  parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
-              }).map(
-                (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
-                    <Text
-                      key={`OpeningStock-${index}`}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(
-                        formData.MoreDetails.OpeningStock?.[index] ?? 0
-                      )}
-                    </Text>
-                  )
-              )} */}
-                {OpeningStock.slice(0, projectionYears).map((val, idx) => (
+                {yearLabels.map((_, idx) => (
                   <Text
                     key={idx}
                     style={[
@@ -1815,7 +1819,7 @@ const CMAProfitabilityMenu = ({
                       styleExpenses.fontSmall,
                     ]}
                   >
-                    {formatNumber(val)}
+                    {formatNumber(OpeningStock?.[idx] ?? 0)}
                   </Text>
                 ))}
               </View>

@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from "react";
-import { Document} from "@react-pdf/renderer";
+import { Document } from "@react-pdf/renderer";
 import CMAOperatingStatementPDF from "./CMAOperatingStatementPDF";
 import CMAAnalysisOfBS from "./CMAAnalysisOfBS";
 import CMAFundFlow from "./CMAFundFlow";
@@ -24,7 +24,7 @@ const CMAMultiPagePDF = ({
   source,
   onLoadingComplete
 }) => {
-  
+
 
   const isMenuBar = source === "menu-bar";
   const [totalRevenueReceipts, setTotalRevenueReceipts] = useState([]);
@@ -146,7 +146,7 @@ const CMAMultiPagePDF = ({
         formatNumber={formatNumber}
         orientation={orientation}
       />
-      
+
     </Document>
   );
 };

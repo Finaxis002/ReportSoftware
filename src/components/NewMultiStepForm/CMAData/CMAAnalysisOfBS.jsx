@@ -18,6 +18,7 @@ import {
   styleExpenses,
 } from "../PDFComponents/Styles";
 import { Header } from "./Header";
+import shouldHideFirstYear from "../PDFComponents/HideFirstYear";
 // Font registration (optional)
 Font.register({
   family: "Roboto",
@@ -57,102 +58,141 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
   };
 
   const extractors = makeCMAExtractors(formData);
-  const yearLabels = extractors.yearLabels();
-
   const BSextractors = CMAExtractorBS(formData);
-  const years = Number(formData?.ProjectReportSetting?.ProjectionYears || 5);
-  const workingCapitalLoanArr = BSextractors.workingCapitalLoanArr() || [];
-  const fromOtherBanks = BSextractors.fromOtherBanks() || [];
+  const grossSales = extractors.grossSales ? extractors.grossSales() : [];
+  const allYearLabels = extractors.yearLabels();
+  const revenueArray =
+    formData?.computedData?.totalRevenueReceipts || grossSales || [];
+  const normalizedRevenue = Array.isArray(revenueArray)
+    ? revenueArray.map((val) => Number(val || 0))
+    : [];
+  const hideFirstYear = shouldHideFirstYear(normalizedRevenue) || 0;
+  const yearLabels =
+    hideFirstYear > 0 ? allYearLabels.slice(hideFirstYear) : allYearLabels;
+  const years = yearLabels.length;
+  const trimVisible = (arr = []) =>
+    Array.isArray(arr) ? arr.slice(hideFirstYear) : [];
+  const totalAssetsArr = BSextractors.totalAssets() || [];
+
+  const workingCapitalLoanArr = trimVisible(
+    BSextractors.workingCapitalLoanArr() || []
+  );
+  const fromOtherBanks = trimVisible(BSextractors.fromOtherBanks() || []);
   const SubTotal = yearLabels.map(
     (_, idx) =>
       Number(workingCapitalLoanArr[idx] || 0) + Number(fromOtherBanks[idx] || 0)
   );
-  const shortTermBorrowings = BSextractors.shortTermBorrowings() || [];
-  const sundryCreditorsArr = BSextractors.sundryCreditorsArr() || [];
-  const capitalGoods = BSextractors.capitalGoods() || [];
-  const taxation = BSextractors.taxation() || [];
-  const dividend = BSextractors.dividend() || [];
-  const statutoryLiab = BSextractors.statutoryLiab() || [];
-  const repaymentValueswithin12months =
-    BSextractors.repaymentValueswithin12months() || [];
-  const otherCurrentLiabilitiesTotal =
-    BSextractors.otherCurrentLiabilitiesTotal() || [];
-  const subTotalB = BSextractors.subTotalB() || [];
+  const shortTermBorrowings = trimVisible(
+    BSextractors.shortTermBorrowings() || []
+  );
+  const sundryCreditorsArr = trimVisible(BSextractors.sundryCreditorsArr() || []);
+  const capitalGoods = trimVisible(BSextractors.capitalGoods() || []);
+  const taxation = trimVisible(BSextractors.taxation() || []);
+  const dividend = trimVisible(BSextractors.dividend() || []);
+  const statutoryLiab = trimVisible(BSextractors.statutoryLiab() || []);
+  const repaymentValueswithin12months = trimVisible(
+    BSextractors.repaymentValueswithin12months() || []
+  );
+  const otherCurrentLiabilitiesTotal = trimVisible(
+    BSextractors.otherCurrentLiabilitiesTotal() || []
+  );
+  const subTotalB = trimVisible(BSextractors.subTotalB() || []);
 
   const totalAandB = Array.from({ length: years }).map(
     (_, idx) => Number(SubTotal[idx] || 0) + Number(subTotalB[idx] || 0)
   );
 
-  const debentures = BSextractors.debentures() || [];
-  const preferenceShares = BSextractors.preferenceShares() || [];
-  const bankTermLoanArr = BSextractors.bankTermLoanArr() || [];
-  const vehicleLoan = BSextractors.vehicleLoan() || [];
-  const deferredTaxLiability = BSextractors.deferredTaxLiability() || [];
-  const otherTermLiabilities = BSextractors.otherTermLiabilities() || [];
-  const totalTermLiabilities = BSextractors.totalTermLiabilities() || [];
+  const debentures = trimVisible(BSextractors.debentures() || []);
+  const preferenceShares = trimVisible(BSextractors.preferenceShares() || []);
+  const bankTermLoanArr = trimVisible(BSextractors.bankTermLoanArr() || []);
+  const vehicleLoan = trimVisible(BSextractors.vehicleLoan() || []);
+  const deferredTaxLiability = trimVisible(
+    BSextractors.deferredTaxLiability() || []
+  );
+  const otherTermLiabilities = trimVisible(
+    BSextractors.otherTermLiabilities() || []
+  );
+  const totalTermLiabilities = trimVisible(
+    BSextractors.totalTermLiabilities() || []
+  );
 
   const totalOutsidersLiabilities = Array.from({ length: years }).map(
     (_, idx) =>
       Number(totalAandB[idx] || 0) + Number(totalTermLiabilities[idx] || 0)
   );
 
-  const shareCapital = BSextractors.shareCapital() || [];
-  const generalReserve = BSextractors.generalReserve() || [];
-  const subsidy = BSextractors.subsidy() || [];
-  const otherReserve = BSextractors.otherReserve() || [];
-  const reservesAndSurplusArr = BSextractors.reservesAndSurplusArr() || [];
-  const netWorth = BSextractors.netWorth() || [];
+  const shareCapital = trimVisible(BSextractors.shareCapital() || []);
+  const generalReserve = trimVisible(BSextractors.generalReserve() || []);
+  const subsidy = trimVisible(BSextractors.subsidy() || []);
+  const otherReserve = trimVisible(BSextractors.otherReserve() || []);
+  const reservesAndSurplusArr = trimVisible(
+    BSextractors.reservesAndSurplusArr() || []
+  );
+  const netWorth = trimVisible(BSextractors.netWorth() || []);
 
   const totalLiabilities = Array.from({ length: years }).map(
     (_, idx) =>
       Number(totalOutsidersLiabilities[idx] || 0) + Number(netWorth[idx] || 0)
   );
 
- 
-
-  const investments = BSextractors.investments() || [];
-  const fixedDeposits = BSextractors.fixedDeposits() || [];
-  const exportsIncludingBpBd = BSextractors.exportsIncludingBpBd() || [];
-  const exportReceivables = BSextractors.exportReceivables() || [];
-  const instalments = BSextractors.instalments() || [];
-  const rawMaterialInventory = BSextractors.rawMaterialInventory() || [];
-  const stockProcess = BSextractors.stockProcess() || [];
-  const inventoryArr = BSextractors.inventoryArr() || [];
-  const consumableSpares = BSextractors.consumableSpares() || [];
-  const advancesToSuppliers = BSextractors.advancesToSuppliers() || [];
-  const paymentOfTaxes = BSextractors.paymentOfTaxes() || [];
-  const totalCurrentAssets = BSextractors.totalCurrentAssets() || [];
-  const grossFixedAssetsPerYear = BSextractors.grossFixedAssetsPerYear() || [];
-  const totalDepreciation = BSextractors.totalDepreciation() || [];
-  const netBlock = BSextractors.netBlock() || [];
-  const invBookDebt = BSextractors.invBookDebt() || [];
-  const investmentsInGroup = BSextractors.investmentsInGroup() || [];
-  const deferredReceivables = BSextractors.deferredReceivables() || [];
-  const totalAssets = BSextractors.totalAssets() || [];
+  const investments = trimVisible(BSextractors.investments() || []);
+  const fixedDeposits = trimVisible(BSextractors.fixedDeposits() || []);
+  const exportsIncludingBpBd = trimVisible(
+    BSextractors.exportsIncludingBpBd() || []
+  );
+  const exportReceivables = trimVisible(BSextractors.exportReceivables() || []);
+  const instalments = trimVisible(BSextractors.instalments() || []);
+  const rawMaterialInventory = trimVisible(
+    BSextractors.rawMaterialInventory() || []
+  );
+  const stockProcess = trimVisible(BSextractors.stockProcess() || []);
+  const inventoryArr = trimVisible(BSextractors.inventoryArr() || []);
+  const consumableSpares = trimVisible(BSextractors.consumableSpares() || []);
+  const advancesToSuppliers = trimVisible(
+    BSextractors.advancesToSuppliers() || []
+  );
+  const paymentOfTaxes = trimVisible(BSextractors.paymentOfTaxes() || []);
+  const totalCurrentAssets = trimVisible(
+    BSextractors.totalCurrentAssets() || []
+  );
+  const grossFixedAssetsPerYear = trimVisible(
+    BSextractors.grossFixedAssetsPerYear() || []
+  );
+  const totalDepreciation = trimVisible(BSextractors.totalDepreciation() || []);
+  const netBlock = trimVisible(BSextractors.netBlock() || []);
+  const invBookDebt = trimVisible(BSextractors.invBookDebt() || []);
+  const investmentsInGroup = trimVisible(
+    BSextractors.investmentsInGroup() || []
+  );
+  const deferredReceivables = trimVisible(
+    BSextractors.deferredReceivables() || []
+  );
+  const totalAssets = trimVisible(totalAssetsArr);
   const netWorkingCapital = Array.from({ length: years }).map(
     (_, i) => Number(totalCurrentAssets[i] || 0) - Number(totalAandB[i] || 0)
   );
 
-  const closingCashBalanceArray = formData?.computedData?.closingCashBalanceArray
-  const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray
-  const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities
+  const closingCashBalanceArray = trimVisible(
+    formData?.computedData?.closingCashBalanceArray || []
+  );
+  const currentAssets = trimVisible(
+    formData?.computedData?.assetsliabilities?.CurrentAssetsArray || []
+  );
+  const currentLiabilities = trimVisible(
+    formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities || []
+  );
 
-
- 
   const currentRatio = Array.from({ length: years }).map((_, i) => {
-  const cash = currentAssets?.[i];
-  const liabilities = currentLiabilities?.[i];
-  
-  
-  
-  const numerator = Number(cash || 0);
-  const denominator = Number(liabilities || 1); // Avoid division by zero
-  
-  const ratio = numerator / denominator;
-  
-  
-  return ratio;
-});
+    const cash = currentAssets?.[i];
+    const liabilities = currentLiabilities?.[i];
+
+    const numerator = Number(cash || 0);
+    const denominator = Number(liabilities || 1); // Avoid division by zero
+
+    const ratio = numerator / denominator;
+
+    return ratio;
+  });
 
   const TOLDividedByTNW = Array.from({ length: years }).map((_, i) =>
     netWorth[i] === 0
@@ -161,9 +201,9 @@ const CMAAnalysisOfBS = ({ formData, orientation }) => {
   );
 
   const cumulativeOtherCurrentAssetsTotal =
-    BSextractors.cumulativeOtherCurrentAssetsTotal() || [];
+    trimVisible(BSextractors.cumulativeOtherCurrentAssetsTotal() || []);
   const commulativeSundryDebtors =
-    BSextractors.commulativeSundryDebtors() || [];
+    trimVisible(BSextractors.commulativeSundryDebtors() || []);
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitYearLabels = [yearLabels];
