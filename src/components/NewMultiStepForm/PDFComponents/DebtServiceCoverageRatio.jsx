@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
@@ -92,7 +93,8 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
 
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // console.log("moratorium month", moratoriumPeriodMonths);
@@ -223,9 +225,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
     // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -243,7 +243,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // For centering the "Average Current Ratio" on the visible columns of this page
       const visibleLocalCols = labels
@@ -1098,7 +1098,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 
           {/* Generate Dynamic Year Headers using financialYearLabels */}
           {financialYearLabels
-            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
             .map((yearLabel, yearIndex) => (
               <Text
                 key={yearIndex}
@@ -1135,7 +1135,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
             {netProfitAfterTax.map(
               (tax, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={`netProfitAfterTax-${yearIndex}`}
                     style={[
@@ -1176,7 +1176,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               {/* ✅ Display Depreciation Values for Each Year */}
               {totalDepreciationPerYear.map(
                 (depreciationValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={yearIndex}
                       style={[
@@ -1221,7 +1221,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -1265,7 +1265,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                 const calculatedInterest =
                   calculateInterestOnWorkingCapital(yearIndex);
@@ -1315,7 +1315,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             {/* ✅ Display Computed Total for Each Year */}
             {totalA.map(
               (totalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -1364,7 +1364,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -1409,7 +1409,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null;
+                if (yearIndex < hideFirstYear) return null;
                 const calculatedInterest =
                   calculateInterestOnWorkingCapital(yearIndex);
 
@@ -1456,7 +1456,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
               yearlyPrincipalRepayment.length > 0 ? (
                 Array.from({ length: projectionYears }).map(
                   (_, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -1516,7 +1516,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
             {/* ✅ Display Computed Total for Each Year */}
             {totalB.map(
               (totalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -1559,7 +1559,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           {/* ✅ Display Computed Total for Each Year */}
           {DSCR.map(
             (totalValue, yearIndex) =>
-              (!hideFirstYear || yearIndex !== 0) && (
+              yearIndex >= hideFirstYear && (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1600,7 +1600,7 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           {/* ✅ Display Computed Total for Each Year */}
           {DSCR.map(
             (totalValue, yearIndex) =>
-              (!hideFirstYear || yearIndex !== 0) && (
+              yearIndex >= hideFirstYear && (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1646,10 +1646,10 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
           {/* ✅ Value - Dynamic Width Based on Financial Years */}
 
           {financialYearLabels
-            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
             .map((yearLabel, yearIndex, arr) => {
               const visibleLabels = financialYearLabels.slice(
-                hideFirstYear ? 1 : 0
+                hideFirstYear
               );
               const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
               const isLast = yearIndex === arr.length - 1;
@@ -1702,3 +1702,4 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
 };
 
 export default React.memo(DebtServiceCoverageRatio);
+

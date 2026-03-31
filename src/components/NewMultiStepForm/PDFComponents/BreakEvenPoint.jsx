@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
@@ -129,7 +130,8 @@ const BreakEvenPoint = ({
   };
 
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // console.log("moratorium month", moratoriumPeriodMonths);
@@ -187,12 +189,12 @@ const BreakEvenPoint = ({
 
   // Check if all Interest On Term Loan values are zero or falsy
   const isInterestOnTermLoanZero = yearlyInterestLiabilities
-    .slice(hideFirstYear ? 1 : 0)
+    .slice(hideFirstYear)
     .every((val) => isZeroValue(val));
 
   // Check if all Depreciation values are zero or falsy
   const isDepreciationZero = totalDepreciationPerYear
-    .slice(hideFirstYear ? 1 : 0)
+    .slice(hideFirstYear)
     .every((val) => isZeroValue(val));
 
   const adjustedRevenueValues = Array.from({
@@ -241,7 +243,7 @@ const BreakEvenPoint = ({
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-    const startIndex = hideFirstYear ? 1 : 0;
+    const startIndex = hideFirstYear;
     const endIndex = startIndex + preliminaryWriteOffYears;
 
     // 👇 Only insert value if it's within the write-off window
@@ -297,9 +299,9 @@ const BreakEvenPoint = ({
   
 
   const totalVariableExpenses = Array.from({
-    length: projectionYears - (hideFirstYear ? 1 : 0),
+    length: projectionYears - hideFirstYear,
   }).map((_, visibleIndex) => {
-    const adjustedYearIndex = hideFirstYear ? visibleIndex + 1 : visibleIndex;
+    const adjustedYearIndex = visibleIndex + hideFirstYear;
     const yearLabel = financialYearLabels[adjustedYearIndex];
 
     const totalFromExpenses = allExpenses.reduce((total, expense) => {
@@ -356,9 +358,9 @@ const BreakEvenPoint = ({
   });
 
   const contribution = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    length: projectionYears - hideFirstYear,
   }).map((_, index) => {
-    const adjustedIndex = hideFirstYear ? index + 1 : index;
+    const adjustedIndex = index + hideFirstYear;
 
     const revenueValue = toNumber(adjustedRevenueValues[adjustedIndex]);
     const expenseValue = toNumber(totalVariableExpenses[index]);
@@ -408,9 +410,9 @@ const BreakEvenPoint = ({
   );
 
   const breakEvenPointPercentage = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    length: projectionYears - hideFirstYear,
   }).map((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+    const adjustedYearIndex = yearIndex + hideFirstYear;
     const totalFixed = totalFixedExpenses[adjustedYearIndex] || 0; // Get total fixed expenses for the year
     const contributionValue = contribution[yearIndex] || 1; // Avoid division by zero by using fallback 1
     //  console.log(`Year ${yearIndex + 1} | totalFixed: ${totalFixed} | contributionValue: ${contributionValue} | Contribution: ${totalFixed / contributionValue}`);
@@ -428,16 +430,16 @@ const BreakEvenPoint = ({
   }, [JSON.stringify(breakEvenPointPercentage)]);
 
   const isPreliminaryWriteOffAllZero = Array.from({
-    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+    length: projectionYears - hideFirstYear,
   }).every((_, yearIndex) => {
-    const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex; // ✅ Fix index offset
+    const adjustedYearIndex = yearIndex + hideFirstYear; // ✅ Fix index offset
     return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
   });
   const visibleAllExpenses = allExpenses.filter((expense) => {
     const isAllYearsZero = Array.from({
-      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+      length: projectionYears - hideFirstYear,
     }).every((_, yearIndex) => {
-      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const adjustedYearIndex = yearIndex + hideFirstYear;
 
       let expenseValue = 0;
       const isRawMaterial =
@@ -471,9 +473,7 @@ const BreakEvenPoint = ({
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
     // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -492,7 +492,7 @@ const BreakEvenPoint = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // Visible local column indices for this page (respecting hideFirstYear)
       const visibleLocalCols = labels
@@ -1049,7 +1049,7 @@ const BreakEvenPoint = ({
                     {Array.from({
                       length: formData.ProjectReportSetting.ProjectionYears,
                     }).map((_, index) => {
-                      if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
+                      if (index < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                       return (
                         <Text
@@ -1095,7 +1095,7 @@ const BreakEvenPoint = ({
                       {Array.from({
                         length: formData.ProjectReportSetting.ProjectionYears,
                       }).map((_, yearIndex) => {
-                        if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                        if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
                         const calculatedInterest =
                           calculateInterestOnWorkingCapital(yearIndex);
 
@@ -1640,7 +1640,7 @@ const BreakEvenPoint = ({
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -1686,7 +1686,7 @@ const BreakEvenPoint = ({
             {/* ✅ Dynamically Display Cells Based on Projection Years */}
             {Array.from({ length: projectionYears }).map(
               (_, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -1728,7 +1728,7 @@ const BreakEvenPoint = ({
                 parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
             }).map(
               (_, index) =>
-                (!hideFirstYear || index !== 0) && (
+                index >= hideFirstYear && (
                   <Text
                     key={`ClosingStock-${index}`}
                     style={[
@@ -1763,7 +1763,7 @@ const BreakEvenPoint = ({
                 parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
             }).map(
               (_, index) =>
-                (!hideFirstYear || index !== 0) && (
+                index >= hideFirstYear && (
                   <Text
                     key={`OpeningStock-${index}`}
                     style={[
@@ -1802,7 +1802,7 @@ const BreakEvenPoint = ({
             {/* ✅ Display Computed Adjusted Revenue Values */}
             {adjustedRevenueValues.map(
               (finalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={`finalValue-${yearIndex}`}
                     style={[
@@ -1849,7 +1849,7 @@ const BreakEvenPoint = ({
                 Less: Variable Expense
               </Text>
               {Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                length: projectionYears - hideFirstYear,
               }).map((_, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -1870,11 +1870,9 @@ const BreakEvenPoint = ({
             {allExpenses
               .filter((expense) => {
                 const isAllYearsZero = Array.from({
-                  length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                  length: projectionYears - hideFirstYear,
                 }).every((_, yearIndex) => {
-                  const adjustedYearIndex = hideFirstYear
-                    ? yearIndex + 1
-                    : yearIndex;
+                  const adjustedYearIndex = yearIndex + hideFirstYear;
 
                   // Determine actual value
                   let expenseValue = 0;
@@ -1937,13 +1935,9 @@ const BreakEvenPoint = ({
                     </Text>
 
                     {Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
+                      length: projectionYears - hideFirstYear,
                     }).map((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
+                      const adjustedYearIndex = yearIndex + hideFirstYear;
 
                       let expenseValue = 0;
                       const isRawMaterial =
@@ -2023,13 +2017,9 @@ const BreakEvenPoint = ({
                     {row.name} (Advance)
                   </Text>
                   {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).map((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
                     const yearLabel = financialYearLabels[adjustedYearIndex];
                     const value =
                       getAdvanceExpenseValueForYear(row, yearLabel) ||
@@ -2068,7 +2058,7 @@ const BreakEvenPoint = ({
                 </Text>
 
                 {preliminaryWriteOffPerYear
-                  .slice(hideFirstYear ? 1 : 0)
+                  .slice(hideFirstYear)
                   .map((value, yearIndex) => (
                     <Text
                       key={yearIndex}
@@ -2111,7 +2101,7 @@ const BreakEvenPoint = ({
                 {Array.from({
                   length: formData.ProjectReportSetting.ProjectionYears,
                 }).map((_, index) => {
-                  if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
+                  if (index < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                   return (
                     <Text
@@ -2157,7 +2147,7 @@ const BreakEvenPoint = ({
                 {Array.from({
                   length: formData.ProjectReportSetting.ProjectionYears,
                 }).map((_, yearIndex) => {
-                  if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                  if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
                   const calculatedInterest =
                     calculateInterestOnWorkingCapital(yearIndex);
 
@@ -2206,7 +2196,7 @@ const BreakEvenPoint = ({
 
               {/* ✅ Display Properly Formatted Totals for Each Year */}
               {totalVariableExpenses.map((total, yearIndex) => (
-                // (!hideFirstYear || yearIndex !== 0) && (
+                // yearIndex >= hideFirstYear && (
                 <Text
                   key={yearIndex}
                   style={[
@@ -2297,7 +2287,7 @@ const BreakEvenPoint = ({
                 Less: Fixed Expenses
               </Text>
               {Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                length: projectionYears - hideFirstYear,
               }).map((_, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -2327,7 +2317,7 @@ const BreakEvenPoint = ({
                 Salary and Wages
               </Text>
               {/* {Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                length: projectionYears - hideFirstYear,
               }).map((_, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -2339,17 +2329,15 @@ const BreakEvenPoint = ({
                   {formatNumber(
                     calculateExpense(
                       Number(fringAndAnnualCalculation) || 0,
-                      hideFirstYear ? yearIndex - 1 : yearIndex // Shift index when skipping the first year
+                      yearIndex - hideFirstYear // Shift index when skipping the first year
                     ).toFixed(2)
                   )}
                 </Text>
               ))} */}
               {Array.from({
-                length: projectionYears - (hideFirstYear ? 1 : 0),
+                length: projectionYears - hideFirstYear,
               }).map((_, visibleIndex) => {
-                const adjustedIndex = hideFirstYear
-                  ? visibleIndex + 1
-                  : visibleIndex;
+                const adjustedIndex = visibleIndex + hideFirstYear;
 
                 return (
                   <Text
@@ -2399,7 +2387,7 @@ const BreakEvenPoint = ({
                 {Array.from({
                   length: formData.ProjectReportSetting.ProjectionYears,
                 }).map((_, index) => {
-                  if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is true
+                  if (index < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                   return (
                     <Text
@@ -2445,7 +2433,7 @@ const BreakEvenPoint = ({
                 {Array.from({
                   length: formData.ProjectReportSetting.ProjectionYears,
                 }).map((_, yearIndex) => {
-                  if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                  if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
                   const calculatedInterest =
                     calculateInterestOnWorkingCapital(yearIndex);
 
@@ -2489,7 +2477,7 @@ const BreakEvenPoint = ({
                 {/* ✅ Display Depreciation Values for Each Year */}
                 {totalDepreciationPerYear.map(
                   (depreciationValue, yearIndex) =>
-                    (!hideFirstYear || yearIndex !== 0) && (
+                    yearIndex >= hideFirstYear && (
                       <Text
                         key={yearIndex}
                         style={[
@@ -2534,7 +2522,7 @@ const BreakEvenPoint = ({
               {/* ✅ Display the calculated `totalFixedExpenses` */}
               {totalFixedExpenses.map(
                 (totalValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={yearIndex}
                       style={[
@@ -2631,3 +2619,5 @@ const BreakEvenPoint = ({
 };
 
 export default React.memo(BreakEvenPoint);
+
+

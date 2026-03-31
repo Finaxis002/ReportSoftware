@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import shouldHideFirstYear from "./HideFirstYear";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles"; // Import only necessary styles
 import SAWatermark from "../Assets/SAWatermark";
@@ -323,7 +324,8 @@ const ProjectedDepreciation = ({
     }
   }, [formData, years]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
   // const orientation =
   // hideFirstYear
   //   ? (formData.ProjectReportSetting.ProjectionYears > 6 ? "landscape" : "portrait")
@@ -334,7 +336,7 @@ const toRoman = n => ["I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || 
   let splitFinancialYearLabels = [financialYearLabels];
 if (isAdvancedLandscape) {
   // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -351,7 +353,7 @@ if (isAdvancedLandscape) {
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       return (
         <Page
@@ -1207,7 +1209,7 @@ if (isAdvancedLandscape) {
 
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -1258,7 +1260,7 @@ if (isAdvancedLandscape) {
             {/* ✅ Render values from grossFixedAssetsPerYear */}
             {grossFixedAssetsPerYear &&
               grossFixedAssetsPerYear.map((value, index) =>
-                hideFirstYear && index === 0 ? null : (
+                index < hideFirstYear ? null : (
                   <Text
                     key={index}
                     style={[
@@ -1327,7 +1329,7 @@ if (isAdvancedLandscape) {
                 }
 
                 const visibleAssetValues = hideFirstYear
-                  ? assetValues.slice(1)
+                  ? assetValues.slice(hideFirstYear)
                   : assetValues;
 
                 // Check if all depreciation values are zero
@@ -1359,7 +1361,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     <Text style={stylesCOP.serialNoCellDetail}></Text>
                     {assetValues.map((value, yearIndex) =>
-                      hideFirstYear && yearIndex === 0 ? null : (
+                      yearIndex < hideFirstYear ? null : (
                         <Text
                           key={yearIndex}
                           style={[
@@ -1412,7 +1414,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Render values from grossFixedAssetsPerYear */}
             {totalDepreciationPerYear.map((total, yearIndex) =>
-              hideFirstYear && yearIndex === 0 ? null : (
+              yearIndex < hideFirstYear ? null : (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1441,7 +1443,7 @@ if (isAdvancedLandscape) {
 
                 // Get only the visible years
                 const visibleDep = hideFirstYear
-                  ? yearlyDep.slice(1)
+                  ? yearlyDep.slice(hideFirstYear)
                   : yearlyDep;
 
                 // If all visible values are 0, skip rendering
@@ -1477,7 +1479,7 @@ if (isAdvancedLandscape) {
 
                     {/* Yearly Depreciation Values */}
                     {yearlyDep.map((value, yearIndex) =>
-                      hideFirstYear && yearIndex === 0 ? null : (
+                      yearIndex < hideFirstYear ? null : (
                         <Text
                           key={yearIndex}
                           style={[
@@ -1531,7 +1533,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Render values from grossFixedAssetsPerYear */}
             {cumulativeDepreciationTotals.map((total, yearIndex) =>
-              hideFirstYear && yearIndex === 0 ? null : (
+              yearIndex < hideFirstYear ? null : (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1558,7 +1560,7 @@ if (isAdvancedLandscape) {
                   depreciationValues[index]?.cumulativeDepreciation || [];
 
                 // Only consider visible years
-                const visibleCumDep = hideFirstYear ? cumDep.slice(1) : cumDep;
+                const visibleCumDep = cumDep.slice(hideFirstYear);
 
                 // Skip rendering if all visible values are zero
                 if (visibleCumDep.every((val) => val === 0)) return null;
@@ -1591,7 +1593,7 @@ if (isAdvancedLandscape) {
 
                     {/* Display Cumulative Depreciation per year */}
                     {cumDep.map((value, yearIndex) =>
-                      hideFirstYear && yearIndex === 0 ? null : (
+                      yearIndex < hideFirstYear ? null : (
                         <Text
                           key={yearIndex}
                           style={[
@@ -1645,7 +1647,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Render values from net assets per year */}
             {totalNetAssetValuesPerYear.map((total, yearIndex) =>
-              hideFirstYear && yearIndex === 0 ? null : (
+              yearIndex < hideFirstYear ? null : (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1693,7 +1695,7 @@ if (isAdvancedLandscape) {
 
                 // Skip assets where all visible years are 0
                 const visibleNetValues = hideFirstYear
-                  ? netPerYear.slice(1)
+                  ? netPerYear.slice(hideFirstYear)
                   : netPerYear;
                 if (visibleNetValues.every((val) => val === 0)) return null;
 
@@ -1726,7 +1728,7 @@ if (isAdvancedLandscape) {
                     ></Text>
 
                     {netPerYear.map((netAsset, yearIndex) =>
-                      hideFirstYear && yearIndex === 0 ? null : (
+                      yearIndex < hideFirstYear ? null : (
                         <Text
                           key={yearIndex}
                           style={[
@@ -1771,3 +1773,5 @@ if (isAdvancedLandscape) {
 };
 
 export default React.memo(ProjectedDepreciation);
+
+

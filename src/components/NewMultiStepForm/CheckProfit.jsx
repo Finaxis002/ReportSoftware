@@ -561,27 +561,30 @@ const totalDirectExpensesArray = Array.from({
       : (currentAssets / currentLiabilities).toFixed(2);
   });
 
-  // ✅ Calculate Average Current Ratio (Excluding Leading Zeros and Values ≤ 1)
+    const hideFirstYear = shouldHideFirstYear(storedData?.totalRevenueReceipts) || 0;
+
+  // ✅ Calculate Average Current Ratio (match PDF logic: drop hidden years, average remaining)
   const averageCurrentRatio = (() => {
     // Filter out invalid ratios and convert valid ones to numbers
-    const validRatios = currentRatio
-      .filter((r) => r !== "-" && !isNaN(parseFloat(r))) // Filter out invalid values
-      .map((r) => parseFloat(r)); // Convert to numeric values
+    let validRatios = currentRatio
+      .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+      .map((r) => parseFloat(r));
 
-    // ✅ Exclude leading values ≤ 1
-    const firstValidIndex = validRatios.findIndex((value) => value > 1);
-    const nonZeroRatios = validRatios.slice(firstValidIndex);
+    // ✅ Remove hidden years (leading zero-revenue years)
+    if (hideFirstYear > 0) {
+      validRatios = validRatios.slice(hideFirstYear);
+    }
 
     // ✅ If there are no valid ratios left, return "-"
-    if (nonZeroRatios.length === 0) {
+    if (validRatios.length === 0) {
       return "-";
     }
 
-    // ✅ Calculate the total of valid non-zero ratios
-    const total = nonZeroRatios.reduce((sum, value) => sum + value, 0);
+    // ✅ Calculate the average of visible ratios
+    const total = validRatios.reduce((sum, value) => sum + value, 0);
 
     // ✅ Return the average rounded to 2 decimal places
-    const average = (total / nonZeroRatios.length).toFixed(2);
+    const average = (total / validRatios.length).toFixed(2);
 
     return average;
   })();
@@ -839,7 +842,8 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
     }
   );
 
-  const hideFirstYear = shouldHideFirstYear(storedData?.totalRevenueReceipts);
+
+  const isVisibleYear = (yearIndex) => yearIndex >= hideFirstYear;
 
   const isPreliminaryWriteOffAllZero = Array.from({
     length: projectionYears,
@@ -884,7 +888,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {financialYearLabels
                   .map((yearLabel, yearIndex) => ({ yearLabel, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ yearLabel, yearIndex }) => (
                     <th
@@ -911,7 +915,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                   ?.slice(0, projectionYears)
                   .map((value, yearIndex) => ({ value, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -938,7 +942,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     yearIndex,
                   }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -963,7 +967,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     yearIndex,
                   }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -983,7 +987,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {adjustedRevenueValues
                   ?.map((value, yearIndex) => ({ value, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -1020,7 +1024,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     {Array.from({ length: projectionYears })
                       .map((_, yearIndex) => ({
                         yearIndex,
-                        isHidden: hideFirstYear && yearIndex === 0,
+                        isHidden: yearIndex < hideFirstYear,
                       }))
                       .filter(({ isHidden }) => !isHidden)
                       .map(({ yearIndex }) => (
@@ -1079,7 +1083,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
 
                   // ✅ Step 2: Filter out values if hideFirstYear is true
                   const filteredValues = valuesPerYear.filter(
-                    (_, i) => !(hideFirstYear && i === 0)
+                    (_, i) => i >= hideFirstYear
                   );
 
                   // ✅ Step 3: Check if all visible values are 0
@@ -1104,7 +1108,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                       </td>
 
                       {valuesPerYear.map((val, yearIndex) => {
-                        if (hideFirstYear && yearIndex === 0) return null;
+                        if (yearIndex < hideFirstYear) return null;
 
                         return (
                           <td
@@ -1129,7 +1133,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {totalDirectExpensesArray
                   .map((grandTotal, yearIndex) => ({ grandTotal, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ grandTotal, yearIndex }) => (
                     <td
@@ -1154,7 +1158,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {grossProfitValues
                   .map((grossProfit, yearIndex) => ({ grossProfit, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ grossProfit, yearIndex }) => (
                     <td
@@ -1196,7 +1200,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     yearIndex,
                   }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -1230,7 +1234,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                       return { value, yearIndex };
                     })
                     .filter(
-                      ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                      ({ yearIndex }) => yearIndex >= hideFirstYear
                     )
                     .map(({ value, yearIndex }) => (
                       <td
@@ -1255,7 +1259,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {storedData?.computedData1?.totalDepreciationPerYear
                   ?.map((value, yearIndex) => ({ value, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ value, yearIndex }) => (
                     <td
@@ -1284,7 +1288,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
 
                   // ✅ Step 2: Filter values based on hideFirstYear
                   const filteredValues = yearlyValues.filter(
-                    (_, yearIndex) => !(hideFirstYear && yearIndex === 0)
+                    (_, yearIndex) => yearIndex >= hideFirstYear
                   );
 
                   // ✅ Step 3: Check if all visible values are 0
@@ -1309,7 +1313,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                       </td>
 
                       {yearlyValues.map((val, yearIndex) => {
-                        if (hideFirstYear && yearIndex === 0) return null;
+                        if (yearIndex < hideFirstYear) return null;
 
                         return (
                           <td
@@ -1338,7 +1342,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {totalIndirectExpensesArray
                   .map((totalValue, yearIndex) => ({ totalValue, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ totalValue, yearIndex }) => (
                     <td
@@ -1362,7 +1366,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {netProfitBeforeTax
                   .map((npbt, yearIndex) => ({ npbt, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ npbt, yearIndex }) => (
                     <td
@@ -1386,7 +1390,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {incomeTaxCalculation
                   .map((tax, yearIndex) => ({ tax, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ tax, yearIndex }) => (
                     <td
@@ -1410,7 +1414,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {netProfitAfterTax
                   .map((npat, yearIndex) => ({ npat, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ npat, yearIndex }) => (
                     <td
@@ -1439,7 +1443,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     yearIndex,
                   }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ amount, yearIndex }) => (
                     <td
@@ -1461,7 +1465,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {balanceTransferred
                   .map((amount, yearIndex) => ({ amount, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ amount, yearIndex }) => (
                     <td
@@ -1483,7 +1487,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {cumulativeBalanceTransferred
                   .map((amount, yearIndex) => ({ amount, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ amount, yearIndex }) => {
                     const adjustedAmount = Math.max(amount, 0);
@@ -1517,7 +1521,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                     return { yearIndex, cashProfit };
                   })
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ yearIndex, cashProfit }) => {
                     const roundedValue = cashProfit;
@@ -1548,7 +1552,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {financialYearLabels
                   .map((yearLabel, yearIndex) => ({ yearLabel, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ yearLabel, yearIndex }) => (
                     <th
@@ -1574,7 +1578,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                   yearIndex,
                 }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ totalValue, yearIndex }) => (
                     <td
@@ -1600,11 +1604,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 </td>
                 <td
                   className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
-                  colSpan={
-                    hideFirstYear
-                      ? financialYearLabels.length - 1
-                      : financialYearLabels.length
-                  }
+                  colSpan={Math.max(financialYearLabels.length - hideFirstYear, 0)}
                 >
                   {formatNumber(parseFloat(averageDSCR).toFixed(2))}
                 </td>
@@ -1623,7 +1623,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
                 {currentRatio
                   .map((ratio, yearIndex) => ({ ratio, yearIndex }))
                   .filter(
-                    ({ yearIndex }) => !(hideFirstYear && yearIndex === 0)
+                    ({ yearIndex }) => yearIndex >= hideFirstYear
                   )
                   .map(({ ratio, yearIndex }) => (
                     <td
@@ -1651,11 +1651,7 @@ const totalAssetArray = Array.from({ length: projectionYears }).map(
 
                 <td
                   className="border border-black px-1 py-2 text-center font-extrabold text-[11px]"
-                  colSpan={
-                    hideFirstYear
-                      ? financialYearLabels.length - 1
-                      : financialYearLabels.length
-                  }
+                  colSpan={Math.max(financialYearLabels.length - hideFirstYear, 0)}
                 >
                   {averageCurrentRatio !== "-" ? `${averageCurrentRatio}` : "0"}
                 </td>

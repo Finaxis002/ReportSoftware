@@ -1244,7 +1244,8 @@ const ProjectSynopsis = React.memo(
                   ]}
                 >
                   {`${formatNumber(receivedDscr?.averageDSCR || 0)} (${
-                    receivedDscr?.numOfYearsUsedForAvg || 0
+                   
+                    (shouldHideFirstYear(receivedtotalRevenueReceipts) || 0)
                   } Years Average)`}
                 </Text>
               </View>
