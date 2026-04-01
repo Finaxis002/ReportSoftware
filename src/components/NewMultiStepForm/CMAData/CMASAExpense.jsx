@@ -66,7 +66,7 @@ const CMASAExpense = ({
   const extractors = makeCMAExtractors(formData);
   const allYearLabels = extractors.yearLabels();
   const revenueArray =
-     formData?.computedData?.totalRevenueReceipts || totalRevenueReceiptRaw || [];
+     formData?.computedData?.totalRevenueReceipts  || [];
   const normalizedRevenue = Array.isArray(revenueArray)
      ? revenueArray.map((v) => Number(v || 0))
      : [];
