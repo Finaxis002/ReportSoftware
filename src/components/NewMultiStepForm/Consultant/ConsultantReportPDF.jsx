@@ -202,32 +202,64 @@ const ConsultantGeneratedPDF = () => {
 
 
   // Fetch consultant data if on consultant PDF route
-  useEffect(() => {
-    if (location.pathname === "/consultant-report-pdf") {
-      const fetchConsultantData = async () => {
-        try {
-          const storedFormData = JSON.parse(localStorage.getItem("formData") || "{}");
-          const sessionId =
-            new URLSearchParams(location.search).get("sessionId") ||
-            storedFormData?.sessionId ||
-            localStorage.getItem("activeSessionId") ||
-            localStorage.getItem("sessionId");
-          if (sessionId) {
-            const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
-            if (response.data.success && response.data.data) {
-              setFormData(response.data.data);
-              localStorage.setItem("formData", JSON.stringify(response.data.data));
-              localStorage.setItem("activeSessionId", sessionId);
-              localStorage.setItem("sessionId", sessionId);
-            }
+  // useEffect(() => {
+  //   if (location.pathname === "/consultant-report-pdf") {
+  //     const fetchConsultantData = async () => {
+  //       try {
+  //         const sessionId = localStorage.getItem("activeSessionId");
+  //         if (sessionId) {
+  //           const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
+  //           if (response.data.success && response.data.data) {
+  //             setFormData(response.data.data);
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching consultant data:", error);
+  //       }
+  //     };
+  //     fetchConsultantData();
+  //   }
+  // }, [location.pathname]);
+
+
+  // ✅ After — fetches fresh data using URL session param, writes to separate key
+useEffect(() => {
+  const fetchDataFromSession = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionIdFromUrl = params.get("session");
+
+    if (sessionIdFromUrl) {
+      // Session param present — always fetch fresh
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionIdFromUrl}`,
+          {
+            headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" },
+            params: { t: Date.now() }
           }
-        } catch (error) {
-          console.error("Error fetching consultant data:", error);
+        );
+        const data = response.data?.data;
+        if (data) {
+          setFormData(data);
+          localStorage.setItem("consultantFormData", JSON.stringify(data)); // ✅ separate key
         }
-      };
-      fetchConsultantData();
+      } catch (error) {
+        console.error("Error fetching consultant data:", error);
+        // Fallback to localStorage
+        const fallback = JSON.parse(localStorage.getItem("consultantFormData")) ||
+                         JSON.parse(localStorage.getItem("formData")) || {};
+        setFormData(fallback);
+      }
+    } else {
+      // No session param — use existing localStorage (consultant key first)
+      const stored = JSON.parse(localStorage.getItem("consultantFormData")) ||
+                     JSON.parse(localStorage.getItem("formData")) || {};
+      setFormData(stored);
     }
-  }, [location.pathname, location.search]);
+  };
+
+  fetchDataFromSession();
+}, []);
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
@@ -335,9 +367,14 @@ const ConsultantGeneratedPDF = () => {
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
 
+  // const [formData1, setFormData] = useState(() => {
+  //   return JSON.parse(localStorage.getItem("formData")) || {};
+  // });
+
   const [formData1, setFormData] = useState(() => {
-    return JSON.parse(localStorage.getItem("formData")) || {};
-  });
+  return JSON.parse(localStorage.getItem("consultantFormData")) || 
+         JSON.parse(localStorage.getItem("formData")) || {}; // fallback for safety
+});
 
   // console.log("formData1", formData1);
 
