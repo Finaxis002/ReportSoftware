@@ -169,11 +169,12 @@ const interestRate = formData?.ProjectReportSetting?.interestOnTL;
   }).map((_, yearIndex) => {
     return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
   });
-
+const visibleDSCRValues = DSCR.slice(hideFirstYear);
   // ✅ Filter out zero values from the beginning
-  const validDSCRValues = DSCR.filter(
-    (value, index) => !(index === 0 && value === 0)
-  );
+  const validDSCRValues = visibleDSCRValues.filter((value) => {
+    const numericValue = Number(value);
+    return !Number.isNaN(numericValue) && numericValue !== 0;
+  });
 
   // ✅ Memoize averageDSCR calculation
   const averageDSCR = useMemo(() => {

@@ -129,7 +129,7 @@ const ConsultantProjectedProfitability = ({
         return (workingCapitalLoan * interestRate) / 100;
     });
 
-    const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+    const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
     // Function to handle moratorium period spillover across financial years
     const calculateMonthsPerYear = () => {
         let monthsArray = [];
@@ -159,12 +159,12 @@ const ConsultantProjectedProfitability = ({
 
     // Check if all Interest On Term Loan values are zero or falsy
     const isInterestOnTermLoanZero = yearlyInterestLiabilities
-        .slice(hideFirstYear ? 1 : 0)
+        .slice(hideFirstYear)
         .every((val) => isZeroValue(val));
 
     // Check if all Depreciation values are zero or falsy
     const isDepreciationZero = totalDepreciationPerYear
-        .slice(hideFirstYear ? 1 : 0)
+        .slice(hideFirstYear)
         .every((val) => isZeroValue(val));
 
     const calculateInterestOnWorkingCapital = useMemo(() => {
@@ -373,7 +373,7 @@ const ConsultantProjectedProfitability = ({
         }
 
         // Calculate the actual start year for write-off (considering hideFirstYear)
-        const effectiveStartYear = Math.max(hideFirstYear ? 1 : 0, firstYearWithMonths);
+        const effectiveStartYear = Math.max(hideFirstYear, firstYearWithMonths);
         const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
 
         console.log(`Year ${yearIndex + 1}: effectiveStartYear = ${effectiveStartYear}, writeOffEndYear = ${writeOffEndYear}`);
@@ -656,9 +656,9 @@ const ConsultantProjectedProfitability = ({
 
 
     const isPreliminaryWriteOffAllZero = Array.from({
-        length: hideFirstYear ? projectionYears - 1 : projectionYears,
+        length: projectionYears - hideFirstYear,
     }).every((_, yearIndex) => {
-        const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+        const adjustedYearIndex = yearIndex + hideFirstYear;
         return preliminaryWriteOffPerYear[adjustedYearIndex] === 0;
     });
 
@@ -667,9 +667,9 @@ const ConsultantProjectedProfitability = ({
             return false;
 
         const isAllYearsZero = Array.from({
-            length: hideFirstYear ? projectionYears - 1 : projectionYears,
+            length: projectionYears - hideFirstYear,
         }).every((_, yearIndex) => {
-            const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+            const adjustedYearIndex = yearIndex + hideFirstYear;
             const escalated = calculateExpense(
                 Number(expense.total) || 0,
                 adjustedYearIndex
@@ -686,7 +686,7 @@ const ConsultantProjectedProfitability = ({
     let splitFinancialYearLabels = [financialYearLabels];
     if (isAdvancedLandscape) {
         // Remove first year if hidden
-        const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+        const visibleLabels = financialYearLabels.slice(hideFirstYear);
         const totalCols = visibleLabels.length;
         const firstPageCols = Math.ceil(totalCols / 2);
         const secondPageCols = totalCols - firstPageCols;
@@ -703,7 +703,7 @@ const ConsultantProjectedProfitability = ({
                 Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
             const globalIndex = (localIdx) => pageStart + localIdx;
-            const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+            const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
             // console.log(formData, "formdata in pp");
 
@@ -1158,13 +1158,9 @@ const ConsultantProjectedProfitability = ({
                                 {directExpense
                                     .filter((expense) => {
                                         const isAllYearsZero = Array.from({
-                                            length: hideFirstYear
-                                                ? projectionYears - 1
-                                                : projectionYears,
+                                            length: projectionYears - hideFirstYear,
                                         }).every((_, yearIndex) => {
-                                            const adjustedYearIndex = hideFirstYear
-                                                ? yearIndex + 1
-                                                : yearIndex;
+                                            const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                             // Determine actual value
                                             let expenseValue = 0;
@@ -1616,13 +1612,9 @@ const ConsultantProjectedProfitability = ({
                                     {directExpense
                                         .filter((expense) => {
                                             const isAllYearsZero = Array.from({
-                                                length: hideFirstYear
-                                                    ? projectionYears - 1
-                                                    : projectionYears,
+                                                length: projectionYears - hideFirstYear,
                                             }).every((_, yearIndex) => {
-                                                const adjustedYearIndex = hideFirstYear
-                                                    ? yearIndex + 1
-                                                    : yearIndex;
+                                                const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                                 // Determine actual value
                                                 let expenseValue = 0;
@@ -2010,9 +2002,9 @@ const ConsultantProjectedProfitability = ({
                                 {/* Withdrawals during the year  */}
 
                                 {Array.from({
-                                    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                                    length: projectionYears - hideFirstYear,
                                 }).every((_, index) => {
-                                    const adjustedIndex = hideFirstYear ? index + 1 : index;
+                                    const adjustedIndex = index + hideFirstYear;
                                     return !Number(
                                         formData.MoreDetails?.Withdrawals?.[adjustedIndex]
                                     );
@@ -2165,7 +2157,7 @@ const ConsultantProjectedProfitability = ({
                                         if (shouldSkipCol(gIdx)) return null;
 
                                         // Apply hideFirstYear logic
-                                        if (hideFirstYear && gIdx === 0) return null;
+                                        if (gIdx < hideFirstYear) return null;
 
                                         // ✅ Get values from computed data first, then regular data
                                         const npat =
@@ -2422,7 +2414,7 @@ const ConsultantProjectedProfitability = ({
                             {/* Generate Dynamic Year Headers using financialYearLabels */}
                             {financialYearLabels.map(
                                 (yearLabel, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={yearIndex}
                                             style={[styles.particularsCell, stylesCOP.boldText]}
@@ -2464,7 +2456,7 @@ const ConsultantProjectedProfitability = ({
 
                             {/* ✅ Display revenue values based on projectionYears */}
                             {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                                !hideFirstYear || yearIndex !== 0 ? (
+                                yearIndex >= hideFirstYear ? (
                                     <Text
                                         key={yearIndex}
                                         style={[
@@ -2512,7 +2504,7 @@ const ConsultantProjectedProfitability = ({
 
                             {/* ✅ Display revenue values - use computed data if available */}
                             {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                                !hideFirstYear || yearIndex !== 0 ? (
+                                yearIndex >= hideFirstYear ? (
                                     <Text
                                         key={yearIndex}
                                         style={[
@@ -2563,7 +2555,7 @@ const ConsultantProjectedProfitability = ({
                                     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
                             }).map(
                                 (_, index) =>
-                                    (!hideFirstYear || index !== 0) && (
+                                    index >= hideFirstYear && (
                                         <Text
                                             key={`ClosingStock-${index}`}
                                             style={[
@@ -2603,7 +2595,7 @@ const ConsultantProjectedProfitability = ({
                                     parseInt(formData.ProjectReportSetting.ProjectionYears) || 0,
                             }).map(
                                 (_, index) =>
-                                    (!hideFirstYear || index !== 0) && (
+                                    index >= hideFirstYear && (
                                         <Text
                                             key={`OpeningStock-${index}`}
                                             style={[
@@ -2646,7 +2638,7 @@ const ConsultantProjectedProfitability = ({
                             {/* ✅ Display Computed Adjusted Revenue Values */}
                             {adjustedRevenueValues.map(
                                 (finalValue, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={`finalValue-${yearIndex}`}
                                             style={[
@@ -2687,7 +2679,7 @@ const ConsultantProjectedProfitability = ({
                                 Direct Expenses
                             </Text>
                             {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                                if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                                 return (
                                     <Text
@@ -2722,7 +2714,7 @@ const ConsultantProjectedProfitability = ({
 
                                     {Array.from({ length: projectionYears }).map(
                                         (_, yearIndex) =>
-                                            (!hideFirstYear || yearIndex !== 0) && (
+                                            yearIndex >= hideFirstYear && (
                                                 <Text
                                                     key={yearIndex}
                                                     style={[
@@ -2747,11 +2739,9 @@ const ConsultantProjectedProfitability = ({
                         {directExpense
                             .filter((expense) => {
                                 const isAllYearsZero = Array.from({
-                                    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                                    length: projectionYears - hideFirstYear,
                                 }).every((_, yearIndex) => {
-                                    const adjustedYearIndex = hideFirstYear
-                                        ? yearIndex + 1
-                                        : yearIndex;
+                                    const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                     // Determine actual value
                                     let expenseValue = 0;
@@ -2809,13 +2799,9 @@ const ConsultantProjectedProfitability = ({
                                         </Text>
 
                                         {Array.from({
-                                            length: hideFirstYear
-                                                ? projectionYears - 1
-                                                : projectionYears,
+                                            length: projectionYears - hideFirstYear,
                                         }).map((_, yearIndex) => {
-                                            const adjustedYearIndex = hideFirstYear
-                                                ? yearIndex + 1
-                                                : yearIndex;
+                                            const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                             let expenseValue = 0;
                                             // const isRawMaterial =
@@ -2900,13 +2886,9 @@ const ConsultantProjectedProfitability = ({
                                         </Text>
 
                                         {Array.from({
-                                            length: hideFirstYear
-                                                ? projectionYears - 1
-                                                : projectionYears,
+                                            length: projectionYears - hideFirstYear,
                                         }).map((_, yearIndex) => {
-                                            const adjustedYearIndex = hideFirstYear
-                                                ? yearIndex + 1
-                                                : yearIndex;
+                                            const adjustedYearIndex = yearIndex + hideFirstYear;
                                             // Value for this year:
                                             const value =
                                                 (row.values &&
@@ -2951,7 +2933,7 @@ const ConsultantProjectedProfitability = ({
                             {/* ✅ Display Precomputed Total Direct Expenses */}
                             {totalDirectExpensesArray.map(
                                 (grandTotal, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={yearIndex}
                                             style={[
@@ -2997,7 +2979,7 @@ const ConsultantProjectedProfitability = ({
 
                             {/* ✅ Display revenue values based on projectionYears */}
                             {Array.from({ length: projectionYears }).map((_, yearIndex) =>
-                                !hideFirstYear || yearIndex !== 0 ? (
+                                yearIndex >= hideFirstYear ? (
                                     <Text
                                         key={yearIndex}
                                         style={[
@@ -3038,7 +3020,7 @@ const ConsultantProjectedProfitability = ({
                             {/* ✅ Display Precomputed Gross Profit Values */}
                             {grossProfitValues.map(
                                 (grossProfit, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={`grossProfit-${yearIndex}`}
                                             style={[
@@ -3085,7 +3067,7 @@ const ConsultantProjectedProfitability = ({
                                 </Text>
                                 {Array.from({ length: projectionYears }).map(
                                     (_, yearIndex) =>
-                                        (!hideFirstYear || yearIndex !== 0) && (
+                                        yearIndex >= hideFirstYear && (
                                             <Text
                                                 key={yearIndex}
                                                 style={[
@@ -3121,7 +3103,7 @@ const ConsultantProjectedProfitability = ({
                                             formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
                                     }).map(
                                         (_, index) =>
-                                            (!hideFirstYear || index !== 0) && (
+                                            index >= hideFirstYear && (
                                                 <Text
                                                     key={index}
                                                     style={[
@@ -3160,7 +3142,7 @@ const ConsultantProjectedProfitability = ({
                                     {Array.from({
                                         length: formData.ProjectReportSetting.ProjectionYears,
                                     }).map((_, yearIndex) => {
-                                        if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                                        if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                                         const calculatedInterest =
                                             calculateInterestOnWorkingCapital(yearIndex);
@@ -3199,7 +3181,7 @@ const ConsultantProjectedProfitability = ({
                                     {/* ✅ Display Depreciation Values from computedData */}
                                     {formData?.computedData?.totalDepreciation?.map(
                                         (depreciationValue, yearIndex) =>
-                                            (!hideFirstYear || yearIndex !== 0) && (
+                                            yearIndex >= hideFirstYear && (
                                                 <Text
                                                     key={yearIndex}
                                                     style={[
@@ -3216,13 +3198,9 @@ const ConsultantProjectedProfitability = ({
                             {directExpense
                                 .filter((expense) => {
                                     const isAllYearsZero = Array.from({
-                                        length: hideFirstYear
-                                            ? projectionYears - 1
-                                            : projectionYears,
+                                        length: projectionYears - hideFirstYear,
                                     }).every((_, yearIndex) => {
-                                        const adjustedYearIndex = hideFirstYear
-                                            ? yearIndex + 1
-                                            : yearIndex;
+                                        const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                         // Determine actual value
                                         let expenseValue = 0;
@@ -3286,13 +3264,9 @@ const ConsultantProjectedProfitability = ({
                                             </Text>
 
                                             {Array.from({
-                                                length: hideFirstYear
-                                                    ? projectionYears - 1
-                                                    : projectionYears,
+                                                length: projectionYears - hideFirstYear,
                                             }).map((_, yearIndex) => {
-                                                const adjustedYearIndex = hideFirstYear
-                                                    ? yearIndex + 1
-                                                    : yearIndex;
+                                                const adjustedYearIndex = yearIndex + hideFirstYear;
 
                                                 let expenseValue = 0;
                                                 const isRawMaterial =
@@ -3371,13 +3345,9 @@ const ConsultantProjectedProfitability = ({
                                             </Text>
 
                                             {Array.from({
-                                                length: hideFirstYear
-                                                    ? projectionYears - 1
-                                                    : projectionYears,
+                                                length: projectionYears - hideFirstYear,
                                             }).map((_, yearIndex) => {
-                                                const adjustedYearIndex = hideFirstYear
-                                                    ? yearIndex + 1
-                                                    : yearIndex;
+                                                const adjustedYearIndex = yearIndex + hideFirstYear;
                                                 const value =
                                                     (row.values &&
                                                         row.values[
@@ -3417,7 +3387,7 @@ const ConsultantProjectedProfitability = ({
                                     </Text>
 
                                     {preliminaryWriteOffPerYear
-                                        .slice(hideFirstYear ? 1 : 0)
+                                        .slice(hideFirstYear)
                                         .map((value, yearIndex) => (
                                             <Text
                                                 key={yearIndex}
@@ -3449,7 +3419,7 @@ const ConsultantProjectedProfitability = ({
                                 {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
                                 {totalIndirectExpensesArray.map(
                                     (totalValue, yearIndex) =>
-                                        (!hideFirstYear || yearIndex !== 0) && (
+                                        yearIndex >= hideFirstYear && (
                                             <Text
                                                 key={yearIndex}
                                                 style={[
@@ -3494,7 +3464,7 @@ const ConsultantProjectedProfitability = ({
                             {/* ✅ Display Precomputed NPBT Values */}
                             {netProfitBeforeTax.map(
                                 (npbt, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={`netProfitBeforeTax-${yearIndex}`}
                                             style={[
@@ -3540,7 +3510,7 @@ const ConsultantProjectedProfitability = ({
                             {/* ✅ Display Precomputed Income Tax Values */}
                             {incomeTaxCalculation.map(
                                 (tax, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={`incomeTax-${yearIndex}`}
                                             style={[
@@ -3583,7 +3553,7 @@ const ConsultantProjectedProfitability = ({
                             {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
                             {netProfitAfterTax.map(
                                 (tax, yearIndex) =>
-                                    (!hideFirstYear || yearIndex !== 0) && (
+                                    yearIndex >= hideFirstYear && (
                                         <Text
                                             key={`netProfitAfterTax-${yearIndex}`}
                                             style={[
@@ -3608,9 +3578,9 @@ const ConsultantProjectedProfitability = ({
                         {/* Withdrawals during the year  */}
 
                         {Array.from({
-                            length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                            length: projectionYears - hideFirstYear,
                         }).every((_, index) => {
-                            const adjustedIndex = hideFirstYear ? index + 1 : index;
+                            const adjustedIndex = index + hideFirstYear;
                             return !Number(
                                 formData.MoreDetails?.Withdrawals?.[adjustedIndex]
                             );
@@ -3635,9 +3605,9 @@ const ConsultantProjectedProfitability = ({
                                 </Text>
 
                                 {Array.from({
-                                    length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                                    length: projectionYears - hideFirstYear,
                                 }).map((_, index) => {
-                                    const adjustedIndex = hideFirstYear ? index + 1 : index;
+                                    const adjustedIndex = index + hideFirstYear;
                                     const value =
                                         formData.MoreDetails?.Withdrawals?.[adjustedIndex];
                                     return (
@@ -3676,7 +3646,7 @@ const ConsultantProjectedProfitability = ({
 
                             {/* Display Precomputed Balance Transferred Values with Rounding */}
                             {balanceTransferred.map((amount, yearIndex) => {
-                                if (hideFirstYear && yearIndex === 0) return null;
+                                if (yearIndex < hideFirstYear) return null;
                                 const roundedValue = amount;
 
                                 return (
@@ -3712,7 +3682,7 @@ const ConsultantProjectedProfitability = ({
                             </Text>
 
                             {cumulativeBalanceTransferred.map((amount, yearIndex) => {
-                                if (hideFirstYear && yearIndex === 0) return null;
+                                if (yearIndex < hideFirstYear) return null;
                                 // Convert negative values to 0 and round appropriately
                                 const adjustedAmount = Math.max(amount, 0);
 
@@ -3757,7 +3727,7 @@ const ConsultantProjectedProfitability = ({
                             </Text>
 
                             {netProfitAfterTax.map((npat, yearIndex) => {
-                                if (hideFirstYear && yearIndex === 0) return null;
+                                if (yearIndex < hideFirstYear) return null;
 
                                 // ✅ Use formData.computedData.totalDepreciation if available, otherwise use totalDepreciationPerYear
                                 const depreciation =

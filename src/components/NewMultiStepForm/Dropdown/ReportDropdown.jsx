@@ -26,48 +26,149 @@ const ReportDropdown = ({ onBusinessSelect }) => {
     return () => observer.disconnect();
   }, []);
 
+  const buildOptionFromReport = (report) => {
+    const accountInformation = report?.AccountInformation || {};
+    const businessName = accountInformation.businessName || "Unknown";
+    const businessOwner = accountInformation.businessOwner || "Unknown Owner";
+    const referredBy =
+      accountInformation.referredBy || accountInformation.clientName || "";
+    const labelParts = [`${businessName} (${businessOwner})`];
+
+    if (referredBy) {
+      labelParts.push(`Referred By: ${referredBy}`);
+    }
+
+    return {
+      value: report.sessionId || report._id || labelParts.join(" - "),
+      label: labelParts.join(" - "),
+      sessionId: report.sessionId,
+      businessName,
+      businessOwner,
+      referredBy,
+    };
+  };
+
+  const buildOptionFromBusinessEntry = (entry) => {
+    if (typeof entry === "string") {
+      return {
+        value: entry,
+        label: entry,
+      };
+    }
+
+    const referredBy = entry.referredBy || entry.clientName || "";
+    const baseLabel =
+      entry.label ||
+      `${entry.businessName || "Unknown"} (${entry.businessOwner || "Unknown Owner"})`;
+    const labelParts = [baseLabel];
+
+    if (referredBy && !baseLabel.includes("Referred By:")) {
+      labelParts.push(`Referred By: ${referredBy}`);
+    }
+
+    return {
+      value: entry.sessionId || entry.label,
+      label: labelParts.join(" - "),
+      sessionId: entry.sessionId,
+      businessName: entry.businessName,
+      businessOwner: entry.businessOwner,
+      referredBy,
+    };
+  };
+
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const response = await axios.get(
-          `${BASE_URL}/api/businesses`
-        );
+        const reportsResponse = await axios.get(`${BASE_URL}/get-report`);
+        const reports = reportsResponse.data?.data;
 
-        if (response.data && Array.isArray(response.data.businesses)) {
-          const options = response.data.businesses.map((entry) => ({
-            value: entry,
-            label: entry,
-          }));
-          setBusinessOptions(options);
+        if (Array.isArray(reports)) {
+          setBusinessOptions(reports.map(buildOptionFromReport));
+          return;
+        }
+
+        const response = await axios.get(`${BASE_URL}/api/businesses`);
+        const businesses = Array.isArray(response.data?.businessDetails)
+          ? response.data.businessDetails
+          : response.data?.businesses;
+
+        if (Array.isArray(businesses)) {
+          setBusinessOptions(businesses.map(buildOptionFromBusinessEntry));
         } else {
           console.error("Invalid response format:", response.data);
         }
       } catch (error) {
-        console.error("Error fetching businesses:", error.message);
+        try {
+          const response = await axios.get(`${BASE_URL}/api/businesses`);
+          const businesses = Array.isArray(response.data?.businessDetails)
+            ? response.data.businessDetails
+            : response.data?.businesses;
+
+          if (Array.isArray(businesses)) {
+            setBusinessOptions(businesses.map(buildOptionFromBusinessEntry));
+          } else {
+            console.error("Invalid response format:", response.data);
+          }
+        } catch (fallbackError) {
+          console.error("Error fetching businesses:", fallbackError.message);
+        }
       }
     };
 
     fetchBusinesses();
   }, []);
 
+  const splitBusinessLabel = (label = "") => {
+    const lastOpenParen = label.lastIndexOf(" (");
+    const lastCloseParen = label.endsWith(")") ? label.length - 1 : -1;
+
+    if (lastOpenParen >= 0 && lastCloseParen > lastOpenParen) {
+      return {
+        businessName: label.slice(0, lastOpenParen).trim(),
+        businessOwner: label.slice(lastOpenParen + 2, lastCloseParen).trim(),
+      };
+    }
+
+    return {
+      businessName: label.trim(),
+      businessOwner: "",
+    };
+  };
+
   const handleSelect = async (selectedOption) => {
     setSelectedBusiness(selectedOption);
   
     if (selectedOption) {
-      const selectedBusinessFullName = selectedOption.value;
-      const match = selectedBusinessFullName.match(/^(.*?)\((.*?)\)$/); // Extract businessName and businessOwner
-      const businessName = match ? match[1].trim() : selectedBusinessFullName;
-      const businessOwner = match ? match[2].trim() : "Unknown Owner";
+      const selectedBusinessFullName = selectedOption.label || selectedOption.value;
+      const parsedBusiness = splitBusinessLabel(selectedBusinessFullName);
+      const businessName = selectedOption.businessName || parsedBusiness.businessName;
+      const businessOwner = selectedOption.businessOwner || parsedBusiness.businessOwner;
   
       try {
-        const response = await axios.get(
-          `https://reportsbe.sharda.co.in/fetch-business-data?businessName=${encodeURIComponent(
-            businessName
-          )}&businessOwner=${encodeURIComponent(businessOwner)}`
-        );
+        const response = selectedOption.sessionId
+          ? await axios.get(`${BASE_URL}/get-report`, {
+              params: { sessionId: selectedOption.sessionId },
+            })
+          : await axios.get(`${BASE_URL}/fetch-business-data`, {
+              params: {
+                businessName,
+                businessOwner,
+              },
+            });
   
-        if (response.data && response.data.data.length > 0) {
-          const businessData = response.data.data[0];
+        const responseData = response.data?.data;
+        const businessData = Array.isArray(responseData)
+          ? responseData.find((item) => {
+              const accountInformation = item?.AccountInformation || {};
+              return (
+                accountInformation.businessName?.trim().toLowerCase() === businessName.toLowerCase() &&
+                (!businessOwner ||
+                  accountInformation.businessOwner?.trim().toLowerCase() === businessOwner.toLowerCase())
+              );
+            }) || responseData[0]
+          : responseData;
+
+        if (businessData) {
           const sessionId = businessData.sessionId || null;
           onBusinessSelect?.(businessData, sessionId);
         } else {
@@ -77,6 +178,8 @@ const ReportDropdown = ({ onBusinessSelect }) => {
         console.error("Error fetching business data:", error.message);
         onBusinessSelect?.({}, null);
       }
+    } else {
+      onBusinessSelect?.({}, null);
     }
   };
   

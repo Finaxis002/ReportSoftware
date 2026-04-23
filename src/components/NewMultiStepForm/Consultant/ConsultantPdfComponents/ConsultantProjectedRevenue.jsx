@@ -50,27 +50,23 @@ const ConsultantProjectedRevenue = ({
   {
     /* ✅ Determine if first year column should be hidden */
   }
-  const hideFirstYear = shouldHideFirstYear(totalRevenueReceipts);
+  const hideFirstYear = shouldHideFirstYear(totalRevenueReceipts) || 0;
 
   // ✅ Remove first year from financialYearLabels if hiding is required
-  const adjustedFinancialYearLabels = hideFirstYear
-    ? financialYearLabels.slice(1)
-    : financialYearLabels;
+  const adjustedFinancialYearLabels =
+    financialYearLabels.slice(hideFirstYear);
   // ✅ Remove first-year revenue if hiding is required
 
-  const adjustedTotalRevenueForOthers = hideFirstYear
-    ? formData?.Revenue?.totalRevenueForOthers?.slice(1)
-    : formData?.Revenue?.totalRevenueForOthers;
+  const adjustedTotalRevenueForOthers =
+    formData?.Revenue?.totalRevenueForOthers?.slice(hideFirstYear);
 
-  const adjustedTotalRevenueReceipts = hideFirstYear
-    ? totalRevenueReceipts.slice(1)
-    : totalRevenueReceipts;
+  const adjustedTotalRevenueReceipts =
+    totalRevenueReceipts.slice(hideFirstYear);
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -89,7 +85,7 @@ const ConsultantProjectedRevenue = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       return (
         <PageWithFooter
@@ -210,9 +206,7 @@ const ConsultantProjectedRevenue = ({
                   }
 
                   // ✅ Remove first-year column if required
-                  if (hideFirstYear) {
-                    updatedYears.shift();
-                  }
+                  updatedYears = updatedYears.slice(hideFirstYear);
 
                   const isHeading = item.rowType === "1";
                   const isBold = item.rowType === "2";
@@ -475,7 +469,7 @@ const ConsultantProjectedRevenue = ({
                     if (shouldSkipCol(gIdx)) return null;
 
                     // adjusted arrays are usually shifted when hideFirstYear is true
-                    const adjustedIdx = hideFirstYear ? gIdx - 1 : gIdx;
+                    const adjustedIdx = gIdx - hideFirstYear;
 
                     const value =
                       formType?.trim() === "Monthly"
@@ -637,9 +631,7 @@ const ConsultantProjectedRevenue = ({
               }
 
               // ✅ Remove first-year column if required
-              if (hideFirstYear) {
-                updatedYears.shift();
-              }
+              updatedYears = updatedYears.slice(hideFirstYear);
 
               // Set all row type flags
               const isNormal = item.rowType === "0";
@@ -838,7 +830,7 @@ const ConsultantProjectedRevenue = ({
                   </Text>
 
                   {formData.Revenue.noOfMonths
-                    .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if needed
+                    .slice(hideFirstYear)
                     .map((monthValue, yearIndex) => (
                       <Text
                         key={yearIndex}

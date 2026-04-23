@@ -5,6 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -36,7 +37,7 @@ const ConsultantCurrentRatio = ({
     //   console.log("received values", receivedAssetsLiabilities);
     // ✅ Safely handle undefined formData and provide fallback
     const projectionYears = formData?.ProjectReportSetting?.ProjectionYears || 5; // Default to 5 if undefined
-    const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+    const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
 
     const currentRatio = Array.from({
@@ -57,10 +58,10 @@ const ConsultantCurrentRatio = ({
             .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
             .map((r) => parseFloat(r));
 
-        // ✅ Remove the first year's value if it's hidden
-        if (hideFirstYear) {
-            validRatios = validRatios.slice(1); // Remove first index
-        }
+        validRatios = currentRatio
+            .slice(hideFirstYear)
+            .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+            .map((r) => parseFloat(r));
 
         // ✅ If there are no valid ratios left, return "-"
         if (validRatios.length === 0) {
@@ -96,7 +97,7 @@ const ConsultantCurrentRatio = ({
     let splitFinancialYearLabels = [financialYearLabels];
     if (isAdvancedLandscape) {
         // Remove first year if hidden
-        const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+        const visibleLabels = financialYearLabels.slice(hideFirstYear);
         const totalCols = visibleLabels.length;
         const firstPageCols = Math.ceil(totalCols / 2);
         const secondPageCols = totalCols - firstPageCols;
@@ -115,7 +116,7 @@ const ConsultantCurrentRatio = ({
                 Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
             const globalIndex = (localIdx) => pageStart + localIdx;
-            const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+            const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
             // For centering the "Average Current Ratio" on the visible columns of this page
             const visibleLocalCols = labels
@@ -585,7 +586,7 @@ const ConsultantCurrentRatio = ({
 
                     {/* ✅ Dynamically generate years with fallback */}
                     {financialYearLabels
-                        .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+                        .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
                         .map((yearLabel, yearIndex) => (
                             <Text
                                 key={yearIndex}
@@ -613,7 +614,7 @@ const ConsultantCurrentRatio = ({
                         </Text>
 
                         {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                            if (hideFirstYear && yearIndex === 0) return null;
+                            if (yearIndex < hideFirstYear) return null;
 
                             // Use computed data first, fall back to receivedAssetsLiabilities
                             const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[yearIndex]
@@ -656,7 +657,7 @@ const ConsultantCurrentRatio = ({
                         </Text>
 
                         {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                            if (hideFirstYear && yearIndex === 0) return null;
+                            if (yearIndex < hideFirstYear) return null;
 
                             // Use computed data first, fall back to receivedAssetsLiabilities
                             const currentLiabilities = formData?.computedData?.assetsliabilities?.yearlycurrentLiabilities?.[yearIndex]
@@ -697,7 +698,7 @@ const ConsultantCurrentRatio = ({
 
                         {/* Calculate and display current ratio */}
                         {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                            if (hideFirstYear && yearIndex === 0) return null;
+                            if (yearIndex < hideFirstYear) return null;
 
                             // Get data from computed or received sources
                             const currentAssets = formData?.computedData?.assetsliabilities?.CurrentAssetsArray?.[yearIndex]
@@ -749,10 +750,10 @@ const ConsultantCurrentRatio = ({
                         </Text>
 
                         {financialYearLabels
-                            .slice(hideFirstYear ? 1 : 0)
+                            .slice(hideFirstYear)
                             .map((yearLabel, yearIndex, arr) => {
                                 const visibleLabels = financialYearLabels.slice(
-                                    hideFirstYear ? 1 : 0
+                                    hideFirstYear
                                 );
                                 const centerIndex = Math.floor(visibleLabels.length / 2);
                                 const isLast = yearIndex === arr.length - 1;

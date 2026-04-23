@@ -1235,8 +1235,7 @@ const ConsultantProjectSynopsis = React.memo(
                     { padding: "8px", paddingLeft: "20px", width: "55%" },
                   ]}
                 >
-                  {`${formatNumber(receivedDscr?.averageDSCR || 0)} (${
-                    receivedDscr?.numOfYearsUsedForAvg || 0
+                  {`${formatNumber(receivedDscr?.averageDSCR || 0)}(${receivedAssetsLiabilities?.numOfYearsUsedForAvg || 0
                   } Years Average)`}
                 </Text>
               </View>
@@ -1273,7 +1272,7 @@ const ConsultantProjectSynopsis = React.memo(
                   ]}
                 >
                   {`${formatNumber(
-                    receivedAssetsLiabilities?.averageCurrentRatio || 0
+                    formData?.computedData?.averageCurrentRatio?.averageCurrentRatio|| 0
                   )} (${
                     receivedAssetsLiabilities?.numOfYearsUsedForAvg || 0
                   } Years Average)`}
