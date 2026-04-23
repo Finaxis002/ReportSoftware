@@ -18,6 +18,13 @@ import {
   validateTANNumber,
   validateUDYAMNumber,
 } from "./validation";
+import {
+  getAddPromoterLabel,
+  getPromoterAadhaarLabel,
+  getPromoterDinLabel,
+  getPromoterNameLabel,
+  getPromoterNameOfLabel,
+} from "../Utils/promoterLabels";
 
 const FirstStepBasicDetails = ({
   formData,
@@ -164,20 +171,17 @@ const FirstStepBasicDetails = ({
       ...prevErrors,
       [name]: error,
     }));
-    // Update local state
-    setLocalData((prevData) => ({
-      ...prevData,
+    const nextLocalData = {
+      ...localData,
       [name]: value,
-      createdAt: new Date().toISOString(), // ✅ Store the current date before sending
-    }));
+      createdAt: new Date().toISOString(),
+    };
 
-    // Update parent state (MultiStepForm)
+    setLocalData(nextLocalData);
+
     onFormDataChange({
-      AccountInformation: {
-        ...formData.AccountInformation, // Preserve existing data
-        [name]: value, // Update only the changed field
-      },
-      userRole,
+      AccountInformation: nextLocalData,
+      userRole: nextLocalData.userRole || userRole,
     });
   };
 
@@ -225,13 +229,19 @@ const FirstStepBasicDetails = ({
   };
 
   const addPartner = () => {
-    setLocalData((prevData) => ({
-      ...prevData,
+    const nextLocalData = {
+      ...localData,
       allPartners: [
-        ...prevData.allPartners,
+        ...(localData.allPartners || []),
         { partnerName: "", partnerAadhar: "", partnerDin: "" },
       ],
-    }));
+    };
+
+    setLocalData(nextLocalData);
+    onFormDataChange({
+      AccountInformation: nextLocalData,
+      userRole: nextLocalData.userRole || userRole,
+    });
   };
 
   // console.log(addPartner);
@@ -250,16 +260,18 @@ const FirstStepBasicDetails = ({
   const handlePartnerChange = useCallback(
     (e, index) => {
       const { name, value } = e.target;
+      const updatedPartners = [...(localData.allPartners || [])];
+      updatedPartners[index] = { ...updatedPartners[index], [name]: value };
 
-      setLocalData((prevData) => {
-        const updatedPartners = [...prevData.allPartners];
-        updatedPartners[index] = { ...updatedPartners[index], [name]: value };
+      const nextLocalData = { ...localData, allPartners: updatedPartners };
 
-        // Update state only if the partners array changes
-        return { ...prevData, allPartners: updatedPartners };
+      setLocalData(nextLocalData);
+      onFormDataChange({
+        AccountInformation: nextLocalData,
+        userRole: nextLocalData.userRole || userRole,
       });
     },
-    [setLocalData]
+    [localData, onFormDataChange, userRole]
   );
 
   // Effect to automatically save the data when the form is updated
@@ -270,15 +282,21 @@ const FirstStepBasicDetails = ({
 
   const handleDeletePartner = (index) => {
     // Filter out the partner at the given index
-    const updatedPartners = localData.allPartners.filter(
+    const updatedPartners = (localData.allPartners || []).filter(
       (_, idx) => idx !== index
     );
 
-    // Update the state with the new partners list
-    setLocalData((prevData) => ({
-      ...prevData,
+    const nextLocalData = {
+      ...localData,
       allPartners: updatedPartners,
-    }));
+    };
+
+    // Update the state with the new partners list
+    setLocalData(nextLocalData);
+    onFormDataChange({
+      AccountInformation: nextLocalData,
+      userRole: nextLocalData.userRole || userRole,
+    });
   };
 
   const checkRequiredFields = () => {
@@ -305,6 +323,27 @@ const FirstStepBasicDetails = ({
 
     return Object.keys(errors).length === 0;
   };
+
+  const promoterListCount = localData.allPartners?.length || 1;
+  const primaryPromoterNameLabel = getPromoterNameLabel(
+    localData.registrationType
+  );
+  const multiplePromoterNameLabel = getPromoterNameLabel(
+    localData.registrationType,
+    2
+  );
+  const promoterNameOfLabel = getPromoterNameOfLabel(
+    localData.registrationType,
+    promoterListCount
+  );
+  const promoterAadhaarLabel = getPromoterAadhaarLabel(
+    localData.registrationType,
+    promoterListCount
+  );
+  const promoterDinLabel = getPromoterDinLabel(
+    localData.registrationType,
+    promoterListCount
+  );
 
   return (
     <div className="">
@@ -419,6 +458,39 @@ const FirstStepBasicDetails = ({
                 </p>
               )}
             </div>
+              <div className="input">
+              <select
+                className="form-control dark selectInput"
+                id="registrationType"
+                name="registrationType"
+                value={localData.registrationType || ""}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  Select Registration Type
+                </option>
+                <option value="Sole proprietorship">Sole proprietorship</option>
+                <option value="Partnership">Partnership</option>
+                <option value="LLP">LLP</option>
+                <option value="Private limited company">
+                  Private limited company
+                </option>
+                <option value="Public limited company">
+                  Public limited company
+                </option>
+                <option value="Section 8 company">Section 8 company</option>
+                <option value="Others">Others</option>
+              </select>
+              <label htmlFor="registrationType">
+                {/* Registration Type <span className="text-red-600">*</span> */}
+              </label>
+              {requiredFieldErrors.registrationType && (
+                <p className="text-red-600 text-sm mt-1">
+                  {requiredFieldErrors.registrationType}
+                </p>
+              )}
+            </div>
 
             <div className="input">
               <input
@@ -431,7 +503,8 @@ const FirstStepBasicDetails = ({
                 required
               />
               <label htmlFor="businessOwner">
-                Business Owner<span className="text-red-600">*</span>{" "}
+                {primaryPromoterNameLabel}
+                <span className="text-red-600">*</span>{" "}
               </label>
               {requiredFieldErrors.businessOwner && (
                 <p className="text-red-600 text-sm mt-1">
@@ -607,39 +680,7 @@ const FirstStepBasicDetails = ({
               <label htmlFor="registrationType">Registration Type</label>
             </div> */}
             {/* Dropdown for Registration Type */}
-            <div className="input">
-              <select
-                className="form-control dark selectInput"
-                id="registrationType"
-                name="registrationType"
-                value={localData.registrationType || ""}
-                onChange={handleChange}
-                required
-              >
-                <option value="" disabled>
-                  Select Registration Type
-                </option>
-                <option value="Sole proprietorship">Sole proprietorship</option>
-                <option value="Partnership">Partnership</option>
-                <option value="LLP">LLP</option>
-                <option value="Private limited company">
-                  Private limited company
-                </option>
-                <option value="Public limited company">
-                  Public limited company
-                </option>
-                <option value="Section 8 company">Section 8 company</option>
-                <option value="Others">Others</option>
-              </select>
-              <label htmlFor="registrationType">
-                {/* Registration Type <span className="text-red-600">*</span> */}
-              </label>
-              {requiredFieldErrors.registrationType && (
-                <p className="text-red-600 text-sm mt-1">
-                  {requiredFieldErrors.registrationType}
-                </p>
-              )}
-            </div>
+          
 
             <div className="input">
               <input
@@ -797,12 +838,14 @@ const FirstStepBasicDetails = ({
                 id="nameofDirectors"
                 name="nameofDirectors"
                 type="text"
-                placeholder="Name of Directors"
+                placeholder={multiplePromoterNameLabel}
                 value={localData.nameofDirectors || ""}
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="nameofDirectors">Name of Directors</label>
+              <label htmlFor="nameofDirectors">
+                {multiplePromoterNameLabel}
+              </label>
             </div>
 
             <div className="input">
@@ -840,11 +883,7 @@ const FirstStepBasicDetails = ({
                       required
                     />
                     <label htmlFor={`partnerName-${index}`}>
-                      Name{" "}
-                      {localData.registrationType === "Partnership" ||
-                      localData.registrationType === "LLP"
-                        ? "of Partner"
-                        : "of Director"}
+                      {promoterNameOfLabel}
                     </label>
                   </div>
                   <div className="input mb-0">
@@ -852,21 +891,13 @@ const FirstStepBasicDetails = ({
                       id={`partnerAadhar-${index}`}
                       name="partnerAadhar"
                       type="text"
-                      placeholder={
-                        localData.registrationType === "Partnership" ||
-                        localData.registrationType === "LLP"
-                          ? "Aadhar of Partner"
-                          : "Aadhar of Director"
-                      }
+                      placeholder={promoterAadhaarLabel}
                       value={partner.partnerAadhar || ""} // Ensure value is a string
                       onChange={(e) => handlePartnerChange(e, index)}
                       required
                     />
                     <label htmlFor={`partnerAadhar-${index}`}>
-                      {localData.registrationType === "Partnership" ||
-                      localData.registrationType === "LLP"
-                        ? "Aadhar of Partner"
-                        : "Aadhar of Director"}
+                      {promoterAadhaarLabel}
                     </label>
                   </div>
                   <div className="input mb-0">
@@ -874,21 +905,13 @@ const FirstStepBasicDetails = ({
                       id={`partnerDin-${index}`}
                       name="partnerDin"
                       type="text"
-                      placeholder={
-                        localData.registrationType === "Partnership" ||
-                        localData.registrationType === "LLP"
-                          ? "DPIN of Partner"
-                          : "DIN of Director"
-                      }
+                      placeholder={promoterDinLabel}
                       value={partner.partnerDin || ""} // Ensure value is a string
                       onChange={(e) => handlePartnerChange(e, index)}
                       required
                     />
                     <label htmlFor={`partnerDin-${index}`}>
-                      {localData.registrationType === "Partnership" ||
-                      localData.registrationType === "LLP"
-                        ? "DPIN of Partner"
-                        : "DIN of Director"}
+                      {promoterDinLabel}
                     </label>
                   </div>
                   <button
@@ -908,10 +931,7 @@ const FirstStepBasicDetails = ({
                   addPartner(); // ✅ Call your function
                 }}
               >
-                {localData.registrationType === "Partnership" ||
-                localData.registrationType === "LLP"
-                  ? "Add Partner"
-                  : "Add Director"}
+                {getAddPromoterLabel(localData.registrationType)}
               </button>
             </div>
           </div>

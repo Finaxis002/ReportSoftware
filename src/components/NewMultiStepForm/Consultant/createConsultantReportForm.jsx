@@ -59,7 +59,12 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       setSelectedVersion("Version 5");
       localStorage.setItem("selectedConsultantReportVersion", "Version 5");
       // Update formData version as well
-      setFormData(prev => ({ ...prev, version: "Version 5" }));
+      setFormData(prev => {
+        const nextData = { ...prev, version: "Version 5" };
+        formDataRef.current = nextData;
+        localStorage.setItem("formData", JSON.stringify(nextData));
+        return nextData;
+      });
     }
   }, [isCreateReportClicked, isCreateReportWithExistingClicked]);
 
@@ -76,7 +81,9 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       const preFilledData = { ...reportData };
       delete preFilledData._id;
       delete preFilledData.sessionId;
+      formDataRef.current = preFilledData;
       setFormData(preFilledData);
+      localStorage.setItem("formData", JSON.stringify(preFilledData));
       if (reportData.version) {
         setSelectedVersion(reportData.version);
       }
@@ -101,20 +108,12 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     generatedPDF: {},
     version: "Version 5",
   });
+  const formDataRef = useRef(formData);
 
-
-  // Store data in localStorage whenever formData changes
-  useEffect(() => {
-    if (isCreateReportWithExistingClicked && reportData) {
-      const preFilledData = { ...reportData };
-      delete preFilledData._id;
-      delete preFilledData.sessionId; // ✅ CRITICAL
-      setFormData(preFilledData);
-    }
-  }, [isCreateReportWithExistingClicked, reportData]);
 
 
   useEffect(() => {
+    formDataRef.current = formData;
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
 
@@ -132,11 +131,16 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
-      setFormData((prevData) => ({
-        ...prevData,
-        ...stepData,
-        userRole, // ✅ Include userRole
-      }));
+      setFormData((prevData) => {
+        const nextData = {
+          ...prevData,
+          ...stepData,
+          userRole,
+        };
+        formDataRef.current = nextData;
+        localStorage.setItem("formData", JSON.stringify(nextData));
+        return nextData;
+      });
     },
     [userRole]
   );
@@ -168,6 +172,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
       console.log("🗑 Removing _id, sessionId, and consultantId for new report creation...");
       setSessionId(null); // Reset sessionId for new report
+      localStorage.removeItem("activeSessionId");
+      localStorage.removeItem("sessionId");
 
       // ✅ Add current consultantId
       cleanedBusinessData.consultantId = currentConsultantId;
@@ -188,12 +194,18 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       });
     } else {
       setSessionId(sessionId || null); // Use sessionId when updating
+      if (sessionId) {
+        localStorage.setItem("activeSessionId", sessionId);
+        localStorage.setItem("sessionId", sessionId);
+      }
     }
 
     console.log("✅ Cleaned Business Data (Before Setting Form):", cleanedBusinessData);
 
     // ✅ Set final data in state
+    formDataRef.current = cleanedBusinessData;
     setFormData(cleanedBusinessData);
+    localStorage.setItem("formData", JSON.stringify(cleanedBusinessData));
     const reportVersion = cleanedBusinessData.version || "Version 5";
     setSelectedVersion(reportVersion);
     // Save version to localStorage when selecting a report
@@ -263,7 +275,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         currentUserId = null;
       }
 
-      const currentConsultantId = formData.consultantId ||
+      const currentFormData = formDataRef.current || formData;
+      const currentConsultantId = currentFormData.consultantId ||
         consultantId ||
         localStorage.getItem("consultantId") ||
         currentUserId; // Fallback to userId if available
@@ -276,11 +289,11 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       });
 
       let formDataWithoutFile = {
-        ...formData,
+        ...currentFormData,
         version: selectedVersion,
         consultantId: currentConsultantId,
         AccountInformation: {
-          ...formData.AccountInformation,
+          ...currentFormData.AccountInformation,
           userRole: currentUserRole,
           createdBy: currentUser,
         },
@@ -288,7 +301,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
       formDataWithoutFile.CostOfProject = {
         ...formDataWithoutFile.CostOfProject,
-        preliminaryExpenses: formData.preliminaryExpenses,
+        preliminaryExpenses: currentFormData.preliminaryExpenses,
       };
 
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
@@ -321,8 +334,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
       requestData.append("data", JSON.stringify(formDataWithoutFile));
 
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      if (currentFormData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", currentFormData.AccountInformation.logoOfBusiness);
       }
 
       const response = await axios.post(apiUrl, requestData, {
@@ -373,8 +386,10 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         consultantId: currentConsultantId
       });
 
+      const currentFormData = formDataRef.current || formData;
+
       // Step 1: Prepare data
-      let newData = JSON.parse(JSON.stringify(formData));
+      let newData = JSON.parse(JSON.stringify(currentFormData));
       delete newData._id;
       delete newData.sessionId;
       newData.cloneFromExisting = true;
@@ -401,8 +416,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       requestData.append("userName", currentUser);
       requestData.append("userRole", currentUserRole);
 
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      if (currentFormData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", currentFormData.AccountInformation.logoOfBusiness);
       }
 
       // Step 2: Create report
@@ -442,7 +457,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     }
 
     console.log("🔄 Updating session:", sessionId);
-    console.log("📦 FormData:", formData);
+    const currentFormData = formDataRef.current || formData;
+    console.log("FormData:", currentFormData);
 
     try {
       // Get current user info
@@ -457,7 +473,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         null;
 
       const updatedData = {
-        ...formData,
+        ...currentFormData,
         version: selectedVersion,
         userRole,
       };
@@ -492,8 +508,9 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
   const handleSubmitFirstStep = () => {
     const errors = {};
+    const currentFormData = formDataRef.current || formData;
     const { clientName, businessOwner, businessName, businessDescription } =
-      formData?.AccountInformation || {};
+      currentFormData?.AccountInformation || {};
 
     if (!clientName || clientName.trim() === "") {
       errors.clientName = "Client Name is required";
@@ -689,9 +706,11 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         }
       });
 
+      const currentFormData = formDataRef.current || formData;
+
       // Clone formData safely (Avoid circular structure)
       const safeFormData = JSON.parse(
-        JSON.stringify(formData, (key, value) => {
+        JSON.stringify(currentFormData, (key, value) => {
           if (
             typeof value === "object" &&
             value !== null &&
@@ -789,8 +808,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
         localStorage.getItem("consultantId") ||
         localStorage.getItem("userId");
 
-      const reportOwner = formData?.AccountInformation?.clientName ||
-        formData?.AccountInformation?.businessOwner ||
+      const reportOwner = formDataRef.current?.AccountInformation?.clientName ||
+        formDataRef.current?.AccountInformation?.businessOwner ||
         "";
 
       // ✅ DETERMINE IF THIS IS CONSULTANT REPORT

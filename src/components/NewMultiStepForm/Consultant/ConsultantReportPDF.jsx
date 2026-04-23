@@ -206,11 +206,19 @@ const ConsultantGeneratedPDF = () => {
     if (location.pathname === "/consultant-report-pdf") {
       const fetchConsultantData = async () => {
         try {
-          const sessionId = localStorage.getItem("activeSessionId");
+          const storedFormData = JSON.parse(localStorage.getItem("formData") || "{}");
+          const sessionId =
+            new URLSearchParams(location.search).get("sessionId") ||
+            storedFormData?.sessionId ||
+            localStorage.getItem("activeSessionId") ||
+            localStorage.getItem("sessionId");
           if (sessionId) {
             const response = await axios.get(`${BASE_URL}/api/consultant-reports/get-consultant-report?sessionId=${sessionId}`);
             if (response.data.success && response.data.data) {
               setFormData(response.data.data);
+              localStorage.setItem("formData", JSON.stringify(response.data.data));
+              localStorage.setItem("activeSessionId", sessionId);
+              localStorage.setItem("sessionId", sessionId);
             }
           }
         } catch (error) {
@@ -219,7 +227,7 @@ const ConsultantGeneratedPDF = () => {
       };
       fetchConsultantData();
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     // ✅ Fetch from localStorage when component mounts
