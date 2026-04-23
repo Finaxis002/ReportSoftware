@@ -508,7 +508,8 @@ const FinalStep = ({ formData, userRole }) => {
     }
 
     if (iframeRef.current) {
-      iframeRef.current.src = `/generated-pdf?t=${Date.now()}`;
+      // ✅ Use sessionId from above to bust browser cache
+      iframeRef.current.src = `/generated-pdf?t=${Date.now()}&session=${sessionId}`;
 
       timeoutId.current = setTimeout(() => {
         if (isComponentMounted.current && popup) {
@@ -732,8 +733,8 @@ const FinalStep = ({ formData, userRole }) => {
 
       console.log("✅ Logged 'generated-pdf' activity");
 
-      // ✅ Open PDF in new tab
-      window.open("/generated-pdf", "_blank", "noopener,noreferrer");
+      // ✅ Open PDF in new tab with cache busting (reuse sessionId from line 708)
+      window.open(`/generated-pdf?t=${Date.now()}&session=${sessionId}`, "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("❌ Failed to log 'generated-pdf' activity:", error);
     }

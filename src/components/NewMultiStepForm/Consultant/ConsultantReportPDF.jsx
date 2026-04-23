@@ -221,11 +221,24 @@ const ConsultantGeneratedPDF = () => {
               localStorage.setItem("sessionId", sessionId);
             }
           }
-        } catch (error) {
-          console.error("Error fetching consultant data:", error);
+        );
+        const data = response.data?.data;
+        if (data) {
+          setFormData(data);
+          localStorage.setItem("consultantFormData", JSON.stringify(data)); // ✅ separate key
         }
-      };
-      fetchConsultantData();
+      } catch (error) {
+        console.error("Error fetching consultant data:", error);
+        // Fallback to localStorage
+        const fallback = JSON.parse(localStorage.getItem("consultantFormData")) ||
+                         JSON.parse(localStorage.getItem("formData")) || {};
+        setFormData(fallback);
+      }
+    } else {
+      // No session param — use existing localStorage (consultant key first)
+      const stored = JSON.parse(localStorage.getItem("consultantFormData")) ||
+                     JSON.parse(localStorage.getItem("formData")) || {};
+      setFormData(stored);
     }
   }, [location.pathname, location.search]);
 
@@ -335,9 +348,14 @@ const ConsultantGeneratedPDF = () => {
     return () => clearInterval(interval);
   }, [years]); // ✅ Runs only when necessary
 
+  // const [formData1, setFormData] = useState(() => {
+  //   return JSON.parse(localStorage.getItem("formData")) || {};
+  // });
+
   const [formData1, setFormData] = useState(() => {
-    return JSON.parse(localStorage.getItem("formData")) || {};
-  });
+  return JSON.parse(localStorage.getItem("consultantFormData")) || 
+         JSON.parse(localStorage.getItem("formData")) || {}; // fallback for safety
+});
 
   // console.log("formData1", formData1);
 
