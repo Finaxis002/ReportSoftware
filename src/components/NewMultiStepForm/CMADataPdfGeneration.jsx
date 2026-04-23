@@ -66,7 +66,19 @@ const CMADataPdfGeneration = () => {
 
         // Check if the API returns data
         if (response.status === 200 && response.data?.data?.length > 0) {
-          setFormData(response.data.data[0]); // Set fetched data to formData state
+          const matchingFormData =
+            response.data.data.find((item) => {
+              const accountInformation = item?.AccountInformation || {};
+
+              return (
+                accountInformation.businessName?.trim().toLowerCase() ===
+                  businessName.trim().toLowerCase() &&
+                accountInformation.businessOwner?.trim().toLowerCase() ===
+                  businessOwner.trim().toLowerCase()
+              );
+            }) || response.data.data[0];
+
+          setFormData(matchingFormData); // Set fetched data to formData state
         } else {
           Swal.fire({
             icon: "error",

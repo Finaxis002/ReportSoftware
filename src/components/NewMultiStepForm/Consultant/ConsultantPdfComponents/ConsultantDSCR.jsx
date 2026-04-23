@@ -5,6 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 
 // ✅ Register a Font That Supports Bold
 Font.register({
@@ -106,7 +107,8 @@ const ConsultantDSCR = ({
   const monthsPerYear = calculateMonthsPerYear();
 
 
-  const hideFirstYear = formData?.computedData?.totalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear =
+    shouldHideFirstYear(formData?.computedData?.totalRevenueReceipts) || 0;
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // console.log("moratorium month", moratoriumPeriodMonths);
@@ -192,10 +194,11 @@ const ConsultantDSCR = ({
     return totalB[yearIndex] !== 0 ? totalA[yearIndex] / totalB[yearIndex] : 0; // ✅ Avoid division by zero
   });
 
-  // ✅ Filter out zero values from the beginning
-  const validDSCRValues = DSCR.filter(
-    (value, index) => !(index === 0 && value === 0)
-  );
+  const visibleDSCRValues = DSCR.slice(hideFirstYear);
+  const validDSCRValues = visibleDSCRValues.filter((value) => {
+    const numericValue = Number(value);
+    return !Number.isNaN(numericValue) && numericValue !== 0;
+  });
 
   // ✅ Memoize averageDSCR calculation
   const averageDSCR = useMemo(() => {
@@ -242,10 +245,7 @@ const ConsultantDSCR = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-    // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -263,7 +263,7 @@ const ConsultantDSCR = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // For centering the "Average Current Ratio" on the visible columns of this page
       const visibleLocalCols = labels
@@ -1122,7 +1122,7 @@ const ConsultantDSCR = ({
 
           {/* Generate Dynamic Year Headers using financialYearLabels */}
           {financialYearLabels
-            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .slice(hideFirstYear)
             .map((yearLabel, yearIndex) => (
               <Text
                 key={yearIndex}
@@ -1159,7 +1159,7 @@ const ConsultantDSCR = ({
             {/*  Display Precomputed Net Profit After Tax (NPAT) Values */}
             {netProfitAfterTax.map(
               (tax, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={`netProfitAfterTax-${yearIndex}`}
                     style={[
@@ -1199,7 +1199,7 @@ const ConsultantDSCR = ({
 
               {/* ✅ Display Depreciation Values for Each Year */}
               {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null;
+                if (yearIndex < hideFirstYear) return null;
 
                 // Use computed data if available, otherwise fall back to totalDepreciationPerYear
                 const depreciationValue = formData?.computedData?.totalDepreciation?.[yearIndex] ?? totalDepreciationPerYear[yearIndex] ?? 0;
@@ -1247,7 +1247,7 @@ const ConsultantDSCR = ({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -1291,7 +1291,7 @@ const ConsultantDSCR = ({
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                if (yearIndex < hideFirstYear) return null;
 
                 const calculatedInterest =
                   calculateInterestOnWorkingCapital(yearIndex);
@@ -1341,7 +1341,7 @@ const ConsultantDSCR = ({
             {/* ✅ Display Computed Total for Each Year */}
             {totalA.map(
               (totalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -1390,7 +1390,7 @@ const ConsultantDSCR = ({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -1435,7 +1435,7 @@ const ConsultantDSCR = ({
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null;
+                if (yearIndex < hideFirstYear) return null;
                 const calculatedInterest =
                   calculateInterestOnWorkingCapital(yearIndex);
 
@@ -1482,7 +1482,7 @@ const ConsultantDSCR = ({
                 yearlyPrincipalRepayment.length > 0 ? (
                 Array.from({ length: projectionYears }).map(
                   (_, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -1542,7 +1542,7 @@ const ConsultantDSCR = ({
             {/* ✅ Display Computed Total for Each Year */}
             {totalB.map(
               (totalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -1585,7 +1585,7 @@ const ConsultantDSCR = ({
           {/* ✅ Display Computed Total for Each Year */}
           {DSCR.map(
             (totalValue, yearIndex) =>
-              (!hideFirstYear || yearIndex !== 0) && (
+              yearIndex >= hideFirstYear && (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1626,7 +1626,7 @@ const ConsultantDSCR = ({
           {/* ✅ Display Computed Total for Each Year */}
           {DSCR.map(
             (totalValue, yearIndex) =>
-              (!hideFirstYear || yearIndex !== 0) && (
+              yearIndex >= hideFirstYear && (
                 <Text
                   key={yearIndex}
                   style={[
@@ -1672,11 +1672,9 @@ const ConsultantDSCR = ({
           {/* ✅ Value - Dynamic Width Based on Financial Years */}
 
           {financialYearLabels
-            .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+            .slice(hideFirstYear)
             .map((yearLabel, yearIndex, arr) => {
-              const visibleLabels = financialYearLabels.slice(
-                hideFirstYear ? 1 : 0
-              );
+              const visibleLabels = financialYearLabels.slice(hideFirstYear);
               const centerIndex = Math.floor(visibleLabels.length / 2); // ✅ Find center index
               const isLast = yearIndex === arr.length - 1;
 

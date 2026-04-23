@@ -5,6 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 
 // ✅ Register Font
 Font.register({
@@ -71,13 +72,13 @@ const ConsultantAssumptions = ({
     }
 }, [formData?.computedData?.totalExpense, receiveTotalExpense]);
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
 if (isAdvancedLandscape) {
   // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -97,7 +98,7 @@ if (isAdvancedLandscape) {
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
 
       return (
@@ -428,8 +429,7 @@ if (isAdvancedLandscape) {
 
           <View style={{ color: "#172554" }}>
             <Text style={{ marginTop: 20, fontSize: 9 }}>
-              This report is created using www.shardaassociates.in. Sharda
-              Associates bears no financial responsibility on or behalf of any
+              This report is created using www.finaxis.in. Finaxis bears no financial responsibility on or behalf of any
               of the authorized signatories.
             </Text>
           </View>
@@ -525,7 +525,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Dynamically generate years with fallback */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -550,7 +550,7 @@ if (isAdvancedLandscape) {
             </Text>
             {Array.from({ length: projectionYears }).map(
               (_, index) =>
-                (!hideFirstYear || index !== 0) && (
+                index >= hideFirstYear && (
                   <Text
                     key={index}
                     style={[
@@ -587,7 +587,7 @@ if (isAdvancedLandscape) {
 
             {/* ✅ Dynamically generate years with fallback */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -613,7 +613,7 @@ if (isAdvancedLandscape) {
             {isDataReady ? (
               Array.from({ length: projectionYears }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -742,8 +742,7 @@ if (isAdvancedLandscape) {
 
       <View style={{ color: "#172554" }}>
         <Text style={{ marginTop: 20, fontSize: 9 }}>
-          This report is created using www.shardaassociates.in. Sharda
-          Associates bears no financial responsibility on or behalf of any of
+          This report is created using www.finaxis.in. Finaxis bears no financial responsibility on or behalf of any of
           the authorized signatories.
         </Text>
       </View>

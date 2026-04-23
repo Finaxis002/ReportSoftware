@@ -5,6 +5,7 @@ import { Font } from "@react-pdf/renderer";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 
 Font.register({
   family: "Roboto",
@@ -387,13 +388,13 @@ const ConsultantRatioAnalysis = ({
     ) || []
   );
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
   // ✅ Calculate Average Current Ratio (Ignoring invalid values & values < 1)
   const validRatios = currentRatio
     .map((r, index) => ({ value: parseFloat(r), index })) // Keep track of index
     .filter(({ value, index }) => {
       // Skip the first year if hidden
-      if (hideFirstYear && index === 0) return false;
+      if (index < hideFirstYear) return false;
       // Filter out invalid, non-numeric, or < 1 values
       return !isNaN(value) && value >= 1;
     })
@@ -405,10 +406,10 @@ const ConsultantRatioAnalysis = ({
       .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
       .map((r) => parseFloat(r));
 
-    // Step 2: Remove first year's ratio if it's hidden
-    if (hideFirstYear) {
-      validRatios = validRatios.slice(1); // Remove first index
-    }
+    validRatios = currentRatio
+      .slice(hideFirstYear)
+      .filter((r) => r !== "-" && !isNaN(parseFloat(r)))
+      .map((r) => parseFloat(r));
 
     // Step 3: If no valid ratios left, return "-"
     if (validRatios.length === 0) {
@@ -463,10 +464,7 @@ const ConsultantRatioAnalysis = ({
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-    // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -485,7 +483,7 @@ const ConsultantRatioAnalysis = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       // For centering the "Average Current Ratio" on the visible columns of this page
       const visibleLocalCols = labels
@@ -1908,7 +1906,7 @@ const ConsultantRatioAnalysis = ({
             </Text>
             {/* Generate Dynamic Year Headers using financialYearLabels */}
             {financialYearLabels
-              .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+              .slice(hideFirstYear) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
               .map((yearLabel, yearIndex) => (
                 <Text
                   key={yearIndex}
@@ -1948,7 +1946,7 @@ const ConsultantRatioAnalysis = ({
 
               {Array.from({ length: projectionYears }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -1996,7 +1994,7 @@ const ConsultantRatioAnalysis = ({
               </Text>
               {grossProfitValues.map(
                 (profit, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`grossProfit-${yearIndex}`}
                       style={[
@@ -2040,7 +2038,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Dynamically generate years based on projectionYears */}
               {netProfitBeforeTax.map(
                 (npbt, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`npbt-${yearIndex}`}
                       style={[
@@ -2084,7 +2082,7 @@ const ConsultantRatioAnalysis = ({
 
               {netProfitAfterTax.map(
                 (npat, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={`npat-${yearIndex}`}
                       style={[
@@ -2129,7 +2127,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Display Net Worth from the Stored Variable */}
               {netWorth.map(
                 (totalValue, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`net-worth-${index}`}
                       style={[
@@ -2174,7 +2172,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Display Total Debt from Stored Variable */}
               {totalDebtArray.map(
                 (totalDebt, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`total-debt-${index}`}
                       style={[
@@ -2219,7 +2217,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Display Total Debt from Stored Variable */}
               {totalOutsideLiabilitiesArray.map(
                 (totalDebt, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={`total-debt-${index}`}
                       style={[
@@ -2265,7 +2263,7 @@ const ConsultantRatioAnalysis = ({
               {Array.isArray(receivedTotalLiabilities.totalLiabilitiesArray) &&
                 receivedTotalLiabilities.totalLiabilitiesArray.map(
                   (total, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2310,7 +2308,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Display total Current Assets for each projection year */}
               {CurrentAssetsArray.map(
                 (total, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2355,7 +2353,7 @@ const ConsultantRatioAnalysis = ({
               {/* ✅ Display Updated Current Liabilities */}
               {(receivedTotalLiabilities?.yearlyTotalLiabilities ?? []).map(
                 (total, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2401,7 +2399,7 @@ const ConsultantRatioAnalysis = ({
               {Array.isArray(cashProfitArray) &&
                 cashProfitArray.map(
                   (total, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2440,10 +2438,10 @@ const ConsultantRatioAnalysis = ({
               </Text>
 
               {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0)
+                .slice(hideFirstYear)
                 .map((yearLabel, yearIndex) => {
                   const visibleLabels = financialYearLabels.slice(
-                    hideFirstYear ? 1 : 0
+                    hideFirstYear
                   );
                   const centerIndex = Math.floor(visibleLabels.length / 2);
 
@@ -2529,7 +2527,7 @@ const ConsultantRatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {grossProfitSalesRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`gp-sales-ratio-${index}`}
                         style={[
@@ -2584,7 +2582,7 @@ const ConsultantRatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {operatingProfitSalesRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`op-sales-ratio-${index}`}
                         style={[
@@ -2634,7 +2632,7 @@ const ConsultantRatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {ProfitBeforeTaxRatios.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`op-pbt-ratio-${index}`}
                         style={[
@@ -2685,7 +2683,7 @@ const ConsultantRatioAnalysis = ({
                 {/* ✅ Display Ratio from the Stored Variable */}
                 {netProfitSalesRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`np-pbt-ratio-${index}`}
                         style={[
@@ -2735,7 +2733,7 @@ const ConsultantRatioAnalysis = ({
 
                 {netProfitNetWorthRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`np-nw-ratio-${index}`}
                         style={[
@@ -2785,7 +2783,7 @@ const ConsultantRatioAnalysis = ({
 
                 {deptEqualityRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={`dept-equality-ratio-${index}`}
                         style={[
@@ -2835,7 +2833,7 @@ const ConsultantRatioAnalysis = ({
 
                 {totalOutsideLiabilitiesNetWorthRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2885,7 +2883,7 @@ const ConsultantRatioAnalysis = ({
 
                 {netWorthTotalLiabilitiesRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -2935,7 +2933,7 @@ const ConsultantRatioAnalysis = ({
                 </Text>
 
                 {Array.from({ length: projectionYears }).map((_, index) => {
-                  if (hideFirstYear && index === 0) return null; // Skip first year if hideFirstYear is
+                  if (index < hideFirstYear) return null; // Skip first year if hideFirstYear is
                   // Retrieve DSCR value or default to 0 if not available
                   const ratio = receivedDscr?.DSCR?.[index] ?? 0;
 
@@ -2990,7 +2988,7 @@ const ConsultantRatioAnalysis = ({
 
                 {currentRatio.map(
                   (ratio, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -3038,7 +3036,7 @@ const ConsultantRatioAnalysis = ({
 
                 {returnOnInvestment.map(
                   (roi, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[

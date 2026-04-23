@@ -6,7 +6,6 @@ import "../../../css/reportForm.css";
 const AllReportsDropdown = ({ onBusinessSelect, showAll = false, consultantId }) => {
   const [reportOptions, setReportOptions] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
-
   const [isDarkMode, setIsDarkMode] = useState(
     document.documentElement.classList.contains("dark")
   );

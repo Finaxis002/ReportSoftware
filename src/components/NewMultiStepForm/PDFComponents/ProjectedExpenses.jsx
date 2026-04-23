@@ -616,7 +616,7 @@ const ProjectedExpenses = ({
                     { paddingVertical: "10px" },
                   ]}
                 >
-                  C
+                  A
                 </Text>
                 <Text
                   style={[
@@ -1694,7 +1694,7 @@ const ProjectedExpenses = ({
                 { paddingVertical: "10px" },
               ]}
             >
-              C
+              A
             </Text>
             <Text
               style={[

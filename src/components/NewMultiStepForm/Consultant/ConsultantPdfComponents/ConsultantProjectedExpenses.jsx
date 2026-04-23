@@ -73,7 +73,7 @@ const ConsultantProjectedExpenses = ({
   const rateOfExpense =
     (formData?.ProjectReportSetting?.rateOfExpense || 0) / 100;
 
-  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts);
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
 
   // Function to handle moratorium period spillover across financial years
@@ -231,12 +231,12 @@ const ConsultantProjectedExpenses = ({
 
   // Check if all Interest On Term Loan values are zero or falsy
   const isInterestOnTermLoanZero = yearlyInterestLiabilities
-    .slice(hideFirstYear ? 1 : 0)
+    .slice(hideFirstYear)
     .every((val) => isZeroValue(val));
 
   // Check if all Depreciation values are zero or falsy
   const isDepreciationZero = totalDepreciationPerYear
-    .slice(hideFirstYear ? 1 : 0)
+    .slice(hideFirstYear)
     .every((val) => isZeroValue(val));
 
   const calculateInterestOnWorkingCapital = useMemo(() => {
@@ -293,8 +293,7 @@ const ConsultantProjectedExpenses = ({
 
   interestOnWorkingCapital.forEach((interestAmount, yearIndex) => {
     const monthsInYear = monthsPerYear[yearIndex];
-    const isProRataYear =
-      (!hideFirstYear && yearIndex === 0) || (hideFirstYear && yearIndex === 1);
+    const isProRataYear = yearIndex === hideFirstYear;
 
     const repaymentYear = monthsPerYear
       .slice(0, yearIndex)
@@ -354,7 +353,7 @@ const ConsultantProjectedExpenses = ({
 
     // Calculate the actual start year for write-off (considering hideFirstYear)
     const effectiveStartYear = Math.max(
-      hideFirstYear ? 1 : 0,
+      hideFirstYear,
       firstYearWithMonths
     );
     const writeOffEndYear = effectiveStartYear + preliminaryWriteOffYears;
@@ -457,7 +456,7 @@ const ConsultantProjectedExpenses = ({
     }
   }, [JSON.stringify(totalExpensesArray), onTotalExpenseSend]);
 
-  const writeOffStartIndex = hideFirstYear ? 1 : 0;
+  const writeOffStartIndex = hideFirstYear;
   const writeOffEndIndex = writeOffStartIndex + preliminaryWriteOffYears;
 
   const isPreliminaryWriteOffAllZero = preliminaryWriteOffPerYear
@@ -470,9 +469,9 @@ const ConsultantProjectedExpenses = ({
       return false;
 
     const isAllYearsZero = Array.from({
-      length: hideFirstYear ? projectionYears - 1 : projectionYears,
+      length: projectionYears - hideFirstYear,
     }).every((_, yearIndex) => {
-      const adjustedYearIndex = hideFirstYear ? yearIndex + 1 : yearIndex;
+      const adjustedYearIndex = yearIndex + hideFirstYear;
       const escalated = calculateExpense(
         Number(expense.total) || 0,
         adjustedYearIndex
@@ -489,9 +488,7 @@ const ConsultantProjectedExpenses = ({
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
     // Remove first year if hidden
-    const visibleLabels = hideFirstYear
-      ? financialYearLabels.slice(1)
-      : financialYearLabels;
+    const visibleLabels = financialYearLabels.slice(hideFirstYear);
     const totalCols = visibleLabels.length;
     const firstPageCols = Math.ceil(totalCols / 2);
     const secondPageCols = totalCols - firstPageCols;
@@ -510,7 +507,7 @@ const ConsultantProjectedExpenses = ({
         Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
       const globalIndex = (localIdx) => pageStart + localIdx;
-      const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+      const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
       return (
         <PageWithFooter
@@ -628,7 +625,7 @@ const ConsultantProjectedExpenses = ({
                       { paddingVertical: "10px" },
                     ]}
                   >
-                    C
+                    A
                   </Text>
                   <Text
                     style={[
@@ -703,13 +700,9 @@ const ConsultantProjectedExpenses = ({
                 {directExpense
                   .filter((expense) => {
                     const isAllYearsZero = Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
+                      length: projectionYears - hideFirstYear,
                     }).every((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
+                      const adjustedYearIndex = yearIndex + hideFirstYear;
                       let expenseValue = 0;
                       const isRawMaterial =
                         expense.name.trim() ===
@@ -870,13 +863,9 @@ const ConsultantProjectedExpenses = ({
                       const regularDirectCount = directExpense.filter(
                         (expense) => {
                           const isAllYearsZero = Array.from({
-                            length: hideFirstYear
-                              ? projectionYears - 1
-                              : projectionYears,
+                            length: projectionYears - hideFirstYear,
                           }).every((_, yearIndex) => {
-                            const adjustedYearIndex = hideFirstYear
-                              ? yearIndex + 1
-                              : yearIndex;
+                            const adjustedYearIndex = yearIndex + hideFirstYear;
                             let expenseValue = 0;
                             const isRawMaterial =
                               expense.name.trim() ===
@@ -922,13 +911,9 @@ const ConsultantProjectedExpenses = ({
                           </Text>
 
                           {Array.from({
-                            length: hideFirstYear
-                              ? projectionYears - 1
-                              : projectionYears,
+                            length: projectionYears - hideFirstYear,
                           }).map((_, yearIndex) => {
-                            const adjustedYearIndex = hideFirstYear
-                              ? yearIndex + 1
-                              : yearIndex;
+                            const adjustedYearIndex = yearIndex + hideFirstYear;
                             const value =
                               (row.values &&
                                 row.values[
@@ -1162,13 +1147,9 @@ const ConsultantProjectedExpenses = ({
                 {directExpense
                   .filter((expense) => {
                     const isAllYearsZero = Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
+                      length: projectionYears - hideFirstYear,
                     }).every((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
+                      const adjustedYearIndex = yearIndex + hideFirstYear;
 
                       let expenseValue = 0;
                       const isRawMaterial =
@@ -1349,13 +1330,9 @@ const ConsultantProjectedExpenses = ({
                       const regularIndirectCount = directExpense.filter(
                         (expense) => {
                           const isAllYearsZero = Array.from({
-                            length: hideFirstYear
-                              ? projectionYears - 1
-                              : projectionYears,
+                            length: projectionYears - hideFirstYear,
                           }).every((_, yearIndex) => {
-                            const adjustedYearIndex = hideFirstYear
-                              ? yearIndex + 1
-                              : yearIndex;
+                            const adjustedYearIndex = yearIndex + hideFirstYear;
                             let expenseValue = 0;
                             const isRawMaterial =
                               expense.name.trim() ===
@@ -1402,13 +1379,9 @@ const ConsultantProjectedExpenses = ({
                           </Text>
 
                           {Array.from({
-                            length: hideFirstYear
-                              ? projectionYears - 1
-                              : projectionYears,
+                            length: projectionYears - hideFirstYear,
                           }).map((_, yearIndex) => {
-                            const adjustedYearIndex = hideFirstYear
-                              ? yearIndex + 1
-                              : yearIndex;
+                            const adjustedYearIndex = yearIndex + hideFirstYear;
                             const value =
                               (row.values &&
                                 row.values[
@@ -1723,7 +1696,7 @@ const ConsultantProjectedExpenses = ({
               {/* Generate Dynamic Year Headers using financialYearLabels */}
               {financialYearLabels.map(
                 (yearLabel, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={yearIndex}
                       style={[styles.particularsCell, stylesCOP.boldText]}
@@ -1746,7 +1719,7 @@ const ConsultantProjectedExpenses = ({
                 { paddingVertical: "10px" },
               ]}
             >
-              C
+              A
             </Text>
             <Text
               style={[
@@ -1760,7 +1733,7 @@ const ConsultantProjectedExpenses = ({
               Direct Expenses
             </Text>
             {Array.from({ length: projectionYears }).map((_, yearIndex) => {
-              if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+              if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
               return (
                 <Text
@@ -1795,7 +1768,7 @@ const ConsultantProjectedExpenses = ({
 
                 {Array.from({ length: projectionYears }).map(
                   (_, yearIndex) =>
-                    (!hideFirstYear || yearIndex !== 0) && (
+                    yearIndex >= hideFirstYear && (
                       <Text
                         key={yearIndex}
                         style={[
@@ -1821,11 +1794,9 @@ const ConsultantProjectedExpenses = ({
           {directExpense
             .filter((expense) => {
               const isAllYearsZero = Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                length: projectionYears - hideFirstYear,
               }).every((_, yearIndex) => {
-                const adjustedYearIndex = hideFirstYear
-                  ? yearIndex + 1
-                  : yearIndex;
+                const adjustedYearIndex = yearIndex + hideFirstYear;
                 // Determine actual value
                 let expenseValue = 0;
                 const isRawMaterial =
@@ -1878,13 +1849,9 @@ const ConsultantProjectedExpenses = ({
                   </Text>
 
                   {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).map((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
 
                     let expenseValue = 0;
                     // const isRawMaterial =
@@ -1977,13 +1944,9 @@ const ConsultantProjectedExpenses = ({
                   </Text>
 
                   {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).map((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
                     // Value for this year:
                     const value =
                       (row.values &&
@@ -2017,13 +1980,9 @@ const ConsultantProjectedExpenses = ({
                 // Calculate the correct serial number - continue from regular direct expenses
                 const regularDirectCount = directExpense.filter((expense) => {
                   const isAllYearsZero = Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).every((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
                     let expenseValue = 0;
                     const isRawMaterial =
                       expense.name.trim() ===
@@ -2068,13 +2027,9 @@ const ConsultantProjectedExpenses = ({
                     </Text>
 
                     {Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
+                      length: projectionYears - hideFirstYear,
                     }).map((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
+                      const adjustedYearIndex = yearIndex + hideFirstYear;
                       const value =
                         (row.values &&
                           row.values[financialYearLabels[adjustedYearIndex]]) ||
@@ -2118,7 +2073,7 @@ const ConsultantProjectedExpenses = ({
             {/* ✅ Display Precomputed Total Direct Expenses */}
             {totalDirectExpensesArray.map(
               (grandTotal, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -2163,7 +2118,7 @@ const ConsultantProjectedExpenses = ({
               Indirect Expenses
             </Text>
             {Array.from({
-              length: hideFirstYear ? projectionYears - 1 : projectionYears,
+              length: projectionYears - hideFirstYear,
             }).map((_, yearIndex) => (
               <Text
                 key={yearIndex}
@@ -2210,7 +2165,7 @@ const ConsultantProjectedExpenses = ({
                 length: formData?.ProjectReportSetting?.ProjectionYears || 0, // Ensure ProjectionYears is defined
               }).map(
                 (_, index) =>
-                  (!hideFirstYear || index !== 0) && (
+                  index >= hideFirstYear && (
                     <Text
                       key={index}
                       style={[
@@ -2249,7 +2204,7 @@ const ConsultantProjectedExpenses = ({
               {Array.from({
                 length: formData.ProjectReportSetting.ProjectionYears,
               }).map((_, yearIndex) => {
-                if (hideFirstYear && yearIndex === 0) return null; // Skip first year if hideFirstYear is true
+                if (yearIndex < hideFirstYear) return null; // Skip first year if hideFirstYear is true
 
                 const calculatedInterest =
                   calculateInterestOnWorkingCapital(yearIndex);
@@ -2287,7 +2242,7 @@ const ConsultantProjectedExpenses = ({
               {/* ✅ Display Depreciation Values for Each Year */}
               {totalDepreciationPerYear.map(
                 (depreciationValue, yearIndex) =>
-                  (!hideFirstYear || yearIndex !== 0) && (
+                  yearIndex >= hideFirstYear && (
                     <Text
                       key={yearIndex}
                       style={[
@@ -2304,11 +2259,9 @@ const ConsultantProjectedExpenses = ({
           {directExpense
             .filter((expense) => {
               const isAllYearsZero = Array.from({
-                length: hideFirstYear ? projectionYears - 1 : projectionYears,
+                length: projectionYears - hideFirstYear,
               }).every((_, yearIndex) => {
-                const adjustedYearIndex = hideFirstYear
-                  ? yearIndex + 1
-                  : yearIndex;
+                const adjustedYearIndex = yearIndex + hideFirstYear;
 
                 // Determine actual value
                 let expenseValue = 0;
@@ -2365,13 +2318,9 @@ const ConsultantProjectedExpenses = ({
                   </Text>
 
                   {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).map((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
 
                     let expenseValue = 0;
                     const isRawMaterial =
@@ -2454,13 +2403,9 @@ const ConsultantProjectedExpenses = ({
                   </Text>
 
                   {Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).map((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
                     const value =
                       (row.values &&
                         row.values[financialYearLabels[adjustedYearIndex]]) ||
@@ -2498,13 +2443,9 @@ const ConsultantProjectedExpenses = ({
                 // Count regular indirect expenses
                 const regularIndirectCount = directExpense.filter((expense) => {
                   const isAllYearsZero = Array.from({
-                    length: hideFirstYear
-                      ? projectionYears - 1
-                      : projectionYears,
+                    length: projectionYears - hideFirstYear,
                   }).every((_, yearIndex) => {
-                    const adjustedYearIndex = hideFirstYear
-                      ? yearIndex + 1
-                      : yearIndex;
+                    const adjustedYearIndex = yearIndex + hideFirstYear;
                     let expenseValue = 0;
                     const isRawMaterial =
                       expense.name.trim() ===
@@ -2550,13 +2491,9 @@ const ConsultantProjectedExpenses = ({
                     </Text>
 
                     {Array.from({
-                      length: hideFirstYear
-                        ? projectionYears - 1
-                        : projectionYears,
+                      length: projectionYears - hideFirstYear,
                     }).map((_, yearIndex) => {
-                      const adjustedYearIndex = hideFirstYear
-                        ? yearIndex + 1
-                        : yearIndex;
+                      const adjustedYearIndex = yearIndex + hideFirstYear;
                       const value =
                         (row.values &&
                           row.values[financialYearLabels[adjustedYearIndex]]) ||
@@ -2595,7 +2532,7 @@ const ConsultantProjectedExpenses = ({
               </Text>
 
               {preliminaryWriteOffPerYear
-                .slice(hideFirstYear ? 1 : 0)
+                .slice(hideFirstYear)
                 .map((value, yearIndex) => (
                   <Text
                     key={yearIndex}
@@ -2627,7 +2564,7 @@ const ConsultantProjectedExpenses = ({
             {/* ✅ Display the calculated `totalIndirectExpensesArray` */}
             {totalIndirectExpensesArray.map(
               (totalValue, yearIndex) =>
-                (!hideFirstYear || yearIndex !== 0) && (
+                yearIndex >= hideFirstYear && (
                   <Text
                     key={yearIndex}
                     style={[
@@ -2664,11 +2601,11 @@ const ConsultantProjectedExpenses = ({
 
             {/* Get total projection years */}
             {Array.from({
-              length: hideFirstYear
-                ? formData?.ProjectReportSetting?.ProjectionYears - 1
-                : formData?.ProjectReportSetting?.ProjectionYears || 0, // Adjust length
+              length:
+                (formData?.ProjectReportSetting?.ProjectionYears || 0) -
+                hideFirstYear,
             }).map((_, index) => {
-              const adjustedIndex = hideFirstYear ? index + 1 : index; // Shift index when skipping first year
+              const adjustedIndex = index + hideFirstYear; // Shift index when skipping first year
 
               return (
                 <Text
@@ -2696,7 +2633,7 @@ const ConsultantProjectedExpenses = ({
 
             {/* ✅ Display the combined total for each year */}
             {totalExpensesArray
-              .slice(hideFirstYear ? 1 : 0)
+              .slice(hideFirstYear)
               .map((totalValue, yearIndex) => (
                 <Text
                   key={yearIndex}

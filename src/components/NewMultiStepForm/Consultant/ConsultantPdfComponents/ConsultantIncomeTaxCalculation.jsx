@@ -3,6 +3,7 @@ import { View, Text } from "@react-pdf/renderer";
 import { styles, stylesCOP, styleExpenses } from "./Styles";
 import { Font } from "@react-pdf/renderer";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 
 Font.register({
   family: "Roboto",
@@ -41,12 +42,11 @@ const ConsultantIncomeTaxCalculation = ({
         )
       : [];
 
-  const hideFirstYear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
   if (isAdvancedLandscape) {
-  // Remove first year if hidden
-  const visibleLabels = hideFirstYear ? financialYearLabels.slice(1) : financialYearLabels;
+  const visibleLabels = financialYearLabels.slice(hideFirstYear);
   const totalCols = visibleLabels.length;
   const firstPageCols = Math.ceil(totalCols / 2);
   const secondPageCols = totalCols - firstPageCols;
@@ -65,7 +65,7 @@ const ConsultantIncomeTaxCalculation = ({
       Math.max(0, financialYearLabels.indexOf(labels[0])) || 0;
 
     const globalIndex = (localIdx) => pageStart + localIdx;
-    const shouldSkipCol = (gIdx) => hideFirstYear && gIdx === 0;
+    const shouldSkipCol = (gIdx) => gIdx < hideFirstYear;
 
     return (
       <PageWithFooter
@@ -624,7 +624,7 @@ const ConsultantIncomeTaxCalculation = ({
 
               {/* Generate Dynamic Year Headers using financialYearLabels */}
               {financialYearLabels
-                .slice(hideFirstYear ? 1 : 0) // ✅ Skip first year if receivedtotalRevenueReceipts[0] < 0
+                .slice(hideFirstYear)
                 .map((yearLabel, yearIndex) => (
                   <Text
                     key={yearIndex}
@@ -650,7 +650,7 @@ const ConsultantIncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -687,7 +687,7 @@ const ConsultantIncomeTaxCalculation = ({
               {totalDepreciationPerYear.length > 0 ? (
                 totalDepreciationPerYear.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -723,7 +723,7 @@ const ConsultantIncomeTaxCalculation = ({
               totalDepreciationPerYear.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -762,7 +762,7 @@ const ConsultantIncomeTaxCalculation = ({
               {totalDepreciationPerYear.length > 0 ? (
                 totalDepreciationPerYear.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -800,7 +800,7 @@ const ConsultantIncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -841,7 +841,7 @@ const ConsultantIncomeTaxCalculation = ({
               {netProfitBeforeTax.length > 0 ? (
                 netProfitBeforeTax.map(
                   (npbt, index) =>
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
@@ -886,7 +886,7 @@ const ConsultantIncomeTaxCalculation = ({
                   const taxAmount = npbt < 0 ? 0 : tax; // Set tax to 0 if NPBT is negative
 
                   return (
-                    (!hideFirstYear || index !== 0) && (
+                    index >= hideFirstYear && (
                       <Text
                         key={index}
                         style={[
