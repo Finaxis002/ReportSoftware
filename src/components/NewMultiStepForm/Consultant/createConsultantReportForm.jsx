@@ -24,6 +24,34 @@ import AllReportsDropdown from "../Dropdown/AllReportsDropdown";
 import Swal from 'sweetalert2';
 // import FileUpload from "./FileUpload";
 
+const CONSULTANT_FORM_DATA_KEY = "consultantFormData";
+
+const getEmptyConsultantFormData = () => ({
+  AccountInformation: {},
+  MeansOfFinance: {},
+  CostOfProject: {},
+  ProjectReportSetting: {},
+  Expenses: {},
+  Revenue: {},
+  MoreDetails: {},
+  generatedPDF: {},
+  version: "Version 5",
+});
+
+const saveConsultantFormData = (data) => {
+  localStorage.setItem(CONSULTANT_FORM_DATA_KEY, JSON.stringify(data));
+};
+
+const getConsultantFormData = () => {
+  try {
+    const storedData = localStorage.getItem(CONSULTANT_FORM_DATA_KEY);
+    return storedData ? JSON.parse(storedData) : getEmptyConsultantFormData();
+  } catch (error) {
+    console.error("Failed to parse consultant form data:", error);
+    return getEmptyConsultantFormData();
+  }
+};
+
 const CreateConsultantReportForm = ({ userRole, userName }) => {
   // console.log("received generated PDf Data in Revenue MultiStep Form" , receivedGeneratedPDFData)
   const location = useLocation();
@@ -62,34 +90,36 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
       setFormData(prev => {
         const nextData = { ...prev, version: "Version 5" };
         formDataRef.current = nextData;
-        localStorage.setItem("formData", JSON.stringify(nextData));
+        saveConsultantFormData(nextData);
         return nextData;
       });
     }
   }, [isCreateReportClicked, isCreateReportWithExistingClicked]);
 
-  // 👇 Add at the top
-  const hasPreFilled = useRef(false);
+   // 👇 Add at the top
+   const hasPreFilled = useRef(false);
 
-  // 👇 This useEffect should be inside CreateConsultantReportForm.jsx (NOT Stepper.jsx!)
-  useEffect(() => {
-    if (
-      !hasPreFilled.current &&
-      isCreateReportWithExistingClicked &&
-      reportData
-    ) {
-      const preFilledData = { ...reportData };
-      delete preFilledData._id;
-      delete preFilledData.sessionId;
-      formDataRef.current = preFilledData;
-      setFormData(preFilledData);
-      localStorage.setItem("formData", JSON.stringify(preFilledData));
-      if (reportData.version) {
-        setSelectedVersion(reportData.version);
-      }
-      hasPreFilled.current = true;
-    }
-  }, [isCreateReportWithExistingClicked, reportData]);
+
+
+   // 👇 This useEffect should be inside CreateConsultantReportForm.jsx (NOT Stepper.jsx!)
+   useEffect(() => {
+     if (
+       !hasPreFilled.current &&
+       isCreateReportWithExistingClicked &&
+       reportData
+     ) {
+       const preFilledData = { ...reportData };
+       delete preFilledData._id;
+       delete preFilledData.sessionId;
+       formDataRef.current = preFilledData;
+       setFormData(preFilledData);
+       saveConsultantFormData(preFilledData);
+       if (reportData.version) {
+         setSelectedVersion(reportData.version);
+       }
+       hasPreFilled.current = true;
+     }
+   }, [isCreateReportWithExistingClicked, reportData]);
 
   // Function to update projection years
   const handleProjectionYearChange = (newYears) => {
@@ -97,24 +127,14 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
   };
 
 
-  const [formData, setFormData] = useState({
-    AccountInformation: {},
-    MeansOfFinance: {},
-    CostOfProject: {},
-    ProjectReportSetting: {},
-    Expenses: {},
-    Revenue: {},
-    MoreDetails: {},
-    generatedPDF: {},
-    version: "Version 5",
-  });
+   const [formData, setFormData] = useState(getEmptyConsultantFormData());
   const formDataRef = useRef(formData);
 
 
 
   useEffect(() => {
     formDataRef.current = formData;
-    localStorage.setItem("formData", JSON.stringify(formData));
+    saveConsultantFormData(formData);
   }, [formData]);
 
   const steps = [
@@ -138,7 +158,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
           userRole,
         };
         formDataRef.current = nextData;
-        localStorage.setItem("formData", JSON.stringify(nextData));
+        saveConsultantFormData(nextData);
         return nextData;
       });
     },
@@ -172,8 +192,8 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
 
       console.log("🗑 Removing _id, sessionId, and consultantId for new report creation...");
       setSessionId(null); // Reset sessionId for new report
-      localStorage.removeItem("activeSessionId");
-      localStorage.removeItem("sessionId");
+      // localStorage.removeItem("activeSessionId");
+      // localStorage.removeItem("sessionId");
 
       // ✅ Add current consultantId
       cleanedBusinessData.consultantId = currentConsultantId;
@@ -205,7 +225,7 @@ const CreateConsultantReportForm = ({ userRole, userName }) => {
     // ✅ Set final data in state
     formDataRef.current = cleanedBusinessData;
     setFormData(cleanedBusinessData);
-    localStorage.setItem("formData", JSON.stringify(cleanedBusinessData));
+    saveConsultantFormData(cleanedBusinessData);
     const reportVersion = cleanedBusinessData.version || "Version 5";
     setSelectedVersion(reportVersion);
     // Save version to localStorage when selecting a report

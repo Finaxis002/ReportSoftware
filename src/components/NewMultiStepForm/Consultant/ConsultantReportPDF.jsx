@@ -43,6 +43,22 @@ import ConsultantRatioAnalysis from "./ConsultantPdfComponents/ConsultantRatioAn
 import ConsultantBreakEvenPoint from "./ConsultantPdfComponents/ConsultantBreakEvenPoint";
 import ConsultantAssumptions from "./ConsultantPdfComponents/ConsultantAssumptions";
 
+const CONSULTANT_FORM_DATA_KEY = "consultantFormData";
+const LEGACY_FORM_DATA_KEY = "formData";
+
+const getStoredFormData = () => {
+  try {
+    return (
+      JSON.parse(localStorage.getItem(CONSULTANT_FORM_DATA_KEY)) ||
+      JSON.parse(localStorage.getItem(LEGACY_FORM_DATA_KEY)) ||
+      {}
+    );
+  } catch (error) {
+    console.error("Error parsing consultant form data:", error);
+    return {};
+  }
+};
+
 const ConsultantGeneratedPDF = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const location = useLocation();
@@ -226,7 +242,7 @@ const ConsultantGeneratedPDF = () => {
 useEffect(() => {
   const fetchDataFromSession = async () => {
     const params = new URLSearchParams(window.location.search);
-    const sessionIdFromUrl = params.get("session");
+    const sessionIdFromUrl = params.get("session") || params.get("sessionId");
 
     if (sessionIdFromUrl) {
       // Session param present — always fetch fresh
@@ -241,20 +257,16 @@ useEffect(() => {
         const data = response.data?.data;
         if (data) {
           setFormData(data);
-          localStorage.setItem("consultantFormData", JSON.stringify(data)); // ✅ separate key
+          localStorage.setItem(CONSULTANT_FORM_DATA_KEY, JSON.stringify(data)); // ✅ separate key
         }
       } catch (error) {
         console.error("Error fetching consultant data:", error);
         // Fallback to localStorage
-        const fallback = JSON.parse(localStorage.getItem("consultantFormData")) ||
-                         JSON.parse(localStorage.getItem("formData")) || {};
-        setFormData(fallback);
+        setFormData(getStoredFormData());
       }
     } else {
       // No session param — use existing localStorage (consultant key first)
-      const stored = JSON.parse(localStorage.getItem("consultantFormData")) ||
-                     JSON.parse(localStorage.getItem("formData")) || {};
-      setFormData(stored);
+      setFormData(getStoredFormData());
     }
   };
 
@@ -372,9 +384,8 @@ useEffect(() => {
   // });
 
   const [formData1, setFormData] = useState(() => {
-  return JSON.parse(localStorage.getItem("consultantFormData")) || 
-         JSON.parse(localStorage.getItem("formData")) || {}; // fallback for safety
-});
+    return getStoredFormData(); // fallback keeps older saved reports working
+  });
 
   // console.log("formData1", formData1);
 
