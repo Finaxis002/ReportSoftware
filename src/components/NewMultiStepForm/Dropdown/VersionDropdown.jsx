@@ -148,6 +148,8 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 
+const CONSULTANT_FORM_DATA_KEY = "consultantFormData";
+
 const VersionDropdown = ({ selectedVersion, onVersionChange, onUpdateClick }) => {
   const [isDarkMode, setIsDarkMode] = useState(
     document.documentElement.classList.contains("dark")
@@ -191,15 +193,15 @@ const VersionDropdown = ({ selectedVersion, onVersionChange, onUpdateClick }) =>
     // Update both localStorage entries
     localStorage.setItem("selectedConsultantReportVersion", version);
     
-    // ALSO update formData in localStorage (just like FirstStepBasicDetails does)
-    const formDataFromStorage = JSON.parse(localStorage.getItem("formData") || "{}");
+    // ALSO update consultantFormData in localStorage
+    const formDataFromStorage = JSON.parse(localStorage.getItem(CONSULTANT_FORM_DATA_KEY) || "{}");
     const updatedFormData = {
       ...formDataFromStorage,
       version: version
     };
-    localStorage.setItem("formData", JSON.stringify(updatedFormData));
+    localStorage.setItem(CONSULTANT_FORM_DATA_KEY, JSON.stringify(updatedFormData));
     
-    console.log("✅ Updated localStorage formData version to:", version);
+    console.log("✅ Updated localStorage consultantFormData version to:", version);
   };
 
   const handleUpdateClick = () => {

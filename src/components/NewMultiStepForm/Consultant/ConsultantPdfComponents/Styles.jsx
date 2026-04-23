@@ -313,7 +313,10 @@ const colorMap = {
   Teal: "#14b8a6", // Tailwind teal-500
   Black: "#20a7db", // Default / fallback
 };
-const formData = JSON.parse(localStorage.getItem("formData")) || {};
+const formData =
+  JSON.parse(localStorage.getItem("consultantFormData")) ||
+  JSON.parse(localStorage.getItem("formData")) ||
+  {};
 const storedColor = formData?.color || localStorage.getItem("selectedColor");
 //  console.log("stored color" , storedColor)
 

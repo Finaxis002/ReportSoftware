@@ -5,6 +5,8 @@ import GraphGenerator from "../../GraphGenerator";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 
+const CONSULTANT_FORM_DATA_KEY = "consultantFormData";
+
 const ConsultantFinalStep = ({ formData, userRole }) => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
   const location = useLocation();
@@ -631,8 +633,8 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       console.log("🚀 Saving calculations to database...");
 
       // DEBUG: Check what's in localStorage before saving
-      console.log("🔍 BEFORE - formData in localStorage:",
-        JSON.parse(localStorage.getItem("formData") || "{}").version);
+      console.log("🔍 BEFORE - consultantFormData in localStorage:",
+        JSON.parse(localStorage.getItem(CONSULTANT_FORM_DATA_KEY) || "{}").version);
       console.log("🔍 BEFORE - selectedVersion state:", selectedVersion);
       console.log("🔍 BEFORE - selectedColor state:", selectedColor);
 
@@ -652,7 +654,7 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
           version: selectedVersion
         };
 
-        localStorage.setItem("formData", JSON.stringify(formDataToSave));
+        localStorage.setItem(CONSULTANT_FORM_DATA_KEY, JSON.stringify(formDataToSave));
         if (sessionId) {
           localStorage.setItem("activeSessionId", sessionId);
           localStorage.setItem("sessionId", sessionId);
@@ -673,8 +675,8 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       }
 
       // DEBUG: Check what's in localStorage after saving
-      console.log("🔍 AFTER - formData in localStorage:",
-        JSON.parse(localStorage.getItem("formData") || "{}").version);
+      console.log("🔍 AFTER - consultantFormData in localStorage:",
+        JSON.parse(localStorage.getItem(CONSULTANT_FORM_DATA_KEY) || "{}").version);
 
       // ✅ SECOND: Log activity (existing code)
       let reportId = null;
@@ -730,18 +732,18 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
   const handleColorChange = (color) => {
     setSelectedColor(color);
 
-    // Update formData in localStorage with the new color
+    // Update consultantFormData in localStorage with the new color
     // Use the same pattern as updateFormDataInLocalStorage to ensure we have the latest data
     updateFormDataInLocalStorage({
       color: color !== "select color" ? color : null
     });
   };
 
-  // Helper function to update ONLY formData in localStorage
+  // Helper function to update ONLY consultantFormData in localStorage
   const updateFormDataInLocalStorage = (updates) => {
     try {
-      // Get existing formData from localStorage
-      const existingFormDataStr = localStorage.getItem("formData");
+      // Get existing consultantFormData from localStorage
+      const existingFormDataStr = localStorage.getItem(CONSULTANT_FORM_DATA_KEY);
       const existingFormData = existingFormDataStr ? JSON.parse(existingFormDataStr) : {};
 
       // Merge with updates
@@ -751,10 +753,10 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       };
 
       // Save back to localStorage
-      localStorage.setItem("formData", JSON.stringify(updatedFormData));
-      console.log("✅ Updated formData in localStorage with:", updates);
+      localStorage.setItem(CONSULTANT_FORM_DATA_KEY, JSON.stringify(updatedFormData));
+      console.log("✅ Updated consultantFormData in localStorage with:", updates);
     } catch (error) {
-      console.error("❌ Failed to update formData in localStorage:", error);
+      console.error("❌ Failed to update consultantFormData in localStorage:", error);
     }
   };
 
