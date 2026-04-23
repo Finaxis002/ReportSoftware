@@ -21,7 +21,15 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ReportDropdown from "./Dropdown/ReportDropdown";
 import Swal from 'sweetalert2';
-// import FileUpload from "./FileUpload";
+
+import {
+  getPromoterAadhaarLabel,
+  getPromoterCount,
+  getPromoterDinLabel,
+  getPromoterNameLabel,
+  getPromoterNameOfLabel,
+  getPromoterNames,
+} from "./Utils/promoterLabels";
 
 const MultiStepForm = ({ userRole, userName }) => {
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://reportsbe.sharda.co.in';
@@ -62,7 +70,9 @@ const MultiStepForm = ({ userRole, userName }) => {
       const preFilledData = { ...reportData };
       delete preFilledData._id;
       delete preFilledData.sessionId;
+      formDataRef.current = preFilledData;
       setFormData(preFilledData);
+      localStorage.setItem("formData", JSON.stringify(preFilledData));
       hasPreFilled.current = true;
     }
   }, [isCreateReportWithExistingClicked, reportData]);
@@ -82,6 +92,7 @@ const MultiStepForm = ({ userRole, userName }) => {
     MoreDetails: {},
     generatedPDF: {},
   });
+  const formDataRef = useRef(formData);
 
 
   // Store data in localStorage whenever formData changes
@@ -90,11 +101,14 @@ const MultiStepForm = ({ userRole, userName }) => {
       const preFilledData = { ...reportData };
       delete preFilledData._id;
       delete preFilledData.sessionId; // ✅ CRITICAL
+      formDataRef.current = preFilledData;
       setFormData(preFilledData);
+      localStorage.setItem("formData", JSON.stringify(preFilledData));
     }
   }, [isCreateReportWithExistingClicked, reportData]);
 
   useEffect(() => {
+    formDataRef.current = formData;
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [formData]);
 
@@ -113,11 +127,16 @@ const MultiStepForm = ({ userRole, userName }) => {
   // ✅ Memoized function to prevent unnecessary re-renders
   const handleFormDataChange = useCallback(
     (stepData) => {
-      setFormData((prevData) => ({
-        ...prevData,
-        ...stepData,
-        userRole, // ✅ Include userRole
-      }));
+      setFormData((prevData) => {
+        const nextData = {
+          ...prevData,
+          ...stepData,
+          userRole,
+        };
+        formDataRef.current = nextData;
+        localStorage.setItem("formData", JSON.stringify(nextData));
+        return nextData;
+      });
     },
     [userRole]
   );
@@ -210,11 +229,12 @@ const MultiStepForm = ({ userRole, userName }) => {
         localStorage.getItem("employeeName") ||
         "Unknown";
       const currentUserRole = localStorage.getItem("userRole") || "unknown";
+      const currentFormData = formDataRef.current || formData;
   
       let formDataWithoutFile = {
-        ...formData,
+        ...currentFormData,
         AccountInformation: {
-          ...formData.AccountInformation,
+          ...currentFormData.AccountInformation,
           userRole: currentUserRole,
           createdBy: currentUser,
         },
@@ -222,7 +242,7 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       formDataWithoutFile.CostOfProject = {
         ...formDataWithoutFile.CostOfProject,
-        preliminaryExpenses: formData.preliminaryExpenses,
+        preliminaryExpenses: currentFormData.preliminaryExpenses,
       };
   
       if (formDataWithoutFile._id) delete formDataWithoutFile._id;
@@ -240,8 +260,8 @@ const MultiStepForm = ({ userRole, userName }) => {
   
       requestData.append("data", JSON.stringify(formDataWithoutFile));
   
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      if (currentFormData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", currentFormData.AccountInformation.logoOfBusiness);
       }
   
       // ✅ API call first
@@ -286,9 +306,10 @@ const MultiStepForm = ({ userRole, userName }) => {
     try {
       console.log("🔄 Creating new report from existing...");
       setSessionId(null);
+      const currentFormData = formDataRef.current || formData;
   
       // Step 1: Prepare data
-      let newData = JSON.parse(JSON.stringify(formData));
+      let newData = JSON.parse(JSON.stringify(currentFormData));
       delete newData._id;
       delete newData.sessionId;
       newData.cloneFromExisting = true;
@@ -301,8 +322,8 @@ const MultiStepForm = ({ userRole, userName }) => {
       const requestData = new FormData();
       requestData.append("data", JSON.stringify(newData));
   
-      if (formData.AccountInformation?.logoOfBusiness instanceof File) {
-        requestData.append("file", formData.AccountInformation.logoOfBusiness);
+      if (currentFormData.AccountInformation?.logoOfBusiness instanceof File) {
+        requestData.append("file", currentFormData.AccountInformation.logoOfBusiness);
       }
   
       // Step 2: Create report
@@ -343,11 +364,12 @@ const MultiStepForm = ({ userRole, userName }) => {
     }
 
     console.log("🔄 Updating session:", sessionId);
-    console.log("📦 FormData:", formData);
+    const currentFormData = formDataRef.current || formData;
+    console.log("FormData:", currentFormData);
 
     try {
       const updatedData = {
-        ...formData,
+        ...currentFormData,
         userRole, // ✅ Include userRole here
       };
 
@@ -372,7 +394,7 @@ const MultiStepForm = ({ userRole, userName }) => {
 
       await logActivity(
         "update",
-        formData?.AccountInformation?.businessName || "Untitled"
+        currentFormData?.AccountInformation?.businessName || "Untitled"
       );
 
     } catch (error) {
@@ -386,15 +408,26 @@ const MultiStepForm = ({ userRole, userName }) => {
 
   const handleSubmitFirstStep = () => {
     const errors = {};
-    const { clientName, businessOwner, businessName, businessDescription } =
-      formData?.AccountInformation || {};
+    const currentFormData = formDataRef.current || formData;
+    // const { clientName, businessOwner, businessName, businessDescription } =
+    //   formData?.AccountInformation || {};
+
+      const {
+      clientName,
+      businessOwner,
+      businessName,
+      businessDescription,
+      registrationType,
+    } =
+      currentFormData?.AccountInformation || {};
+    const promoterNameLabel = getPromoterNameLabel(registrationType);
 
     if (!clientName || clientName.trim() === "") {
       errors.clientName = "Client Name is required";
     }
 
     if (!businessOwner || businessOwner.trim() === "") {
-      errors.businessOwner = "Business Owner is required";
+      errors.businessOwner = `${promoterNameLabel} is required`;
     }
 
     if (!businessName || businessName.trim() === "") {
@@ -416,7 +449,7 @@ const MultiStepForm = ({ userRole, userName }) => {
     // }
     const friendlyFieldNames = {
       clientName: "Client Name",
-      businessOwner: "Business Owner",
+       businessOwner: promoterNameLabel,
       businessName: "Business Name",
       businessDescription: "Business Description"
     };
@@ -567,9 +600,11 @@ const MultiStepForm = ({ userRole, userName }) => {
         }
       });
 
+      const currentFormData = formDataRef.current || formData;
+
       // Clone formData safely (Avoid circular structure)
       const safeFormData = JSON.parse(
-        JSON.stringify(formData, (key, value) => {
+        JSON.stringify(currentFormData, (key, value) => {
           if (
             typeof value === "object" &&
             value !== null &&
@@ -647,7 +682,8 @@ const MultiStepForm = ({ userRole, userName }) => {
         "Unknown";
       const currentUserRole = localStorage.getItem("userRole") || "unknown";
   
-      const reportOwner = formData?.AccountInformation?.businessOwner || "";
+      const reportOwner =
+        formDataRef.current?.AccountInformation?.businessOwner || "";
   
       console.log("📝 Logging activity with:", {
         action,

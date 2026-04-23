@@ -637,16 +637,26 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       console.log("🔍 BEFORE - selectedColor state:", selectedColor);
 
       const reportTitle = formData?.AccountInformation?.businessName || "Untitled";
-      const sessionId = localStorage.getItem("activeSessionId") || formData?.sessionId;
+      const sessionId =
+        formData?.sessionId ||
+        localStorage.getItem("activeSessionId") ||
+        localStorage.getItem("sessionId");
 
       // ✅ FIRST: Save calculations to database
       try {
         // Prepare formData with updated color and version for saving
         const formDataToSave = {
           ...formData,
+          sessionId,
           color: selectedColor !== "select color" ? selectedColor : null,
           version: selectedVersion
         };
+
+        localStorage.setItem("formData", JSON.stringify(formDataToSave));
+        if (sessionId) {
+          localStorage.setItem("activeSessionId", sessionId);
+          localStorage.setItem("sessionId", sessionId);
+        }
 
         console.log("🔍 Sending to server - version:", formDataToSave.version);
         console.log("🔍 Sending to server - color:", formDataToSave.color);
@@ -708,7 +718,10 @@ const ConsultantFinalStep = ({ formData, userRole }) => {
       localStorage.setItem("selectedConsultantReportVersion", "Version 5");
 
       // ✅ THIRD: Open PDF in new tab
-      window.open("/consultant-report-pdf", "_blank", "noopener,noreferrer");
+      const pdfUrl = sessionId
+        ? `/consultant-report-pdf?sessionId=${encodeURIComponent(sessionId)}&t=${Date.now()}`
+        : `/consultant-report-pdf?t=${Date.now()}`;
+      window.open(pdfUrl, "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("❌ Failed to log 'generated-pdf' activity:", error);
     }

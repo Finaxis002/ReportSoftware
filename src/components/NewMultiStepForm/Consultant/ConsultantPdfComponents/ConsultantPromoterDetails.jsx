@@ -4,6 +4,15 @@ import { styles, stylesCOP, styleExpenses } from "./Styles";
 import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import {
+  getPromoterAadhaarLabel,
+  getPromoterCount,
+  getPromoterDinLabel,
+  getPromoterNameLabel,
+  getPromoterNameOfLabel,
+  getPromoterNames,
+  getPromoterRoleLabel,
+} from "../../Utils/promoterLabels";
 
 // ✅ Register Font
 Font.register({
@@ -23,6 +32,14 @@ Font.register({
 const ConsultantPromoterDetails = ({ formData, pdfType }) => {
 
   // ✅ Determine pronouns based on gender
+
+  const accountInformation = formData?.AccountInformation || {};
+  const promoterNames = getPromoterNames(accountInformation);
+  const promoterNameLabel = getPromoterNameLabel(
+    accountInformation.registrationType,
+    getPromoterCount(accountInformation)
+  );
+  const additionalPromoterCount = accountInformation.allPartners?.length || 1;
 
   return (
     <PageWithFooter size="A4" orientation="portrait">
@@ -88,7 +105,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
         <View>
           <View>
             <Text style={{ fontSize: 10 }}>
-              {formData?.AccountInformation?.businessOwner || "Owner Name"} aged{" "}
+              {promoterNames || promoterNameLabel} aged{" "}
               {new Date().getFullYear() -
                 new Date(
                   formData?.AccountInformation?.clientDob
@@ -105,7 +122,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                 : "him"}{" "}
               with an edge while setting up the current business.{" "}
              
-              {formData?.AccountInformation?.businessOwner || "Client Name"} is a
+              {promoterNames || "Client Name"} is a
               resident of{" "}
               {formData?.AccountInformation?.location ||
                 "Business Address Not Available"}
@@ -179,7 +196,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                 { padding: "8px", width: "40%", textAlign: "left" },
               ]}
             >
-              Name
+              {promoterNameLabel}
             </Text>
             <Text
               style={[
@@ -195,7 +212,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                 { padding: "8px", width: "55%", textAlign: "left" },
               ]}
             >
-              {formData?.AccountInformation?.businessOwner}
+              {promoterNames}
             </Text>
           </View>
 
@@ -414,11 +431,10 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
           fontSize: "12px",
           marginBottom: "4px"
         }}>
-        {formData?.AccountInformation?.registrationType ===
-                  "Partnership" ||
-                formData?.AccountInformation?.registrationType === "LLP"
-                  ? "Additional Details of Partner"
-                  : "Additional Details of Director"}
+        {`Additional Details of ${getPromoterRoleLabel(
+          accountInformation.registrationType,
+          additionalPromoterCount
+        )}`}
         </Text>
          </View>
           <View>
@@ -436,11 +452,10 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                   { padding: "8px", width: "45%" },
                 ]}
               >
-                {formData?.AccountInformation?.registrationType ===
-                  "Partnership" ||
-                formData?.AccountInformation?.registrationType === "LLP"
-                  ? "Name of Partner"
-                  : "Name of Director"}
+                {getPromoterNameOfLabel(
+                  accountInformation.registrationType,
+                  additionalPromoterCount
+                )}
               </Text>
               <Text
                 style={[
@@ -458,11 +473,11 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                   { padding: "8px", width: "27.5%", textAlign: "center" },
                 ]}
               >
-                {formData?.AccountInformation?.registrationType ===
-                  "Partnership" ||
-                formData?.AccountInformation?.registrationType === "LLP"
-                  ? "Aadhar No. of Partner"
-                  : "Aadhar No. of Director"}
+                {getPromoterAadhaarLabel(
+                  accountInformation.registrationType,
+                  additionalPromoterCount,
+                  "Aadhar No."
+                )}
               </Text>
               <Text
                 style={[
@@ -471,11 +486,10 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                   { padding: "8px", width: "27.5%", textAlign: "center" },
                 ]}
               >
-                {formData?.AccountInformation?.registrationType ===
-                  "Partnership" ||
-                formData?.AccountInformation?.registrationType === "LLP"
-                  ? "DPIN of Partner"
-                  : "DIN of Director"}
+                {getPromoterDinLabel(
+                  accountInformation.registrationType,
+                  additionalPromoterCount
+                )}
               </Text>
             </View>
 
@@ -498,7 +512,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                       { padding: "8px", width: "45%", textAlign: "left" },
                     ]}
                   >
-                    {partner.partnerName || "N/A"}
+                    {partner.partnerName || "-"}
                   </Text>
 
                   <Text
@@ -524,7 +538,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                       },
                     ]}
                   >
-                    {partner.partnerAadhar || "N/A"}
+                    {partner.partnerAadhar || "-"}
                   </Text>
 
                   <Text
@@ -539,7 +553,7 @@ const ConsultantPromoterDetails = ({ formData, pdfType }) => {
                       },
                     ]}
                   >
-                    {partner.partnerDin || "N/A"}
+                    {partner.partnerDin || "-"}
                   </Text>
                 </View>
               )

@@ -1,6 +1,11 @@
 import { Page, Text, View, Image, } from "@react-pdf/renderer";
 import { capitalizeWords } from "../../../utils";
 import { coverPageStyle } from "../Consultant/ConsultantPdfComponents/Styles";
+import {
+  getPromoterCount,
+  getPromoterNameLabel,
+  getPromoterNames,
+} from "../Utils/promoterLabels";
 
 
 // --------------- IMPORT BACKGROUND + LOGO ----------------
@@ -12,6 +17,17 @@ const ProjectCoverPage = ({ formData }) => {
   console.log("formData in ProjectCoverPage:", formData);
   const consultantData = JSON.parse(localStorage.getItem("consultantData") || "null");
   console.log("consultantData in ProjectCoverPage:", consultantData);
+  const accountInformation = formData?.AccountInformation || {};
+  const promoterNames = getPromoterNames(accountInformation, "Name ABC");
+  const promoterNameLabel = getPromoterNameLabel(
+    accountInformation.registrationType,
+    getPromoterCount(accountInformation)
+  );
+  const promoterNameList = promoterNames
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+
   return (
     <Page size="A4" style={[coverPageStyle.page]}>
 
@@ -36,11 +52,20 @@ const ProjectCoverPage = ({ formData }) => {
             {capitalizeWords(formData?.AccountInformation?.businessName || "ABC Pvt Ltd.")}
           </Text>
 
-          <Text style={coverPageStyle.label}>Proprietor Name</Text>
+          <Text style={coverPageStyle.label}>{promoterNameLabel}</Text>
           <View style={(coverPageStyle.horizontalLine2)} />
-          <Text style={coverPageStyle.value}>
-            {capitalizeWords(formData?.AccountInformation?.businessOwner || "Name ABC")}
-          </Text>
+          <View style={coverPageStyle.nameValueWrap}>
+            {promoterNameList.map((name, index) => (
+              <Text
+                key={`${name}-${index}`}
+                style={coverPageStyle.nameValueChunk}
+                wrap={false}
+              >
+                {capitalizeWords(name)}
+                {index < promoterNameList.length - 1 ? "," : ""}
+              </Text>
+            ))}
+          </View>
         </View>
       </View>
 

@@ -387,6 +387,21 @@ const coverPageStyle = StyleSheet.create({
     marginTop: 10,
     fontFamily: selectedFont,
   },
+  nameValueWrap: {
+    marginTop: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
+    width: "100%",
+    fontFamily: selectedFont,
+  },
+  nameValueChunk: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 4,
+    marginBottom: 2,
+    fontFamily: selectedFont,
+  },
 
   logoContainer: {
     position: "absolute",
@@ -502,7 +517,7 @@ const styles = StyleSheet.create({
   FinancialYear: {
     fontSize: "11px",
     fontFamily: selectedFont,
-    // fontWeight: "bold",
+    fontWeight: "bold",
     paddingVertical: "3px",
     paddingBottom: "20px",
     wrap: false,
@@ -526,7 +541,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     textTransform: "capitalize",
     fontFamily: selectedFont,
-    // fontWeight: "bold",
+    fontWeight: "bold",
     wrap: false,
   },
   caName: {

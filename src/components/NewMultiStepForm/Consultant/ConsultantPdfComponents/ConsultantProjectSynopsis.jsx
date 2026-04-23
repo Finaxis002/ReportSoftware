@@ -5,6 +5,14 @@ import SAWatermark from "../../Assets/SAWatermark";
 import CAWatermark from "../../Assets/CAWatermark";
 import shouldHideFirstYear from "../../PDFComponents/HideFirstYear";
 import PageWithFooter from "../../Helpers/PageWithFooter";
+import {
+  getPromoterAadhaarLabel,
+  getPromoterCount,
+  getPromoterDinLabel,
+  getPromoterNameLabel,
+  getPromoterNameOfLabel,
+  getPromoterNames,
+} from "../../Utils/promoterLabels";
 
 const ConsultantProjectSynopsis = React.memo(
   ({
@@ -22,6 +30,12 @@ const ConsultantProjectSynopsis = React.memo(
     renderTotalBankLoanLabel
   }) => {
      const debtEquityOption = formData?.ProjectReportSetting?.DebtEquityOption || formData?.ProjectReportSetting?.debtEquityOption ;
+    const accountInformation = formData?.AccountInformation || {};
+    const promoterCount = getPromoterCount(accountInformation);
+    const promoterNameLabel = getPromoterNameLabel(
+      accountInformation.registrationType,
+      promoterCount
+    );
      
 
     const getOrdinalYear = (n) => {
@@ -96,7 +110,7 @@ const ConsultantProjectSynopsis = React.memo(
         source: "AccountInformation",
       },
       {
-        label: "Name of Promoter(s)",
+        label: promoterNameLabel,
         key: "businessOwner",
         source: "AccountInformation",
       },
@@ -309,6 +323,8 @@ const ConsultantProjectSynopsis = React.memo(
                     value = getFirstNonZeroRevenue(
                       receivedtotalRevenueReceipts
                     );
+                  } else if (field.key === "businessOwner") {
+                    value = getPromoterNames(accountInformation, " ");
                   } else {
                     value = formData?.AccountInformation?.[field.key] || " ";
                   }
@@ -1377,11 +1393,10 @@ const ConsultantProjectSynopsis = React.memo(
                         { padding: "8px", width: "45%" },
                       ]}
                     >
-                      {formData?.AccountInformation?.registrationType ===
-                        "Partnership" ||
-                      formData?.AccountInformation?.registrationType === "LLP"
-                        ? "Name of Partner"
-                        : "Name of Director"}
+                      {getPromoterNameOfLabel(
+                        accountInformation.registrationType,
+                        formData?.AccountInformation?.allPartners?.length || 1
+                      )}
                     </Text>
                     <Text
                       style={[
@@ -1399,11 +1414,11 @@ const ConsultantProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                      {formData?.AccountInformation?.registrationType ===
-                        "Partnership" ||
-                      formData?.AccountInformation?.registrationType === "LLP"
-                        ? "Aadhar No. of Partner"
-                        : "Aadhar No. of Director"}
+                      {getPromoterAadhaarLabel(
+                        accountInformation.registrationType,
+                        formData?.AccountInformation?.allPartners?.length || 1,
+                        "Aadhar No."
+                      )}
                     </Text>
                     <Text
                       style={[
@@ -1412,11 +1427,10 @@ const ConsultantProjectSynopsis = React.memo(
                         { padding: "8px", width: "27.5%", textAlign: "center" },
                       ]}
                     >
-                      {formData?.AccountInformation?.registrationType ===
-                        "Partnership" ||
-                      formData?.AccountInformation?.registrationType === "LLP"
-                        ? "DPIN of Partner"
-                        : "DIN of Director"}
+                      {getPromoterDinLabel(
+                        accountInformation.registrationType,
+                        formData?.AccountInformation?.allPartners?.length || 1
+                      )}
                     </Text>
                   </View>
 
@@ -1439,7 +1453,7 @@ const ConsultantProjectSynopsis = React.memo(
                             { padding: "8px", width: "45%", textAlign: "left" },
                           ]}
                         >
-                          {partner.partnerName || "N/A"}
+                          {partner.partnerName || "-"}
                         </Text>
 
                         <Text
@@ -1465,7 +1479,7 @@ const ConsultantProjectSynopsis = React.memo(
                             },
                           ]}
                         >
-                          {partner.partnerAadhar || "N/A"}
+                          {partner.partnerAadhar || "-"}
                         </Text>
 
                         <Text
@@ -1479,7 +1493,7 @@ const ConsultantProjectSynopsis = React.memo(
                             },
                           ]}
                         >
-                          {partner.partnerDin || "N/A"}
+                          {partner.partnerDin || "-"}
                         </Text>
                       </View>
                     )
@@ -1506,7 +1520,7 @@ const ConsultantProjectSynopsis = React.memo(
               {formData?.AccountInformation?.businessName || "Business Name"}
             </Text>
             <Text style={[styles.FinancialYear, { fontSize: "10px" }]}>
-              {formData?.AccountInformation?.businessOwner || "Client Name"}
+              {getPromoterNames(accountInformation, "Client Name")}
             </Text>
           </View>
        </PageWithFooter>
