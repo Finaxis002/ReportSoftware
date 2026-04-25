@@ -255,9 +255,7 @@ const ConsultantBreakEvenPoint = ({
     receivedtotalRevenueReceipts,
     yearIndex
   ) => {
-    const isRawMaterial =
-      expense.name.trim() === "Raw Material Expenses / Purchases";
-    const isPercentage = String(expense.value).trim().endsWith("%");
+    const isPercentage = String(expense.value ?? "").trim().endsWith("%");
 
     const ClosingStock = Number(
       formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0
@@ -268,7 +266,7 @@ const ConsultantBreakEvenPoint = ({
 
     let expenseValue = 0;
 
-    if (isRawMaterial && isPercentage) {
+    if (isPercentage) {
       const baseValue =
         (parseFloat(expense.value) / 100) *
         (receivedtotalRevenueReceipts?.[yearIndex] || 0);
@@ -278,6 +276,34 @@ const ConsultantBreakEvenPoint = ({
     }
 
     return expenseValue;
+  };
+
+  const isRawMaterialExpense = (expense) =>
+    expense.name?.trim() === "Raw Material Expenses / Purchases";
+
+  const isPercentageExpense = (expense) =>
+    String(expense.value ?? "").trim().endsWith("%");
+
+  const getExpenseBaseValue = (expense, yearIndex) => {
+    if (isPercentageExpense(expense)) {
+      return calculateRawMaterialExpense(
+        expense,
+        receivedtotalRevenueReceipts,
+        yearIndex
+      );
+    }
+
+    return num(expense.total);
+  };
+
+  const getProjectedExpenseValue = (expense, yearIndex) => {
+    const baseValue = getExpenseBaseValue(expense, yearIndex);
+
+    if (isPercentageExpense(expense)) {
+      return baseValue;
+    }
+
+    return calculateExpense(baseValue, yearIndex);
   };
 
   // At the top of BreakEvenPoint (after extracting Expenses)
@@ -300,23 +326,7 @@ const ConsultantBreakEvenPoint = ({
     const yearLabel = financialYearLabels[adjustedYearIndex];
 
     const totalFromExpenses = allExpenses.reduce((total, expense) => {
-      const isRawMaterial =
-        expense.name.trim() === "Raw Material Expenses / Purchases";
-      const isPercentage = String(expense.value).trim().endsWith("%");
-
-      let expenseValue = 0;
-      if (isRawMaterial && isPercentage) {
-        expenseValue = calculateRawMaterialExpense(
-          expense,
-          receivedtotalRevenueReceipts,
-          adjustedYearIndex
-        );
-      } else {
-        expenseValue = calculateExpense(
-          Number(expense.total) || 0,
-          adjustedYearIndex
-        );
-      }
+      const expenseValue = getProjectedExpenseValue(expense, adjustedYearIndex);
 
       return total + expenseValue;
     }, 0);
@@ -435,28 +445,7 @@ const ConsultantBreakEvenPoint = ({
       length: projectionYears - hideFirstYear,
     }).every((_, yearIndex) => {
       const adjustedYearIndex = yearIndex + hideFirstYear;
-
-      let expenseValue = 0;
-      const isRawMaterial =
-        expense.name.trim() === "Raw Material Expenses / Purchases";
-      const isPercentage = String(expense.value || "")
-        .trim()
-        .endsWith("%");
-      const ClosingStock =
-        formData?.MoreDetails?.ClosingStock?.[yearIndex] || 0;
-      const OpeningStock =
-        formData?.MoreDetails?.OpeningStock?.[yearIndex] || 0;
-
-      if (isRawMaterial && isPercentage) {
-        const baseValue =
-          (parseFloat(expense.value) / 100) *
-          (receivedtotalRevenueReceipts?.[adjustedYearIndex] || 0);
-        expenseValue = baseValue + ClosingStock - OpeningStock;
-      } else {
-        expenseValue = Number(expense.total) || 0;
-      }
-
-      return expenseValue === 0;
+      return getExpenseBaseValue(expense, adjustedYearIndex) === 0;
     });
 
     return !isAllYearsZero;
@@ -516,24 +505,7 @@ const ConsultantBreakEvenPoint = ({
         // check only visible columns on this page
         const isAllZeroOnPage = visibleLocalCols.every((localIdx) => {
           const gIdx = globalIndex(localIdx);
-          const isRawMaterial =
-            expense.name.trim() === "Raw Material Expenses / Purchases";
-          const isPercentage = String(expense.value).trim().endsWith("%");
-          let expenseValue = 0;
-
-          if (isRawMaterial && isPercentage) {
-            // Year-specific RM expense based on receipts & stock adjustments
-            expenseValue = calculateRawMaterialExpense(
-              expense,
-              receivedtotalRevenueReceipts,
-              gIdx
-            );
-          } else {
-            // Base yearly total before applying escalation profile
-            expenseValue = Number(expense.total) || 0;
-          }
-
-          return Number(expenseValue) === 0;
+          return Number(getExpenseBaseValue(expense, gIdx)) === 0;
         });
 
         return !isAllZeroOnPage;
@@ -838,11 +810,7 @@ const ConsultantBreakEvenPoint = ({
 
                 {/* ✅ Render All Expenses (Direct + Indirect) in a Single Section (for visible columns) */}
                 {visibleAllExpenses.map((expense, idx) => {
-                  const isRawMaterial =
-                    expense.name.trim() === "Raw Material Expenses / Purchases";
-                  const isPercentage = String(expense.value)
-                    .trim()
-                    .endsWith("%");
+                  const isRawMaterial = isRawMaterialExpense(expense);
                   const displayName = isRawMaterial
                     ? "Purchases / RM Expenses"
                     : expense.name;
@@ -869,28 +837,14 @@ const ConsultantBreakEvenPoint = ({
                         const gIdx = globalIndex(localIdx);
                         if (shouldSkipCol(gIdx)) return null;
 
-                        let expenseValue = 0;
+                        const expenseValue = getProjectedExpenseValue(
+                          expense,
+                          gIdx
+                        );
 
-                        if (isRawMaterial && isPercentage) {
-                          // Year-specific RM expense
-                          expenseValue = calculateRawMaterialExpense(
-                            expense,
-                            receivedtotalRevenueReceipts,
-                            gIdx
-                          );
-                        } else {
-                          // Base value; apply escalation per year
-                          expenseValue = Number(expense.total) || 0;
-                        }
-
-                        const formattedExpense =
-                          isRawMaterial && isPercentage
-                            ? formatNumber(Number(expenseValue).toFixed(2))
-                            : formatNumber(
-                                Number(
-                                  calculateExpense(expenseValue, gIdx)
-                                ).toFixed(2)
-                              );
+                        const formattedExpense = formatNumber(
+                          Number(expenseValue).toFixed(2)
+                        );
 
                         return (
                           <Text
@@ -1817,36 +1771,14 @@ const ConsultantBreakEvenPoint = ({
                   length: projectionYears - hideFirstYear,
                 }).every((_, yearIndex) => {
                   const adjustedYearIndex = yearIndex + hideFirstYear;
-
-                  // Determine actual value
-                  let expenseValue = 0;
-                  const isRawMaterial =
-                    expense.name.trim() === "Raw Material Expenses / Purchases";
-                  const isPercentage = String(expense.value)
-                    .trim()
-                    .endsWith("%");
-               
-                  if (isRawMaterial && isPercentage) {
-                    // Call calculateRawMaterialExpense and pass the adjustedYearIndex
-                    expenseValue = calculateRawMaterialExpense(
-                      expense,
-                      receivedtotalRevenueReceipts,
-                      adjustedYearIndex
-                    );
-                  } else {
-                    expenseValue = Number(expense.total) || 0;
-                  }
-
-                  return expenseValue === 0;
+                  return getExpenseBaseValue(expense, adjustedYearIndex) === 0;
                 });
 
                 return !isAllYearsZero;
               })
 
               .map((expense, index) => {
-                const isRawMaterial =
-                  expense.name.trim() === "Raw Material Expenses / Purchases";
-                const isPercentage = String(expense.value).trim().endsWith("%");
+                const isRawMaterial = isRawMaterialExpense(expense);
                 const displayName = isRawMaterial
                   ? "Purchases / RM Expenses"
                   : expense.name;
@@ -1871,34 +1803,14 @@ const ConsultantBreakEvenPoint = ({
                     }).map((_, yearIndex) => {
                       const adjustedYearIndex = yearIndex + hideFirstYear;
 
-                      let expenseValue = 0;
-                      const isRawMaterial =
-                        expense.name.trim() ===
-                        "Raw Material Expenses / Purchases";
-                      const isPercentage = String(expense.value)
-                        .trim()
-                        .endsWith("%");
-                      
-                      if (isRawMaterial && isPercentage) {
-                        // Call calculateRawMaterialExpense and pass the adjustedYearIndex
-                        expenseValue = calculateRawMaterialExpense(
-                          expense,
-                          receivedtotalRevenueReceipts,
-                          adjustedYearIndex
-                        );
-                      } else {
-                        expenseValue = Number(expense.total) || 0;
-                      }
+                      const expenseValue = getProjectedExpenseValue(
+                        expense,
+                        adjustedYearIndex
+                      );
 
-                      const formattedExpense =
-                        isRawMaterial && isPercentage
-                          ? formatNumber(expenseValue.toFixed(2))
-                          : formatNumber(
-                              calculateExpense(
-                                expenseValue,
-                                adjustedYearIndex
-                              ).toFixed(2)
-                            );
+                      const formattedExpense = formatNumber(
+                        expenseValue.toFixed(2)
+                      );
 
                       return (
                         <Text
