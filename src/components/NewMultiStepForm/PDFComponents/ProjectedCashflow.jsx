@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState, useMemo } from "react";
 import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles, stylesCOP, stylesMOF, styleExpenses } from "./Styles";
 import SAWatermark from "../Assets/SAWatermark";
 import CAWatermark from "../Assets/CAWatermark";
-
+import shouldHideFirstYear from "./HideFirstYear";
 
 const ProjectedCashflow = ({
   formData = {},
@@ -21,11 +20,11 @@ const ProjectedCashflow = ({
   pdfType,
   orientation,
   receivedtotalRevenueReceipts,
- renderIOTLLabel,
- renderIOWCLabel,
- renderWCLLabel,
- renderBankTLLabel,
- renderWithdrawalLabel
+  renderIOTLLabel,
+  renderIOWCLabel,
+  renderWCLLabel,
+  renderBankTLLabel,
+  renderWithdrawalLabel,
 }) => {
   const [grossFixedAssets, setGrossFixedAssets] = useState(0);
   const [closingCashBalanceArray2, setClosingCashBalanceArray] = useState([]);
@@ -51,9 +50,6 @@ const ProjectedCashflow = ({
 
   const projectionYears =
     Number(formData?.ProjectReportSetting?.ProjectionYears) || 5;
-
-
-
 
   const monthMap = {
     April: 1,
@@ -100,10 +96,6 @@ const ProjectedCashflow = ({
 
   const monthsPerYear = calculateMonthsPerYear();
 
-
-
-  
-
   const calculateInterestOnWorkingCapital = useMemo(() => {
     // console.log("moratorium month", moratoriumPeriodMonths);
 
@@ -112,12 +104,9 @@ const ProjectedCashflow = ({
     const rate = Number(formData.ProjectReportSetting?.interestOnWC) || 0;
     const annualInterestAmount = (principal * rate) / 100;
 
-   
-
     const firstRepaymentYearIndex = monthsPerYear.findIndex(
-      (months) => months > 0
+      (months) => months > 0,
     );
-   
 
     return (yearIndex) => {
       const monthsInYear = monthsPerYear[yearIndex] || 0;
@@ -127,7 +116,6 @@ const ProjectedCashflow = ({
         return 0;
       }
 
-     
       if (
         yearIndex === firstRepaymentYearIndex &&
         (moratoriumPeriodMonths > 0 || monthsInYear < 12)
@@ -137,7 +125,6 @@ const ProjectedCashflow = ({
         return prorated;
       }
 
-    
       return annualInterestAmount;
     };
   }, [formData, moratoriumPeriodMonths, monthsPerYear]);
@@ -179,14 +166,14 @@ const ProjectedCashflow = ({
     return finalStock;
   });
 
-  const skipfirstyear = receivedtotalRevenueReceipts?.[0] <= 0;
+  const hideFirstYear = shouldHideFirstYear(receivedtotalRevenueReceipts) || 0;
 
   const preliminaryExpensesTotal = Number(
-    formData?.CostOfProject?.preliminaryExpensesTotal || 0
+    formData?.CostOfProject?.preliminaryExpensesTotal || 0,
   );
 
   const preliminaryWriteOffYears = Number(
-    formData?.CostOfProject?.preliminaryWriteOffYears || 0
+    formData?.CostOfProject?.preliminaryWriteOffYears || 0,
   );
 
   // Calculate yearly write-off value
@@ -198,9 +185,7 @@ const ProjectedCashflow = ({
   const preliminaryWriteOffPerYear = Array.from({
     length: projectionYears,
   }).map((_, index) => {
-    // Start write-off from year 1 (index 0) normally,
-    // but from year 2 (index 1) if skipfirstyear is true
-    const writeOffStartIndex = skipfirstyear ? 1 : 0;
+    const writeOffStartIndex = hideFirstYear;
     const writeOffEndIndex = writeOffStartIndex + preliminaryWriteOffYears;
 
     return index >= writeOffStartIndex && index < writeOffEndIndex
@@ -258,7 +243,7 @@ const ProjectedCashflow = ({
       // console.log(`Total Sources for Year ${index}:`, total);
 
       return total;
-    }
+    },
   );
 
   // console.log("total sources array : ", totalSourcesArray);
@@ -367,7 +352,7 @@ const ProjectedCashflow = ({
       openingCashBalance = closingCashBalance;
 
       return result;
-    }
+    },
   );
 
   useEffect(() => {
@@ -396,7 +381,7 @@ const ProjectedCashflow = ({
       (_, index) =>
         index === 0
           ? formData?.MeansOfFinance?.workingCapital?.termLoan || "-"
-          : "0"
+          : "0",
     );
 
     // console.log("term Loan Values:", termLoanValues);
@@ -418,7 +403,7 @@ const ProjectedCashflow = ({
 
   const visibleLiabilitiesCount =
     formData?.MoreDetails?.currentLiabilities?.filter(
-      (liability) => !liability.years.every((value) => Number(value) === 0)
+      (liability) => !liability.years.every((value) => Number(value) === 0),
     )?.length || 0;
   const preliminarySerialNo = 6 + visibleLiabilitiesCount;
 
@@ -428,11 +413,11 @@ const ProjectedCashflow = ({
     (_, index) =>
       (index === 0
         ? parseFloat(formData?.MeansOfFinance?.termLoan?.termLoan || 0)
-        : 0) === 0
+        : 0) === 0,
   );
 
   const isDepreciationZero = Array.from({ length: projectionYears }).every(
-    (_, index) => totalDepreciationPerYear[index] === 0
+    (_, index) => totalDepreciationPerYear[index] === 0,
   );
 
   const isFixedAssetsZero = firstYearGrossFixedAssets === 0;
@@ -444,7 +429,6 @@ const ProjectedCashflow = ({
   const isRepaymentOfTermLoanZero = Array.from({
     length: projectionYears,
   }).every((_, index) => yearlyPrincipalRepayment[index] === 0);
-
 
   // Simple counters for each section
   let sourcesSerial = 0;
@@ -461,17 +445,17 @@ const ProjectedCashflow = ({
 
   const isAdvancedLandscape = orientation === "advanced-landscape";
   let splitFinancialYearLabels = [financialYearLabels];
-if (isAdvancedLandscape) {
-  // Always use all years, do NOT hide the first year
-  const visibleLabels = financialYearLabels;
-  const totalCols = visibleLabels.length;
-  const firstPageCols = Math.ceil(totalCols / 2);
-  const secondPageCols = totalCols - firstPageCols;
-  splitFinancialYearLabels = [
-    visibleLabels.slice(0, firstPageCols),
-    visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
-  ];
-}
+  if (isAdvancedLandscape) {
+    // Always use all years, do NOT hide the first year
+    const visibleLabels = financialYearLabels;
+    const totalCols = visibleLabels.length;
+    const firstPageCols = Math.ceil(totalCols / 2);
+    const secondPageCols = totalCols - firstPageCols;
+    splitFinancialYearLabels = [
+      visibleLabels.slice(0, firstPageCols),
+      visibleLabels.slice(firstPageCols, firstPageCols + secondPageCols),
+    ];
+  }
 
   if (isAdvancedLandscape) {
     return splitFinancialYearLabels.map((labels, pageIdx) => {
@@ -609,7 +593,7 @@ if (isAdvancedLandscape) {
                   {/* Generate Dynamic Year Headers using current page labels */}
                   {labels.map((yearLabel, localIdx) => {
                     const gIdx = globalIndex(localIdx);
-                   
+
                     return (
                       <Text
                         key={gIdx}
@@ -653,7 +637,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       return (
                         <Text
                           key={gIdx}
@@ -686,7 +670,7 @@ if (isAdvancedLandscape) {
                     {/* Sync Net Profit Before Interest & Taxes */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const value = netProfitBeforeInterestAndTaxes[gIdx] || 0;
                       return (
                         <Text
@@ -720,7 +704,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       return (
                         <Text
                           key={gIdx}
@@ -732,7 +716,7 @@ if (isAdvancedLandscape) {
                           {formatNumber(
                             gIdx === 0
                               ? formData.MeansOfFinance.totalPC || "-"
-                              : "0"
+                              : "0",
                           )}
                         </Text>
                       );
@@ -761,7 +745,7 @@ if (isAdvancedLandscape) {
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -774,7 +758,7 @@ if (isAdvancedLandscape) {
                               gIdx === 0
                                 ? formData?.MeansOfFinance?.termLoan
                                     ?.termLoan || "-"
-                                : "0"
+                                : "0",
                             )}
                           </Text>
                         );
@@ -803,11 +787,10 @@ if (isAdvancedLandscape) {
                         {/* Working Capital Loan */}
                         {/* {renderIOWCLabel()} */}
                         {renderWCLLabel()}
-
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -820,7 +803,7 @@ if (isAdvancedLandscape) {
                               gIdx === 0
                                 ? formData.MeansOfFinance?.workingCapital
                                     ?.termLoan || "-"
-                                : "0"
+                                : "0",
                             )}
                           </Text>
                         );
@@ -851,7 +834,7 @@ if (isAdvancedLandscape) {
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -861,7 +844,7 @@ if (isAdvancedLandscape) {
                             ]}
                           >
                             {formatNumber(
-                              totalDepreciationPerYear[gIdx] || "-"
+                              totalDepreciationPerYear[gIdx] || "-",
                             )}
                           </Text>
                         );
@@ -875,7 +858,7 @@ if (isAdvancedLandscape) {
                       // ✅ Filter out rows where all year values are zero
                       liabilities.years.every((value) => Number(value) === 0)
                         ? false
-                        : true
+                        : true,
                     )
                     .map((liabilities, idx) => {
                       return (
@@ -904,7 +887,7 @@ if (isAdvancedLandscape) {
                           {/* ✅ Loop through visible labels */}
                           {labels.map((_, localIdx) => {
                             const gIdx = globalIndex(localIdx);
-                           
+
                             return (
                               <Text
                                 key={gIdx}
@@ -938,23 +921,40 @@ if (isAdvancedLandscape) {
                         Preliminary Expenses <br /> written off
                       </Text>
 
-                      {labels.map((_, localIdx) => {
-                        const gIdx = globalIndex(localIdx);
-                       
-                        return (
+                      {/* {preliminaryWriteOffPerYear
+                        .slice(hideFirstYear)
+                        .map((value, yearIndex) => (
                           <Text
-                            key={gIdx}
+                            key={yearIndex}
                             style={[
                               stylesCOP.particularsCellsDetail,
                               styleExpenses.fontSmall,
                             ]}
                           >
-                            {formatNumber(
-                              preliminaryWriteOffPerYear[gIdx] || 0
-                            )}
+                            {formatNumber(value)}
                           </Text>
-                        );
-                      })}
+                        ))} */}
+
+                        {labels.map((_, localIdx) => {
+                      const gIdx = globalIndex(localIdx);
+
+                      const total = preliminaryWriteOffPerYear[gIdx] || 0;
+                      return (
+                        <Text
+                          key={gIdx}
+                          style={[
+                            stylesCOP.particularsCellsDetail,
+                            styles.boldText,
+                            {
+                              fontSize: "9px",
+                            },
+                          ]}
+                        >
+                          {formatNumber(total)}{" "}
+                          {/* ✅ Ensure Proper Formatting */}
+                        </Text>
+                      );
+                    })}
                     </View>
                   )}
 
@@ -985,7 +985,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const total = totalSourcesArray[gIdx] || 0;
                       return (
                         <Text
@@ -1042,7 +1042,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       return (
                         <Text
                           key={gIdx}
@@ -1078,7 +1078,7 @@ if (isAdvancedLandscape) {
 
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -1124,7 +1124,7 @@ if (isAdvancedLandscape) {
                       {/* ✅ Display Principal Repayment Only for visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -1168,7 +1168,7 @@ if (isAdvancedLandscape) {
                       {/* Get visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -1178,7 +1178,7 @@ if (isAdvancedLandscape) {
                             ]}
                           >
                             {formatNumber(
-                              yearlyInterestLiabilities?.[gIdx] ?? 0
+                              yearlyInterestLiabilities?.[gIdx] ?? 0,
                             )}
                           </Text>
                         );
@@ -1214,7 +1214,6 @@ if (isAdvancedLandscape) {
                       {/* ✅ Apply `calculateInterestOnWorkingCapital` with global index */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
 
                         const calculatedInterest =
                           calculateInterestOnWorkingCapital(gIdx);
@@ -1262,7 +1261,7 @@ if (isAdvancedLandscape) {
                       </Text>
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         return (
                           <Text
                             key={gIdx}
@@ -1272,7 +1271,7 @@ if (isAdvancedLandscape) {
                             ]}
                           >
                             {formatNumber(
-                              formData.MoreDetails?.Withdrawals?.[gIdx] || "-"
+                              formData.MoreDetails?.Withdrawals?.[gIdx] || "-",
                             )}
                           </Text>
                         );
@@ -1306,7 +1305,7 @@ if (isAdvancedLandscape) {
                     {incomeTaxCalculation2 && incomeTaxCalculation2.length > 0
                       ? labels.map((_, localIdx) => {
                           const gIdx = globalIndex(localIdx);
-                         
+
                           const tax = incomeTaxCalculation2[gIdx];
                           return (
                             <Text
@@ -1324,7 +1323,7 @@ if (isAdvancedLandscape) {
                         })
                       : labels.map((_, localIdx) => {
                           const gIdx = globalIndex(localIdx);
-                         
+
                           return (
                             <Text
                               key={gIdx}
@@ -1365,7 +1364,7 @@ if (isAdvancedLandscape) {
                       {/* Render inventory values for visible years */}
                       {labels.map((_, localIdx) => {
                         const gIdx = globalIndex(localIdx);
-                       
+
                         const inventorymap = inventory[gIdx] || 0;
 
                         return (
@@ -1389,7 +1388,7 @@ if (isAdvancedLandscape) {
                       (assets) =>
                         assets.particular !== "Inventory" &&
                         !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
-                        assets.years.some((value) => Number(value) !== 0)
+                        assets.years.some((value) => Number(value) !== 0),
                     )
                     .map((assets, index) => {
                       return (
@@ -1418,7 +1417,7 @@ if (isAdvancedLandscape) {
                           {/* ✅ Ensure visible years match */}
                           {labels.map((_, localIdx) => {
                             const gIdx = globalIndex(localIdx);
-                           
+
                             return (
                               <Text
                                 key={gIdx}
@@ -1508,7 +1507,7 @@ if (isAdvancedLandscape) {
                     </Text>
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const total = totalUsesArray[gIdx] || 0;
                       return (
                         <Text
@@ -1557,7 +1556,7 @@ if (isAdvancedLandscape) {
                     {/* ✅ Display Updated Opening Cash Balance for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const cb = cashBalances[gIdx] || { opening: 0 };
                       return (
                         <Text
@@ -1597,7 +1596,7 @@ if (isAdvancedLandscape) {
                     {/* ✅ Display Surplus for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const cb = cashBalances[gIdx] || { surplus: 0 };
                       return (
                         <Text
@@ -1637,7 +1636,7 @@ if (isAdvancedLandscape) {
                     {/* ✅ Display Closing Cash Balance for Each visible Year */}
                     {labels.map((_, localIdx) => {
                       const gIdx = globalIndex(localIdx);
-                     
+
                       const cb = cashBalances[gIdx] || { closing: 0 };
                       return (
                         <Text
@@ -1900,7 +1899,9 @@ if (isAdvancedLandscape) {
                     ]}
                   >
                     {formatNumber(
-                      index === 0 ? formData.MeansOfFinance.totalPC || "-" : "0"
+                      index === 0
+                        ? formData.MeansOfFinance.totalPC || "-"
+                        : "0",
                     )}
                   </Text>
                 ))}
@@ -1939,7 +1940,7 @@ if (isAdvancedLandscape) {
                       {formatNumber(
                         index === 0
                           ? formData?.MeansOfFinance?.termLoan?.termLoan || "-"
-                          : "0"
+                          : "0",
                       )}
                     </Text>
                   ))}
@@ -1976,7 +1977,7 @@ if (isAdvancedLandscape) {
                         index === 0
                           ? formData.MeansOfFinance?.workingCapital?.termLoan ||
                               "-"
-                          : "0"
+                          : "0",
                       )}
                     </Text>
                   ))}
@@ -2021,7 +2022,7 @@ if (isAdvancedLandscape) {
                   // ✅ Filter out rows where all year values are zero
                   liabilities.years.every((value) => Number(value) === 0)
                     ? false
-                    : true
+                    : true,
                 )
                 .map((liabilities, idx) => {
                   // const serialNumber = isWorkingCapitalInterestZero ? idx + 5 : idx + 6;
@@ -2061,7 +2062,7 @@ if (isAdvancedLandscape) {
                           >
                             {formatNumber(liabilities.years[yearIndex] || "0")}
                           </Text>
-                        )
+                        ),
                       )}
                     </View>
                   );
@@ -2084,17 +2085,25 @@ if (isAdvancedLandscape) {
                     Preliminary Expenses <br /> written off
                   </Text>
 
-                  {preliminaryWriteOffPerYear.map((value, yearIndex) => (
-                    <Text
-                      key={yearIndex}
-                      style={[
-                        stylesCOP.particularsCellsDetail,
-                        styleExpenses.fontSmall,
-                      ]}
-                    >
-                      {formatNumber(value)}
-                    </Text>
-                  ))}
+                  {Array.from({ length: projectionYears }).map((_, yearIndex) => {
+                    const total = preliminaryWriteOffPerYear[yearIndex] || 0;
+
+                    return (
+                      <Text
+                        key={yearIndex}
+                        style={[
+                          stylesCOP.particularsCellsDetail,
+                          styles.boldText,
+                          {
+                            fontSize: "9px",
+                          },
+                        ]}
+                      >
+                        {formatNumber(total)}{" "}
+                        {/* ✅ Ensure Proper Formatting */}
+                      </Text>
+                    );
+                  })}
                 </View>
               )}
 
@@ -2297,7 +2306,7 @@ if (isAdvancedLandscape) {
                       ]}
                     >
                       {formatNumber(
-                        yearlyInterestLiabilities?.[index] ?? 0 // Prevents undefined access
+                        yearlyInterestLiabilities?.[index] ?? 0, // Prevents undefined access
                       )}
                     </Text>
                   ))}
@@ -2354,7 +2363,7 @@ if (isAdvancedLandscape) {
               {/* Withdrawals */}
               {Array.from({ length: projectionYears }).every(
                 (_, index) =>
-                  !Number(formData.MoreDetails?.Withdrawals?.[index])
+                  !Number(formData.MoreDetails?.Withdrawals?.[index]),
               ) ? null : (
                 <View style={styles.tableRow}>
                   <Text
@@ -2386,7 +2395,7 @@ if (isAdvancedLandscape) {
                       ]}
                     >
                       {formatNumber(
-                        formData.MoreDetails?.Withdrawals?.[index] || "-"
+                        formData.MoreDetails?.Withdrawals?.[index] || "-",
                       )}
                     </Text>
                   ))}
@@ -2492,7 +2501,7 @@ if (isAdvancedLandscape) {
                   (assets) =>
                     assets.particular !== "Inventory" &&
                     !assets.dontSendToBS && // ✅ New: skip if checkbox was ticked
-                    assets.years.some((value) => Number(value) !== 0)
+                    assets.years.some((value) => Number(value) !== 0),
                 )
                 .map((assets, index) => {
                   // const serialNumber = isWorkingCapitalInterestZero ? index + 6 : index + 7;
@@ -2533,7 +2542,7 @@ if (isAdvancedLandscape) {
                             {formatNumber(assets.years[yearIndex] ?? 0)}{" "}
                             {/* Fill missing values with 0 */}
                           </Text>
-                        )
+                        ),
                       )}
                     </View>
                   );
